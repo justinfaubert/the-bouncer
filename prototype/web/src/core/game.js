@@ -91,6 +91,7 @@
       this.checkHistory = [];
       this.barksUsed = [];
       this.wordUsed = [];
+      this.taught = [];       // what THE MANUAL has explained (teach:<what> in barks.yaml)
       this.turn = 0;
       this.screen = null;
       this.ended = false;
@@ -163,6 +164,7 @@
         rng: this.rng.getState(),
         barksUsed: this.barksUsed.slice(),
         wordUsed: this.wordUsed.slice(),
+        taught: this.taught.slice(),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
         screen: this.screen,
@@ -185,6 +187,7 @@
       this.psyche.fromJSON(save.psyche);
       this.barksUsed = (save.barksUsed || []).slice();
       this.wordUsed = (save.wordUsed || []).slice();
+      this.taught = (save.taught || ['check', 'tension', 'word', 'room']).slice();
       this.tasks = save.tasks || {};
       this.checkHistory = (save.checks || []).slice();
       this.turn = save.turn | 0;
@@ -359,6 +362,23 @@
       }
     }
 
+    _barkItem(rule, answer) {
+      return { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, answer: answer || undefined, screen: this.screen };
+    }
+
+    // The first time a part of the game comes up, THE MANUAL explains it, once: a check on offer, the
+    // noise in his head changing, a group's word on him, a choice that changes who's in his head.
+    // Only from the room: if the Manual's been put out, it waits until he's back.
+    _teach(what, items, at) {
+      if (this.taught.indexOf(what) !== -1) return false;
+      const rule = this.barks.pick('teach:' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this.rng);
+      if (!rule) return false;
+      this.taught.push(what);
+      if (rule.once) this.barksUsed.push(rule.id);
+      items.splice(Math.min(at, items.length), 0, this._barkItem(rule));
+      return true;
+    }
+
     // How the person in a portrait looks at him: warm once he stands well with their group, cold
     // once he's in their bad books (characters.yaml, standing).
     _lean(portrait) {
@@ -472,13 +492,23 @@
       if (after.drinks > before.drinks) events.push({ at: items.length, name: 'drink' });
       if (Math.floor(after.clock / 60) > Math.floor(before.clock / 60)) events.push({ at: items.length, name: 'hour' });
       if (after.tension !== before.tension) events.push({ at: items.length, name: after.tension > before.tension ? 'tension_up' : 'tension_down' });
+      // the first time the room in his head changes, and the first time someone's word on him comes
+      // up, THE MANUAL explains (it goes in ahead of the other voices)
+      if (after.tension !== before.tension) this._teach('tension', items, items.length);
+      if (this.taught.indexOf('word') === -1) {
+        for (let i = items.length - 1; i >= 0; i--) {
+          if (items[i].kind !== 'word' || !items[i].text) continue;
+          if (this._teach('word', items, i + 1)) for (const ev of events) if (ev.at > i + 1 && ev.at !== Infinity) ev.at++;
+          break;
+        }
+      }
 
       // Barks: at most one per event, inserted where the event happened (last first, so indexes hold).
       // After each, another voice in the room may answer it.
       const getVar = this.getVar.bind(this);
       const picked = [];
       const usedThisBatch = new Set();
-      const barkItem = (rule, answer) => ({ kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, answer: answer || undefined, screen: this.screen });
+      const barkItem = (rule, answer) => this._barkItem(rule, answer);
       for (const ev of events) {
         const rule = this.barks.pick(ev.name, getVar, this.psyche, this.barksUsed, this.rng);
         if (!rule || usedThisBatch.has(rule.speaker)) continue;
@@ -570,6 +600,9 @@
     _finish(items) {
       this._see();
       this.choices = this._readChoices();
+      const shown = this.choices.filter(function (c) { return !c.hidden; });
+      if (shown.some(function (c) { return c.check; })) this._teach('check', items, items.length);
+      if (shown.some(function (c) { return c.room; })) this._teach('room', items, items.length);
       if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
       for (const it of items) {
         if (it.kind === 'fx' || it.kind === 'pause') continue;

@@ -15,6 +15,36 @@
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
 
+# ---------------------------------------------------------------- teaching
+# The first time each part of the game comes up, THE MANUAL explains it, once. The engine raises
+# these events itself: teach:check (the first check on offer), teach:tension (the first time the
+# noise in his head changes), teach:word (the first time a group's word on him shows), teach:room
+# (the first choice that would let a voice in or put one out).
+
+- id: teach_check
+  on: teach:check
+  speaker: manual
+  always: true
+  text: A choice with a voice's name on it is a check. That voice makes the call, and two dice have to reach the number beside it. The odds are printed. Read them.
+
+- id: teach_tension
+  on: teach:tension
+  speaker: manual
+  always: true
+  text: When the voices are at odds it gets loud in here, and loud makes every roll swing wider, good and bad. The average does not move. See diagram.
+
+- id: teach_word
+  on: teach:word
+  speaker: manual
+  always: true
+  text: Every group on the premises keeps its own opinion of staff, by its own rules. You will not be told what they think. You will hear what they say.
+
+- id: teach_room
+  on: teach:room
+  speaker: manual
+  always: true
+  text: Occupancy in here is limited to five. Some choices let a voice in or put one out. The note under the choice says what it will do to the noise.
+
 # ---------------------------------------------------------------- the door
 
 - id: door_hour_off
