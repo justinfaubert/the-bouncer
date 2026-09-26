@@ -36,7 +36,7 @@ Update this file at the end of every session: add a session entry, move items be
 - The bouncer is a regular-ish big guy, not a hulking steroid type: thoughtful and self-aware enough to catch and engage with the details the game throws at him. Many real bouncers have a violent disposition and aggressive style; he isn't built as that type. (2026-09-26)
 - The bouncer is experienced at door work, but an individual rather than a type. (2026-09-26)
 - His father taught him the door. The father is dead: a former alcoholic turned dry alcoholic. (2026-09-26)
-- The head bartender is a lifer. (2026-09-26)
+- The head bartender is a lifer, and drinks. The sober bartender is a narrative trope; the reality is the opposite. No one makes it out of the life unscathed. (2026-09-26)
 - The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
@@ -64,6 +64,7 @@ Update this file at the end of every session: add a session entry, move items be
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
 - The locked phone as the bouncer's hidden past: "heavy handed and simplistic." Avoid a single object that holds his past. Hutch, 2026-09-26.
 - A wise mentor-trainer ("no Mr. Miyagi"). Hutch, 2026-09-26.
+- The head bartender who stopped drinking: a trope. Hutch, 2026-09-26.
 
 ## Open questions
 

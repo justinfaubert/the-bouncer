@@ -39,6 +39,7 @@ Everything else in this bible serves these words. From the session of 25 Septemb
 ## Writing rules
 
 - **Debauchery as it really is, and no more.** The boredom, the sticky floors, the same songs every night. [DECIDED]
+- **No one makes it out of the life unscathed.** Nobody who works in the bar gets to be the clean exception; the sober-bartender trope is out. [DECIDED 2026-09-26]
 - **Stakes.** The writing has to make it feel like something is at risk. [DECIDED]
 - **Serious in tone.** Humor, yes. Quips, never. Hutch has no patience for quippy, "Marvel-style" game writing. [DECIDED: Hutch's standing taste]
 - **No caricatures.** Hutch's critique of Disco is that it gives some ideologies an inner voice and others a caricature. Here every faction gets its best voice, including the ones the game thinks are wrong, and the game holds their adherents dear as people. In Hutch's words, "separate ideology from the adherent." [PROPOSED, built on Hutch's critique]
