@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Bouncer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Barlow+Condensed:wght@400;500;600&family=Big+Shoulders+Display:wght@300;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600&family=Anton&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@1,400;1,500&family=Archivo+Black&family=Work+Sans:wght@300;400&family=Courier+Prime:wght@400;700&family=Kalam:wght@300;400&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" class="app" data-state="title">
+
+  <header class="topbar" aria-label="Status">
+    <div class="status" data-status="top"></div>
+  </header>
+
+  <aside class="rail" id="rail" aria-label="The room and his head">
+    <div class="rail-top">
+      <div class="rail-grip" aria-hidden="true"></div>
+      <button class="rail-close" type="button" data-act="close-rail">Close</button>
+    </div>
+    <div class="status" data-status="rail"></div>
+
+    <section class="panel-sec" id="sec-floor" aria-labelledby="h-floor">
+      <h2 class="sec-h" id="h-floor">The floor</h2>
+      <div class="map" id="map"></div>
+      <p class="map-hint">Tap a lit spot to go there.</p>
+    </section>
+
+    <section class="panel-sec" id="sec-head" aria-labelledby="h-head">
+      <h2 class="sec-h" id="h-head">In his head</h2>
+      <div class="head" id="head"></div>
+      <div class="voice-info" id="voice-info" hidden></div>
+    </section>
+
+    <section class="panel-sec" id="sec-notes" aria-labelledby="h-notes">
+      <h2 class="sec-h" id="h-notes">His notes</h2>
+      <ul class="notes" id="notes"></ul>
+    </section>
+
+    <footer class="rail-foot">
+      <button type="button" class="linkish" data-act="menu">Menu</button>
+      <span class="build" id="build-id"></span>
+    </footer>
+  </aside>
+
+  <main class="story" id="story" aria-live="polite">
+    <div class="story-inner">
+      <div class="log" id="log"></div>
+      <div class="after" id="after"></div>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="Panels">
+    <button type="button" data-act="rail" data-sec="sec-floor">Floor</button>
+    <button type="button" data-act="rail" data-sec="sec-head">Head</button>
+    <button type="button" data-act="rail" data-sec="sec-notes">Notes</button>
+    <button type="button" data-act="menu">Menu</button>
+  </nav>
+
+  <!-- the title: the sign on the roof, in the rain -->
+  <section class="title" id="title" aria-label="Title">
+    <canvas class="rain" id="rain" aria-hidden="true"></canvas>
+    <div class="title-inner">
+      <div class="sign" role="img" aria-label="The Sovereign Hotel sign. The second E is dead.">
+        <div class="sign-name"><span>S</span><span>O</span><span>V</span><span>E</span><span>R</span><span class="dead">E</span><span>I</span><span>G</span><span>N</span></div>
+        <div class="sign-hotel">HOTEL</div>
+      </div>
+      <h1 class="game-name">The Bouncer</h1>
+      <p class="game-sub">Wednesday. The test shift.</p>
+      <div class="title-menu" id="title-menu"></div>
+      <p class="title-note" id="title-note"></p>
+    </div>
+  </section>
+
+  <!-- dialogs: menu, settings, help, inspector, confirm -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-h"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script src="lib/ink.js"></script>
+<script src="content.js"></script>
+<script src="src/core/util.js"></script>
+<script src="src/core/rng.js"></script>
+<script src="src/core/checks.js"></script>
+<script src="src/core/psyche.js"></script>
+<script src="src/core/barks.js"></script>
+<script src="src/core/game.js"></script>
+<script src="src/ui/store.js"></script>
+<script src="src/ui/audio.js"></script>
+<script src="src/ui/views.js"></script>
+<script src="src/ui/app.js"></script>
+</body>
+</html>

@@ -1,1 +1,245 @@
-[]
+# Barks: short lines the voices say on their own, between the written scenes.
+#
+# The engine offers each event below to every rule with a matching "on", keeps the rules whose
+# criteria all hold, and picks among the most specific. A voice only speaks from the room, and
+# how often anything speaks at all depends on tension (quiet at 0, always at 4). Most rules fire
+# once a night. Full format: prototype/web/src/core/barks.js.
+#
+# Events:  visit:<loc>   he goes somewhere (door, floor, t28, pool, bar, hall, kitchen, keg, deck, lot)
+#          drink         a drink goes in him
+#          hour          the clock passes the hour
+#          tension_up / tension_down
+#          check_pass:<voice> / check_fail:<voice>
+#          anything named by a #bark: tag in the Ink
+#
+# All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
+
+# ---------------------------------------------------------------- the door
+
+- id: door_hour_off
+  on: visit:door
+  speaker: father
+  when: [door_away >= 60]
+  text: An hour off the door. The door doesn't care that you had reasons.
+
+- id: door_uncounted
+  on: visit:door
+  speaker: wrongman
+  when: [uncounted >= 2]
+  text: People in you never saw. In the story it only took one.
+
+- id: door_first_quiet
+  on: visit:door
+  speaker: manual
+  when: [clock >= 1260, count_in <= 1]
+  text: Maintain a visible presence at the point of entry. Visible means sitting up.
+
+# ---------------------------------------------------------------- the pool table
+
+- id: pool_left_hand
+  on: visit:pool
+  speaker: fighter
+  when: [pool_heat >= 5, knows has pool_lefty]
+  text: Left hand. Flat on the rail. It hasn't moved.
+
+- id: pool_his_kid
+  on: visit:pool
+  speaker: father
+  when: [knows has bigman_dad, fam_done == false]
+  text: His kid's twenty feet away and he knows exactly where.
+
+- id: pool_early
+  on: visit:pool
+  speaker: manual
+  when: [pool_heat >= 7, fam_done == false]
+  text: De-escalation is most effective before physical contact. Before is now.
+
+# ---------------------------------------------------------------- table 28
+
+- id: t28_leash
+  on: visit:t28
+  speaker: father
+  when: [drinks >= 2]
+  text: They'll keep them coming. That's how they pay you.
+
+- id: t28_never_cut
+  on: visit:t28
+  speaker: manual
+  when: [t28_rounds >= 7]
+  text: Nobody has ever been refused service at this table. There is no section for that.
+
+- id: t28_walter
+  on: visit:t28
+  speaker: wrongman
+  when: [knows has walter_name, walter == 1]
+  text: In the story it was a dog under the table. Everybody fed it. Same thing.
+
+# ---------------------------------------------------------------- the bar
+
+- id: bar_three
+  on: visit:bar
+  speaker: father
+  when: [drinks >= 3]
+  text: I stopped at three once. Once.
+
+- id: bar_cold
+  on: visit:bar
+  speaker: fighter
+  when: [rep_staff <= -2]
+  text: She's not watching your back now. Nobody behind that bar is.
+
+# ---------------------------------------------------------------- the back
+
+- id: hall_intervals
+  on: visit:hall
+  speaker: manual
+  text: Check washrooms at regular intervals and record the time. You have not been recording the time.
+
+- id: hall_locked
+  on: visit:hall
+  speaker: wrongman
+  when: [fam has kid_found, kid_out == false]
+  text: A locked door with a kid behind it. That's a story nobody wants to finish.
+
+- id: kitchen_propped
+  on: visit:kitchen
+  speaker: manual
+  when: [kitchen_door == true]
+  text: Exterior doors must not be propped open during licensed hours.
+
+- id: kitchen_war
+  on: visit:kitchen
+  speaker: fighter
+  when: [rats == war]
+  text: You started it. Finish it where they live.
+
+- id: deck_coaster
+  on: visit:deck
+  speaker: father
+  when: [deck_door == true]
+  text: That coaster's in the latch for somebody, and it isn't you.
+
+- id: deck_story
+  on: visit:deck
+  speaker: wrongman
+  text: This is where it always starts. Somebody out for a smoke, and the door left open behind them.
+
+- id: keg_head
+  on: visit:keg
+  speaker: fighter
+  text: Low ceiling. Don't stand up fast.
+
+- id: keg_seen
+  on: visit:keg
+  speaker: wrongman
+  when: [knows has knot_seen]
+  text: You've seen it now. You can't go back to not having seen it.
+
+- id: keg_stations
+  on: visit:keg
+  speaker: manual
+  when: [poison == true]
+  text: Inspect bait stations daily. Record uptake.
+
+- id: lot_remember
+  on: visit:lot
+  speaker: father
+  text: The ones who wait in the lot are the ones who remember you.
+
+# ---------------------------------------------------------------- drink
+
+- id: drink_two
+  on: drink
+  speaker: fighter
+  when: [drinks == 2]
+  text: Two's good. Two loosens the shoulders.
+
+- id: drink_log
+  on: drink
+  speaker: manual
+  when: [drinks >= 3]
+  text: Staff shall not consume alcohol while on duty. You will be the one writing the log.
+
+- id: drink_story
+  on: drink
+  speaker: wrongman
+  when: [drinks >= 4]
+  text: The doorman in the story was sober. It didn't help him either.
+
+# ---------------------------------------------------------------- the clock
+
+- id: hour_nine
+  on: hour
+  speaker: father
+  when: [clock >= 1260, clock < 1320]
+  text: Nine. Whoever comes in after nine came to stay.
+
+- id: hour_eleven
+  on: hour
+  speaker: manual
+  when: [clock >= 1380, clock < 1440]
+  text: After eleven, walk the premises at least once an hour.
+
+- id: hour_midnight
+  on: hour
+  speaker: wrongman
+  when: [clock >= 1440, clock < 1500]
+  text: Midnight. In the story it was always after midnight.
+
+- id: hour_one
+  on: hour
+  speaker: father
+  when: [clock >= 1500, clock < 1530]
+  text: Half an hour to last call. Everything you let slide comes back now.
+
+# ---------------------------------------------------------------- the room in his head
+
+- id: tension_up_father
+  on: tension_up
+  speaker: father
+  text: Don't let them all talk at once.
+
+- id: tension_down_manual
+  on: tension_down
+  speaker: manual
+  text: Quieter.
+
+# ---------------------------------------------------------------- after a check
+
+- id: fail_fighter
+  on: check_fail:fighter
+  speaker: fighter
+  text: Slow. You got slow.
+
+- id: fail_father
+  on: check_fail:father
+  speaker: father
+  text: I'd have said less.
+
+- id: pass_manual_father
+  on: check_pass:manual
+  speaker: father
+  text: The book's right more often than I ever let on.
+
+- id: fail_manual
+  on: check_fail:manual
+  speaker: manual
+  text: This was covered on the Saturday. You were at the back.
+
+- id: pass_wrongman_fighter
+  on: check_pass:wrongman
+  speaker: fighter
+  text: A story's no use in a fight. Still. Fair enough.
+
+# ---------------------------------------------------------------- voices he may take home (Friday on)
+
+- id: table_drink
+  on: drink
+  speaker: table
+  when: [drinks >= 1]
+  text: There he is!
+
+- id: kid_door
+  on: visit:door
+  speaker: kid
+  text: they all look at the door before they look at you

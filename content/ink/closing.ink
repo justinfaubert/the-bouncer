@@ -481,7 +481,7 @@ The bartender pushed it along the bar to him with a pen.
     -> log_done
 }
 ~ temp x = LIST_MIN(todo)
-{ inc_text(x) }
+{ inc_text(x) } #class: entry
 + [Write it down the way it happened.]
     ~ logged += x
     { x == inc_drinking || x == inc_hurt:

@@ -12,6 +12,15 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude proposed the systems, the narrator frame, Godot with GDScript, the printed art direction, and the production and legal notes.
 - Hutch asked for the plan to be carried over to a session linked to his machine. These files are that handoff.
 
+### 2026-09-26 (Saturday), Hutch's machine and the project thread
+
+- Hutch answered the Blocking Wednesday questions one or two at a time (the 2026-09-26 entries under DECIDED).
+- Hutch asked to start building day 1: every thread on the night (the count, the big man at the pool table, the rats, table 28) branching into sub-choices with real outcomes, writing prompts left for him to write and rewrite, and the software bones (menus, and room to add art and music on top later).
+- Claude wrote Wednesday in Ink: twelve files in `content/ink/`, about 24,000 words, from the prologue to the dawn ledger. The 34 places that need Hutch's material or voice are listed in `content/WRITING_PROMPTS.md`.
+- Claude built the engine and a browser build around it (`prototype/web/`): title screen, the story page, the floor sketch, the voices in his head, his notes, the menu and settings, the incident log and the ledger, placeholder sound, and a slot for every piece of music, ambience, sound and portrait (`content/data/assets.yaml`).
+- `tools/bots.mjs` played hundreds of nights: every scene reached, every night ends at 3:20 am.
+- Published for Hutch to play as a private claude.ai artifact: https://claude.ai/artifact/J7S3kXF1LcQh3W8Z4u2nfi
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -61,6 +70,17 @@ Update this file at the end of every session: add a session entry, move items be
 - Godot 4 with GDScript; Ink through inkgd and inkjs; rules authored in YAML and compiled to JSON; the folder layout.
 - The printed art direction, a typeface per voice, strangers assembled from parts, and the floor as the bouncer's sketch.
 - The jukebox as the score; Hutch voices the narrator; the cast stays in text; Suno for sketches only.
+
+Proposed with the Wednesday draft (2026-09-26):
+
+- One save slot, written after every choice, so there's no going back to try again. This replaces "saved automatically at dawn" above. A copy can go to the player's Claude account if they turn it on.
+- The room on day 1: THE FATHER, THE FIGHTER, THE MANUAL and THE WRONG MAN seated, one seat empty. THE TABLE and THE KID can be earned on the night.
+- Checks are two dice, moved by how reliable the voice's source is, how much he's had and whether he's hurt. There are no skill levels. The louder the room in his head, the wider the result swings, both ways. Voices also make passing remarks on drinks, the hour and where he goes (`content/rules/barks.yaml`).
+- The head bartender is a woman in the draft.
+- Walter is table 28's rat. Poison is an anticoagulant: if he takes the bait on Wednesday he dies over days, not hours, and it lands on day 3.
+- At close he writes the incident log: the way it happened, so it reads better, or left out. The bartender reads it, and knows what she saw.
+- The day ends on the ledger, printed like the till's Z-report.
+- The browser build is the testbed; the Ink stays engine-free so it can move to Godot.
 
 ### REJECTED
 

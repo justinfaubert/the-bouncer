@@ -46,6 +46,7 @@
 
     _reset() {
       this.log = [];
+      this.path = [];         // every choice made tonight: {t: turn, c: clock, x: text, k: check}
       this.tasks = {};
       this.checkHistory = [];
       this.barksUsed = [];
@@ -123,7 +124,8 @@
         checks: this.checkHistory.slice(-40),
         screen: this.screen,
         ended: this.ended,
-        log: this.log.slice(-SAVE_LOG)
+        log: this.log.slice(-SAVE_LOG),
+        path: this.path.slice()
       };
     }
 
@@ -144,6 +146,7 @@
       this.screen = save.screen || null;
       this.ended = !!save.ended;
       this.log = (save.log || []).slice();
+      this.path = (save.path || []).slice();
       this.choices = this._readChoices();
       return { items: [], choices: this.choices, ended: this.ended };
     }
@@ -210,6 +213,8 @@
       const before = this._watch();
       this.turn++;
       items.push({ kind: 'chosen', text: choice.text, check: choice.check ? { voice: choice.check.voice } : null });
+      const step = { t: this.turn, c: before.clock, x: choice.text };
+      this.path.push(step);
       if (choice.check) {
         const c = choice.check;
         const def = this.voiceDefs[c.voice] || {};
@@ -218,12 +223,15 @@
         const rec = { kind: 'check', voice: c.voice, label: this._label(c.voice), target: c.target, word: B.Checks.difficultyWord(c.target), mods: mods.parts, roll: r, success: r.success, turn: this.turn, clock: before.clock };
         this.checkHistory.push(rec);
         if (this.checkHistory.length > 200) this.checkHistory.shift();
+        step.k = { v: c.voice, n: r.total, of: c.target, ok: r.success };
         this.setVar('passed', r.success);
         this.setVar('crit', r.crit ? (r.crit === 'success' ? 1 : -1) : 0);
         items.push(rec);
-        events.push({ at: items.length, name: (r.success ? 'check_pass:' : 'check_fail:') + c.voice });
+        // after the first line of the outcome, so the voice answers what happened
+        events.push({ at: items.length + 1, name: (r.success ? 'check_pass:' : 'check_fail:') + c.voice });
       }
-      if (choice.loc) events.push({ at: items.length + 1, name: 'visit:' + choice.loc });
+      // once he's there: after the place has been described
+      if (choice.loc) events.push({ at: Infinity, name: 'visit:' + choice.loc });
       this.story.ChooseChoiceIndex(choice.inkIndex);
       this._continue(items, events);
       this._afterBatch(before, items, events);
@@ -264,13 +272,15 @@
           break;
         }
         const tags = (story.currentTags || []).slice();
+        let at = '';
+        try { at = story.state.currentPathString || ''; } catch (e) { at = ''; }
         // effects raised by external functions during this Continue
         while (this._pending.length) items.push(this._pending.shift());
-        this._line(text, tags, items, events);
+        this._line(text, tags, items, events, at);
       }
     }
 
-    _line(rawText, tags, items, events) {
+    _line(rawText, tags, items, events, at) {
       const parsed = tags.map(B.util.parseTag);
       const tagv = {};
       for (const t of parsed) tagv[t.key] = t.value;
@@ -327,6 +337,7 @@
             }
           }
         }
+        if (at) item.knot = String(at).split('.')[0];
         if (tagv.prompt) item.prompt = String(tagv.prompt);
         if (tagv['class']) item.cls = String(tagv['class']);
         if (!item.suppressed) items.push(item);
