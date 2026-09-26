@@ -1,0 +1,79 @@
+# Art and sound slots.
+#
+# Every cue the Ink can fire (#music, #amb, #sfx, #portrait) is a slot here. The game uses the
+# file if it exists and a placeholder until it does: a synthesized sound, a lettered card, or
+# silence. Adding Hutch's music or a portrait means dropping the file at the path given and
+# running `node tools/build.mjs`. Nothing in the Ink changes.
+#
+# Paths are relative to the project root (the-bouncer/). Use .ogg or .mp3 for audio,
+# .png, .jpg or .webp for art.
+#
+#   file    where the finished asset goes
+#   synth   the placeholder sound (see prototype/web/src/ui/audio.js for the recipes)
+#   note    what the slot is for, for whoever makes it
+#   loop    ambience and music loop by default; sfx don't
+
+music:
+  jukebox_early:
+    file: audio/music/jukebox_early.ogg
+    note: Early Wednesday. Something slow that people talk over. It's the jukebox, so it's in the room, not a score.
+  jukebox_late:
+    file: audio/music/jukebox_late.ogg
+    note: After eleven. Someone at table 28 has put the same song on three times.
+  after_hours:
+    file: audio/music/after_hours.ogg
+    note: Lights up, chairs on tables. The bartender puts one song on for the count.
+  keg_room:
+    file: audio/music/keg_room.ogg
+    note: Under the floor. Not music, or barely.
+
+ambience:
+  rain_lot:
+    file: audio/amb/rain_lot.ogg
+    synth: rain
+    note: Rain on gravel and on the truck roofs, the highway behind it.
+  room_quiet:
+    file: audio/amb/room_quiet.ogg
+    synth: room
+    note: A slow Wednesday. Cooler hum, ice machine, the TV low, a few voices.
+  room_busy:
+    file: audio/amb/room_busy.ogg
+    synth: room_busy
+    note: Later. Table 28 loud, pool balls, the jukebox under it.
+  deck:
+    file: audio/amb/deck.ogg
+    synth: rain_open
+    note: The smoking deck. Rain on the awning, the water across the highway.
+  keg_room:
+    file: audio/amb/keg_room.ogg
+    synth: drip
+    note: Stone foundation, water dripping, the compressor. Something moving in the wall.
+  empty_bar:
+    file: audio/amb/empty_bar.ogg
+    synth: room_empty
+    note: After close. Just the coolers.
+
+sfx:
+  clicker: { synth: click, note: The door counter. }
+  scanner_ok: { synth: beep_ok, note: ID scanner, good read. }
+  scanner_bad: { synth: beep_bad, note: ID scanner, can't read it. }
+  bell: { synth: bell, note: Last call. }
+  door: { synth: thump, note: The main door swinging shut. }
+  glass: { synth: glass, note: A glass set down hard. }
+  scratch: { synth: scratch, note: Rats in the wall. }
+  phone: { synth: ring, note: The bar phone. }
+  hit: { synth: thud, note: A body hitting something. }
+  balls: { synth: clack, note: Pool balls breaking. }
+  till: { synth: till, note: The till drawer. }
+
+portraits:
+  bartender: { file: art/portraits/bartender.png }
+  table28: { file: art/portraits/table28.png }
+  cook: { file: art/portraits/cook.png }
+  hoodie: { file: art/portraits/hoodie.png }
+  driver: { file: art/portraits/driver.png }
+  vape: { file: art/portraits/vape.png }
+  bigman: { file: art/portraits/bigman.png }
+  hivis: { file: art/portraits/hivis.png }
+  goodshoes: { file: art/portraits/goodshoes.png }
+  endbar: { file: art/portraits/endbar.png }

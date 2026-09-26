@@ -1,0 +1,78 @@
+# The voices in his head.
+#
+# Voices come from people, books, pamphlets, and memories retold by patrons (DECIDED).
+# Five fit in the room at once; letting a voice in when the room is full means bouncing one
+# out (PROPOSED). Every pair of voices is allied (+1) or at odds (-1), and the room's tension
+# comes only from those relationships (PROPOSED; bible/02_SYSTEMS.md).
+#
+#   label      how the voice is named on screen
+#   source     firsthand | text | retold | song
+#   from       where he got it (shown in the room panel)
+#   base       bonus to the checks this voice lends: how reliable its source is
+#   drink      check modifier by drinks in him tonight: [none, 1, 2, 3, 4 or more]
+#   physical   injuries count against its checks
+#   relations  allied (1) or at odds (-1) with other voices; a pair listed on neither side is allied
+#   start      in the room when the game begins
+#   style      the typeface and colour it speaks in (see prototype/web/style.css, .v-<style>)
+#
+# The four starting voices are Claude's drafts except THE FATHER, which is Hutch's (DECIDED:
+# his father taught him the door; dead; a former alcoholic turned dry alcoholic).
+
+father:
+  label: THE FATHER
+  source: firsthand
+  from: Your father. He worked doors for thirty years and drank for twenty of them, then stopped drinking and kept everything else. He taught you the job. He's dead.
+  base: 1
+  drink: [0, -1, -1, -2, -3]
+  relations: { fighter: -1, manual: 1, wrongman: 1, table: -1, kid: -1 }
+  start: true
+  style: father
+
+fighter:
+  label: THE FIGHTER
+  source: firsthand
+  from: A man you trained with for years. He said the first one decides it, and he was usually right.
+  base: 1
+  drink: [0, 1, 1, 0, -1]
+  physical: true
+  relations: { manual: -1, wrongman: -1, table: 1, kid: -1 }
+  start: true
+  style: fighter
+
+manual:
+  label: THE MANUAL
+  source: text
+  from: The security licence course. A binder and a weekend in a hotel conference room.
+  base: 2
+  drink: [0, 0, -1, -2, -3]
+  relations: { wrongman: -1, table: -1, kid: -1 }
+  start: true
+  style: manual
+
+wrongman:
+  label: THE WRONG MAN
+  source: retold
+  from: A story a drunk told you once at your old door, about a doorman who let the wrong man in. He said it happened to his brother. He'd heard it from somebody else.
+  base: 0
+  drink: [0, 1, 1, 2, 1]
+  relations: { table: 1, kid: -1 }
+  start: true
+  style: wrongman
+
+table:
+  label: THE TABLE
+  source: firsthand
+  from: Table 28. You drank with them long enough that they started talking in your head the way they talk at the table, all at once and sure of everything.
+  base: 0
+  drink: [-1, 0, 1, 2, 2]
+  relations: {}
+  style: table
+
+kid:
+  label: THE KID
+  source: firsthand
+  from: The kid in the hoodie. He talked to you for ten minutes in the single washroom, which was more than he'd said to anyone all year.
+  base: 0
+  drink: [0, 0, -1, -1, -2]
+  relations: {}
+  style: kid

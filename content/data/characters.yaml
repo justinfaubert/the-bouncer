@@ -1,0 +1,86 @@
+# People in the Sov on Wednesday.
+#
+# A doorman tags people by what he sees until he knows their names: HOODIE, HI-VIS, GOOD SHOES.
+# So speakers are labelled by those door tags on day 1. When he learns a name, the Ink can
+# switch to a second id (not needed yet).
+#
+#   label     how the speaker is named on screen
+#   portrait  art slot in assets.yaml (a lettered card until there's art)
+#   note      for writers; not shown in the game
+#
+# Everyone here is a draft except where noted. Table 28, the kids, the regulars and the lifer
+# bartender are Hutch's (DECIDED); the individual people are Claude's placeholders, to be
+# replaced with composites from Hutch's experience.
+
+bartender:
+  label: THE BARTENDER
+  portrait: bartender
+  note: The lifer (DECIDED). Draft - a woman in her fifties, at the Sov since she was a server at nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week.
+
+table28:
+  label: TABLE 28
+  portrait: table28
+  note: The hive (DECIDED). Five high-functioning boomer alcoholics, every day but Sunday. One voice most of the time.
+team_jacket:
+  label: TEAM JACKET
+  note: Table 28. Same jacket every day. The loudest; talks for the table when the table isn't talking as one.
+hearing_aid:
+  label: HEARING AID
+  note: Table 28. Repeats the last word anyone says. Turns the aid down when he disagrees.
+scratch:
+  label: SCRATCH
+  note: Table 28. Lottery tickets all afternoon. Feeds the rat.
+cardigan:
+  label: CARDIGAN
+  note: Table 28. The quiet one. Retired from something with a pension.
+glasses:
+  label: GLASSES
+  note: Table 28. Dennis. His wife comes looking for him.
+
+cook:
+  label: THE COOK
+  portrait: cook
+  note: Props the kitchen door because the fryer runs hot. Wants the rats dead because the inspector costs him shifts.
+
+hoodie:
+  label: HOODIE
+  portrait: hoodie
+  note: One of the kids (DECIDED group). Nineteen, earbuds, a photo of his ID on his phone. His father is the big man at the pool table (draft).
+driver:
+  label: THE DRIVER
+  portrait: driver
+  note: His sister, twenty-two, sober, the one with the keys. Came to tell their father something (draft).
+vape:
+  label: VAPE
+  portrait: vape
+  note: The sister's boyfriend. Twenty. Drunk before he got here. The unpredictable one.
+
+bigman:
+  label: THE BIG MAN
+  portrait: bigman
+  note: At the pool table since before the shift. Playing his buddy for money and letting him win. Left-handed. The kids' father (draft).
+buddy:
+  label: THE BUDDY
+  note: Plays pool with the big man. Small, quick, nervous.
+
+hivis:
+  label: HI-VIS
+  portrait: hivis
+  note: From the work crew renting rooms upstairs on a mill contract. Four beers in, tired.
+goodshoes:
+  label: GOOD SHOES
+  portrait: goodshoes
+  note: In the 86 binder. Polite, sober, well dressed. Says the owner lifted his ban.
+raincoat:
+  label: RAINCOAT
+  note: Glasses' wife, looking for him after midnight.
+endbar:
+  label: END OF THE BAR
+  portrait: endbar
+  note: The man who seems to speak for the rats (DECIDED that such a man exists). Nobody saw him come in. Been coming in longer than the bartender.
+owner:
+  label: THE OWNER
+  note: On the phone. Runs on the money code.
+slippers:
+  label: SLIPPERS
+  note: A resident from upstairs who comes down in her slippers.
