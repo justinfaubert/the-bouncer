@@ -36,9 +36,11 @@ Update this file at the end of every session: add a session entry, move items be
 - The bouncer is a regular-ish big guy, not a hulking steroid type: thoughtful and self-aware enough to catch and engage with the details the game throws at him. Many real bouncers have a violent disposition and aggressive style; he isn't built as that type. (2026-09-26)
 - The bouncer is experienced at door work, but an individual rather than a type. (2026-09-26)
 - His father taught him the door. The father is dead: a former alcoholic turned dry alcoholic. (2026-09-26)
+- The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
 
+- Immersion as learning: drinking with a group is how he earns their voices and reads them; the cost lands on the body, judgment and the next shift. The father's voice opposes it.
 - The hotel draft in `06_THE_HOTEL.md`: the Sovereign Hotel ("the Sov"), the four doors, table 28's window, the rats in the wall behind it, the bouncer's room as leverage.
 
 - The relational psyche: five voices in the room, signed relationships, tension 0 to 4, and the 34 states as the Thought Cabinet deck.

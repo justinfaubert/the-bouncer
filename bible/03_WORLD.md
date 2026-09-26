@@ -78,6 +78,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 - A regular-ish big guy, not a hulking steroid type. Thoughtful and self-aware enough to catch and engage with the details the game throws at him. [DECIDED]
 - Experienced at door work, but an individual, not a type. His past comes back through people and his body, never through a single object. [DECIDED]
 - His father taught him the door. No wise mentor figure. The father is dead: a former alcoholic turned dry alcoholic. [DECIDED]
+- He drinks, and must immerse himself in the culture and the excess to understand what he's doing. [DECIDED]
 - Name, age, history, how he got the job. [OPEN]
 
 ### Table 28 [DECIDED, from Hutch's experience]
