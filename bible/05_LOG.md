@@ -32,8 +32,11 @@ Update this file at the end of every session: add a session entry, move items be
 - Setting (2026-09-26): unique and invented, reflecting modernity (today's technology) without veering into near-future cyberpunk. Rejects the historical routes.
 - Place (2026-09-26): a town on the east coast of an island like Vancouver Island, modelled on Hutch's own town but generalized, taking features from the general coastal BC feeling.
 - "The following Friday" is day 3. (2026-09-26)
+- The bar is in a coastal hotel, which makes for recurring characters. It smells of beer, cleaner, piss, old wood and dust; carpeted floor, cheap stools, sturdy tables; four doors, the main one used, the others locked at night as a loose rule. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
+
+- The hotel draft in `06_THE_HOTEL.md`: the Sovereign Hotel ("the Sov"), the four doors, table 28's window, the rats in the wall behind it, the bouncer's room as leverage.
 
 - The relational psyche: five voices in the room, signed relationships, tension 0 to 4, and the 34 states as the Thought Cabinet deck.
 - Voices that carry their source and fidelity; the old voices can't read the young.
@@ -59,7 +62,7 @@ Update this file at the end of every session: add a session entry, move items be
 ### Blocking Wednesday
 
 1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
-2. **The bar.** Its name and a rough layout: the door, the floor, the bar, the bathrooms, table 28's spot, where the rats live.
+2. **The bar.** Drafted in `06_THE_HOTEL.md`; waiting on Hutch's cuts and the name.
 3. **The bouncer's first-day facts.** How he got the job, what he remembers, what people call him.
 4. **The voices on day 1.** Who are the first five in the room?
 5. **The head bartender.** Who are they?

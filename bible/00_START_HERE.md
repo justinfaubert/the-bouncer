@@ -18,6 +18,7 @@ Made by **Hutch** (showrunner with final cut, music, sound, voice) and **Claude*
 | `bible/02_SYSTEMS.md` | The loop, voices, the psyche math, reputation, haunting, money, world state |
 | `bible/03_WORLD.md` | Setting options, the bar, the calendar, day one and the rats, the narrator, the cast |
 | `bible/04_PRODUCTION.md` | Engine, content pipeline, folder layout, tools, art, sound, legal, milestones |
+| `bible/06_THE_HOTEL.md` | The building: the four doors, the pub, the rats' routes, the rooms upstairs |
 | `bible/05_LOG.md` | Session log, decisions register, open questions |
 | `tools/psyche_census.py` | Generates the 34 psyche states and checks the math (zip only) |
 | `data/psyche_states.json` | Its output (zip only) |
