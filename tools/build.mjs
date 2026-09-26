@@ -7,6 +7,10 @@
 //   node tools/build.mjs --dist   also assemble prototype/web/dist/, a self-contained copy
 //                                 for publishing (index.html for local use, artifact.html
 //                                 for the claude.ai Artifact)
+//   node tools/build.mjs --offline
+//                                 also write releases/The-Bouncer-<build>.html: the whole game
+//                                 in one file (fonts, art and sound inlined) that plays from a
+//                                 hard drive with a double-click, no server and no network
 //
 // No npm install needed: the Ink compiler and the YAML parser are vendored in tools/vendor/.
 
@@ -250,6 +254,15 @@ if (args.has('--dist')) {
   const html = fs.readFileSync(path.join(WEB, 'index.html'), 'utf8');
   // Every <script src> and <link rel=stylesheet href> that points at a local file is copied.
   const localRefs = [...html.matchAll(/(?:src|href)="(?!https?:|data:)([^"]+)"/g)].map((m) => m[1]);
+  // and whatever those stylesheets load (the bundled fonts)
+  for (const ref of localRefs.slice()) {
+    if (!ref.endsWith('.css')) continue;
+    const css = fs.readFileSync(path.join(WEB, ref), 'utf8');
+    for (const m of css.matchAll(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g)) {
+      const sub = path.posix.join(path.posix.dirname(ref), m[1]);
+      if (!localRefs.includes(sub)) localRefs.push(sub);
+    }
+  }
   for (const ref of localRefs) {
     const from = path.join(WEB, ref);
     if (!fs.existsSync(from)) { console.log('dist: missing ' + ref); continue; }
@@ -275,4 +288,38 @@ if (args.has('--dist')) {
   fs.writeFileSync(path.join(DIST, 'artifact.html'), head.trim() + '\n' + body.trim() + '\n');
   fs.writeFileSync(path.join(DIST, 'files.json'), JSON.stringify(localRefs, null, 1));
   console.log(`dist: ${localRefs.length} files in ${rel(DIST)}`);
+}
+
+// ---------------------------------------------------------------- offline: one file
+
+if (args.has('--offline')) {
+  const WEB = P('prototype', 'web');
+  const html = fs.readFileSync(path.join(WEB, 'index.html'), 'utf8');
+  const MIME = { '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
+  const dataUri = (file) => 'data:' + (MIME[path.extname(file).toLowerCase()] || 'application/octet-stream') + ';base64,' + fs.readFileSync(file).toString('base64');
+  // Assets the Ink uses, inlined, so the file carries its own art and sound.
+  const offAssets = JSON.parse(JSON.stringify(assets));
+  for (const group of ['sfx', 'music', 'ambience', 'portraits']) {
+    for (const slot of Object.values(offAssets[group] || {})) {
+      if (slot && slot.file && slot.present) slot.file = dataUri(P(slot.file));
+    }
+  }
+  const offContent = contentJs({ ...content, assets: offAssets, meta: { ...content.meta, assetBase: '', offline: true } });
+  const inlineCss = (ref) => {
+    const file = path.join(WEB, ref);
+    return fs.readFileSync(file, 'utf8').replace(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g,
+      (all, u) => 'url(' + dataUri(path.join(path.dirname(file), u)) + ')');
+  };
+  const safeJs = (js) => js.replace(/<\/script/gi, '<\\/script');
+  let out = html
+    .replace(/<link rel="stylesheet" href="(?!https?:)([^"]+)">/g, (all, ref) => '<style>\n' + inlineCss(ref) + '\n</style>')
+    .replace(/<script src="(?!https?:)([^"]+)"><\/script>/g, (all, ref) =>
+      '<script>\n' + safeJs(ref === 'content.js' ? offContent : fs.readFileSync(path.join(WEB, ref), 'utf8')) + '\n</script>');
+  if (/<(?:script|link)[^>]+(?:src|href)="(?!https?:|data:)/.test(out)) err('offline: a local file was left un-inlined');
+  const REL = P('releases');
+  fs.mkdirSync(REL, { recursive: true });
+  const name = 'The-Bouncer-' + build + '.html';
+  fs.writeFileSync(path.join(REL, name), out);
+  fs.copyFileSync(path.join(REL, name), path.join(REL, 'The-Bouncer.html'));
+  console.log(`offline: releases/${name} (${(out.length / 1024 / 1024).toFixed(2)} MB), also releases/The-Bouncer.html`);
 }
