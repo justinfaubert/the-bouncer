@@ -11,11 +11,11 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/door.ink
 
-3. **door_hoodie** (`content/ink/door.ink:58`): How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
-4. **ev_sister** (`content/ink/door.ink:224`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-5. **ev_sister** (`content/ink/door.ink:239`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-6. **door_banned** (`content/ink/door.ink:504`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-7. **door_wife** (`content/ink/door.ink:636`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+3. **door_hoodie** (`content/ink/door.ink:56`): How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
+4. **ev_sister** (`content/ink/door.ink:222`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+5. **ev_sister** (`content/ink/door.ink:237`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+6. **door_banned** (`content/ink/door.ink:502`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+7. **door_wife** (`content/ink/door.ink:634`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 
@@ -26,31 +26,31 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/bar.ink
 
-12. **at_bar** (`content/ink/bar.ink:48`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't.
-13. **at_bar** (`content/ink/bar.ink:70`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
-14. **at_bar** (`content/ink/bar.ink:105`): The lifer's history with table 28. She knew them when they were young. What were they like?
-15. **at_bar** (`content/ink/bar.ink:112`): Her name. Or keep it back until he's earned it.
-16. **at_bar** (`content/ink/bar.ink:147`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
-17. **ev_card** (`content/ink/bar.ink:178`): The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?
-18. **ev_owner** (`content/ink/bar.ink:210`): The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?
+12. **at_bar** (`content/ink/bar.ink:46`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't.
+13. **at_bar** (`content/ink/bar.ink:68`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
+14. **at_bar** (`content/ink/bar.ink:103`): The lifer's history with table 28. She knew them when they were young. What were they like?
+15. **at_bar** (`content/ink/bar.ink:110`): Her name. Or keep it back until he's earned it.
+16. **at_bar** (`content/ink/bar.ink:145`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
+17. **ev_card** (`content/ink/bar.ink:176`): The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?
+18. **ev_owner** (`content/ink/bar.ink:208`): The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?
 
 ## content/ink/rats.ink
 
 19. **at_kitchen** (`content/ink/rats.ink:32`): The cook. What's a pub kitchen like on a Wednesday where you've worked? The menu, the heat, what the cook complains about, what he says to a new doorman standing in his kitchen.
-20. **at_kitchen** (`content/ink/rats.ink:74`): How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
-21. **at_keg** (`content/ink/rats.ink:256`): A real keg room under an old bar. What's down there that customers never see?
+20. **at_kitchen** (`content/ink/rats.ink:72`): How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
+21. **at_keg** (`content/ink/rats.ink:252`): A real keg room under an old bar. What's down there that customers never see?
 
 ## content/ink/hall.ink
 
-22. **at_hall** (`content/ink/hall.ink:147`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
-23. **at_hall** (`content/ink/hall.ink:244`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
-24. **at_hall** (`content/ink/hall.ink:402`): What's written on the wall around a dead payphone in a bar like yours?
+22. **at_hall** (`content/ink/hall.ink:145`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
+23. **at_hall** (`content/ink/hall.ink:242`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
+24. **at_hall** (`content/ink/hall.ink:400`): What's written on the wall around a dead payphone in a bar like yours?
 
 ## content/ink/deck.ink
 
 25. **at_deck** (`content/ink/deck.ink:20`): The smoking deck. What happens out there that doesn't happen inside?
-26. **at_deck** (`content/ink/deck.ink:82`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
-27. **ev_deck_kids** (`content/ink/deck.ink:162`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
+26. **at_deck** (`content/ink/deck.ink:80`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
+27. **ev_deck_kids** (`content/ink/deck.ink:160`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
 
 ## content/ink/closing.ink
 

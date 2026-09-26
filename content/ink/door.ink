@@ -36,12 +36,10 @@
     The pickup that had brought the kid was still out there at the edge of the lot, engine running, wipers on intermittent.
     ~ knows += truck
 }
+<- moves(door)
 + [Stay on the door.]
     ~ pass(15)
     -> door_quiet
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 
 // ------------------------------------------------------------------ 7:50 HOODIE

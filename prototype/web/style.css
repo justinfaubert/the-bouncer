@@ -615,6 +615,22 @@ button { font: inherit; color: inherit; }
 .choice:focus-visible { outline: none; background: var(--paper-3); border-left-color: var(--accent); }
 .choice[disabled] { opacity: .5; cursor: default; }
 
+/* the ways out of a place: a row of places under what there is to do */
+.ways { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 1.1em 0 0; padding: .9em 0 0 .4em; border-top: 1px solid var(--rule); }
+.choices:not(.ways) + .ways { margin-top: .9em; }
+.ways-k { margin-right: .4em; font-family: var(--f-ui); font-size: .76rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.choice.way {
+  display: inline-flex; align-items: baseline; gap: .45em; width: auto;
+  padding: .32em .7em .3em; border: 1px solid var(--rule-strong); border-radius: 2px;
+  font-family: var(--f-ui); font-size: .86rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; line-height: 1.2;
+  color: var(--ink-2);
+}
+.choice.way .n { font-size: .74rem; padding: 0; color: var(--muted); }
+.choice.way:hover, .choice.way:focus-visible { background: var(--paper-3); border-color: var(--ink-2); color: var(--ink); }
+.choice.way.hot { border-color: var(--accent); color: var(--accent); }
+.choice.way.hot .n { color: var(--accent); }
+@media (pointer: coarse) { .ways { gap: 8px; } .choice.way { min-height: 40px; align-items: center; padding: .4em .8em; } }
+
 .end-card {
   margin: 2.4em 0 0;
   padding: 1.2em 0 0;

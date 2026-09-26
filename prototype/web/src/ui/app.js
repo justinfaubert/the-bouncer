@@ -714,17 +714,26 @@
     box.innerHTML = '';
     if (ended) { box.append(endCard()); return; }
     const list = choices.filter(function (c) { return !c.hidden; });
+    // The ways out of a place (#class: move) go under what there is to do there, as a row of
+    // places; the keys number them on from the list. In director mode everything is a line.
+    const idx = list.map(function (c, i) { return i; });
+    const asWays = !app.dir.on;
+    const main = idx.filter(function (i) { return !asWays || list[i].cls !== 'move'; });
+    const ways = asWays ? idx.filter(function (i) { return list[i].cls === 'move'; }) : [];
+    let k = 0;
     const ol = document.createElement('ol');
     ol.className = 'choices';
-    list.forEach(function (c, i) {
+    main.forEach(function (i) {
+      const c = list[i];
       const li = document.createElement('li');
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'choice';
       b.setAttribute('data-i', String(i));
+      b.setAttribute('data-k', String(++k));
       const n = document.createElement('span');
       n.className = 'n';
-      n.textContent = (i + 1) + '.';
+      n.textContent = k + '.';
       const body = document.createElement('span');
       if (c.check) {
         b.classList.add('v-' + voiceStyle(c.check.voice));
@@ -745,7 +754,31 @@
       if (app.dir.on) app.dir.choiceTools(li, c);
       ol.append(li);
     });
-    box.append(ol);
+    if (main.length) box.append(ol);
+    if (ways.length) {
+      const nav = document.createElement('div');
+      nav.className = 'choices ways';
+      nav.setAttribute('role', 'group');
+      nav.setAttribute('aria-label', 'Go somewhere else');
+      const lab = document.createElement('span');
+      lab.className = 'ways-k';
+      lab.textContent = main.length ? 'Or go' : 'Go';
+      nav.append(lab);
+      ways.forEach(function (i) {
+        const c = list[i];
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'choice way';
+        b.setAttribute('data-i', String(i));
+        b.setAttribute('data-k', String(++k));
+        if (c.loc) b.setAttribute('data-loc', c.loc);
+        if (/^Back on the door/.test(c.text)) b.classList.add('hot');
+        b.innerHTML = (k <= 9 ? '<span class="n">' + k + '</span>' : '') + esc(app.dir.choiceText(c));
+        b.addEventListener('click', function () { choose(i); });
+        nav.append(b);
+      });
+      box.append(nav);
+    }
   }
 
   // A choice that lets a voice into his head or puts one out (#room in the Ink) says first how loud
@@ -1337,8 +1370,7 @@
       if (e.key === 'd' || e.key === 'D') { e.preventDefault(); setDirector(!app.dir.on); return; }
       if ((e.key === 'b' || e.key === 'B') && app.dir.on) { e.preventDefault(); stepBack(); return; }
       if (/^[1-9]$/.test(e.key)) {
-        const i = parseInt(e.key, 10) - 1;
-        const b = document.querySelector('.choices .choice[data-i="' + i + '"]');
+        const b = document.querySelector('.choices .choice[data-k="' + e.key + '"]');
         if (b) { e.preventDefault(); b.click(); }
       }
     });

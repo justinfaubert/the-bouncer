@@ -27,6 +27,7 @@
 
 = opts
 { due(): -> hub }
+<- moves(pool)
 + [Watch them play.]
     -> watch
 * {knows ? kid_why && not fam_done} [Tell the big man about the hospital.]
@@ -39,9 +40,6 @@
     -> play
 + {kids_in > 0 && fam ? hoodie_admitted && fam !? kid_opened && fam !? kid_found && at_pool.kid_jukebox == 0} [The kid by the jukebox.]
     -> kid_jukebox
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 = watch
 ~ pass(10)
@@ -287,8 +285,8 @@ The pool table was empty. Somebody had racked the balls and nobody was playing. 
 { fam ? dad_ejected:
     There was chalk on the carpet, and a smear on the cloth nobody had cleaned up.
 }
-+ [Back to the floor.]
-    -> hub
+<- moves(pool)
+-> DONE
 
 
 // ------------------------------------------------------------------ when it goes

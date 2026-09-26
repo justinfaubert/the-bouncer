@@ -35,6 +35,7 @@
 
 = h_opts
 { due(): -> hub }
+<- moves(hall)
 + [Check the men's.]
     -> mens
 + [Knock on the women's.]
@@ -53,9 +54,6 @@
     He kicked the wedge out. The door eased shut on its closer and latched. On the other side the TV at the front desk went on talking to itself.
     WRONGMAN: The night clerk will wedge it again the minute you're gone. That's every door.
     -> h_opts
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 
 // ------------------------------------------------------------------ the men's

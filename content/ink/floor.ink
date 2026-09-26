@@ -40,6 +40,49 @@
     ~ pass(2)
     -> at_lot
 
+// ------------------------------------------------------------------ straight on
+
+// The ways out of a place, straight to the next one, instead of back to the floor to choose again.
+// Each costs what going by the floor did: the step back onto it and the walk over (and the stairs,
+// up from the keg room). The page shows them under what there is to do in a place, as the ways
+// out (#class: move). Whatever's waiting on the floor still gets its turn first.
+=== moves(from) ===
++ [The floor #loc: floor #class: move]
+    ~ pass(1 + stairs(from))
+    -> hub
++ {from != door} [{door_away >= 30:Back on the door|The door} #loc: door #class: move]
+    -> walk(from, -> at_door, 2)
++ [Count the room #class: move]
+    -> walk(from, -> count_room, 1)
++ {from != t28} [Table 28 #loc: t28 #class: move]
+    -> walk(from, -> at_t28, 2)
++ {from != pool} [The pool table #loc: pool #class: move]
+    -> walk(from, -> at_pool, 2)
++ {from != bar} [The bar #loc: bar #class: move]
+    -> walk(from, -> at_bar, 2)
++ {from != hall} [The back hall #loc: hall #class: move]
+    -> walk(from, -> at_hall, 2)
++ {from != kitchen} [The kitchen #loc: kitchen #class: move]
+    -> walk(from, -> at_kitchen, 2)
++ {from != keg && (knows ? keg_hole || parley > 0 || knows ? endbar_seen)} [The keg room #loc: keg #class: move]
+    -> walk(from, -> at_keg, 3)
++ {from != deck} [The deck #loc: deck #class: move]
+    -> walk(from, -> at_deck, 2)
++ {fam ? kids_waiting && not fam_done} [The pickup in the lot #loc: lot #class: move]
+    -> walk(from, -> at_lot, 3)
+- -> DONE
+
+=== walk(from, -> to, m) ===
+~ pass(m + stairs(from))
+{ due(): -> hub }
+-> to
+
+=== function stairs(from)
+{ from == keg:
+    ~ return 1
+}
+~ return 0
+
 // When something is about to happen on the floor, say he's back on it first.
 === function back_line(from)
 { from:

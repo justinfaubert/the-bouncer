@@ -44,6 +44,7 @@
 = k_opts
 { due(): -> hub }
 { not cook_here(): -> dark }
+<- moves(kitchen)
 * ["The owner wants the rats dealt with."]
     -> cook_rats
 * [Look behind the walk-in. #check: manual 7]
@@ -60,9 +61,6 @@
     ~ pass(2)
     -> kitchen_door_shut ->
     -> k_opts
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 = cook_rats
 ~ pass(4)
@@ -222,6 +220,7 @@ The lid had been propped open with a brick. He took the brick out.
 }
 - (d_opts)
 { due(): -> hub }
+<- moves(kitchen)
 + {kitchen_door} [Take the milk crate out and lock the back door.]
     ~ pass(1)
     ~ kitchen_door = false
@@ -236,9 +235,6 @@ The lid had been propped open with a brick. He took the brick out.
     ~ fries = 1
     The fries were cold. They'd do.
     -> d_opts
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 
 // ------------------------------------------------------------------ the keg room
@@ -268,6 +264,7 @@ The lid had been propped open with a brick. He took the brick out.
 
 = kg_opts
 { due(): -> called_up }
+<- moves(keg)
 * [Look around with the flashlight.]
     -> look
 * {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 8]
@@ -280,9 +277,6 @@ The lid had been propped open with a brick. He took the brick out.
     -> check_traps
 * {clock >= 1320} [Change the lager. It's been spitting foam since ten.]
     -> change_keg
-+ [Go back up.]
-    ~ pass(2)
-    -> hub
 
 = called_up
 Somebody was stamping on the trapdoor over his head. The bartender.

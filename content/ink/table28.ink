@@ -297,6 +297,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     They went on talking as if he wasn't there, which at table 28 was the same as a shout.
 }
 - (t_opts)
+<- moves(t28)
 + [Sit down with them.]
     { at_t28.sit == 0:
         -> sit
@@ -326,9 +327,6 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     ~ pass(2)
     TABLE28: {shuffle:Never better!|Thirsty!|Cheated by the referees!}
     -> again_loop
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 = again_loop
 { due(): -> hub }

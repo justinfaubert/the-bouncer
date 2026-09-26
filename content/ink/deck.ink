@@ -32,6 +32,7 @@
 
 = d_opts
 { due(): -> hub }
+<- moves(deck)
 { cardigan_on_deck():
     The quiet one from table 28, the one in the cardigan, was at the rail with his back to the building, smoking alone.
 }
@@ -48,9 +49,6 @@
     ~ rep(rep_t28, -1)
     FATHER: Now they come past you or they don't come.
     -> d_opts
-+ [Back inside.]
-    ~ pass(1)
-    -> hub
 
 = prints
 He looked down. On the boards by the steps, and then on the carpet inside the door, going away from it, were wet prints. Sneakers, three pairs, from the deck steps to the door and in.

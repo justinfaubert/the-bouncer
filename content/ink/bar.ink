@@ -21,6 +21,7 @@
 
 = opts
 { due(): -> hub }
+<- moves(bar)
 * {knows !? eighty_six || knows !? banned_face} [Read the binder under the till.]
     -> binder
 * ["Anything I should know about this place?"]
@@ -37,9 +38,6 @@
     -> shift_drink
 + {knows ? endbar_seen && at_bar.endbar < 3} [Go and stand by the old man at the end of the bar.]
     -> endbar
-+ [Back to the floor.]
-    ~ pass(1)
-    -> hub
 
 = binder
 ~ pass(5)
