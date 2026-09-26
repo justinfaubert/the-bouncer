@@ -21,6 +21,16 @@ Update this file at the end of every session: add a session entry, move items be
 - `tools/bots.mjs` played hundreds of nights: every scene reached, every night ends at 3:20 am.
 - Published for Hutch to play as a private claude.ai artifact: https://claude.ai/artifact/J7S3kXF1LcQh3W8Z4u2nfi
 
+### 2026-09-26 (Saturday evening), round two of the build
+
+- Hutch asked for the build on his hard drive, writing prompts that fold easily into the game, a way to direct and edit seamlessly, harder work on the systems and the visual presentation, and design tips from Disco Elysium, improved on.
+- Offline: one HTML file that plays with no connection (`releases/The-Bouncer.html`).
+- Director mode: rewrite, cut, add or note any line while playing, reword choices, answer writing prompts in place, step back a choice to try the other branch. The Director's desk sends the edits to Claude, and `tools/director.mjs` merges them into the Ink.
+- Systems: the voices answer each other by how they get on; a choice that lets a voice in or puts one out shows first what it does to his head; the floor sketch became his notes, with the time he saw each thing, fading as they go stale.
+- Look: printed plates for eleven places, drawn as each place is when he walks in and tinted by the hour; faces from parts for the ten people with portraits; the page's light follows the shift clock.
+- 1,000 bot nights: every knot and stitch reached, no problems.
+- The reasoning is in `07_ENGAGEMENT.md`.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -81,6 +91,13 @@ Proposed with the Wednesday draft (2026-09-26):
 - At close he writes the incident log: the way it happened, so it reads better, or left out. The bartender reads it, and knows what she saw.
 - The day ends on the ledger, printed like the till's Z-report.
 - The browser build is the testbed; the Ink stays engine-free so it can move to Godot.
+
+Proposed with round two (2026-09-26):
+
+- The engagement devices in `07_ENGAGEMENT.md`: voices that answer each other, the head-room preview on choices, the floor sketch as what he knows and when, plates as evidence of what's changed, and the hour's light.
+- Places and faces drawn in code in the printed style as stand-ins until there's art; a file dropped into its slot replaces a drawing.
+- A look for each of the ten people with portraits (`content/data/characters.yaml`), matched to how the Ink describes them.
+- Director mode and the merge tool as the way Hutch edits the game.
 
 ### REJECTED
 

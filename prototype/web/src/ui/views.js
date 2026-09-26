@@ -1,4 +1,6 @@
 // Drawings: the floor sketch, the room in his head, dice, the clicker, portraits.
+// The floor sketch carries his pencil notes: what he last saw of the room and the doors, and
+// when (Game.sketch). A note he hasn't checked in a while fades, and keeps the time it was true.
 // Plain functions that return SVG or DOM. No game logic.
 (function (B) {
   'use strict';
@@ -46,6 +48,7 @@
     p.push('<line x1="310" y1="176" x2="310" y2="198" class="gap"/>');   // deck door
     p.push('<line x1="310" y1="39" x2="310" y2="55" class="gap"/>');     // hotel door
     p.push('<line x1="62" y1="58" x2="80" y2="58" class="gap"/>');       // kitchen swing door
+    p.push('<line x1="10" y1="22" x2="10" y2="38" class="gap"/>');       // the kitchen's back door
     p.push('<line x1="120" y1="58" x2="142" y2="58" class="gap"/>');     // into the back hall
     p.push('<line x1="144" y1="36" x2="158" y2="36" class="gap"/>');
     p.push('<line x1="186" y1="36" x2="200" y2="36" class="gap"/>');
@@ -54,7 +57,7 @@
     p.push('<text x="193" y="27" class="lbl" text-anchor="middle" style="font-size:8.5px">Women</text>');
     p.push('<text x="235" y="27" class="lbl" text-anchor="middle" style="font-size:8.5px">Single</text>');
     p.push('<rect x="266" y="12" width="8" height="10" class="fix"/>');  // the payphone
-    p.push('<text x="316" y="51" class="lbl" style="font-size:8.5px">Hotel</text>');
+    p.push('<text x="316" y="34" class="lbl" style="font-size:8.5px">Hotel</text>');
     // front window
     p.push('<line x1="120" y1="235" x2="252" y2="235" class="thin"/>');
     // the bar, the stools, the trapdoor at the far end
@@ -72,6 +75,8 @@
     // table 28, in the front window
     p.push('<circle cx="186" cy="206" r="15" class="fix"/>');
     p.push('<text x="186" y="211.5" class="big" text-anchor="middle">28</text>');
+    // his pencil notes (updateMap)
+    p.push('<g id="sk" class="sk" aria-hidden="true"></g>');
     // the places he can go
     for (const id in SPOTS) {
       const s = SPOTS[id];
@@ -87,8 +92,75 @@
     return p.join('');
   }
 
-  // open: {loc: visibleIndex}; here: the location id
-  function updateMap(root, here, open) {
+  // ---- his notes on the sketch
+
+  function fmt(min) { return B.util.fmtClock(min).replace(/\s*(am|pm)$/, ''); }
+  // how sure the note still is: fresh ink to faint pencil over two hours
+  function fade(age) { return Math.max(0.38, Math.min(1, 1 - age / 120)).toFixed(2); }
+  function note(x, y, text, anchor, cls, age) {
+    return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'middle') + '" class="sk-note' + (cls ? ' ' + cls : '') + '" opacity="' + fade(age) + '">' + esc(text) + '</text>';
+  }
+  // a ring drawn by hand, the same wobble each time for the same moment
+  function penRing(cx, cy, rx, ry, seed, cls, age) {
+    let a = seed | 0;
+    const rnd = function () { a = (a * 1103515245 + 12345) & 0x7fffffff; return a / 0x7fffffff; };
+    let d = '';
+    const n = 26, start = rnd() * Math.PI * 2;
+    for (let i = 0; i <= n + 3; i++) {
+      const t = start + i * Math.PI * 2 / n, k = 1 + (rnd() - 0.5) * 0.08 + i * 0.004;
+      d += (i ? ' L' : 'M') + (cx + Math.cos(t) * rx * k).toFixed(1) + ' ' + (cy + Math.sin(t) * ry * k).toFixed(1);
+    }
+    return '<path d="' + d + '" class="sk-pen' + (cls ? ' ' + cls : '') + '" opacity="' + fade(age) + '"/>';
+  }
+  function tally(x, y, n, age) {
+    let d = '';
+    for (let i = 0; i < n; i++) {
+      const g = Math.floor(i / 5), j = i % 5, gx = x + g * 22;
+      if (j < 4) d += 'M' + (gx + j * 4) + ' ' + y + ' l0.6 9 ';
+      else d += 'M' + (gx - 2) + ' ' + (y + 7) + ' L' + (gx + 15) + ' ' + (y + 2) + ' ';
+    }
+    return '<path d="' + d + '" class="sk-pen" opacity="' + fade(age) + '"/>';
+  }
+  // A doorway in a side wall at x, centred on y, h wide: seen propped, the door drawn swung open
+  // (dir: which way it swings); seen shut, pencilled across. Never looked at: no mark.
+  function doorMark(x, y, h, dir, seen, now, tx, ty, anchor) {
+    if (!seen) return '';
+    const age = now - seen.at, top = y - h / 2;
+    const m = seen.open
+      ? 'M' + x + ' ' + top + ' L' + (x + dir * h) + ' ' + top + ' A' + h + ' ' + h + ' 0 0 ' + (dir > 0 ? 1 : 0) + ' ' + x + ' ' + (y + h / 2)
+      : 'M' + x + ' ' + top + ' L' + x + ' ' + (y + h / 2);
+    return '<path d="' + m + '" class="sk-pen' + (seen.open ? ' sk-open' : '') + '" opacity="' + fade(age) + '"/>' +
+      note(tx, ty, (seen.open ? 'propped ' : 'shut ') + fmt(seen.at), anchor, seen.open ? 'sk-warn' : '', age);
+  }
+
+  // info: {sketch, now, doorAway}
+  function sketchSVG(info) {
+    const S = (info && info.sketch) || {};
+    const now = (info && info.now) | 0;
+    let p = '';
+    if (S.count) p += note(112, 199, S.count.n + ' at ' + fmt(S.count.at), 'middle', '', now - S.count.at);
+    if (S.pool && S.pool.heat >= 4) {
+      const hot = S.pool.heat >= 7, age = now - S.pool.at;
+      p += penRing(186, 123, 48, 28, S.pool.at * 7 + 1, hot ? 'sk-hot' : '', age);
+      if (hot) p += penRing(186, 123, 53, 32, S.pool.at * 7 + 2, 'sk-hot', age);
+      p += note(137, 100, fmt(S.pool.at), 'end', hot ? 'sk-warn' : '', age);
+    }
+    if (S.t28 && S.t28.rounds > 0) {
+      p += tally(166, 222, Math.min(15, S.t28.rounds), now - S.t28.at);
+      p += note(206, 199, fmt(S.t28.at), 'start', '', now - S.t28.at);
+    }
+    const away = (info && info.doorAway) | 0;
+    if (away >= 15) p += note(40, 256, 'door ' + away + ' min', 'middle', 'sk-warn', 0);
+    p += doorMark(310, 187, 22, 1, S.deck, now, 304, 172, 'end');
+    p += doorMark(310, 47, 16, 1, S.hotel, now, 305, 69, 'end');
+    p += doorMark(10, 30, 16, 1, S.kitchen, now, 15, 70, 'start');
+    return p;
+  }
+
+  // open: {loc: visibleIndex}; here: the location id; info: his notes (sketchSVG)
+  function updateMap(root, here, open, info) {
+    const sk = root.querySelector('#sk');
+    if (sk) sk.innerHTML = sketchSVG(info);
     const spots = root.querySelectorAll('.spot');
     for (const g of spots) {
       const loc = g.getAttribute('data-loc');
@@ -209,6 +281,7 @@
     updateMap: updateMap,
     psycheSVG: psycheSVG,
     tensionHTML: tensionHTML,
+    TENSION_WORDS: TENSION_WORDS,
     shortLabel: shortLabel,
     dieSVG: dieSVG,
     clickerHTML: clickerHTML,

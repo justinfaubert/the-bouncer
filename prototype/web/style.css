@@ -41,6 +41,7 @@
 
   --read-size: 1.125rem;
   --read-lh: 1.62;
+  --wash-k: 1;
   color-scheme: light;
 }
 
@@ -70,6 +71,7 @@
     --v-wrongman: #A5C2A6;
     --v-table: #DAC45F;
     --v-kid: #80D1DB;
+    --wash-k: 1.5;
     color-scheme: dark;
   }
 }
@@ -98,6 +100,7 @@
   --v-wrongman: #A5C2A6;
   --v-table: #DAC45F;
   --v-kid: #80D1DB;
+  --wash-k: 1.5;
   color-scheme: dark;
 }
 
@@ -230,6 +233,12 @@ button { font: inherit; color: inherit; }
 .map .spot .spot-lbl { font-family: var(--f-ui); font-weight: 600; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; fill: var(--ink-2); }
 .map .spot.open .spot-lbl { fill: var(--accent); }
 .map .him { fill: var(--ink); stroke: var(--paper-2); stroke-width: 2; }
+/* his pencil notes: what he last saw, and when */
+.map .sk { pointer-events: none; }
+.map .sk-note { font-family: var(--f-hand); font-size: 10.5px; fill: var(--ink-2); }
+.map .sk-note.sk-warn { fill: var(--accent); }
+.map .sk-pen { fill: none; stroke: var(--ink-2); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.map .sk-pen.sk-hot, .map .sk-pen.sk-open { stroke: var(--accent); }
 .map-hint { margin: 6px 0 0; font-family: var(--f-ui); font-size: .82rem; color: var(--muted); }
 
 /* the room in his head */
@@ -281,6 +290,18 @@ button { font: inherit; color: inherit; }
 /* ------------------------------------------------------------------ the story */
 
 .story { grid-area: story; overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; }
+
+/* The light of the night on the page: grey dusk while it's quiet, the room's amber as it fills,
+ * redder after midnight, flat and green when the lights come up, blue after close. Outside, the
+ * rain's colour; the keg room, dim. (data-phase and data-here on .app, from the shift clock.) */
+.story { background: radial-gradient(140% 75% at 50% -14%, var(--wash, transparent), transparent 74%) no-repeat, var(--paper); }
+.app[data-phase="early"] { --wash: rgb(110 135 160 / calc(.14 * var(--wash-k))); }
+.app[data-phase="busy"] { --wash: rgb(214 150 60 / calc(.13 * var(--wash-k))); }
+.app[data-phase="late"] { --wash: rgb(196 78 40 / calc(.13 * var(--wash-k))); }
+.app[data-phase="lights"] { --wash: rgb(190 225 200 / calc(.2 * var(--wash-k))); }
+.app[data-phase="after"] { --wash: rgb(56 76 128 / calc(.18 * var(--wash-k))); }
+.app[data-here="deck"], .app[data-here="lot"] { --wash: rgb(84 112 150 / calc(.2 * var(--wash-k))); }
+.app[data-here="keg"] { --wash: rgb(0 0 0 / calc(.13 * var(--wash-k))); }
 .story-inner { max-width: 41rem; margin: 0 auto; padding: 44px 32px 38vh; }
 .log { font-size: var(--read-size); line-height: var(--read-lh); }
 
@@ -327,6 +348,9 @@ button { font: inherit; color: inherit; }
   line-height: 1.35;
   color: var(--muted);
 }
+.room-pv { display: block; margin-top: .2em; font-family: var(--f-ui); font-size: .82rem; letter-spacing: .05em; color: var(--muted); }
+.room-pv.up { color: var(--bad); }
+.room-pv.down { color: var(--good); }
 .ln.chosen::before { content: ""; flex: none; width: .45em; height: .45em; margin-top: .42em; background: var(--accent); }
 .ln.chosen .ck { color: var(--vc); margin-right: .35em; }
 
@@ -359,9 +383,44 @@ button { font: inherit; color: inherit; }
 }
 .aside b { font-weight: 600; color: var(--ink-2); }
 
-.portrait { display: flex; align-items: flex-end; gap: .8em; margin: .2em 0 1em; }
+/* ------------------------------------------------------------------ plates: the places and the people, printed
+ * (src/ui/plates.js). The prints keep their own paper and ink in both themes; the hour of the
+ * night is laid over them as a wash (data-phase), the way the room's light changes.
+ */
+
+.blk { display: flow-root; }
+
+.plate { margin: 1.5em 0 1.4em; }
+.pl-img { position: relative; display: block; isolation: isolate; background: #E8E0CC; }
+.pl-img img { display: block; width: 100%; height: auto; }
+.pl-img::after { content: ""; position: absolute; inset: 0; background: var(--tint, transparent); mix-blend-mode: multiply; pointer-events: none; }
+.plate .pl-img { aspect-ratio: 640 / 220; box-shadow: var(--lift); }
+.pl-label {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
+  margin-top: .5em;
+  font-family: var(--f-ui); font-size: .8rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted);
+}
+.pl-cap { color: var(--ink-2); font-weight: 600; }
+.pl-time { font-variant-numeric: tabular-nums; }
+
+/* back in a place he's already seen this hour: the plate small, for the move and the time */
+.place-strip { display: flex; align-items: center; gap: .75em; margin: 1.8em 0 1.1em; }
+.place-strip .pl-img { flex: none; width: 66px; aspect-ratio: 640 / 220; outline: 1px solid var(--rule-strong); }
+.place-strip .pl-label { flex: 1; margin: 0; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .75em; font-size: .74rem; }
+.place-strip .pl-rule { border-top: 1px solid var(--rule); }
+
+.log [data-phase="early"] { --tint: #D3DAE0; }
+.log [data-phase="busy"] { --tint: #F3D6AC; }
+.log [data-phase="late"] { --tint: #E8B58F; }
+.log [data-phase="lights"] { --tint: #EDF3E6; }
+.log [data-phase="after"] { --tint: #A3ADBF; }
+
+/* a person, the first time the Ink shows them: beside the lines that bring them in */
+.portrait { float: right; width: 104px; margin: .3em 0 .8em 1.2em; }
+.portrait img { display: block; width: 100%; height: auto; box-shadow: var(--lift); }
 .portrait .ph {
-  width: 62px; height: 78px; flex: none;
+  width: 62px; height: 78px; margin-left: auto;
   display: grid; place-items: center;
   border: 1px solid var(--rule-strong);
   background:
@@ -369,8 +428,12 @@ button { font: inherit; color: inherit; }
     var(--paper-3);
   font-family: var(--f-display); font-weight: 800; font-size: 1.5rem; color: var(--ink-2);
 }
-.portrait img { width: 62px; height: 78px; object-fit: cover; border: 1px solid var(--rule-strong); max-width: 100%; }
-.portrait .cap { font-family: var(--f-ui); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.portrait .cap { display: block; margin-top: .45em; font-family: var(--f-ui); font-size: .72rem; line-height: 1.25; letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--muted); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pl-img img, :root:not([data-theme="light"]) .portrait img { filter: brightness(.8) contrast(1.06); }
+}
+:root[data-theme="dark"] .pl-img img, :root[data-theme="dark"] .portrait img { filter: brightness(.8) contrast(1.06); }
 
 .prompt-card {
   margin: 1em 0 1.2em;
@@ -827,6 +890,9 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
   .app.directing .log .ln.edited::after, .app.directing .log .ln.ins::after { left: -9px; }
   .ed-keys { display: none; }
   .desk-body { max-height: 64vh; }
+  .portrait { width: 80px; margin-left: .9em; }
+  .plate { margin: 1.2em 0; }
+  .place-strip .pl-img { width: 54px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

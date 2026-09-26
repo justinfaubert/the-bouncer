@@ -1,8 +1,8 @@
 # Art and sound slots.
 #
 # Every cue the Ink can fire (#music, #amb, #sfx, #portrait) is a slot here. The game uses the
-# file if it exists and a placeholder until it does: a synthesized sound, a lettered card, or
-# silence. Adding Hutch's music or a portrait means dropping the file at the path given and
+# file if it exists and a placeholder until it does: a synthesized sound, a face drawn from the
+# character's look: (content/data/characters.yaml), or silence. Adding Hutch's music or a portrait means dropping the file at the path given and
 # running `node tools/build.mjs`. Nothing in the Ink changes.
 #
 # Paths are relative to the project root (the-bouncer/). Use .ogg or .mp3 for audio,

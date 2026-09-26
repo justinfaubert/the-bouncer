@@ -5,7 +5,16 @@
 # switch to a second id (not needed yet).
 #
 #   label     how the speaker is named on screen
-#   portrait  art slot in assets.yaml (a lettered card until there's art)
+#   portrait  art slot in assets.yaml
+#   look      until there's art, the face is drawn from parts (src/ui/plates.js):
+#               build  slight | medium | big
+#               hair   short | buzz | long | bun | ponytail | bald | thin | messy | parted
+#               hat    hood | cap | beanie | flatcap | bandana
+#               face   a list of: beard, stubble, moustache, glasses, earbuds, hearingaid, lined
+#               top    hoodie | hivis | apron | whites | flannel | suit | coat | jacket | tshirt | cardigan
+#               extra  a list of: vape, keys, cigarette, phone, knife, lanyard
+#               age    old
+#               group  5 (a table's worth, drawn as one)
 #   note      for writers; not shown in the game
 #
 # Everyone here is a draft except where noted. Table 28, the kids, the regulars and the lifer
@@ -15,11 +24,13 @@
 bartender:
   label: THE BARTENDER
   portrait: bartender
+  look: {build: slight, hair: bun, face: [lined], top: apron, extra: [knife]}
   note: The lifer (DECIDED). Draft - a woman in her fifties, at the Sov since she was a server at nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week.
 
 table28:
   label: TABLE 28
   portrait: table28
+  look: {group: 5}
   note: The hive (DECIDED). Five high-functioning boomer alcoholics, every day but Sunday. One voice most of the time.
 team_jacket:
   label: TEAM JACKET
@@ -40,24 +51,29 @@ glasses:
 cook:
   label: THE COOK
   portrait: cook
+  look: {hair: short, face: [stubble], top: tshirt}
   note: Props the kitchen door because the fryer runs hot. Wants the rats dead because the inspector costs him shifts.
 
 hoodie:
   label: HOODIE
   portrait: hoodie
+  look: {hat: hood, top: hoodie, face: [earbuds], extra: [phone]}
   note: One of the kids (DECIDED group). Nineteen, earbuds, a photo of his ID on his phone. His father is the big man at the pool table (draft).
 driver:
   label: THE DRIVER
   portrait: driver
+  look: {hair: ponytail, top: jacket, extra: [keys]}
   note: His sister, twenty-two, sober, the one with the keys. Came to tell their father something (draft).
 vape:
   label: VAPE
   portrait: vape
+  look: {hair: messy, top: hoodie, extra: [vape]}
   note: The sister's boyfriend. Twenty. Drunk before he got here. The unpredictable one.
 
 bigman:
   label: THE BIG MAN
   portrait: bigman
+  look: {build: big, hair: buzz, face: [beard], top: flannel}
   note: At the pool table since before the shift. Playing his buddy for money and letting him win. Left-handed. The kids' father (draft).
 buddy:
   label: THE BUDDY
@@ -66,10 +82,12 @@ buddy:
 hivis:
   label: HI-VIS
   portrait: hivis
+  look: {hat: cap, top: hivis, face: [stubble]}
   note: From the work crew renting rooms upstairs on a mill contract. Four beers in, tired.
 goodshoes:
   label: GOOD SHOES
   portrait: goodshoes
+  look: {hair: parted, top: suit}
   note: In the 86 binder. Polite, sober, well dressed. Says the owner lifted his ban.
 raincoat:
   label: RAINCOAT
@@ -77,6 +95,7 @@ raincoat:
 endbar:
   label: END OF THE BAR
   portrait: endbar
+  look: {hat: flatcap, age: old, face: [lined], top: jacket}
   note: The man who seems to speak for the rats (DECIDED that such a man exists). Nobody saw him come in. Been coming in longer than the bartender.
 owner:
   label: THE OWNER

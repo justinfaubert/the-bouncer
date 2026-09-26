@@ -65,6 +65,7 @@ The rule for a small team is to pick a style that's cheap per asset and strong a
 - **The bar is the main set.** It's one room across thirty nights, so the craft goes there: light, smoke, damage, rats.
 - **If there's a painter or printmaker**, portraits are where the money goes. Real linocuts, scanned in, would give the game a look nobody else has.
 - **AI images** are for private mood boards only. Don't ship them.
+- **Stand-ins until there's art.** The browser build draws its places and faces in code in this printed style (`prototype/web/src/ui/plates.js`). They cost nothing and each is replaced by dropping a file into its slot in `content/data/assets.yaml`. [PROPOSED 2026-09-26]
 - **The alternative** is a painted look like Disco's, which needs a painter.
 
 ## Sound and voice

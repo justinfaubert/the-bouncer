@@ -10,6 +10,7 @@
 #          hour          the clock passes the hour
 #          tension_up / tension_down
 #          check_pass:<voice> / check_fail:<voice>
+#          answer:<voice>   right after that voice has said one of these (see "answers" below)
 #          anything named by a #bark: tag in the Ink
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
@@ -230,6 +231,157 @@
   on: check_pass:wrongman
   speaker: fighter
   text: A story's no use in a fight. Still. Fair enough.
+
+# ---------------------------------------------------------------- answers
+#
+# When a voice says something above, another voice in the room may answer it: "on: answer:<voice>".
+# Allies back each other up, voices at odds contradict ("ally <voice>" / "odds <voice>" in when:),
+# so how they get on is something you hear. Tension decides how often anyone answers at all.
+# THE TABLE and THE KID get their answers when they can be in the room, from Friday.
+
+- id: ans_fighter_father_1
+  on: answer:father
+  speaker: fighter
+  when: [odds father]
+  text: Thirty years of doors and he still thinks it's in the eyes. It's in the feet.
+
+- id: ans_fighter_father_2
+  on: answer:father
+  speaker: fighter
+  when: [odds father]
+  text: He'd stand there reading a man till the man hit him.
+
+- id: ans_manual_father_1
+  on: answer:father
+  speaker: manual
+  when: [ally father]
+  text: Consistent with the course material.
+
+- id: ans_manual_father_2
+  on: answer:father
+  speaker: manual
+  when: [ally father]
+  text: That is in the binder as well. With a diagram.
+
+- id: ans_wrongman_father_1
+  on: answer:father
+  speaker: wrongman
+  when: [ally father]
+  text: He knew the story. Every doorman knows the story.
+
+- id: ans_wrongman_father_2
+  on: answer:father
+  speaker: wrongman
+  when: [ally father]
+  text: Listen to him. The one in the story had nobody to listen to.
+
+- id: ans_father_fighter_1
+  on: answer:fighter
+  speaker: father
+  when: [odds fighter]
+  text: He got paid to fight. You get paid so there isn't one.
+
+- id: ans_father_fighter_2
+  on: answer:fighter
+  speaker: father
+  when: [odds fighter]
+  text: The first one decides it. Then the police decide the rest.
+
+- id: ans_manual_fighter_1
+  on: answer:fighter
+  speaker: manual
+  when: [odds fighter]
+  text: Force must be reasonable, necessary and proportionate. He has not read those words.
+
+- id: ans_manual_fighter_2
+  on: answer:fighter
+  speaker: manual
+  when: [odds fighter]
+  text: Physical intervention is last on the list. It is last for a reason.
+
+- id: ans_wrongman_fighter_1
+  on: answer:fighter
+  speaker: wrongman
+  when: [odds fighter]
+  text: The doorman in the story was ready for a fight. That isn't what came in.
+
+- id: ans_wrongman_fighter_2
+  on: answer:fighter
+  speaker: wrongman
+  when: [odds fighter]
+  text: The wrong man is never the one squaring up to you.
+
+- id: ans_father_manual_1
+  on: answer:manual
+  speaker: father
+  when: [ally manual]
+  text: Book's right. It just won't be standing next to you.
+
+- id: ans_father_manual_2
+  on: answer:manual
+  speaker: father
+  when: [ally manual]
+  text: Listen to it. I didn't, and I learned all of it the long way.
+
+- id: ans_fighter_manual_1
+  on: answer:manual
+  speaker: fighter
+  when: [odds manual]
+  text: Nobody in that conference room ever got hit.
+
+- id: ans_fighter_manual_2
+  on: answer:manual
+  speaker: fighter
+  when: [odds manual]
+  text: Read him that when he's got you by the collar.
+
+- id: ans_wrongman_manual_1
+  on: answer:manual
+  speaker: wrongman
+  when: [odds manual]
+  text: The doorman in the story had his licence. It was in his wallet the whole time.
+
+- id: ans_wrongman_manual_2
+  on: answer:manual
+  speaker: wrongman
+  when: [odds manual]
+  text: There's no page in there for what came through that door.
+
+- id: ans_father_wrongman_1
+  on: answer:wrongman
+  speaker: father
+  when: [ally wrongman]
+  text: Drunks tell it better than it happened. Doesn't mean it didn't.
+
+- id: ans_father_wrongman_2
+  on: answer:wrongman
+  speaker: father
+  when: [ally wrongman]
+  text: Every door I worked had a story like that. Every one of them was true somewhere.
+
+- id: ans_fighter_wrongman_1
+  on: answer:wrongman
+  speaker: fighter
+  when: [odds wrongman]
+  text: Stories. Watch the room.
+
+- id: ans_fighter_wrongman_2
+  on: answer:wrongman
+  speaker: fighter
+  when: [odds wrongman]
+  text: Forget the brother. Watch the hands in front of you.
+
+- id: ans_manual_wrongman_1
+  on: answer:wrongman
+  speaker: manual
+  when: [odds wrongman]
+  text: An anecdote is not evidence. Record what you observe.
+
+- id: ans_manual_wrongman_2
+  on: answer:wrongman
+  speaker: manual
+  when: [odds wrongman]
+  text: The incident log has no field for a feeling.
 
 # ---------------------------------------------------------------- voices he may take home (Friday on)
 

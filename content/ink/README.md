@@ -44,12 +44,13 @@ On a choice (inside the brackets):
 |---|---|
 | `#check: father 8` | A check lent by that voice, target 8 on 2d6 (7 Easy, 9 Medium, 11 Hard). Optional third number: a situational bonus or penalty. The engine rolls, then sets `passed` (and `crit`: 1 double six, -1 double one) before the choice's content runs. A check from a voice that isn't seated is hidden. |
 | `#loc: pool` | Where this takes him. Lights up that spot on the floor sketch and fires the `visit:pool` bark event. |
+| `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 
 | Tag | Meaning |
 |---|---|
-| `#sfx: clicker` `#music: jukebox_late` `#amb: rain_lot` `#portrait: cook` | Sound and art slots from `content/data/assets.yaml`. `none` stops music or ambience. |
+| `#sfx: clicker` `#music: jukebox_late` `#amb: rain_lot` `#portrait: cook` | Sound and art slots from `content/data/assets.yaml`. `none` stops music or ambience. Until a portrait has art, the face is drawn from the character's `look:` in `content/data/characters.yaml`. |
 | `#screen: log` / `#screen: none` | Switches the page to a special screen (the incident log, the ledger) and back. |
 | `#task: fetch :: Tell the big man his family's waiting.` | Adds a line to his notes. The id comes before `::`. |
 | `#done: fetch` | Crosses it off. |
@@ -60,6 +61,12 @@ On a line (or on its own line, which attaches it to the next line of text):
 ## Writing prompts
 
 `// HUTCH: What does the cook complain about?` anywhere in the Ink puts a numbered prompt in `content/WRITING_PROMPTS.md` the next time the build runs. Rewrite the lines under it, delete the comment, rebuild, and it drops off the list.
+
+Hutch can also answer a prompt inside the game, on the card where it comes up (or from the Director's desk). The answer arrives with the rest of the director's edits; working it into the scene is Claude's job, and the prompt comment comes out when it's done.
+
+## Director's edits
+
+In director mode (key D in the game) Hutch rewrites, cuts and adds lines, rewords choices and leaves notes, all while playing. Each edit is keyed on the line exactly as the game printed it, so keep a line's words on one line of Ink where you can: `node tools/director.mjs <edits.json> --apply` merges edits on fixed lines by itself, and lists the ones on lines built from `{logic}`, or whose words appear in more than one place, for a hand merge. Merged edit ids go in `content/director/merged.json`, and the batch itself in `content/director/inbox/`.
 
 ## The rules the night runs on
 

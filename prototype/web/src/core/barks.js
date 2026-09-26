@@ -15,12 +15,18 @@
 // Criteria forms:  <var> <op> <number|true|false|word>   (op: >= <= > < == !=)
 //                  <var> has <item>   /   <var> hasnt <item>      (Ink LIST membership)
 //                  seated <voice>     /   unseated <voice>
+//                  ally <voice>       /   odds <voice>     (how the speaker gets on with that voice now)
 //                  tension <op> <n>
+//
+// Answers: after a voice barks, the others may answer it. A rule with `on: answer:father` is
+// offered right after THE FATHER says something; its speaker has to be someone else in the room.
+// Allies back each other up and voices at odds contradict, so the relationships in his head
+// (bible/02_SYSTEMS.md) can be heard, and the louder the room, the more they argue.
 (function (B) {
   'use strict';
 
   const CRIT = /^\s*([a-z_][a-z0-9_]*)\s*(>=|<=|==|!=|>|<|has|hasnt)\s*([a-z0-9_.\-]+)\s*$/i;
-  const SEAT = /^\s*(seated|unseated)\s+([a-z_][a-z0-9_]*)\s*$/i;
+  const SEAT = /^\s*(seated|unseated|ally|odds)\s+([a-z_][a-z0-9_]*)\s*$/i;
 
   function parseCriterion(s) {
     let m = SEAT.exec(s);
@@ -57,9 +63,14 @@
     return String(v) === item;
   }
 
-  function test(c, getVar, psyche) {
+  function test(c, getVar, psyche, speaker) {
     if (c.kind === 'seated') return psyche.isSeated(c.voice);
     if (c.kind === 'unseated') return !psyche.isSeated(c.voice);
+    if (c.kind === 'ally' || c.kind === 'odds') {
+      if (!psyche.isSeated(c.voice) || c.voice === speaker) return false;
+      const rel = psyche.getRel(speaker, c.voice);
+      return c.kind === 'ally' ? rel > 0 : rel < 0;
+    }
     if (c.kind !== 'cmp') return false;
     const v = c.name === 'tension' ? psyche.tension() : getVar(c.name);
     switch (c.op) {
@@ -81,18 +92,19 @@
   class Barks {
     constructor(rules) { this.rules = compile(rules); }
 
-    candidates(event, getVar, psyche, used) {
+    // not: a voice that may not speak (the one being answered)
+    candidates(event, getVar, psyche, used, not) {
       return this.rules.filter(function (r) {
         if (r.on !== event) return false;
         if (r.once && used.indexOf(r.id) !== -1) return false;
-        if (!psyche.isSeated(r.speaker)) return false;
-        for (const c of r.when) if (!test(c, getVar, psyche)) return false;
+        if (!psyche.isSeated(r.speaker) || r.speaker === not) return false;
+        for (const c of r.when) if (!test(c, getVar, psyche, r.speaker)) return false;
         return true;
       });
     }
 
-    pick(event, getVar, psyche, used, rng) {
-      const cands = this.candidates(event, getVar, psyche, used);
+    pick(event, getVar, psyche, used, rng, not) {
+      const cands = this.candidates(event, getVar, psyche, used, not);
       if (!cands.length) return null;
       let top = -1;
       for (const r of cands) if (r.specificity > top) top = r.specificity;

@@ -778,9 +778,9 @@ There was somebody new in his head, talking over the others.
 }
 FATHER: Don't let that in.
 - (vs)
-* {wants_table()} [Let THE TABLE in.]
+* {wants_table()} [Let THE TABLE in. #room: +table]
     -> let_voice_in("table")
-* {wants_kid()} [Let THE KID in.]
+* {wants_kid()} [Let THE KID in. #room: +kid]
     -> let_voice_in("kid")
 + [Sleep.]
     { new_voice == "":
@@ -796,15 +796,15 @@ FATHER: Don't let that in.
     -> welcomed(v)
 }
 The room held five, and it had five. Somebody would have to go.
-+ {seated("fighter")} [Put THE FIGHTER out.]
++ {seated("fighter")} [Put THE FIGHTER out. #room: -fighter +{v}]
     ~ unseat("fighter")
-+ {seated("manual")} [Put THE MANUAL out.]
++ {seated("manual")} [Put THE MANUAL out. #room: -manual +{v}]
     ~ unseat("manual")
-+ {seated("wrongman")} [Put THE WRONG MAN out.]
++ {seated("wrongman")} [Put THE WRONG MAN out. #room: -wrongman +{v}]
     ~ unseat("wrongman")
-+ {seated("table")} [Put THE TABLE out.]
++ {seated("table")} [Put THE TABLE out. #room: -table +{v}]
     ~ unseat("table")
-+ {seated("father")} [Put THE FATHER out.]
++ {seated("father")} [Put THE FATHER out. #room: -father +{v}]
     ~ unseat("father")
     It was quiet where he'd been. It was the quietest his head had been since the funeral.
 + [Nobody. Keep the room as it is.]

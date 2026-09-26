@@ -12,6 +12,8 @@
 
   const CLOSE_TIME = 1560;   // 2:00 am on the shift clock
   const BUSY_FROM = 1350;    // 10:30 pm: the room gets loud
+  const LAST_CALL = 1530;    // 1:30 am
+  const MIDNIGHT = 1440;
   const DAY_NAMES = { 1: 'Wednesday', 2: 'Thursday', 3: 'Friday' };
   const HURT_WORDS = ['', 'Knocked about', 'Hurt', 'Badly hurt'];
   const PLACE = {
@@ -20,7 +22,7 @@
     lot: 'Out in the lot', upstairs: 'Upstairs'
   };
   const DEFAULTS = {
-    size: 'm', reveal: 'lines', odds: 'words', prompts: true,
+    size: 'm', reveal: 'lines', odds: 'words', prompts: true, plates: true,
     sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false,
     director: false
   };
@@ -34,10 +36,21 @@
     block: null, blockScreen: undefined,
     pending: null,               // items waiting behind a #pause
     shownKnots: new Set(),
+    seenPlates: new Set(),       // place|hour-of-night pairs that have had their plate this night
+    plateLook: {},               // place -> what its last plate showed
     inkAmb: null,
     lastFocus: null,
     rainStop: null
   };
+
+  // The light of the night by the shift clock. The plates and the page take its tint (style.css).
+  function phaseOf(clock) {
+    if (clock >= CLOSE_TIME + 30) return 'after';
+    if (clock >= LAST_CALL) return 'lights';
+    if (clock >= MIDNIGHT) return 'late';
+    if (clock >= BUSY_FROM) return 'busy';
+    return 'early';
+  }
 
   // ---------------------------------------------------------------- boot
 
@@ -210,6 +223,8 @@
     app.blockScreen = undefined;
     app.pending = null;
     app.shownKnots = new Set();
+    app.seenPlates = new Set();
+    app.plateLook = {};
     app.inkAmb = null;
     app.snaps = [];
     if (app.dir) app.dir.close();
@@ -349,6 +364,8 @@
     app.block = null;
     app.blockScreen = undefined;
     app.shownKnots = new Set();
+    app.seenPlates = new Set();
+    app.plateLook = {};
     const log = app.game.log;
     const hold = app.pending ? app.pending.filter(function (it) { return it.kind !== 'fx' && it.kind !== 'pause'; }).length : 0;
     renderItems(hold ? log.slice(0, log.length - hold) : log, false);
@@ -489,16 +506,21 @@
     return '';
   }
 
+  // A person the first time the Ink shows them: the art when there is some, otherwise a face drawn
+  // from the parts in their `look:` (content/data/characters.yaml, src/ui/plates.js).
   function portraitNode(id) {
-    let label = id;
-    for (const k in C.characters) if (C.characters[k].portrait === id) { label = C.characters[k].label || k; break; }
+    if (!app.settings.plates) return null;
+    let label = id, look = null;
+    for (const k in C.characters) if (C.characters[k].portrait === id) { label = C.characters[k].label || k; look = C.characters[k].look || null; break; }
     const slot = (C.assets.portraits || {})[id] || {};
-    const fig = document.createElement('div');
+    const fig = document.createElement('figure');
     fig.className = 'portrait';
-    if (slot.file && slot.present) {
+    if ((slot.file && slot.present) || (B.Plates && look)) {
       const img = document.createElement('img');
-      img.src = ((C.meta && C.meta.assetBase) || '') + slot.file;
-      img.alt = label;
+      img.alt = '';
+      img.decoding = 'async';
+      if (slot.file && slot.present) img.src = ((C.meta && C.meta.assetBase) || '') + slot.file;
+      else { img.src = B.Plates.portraitUrl(id, look); fig.classList.add('drawn'); }
       fig.append(img);
     } else {
       const ph = document.createElement('div');
@@ -507,11 +529,44 @@
       ph.textContent = V.initials(label).toUpperCase();
       fig.append(ph);
     }
-    const cap = document.createElement('span');
+    const cap = document.createElement('figcaption');
     cap.className = 'cap';
     cap.textContent = label;
     fig.append(cap);
     return fig;
+  }
+
+  // Where he's walked into. A plate the first time he's in a place, with the place as it is right
+  // now; again later in the night only if it has changed (the room filled, the glasses stacked up,
+  // a door got shut). Otherwise a small one, so the move and the time still show. The floor, which
+  // he crosses between everything, gets nothing between its plates.
+  function placeNode(it) {
+    const id = it.here;
+    if (!app.settings.plates || !B.Plates || !B.Plates.has(id)) return null;
+    const clock = it.clock | 0;
+    const phase = phaseOf(clock);
+    const key = id + '|' + phase;
+    const look = JSON.stringify(B.Plates.look(id, it.state));
+    const first = !(id in app.plateLook) || (!app.seenPlates.has(key) && app.plateLook[id] !== look);
+    if (!first && id === 'floor') return null;
+    app.seenPlates.add(key);
+    if (first) app.plateLook[id] = look;
+    const box = document.createElement(first ? 'figure' : 'div');
+    box.className = first ? 'plate' : 'place-strip';
+    box.setAttribute('data-phase', phase);
+    box.setAttribute('data-place', id);
+    const pic = document.createElement('span');
+    pic.className = 'pl-img';
+    const img = document.createElement('img');
+    img.alt = '';
+    img.decoding = 'async';
+    img.src = B.Plates.placeUrl(id, it.state);
+    pic.append(img);
+    const cap = document.createElement(first ? 'figcaption' : 'span');
+    cap.className = 'pl-label';
+    cap.innerHTML = '<span class="pl-cap">' + esc(B.Plates.caption(id)) + '</span>' + (first ? '' : '<span class="pl-rule"></span>') + '<span class="pl-time">' + esc(B.util.fmtClock(clock)) + '</span>';
+    box.append(pic, cap);
+    return box;
   }
 
   // prompts for Hutch, the first time the night passes through a part of the Ink that has them
@@ -554,6 +609,7 @@
           }
           case 'chosen': app.dir.decorate(add(chosenNode(it)), it); break;
           case 'dnote': add(app.dir.noteNode(it), it.screen || null); break;
+          case 'place': { const pl = placeNode(it); if (pl) add(pl, null); break; }
           case 'diff': { const d = app.dir.diffNode(it); if (d) add(d); break; }
           case 'check': add(checkNode(it)); break;
           case 'task':
@@ -568,13 +624,14 @@
             ensureBlock(it.name || null);
             break;
           case 'fx':
-            if (live) fx(it, add);
+            if (it.type === 'portrait') { const po = portraitNode(it.id); if (po) add(po); }
+            else if (live) fx(it, add);
             break;
           case 'pause':
             if (live) {
               app.pending = items.slice(i + 1);
               const go = add(pauseButton());
-              setTimeout(function () { go.focus(); }, 50);
+              setTimeout(function () { go.focus({ preventScroll: true }); }, 50);
               return first;
             }
             break;
@@ -601,7 +658,6 @@
     if (it.type === 'sfx') app.audio.sfx(it.id);
     else if (it.type === 'music') app.audio.track(it.id);
     else if (it.type === 'amb') app.inkAmb = { id: it.id === 'none' ? null : it.id, here: null };
-    else if (it.type === 'portrait') add(portraitNode(it.id));
   }
 
   // Ambience follows where he is, unless the Ink named one for the place he's in now.
@@ -653,6 +709,7 @@
       const words = app.dir.choiceText(c);
       body.append(document.createTextNode(words));
       if (words !== c.text) b.classList.add('edited');
+      if (c.room) body.append(roomPreview(c.room));
       b.append(n, body);
       b.addEventListener('click', function () { choose(i); });
       li.append(b);
@@ -660,6 +717,24 @@
       ol.append(li);
     });
     box.append(ol);
+  }
+
+  // A choice that lets a voice into his head or puts one out (#room in the Ink) says first how loud
+  // the room in his head would get.
+  function roomPreview(room) {
+    const W = V.TENSION_WORDS;
+    const span = document.createElement('span');
+    span.className = 'room-pv';
+    if (room.full) {
+      span.classList.add('up');
+      span.textContent = 'His head is full. Someone has to go first.';
+    } else if (room.tension === room.now) {
+      span.textContent = 'In his head: still ' + W[room.now].toLowerCase();
+    } else {
+      span.classList.add(room.tension > room.now ? 'up' : 'down');
+      span.textContent = 'In his head: ' + W[room.now].toLowerCase() + ' to ' + W[room.tension].toLowerCase();
+    }
+    return span;
   }
 
   function endCard() {
@@ -701,13 +776,16 @@
     if (!g.story) return;
     const st = g.status();
     const html = statusHTML(st);
+    const root = document.getElementById('app');
+    root.setAttribute('data-phase', phaseOf(st.clock));
+    root.setAttribute('data-here', st.here || '');
     for (const el of document.querySelectorAll('[data-status]')) el.innerHTML = html;
 
     // the map: every choice that goes somewhere lights its spot
     const open = {};
     g.choices.filter(function (c) { return !c.hidden; }).forEach(function (c, i) { if (c.loc && !(c.loc in open)) open[c.loc] = i; });
     app.mapOpen = open;
-    V.updateMap($('#map'), st.here, open);
+    V.updateMap($('#map'), st.here, open, { sketch: g.sketch, now: st.clock, doorAway: g.getVar('door_away') | 0 });
 
     // the room in his head
     $('#head').innerHTML = V.psycheSVG(g.psyche, C.voices) + V.tensionHTML(st.tension);
@@ -911,6 +989,7 @@
         field('Text size', null, seg('Text size', [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']], s.size, function (v) { s.size = v; saveSettings(); })),
         field('New lines', 'One after another, or all at once.', seg('New lines', [['lines', 'One by one'], ['all', 'At once']], s.reveal, function (v) { s.reveal = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
+        field('Pictures', 'A print of each place as he walks in, and the faces of the people.', toggle('set-plates', s.plates, function (v) { s.plates = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-plates'),
         field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-prompts'),
         field('Director mode', 'Tap any line to rewrite, cut or add to it. Key: D.', toggle('set-director', app.dir.on, function (v) { setDirector(v, true); }), 'set-director'),
         field('Sound', null, toggle('set-sound', s.sound, function (v) { s.sound = v; saveSettings(); if (v) app.audio.unlock(); }), 'set-sound'),
@@ -974,7 +1053,7 @@
         '<h3>Keys</h3>' +
         '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
         '<h3>The draft</h3>' +
-        '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins and the people are lettered cards.</p>' +
+        '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins, and the places and people are prints drawn in code, from shapes.</p>' +
         '<h3>Director mode</h3>' +
         '<p>For writing the game while you play it. Tap any line to rewrite it, cut it, add a line after it, or leave Claude a note. Reword a choice without choosing it. Answer a writing prompt where it comes up. Step back to try the other branch. Your edits play in the game straight away.</p>' +
         '<p>When you have a batch, open the Director\'s desk and send them to Claude, who works them into the story files and puts up a new build. Each edit shows what became of it.</p>';

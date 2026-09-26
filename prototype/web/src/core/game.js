@@ -7,11 +7,17 @@
 //   NARRATOR: text        the teller, years later
 //   #check: father 8 {n}  on a choice: a check lent by that voice, target 8, situational modifier n
 //   #loc: pool            on a choice: where it happens (lights up that spot on the floor sketch)
+//   #room: -fighter +kid  on a choice: who it puts out of his head and lets in (the page previews it)
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
 //
 // Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
 // can find it again. After a choice, a {kind:'diff'} item lists the story variables it changed.
+// When he moves, a {kind:'place'} item marks where the new place starts, with what a plate of it
+// would show at that moment (_plateState).
+//
+// The sketch: what he last saw of the room and the doors, and when (see _see). The floor sketch
+// draws from it, so what he hasn't looked at in a while goes stale on the page.
 (function (B) {
   'use strict';
 
@@ -19,6 +25,7 @@
   const LOG_CAP = 1500;
   const SAVE_LOG = 80;
   const SAVE_VERSION = 1;
+  const ROOM = { door: true, floor: true, bar: true, t28: true, pool: true };   // one room: seen from anywhere in it
 
   // "door_hoodie.read.0.c-1" -> "door_hoodie"; top-level content ("0") -> ""
   function knotOf(p) {
@@ -86,6 +93,7 @@
       this.suppressed = 0;
       this._pending = [];
       this.seed = 0;
+      this.sketch = {};
     }
 
     _makeStory() {
@@ -154,7 +162,8 @@
         screen: this.screen,
         ended: this.ended,
         log: this.log.slice(-SAVE_LOG),
-        path: this.path.slice()
+        path: this.path.slice(),
+        sketch: B.util.deepClone(this.sketch)
       };
     }
 
@@ -176,6 +185,7 @@
       this.ended = !!save.ended;
       this.log = (save.log || []).slice();
       this.path = (save.path || []).slice();
+      this.sketch = save.sketch || {};
       this.choices = this._readChoices();
       return { items: [], choices: this.choices, ended: this.ended };
     }
@@ -218,6 +228,11 @@
     }
 
     speaker(label) { return this.speakers[label] || null; }
+
+    here() {
+      const h = inkValue(this.getVar('here'));
+      return Array.isArray(h) ? (h[0] || '') : String(h || '');
+    }
 
     // ---- flow ------------------------------------------------------------
 
@@ -298,6 +313,7 @@
         let text;
         let from = '';
         try { from = story.state.currentPathString || ''; } catch (e) { from = ''; }
+        const wasHere = this.here();
         try {
           text = story.Continue();
         } catch (e) {
@@ -312,6 +328,8 @@
         try { const pp = story.state.previousPointer; last = pp && !pp.isNull && pp.path ? pp.path.toString() : ''; } catch (e) { last = ''; }
         // effects raised by external functions during this Continue
         while (this._pending.length) items.push(this._pending.shift());
+        const nowHere = this.here();
+        if (nowHere !== wasHere) items.push({ kind: 'place', here: nowHere, from: wasHere, clock: this.getVar('clock') | 0, state: this._plateState() });
         this._line(text, tags, items, events, from, last);
       }
     }
@@ -393,18 +411,27 @@
       if (after.tension !== before.tension) events.push({ at: items.length, name: after.tension > before.tension ? 'tension_up' : 'tension_down' });
 
       // Barks: at most one per event, inserted where the event happened (last first, so indexes hold).
+      // After each, another voice in the room may answer it.
       const getVar = this.getVar.bind(this);
       const picked = [];
       const usedThisBatch = new Set();
+      const barkItem = (rule, answer) => ({ kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, answer: answer || undefined, screen: this.screen });
       for (const ev of events) {
-        const rule = this.barks.pick(ev.name, getVar, this.psyche, this.barksUsed.concat(Array.from(usedThisBatch)), this.rng);
+        const rule = this.barks.pick(ev.name, getVar, this.psyche, this.barksUsed, this.rng);
         if (!rule || usedThisBatch.has(rule.speaker)) continue;
         usedThisBatch.add(rule.speaker);
         if (rule.once) this.barksUsed.push(rule.id);
-        picked.push({ at: Math.min(ev.at, items.length), item: { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, screen: this.screen } });
+        const said = [barkItem(rule)];
+        const reply = this.barks.pick('answer:' + rule.speaker, getVar, this.psyche, this.barksUsed, this.rng, rule.speaker);
+        if (reply && !usedThisBatch.has(reply.speaker)) {
+          usedThisBatch.add(reply.speaker);
+          if (reply.once) this.barksUsed.push(reply.id);
+          said.push(barkItem(reply, rule.speaker));
+        }
+        picked.push({ at: Math.min(ev.at, items.length), said: said });
       }
       picked.sort(function (a, b) { return b.at - a.at; });
-      for (const p of picked) items.splice(p.at, 0, p.item);
+      for (const p of picked) items.splice.apply(items, [p.at, 0].concat(p.said));
       this.psyche.record(after.clock);
     }
 
@@ -430,18 +457,62 @@
             if (!this.psyche.isSeated(spec.voice)) ch.hidden = true;
           }
         }
+        // "#room: -fighter +table": who this choice lets in or puts out of his head, so the page
+        // can show what the room would sound like after
+        if (tv.room) {
+          const next = this.psyche.seated.slice();
+          for (const op of String(tv.room).split(/\s+/)) {
+            const v = op.slice(1).toLowerCase();
+            if (op[0] === '+' && v && next.indexOf(v) === -1) next.push(v);
+            if (op[0] === '-') { const at = next.indexOf(v); if (at !== -1) next.splice(at, 1); }
+          }
+          ch.room = { seated: next, now: this.psyche.tension(), full: next.length > B.Psyche.MAX_SEATS };
+          ch.room.tension = ch.room.full ? null : this.psyche.tension(next);
+        }
         out.push(ch);
       }
       return out;
     }
 
+    // What a plate of the place he's walked into can show (src/ui/plates.js): how full the room is,
+    // table 28's rounds, the pool table's heat, the rats, which doors are propped.
+    _plateState() {
+      const g = this.getVar.bind(this);
+      return {
+        n: g('room_count') | 0, rounds: g('t28_rounds') | 0, heat: g('pool_heat') | 0, rats: g('rat_count') | 0,
+        deck: !!g('deck_door'), kitchen: !!g('kitchen_door'), hotel: !!g('hotel_door'), walter: g('walter') | 0
+      };
+    }
+
+    // What he can see from where he is goes into the sketch, with the time he saw it.
+    // Anywhere in the bar he sees the whole room; the doors he sees only when he's at them.
+    _see() {
+      const g = this.getVar.bind(this);
+      const here = this.here();
+      const c = g('clock') | 0;
+      const S = this.sketch;
+      if (ROOM[here]) {
+        S.room = c;
+        S.pool = { heat: g('pool_heat') | 0, at: c };
+        S.t28 = { rounds: g('t28_rounds') | 0, at: c };
+      }
+      if (here === 'door') S.door = c;
+      if (here === 'deck') S.deck = { open: !!g('deck_door'), at: c };
+      if (here === 'kitchen') S.kitchen = { open: !!g('kitchen_door'), at: c };
+      if (here === 'hall') S.hotel = { open: !!g('hotel_door'), at: c };
+      const lc = g('last_count') | 0;
+      if (lc && (!S.count || S.count.at !== lc)) S.count = { n: g('room_count') | 0, at: lc };
+    }
+
     _finish(items) {
+      this._see();
       this.choices = this._readChoices();
       if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
       for (const it of items) {
         if (it.kind === 'fx' || it.kind === 'pause') continue;
         this.log.push(it);
       }
+      // (place items are logged too: the page draws the place's plate from them on a redraw)
       if (this.log.length > LOG_CAP) this.log.splice(0, this.log.length - LOG_CAP);
       return { items: items, choices: this.choices, ended: this.ended };
     }

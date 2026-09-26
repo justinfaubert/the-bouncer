@@ -20,6 +20,7 @@ Made by **Hutch** (showrunner with final cut, music, sound, voice) and **Claude*
 | `bible/04_PRODUCTION.md` | Engine, content pipeline, folder layout, tools, art, sound, legal, milestones |
 | `bible/06_THE_HOTEL.md` | The building: the four doors, the pub, the rats' routes, the rooms upstairs |
 | `bible/05_LOG.md` | Session log, decisions register, open questions |
+| `bible/07_ENGAGEMENT.md` | What holds a player: the devices taken from Disco Elysium and what this game does past them |
 | `tools/psyche_census.py` | Generates the 34 psyche states and checks the math (zip only) |
 | `data/psyche_states.json` | Its output (zip only) |
 
@@ -46,7 +47,7 @@ Nothing moves from PROPOSED to DECIDED without Hutch's explicit OK.
 
 - The brief, the premise, the thirty-day frame and the Wednesday rats prologue are DECIDED.
 - The systems, the narrator, the engine and the art direction are PROPOSED and waiting on Hutch.
-- Nothing is built yet. There's no git repo yet.
+- Wednesday is written in Ink (`content/ink/`) and plays in the browser (`prototype/web/`, published as a private artifact), with director mode for editing it while playing. The folder is a git repo. (Updated 2026-09-26.)
 
 ## Next steps (linked session)
 
