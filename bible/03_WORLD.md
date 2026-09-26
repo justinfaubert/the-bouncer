@@ -76,6 +76,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 - He's the new hire, and day 1 is his test shift. [DECIDED]
 - His past is partly fixed and discoverable, partly invented, and his inventions become facts (`02_SYSTEMS.md`). [PROPOSED]
 - A regular-ish big guy, not a hulking steroid type. Thoughtful and self-aware enough to catch and engage with the details the game throws at him. [DECIDED]
+- Experienced at door work, but an individual, not a type. His past comes back through people and his body, never through a single object. [DECIDED]
 - Name, age, history, how he got the job. [OPEN]
 
 ### Table 28 [DECIDED, from Hutch's experience]

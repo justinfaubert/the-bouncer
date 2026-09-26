@@ -34,6 +34,7 @@ Update this file at the end of every session: add a session entry, move items be
 - "The following Friday" is day 3. (2026-09-26)
 - The bar is in a coastal hotel, which makes for recurring characters. It smells of beer, cleaner, piss, old wood and dust; carpeted floor, cheap stools, sturdy tables; four doors, the main one used, the others locked at night as a loose rule. (2026-09-26)
 - The bouncer is a regular-ish big guy, not a hulking steroid type: thoughtful and self-aware enough to catch and engage with the details the game throws at him. Many real bouncers have a violent disposition and aggressive style; he isn't built as that type. (2026-09-26)
+- The bouncer is experienced at door work, but an individual rather than a type. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
 
@@ -65,7 +66,7 @@ Update this file at the end of every session: add a session entry, move items be
 
 1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
 2. **The bar.** Drafted in `06_THE_HOTEL.md`; waiting on Hutch's cuts and the name.
-3. **The bouncer's first-day facts.** How he got the job, what he remembers, what people call him.
+3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED). Open: how he got this job, why he left the last one, what people call him.
 4. **The voices on day 1.** Who are the first five in the room?
 5. **The head bartender.** Who are they?
 6. **The rats.** What does siding with them look like on the first night?
