@@ -103,7 +103,7 @@ Regulars too.
 
 ### Roles proposed so far [PROPOSED]
 
-- **The head bartender:** his partner and witness, the game's Kim Kitsuragi.
+- **The head bartender:** his partner and witness, the game's Kim Kitsuragi. A lifer. [DECIDED]
 - **The owner:** runs on the money code.
 - **Other staff:** cook, barback, servers.
 - **Strangers at the door:** many of them, with portraits assembled from parts.
