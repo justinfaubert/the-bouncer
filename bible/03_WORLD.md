@@ -85,7 +85,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 
 > the high functioning boomer alcoholics at table 28 that are there rain or shine every day but Sundays. They operate as a hive mind with one voice most of the time with only small individual quirks, loud, feel like they own the place and spend more on booze than people spend on their houses.
 
-[PROPOSED] The hive fractures over the thirty days: as their world ends, the one voice breaks into individuals. Their code is loyalty, generosity, and we were here first.
+[DECIDED] Table 28 sustains itself to the end, even if people in it desert. [PROPOSED] Individuals may break off from the hive as their world ends; the table survives them. Their code is loyalty, generosity, and we were here first.
 
 ### The kids [DECIDED]
 
@@ -99,7 +99,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 
 ### The rats [DECIDED]
 
-Regulars too.
+Regulars too. Their numbers double if he ignores them. Throughout the game he has chances to parley with the Rat King, until the colony gets too huge or until he decides to exterminate them, which costs in other ways.
 
 ### Roles proposed so far [PROPOSED]
 

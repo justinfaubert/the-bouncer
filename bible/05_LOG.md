@@ -37,6 +37,8 @@ Update this file at the end of every session: add a session entry, move items be
 - The bouncer is experienced at door work, but an individual rather than a type. (2026-09-26)
 - His father taught him the door. The father is dead: a former alcoholic turned dry alcoholic. (2026-09-26)
 - The head bartender is a lifer, and drinks. The sober bartender is a narrative trope; the reality is the opposite. No one makes it out of the life unscathed. (2026-09-26)
+- Table 28 sustains itself to the end, even if people in it desert. (2026-09-26)
+- The rats: their numbers double if he ignores them. Throughout the game he has chances to parley with the Rat King, until the colony gets too huge or until he decides to exterminate them, which costs in other ways. (2026-09-26)
 - The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
@@ -75,7 +77,7 @@ Update this file at the end of every session: add a session entry, move items be
 3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED). Open: how he got this job, why he left the last one, what people call him.
 4. **The voices on day 1.** Who are the first five in the room?
 5. **The head bartender.** A lifer (DECIDED). Open: who, exactly.
-6. **The rats.** What does siding with them look like on the first night?
+6. **The rats.** Structure DECIDED (doubling, recurring parley with the Rat King, extermination at a cost). Open: what the Rat King is, and the first parley on Wednesday.
 
 ### Soon
 
