@@ -16,7 +16,7 @@ Update this file at the end of every session: add a session entry, move items be
 
 - Hutch answered the Blocking Wednesday questions one or two at a time (the 2026-09-26 entries under DECIDED).
 - Hutch asked to start building day 1: every thread on the night (the count, the big man at the pool table, the rats, table 28) branching into sub-choices with real outcomes, writing prompts left for him to write and rewrite, and the software bones (menus, and room to add art and music on top later).
-- Claude wrote Wednesday in Ink: twelve files in `content/ink/`, about 24,000 words, from the prologue to the dawn ledger. The 34 places that need Hutch's material or voice are listed in `content/WRITING_PROMPTS.md`.
+- Claude wrote Wednesday in Ink: twelve files in `content/ink/`, about 24,000 words, from the prologue to the dawn ledger. The 33 places that need Hutch's material or voice are listed in `content/WRITING_PROMPTS.md`.
 - Claude built the engine and a browser build around it (`prototype/web/`): title screen, the story page, the floor sketch, the voices in his head, his notes, the menu and settings, the incident log and the ledger, placeholder sound, and a slot for every piece of music, ambience, sound and portrait (`content/data/assets.yaml`).
 - `tools/bots.mjs` played hundreds of nights: every scene reached, every night ends at 3:20 am.
 - Published for Hutch to play as a private claude.ai artifact: https://claude.ai/artifact/J7S3kXF1LcQh3W8Z4u2nfi

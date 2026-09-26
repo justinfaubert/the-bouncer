@@ -98,7 +98,7 @@ function scanInk(files) {
       if (km) { knot = km[2]; if (!km[1]) knots.push(knot); }
       const stm = /^\s*=\s*([A-Za-z0-9_]+)\s*$/.exec(line);
       if (stm && !km) knots.push(knot + '.' + stm[1]);
-      const hutch = /\/\/\s*HUTCH:\s*(.+)$/.exec(line);
+      const hutch = /(?<!`)\/\/\s*HUTCH:\s*(.+)$/.exec(line);   // not one quoted in `backticks`
       if (hutch) prompts.push({ kind: 'comment', text: hutch[1].trim(), loc, knot });
       const code = line.replace(/\/\/.*$/, '');
       for (const m of code.matchAll(/#\s*prompt:\s*([^#]+)/g)) prompts.push({ kind: 'tag', text: m[1].trim(), loc, knot });
