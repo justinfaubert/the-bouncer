@@ -1,0 +1,1489 @@
+{
+  "about": "Relational psyche states for The Bouncer. Five voices; each of ten relationships allied (+1) or at odds (-1). 'conflicts' lists the at-odds pairs (voices 0-4) in a canonical labeling. 'tension' is the frustration index (0-4). 'configurations' counts how many of the 1024 labeled configurations land on the state. 'mirror' is the state or class with every relationship reversed.",
+  "verified": {
+    "states": 34,
+    "classes": 7,
+    "one_relationship_change_moves_tension_by": [
+      -1,
+      1
+    ],
+    "one_voice_reversing_all_loyalties_moves_tension_by": [
+      0
+    ]
+  },
+  "classes": [
+    {
+      "class": "A",
+      "tension": 0,
+      "states": [
+        "S01",
+        "S02",
+        "S03"
+      ],
+      "configurations": 16,
+      "share": 0.01562,
+      "spectrum": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        4.0
+      ],
+      "mirror": "G"
+    },
+    {
+      "class": "B",
+      "tension": 1,
+      "states": [
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "configurations": 160,
+      "share": 0.15625,
+      "spectrum": [
+        -2.372,
+        -1.0,
+        -1.0,
+        1.0,
+        3.372
+      ],
+      "mirror": "E"
+    },
+    {
+      "class": "C",
+      "tension": 2,
+      "states": [
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15"
+      ],
+      "configurations": 240,
+      "share": 0.23438,
+      "spectrum": [
+        -2.562,
+        -1.0,
+        -1.0,
+        1.562,
+        3.0
+      ],
+      "mirror": "D"
+    },
+    {
+      "class": "D",
+      "tension": 2,
+      "states": [
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S21"
+      ],
+      "configurations": 240,
+      "share": 0.23438,
+      "spectrum": [
+        -3.0,
+        -1.562,
+        1.0,
+        1.0,
+        2.562
+      ],
+      "mirror": "C"
+    },
+    {
+      "class": "E",
+      "tension": 3,
+      "states": [
+        "S22",
+        "S23",
+        "S24",
+        "S25",
+        "S26",
+        "S27"
+      ],
+      "configurations": 160,
+      "share": 0.15625,
+      "spectrum": [
+        -3.372,
+        -1.0,
+        1.0,
+        1.0,
+        2.372
+      ],
+      "mirror": "B"
+    },
+    {
+      "class": "F",
+      "tension": 3,
+      "states": [
+        "S28",
+        "S29",
+        "S30",
+        "S31"
+      ],
+      "configurations": 192,
+      "share": 0.1875,
+      "spectrum": [
+        -2.236,
+        -2.236,
+        0.0,
+        2.236,
+        2.236
+      ],
+      "mirror": "F"
+    },
+    {
+      "class": "G",
+      "tension": 4,
+      "states": [
+        "S32",
+        "S33",
+        "S34"
+      ],
+      "configurations": 16,
+      "share": 0.01562,
+      "spectrum": [
+        -4.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mirror": "A"
+    }
+  ],
+  "states": [
+    {
+      "id": "S01",
+      "class": "A",
+      "tension": 0,
+      "conflicts": [],
+      "n_conflicts": 0,
+      "conflict_degrees": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "configurations": 1,
+      "share": 0.00098,
+      "mirror": "S34",
+      "note": "all allied"
+    },
+    {
+      "id": "S02",
+      "class": "A",
+      "tension": 0,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        1,
+        1,
+        1,
+        1,
+        4
+      ],
+      "configurations": 5,
+      "share": 0.00488,
+      "mirror": "S33",
+      "note": ""
+    },
+    {
+      "id": "S03",
+      "class": "A",
+      "tension": 0,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S32",
+      "note": ""
+    },
+    {
+      "id": "S04",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ]
+      ],
+      "n_conflicts": 1,
+      "conflict_degrees": [
+        0,
+        0,
+        0,
+        1,
+        1
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S27",
+      "note": ""
+    },
+    {
+      "id": "S05",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ]
+      ],
+      "n_conflicts": 3,
+      "conflict_degrees": [
+        0,
+        1,
+        1,
+        1,
+        3
+      ],
+      "configurations": 20,
+      "share": 0.01953,
+      "mirror": "S26",
+      "note": ""
+    },
+    {
+      "id": "S06",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        1,
+        1,
+        2,
+        2,
+        4
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S24",
+      "note": ""
+    },
+    {
+      "id": "S07",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        1,
+        2,
+        2,
+        2,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S25",
+      "note": ""
+    },
+    {
+      "id": "S08",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "n_conflicts": 7,
+      "conflict_degrees": [
+        2,
+        2,
+        2,
+        4,
+        4
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S22",
+      "note": ""
+    },
+    {
+      "id": "S09",
+      "class": "B",
+      "tension": 1,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 7,
+      "conflict_degrees": [
+        2,
+        3,
+        3,
+        3,
+        3
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S23",
+      "note": ""
+    },
+    {
+      "id": "S10",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "n_conflicts": 2,
+      "conflict_degrees": [
+        0,
+        0,
+        1,
+        1,
+        2
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S21",
+      "note": ""
+    },
+    {
+      "id": "S11",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        1,
+        1,
+        1,
+        2,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S20",
+      "note": ""
+    },
+    {
+      "id": "S12",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        0,
+        2,
+        2,
+        2,
+        2
+      ],
+      "configurations": 15,
+      "share": 0.01465,
+      "mirror": "S19",
+      "note": ""
+    },
+    {
+      "id": "S13",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        1,
+        2,
+        2,
+        3,
+        4
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S17",
+      "note": ""
+    },
+    {
+      "id": "S14",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        2,
+        2,
+        2,
+        3,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S18",
+      "note": ""
+    },
+    {
+      "id": "S15",
+      "class": "C",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 8,
+      "conflict_degrees": [
+        3,
+        3,
+        3,
+        3,
+        4
+      ],
+      "configurations": 15,
+      "share": 0.01465,
+      "mirror": "S16",
+      "note": ""
+    },
+    {
+      "id": "S16",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "n_conflicts": 2,
+      "conflict_degrees": [
+        0,
+        1,
+        1,
+        1,
+        1
+      ],
+      "configurations": 15,
+      "share": 0.01465,
+      "mirror": "S15",
+      "note": ""
+    },
+    {
+      "id": "S17",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        0,
+        1,
+        2,
+        2,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S13",
+      "note": ""
+    },
+    {
+      "id": "S18",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S14",
+      "note": ""
+    },
+    {
+      "id": "S19",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      "configurations": 15,
+      "share": 0.01465,
+      "mirror": "S12",
+      "note": ""
+    },
+    {
+      "id": "S20",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        1,
+        2,
+        3,
+        3,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S11",
+      "note": ""
+    },
+    {
+      "id": "S21",
+      "class": "D",
+      "tension": 2,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "n_conflicts": 8,
+      "conflict_degrees": [
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S10",
+      "note": ""
+    },
+    {
+      "id": "S22",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "n_conflicts": 3,
+      "conflict_degrees": [
+        0,
+        0,
+        2,
+        2,
+        2
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S08",
+      "note": ""
+    },
+    {
+      "id": "S23",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 3,
+      "conflict_degrees": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S09",
+      "note": ""
+    },
+    {
+      "id": "S24",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        0,
+        2,
+        2,
+        3,
+        3
+      ],
+      "configurations": 30,
+      "share": 0.0293,
+      "mirror": "S06",
+      "note": ""
+    },
+    {
+      "id": "S25",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        1,
+        2,
+        2,
+        2,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S07",
+      "note": ""
+    },
+    {
+      "id": "S26",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "n_conflicts": 7,
+      "conflict_degrees": [
+        1,
+        3,
+        3,
+        3,
+        4
+      ],
+      "configurations": 20,
+      "share": 0.01953,
+      "mirror": "S05",
+      "note": ""
+    },
+    {
+      "id": "S27",
+      "class": "E",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "n_conflicts": 9,
+      "conflict_degrees": [
+        3,
+        3,
+        4,
+        4,
+        4
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S04",
+      "note": ""
+    },
+    {
+      "id": "S28",
+      "class": "F",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "n_conflicts": 3,
+      "conflict_degrees": [
+        0,
+        1,
+        1,
+        2,
+        2
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S31",
+      "note": ""
+    },
+    {
+      "id": "S29",
+      "class": "F",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        1,
+        1,
+        2,
+        3,
+        3
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S29",
+      "note": "the 'bull'; its own mirror"
+    },
+    {
+      "id": "S30",
+      "class": "F",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 5,
+      "conflict_degrees": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "configurations": 12,
+      "share": 0.01172,
+      "mirror": "S30",
+      "note": "conflicts form a five-cycle (the pentagon); its own mirror"
+    },
+    {
+      "id": "S31",
+      "class": "F",
+      "tension": 3,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "n_conflicts": 7,
+      "conflict_degrees": [
+        2,
+        2,
+        3,
+        3,
+        4
+      ],
+      "configurations": 60,
+      "share": 0.05859,
+      "mirror": "S28",
+      "note": ""
+    },
+    {
+      "id": "S32",
+      "class": "G",
+      "tension": 4,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 4,
+      "conflict_degrees": [
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "configurations": 10,
+      "share": 0.00977,
+      "mirror": "S03",
+      "note": ""
+    },
+    {
+      "id": "S33",
+      "class": "G",
+      "tension": 4,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "n_conflicts": 6,
+      "conflict_degrees": [
+        0,
+        3,
+        3,
+        3,
+        3
+      ],
+      "configurations": 5,
+      "share": 0.00488,
+      "mirror": "S02",
+      "note": ""
+    },
+    {
+      "id": "S34",
+      "class": "G",
+      "tension": 4,
+      "conflicts": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "n_conflicts": 10,
+      "conflict_degrees": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "configurations": 1,
+      "share": 0.00098,
+      "mirror": "S01",
+      "note": "all at odds"
+    }
+  ]
+}
