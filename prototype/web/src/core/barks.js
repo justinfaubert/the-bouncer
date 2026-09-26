@@ -131,5 +131,72 @@
     }
   }
 
+  // The word on him: what a group says about him when something he's done lands with them, by its
+  // own code (bible/02_SYSTEMS.md). Authored in content/rules/word.yaml.
+  //
+  // A rule:
+  //   id: t28_down_first
+  //   group: t28               # t28 | kids | staff | owner | cook (the rep_ variable it follows)
+  //   way: down                # up or down
+  //   when: [by >= 2]          # the same criteria as barks, plus two of its own:
+  //                            #   by   how far this act moved them (1 to 5)
+  //                            #   now  where he stands with them after it (-5 to 5)
+  //   text: He won't last.
+  //   once: true               # default true; a line with once: false can come round again
+  //
+  // The most specific rule that holds wins, a rule that has already been said is passed over, and
+  // when every line for a group has been said, the ones marked once: false come round again.
+  class Word {
+    // spec: { groups: {t28: 'Table 28', ...}, lines: [rule, ...] }
+    constructor(spec) {
+      spec = spec || {};
+      this.names = spec.groups || {};
+      this.rules = (spec.lines || []).map(function (r, i) {
+        const when = (r.when || []).map(parseCriterion);
+        return { id: r.id || ('word_' + i), group: String(r.group || ''), way: String(r.way || ''), text: r.text, when: when, once: r.once !== false, specificity: when.length };
+      });
+    }
+
+    groups() {
+      const out = new Set(Object.keys(this.names));
+      for (const r of this.rules) out.add(r.group);
+      return Array.from(out);
+    }
+
+    name(group) { return this.names[group] || group; }
+
+    pick(group, way, by, now, getVar, psyche, used, rng) {
+      const vars = function (name) { return name === 'by' ? by : name === 'now' ? now : getVar(name); };
+      const cands = this.rules.filter(function (r) {
+        if (r.group !== group || r.way !== way) return false;
+        if (r.once && used.indexOf(r.id) !== -1) return false;
+        for (const c of r.when) if (!test(c, vars, psyche, '')) return false;
+        return true;
+      });
+      if (!cands.length) return null;
+      // Lines not yet said tonight first, the most specific of them, and a one-off before a line
+      // that can come round again; a repeatable line that's been said waits until nothing else is left.
+      const fresh = cands.filter(function (r) { return used.indexOf(r.id) === -1; });
+      const pool = fresh.length ? fresh : cands;
+      const rank = function (r) { return r.specificity * 2 + (r.once ? 1 : 0); };
+      let top = -1;
+      for (const r of pool) if (rank(r) > top) top = rank(r);
+      return rng.pick(pool.filter(function (r) { return rank(r) === top; }));
+    }
+
+    variables() {
+      const out = new Set();
+      for (const r of this.rules) for (const c of r.when) if (c.kind === 'cmp' && c.name !== 'tension' && c.name !== 'by' && c.name !== 'now') out.add(c.name);
+      return Array.from(out);
+    }
+
+    badCriteria() {
+      const out = [];
+      for (const r of this.rules) for (const c of r.when) if (c.kind === 'bad') out.push(r.id + ': ' + c.src);
+      return out;
+    }
+  }
+
   B.Barks = Barks;
+  B.Word = Word;
 })(globalThis.Bouncer = globalThis.Bouncer || {});

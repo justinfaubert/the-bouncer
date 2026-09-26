@@ -509,6 +509,20 @@ button { font: inherit; color: inherit; }
 }
 .aside b { font-weight: 600; color: var(--ink-2); }
 
+/* the word on him: what a group will say about what he's just done, under the line where it
+ * landed. The group's name is stamped; red when it went against him. */
+.word { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: .2em .7em; margin: -.15em 0 1em; text-align: right; }
+.wd-who {
+  flex: none; padding: .14em .5em .08em; border: 1.5px solid currentColor; border-radius: 2px;
+  font-family: var(--f-ui); font-size: .72rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; line-height: 1.25;
+  color: var(--ink-2); transform: rotate(-1.4deg);
+}
+.wd-q { font-family: var(--f-read); font-style: italic; font-size: 1.02rem; color: var(--ink-2); quotes: "\201C" "\201D"; }
+.word.down .wd-who { color: var(--accent); }
+.word.fresh .wd-who { animation: wd-stamp .5s cubic-bezier(.2, .9, .3, 1.25) both; animation-delay: inherit; }
+@keyframes wd-stamp { 0% { opacity: 0; transform: rotate(-1.4deg) scale(1.7); } 60% { opacity: 1; } 100% { opacity: 1; transform: rotate(-1.4deg) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .word.fresh .wd-who { animation: none; } }
+
 /* ------------------------------------------------------------------ plates: the places and the people, printed
  * (src/ui/print.js, src/ui/plates.js). The prints keep their own paper and ink in both themes; the
  * hour of the night is laid over them as a wash (data-phase), the way the room's light changes.

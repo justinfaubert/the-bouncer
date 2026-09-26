@@ -86,7 +86,11 @@ function play(seed, policy, opts = {}) {
   const rng = new B.Rng((seed * 7919 + 13) >>> 0);
   let res = g.newGame(seed);
   const transcript = [];
-  const record = (items) => { if (opts.trace) for (const it of items) transcript.push(it); };
+  const words = [];
+  const record = (items) => {
+    for (const it of items) if (it.kind === 'word') words.push(it.group + ' ' + it.way + (it.text ? '' : ' (nothing to say)'));
+    if (opts.trace) for (const it of items) transcript.push(it);
+  };
   record(res.items);
   const problems = [];
   const path = [];
@@ -118,13 +122,14 @@ function play(seed, policy, opts = {}) {
   if (res.ended && !visited('ledger')) problems.push({ kind: 'dead-end', msg: 'the story ended before the dawn ledger', where: where(g), last: g.log.slice(-4).map((l) => l.text) });
   for (const e of g.errors) problems.push({ kind: e.type === 1 ? 'ink-warning' : 'ink-error', msg: e.message, where: where(g) });
   if (saveTest && !saveTest.ok) problems.push({ kind: 'save-load', msg: saveTest.msg, where: saveTest.where });
+  for (const w of words) if (w.endsWith('(nothing to say)')) problems.push({ kind: 'word', msg: 'the word on him ran out of lines: ' + w, where: where(g) });
 
   const v = g.vars();
   const knots = {};
   for (const k of content.meta.knots) if (visited(k)) knots[k] = 1;
 
   return {
-    seed, policy, steps, problems, knots, transcript, path,
+    seed, policy, steps, problems, knots, transcript, path, words,
     outcome: outcomeOf(v, g),
     checks: g.checkHistory.map((c) => ({ voice: c.voice, success: c.success })),
   };
@@ -204,6 +209,7 @@ if (TRACE !== null) {
     else if (it.kind === 'check') console.log(`  [${it.label} ${it.word}: rolled ${it.roll.d1}+${it.roll.d2} -> ${it.roll.total} vs ${it.target}, ${it.success ? 'success' : 'failure'}]`);
     else if (it.kind === 'task') console.log(`  [task ${it.op}: ${it.text}]`);
     else if (it.kind === 'psyche') console.log(`  [psyche: ${it.op} ${it.voice || (it.a + '/' + it.b)}]`);
+    else if (it.kind === 'word') console.log(`  [${it.who} ${it.way}: "${it.text}"]`);
     else if (it.kind === 'screen') console.log(`  [screen: ${it.name}]`);
   }
   console.log('\n---\n', JSON.stringify(r.outcome, null, 1));
@@ -272,6 +278,11 @@ for (const [k, vals] of Object.entries(hist)) {
   const parts = Object.entries(vals).sort((a, b) => b[1] - a[1]).map(([v, n]) => `${v} ${Math.round((100 * n) / RUNS)}%`);
   console.log(`  ${k.padEnd(32)} ${parts.join(', ')}`);
 }
+console.log('\nTHE WORD ON HIM (a night, on average)');
+const wordTally = {};
+for (const r of results) for (const w of r.words) wordTally[w] = (wordTally[w] || 0) + 1;
+for (const [k, n] of Object.entries(wordTally).sort()) console.log(`  ${k.padEnd(32)} ${(n / RUNS).toFixed(1)}`);
+
 console.log('\nCHECKS');
 for (const [v, c] of Object.entries(checks)) console.log(`  ${v.padEnd(10)} ${c.n} rolled, ${Math.round((100 * c.pass) / c.n)}% passed`);
 

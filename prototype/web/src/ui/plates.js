@@ -2669,13 +2669,17 @@
     knowing: { lid: 0.5, squint: 0.3, brow: -0.15, smile: 0.4, asym: 1 }
   };
 
+  const LEAN = { warm: 'smile', cold: 'hard' };
+
   function planFace(id, look, r) {
     look = look || {};
     const n = function (a, b) { return a + (b - a) * r(); };
     const fem = look.sex === 'f', young = look.age === 'young', old = look.age === 'old';
     const big = look.build === 'big', slight = look.build === 'slight';
     const face = [].concat(look.face || []), extra = [].concat(look.extra || []);
-    const mood = MOODS[look.mood] || MOODS.flat;
+    // how he stands with them can change the face they make at him (lean: warm | cold), never the face
+    const mood = MOODS[look.lean ? look[look.lean] || LEAN[look.lean] : look.mood] || MOODS[look.mood] || MOODS.flat;
+    const lean = r();
     const hw = (big ? 27.5 : slight ? 23.2 : 24.8) * (fem ? 0.93 : 1) * (young ? 0.97 : 1) * n(0.95, 1.05);
     const hh = (big ? 75 : 71) * (fem ? 0.96 : 1) * n(0.97, 1.03);
     const ty = n(15, 18) + (big ? -2 : 0) + (young ? 1 : 0), cx = 60 + n(-1.5, 1.5), turn = n(-0.35, 0.35);
@@ -2693,7 +2697,7 @@
       mw: hw * (fem ? n(0.27, 0.32) : n(0.26, 0.33)), lip: fem ? n(1.8, 2.4) : young ? n(1.4, 1.9) : old ? n(0.9, 1.3) : n(1.2, 1.8),
       ear: hh * n(0.15, 0.18), neck: hw * (big ? 0.66 : fem ? 0.4 : slight ? 0.46 : 0.52),
       sw: big ? 72 : slight ? 52 : fem ? 50 : 58,
-      tilt: n(-0.04, 0.04) + (mood.tilt ? (r() < 0.5 ? -0.06 : 0.06) : 0),
+      tilt: n(-0.04, 0.04) + (mood.tilt ? (lean < 0.5 ? -0.06 : 0.06) : 0),
       face: face, extra: extra, hair: look.hair || null, hat: look.hat || null, top: look.top || 'jacket',
       skin: n(0.06, 0.12) + (old ? 0.03 : 0),
       hairTone: old ? n(0.36, 0.5) : n(0.84, 0.95)
@@ -3280,11 +3284,12 @@
     ['team_jacket', 36, 92, 0.64, { age: 'old', hair: 'thin', top: 'jacket', mood: 'smile' }],
     ['glasses', 85, 93, 0.64, { age: 'old', hair: 'short', top: 'tshirt', face: ['glasses', 'moustache'], mood: 'drunk' }]
   ];
-  function paintTable(j, id, look, r) {
+  function paintTable(j, id, look0, r) {
     const k = j.k, rd = j.r, C = (globalThis.BOUNCER_CONTENT && globalThis.BOUNCER_CONTENT.characters) || {};
     const dry = PR.job(FW, FH, j.scale);
     for (const m of T28) {
-      const look = (C[m[0]] && C[m[0]].look) || m[4];
+      const base = (C[m[0]] && C[m[0]].look) || m[4];
+      const look = look0 && look0.lean ? Object.assign({}, base, { lean: look0.lean }) : base;
       // a dry run for the silhouette, to take the red out from under them; then for real
       for (const jj of [dry, j]) {
         const rr = rng(seedOf('face:' + m[0])), p = planFace(m[0], look, rr);

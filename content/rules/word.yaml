@@ -1,0 +1,92 @@
+# The word on him: what a group says about him when something he's done lands with them.
+#
+# Every group judges him by its own code (bible/02_SYSTEMS.md): table 28 by loyalty, generosity
+# and who was here first; the kids by don't be fake, don't be a rat; the bartender by having each
+# other's backs; the owner by money; the cook by don't make my night worse. When the Ink moves one
+# of their rep_ numbers, the page shows what they'll say about him, right under the line where it
+# happened. The numbers stay hidden. One act can be honour to one group and betrayal to another,
+# and then both show.
+#
+# The engine picks the most specific line whose criteria hold and that hasn't been said tonight.
+# Criteria are the same as barks.yaml, plus two of their own:
+#   by    how far this act moved them (1 to 5)
+#   now   where he stands with them after it (-5 to 5)
+# A line with once: false can come round again when everything else for that group has been said.
+#
+# All of these are Claude's drafts, in each group's own words. Rewrite freely, or tell Claude.
+# The build checks the variable names.
+
+groups:
+  t28: Table 28
+  kids: The kids
+  staff: The bartender
+  owner: The owner
+  cook: The cook
+
+lines:
+
+# ---------------------------------------------------------------- table 28
+
+- {id: t28_up_allright, group: t28, way: up, text: "He's all right."}
+- {id: t28_up_getone, group: t28, way: up, text: "Somebody get him one."}
+- {id: t28_up_first, group: t28, way: up, text: "He knows who was here first."}
+- {id: t28_up_big, group: t28, way: up, when: [by >= 2], text: "Now that's a doorman."}
+- {id: t28_up_best, group: t28, way: up, when: [now >= 3], text: "Best they've had on that door in years."}
+- {id: t28_up_again, group: t28, way: up, once: false, text: "Good man."}
+
+- {id: t28_down_who, group: t28, way: down, text: "Who does he think he is."}
+- {id: t28_down_before, group: t28, way: down, text: "We were here before him."}
+- {id: t28_down_last, group: t28, way: down, when: [knows has old_doorman], text: "Same as the last one."}
+- {id: t28_down_big, group: t28, way: down, when: [by >= 2], text: "He won't last."}
+- {id: t28_down_week, group: t28, way: down, when: [now <= -3], text: "Give him a week."}
+- {id: t28_down_again, group: t28, way: down, once: false, text: "Not one of ours."}
+
+# ---------------------------------------------------------------- the kids
+
+- {id: kids_up_real, group: kids, way: up, text: "Okay. He's real."}
+- {id: kids_up_chill, group: kids, way: up, text: "He's actually chill."}
+- {id: kids_up_cop, group: kids, way: up, text: "Not a cop about it, at least."}
+- {id: kids_up_big, group: kids, way: up, when: [by >= 2], text: "Respect."}
+- {id: kids_up_again, group: kids, way: up, once: false, text: "Fair."}
+
+- {id: kids_down_cop, group: kids, way: down, text: "Such a cop."}
+- {id: kids_down_trip, group: kids, way: down, text: "Power trip much?"}
+- {id: kids_down_fake, group: kids, way: down, text: "Fake."}
+- {id: kids_down_big, group: kids, way: down, when: [by >= 2], text: "Narc."}
+- {id: kids_down_rat, group: kids, way: down, when: [now <= -3], text: "He's a rat."}
+- {id: kids_down_again, group: kids, way: down, once: false, text: "Whatever."}
+
+# ---------------------------------------------------------------- the bartender (staff)
+
+- {id: staff_up_huh, group: staff, way: up, text: "Huh."}
+- {id: staff_up_okay, group: staff, way: up, text: "Okay."}
+- {id: staff_up_big, group: staff, way: up, when: [by >= 2], text: "Good."}
+- {id: staff_up_stick, group: staff, way: up, when: [now >= 3], text: "He might stick."}
+- {id: staff_up_again, group: staff, way: up, once: false, text: "Fine."}
+
+- {id: staff_down_great, group: staff, way: down, text: "Great."}
+- {id: staff_down_unbel, group: staff, way: down, text: "Unbelievable."}
+- {id: staff_down_right, group: staff, way: down, text: "Right."}
+- {id: staff_down_big, group: staff, way: down, when: [by >= 2], text: "On his own, then."}
+- {id: staff_down_done, group: staff, way: down, when: [now <= -3], text: "Not my problem."}
+- {id: staff_down_again, group: staff, way: down, once: false, text: "Sure."}
+
+# ---------------------------------------------------------------- the owner
+
+- {id: owner_up_pay, group: owner, way: up, text: "That's what I pay him for."}
+- {id: owner_up_money, group: owner, way: up, text: "Good. Money's money."}
+- {id: owner_up_again, group: owner, way: up, once: false, text: "Good."}
+
+- {id: owner_down_pay, group: owner, way: down, text: "What am I paying him for?"}
+- {id: owner_down_pocket, group: owner, way: down, text: "That's coming out of somebody's pay."}
+- {id: owner_down_again, group: owner, way: down, once: false, text: "Not good."}
+
+# ---------------------------------------------------------------- the cook
+
+- {id: cook_up_finally, group: cook, way: up, text: "Finally. Somebody."}
+- {id: cook_up_less, group: cook, way: up, text: "One less thing."}
+- {id: cook_up_again, group: cook, way: up, once: false, text: "Good."}
+
+- {id: cook_down_great, group: cook, way: down, text: "Perfect. Great."}
+- {id: cook_down_enough, group: cook, way: down, text: "Like I don't have enough going on."}
+- {id: cook_down_again, group: cook, way: down, once: false, text: "Great."}

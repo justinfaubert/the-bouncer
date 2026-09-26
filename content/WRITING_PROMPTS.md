@@ -11,11 +11,11 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/door.ink
 
-3. **door_hoodie** (`content/ink/door.ink:56`): How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
-4. **ev_sister** (`content/ink/door.ink:222`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-5. **ev_sister** (`content/ink/door.ink:237`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-6. **door_banned** (`content/ink/door.ink:502`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-7. **door_wife** (`content/ink/door.ink:634`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+3. **door_hoodie** (`content/ink/door.ink:65`): How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
+4. **ev_sister** (`content/ink/door.ink:231`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+5. **ev_sister** (`content/ink/door.ink:246`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+6. **door_banned** (`content/ink/door.ink:511`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+7. **door_wife** (`content/ink/door.ink:643`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 

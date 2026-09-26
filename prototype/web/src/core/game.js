@@ -14,7 +14,9 @@
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
 // can find it again. After a choice, a {kind:'diff'} item lists the story variables it changed.
 // When he moves, a {kind:'place'} item marks where the new place starts, with what a plate of it
-// would show at that moment (_plateState).
+// would show at that moment (_plateState). When something he does lands with one of the groups
+// that judge him (rep_t28, rep_kids ...), a {kind:'word'} item follows the line it happened on:
+// what they'll say about him (content/rules/word.yaml).
 //
 // The sketch: what he last saw of the room and the doors, and when (see _see). The floor sketch
 // draws from it, so what he hasn't looked at in a while goes stale on the page.
@@ -26,6 +28,7 @@
   const SAVE_LOG = 80;
   const SAVE_VERSION = 1;
   const ROOM = { door: true, floor: true, bar: true, t28: true, pool: true };   // one room: seen from anywhere in it
+  const GROUPS = ['t28', 'kids', 'staff', 'owner', 'cook'];                       // rep_<group> in main.ink
 
   // "door_hoodie.read.0.c-1" -> "door_hoodie"; top-level content ("0") -> ""
   function knotOf(p) {
@@ -73,6 +76,7 @@
       for (const id in this.voiceDefs) this.speakers[id.toUpperCase()] = { id: id, kind: 'voice', def: this.voiceDefs[id] };
       for (const id in this.charDefs) this.speakers[id.toUpperCase()] = { id: id, kind: 'character', def: this.charDefs[id] };
       this.barks = new B.Barks(content.barks || []);
+      this.word = new B.Word(content.word || {});
       this.psyche = new B.Psyche(this.voiceDefs, content.psyche);
       this.rng = new B.Rng(1);
       this.story = null;
@@ -86,6 +90,7 @@
       this.tasks = {};
       this.checkHistory = [];
       this.barksUsed = [];
+      this.wordUsed = [];
       this.turn = 0;
       this.screen = null;
       this.ended = false;
@@ -157,6 +162,7 @@
         psyche: this.psyche.toJSON(),
         rng: this.rng.getState(),
         barksUsed: this.barksUsed.slice(),
+        wordUsed: this.wordUsed.slice(),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
         screen: this.screen,
@@ -178,6 +184,7 @@
       this.rng.setState(save.rng);
       this.psyche.fromJSON(save.psyche);
       this.barksUsed = (save.barksUsed || []).slice();
+      this.wordUsed = (save.wordUsed || []).slice();
       this.tasks = save.tasks || {};
       this.checkHistory = (save.checks || []).slice();
       this.turn = save.turn | 0;
@@ -314,6 +321,7 @@
         let from = '';
         try { from = story.state.currentPathString || ''; } catch (e) { from = ''; }
         const wasHere = this.here();
+        const stood = this._standing();
         try {
           text = story.Continue();
         } catch (e) {
@@ -326,12 +334,64 @@
         // knot, and the last pointer after it can have run on past the line, so keep both.
         let last = '';
         try { const pp = story.state.previousPointer; last = pp && !pp.isNull && pp.path ? pp.path.toString() : ''; } catch (e) { last = ''; }
+        const at = items.length;
         // effects raised by external functions during this Continue
         while (this._pending.length) items.push(this._pending.shift());
         const nowHere = this.here();
         if (nowHere !== wasHere) items.push({ kind: 'place', here: nowHere, from: wasHere, clock: this.getVar('clock') | 0, state: this._plateState() });
         this._line(text, tags, items, events, from, last);
+        // What people will say about what he's just done goes under the line that shows it. The Ink
+        // sets it just before or after the narration, and runs the logic after a line on its way to
+        // the next one, so it usually goes under this line. But when there's more to come, Ink has
+        // stopped at the end of this line, and the last pointer says where the line came from: if
+        // that's somewhere else (back on the floor, the room, something across it), the change
+        // belongs to the scene before, and it goes in above.
+        const said = this._word(stood);
+        if (said.length) {
+          let line = null;
+          for (let k = at; k < items.length; k++) if (items[k].kind === 'line') { line = items[k]; break; }
+          const origin = line ? (line.knot2 || line.knot || '') : '';
+          const above = story.canContinue && line && origin && knotOf(from) && origin !== knotOf(from);
+          const i = above ? at : items.length;
+          items.splice.apply(items, [i, 0].concat(said));
+          for (const ev of events) if (ev.at > i && ev.at !== Infinity) ev.at += said.length;
+        }
       }
+    }
+
+    // How the person in a portrait looks at him: warm once he stands well with their group, cold
+    // once he's in their bad books (characters.yaml, standing).
+    _lean(portrait) {
+      for (const id in this.charDefs) {
+        const d = this.charDefs[id];
+        if (d.portrait !== portrait || !d.standing) continue;
+        const v = this.getVar('rep_' + d.standing) | 0;
+        return v >= 2 ? 'warm' : v <= -2 ? 'cold' : '';
+      }
+      return '';
+    }
+
+    // where he stands with each group that judges him, -5 .. 5
+    _standing() {
+      const out = {};
+      for (const g of GROUPS) out[g] = this.getVar('rep_' + g) | 0;
+      return out;
+    }
+
+    // What he's just done has landed with someone: what they'll say about him.
+    _word(before) {
+      const now = this._standing();
+      const getVar = this.getVar.bind(this);
+      const out = [];
+      for (const g of GROUPS) {
+        const d = now[g] - before[g];
+        if (!d) continue;
+        const way = d > 0 ? 'up' : 'down';
+        const rule = this.word.pick(g, way, Math.abs(d), now[g], getVar, this.psyche, this.wordUsed, this.rng);
+        out.push({ kind: 'word', group: g, who: this.word.name(g), way: way, by: Math.abs(d), text: rule ? rule.text : '', id: rule ? rule.id : '', turn: this.turn, screen: this.screen });
+        if (rule) this.wordUsed.push(rule.id);
+      }
+      return out;
     }
 
     _line(rawText, tags, items, events, from, last) {
@@ -341,8 +401,11 @@
 
       for (const t of parsed) {
         switch (t.key) {
-          case 'sfx': case 'music': case 'amb': case 'portrait': case 'bg':
+          case 'sfx': case 'music': case 'amb': case 'bg':
             items.push({ kind: 'fx', type: t.key, id: String(t.value) });
+            break;
+          case 'portrait':
+            items.push({ kind: 'fx', type: t.key, id: String(t.value), lean: this._lean(String(t.value)) });
             break;
           case 'screen':
             this.screen = (t.value === 'none' || t.value === true) ? null : String(t.value);

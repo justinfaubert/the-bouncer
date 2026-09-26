@@ -498,6 +498,23 @@
     return p;
   }
 
+  // The word on him: what a group will say about what he's just done, by its own code, under the
+  // line where it landed (content/rules/word.yaml). Red when it went against him.
+  function wordNode(it) {
+    if (!it.text) return null;
+    const p = document.createElement('p');
+    p.className = 'word ' + (it.way === 'down' ? 'down' : 'up');
+    p.setAttribute('data-group', it.group);
+    const who = document.createElement('span');
+    who.className = 'wd-who';
+    who.textContent = it.who || it.group;
+    const q = document.createElement('q');
+    q.className = 'wd-q';
+    q.textContent = it.text;
+    p.append(who, q);
+    return p;
+  }
+
   function psycheText(it) {
     if (it.op === 'seat') return '<b>' + esc(voiceLabel(it.voice)) + '</b> has a seat in his head now.';
     if (it.op === 'unseat') return '<b>' + esc(voiceLabel(it.voice)) + '</b> is out of his head.';
@@ -508,10 +525,13 @@
 
   // A person the first time the Ink shows them: the art when there is some, otherwise a face printed
   // from the parts in their `look:` (content/data/characters.yaml, src/ui/plates.js).
-  function portraitNode(id) {
+  // lean: how they look at him tonight (warm, cold, or as they are), from where he stood with
+  // their group when the portrait came up
+  function portraitNode(id, lean) {
     if (!app.settings.plates) return null;
     let label = id, look = null;
     for (const k in C.characters) if (C.characters[k].portrait === id) { label = C.characters[k].label || k; look = C.characters[k].look || null; break; }
+    if (look && lean) look = Object.assign({}, look, { lean: lean });
     const slot = (C.assets.portraits || {})[id] || {};
     const fig = document.createElement('figure');
     fig.className = 'portrait';
@@ -620,6 +640,7 @@
           case 'dnote': add(app.dir.noteNode(it), it.screen || null); break;
           case 'place': { const pl = placeNode(it); if (pl) add(pl, null); break; }
           case 'diff': { const d = app.dir.diffNode(it); if (d) add(d); break; }
+          case 'word': { const w = wordNode(it); if (w) add(w, it.screen || null); break; }
           case 'check': {
             const roll = rollCard(it);
             add(roll.node);
@@ -653,7 +674,7 @@
             ensureBlock(it.name || null);
             break;
           case 'fx':
-            if (it.type === 'portrait') { const po = portraitNode(it.id); if (po) add(po); }
+            if (it.type === 'portrait') { const po = portraitNode(it.id, it.lean); if (po) add(po); }
             else if (live) fx(it, add);
             break;
           case 'pause':

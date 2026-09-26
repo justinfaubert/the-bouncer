@@ -5,6 +5,15 @@
 === at_door ===
 ~ here = door
 ~ door_away = 0
+// Back on the door after people came in without him: the signs of it. (Claude's draft.)
+{ walk_ins > walk_ins_seen:
+    { walk_ins - walk_ins_seen == 1:
+        Wet footprints on the mat that weren't his, going in. Somebody had come through while he was gone.
+    - else:
+        Wet footprints on the mat, more than one set, none of them his, all going in.
+    }
+    ~ walk_ins_seen = walk_ins
+}
 { due(): -> hub }
 { clock >= LAST_CALL: -> hub }
 {

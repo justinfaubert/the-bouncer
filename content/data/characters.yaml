@@ -16,7 +16,11 @@
 #               sex    f (leave it out for a man)
 #               age    young | old
 #               mood   flat | tired | wary | hard | drunk | smile | knowing (how the night sits on them)
+#               warm   the mood they wear once he stands well with them (default smile)
+#               cold   the mood they wear once he's in their bad books (default hard)
 #               group  5 (a table's worth, drawn as one: each of the five from their own look below)
+#   standing  the group whose opinion of him shows on this face: t28 | kids | staff | cook
+#             (rep_<group> in main.ink; at 2 or more they look at him warm, at -2 or less cold)
 #   note      for writers; not shown in the game
 #
 # Everyone here is a draft except where noted. Table 28, the kids, the regulars and the lifer
@@ -26,55 +30,61 @@
 bartender:
   label: THE BARTENDER
   portrait: bartender
-  look: {build: slight, sex: f, hair: bun, face: [lined], top: apron, extra: [knife], mood: hard}
+  standing: staff
+  look: {build: slight, sex: f, hair: bun, face: [lined], top: apron, extra: [knife], mood: hard, warm: knowing, cold: flat}
   note: The lifer (DECIDED). Draft - a woman in her fifties, at the Sov since she was a server at nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week.
 
 table28:
   label: TABLE 28
   portrait: table28
+  standing: t28
   look: {group: 5}
   note: The hive (DECIDED). Five high-functioning boomer alcoholics, every day but Sunday. One voice most of the time.
 team_jacket:
   label: TEAM JACKET
-  look: {age: old, hair: thin, top: jacket, mood: smile}
+  look: {age: old, hair: thin, top: jacket, mood: smile, warm: drunk}
   note: Table 28. Same jacket every day. The loudest; talks for the table when the table isn't talking as one.
 hearing_aid:
   label: HEARING AID
-  look: {age: old, hair: bald, top: flannel, face: [hearingaid]}
+  look: {age: old, hair: bald, top: flannel, face: [hearingaid], cold: wary}
   note: Table 28. Repeats the last word anyone says. Turns the aid down when he disagrees.
 scratch:
   label: SCRATCH
-  look: {age: old, hat: cap, top: coat, face: [stubble], mood: tired}
+  look: {age: old, hat: cap, top: coat, face: [stubble], mood: tired, warm: knowing}
   note: Table 28. Lottery tickets all afternoon. Feeds the rat.
 cardigan:
   label: CARDIGAN
-  look: {age: old, hair: parted, top: cardigan}
+  look: {age: old, hair: parted, top: cardigan, cold: wary}
   note: Table 28. The quiet one. Retired from something with a pension.
 glasses:
   label: GLASSES
-  look: {age: old, hair: short, top: tshirt, face: [glasses, moustache], mood: drunk}
+  look: {age: old, hair: short, top: tshirt, face: [glasses, moustache], mood: drunk, warm: drunk}
   note: Table 28. Dennis. His wife comes looking for him.
 
 cook:
   label: THE COOK
   portrait: cook
-  look: {hair: short, face: [stubble], top: tshirt, mood: tired}
+  standing: cook
+  look: {hair: short, face: [stubble], top: tshirt, mood: tired, warm: knowing}
   note: Props the kitchen door because the fryer runs hot. Wants the rats dead because the inspector costs him shifts.
 
 hoodie:
   label: HOODIE
   portrait: hoodie
-  look: {age: young, hat: hood, top: hoodie, face: [earbuds], extra: [phone], mood: wary}
+  standing: kids
+  look: {age: young, hat: hood, top: hoodie, face: [earbuds], extra: [phone], mood: wary, warm: flat}
   note: One of the kids (DECIDED group). Nineteen, earbuds, a photo of his ID on his phone. His father is the big man at the pool table (draft).
 driver:
   label: THE DRIVER
   portrait: driver
-  look: {sex: f, age: young, hair: ponytail, top: jacket, extra: [keys], mood: hard}
+  standing: kids
+  look: {sex: f, age: young, hair: ponytail, top: jacket, extra: [keys], mood: hard, warm: knowing, cold: wary}
   note: His sister, twenty-two, sober, the one with the keys. Came to tell their father something (draft).
 vape:
   label: VAPE
   portrait: vape
-  look: {age: young, hair: messy, top: hoodie, extra: [vape], mood: drunk}
+  standing: kids
+  look: {age: young, hair: messy, top: hoodie, extra: [vape], mood: drunk, warm: drunk}
   note: The sister's boyfriend. Twenty. Drunk before he got here. The unpredictable one.
 
 bigman:

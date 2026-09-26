@@ -46,6 +46,7 @@ VAR count_in = 0            // the clicker
 
 VAR door_away = 0           // minutes the main door has gone unwatched
 VAR walk_ins = 0            // people who drifted in while he was away from the door
+VAR walk_ins_seen = 0       // how many of them he's seen the signs of, back at the door
 VAR uncounted = 0           // people inside who never passed his clicker
 VAR room_count = 13         // how many are actually in the building's bar
 VAR deck_door = true        // propped open with a folded coaster
