@@ -2,6 +2,8 @@
 
 ## Setting [DECIDED 2026-09-26: unique and invented, modern technology, not cyberpunk]
 
+A town on the east coast of an island like Vancouver Island: Hutch's own town, generalized, with features from the general coastal BC feeling. [DECIDED]
+
 The brief: a contentious time in history at the end of an empire, in a rowdy bar that's dingy, lived in, and as debaucherous as it really is and no more. [DECIDED]
 
 Three routes:
@@ -34,7 +36,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 
 - Sundays, when table 28 is absent, fall on days 5, 12, 19 and 26.
 - Fridays fall on days 3, 10, 17 and 24.
-- "The following Friday" is read as day 3. **[OPEN: confirm]**
+- "The following Friday" is day 3. [DECIDED]
 - Day 2, Thursday, teaches the daytime part of the game. [PROPOSED]
 
 ## Day 1: the test shift and the rats

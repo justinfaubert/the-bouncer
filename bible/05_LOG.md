@@ -30,6 +30,8 @@ Update this file at the end of every session: add a session entry, move items be
 - Day 1 is a Wednesday test shift with rats, and the player can side with the rats. It's the prologue and tutorial. The first real shift is Friday. The bar opens early, and taking early shifts is the player's call, at a cost.
 - Hutch can make the music and sound effects and do voice work.
 - Setting (2026-09-26): unique and invented, reflecting modernity (today's technology) without veering into near-future cyberpunk. Rejects the historical routes.
+- Place (2026-09-26): a town on the east coast of an island like Vancouver Island, modelled on Hutch's own town but generalized, taking features from the general coastal BC feeling.
+- "The following Friday" is day 3. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
 
@@ -56,13 +58,12 @@ Update this file at the end of every session: add a session entry, move items be
 
 ### Blocking Wednesday
 
-1. **The setting's texture.** Route decided (invented, modern, not cyberpunk). Open: where it feels like, and how the empire's end shows in the technology.
+1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
 2. **The bar.** Its name and a rough layout: the door, the floor, the bar, the bathrooms, table 28's spot, where the rats live.
 3. **The bouncer's first-day facts.** How he got the job, what he remembers, what people call him.
 4. **The voices on day 1.** Who are the first five in the room?
 5. **The head bartender.** Who are they?
 6. **The rats.** What does siding with them look like on the first night?
-7. **"The following Friday."** Is it day 3?
 
 ### Soon
 
