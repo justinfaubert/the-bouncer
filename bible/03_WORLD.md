@@ -75,6 +75,7 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 - He isn't a faceless custom character. Harry Du Bois is the template to draw from: he starts semi-tabula rasa, recalling and inventing who he was and is. [DECIDED]
 - He's the new hire, and day 1 is his test shift. [DECIDED]
 - His past is partly fixed and discoverable, partly invented, and his inventions become facts (`02_SYSTEMS.md`). [PROPOSED]
+- A regular-ish big guy, not a hulking steroid type. Thoughtful and self-aware enough to catch and engage with the details the game throws at him. [DECIDED]
 - Name, age, history, how he got the job. [OPEN]
 
 ### Table 28 [DECIDED, from Hutch's experience]

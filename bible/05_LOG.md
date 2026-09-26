@@ -33,6 +33,7 @@ Update this file at the end of every session: add a session entry, move items be
 - Place (2026-09-26): a town on the east coast of an island like Vancouver Island, modelled on Hutch's own town but generalized, taking features from the general coastal BC feeling.
 - "The following Friday" is day 3. (2026-09-26)
 - The bar is in a coastal hotel, which makes for recurring characters. It smells of beer, cleaner, piss, old wood and dust; carpeted floor, cheap stools, sturdy tables; four doors, the main one used, the others locked at night as a loose rule. (2026-09-26)
+- The bouncer is a regular-ish big guy, not a hulking steroid type: thoughtful and self-aware enough to catch and engage with the details the game throws at him. Many real bouncers have a violent disposition and aggressive style; he isn't built as that type. (2026-09-26)
 
 ### PROPOSED (waiting on Hutch)
 
@@ -56,6 +57,7 @@ Update this file at the end of every session: add a session entry, move items be
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
+- The locked phone as the bouncer's hidden past: "heavy handed and simplistic." Avoid a single object that holds his past. Hutch, 2026-09-26.
 
 ## Open questions
 
