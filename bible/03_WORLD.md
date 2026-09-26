@@ -101,6 +101,8 @@ Thirty days; day 1 is a Wednesday; the first real shift is the Friday after it. 
 
 Regulars too. Their numbers double if he ignores them. Throughout the game he has chances to parley with the Rat King, until the colony gets too huge or until he decides to exterminate them, which costs in other ways.
 
+The Rat King is both: a real rat king, rats with their tails knotted together, living in the wall behind table 28; and a man who seems to speak for it. [DECIDED] Whether the knot talks is never confirmed. [PROPOSED]
+
 ### Roles proposed so far [PROPOSED]
 
 - **The head bartender:** his partner and witness, the game's Kim Kitsuragi. A lifer, and drinks: no one makes it out of the life unscathed. [DECIDED]
