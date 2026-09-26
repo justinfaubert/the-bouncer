@@ -261,11 +261,13 @@
         let cK = 0;
         if (t > 0.012) {
           t += (n - 0.5) * 0.1 * grain * (4 * t * (1 - t) + 0.12);
-          if (t >= 0.97) cK = 1;
+          if (t >= 0.995) cK = 1;
           else {
             const spot = 0.5 + 0.25 * (L[(ku | 0) & mask] + L[(kv | 0) & mask]);
             cK = (spot - (1 - t)) * sharpK + 0.5;
             cK = cK < 0 ? 0 : cK > 1 ? 1 : cK;
+            // the last holes close up gradually, so a dark tone doesn't break up where it nears solid
+            if (t > 0.93) { const u = (t - 0.93) / 0.065; cK += (1 - cK) * u * u * (3 - 2 * u); }
           }
           // ink doesn't lie flat on cheap stock: a speck here and there where it skipped
           const f = F[ny2 + (x % NS)], f3 = f * f * f;
@@ -278,11 +280,12 @@
           let tr = (rd[(rys * w + rx) * 4 + 3] / 255 - 0.06) * 1.14;
           if (tr > 0.012) {
             tr += (n2 - 0.5) * 0.09 * grain * (4 * tr * (1 - tr) + 0.12);
-            if (tr >= 0.97) cR = 1;
+            if (tr >= 0.995) cR = 1;
             else {
               const spot = 0.5 + 0.25 * (L[(ru | 0) & mask] + L[(rv | 0) & mask]);
               cR = (spot - (1 - tr)) * sharpR + 0.5;
               cR = cR < 0 ? 0 : cR > 1 ? 1 : cR;
+              if (tr > 0.93) { const u = (tr - 0.93) / 0.065; cR += (1 - cR) * u * u * (3 - 2 * u); }
             }
             const fr = F[ny + ((x + 131) % NS)], fr3 = fr * fr * fr;
             cR *= 1 - 0.3 * grain * fr3 * fr3;
@@ -326,10 +329,14 @@
     sitside: { hd: [0.03, -0.445], nk: [0.01, -0.355], sa: [0.0, -0.315], sb: [-0.015, -0.315], ea: [0.05, -0.12], eb: [0.02, -0.13], ha: [0.2, -0.13], hb: [0.17, -0.12], pa: [-0.02, 0], pb: [-0.03, 0], ka: [0.2, -0.01], kb: [0.19, 0.0], fa: [0.2, 0.24], fb: [0.17, 0.24], view: 'side', seated: true },
     // leaning back in the chair, talking, a hand up
     sittalk: { hd: [-0.03, -0.44], nk: [-0.03, -0.35], sa: [-0.13, -0.31], sb: [0.1, -0.315], ea: [-0.18, -0.14], eb: [0.2, -0.2], ha: [-0.09, -0.08], hb: [0.16, -0.36], pa: [-0.085, 0], pb: [0.085, 0], ka: [-0.1, 0.05], kb: [0.1, 0.05], fa: [-0.1, 0.24], fb: [0.1, 0.24], view: 'front', seated: true },
+    // over the pool table, lining up a shot, facing +x; lefty: the near (a) arm strokes the cue
+    shootL: { hd: [0.36, -0.705], nk: [0.27, -0.7], sa: [0.22, -0.69], sb: [0.235, -0.68], ea: [0.07, -0.74], eb: [0.36, -0.58], ha: [0.035, -0.55], hb: [0.5, -0.47], pa: [-0.07, -0.5], pb: [-0.08, -0.5], ka: [0.04, -0.27], kb: [-0.16, -0.26], fa: [0.08, -0.035], fb: [-0.22, -0.035], view: 'side', cue: true, lefty: true },
     // over the pool table, lining up a shot, facing +x
     shoot: { hd: [0.36, -0.705], nk: [0.27, -0.7], sa: [0.235, -0.68], sb: [0.22, -0.69], ea: [0.36, -0.58], eb: [0.07, -0.74], ha: [0.5, -0.47], hb: [0.035, -0.55], pa: [-0.07, -0.5], pb: [-0.08, -0.5], ka: [0.04, -0.27], kb: [-0.16, -0.26], fa: [0.08, -0.035], fb: [-0.22, -0.035], view: 'side', cue: true },
     // side-on at the rail, cigarette to the mouth
     smoke: { hd: [0.012, -0.932], nk: [0, -0.845], sa: [0.006, -0.805], sb: [-0.01, -0.805], ea: [0.075, -0.66], eb: [-0.02, -0.605], ha: [0.07, -0.87], hb: [-0.03, -0.46], pa: [0.006, -0.505], pb: [-0.006, -0.505], ka: [0.03, -0.275], kb: [-0.02, -0.275], fa: [0.01, -0.035], fb: [-0.035, -0.035], view: 'side', ember: true },
+    // from behind, working at something in front of him, elbows out
+    backwork: { hd: [0, -0.93], nk: [0, -0.842], sa: [-0.118, -0.805], sb: [0.118, -0.805], ea: [-0.19, -0.63], eb: [0.19, -0.64], ha: [-0.07, -0.56], hb: [0.07, -0.57], pa: [-0.07, -0.505], pb: [0.07, -0.505], ka: [-0.08, -0.275], kb: [0.075, -0.27], fa: [-0.09, -0.035], fb: [0.085, -0.035], view: 'front' },
     // behind the bar, pulling a pint (only the top half shows)
     pour: { hd: [-0.01, -0.932], nk: [0, -0.842], sa: [-0.112, -0.81], sb: [0.112, -0.81], ea: [-0.16, -0.64], eb: [0.17, -0.66], ha: [-0.06, -0.58], hb: [0.2, -0.8], pa: [-0.066, -0.505], pb: [0.066, -0.505], ka: [-0.07, -0.275], kb: [0.07, -0.275], fa: [-0.074, -0.035], fb: [0.074, -0.035], view: 'front' }
   };
@@ -478,11 +485,12 @@
     // a glass in the hand, a cue
     if (pose.drink || spec.glass) { m.beginPath(); m.rect(J.ha[0] - H * 0.02, J.ha[1] - H * 0.075, H * 0.04, H * 0.075); m.fill(); }
     if (pose.cue && spec.cue !== false) {
-      const tip = [J.ha[0] + flip * H * 0.16, J.ha[1] + H * 0.045];
-      const butt = [J.hb[0] - flip * H * 0.34, J.hb[1] + H * 0.05];
+      const back = pose.lefty ? J.ha : J.hb, bridge = pose.lefty ? J.hb : J.ha;
+      const tip = [bridge[0] + flip * H * 0.16, bridge[1] + H * 0.045];
+      const butt = [back[0] - flip * H * 0.34, back[1] + H * 0.05];
       m.save(); m.lineCap = 'round'; m.strokeStyle = '#000';
-      m.lineWidth = H * 0.016; m.beginPath(); m.moveTo(butt[0], butt[1]); m.lineTo(J.hb[0], J.hb[1]); m.stroke();
-      m.lineWidth = H * 0.009; m.beginPath(); m.moveTo(J.hb[0], J.hb[1]); m.lineTo(tip[0], tip[1]); m.stroke();
+      m.lineWidth = H * 0.016; m.beginPath(); m.moveTo(butt[0], butt[1]); m.lineTo(back[0], back[1]); m.stroke();
+      m.lineWidth = H * 0.009; m.beginPath(); m.moveTo(back[0], back[1]); m.lineTo(tip[0], tip[1]); m.stroke();
       m.restore();
     }
 
@@ -532,6 +540,30 @@
       if (!side) for (const s of [sa, sb]) cloth(function (c) { c.rect(s[0] - H * 0.012 + (s === sa ? W(0.035) : -W(0.035)), s[1], H * 0.022, (pa[1] - sa[1]) * 0.62); }, 0.92);
     }
     if (top === 'whites' && side) cloth(function (c) { c.rect(J.nk[0] - W(0.09), J.nk[1], W(0.18), pa[1] - J.nk[1]); }, 0.55);
+    // darker parts: trousers under a light top, a shirt soaked down the back, dark hair; painted
+    // over and then cut back to the shape
+    if (spec.legsTone || spec.wet || spec.hairTone) {
+      m.save();
+      m.globalCompositeOperation = 'source-over';
+      if (spec.legsTone) { m.fillStyle = 'rgba(0,0,0,' + spec.legsTone + ')'; m.fillRect(spec.x - H, Math.min(pa[1], pb[1]) + H * 0.01, H * 2, H); }
+      if (spec.wet) {
+        const n = J.nk, hp = [(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2];
+        m.fillStyle = 'rgba(0,0,0,' + spec.wet + ')';
+        m.beginPath();
+        m.moveTo(n[0] - W(0.085), n[1] + H * 0.01);
+        m.quadraticCurveTo(n[0] - W(0.075), (n[1] + hp[1]) / 2, hp[0] - W(0.03), hp[1] - H * 0.02);
+        m.quadraticCurveTo(hp[0], hp[1] + H * 0.012, hp[0] + W(0.035), hp[1] - H * 0.025);
+        m.quadraticCurveTo(n[0] + W(0.08), (n[1] + hp[1]) / 2, n[0] + W(0.085), n[1] + H * 0.01);
+        m.closePath(); m.fill();
+        // and under the arms
+        for (const s2 of [J.sa, J.sb]) { m.beginPath(); m.ellipse(s2[0] * 0.8 + n[0] * 0.2, s2[1] + H * 0.07, W(0.03), H * 0.05, 0, 0, Math.PI * 2); m.fill(); }
+      }
+      if (spec.hairTone) { m.fillStyle = 'rgba(0,0,0,' + spec.hairTone + ')'; m.fillRect(J.hd[0] - H * 0.1, J.hd[1] - H * 0.12, H * 0.2, H * 0.12 + hry * (pose.view === 'front' && spec.from === 'back' ? 0.85 : 0.1)); }
+      m.globalCompositeOperation = 'destination-in';
+      m.setTransform(1, 0, 0, 1, 0, 0);
+      m.drawImage(S.d, 0, 0);
+      m.restore();
+    }
     k.save();
     k.setTransform(1, 0, 0, 1, 0, 0);
     k.drawImage(S.a, 0, 0);

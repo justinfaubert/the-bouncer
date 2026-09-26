@@ -243,6 +243,7 @@
     function play(onDone) {
       done = onDone || null;
       node.classList.add('playing');
+      if (B.Plates && B.Plates.hold) B.Plates.hold(8000);     // nothing off the press while they're in the air
       const a = opts.audio;
       if (a) a.duck(true);
       node.addEventListener('click', finish);
@@ -368,6 +369,7 @@
       stamp(soundNow);
       over = true;
       node.removeEventListener('click', finish);
+      if (B.Plates && B.Plates.hold) B.Plates.hold(0);
       const cb = done;
       done = null;
       if (cb) cb();
@@ -381,6 +383,7 @@
       for (const t of timers) clearTimeout(t);
       if (opts.audio) opts.audio.duck(false);
       node.removeEventListener('click', finish);
+      if (B.Plates && B.Plates.hold) B.Plates.hold(0);
     }
 
     return { node: node, play: play, finish: finish, cancel: cancel, still: still };

@@ -74,6 +74,7 @@
     renderTitle();
     startRain();
     if (app.settings.director) app.dir.setOn(true, true);
+    prewarmPlates();
 
     // saves and edits already allowed into the account come back quietly; nothing asks here
     if (app.settings.cloud || app.settings.director || app.dir.hasEdits()) {
@@ -505,7 +506,7 @@
     return '';
   }
 
-  // A person the first time the Ink shows them: the art when there is some, otherwise a face drawn
+  // A person the first time the Ink shows them: the art when there is some, otherwise a face printed
   // from the parts in their `look:` (content/data/characters.yaml, src/ui/plates.js).
   function portraitNode(id) {
     if (!app.settings.plates) return null;
@@ -515,12 +516,16 @@
     const fig = document.createElement('figure');
     fig.className = 'portrait';
     if ((slot.file && slot.present) || (B.Plates && look)) {
-      const img = document.createElement('img');
-      img.alt = '';
-      img.decoding = 'async';
-      if (slot.file && slot.present) img.src = ((C.meta && C.meta.assetBase) || '') + slot.file;
-      else { img.src = B.Plates.portraitUrl(id, look); fig.classList.add('drawn'); }
-      fig.append(img);
+      const pic = document.createElement('span');
+      pic.className = 'po-img';
+      if (slot.file && slot.present) {
+        const img = document.createElement('img');
+        img.alt = '';
+        img.decoding = 'async';
+        img.src = ((C.meta && C.meta.assetBase) || '') + slot.file;
+        pic.append(img);
+      } else { pic.append(B.Plates.portrait(id, look)); fig.classList.add('drawn'); }
+      fig.append(pic);
     } else {
       const ph = document.createElement('div');
       ph.className = 'ph';
@@ -535,6 +540,15 @@
     return fig;
   }
 
+  // The night's first pictures go through the press while the title is up: the lot, the room, the
+  // door, and the woman behind the bar.
+  function prewarmPlates() {
+    if (!app.settings.plates || !B.Plates || !B.Plates.prewarm) return;
+    const list = [{ place: 'lot', phase: 'early' }, { place: 'floor', phase: 'early' }, { place: 'door', phase: 'early' }];
+    for (const k in C.characters) if (C.characters[k].portrait === 'bartender' && C.characters[k].look) list.push({ face: 'bartender', look: C.characters[k].look });
+    setTimeout(function () { B.Plates.prewarm(list); }, 700);
+  }
+
   // Where he's walked into. A plate the first time he's in a place, with the place as it is right
   // now; again later in the night only if it has changed (the room filled, the glasses stacked up,
   // a door got shut). Otherwise a small one, so the move and the time still show. The floor, which
@@ -545,7 +559,7 @@
     const clock = it.clock | 0;
     const phase = phaseOf(clock);
     const key = id + '|' + phase;
-    const look = JSON.stringify(B.Plates.look(id, it.state));
+    const look = JSON.stringify(B.Plates.look(id, it.state, phase));
     const first = !(id in app.plateLook) || (!app.seenPlates.has(key) && app.plateLook[id] !== look);
     if (!first && id === 'floor') return null;
     app.seenPlates.add(key);
@@ -556,11 +570,7 @@
     box.setAttribute('data-place', id);
     const pic = document.createElement('span');
     pic.className = 'pl-img';
-    const img = document.createElement('img');
-    img.alt = '';
-    img.decoding = 'async';
-    img.src = B.Plates.placeUrl(id, it.state);
-    pic.append(img);
+    pic.append(B.Plates.place(id, it.state, phase));
     const cap = document.createElement(first ? 'figcaption' : 'span');
     cap.className = 'pl-label';
     cap.innerHTML = '<span class="pl-cap">' + esc(B.Plates.caption(id)) + '</span>' + (first ? '' : '<span class="pl-rule"></span>') + '<span class="pl-time">' + esc(B.util.fmtClock(clock)) + '</span>';

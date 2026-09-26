@@ -13,8 +13,10 @@
 #               face   a list of: beard, stubble, moustache, glasses, earbuds, hearingaid, lined
 #               top    hoodie | hivis | apron | whites | flannel | suit | coat | jacket | tshirt | cardigan
 #               extra  a list of: vape, keys, cigarette, phone, knife, lanyard
-#               age    old
-#               group  5 (a table's worth, drawn as one)
+#               sex    f (leave it out for a man)
+#               age    young | old
+#               mood   flat | tired | wary | hard | drunk | smile | knowing (how the night sits on them)
+#               group  5 (a table's worth, drawn as one: each of the five from their own look below)
 #   note      for writers; not shown in the game
 #
 # Everyone here is a draft except where noted. Table 28, the kids, the regulars and the lifer
@@ -24,7 +26,7 @@
 bartender:
   label: THE BARTENDER
   portrait: bartender
-  look: {build: slight, hair: bun, face: [lined], top: apron, extra: [knife]}
+  look: {build: slight, sex: f, hair: bun, face: [lined], top: apron, extra: [knife], mood: hard}
   note: The lifer (DECIDED). Draft - a woman in her fifties, at the Sov since she was a server at nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week.
 
 table28:
@@ -34,46 +36,51 @@ table28:
   note: The hive (DECIDED). Five high-functioning boomer alcoholics, every day but Sunday. One voice most of the time.
 team_jacket:
   label: TEAM JACKET
+  look: {age: old, hair: thin, top: jacket, mood: smile}
   note: Table 28. Same jacket every day. The loudest; talks for the table when the table isn't talking as one.
 hearing_aid:
   label: HEARING AID
+  look: {age: old, hair: bald, top: flannel, face: [hearingaid]}
   note: Table 28. Repeats the last word anyone says. Turns the aid down when he disagrees.
 scratch:
   label: SCRATCH
+  look: {age: old, hat: cap, top: coat, face: [stubble], mood: tired}
   note: Table 28. Lottery tickets all afternoon. Feeds the rat.
 cardigan:
   label: CARDIGAN
+  look: {age: old, hair: parted, top: cardigan}
   note: Table 28. The quiet one. Retired from something with a pension.
 glasses:
   label: GLASSES
+  look: {age: old, hair: short, top: tshirt, face: [glasses, moustache], mood: drunk}
   note: Table 28. Dennis. His wife comes looking for him.
 
 cook:
   label: THE COOK
   portrait: cook
-  look: {hair: short, face: [stubble], top: tshirt}
+  look: {hair: short, face: [stubble], top: tshirt, mood: tired}
   note: Props the kitchen door because the fryer runs hot. Wants the rats dead because the inspector costs him shifts.
 
 hoodie:
   label: HOODIE
   portrait: hoodie
-  look: {hat: hood, top: hoodie, face: [earbuds], extra: [phone]}
+  look: {age: young, hat: hood, top: hoodie, face: [earbuds], extra: [phone], mood: wary}
   note: One of the kids (DECIDED group). Nineteen, earbuds, a photo of his ID on his phone. His father is the big man at the pool table (draft).
 driver:
   label: THE DRIVER
   portrait: driver
-  look: {hair: ponytail, top: jacket, extra: [keys]}
+  look: {sex: f, age: young, hair: ponytail, top: jacket, extra: [keys], mood: hard}
   note: His sister, twenty-two, sober, the one with the keys. Came to tell their father something (draft).
 vape:
   label: VAPE
   portrait: vape
-  look: {hair: messy, top: hoodie, extra: [vape]}
+  look: {age: young, hair: messy, top: hoodie, extra: [vape], mood: drunk}
   note: The sister's boyfriend. Twenty. Drunk before he got here. The unpredictable one.
 
 bigman:
   label: THE BIG MAN
   portrait: bigman
-  look: {build: big, hair: buzz, face: [beard], top: flannel}
+  look: {build: big, hair: buzz, face: [beard], top: flannel, mood: flat}
   note: At the pool table since before the shift. Playing his buddy for money and letting him win. Left-handed. The kids' father (draft).
 buddy:
   label: THE BUDDY
@@ -82,12 +89,12 @@ buddy:
 hivis:
   label: HI-VIS
   portrait: hivis
-  look: {hat: cap, top: hivis, face: [stubble]}
+  look: {hat: cap, top: hivis, face: [stubble], mood: tired}
   note: From the work crew renting rooms upstairs on a mill contract. Four beers in, tired.
 goodshoes:
   label: GOOD SHOES
   portrait: goodshoes
-  look: {hair: parted, top: suit}
+  look: {hair: parted, top: suit, mood: smile}
   note: In the 86 binder. Polite, sober, well dressed. Says the owner lifted his ban.
 raincoat:
   label: RAINCOAT
@@ -95,7 +102,7 @@ raincoat:
 endbar:
   label: END OF THE BAR
   portrait: endbar
-  look: {hat: flatcap, age: old, face: [lined], top: jacket}
+  look: {hat: flatcap, age: old, face: [lined], top: jacket, mood: knowing}
   note: The man who seems to speak for the rats (DECIDED that such a man exists). Nobody saw him come in. Been coming in longer than the bartender.
 owner:
   label: THE OWNER

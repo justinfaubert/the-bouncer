@@ -7,7 +7,7 @@
 NARRATOR: He started on a Wednesday. The Sov tried out doormen on Wednesdays, on a night slow enough that a mistake would only hurt a little.
 NARRATOR: Of the thirty days, it was the one nobody else remembered.
 The rain had come across the strait with the last ferry and hadn't let up. It hit the gravel lot hard enough to bounce.
-On the roof the sign said SOVEREIGN in red neon with the second E dead. Under it, HOTEL, all four letters working.
+On the roof the sign said SOVEREIGN in red neon with the second E dead. Under it, HOTEL, all five letters working.
 Three storeys of old wood, painted a red that had faded to the colour of brick. The cold beer and wine store at one end with its lights on. Trucks parked nose-in along the front, wipers stopped where they'd been switched off. The highway behind him, and past the highway, the water.
 FATHER: Look at a building before you go into it. It'll tell you what kind of night it has.
 It told him Wednesday. #pause

@@ -510,8 +510,10 @@ button { font: inherit; color: inherit; }
 .aside b { font-weight: 600; color: var(--ink-2); }
 
 /* ------------------------------------------------------------------ plates: the places and the people, printed
- * (src/ui/plates.js). The prints keep their own paper and ink in both themes; the hour of the
- * night is laid over them as a wash (data-phase), the way the room's light changes.
+ * (src/ui/print.js, src/ui/plates.js). The prints keep their own paper and ink in both themes; the
+ * hour of the night is laid over them as a wash (data-phase), the way the room's light changes.
+ * A print comes off the press into its space on the page: a place rolls on left to right, a face
+ * top to bottom. One the page has already had is just there.
  */
 
 .blk { display: flow-root; }
@@ -519,7 +521,13 @@ button { font: inherit; color: inherit; }
 .plate { margin: 1.5em 0 1.4em; }
 .pl-img { position: relative; display: block; isolation: isolate; background: #E8E0CC; }
 .pl-img img { display: block; width: 100%; height: auto; }
-.pl-img::after { content: ""; position: absolute; inset: 0; background: var(--tint, transparent); mix-blend-mode: multiply; pointer-events: none; }
+.pl-img img:not([src]), .po-img img:not([src]) { visibility: hidden; }
+.pl-img img.inked:not(.kept) { animation: press-roll .95s cubic-bezier(.25, .7, .2, 1) both; }
+.po-img img.inked:not(.kept) { animation: press-drop .8s cubic-bezier(.25, .7, .2, 1) both; }
+@keyframes press-roll { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes press-drop { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) { .pl-img img.inked, .po-img img.inked { animation: none; } }
+.pl-img::after { content: ""; position: absolute; inset: 0; background: var(--tint, transparent); mix-blend-mode: multiply; opacity: .6; pointer-events: none; }
 .plate .pl-img { aspect-ratio: 640 / 220; box-shadow: var(--lift); }
 .pl-label {
   display: flex; justify-content: space-between; align-items: baseline; gap: 1em;
@@ -543,8 +551,10 @@ button { font: inherit; color: inherit; }
 .log [data-phase="after"] { --tint: #A3ADBF; }
 
 /* a person, the first time the Ink shows them: beside the lines that bring them in */
-.portrait { float: right; width: 104px; margin: .3em 0 .8em 1.2em; }
-.portrait img { display: block; width: 100%; height: auto; box-shadow: var(--lift); }
+.portrait { float: right; width: 120px; margin: .3em 0 .8em 1.2em; }
+.po-img { display: block; box-shadow: var(--lift); }
+.portrait.drawn .po-img { aspect-ratio: 120 / 150; background: #E8E0CC; }
+.portrait img { display: block; width: 100%; height: auto; }
 .portrait .ph {
   width: 62px; height: 78px; margin-left: auto;
   display: grid; place-items: center;
@@ -557,11 +567,12 @@ button { font: inherit; color: inherit; }
 .portrait .cap { display: block; margin-top: .45em; font-family: var(--f-ui); font-size: .72rem; line-height: 1.25; letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--muted); }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .pl-img img, :root:not([data-theme="light"]) .portrait img { filter: brightness(.8) contrast(1.06); }
+  :root:not([data-theme="light"]) .pl-img img, :root:not([data-theme="light"]) .portrait img { filter: brightness(.93); }
 }
-:root[data-theme="dark"] .pl-img img, :root[data-theme="dark"] .portrait img { filter: brightness(.8) contrast(1.06); }
+:root[data-theme="dark"] .pl-img img, :root[data-theme="dark"] .portrait img { filter: brightness(.93); }
 
 .prompt-card {
+  display: flow-root;             /* beside a face, not under it */
   margin: 1em 0 1.2em;
   padding: .7em .9em;
   border: 1px dashed var(--brass);
@@ -1016,7 +1027,7 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
   .app.directing .log .ln.edited::after, .app.directing .log .ln.ins::after { left: -9px; }
   .ed-keys { display: none; }
   .desk-body { max-height: 64vh; }
-  .portrait { width: 80px; margin-left: .9em; }
+  .portrait { width: 88px; margin-left: .9em; }
   .plate { margin: 1.2em 0; }
   .place-strip .pl-img { width: 54px; }
 }
