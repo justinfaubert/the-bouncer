@@ -45,6 +45,15 @@
   </aside>
 
   <main class="story" id="story" aria-live="polite">
+    <div class="dir-bar" id="dir-bar" hidden>
+      <span class="dir-name">Directing</span>
+      <span class="dir-count" data-dir-count></span>
+      <span class="dir-acts">
+        <button type="button" data-act="dir-back" title="Undo the last choice (B)">Step back</button>
+        <button type="button" data-act="dir-desk">Desk</button>
+        <button type="button" data-act="dir-off" title="Director mode off (D)" aria-label="Director mode off">Done</button>
+      </span>
+    </div>
     <div class="story-inner">
       <div class="log" id="log"></div>
       <div class="after" id="after"></div>
@@ -89,9 +98,11 @@
 <script src="src/core/psyche.js"></script>
 <script src="src/core/barks.js"></script>
 <script src="src/core/game.js"></script>
+<script src="src/core/director.js"></script>
 <script src="src/ui/store.js"></script>
 <script src="src/ui/audio.js"></script>
 <script src="src/ui/views.js"></script>
+<script src="src/ui/director.js"></script>
 <script src="src/ui/app.js"></script>
 </body>
 </html>

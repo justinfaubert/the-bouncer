@@ -4,13 +4,18 @@
 //   node tools/build.mjs          compile the Ink, load the YAML data, validate it all,
 //                                 list the writing prompts, and write the bundle the
 //                                 browser build loads (prototype/web/content.js)
-//   node tools/build.mjs --dist   also assemble prototype/web/dist/, a self-contained copy
-//                                 for publishing (index.html for local use, artifact.html
-//                                 for the claude.ai Artifact)
 //   node tools/build.mjs --offline
 //                                 also write releases/The-Bouncer-<build>.html: the whole game
 //                                 in one file (fonts, art and sound inlined) that plays from a
 //                                 hard drive with a double-click, no server and no network
+//   node tools/build.mjs --dist   also assemble prototype/web/dist/, a self-contained copy
+//                                 for publishing (index.html for local use, artifact.html
+//                                 for the claude.ai Artifact). Implies --offline: the offline
+//                                 file rides along as dist/offline/The-Bouncer.html, which the
+//                                 game offers as "Save a copy to play offline".
+//
+// content/director/merged.json lists the director's edits already merged into the Ink
+// (tools/director.mjs writes it); the game stops laying those over the story.
 //
 // No npm install needed: the Ink compiler and the YAML parser are vendored in tools/vendor/.
 
@@ -142,6 +147,11 @@ const psyche = {
 };
 
 const scan = scanInk(files);
+const mergedFile = P('content', 'director', 'merged.json');
+let merged = [];
+if (fs.existsSync(mergedFile)) {
+  try { merged = Object.keys(JSON.parse(fs.readFileSync(mergedFile, 'utf8'))); } catch (e) { err('content/director/merged.json: ' + e.message); }
+}
 
 // Validate speakers, checks, effects, barks against the data.
 const voiceIds = new Set(Object.keys(voices || {}));
@@ -214,7 +224,7 @@ if (!scan.prompts.length) promptMd.push('No open prompts.');
 
 // ---------------------------------------------------------------- report
 
-const hash = crypto.createHash('sha1').update(JSON.stringify([story, voices, characters, assets, barks])).digest('hex').slice(0, 8);
+const hash = crypto.createHash('sha1').update(JSON.stringify([story, voices, characters, assets, barks, merged])).digest('hex').slice(0, 8);
 const stamp = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 const build = stamp.slice(0, 10) + '-' + hash;
 
@@ -230,7 +240,7 @@ fs.writeFileSync(P('data', 'build', 'story.json'), JSON.stringify(story));
 // assetBase is where asset paths (relative to the project root) resolve from the page:
 // prototype/web/index.html reaches them two folders up; dist/ carries its own copies.
 const content = {
-  meta: { build, builtAt: stamp, words: scan.words.total, knots: scan.knots, prompts: scan.prompts, assetBase: '../../' },
+  meta: { build, builtAt: stamp, words: scan.words.total, knots: scan.knots, prompts: scan.prompts, merged, assetBase: '../../' },
   story, voices, characters, assets, barks, psyche,
 };
 const contentJs = (c) =>
@@ -243,6 +253,42 @@ fs.writeFileSync(P('content', 'WRITING_PROMPTS.md'), promptMd.join('\n') + '\n')
 console.log(`Built ${build}: ${files.length} Ink files, ${scan.words.total.toLocaleString()} words, ${Object.keys(voices).length} voices, ${Object.keys(characters).length} characters, ${barkSet.rules.length} barks, ${scan.prompts.length} writing prompts, ${assetFiles.length} art and sound files.`);
 for (const [f, w] of Object.entries(scan.words.byFile)) console.log(`  ${f.padEnd(34)} ${String(w).padStart(6)} words`);
 if (problems.warnings.length) console.log(`${problems.warnings.length} warning(s).`);
+
+// ---------------------------------------------------------------- offline: one file
+
+let offlineFile = null;
+if (args.has('--offline') || args.has('--dist')) {
+  const WEB = P('prototype', 'web');
+  const html = fs.readFileSync(path.join(WEB, 'index.html'), 'utf8');
+  const MIME = { '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
+  const dataUri = (file) => 'data:' + (MIME[path.extname(file).toLowerCase()] || 'application/octet-stream') + ';base64,' + fs.readFileSync(file).toString('base64');
+  // Assets the Ink uses, inlined, so the file carries its own art and sound.
+  const offAssets = JSON.parse(JSON.stringify(assets));
+  for (const group of ['sfx', 'music', 'ambience', 'portraits']) {
+    for (const slot of Object.values(offAssets[group] || {})) {
+      if (slot && slot.file && slot.present) slot.file = dataUri(P(slot.file));
+    }
+  }
+  const offContent = contentJs({ ...content, assets: offAssets, meta: { ...content.meta, assetBase: '', offline: true } });
+  const inlineCss = (ref) => {
+    const file = path.join(WEB, ref);
+    return fs.readFileSync(file, 'utf8').replace(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g,
+      (all, u) => 'url(' + dataUri(path.join(path.dirname(file), u)) + ')');
+  };
+  const safeJs = (js) => js.replace(/<\/script/gi, '<\\/script');
+  let out = html
+    .replace(/<link rel="stylesheet" href="(?!https?:)([^"]+)">/g, (all, ref) => '<style>\n' + inlineCss(ref) + '\n</style>')
+    .replace(/<script src="(?!https?:)([^"]+)"><\/script>/g, (all, ref) =>
+      '<script>\n' + safeJs(ref === 'content.js' ? offContent : fs.readFileSync(path.join(WEB, ref), 'utf8')) + '\n</script>');
+  if (/<(?:script|link)[^>]+(?:src|href)="(?!https?:|data:)/.test(out)) err('offline: a local file was left un-inlined');
+  const REL = P('releases');
+  fs.mkdirSync(REL, { recursive: true });
+  const name = 'The-Bouncer-' + build + '.html';
+  fs.writeFileSync(path.join(REL, name), out);
+  fs.copyFileSync(path.join(REL, name), path.join(REL, 'The-Bouncer.html'));
+  offlineFile = path.join(REL, 'The-Bouncer.html');
+  console.log(`offline: releases/${name} (${(out.length / 1024 / 1024).toFixed(2)} MB), also releases/The-Bouncer.html`);
+}
 
 // ---------------------------------------------------------------- dist
 
@@ -278,6 +324,12 @@ if (args.has('--dist')) {
     fs.copyFileSync(P(f), to);
     localRefs.push(f);
   }
+  // the one-file offline copy, for the game's "Save a copy to play offline"
+  if (offlineFile) {
+    fs.mkdirSync(path.join(DIST, 'offline'), { recursive: true });
+    fs.copyFileSync(offlineFile, path.join(DIST, 'offline', 'The-Bouncer.html'));
+    localRefs.push('offline/The-Bouncer.html');
+  }
   fs.writeFileSync(path.join(DIST, 'index.html'), html);
   // The Artifact host wraps the page in its own <!doctype><html><head><body>, so the
   // artifact copy is the inside of <head> and <body> with those tags removed.
@@ -288,38 +340,4 @@ if (args.has('--dist')) {
   fs.writeFileSync(path.join(DIST, 'artifact.html'), head.trim() + '\n' + body.trim() + '\n');
   fs.writeFileSync(path.join(DIST, 'files.json'), JSON.stringify(localRefs, null, 1));
   console.log(`dist: ${localRefs.length} files in ${rel(DIST)}`);
-}
-
-// ---------------------------------------------------------------- offline: one file
-
-if (args.has('--offline')) {
-  const WEB = P('prototype', 'web');
-  const html = fs.readFileSync(path.join(WEB, 'index.html'), 'utf8');
-  const MIME = { '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.wav': 'audio/wav' };
-  const dataUri = (file) => 'data:' + (MIME[path.extname(file).toLowerCase()] || 'application/octet-stream') + ';base64,' + fs.readFileSync(file).toString('base64');
-  // Assets the Ink uses, inlined, so the file carries its own art and sound.
-  const offAssets = JSON.parse(JSON.stringify(assets));
-  for (const group of ['sfx', 'music', 'ambience', 'portraits']) {
-    for (const slot of Object.values(offAssets[group] || {})) {
-      if (slot && slot.file && slot.present) slot.file = dataUri(P(slot.file));
-    }
-  }
-  const offContent = contentJs({ ...content, assets: offAssets, meta: { ...content.meta, assetBase: '', offline: true } });
-  const inlineCss = (ref) => {
-    const file = path.join(WEB, ref);
-    return fs.readFileSync(file, 'utf8').replace(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g,
-      (all, u) => 'url(' + dataUri(path.join(path.dirname(file), u)) + ')');
-  };
-  const safeJs = (js) => js.replace(/<\/script/gi, '<\\/script');
-  let out = html
-    .replace(/<link rel="stylesheet" href="(?!https?:)([^"]+)">/g, (all, ref) => '<style>\n' + inlineCss(ref) + '\n</style>')
-    .replace(/<script src="(?!https?:)([^"]+)"><\/script>/g, (all, ref) =>
-      '<script>\n' + safeJs(ref === 'content.js' ? offContent : fs.readFileSync(path.join(WEB, ref), 'utf8')) + '\n</script>');
-  if (/<(?:script|link)[^>]+(?:src|href)="(?!https?:|data:)/.test(out)) err('offline: a local file was left un-inlined');
-  const REL = P('releases');
-  fs.mkdirSync(REL, { recursive: true });
-  const name = 'The-Bouncer-' + build + '.html';
-  fs.writeFileSync(path.join(REL, name), out);
-  fs.copyFileSync(path.join(REL, name), path.join(REL, 'The-Bouncer.html'));
-  console.log(`offline: releases/${name} (${(out.length / 1024 / 1024).toFixed(2)} MB), also releases/The-Bouncer.html`);
 }

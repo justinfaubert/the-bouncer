@@ -8,13 +8,42 @@
 //   #check: father 8 {n}  on a choice: a check lent by that voice, target 8, situational modifier n
 //   #loc: pool            on a choice: where it happens (lights up that spot on the floor sketch)
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
+//
+// Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
+// and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
+// can find it again. After a choice, a {kind:'diff'} item lists the story variables it changed.
 (function (B) {
   'use strict';
 
   const SPEAKER = /^([A-Z][A-Z0-9_]*):\s+([\s\S]*)$/;
-  const LOG_CAP = 400;
+  const LOG_CAP = 1500;
   const SAVE_LOG = 80;
   const SAVE_VERSION = 1;
+
+  // "door_hoodie.read.0.c-1" -> "door_hoodie"; top-level content ("0") -> ""
+  function knotOf(p) {
+    const k = String(p || '').split('.')[0];
+    return /^\d*$/.test(k) ? '' : k;
+  }
+
+  // What a choice changed: scalars as {name, from, to}; lists as {name, add, del}.
+  function diffVars(a, b) {
+    const out = [];
+    const names = Object.keys(b);
+    for (const n of Object.keys(a)) if (!(n in b)) names.push(n);
+    for (const n of names) {
+      const x = a[n], y = b[n];
+      if (Array.isArray(x) || Array.isArray(y)) {
+        const xa = Array.isArray(x) ? x : [], ya = Array.isArray(y) ? y : [];
+        const add = ya.filter(function (v) { return xa.indexOf(v) === -1; });
+        const del = xa.filter(function (v) { return ya.indexOf(v) === -1; });
+        if (add.length || del.length) out.push({ name: n, add: add, del: del });
+      } else if (x !== y) {
+        out.push({ name: n, from: x, to: y });
+      }
+    }
+    return out;
+  }
 
   function inkValue(v) {
     if (v == null) return v;
@@ -211,8 +240,9 @@
       const items = [];
       const events = [];
       const before = this._watch();
+      const varsBefore = this.vars();
       this.turn++;
-      items.push({ kind: 'chosen', text: choice.text, check: choice.check ? { voice: choice.check.voice } : null });
+      items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null });
       const step = { t: this.turn, c: before.clock, x: choice.text };
       this.path.push(step);
       if (choice.check) {
@@ -235,6 +265,8 @@
       this.story.ChooseChoiceIndex(choice.inkIndex);
       this._continue(items, events);
       this._afterBatch(before, items, events);
+      const changes = diffVars(varsBefore, this.vars());
+      if (changes.length) items.push({ kind: 'diff', turn: this.turn, changes: changes });
       return this._finish(items);
     }
 
@@ -264,6 +296,8 @@
       let guard = 0;
       while (story.canContinue && guard++ < 5000) {
         let text;
+        let from = '';
+        try { from = story.state.currentPathString || ''; } catch (e) { from = ''; }
         try {
           text = story.Continue();
         } catch (e) {
@@ -272,15 +306,17 @@
           break;
         }
         const tags = (story.currentTags || []).slice();
-        let at = '';
-        try { at = story.state.currentPathString || ''; } catch (e) { at = ''; }
+        // Where the line came from. The path before Continue can sit on a divert into another
+        // knot, and the last pointer after it can have run on past the line, so keep both.
+        let last = '';
+        try { const pp = story.state.previousPointer; last = pp && !pp.isNull && pp.path ? pp.path.toString() : ''; } catch (e) { last = ''; }
         // effects raised by external functions during this Continue
         while (this._pending.length) items.push(this._pending.shift());
-        this._line(text, tags, items, events, at);
+        this._line(text, tags, items, events, from, last);
       }
     }
 
-    _line(rawText, tags, items, events, at) {
+    _line(rawText, tags, items, events, from, last) {
       const parsed = tags.map(B.util.parseTag);
       const tagv = {};
       for (const t of parsed) tagv[t.key] = t.value;
@@ -316,7 +352,7 @@
 
       const text = String(rawText || '').replace(/\s+$/, '');
       if (text.trim()) {
-        const item = { kind: 'line', role: 'narration', text: text.trim(), screen: this.screen };
+        const item = { kind: 'line', role: 'narration', text: text.trim(), raw: text.trim(), screen: this.screen };
         const m = SPEAKER.exec(item.text);
         if (m) {
           const label = m[1];
@@ -337,7 +373,10 @@
             }
           }
         }
-        if (at) item.knot = String(at).split('.')[0];
+        item.knot = knotOf(from) || knotOf(last);
+        const k2 = knotOf(last);
+        if (k2 && k2 !== item.knot) item.knot2 = k2;
+        if (from) item.at = from;
         if (tagv.prompt) item.prompt = String(tagv.prompt);
         if (tagv['class']) item.cls = String(tagv['class']);
         if (!item.suppressed) items.push(item);
@@ -362,7 +401,7 @@
         if (!rule || usedThisBatch.has(rule.speaker)) continue;
         usedThisBatch.add(rule.speaker);
         if (rule.once) this.barksUsed.push(rule.id);
-        picked.push({ at: Math.min(ev.at, items.length), item: { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, bark: rule.id, screen: this.screen } });
+        picked.push({ at: Math.min(ev.at, items.length), item: { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, screen: this.screen } });
       }
       picked.sort(function (a, b) { return b.at - a.at; });
       for (const p of picked) items.splice(p.at, 0, p.item);
@@ -377,7 +416,7 @@
         const tags = (c.tags || []).map(B.util.parseTag);
         const tv = {};
         for (const t of tags) tv[t.key] = t.value;
-        const ch = { inkIndex: c.index, text: String(c.text || '').trim(), loc: tv.loc ? String(tv.loc) : null, cls: tv['class'] ? String(tv['class']) : null, check: null, hidden: false };
+        const ch = { inkIndex: c.index, text: String(c.text || '').trim(), knot: knotOf(c.sourcePath), loc: tv.loc ? String(tv.loc) : null, cls: tv['class'] ? String(tv['class']) : null, check: null, hidden: false };
         if (tv.check) {
           const spec = B.Checks.parseSpec(tv.check);
           if (spec) {
@@ -410,5 +449,7 @@
 
   Game.SAVE_VERSION = SAVE_VERSION;
   Game.inkValue = inkValue;
+  Game.knotOf = knotOf;
+  Game.diffVars = diffVars;
   B.Game = Game;
 })(globalThis.Bouncer = globalThis.Bouncer || {});

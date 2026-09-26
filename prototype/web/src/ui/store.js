@@ -4,12 +4,18 @@
 // allows it, a copy also goes to their own private corner of the artifact's database
 // (data/users/<their id>/save), so the night follows them to another device and Claude can
 // read what they chose. Either can be missing; the game never waits on the cloud.
+//
+// The director's edits (src/core/director.js) are kept the same two ways: in this browser, and,
+// inside claude.ai, as one document each in the artifact's shared "edits" collection, which is
+// where Claude reads them to merge them into the Ink and writes back what became of them.
 (function (B) {
   'use strict';
 
   const SAVE_KEY = 'bouncer.save.v1';
   const SETTINGS_KEY = 'bouncer.settings.v1';
+  const EDITS_KEY = 'bouncer.edits.v1';
   const MIN_GAP_MS = 1500;
+  const EDIT_GAP_MS = 250;
 
   function lsGet(k) { try { return globalThis.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { globalThis.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -21,9 +27,15 @@
       this.db = null;
       this.uid = null;
       this.cloudState = 'off';   // off | on | denied | none
+      this.cloudSaves = false;   // the player's setting: saves go to the account too
       this._job = null;
       this._busy = false;
       this._lastWrite = 0;
+      this._editQ = new Map();
+      this._editBusy = false;
+      this._editIdle = [];
+      this._unwatch = null;
+      this.editsSync = 'off';    // off | on | failed
     }
 
     // ---- this browser --------------------------------------------------
@@ -49,13 +61,85 @@
 
     save(save) {
       const ok = this.saveLocal(save);
-      if (this.db) this._queue({ op: 'set', save: save });
+      if (this.db && this.cloudSaves) this._queue({ op: 'set', save: save });
       return ok;
     }
 
     clear() {
       lsDel(SAVE_KEY);
-      if (this.db) this._queue({ op: 'delete' });
+      if (this.db && this.cloudSaves) this._queue({ op: 'delete' });
+    }
+
+    // ---- the director's edits ------------------------------------------
+
+    loadEdits() {
+      const s = lsGet(EDITS_KEY);
+      if (!s) return [];
+      try { const v = JSON.parse(s); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+    }
+
+    saveEdits(list) { return lsSet(EDITS_KEY, JSON.stringify(list)); }
+
+    // Up to the account: one document per edit, newest copy only, one write at a time.
+    pushEdits(list) {
+      if (!this.db || this.editsSync === 'failed') return;
+      for (const e of list || []) if (e && e.id) this._editQ.set(e.id, JSON.parse(JSON.stringify(e)));
+      if (!this._editBusy) this._drainEdits();
+    }
+
+    // Resolves once every edit queued so far is written (or the wait runs out). -> true if written
+    flushEdits(ms) {
+      if (!this._editBusy && !this._editQ.size) return Promise.resolve(this.editsSync !== 'failed');
+      const self = this;
+      return new Promise(function (res) {
+        const t = setTimeout(function () { res(false); }, ms || 8000);
+        self._editIdle.push(function () { clearTimeout(t); res(self.editsSync !== 'failed'); });
+      });
+    }
+
+    async _drainEdits() {
+      this._editBusy = true;
+      try {
+        while (this._editQ.size && this.db) {
+          const id = this._editQ.keys().next().value;
+          const e = this._editQ.get(id);
+          this._editQ.delete(id);
+          try {
+            await this.db.doc('edits/' + id).set(e);
+            this.editsSync = 'on';
+          } catch (err) {
+            const code = err && err.code;
+            if (code === 'unavailable' || code === 'resource_exhausted') {
+              if (!this._editQ.has(id)) this._editQ.set(id, e);
+              await wait(4000);
+            } else {
+              // not allowed, or the database is full: the edits stay in this browser
+              this.editsSync = 'failed';
+              this._editQ.clear();
+            }
+          }
+          await wait(EDIT_GAP_MS);
+        }
+      } finally {
+        this._editBusy = false;
+        const idle = this._editIdle.splice(0);
+        for (const f of idle) f();
+      }
+    }
+
+    // Calls back with every edit in the account, now and whenever one changes. Once per page.
+    watchEdits(onEdits) {
+      if (!this.db || this._unwatch) return !!this._unwatch;
+      try {
+        this._unwatch = this.db.collection('edits').onSnapshot(function (snap) {
+          const list = [];
+          for (const d of snap.docs) if (d.exists) { const v = d.data(); if (v && v.id) list.push(v); }
+          onEdits(list);
+        }, function () { /* the local copy carries on */ });
+      } catch (e) {
+        this._unwatch = null;
+      }
+      return !!this._unwatch;
     }
 
     // ---- claude.ai -----------------------------------------------------

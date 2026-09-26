@@ -21,13 +21,16 @@
   };
   const DEFAULTS = {
     size: 'm', reveal: 'lines', odds: 'words', prompts: true,
-    sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false
+    sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false,
+    director: false
   };
+  const SNAPS = 80;          // how many choices director mode can step back through
   const SIZES = { s: 15, m: 16, l: 17.5 };
 
   const app = {
-    game: null, store: null, audio: null, settings: null,
+    game: null, store: null, audio: null, settings: null, dir: null,
     inGame: false, booted: false,
+    snaps: [],                   // director mode: the night before each choice, to step back to
     block: null, blockScreen: undefined,
     pending: null,               // items waiting behind a #pause
     shownKnots: new Set(),
@@ -45,8 +48,10 @@
 
     app.store = new B.Store();
     app.settings = app.store.loadSettings(DEFAULTS);
+    app.store.cloudSaves = !!app.settings.cloud;
     app.game = new B.Game(C);
     app.audio = new B.Audio(C.assets, (C.meta && C.meta.assetBase) || '');
+    app.dir = B.DirectorUI(directorApi());
     applySettings();
 
     $('#map').innerHTML = V.mapSVG();
@@ -54,10 +59,15 @@
     wire();
     renderTitle();
     startRain();
+    if (app.settings.director) app.dir.setOn(true, true);
 
-    // saves already allowed into the account come back quietly; nothing asks here
-    if (app.settings.cloud) {
-      app.store.connect(false).then(function (on) { if (on) renderTitle(); });
+    // saves and edits already allowed into the account come back quietly; nothing asks here
+    if (app.settings.cloud || app.settings.director || app.dir.hasEdits()) {
+      app.store.connect(false).then(function (on) {
+        if (!on) return;
+        app.dir.ensureDb(false);
+        renderTitle();
+      });
     }
 
     if (hotData && hotData.inGame) {
@@ -79,6 +89,12 @@
     applySettings();
   }
 
+  function setDirector(on, quiet) {
+    app.settings.director = !!on;
+    app.store.saveSettings(app.settings);
+    app.dir.setOn(!!on, quiet);
+  }
+
   // ---------------------------------------------------------------- the title
 
   function saveMeta(save) {
@@ -92,7 +108,7 @@
 
   async function bestSave() {
     const local = app.store.loadLocal();
-    if (!app.store.db) return local;
+    if (!app.store.db || !app.store.cloudSaves) return local;
     const cloud = await app.store.loadCloud();
     return B.Store.newer(local, cloud);
   }
@@ -114,7 +130,7 @@
     }
     menu.append(button('How it plays', 'btn', function () { openHelp(); }));
     menu.append(button('Settings', 'btn', function () { openSettings(); }));
-    $('#title-note').textContent = app.store.db
+    $('#title-note').textContent = app.store.db && app.store.cloudSaves
       ? 'One save, written after every choice, in this browser and in your Claude account.'
       : 'One save, written after every choice. There is no going back to try it again.';
   }
@@ -195,6 +211,8 @@
     app.pending = null;
     app.shownKnots = new Set();
     app.inkAmb = null;
+    app.snaps = [];
+    if (app.dir) app.dir.close();
   }
 
   function startNew() {
@@ -249,6 +267,7 @@
     if (!app.inGame || app.pending) return;
     const list = app.game.choices.filter(function (c) { return !c.hidden; });
     if (!list[visibleIndex]) return;
+    snapshot();
     let res;
     try {
       res = app.game.choose(visibleIndex);
@@ -264,13 +283,109 @@
     $('#after').innerHTML = '';
     const first = renderItems(res.items, live);
     if (!app.pending) after(res, live);
+    else renderRail();
     if (live && first) scrollToNode(first);
   }
 
   function after(res, live) {
     renderChoices(res.choices, res.ended);
     renderRail();
+    app.dir.bar();
     if (live) syncAmbience();
+  }
+
+  // ---------------------------------------------------------------- director mode: back and forth
+
+  // The night as it stands, before a choice. Kept in memory for this visit only.
+  function snapshot() {
+    const g = app.game;
+    if (!g.story) return;
+    const save = g.serialize();
+    save.log = [];
+    app.snaps.push({ save: save, log: g.log.slice(), shown: Array.from(app.shownKnots) });
+    if (app.snaps.length > SNAPS) app.snaps.shift();
+  }
+
+  // Undo the last choice: for trying the other branch while directing. The ironman save moves
+  // back with it.
+  function stepBack() {
+    const s = app.snaps.pop();
+    if (!s) { toast('Nothing to step back to.'); return; }
+    try { app.game.load(s.save); } catch (e) { toast('Could not step back.'); return; }
+    app.game.log = s.log.slice();
+    persist();
+    const keep = app.snaps;
+    resetStory();
+    app.snaps = keep;
+    rerenderLog(null, true);
+    after({ choices: app.game.choices, ended: app.game.ended }, true);
+    const story = $('#story');
+    story.scrollTop = story.scrollHeight;
+    toast('Stepped back one choice.');
+  }
+
+  // Go straight to a part of the Ink (a writing prompt's scene). Step back undoes it.
+  function jumpTo(knot) {
+    if (!app.inGame) { unlockAudio(); startNew(); }
+    snapshot();
+    let res;
+    try { res = app.game.jump(knot); } catch (e) { app.snaps.pop(); toast('Could not go to ' + knot + '.'); return; }
+    persist();
+    const aside = asideNode('<b>Jumped to ' + esc(knot) + '.</b> Everything in between was skipped, so the night may not add up. Step back to return.');
+    appendNode(aside);
+    show(res, true);
+    scrollToNode(aside);
+  }
+
+  // Draw the whole log again (after an edit), keeping what's on screen where it was.
+  function rerenderLog(keepNode, noAnchor) {
+    const story = $('#story');
+    let anchor = null, top = 0;
+    if (!noAnchor) {
+      const probe = keepNode || firstVisible();
+      if (probe) { anchor = probe._src || null; top = probe.getBoundingClientRect().top; }
+    }
+    $('#log').innerHTML = '';
+    app.block = null;
+    app.blockScreen = undefined;
+    app.shownKnots = new Set();
+    const log = app.game.log;
+    const hold = app.pending ? app.pending.filter(function (it) { return it.kind !== 'fx' && it.kind !== 'pause'; }).length : 0;
+    renderItems(hold ? log.slice(0, log.length - hold) : log, false);
+    if (app.pending) appendNode(pauseButton());
+    if (anchor) {
+      const nodes = $('#log').querySelectorAll('[data-dir]');
+      for (const n of nodes) {
+        if (n._src === anchor) { story.scrollTop += n.getBoundingClientRect().top - top; break; }
+      }
+    }
+  }
+
+  function firstVisible() {
+    const top = $('#story').getBoundingClientRect().top;
+    for (const n of $('#log').querySelectorAll('[data-dir]')) {
+      if (n.getBoundingClientRect().bottom > top + 8) return n;
+    }
+    return null;
+  }
+
+  function directorApi() {
+    return {
+      C: C, store: app.store,
+      status: function () {
+        const st = app.game.story ? app.game.status() : { clock: 0, here: '' };
+        const last = app.game.log.length ? app.game.log[app.game.log.length - 1] : null;
+        st.knot = (last && last.knot) || '';
+        return st;
+      },
+      toast: toast, openDialog: openDialog, closeDialog: closeDialog, heading: heading, foot: foot, seg: seg,
+      rerender: function () { if (app.inGame) rerenderLog(); },
+      renderChoices: function () { if (app.inGame && !app.pending) renderChoices(app.game.choices, app.game.ended); },
+      canStepBack: function () { return app.inGame && app.snaps.length > 0; },
+      jumpTo: jumpTo,
+      fmtClock: B.util.fmtClock,
+      place: function (here) { return PLACE[here] || ''; }
+    };
   }
 
   function scrollToNode(node) {
@@ -406,22 +521,8 @@
     return m;
   })();
 
-  function promptNode(list) {
-    const d = document.createElement('div');
-    d.className = 'prompt-card';
-    const h = document.createElement('span');
-    h.className = 'pc-h';
-    h.textContent = list.length === 1 ? 'Writing prompt, ' + list[0].loc : 'Writing prompts, ' + list[0].loc.split(':')[0];
-    d.append(h);
-    for (const p of list) {
-      const t = document.createElement('p');
-      t.textContent = p.text;
-      d.append(t);
-    }
-    return d;
-  }
-
   // Draw items into the log. Returns the first node drawn. Live items fade in one after another.
+  // The director's edits are laid over each item as it's drawn (src/ui/director.js).
   function renderItems(items, live) {
     let first = null, n = 0;
     const animate = live && app.settings.reveal === 'lines' && !reducedMotion();
@@ -432,54 +533,68 @@
       if (!first) first = node;
       return node;
     };
+    const prompts = function (it) {
+      if (!app.settings.prompts) return;
+      if (it.knot && PROMPTS[it.knot] && !app.shownKnots.has(it.knot)) {
+        app.shownKnots.add(it.knot);
+        add(app.dir.promptCard(PROMPTS[it.knot]), it.screen || null);
+      }
+      if (it.prompt) add(app.dir.promptCard([{ loc: 'here', text: it.prompt, knot: it.knot || '' }]), it.screen || null);
+    };
     for (let i = 0; i < items.length; i++) {
-      const it = items[i];
-      switch (it.kind) {
-        case 'line': {
-          add(lineNode(it), it.screen || null);
-          if (live && app.settings.prompts && it.knot && PROMPTS[it.knot] && !app.shownKnots.has(it.knot)) {
-            app.shownKnots.add(it.knot);
-            add(promptNode(PROMPTS[it.knot]), it.screen || null);
+      const src = items[i];
+      const shown = (src.kind === 'line' || src.kind === 'chosen') ? app.dir.overlay([src]) : [src];
+      for (const it of shown) {
+        switch (it.kind) {
+          case 'line': {
+            const node = add(lineNode(it), it.screen || null);
+            app.dir.decorate(node, it);
+            if (!it.inserted) prompts(it.src || it);
+            break;
           }
-          if (it.prompt && app.settings.prompts) add(promptNode([{ loc: 'here', text: it.prompt }]), it.screen || null);
-          break;
-        }
-        case 'chosen': add(chosenNode(it)); break;
-        case 'check': add(checkNode(it)); break;
-        case 'task':
-          add(asideNode((it.op === 'add' ? '<b>Noted.</b> ' : '<b>Done.</b> ') + esc(it.text)));
-          break;
-        case 'psyche': {
-          const t = psycheText(it);
-          if (t) add(asideNode(t));
-          break;
-        }
-        case 'screen':
-          ensureBlock(it.name || null);
-          break;
-        case 'fx':
-          if (live) fx(it, add);
-          break;
-        case 'pause':
-          if (live) {
-            const rest = items.slice(i + 1);
-            app.pending = rest;
-            const go = button('Go on', 'btn pause-go', function () {
-              go.remove();
-              const r = app.pending;
-              app.pending = null;
-              const f = renderItems(r, true);
-              after({ choices: app.game.choices, ended: app.game.ended }, true);
-              if (f) scrollToNode(f);
-            });
-            add(go);
-            setTimeout(function () { go.focus(); }, 50);
-            return first;
+          case 'chosen': app.dir.decorate(add(chosenNode(it)), it); break;
+          case 'dnote': add(app.dir.noteNode(it), it.screen || null); break;
+          case 'diff': { const d = app.dir.diffNode(it); if (d) add(d); break; }
+          case 'check': add(checkNode(it)); break;
+          case 'task':
+            add(asideNode((it.op === 'add' ? '<b>Noted.</b> ' : '<b>Done.</b> ') + esc(it.text)));
+            break;
+          case 'psyche': {
+            const t = psycheText(it);
+            if (t) add(asideNode(t));
+            break;
           }
-          break;
+          case 'screen':
+            ensureBlock(it.name || null);
+            break;
+          case 'fx':
+            if (live) fx(it, add);
+            break;
+          case 'pause':
+            if (live) {
+              app.pending = items.slice(i + 1);
+              const go = add(pauseButton());
+              setTimeout(function () { go.focus(); }, 50);
+              return first;
+            }
+            break;
+        }
       }
     }
     return first;
+  }
+
+  // "Go on": the rest of the batch waits behind a #pause in the Ink
+  function pauseButton() {
+    const go = button('Go on', 'btn pause-go', function () {
+      go.remove();
+      const r = app.pending;
+      app.pending = null;
+      const f = renderItems(r, true);
+      after({ choices: app.game.choices, ended: app.game.ended }, true);
+      if (f) scrollToNode(f);
+    });
+    return go;
   }
 
   function fx(it, add) {
@@ -535,10 +650,13 @@
         ck.title = (c.check.mods || []).map(function (m) { return (m.value > 0 ? '+' : '') + m.value + ' ' + m.label; }).join(', ');
         body.append(ck);
       }
-      body.append(document.createTextNode(c.text));
+      const words = app.dir.choiceText(c);
+      body.append(document.createTextNode(words));
+      if (words !== c.text) b.classList.add('edited');
       b.append(n, body);
       b.addEventListener('click', function () { choose(i); });
       li.append(b);
+      if (app.dir.on) app.dir.choiceTools(li, c);
       ol.append(li);
     });
     box.append(ol);
@@ -703,6 +821,8 @@
       list.className = 'menu-list';
       list.append(
         button('Back to the night', 'btn primary', closeDialog),
+        button(app.dir.on ? 'Director mode: on' : 'Director mode: off', 'btn', function () { closeDialog(); setDirector(!app.dir.on); }),
+        button('Director\u2019s desk', 'btn', function () { app.dir.openDesk(); }),
         button('Settings', 'btn', openSettings),
         button('How it plays', 'btn', openHelp),
         button('Copy the night', 'btn', copyNight),
@@ -714,7 +834,7 @@
       const p = document.createElement('p');
       p.className = 'tension-note';
       p.style.marginTop = '14px';
-      p.textContent = app.store.db ? 'Saved after every choice, here and in your Claude account.' : 'Saved in this browser after every choice.';
+      p.textContent = app.store.db && app.store.cloudSaves ? 'Saved after every choice, here and in your Claude account.' : 'Saved in this browser after every choice.';
       dlg.append(p);
     });
   }
@@ -791,7 +911,8 @@
         field('Text size', null, seg('Text size', [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']], s.size, function (v) { s.size = v; saveSettings(); })),
         field('New lines', 'One after another, or all at once.', seg('New lines', [['lines', 'One by one'], ['all', 'At once']], s.reveal, function (v) { s.reveal = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
-        field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); }), 'set-prompts'),
+        field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-prompts'),
+        field('Director mode', 'Tap any line to rewrite, cut or add to it. Key: D.', toggle('set-director', app.dir.on, function (v) { setDirector(v, true); }), 'set-director'),
         field('Sound', null, toggle('set-sound', s.sound, function (v) { s.sound = v; saveSettings(); if (v) app.audio.unlock(); }), 'set-sound'),
         field('Volume', null, slider('set-master', s.master, function (v) { s.master = v; saveSettings(); }), 'set-master'),
         field('The room', 'Rain, the cooler, the bar at night.', slider('set-amb', s.amb, function (v) { s.amb = v; saveSettings(); }), 'set-amb'),
@@ -807,7 +928,7 @@
     const st = app.store;
     let ctl;
     const hint = 'Keeps the save with you on any device, and lets Claude read how your night went.';
-    if (st.db) {
+    if (st.db && st.cloudSaves) {
       ctl = document.createElement('span');
       ctl.className = 'lbl';
       ctl.textContent = 'On';
@@ -824,7 +945,9 @@
         ctl.disabled = true;
         const on = await st.connect(true);
         app.settings.cloud = on;
+        st.cloudSaves = on;
         app.store.saveSettings(app.settings);
+        if (on) app.dir.ensureDb(false);
         if (on) {
           toast('Saving to your Claude account.');
           if (app.inGame) persist();
@@ -849,9 +972,12 @@
         '<p>There are voices in your head, people and books and stories you picked up at other doors. They talk over the scene, and they lend you checks. A check is two dice against a number. What moves the odds is how reliable the voice is, how much you have had to drink, and how loud the room in your head has got. The louder it is, the wider the dice swing, both ways.</p>' +
         '<p>There is one save, written after every choice. There is no going back to try it again.</p>' +
         '<h3>Keys</h3>' +
-        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
+        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
         '<h3>The draft</h3>' +
-        '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins and the people are lettered cards.</p>';
+        '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins and the people are lettered cards.</p>' +
+        '<h3>Director mode</h3>' +
+        '<p>For writing the game while you play it. Tap any line to rewrite it, cut it, add a line after it, or leave Claude a note. Reword a choice without choosing it. Answer a writing prompt where it comes up. Step back to try the other branch. Your edits play in the game straight away.</p>' +
+        '<p>When you have a batch, open the Director\'s desk and send them to Claude, who works them into the story files and puts up a new build. Each edit shows what became of it.</p>';
       dlg.append(d);
       foot(dlg, [button('Done', 'btn primary', closeDialog)]);
     });
@@ -1050,6 +1176,17 @@
 
     $('#overlay').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeDialog(); });
 
+    // director mode: tap a line to change it
+    $('#log').addEventListener('click', function (e) { app.dir.onLogClick(e); });
+    $('#dir-bar').addEventListener('click', function (e) {
+      const t = e.target.closest('[data-act]');
+      if (!t) return;
+      const act = t.getAttribute('data-act');
+      if (act === 'dir-desk') app.dir.openDesk();
+      else if (act === 'dir-back') stepBack();
+      else if (act === 'dir-off') setDirector(false);
+    });
+
     // the floor sketch: a lit spot is a choice
     const map = $('#map');
     const pick = function (g) {
@@ -1087,6 +1224,8 @@
         return;
       }
       if (dialogOpen || !app.inGame) return;
+      if (e.key === 'd' || e.key === 'D') { e.preventDefault(); setDirector(!app.dir.on); return; }
+      if ((e.key === 'b' || e.key === 'B') && app.dir.on) { e.preventDefault(); stepBack(); return; }
       if (/^[1-9]$/.test(e.key)) {
         const i = parseInt(e.key, 10) - 1;
         const b = document.querySelector('.choices .choice[data-i="' + i + '"]');
