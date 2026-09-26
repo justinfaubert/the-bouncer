@@ -29,6 +29,7 @@ Update this file at the end of every session: add a session entry, move items be
 - Money and skill-building in novel ways. The range runs from the very good times to violence, stepping in or stopping it. Bad decisions haunt, but not enough to destroy ambition.
 - Day 1 is a Wednesday test shift with rats, and the player can side with the rats. It's the prologue and tutorial. The first real shift is Friday. The bar opens early, and taking early shifts is the player's call, at a cost.
 - Hutch can make the music and sound effects and do voice work.
+- Setting (2026-09-26): unique and invented, reflecting modernity (today's technology) without veering into near-future cyberpunk. Rejects the historical routes.
 
 ### PROPOSED (waiting on Hutch)
 
@@ -49,13 +50,13 @@ Update this file at the end of every session: add a session entry, move items be
 
 ### REJECTED
 
-- None yet.
+- Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
 
 ## Open questions
 
 ### Blocking Wednesday
 
-1. **The setting route and the era's technology.** Phones? IDs? Cameras? Radio? The answer shapes what happens at the door.
+1. **The setting's texture.** Route decided (invented, modern, not cyberpunk). Open: where it feels like, and how the empire's end shows in the technology.
 2. **The bar.** Its name and a rough layout: the door, the floor, the bar, the bathrooms, table 28's spot, where the rats live.
 3. **The bouncer's first-day facts.** How he got the job, what he remembers, what people call him.
 4. **The voices on day 1.** Who are the first five in the room?

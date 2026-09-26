@@ -1,6 +1,6 @@
 # World
 
-## Setting [OPEN]
+## Setting [DECIDED 2026-09-26: unique and invented, modern technology, not cyberpunk]
 
 The brief: a contentious time in history at the end of an empire, in a rowdy bar that's dingy, lived in, and as debaucherous as it really is and no more. [DECIDED]
 
