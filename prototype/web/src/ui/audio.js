@@ -49,7 +49,7 @@
       if (!this.ctx) return;
       const t = this.ctx.currentTime;
       this.out.gain.setTargetAtTime(this.enabled ? this.levels.master : 0, t, 0.05);
-      this.bus.amb.gain.setTargetAtTime(this.levels.amb, t, 0.05);
+      this.bus.amb.gain.setTargetAtTime(this.levels.amb * (this._duck || 1), t, 0.05);
       this.bus.sfx.gain.setTargetAtTime(this.levels.sfx, t, 0.05);
       this.bus.music.gain.setTargetAtTime(this.levels.music, t, 0.05);
       if (this.music.el) this.music.el.volume = this.enabled ? this.levels.master * this.levels.music : 0;
@@ -64,18 +64,29 @@
 
     // ---- the three channels ----------------------------------------------
 
-    sfx(id) {
+    // vol (0 to 1, default 1) is for cues that come in runs, like a die slowing down
+    sfx(id, vol) {
       if (!this.ctx || !this.enabled) return;
+      const v = vol == null ? 1 : Math.max(0, Math.min(1, vol));
       const slot = this._slot('sfx', id);
       const url = this._url(slot);
       if (url) {
         const el = new globalThis.Audio(url);
-        el.volume = this.levels.master * this.levels.sfx;
+        el.volume = this.levels.master * this.levels.sfx * v;
         el.play().catch(function () {});
         return;
       }
       const recipe = SFX[(slot && slot.synth) || id];
-      if (recipe) { try { recipe(this, this.ctx.currentTime + 0.01); } catch (e) { /* a bad recipe is not worth a crash */ } }
+      if (recipe) { try { recipe(this, this.ctx.currentTime + 0.01, v); } catch (e) { /* a bad recipe is not worth a crash */ } }
+    }
+
+    // the room drops away while the dice are in the air, and comes back with the result
+    duck(on) {
+      this._duck = on ? 0.3 : 1;
+      if (!this.ctx) return;
+      const g = this.bus.amb.gain, t = this.ctx.currentTime;
+      g.cancelScheduledValues(t);
+      g.setTargetAtTime(this.levels.amb * this._duck, t, on ? 0.2 : 0.7);
     }
 
     ambience(id) {
@@ -327,7 +338,28 @@
       }
     },
     clack(a, t) { let s = 0; for (let i = 0; i < 6; i++) { a.burst(t + s, 0.015, 2400 + Math.random() * 1200, 3, 0.18); s += 0.03 + Math.random() * 0.09; } },
-    till(a, t) { a.tone(t, 2100, 0.5, 0.08, 'sine'); a.burst(t + 0.12, 0.1, 400, 0.8, 0.15, null, 'lowpass'); }
+    till(a, t) { a.tone(t, 2100, 0.5, 0.08, 'sine'); a.burst(t + 0.12, 0.1, 400, 0.8, 0.15, null, 'lowpass'); },
+    // the dice: shaken in a loose fist, then over the rubber bar mat
+    rattle(a, t, v) {
+      for (let k = 0; k < 3; k++) {
+        const s = t + k * 0.15 + Math.random() * 0.02;
+        a.burst(s, 0.05, 240, 0.7, 0.06 * v, null, 'lowpass');
+        for (let i = 0; i < 4; i++) a.burst(s + 0.008 + Math.random() * 0.07, 0.009, 2600 + Math.random() * 2600, 7, (0.05 + Math.random() * 0.08) * v);
+      }
+    },
+    tick(a, t, v) {
+      a.burst(t, 0.016, 1300 + Math.random() * 900, 2.5, 0.2 * v);
+      a.tone(t, 300 + Math.random() * 90, 0.05, 0.07 * v, 'triangle', null, 190);
+    },
+    tock(a, t, v) {
+      a.burst(t, 0.03, 950, 1.4, 0.24 * v);
+      a.tone(t, 240, 0.09, 0.13 * v, 'triangle', null, 140);
+    },
+    stamp(a, t, v) {
+      a.tone(t, 125, 0.17, 0.36 * v, 'sine', null, 52);
+      a.burst(t, 0.07, 520, 0.8, 0.3 * v, null, 'lowpass');
+      a.burst(t + 0.004, 0.035, 3000, 0.9, 0.07 * v);
+    }
   };
 
   Audio.AMB = AMB;

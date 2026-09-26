@@ -22,7 +22,7 @@
     lot: 'Out in the lot', upstairs: 'Upstairs'
   };
   const DEFAULTS = {
-    size: 'm', reveal: 'lines', odds: 'words', prompts: true, plates: true,
+    size: 'm', reveal: 'lines', odds: 'words', dice: 'full', prompts: true, plates: true,
     sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false,
     director: false
   };
@@ -34,7 +34,8 @@
     inGame: false, booted: false,
     snaps: [],                   // director mode: the night before each choice, to step back to
     block: null, blockScreen: undefined,
-    pending: null,               // items waiting behind a #pause
+    pending: null,               // items waiting behind a #pause, or behind dice still rolling
+    rolling: null,               // the check being rolled right now (src/ui/roll.js)
     shownKnots: new Set(),
     seenPlates: new Set(),       // place|hour-of-night pairs that have had their plate this night
     plateLook: {},               // place -> what its last plate showed
@@ -160,6 +161,7 @@
   }
 
   function showTitle() {
+    if (app.rolling) app.rolling.finish();
     closeDialog();
     closeRail();
     app.inGame = false;
@@ -217,6 +219,8 @@
   function unlockAudio() { app.audio.unlock(); }
 
   function resetStory() {
+    if (app.rolling) { app.rolling.cancel(); app.rolling = null; }
+    document.getElementById('app').classList.remove('rolling');
     $('#log').innerHTML = '';
     $('#after').innerHTML = '';
     app.block = null;
@@ -354,6 +358,7 @@
 
   // Draw the whole log again (after an edit), keeping what's on screen where it was.
   function rerenderLog(keepNode, noAnchor) {
+    if (app.rolling) app.rolling.finish();
     const story = $('#story');
     let anchor = null, top = 0;
     if (!noAnchor) {
@@ -471,24 +476,18 @@
     return p;
   }
 
-  function checkNode(item) {
-    const d = document.createElement('div');
-    d.className = 'check ' + (item.success ? 'ok' : 'no') + ' v-' + voiceStyle(item.voice);
+  // A check: the dice, what the second one needs, the stamp (src/ui/roll.js). Drawn at rest
+  // unless it's being rolled now.
+  function rollCard(item) {
     const r = item.roll || {};
-    const crit = r.crit === 'success' ? 'Double six' : r.crit === 'fail' ? 'Double one' : '';
-    d.innerHTML =
-      '<span class="ck-who">' + esc(item.label) + '</span>' +
-      '<span class="dice" aria-label="Rolled ' + r.d1 + ' and ' + r.d2 + '">' + V.dieSVG(r.d1) + V.dieSVG(r.d2) + '</span>' +
-      '<span class="sum">' + esc(item.word) + ' ' + item.target + ', got ' + r.total + (crit ? ', ' + crit.toLowerCase() : '') + '</span>' +
-      '<span class="res">' + (item.success ? 'Success' : 'Failure') + '</span>';
-    d.title = checkDetail(item);
-    return d;
-  }
-
-  function checkDetail(item) {
-    const r = item.roll || {};
-    const parts = (item.mods || []).map(function (m) { return (m.value > 0 ? '+' : '') + m.value + ' ' + m.label; });
-    return 'Dice ' + r.d1 + ' + ' + r.d2 + (r.tension ? ', stretched by tension ' + r.tension : '') + (parts.length ? ', ' + parts.join(', ') : '') + ' = ' + r.total + ' against ' + item.target;
+    const p = B.Checks.odds(item.target, r.mod | 0, r.tension | 0);
+    return B.Roll.card(item, {
+      voiceClass: 'v-' + voiceStyle(item.voice),
+      odds: app.settings.odds === 'numbers' ? Math.round(p * 100) + '%' : B.Checks.oddsWord(p),
+      audio: app.audio,
+      speed: app.settings.dice === 'quick' ? 'quick' : 'full',
+      still: reducedMotion()
+    });
   }
 
   function asideNode(html) {
@@ -579,7 +578,7 @@
   // Draw items into the log. Returns the first node drawn. Live items fade in one after another.
   // The director's edits are laid over each item as it's drawn (src/ui/director.js).
   function renderItems(items, live) {
-    let first = null, n = 0;
+    let first = null, n = 0, chosen = null;
     const animate = live && app.settings.reveal === 'lines' && !reducedMotion();
     const add = function (node, screen) {
       appendNode(node, screen);
@@ -607,11 +606,31 @@
             if (!it.inserted) prompts(it.src || it);
             break;
           }
-          case 'chosen': app.dir.decorate(add(chosenNode(it)), it); break;
+          case 'chosen': chosen = add(chosenNode(it)); app.dir.decorate(chosen, it); break;
           case 'dnote': add(app.dir.noteNode(it), it.screen || null); break;
           case 'place': { const pl = placeNode(it); if (pl) add(pl, null); break; }
           case 'diff': { const d = app.dir.diffNode(it); if (d) add(d); break; }
-          case 'check': add(checkNode(it)); break;
+          case 'check': {
+            const roll = rollCard(it);
+            add(roll.node);
+            if (!live || app.settings.dice === 'still') { roll.still(); break; }
+            // the rest of the batch waits for the dice
+            app.pending = items.slice(i + 1);
+            app.rolling = roll;
+            roll.node.classList.add('roll-now');
+            if (chosen) chosen.classList.add('roll-now');
+            document.getElementById('app').classList.add('rolling');
+            roll.play(function () {
+              document.getElementById('app').classList.remove('rolling');
+              for (const x of document.querySelectorAll('.roll-now')) x.classList.remove('roll-now');
+              app.rolling = null;
+              const rest = app.pending || [];
+              app.pending = null;
+              renderItems(rest, true);
+              if (!app.pending) after({ choices: app.game.choices, ended: app.game.ended }, true);
+            });
+            return first;
+          }
           case 'task':
             add(asideNode((it.op === 'add' ? '<b>Noted.</b> ' : '<b>Done.</b> ') + esc(it.text)));
             break;
@@ -648,7 +667,7 @@
       const r = app.pending;
       app.pending = null;
       const f = renderItems(r, true);
-      after({ choices: app.game.choices, ended: app.game.ended }, true);
+      if (!app.pending) after({ choices: app.game.choices, ended: app.game.ended }, true);
       if (f) scrollToNode(f);
     });
     return go;
@@ -988,6 +1007,7 @@
       dlg.append(
         field('Text size', null, seg('Text size', [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']], s.size, function (v) { s.size = v; saveSettings(); })),
         field('New lines', 'One after another, or all at once.', seg('New lines', [['lines', 'One by one'], ['all', 'At once']], s.reveal, function (v) { s.reveal = v; saveSettings(); })),
+        field('Dice', 'How a check plays out. Tap the dice to skip ahead.', seg('Dice', [['full', 'Rolled out'], ['quick', 'Quick'], ['still', 'At once']], s.dice, function (v) { s.dice = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
         field('Pictures', 'A print of each place as he walks in, and the faces of the people.', toggle('set-plates', s.plates, function (v) { s.plates = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-plates'),
         field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-prompts'),
@@ -1048,10 +1068,10 @@
       d.innerHTML =
         '<p>You are the new doorman at the Sovereign Hotel, on the east coast of the island. It is Wednesday, your test shift, from 7:40 until they lock up.</p>' +
         '<p>Every choice costs minutes. The room keeps going while you are somewhere else: people come in past an empty stool, the pool table heats up, table 28 keeps drinking.</p>' +
-        '<p>There are voices in your head, people and books and stories you picked up at other doors. They talk over the scene, and they lend you checks. A check is two dice against a number. What moves the odds is how reliable the voice is, how much you have had to drink, and how loud the room in your head has got. The louder it is, the wider the dice swing, both ways.</p>' +
+        '<p>There are voices in your head, people and books and stories you picked up at other doors. They talk over the scene, and they lend you checks. A check is two dice against a number. What moves the odds is how reliable the voice is, how much you have had to drink, and how loud the room in your head has got. The louder it is, the wider the dice swing, both ways. Once the first die is down, the page shows what the second one needs. Tap the dice to skip ahead.</p>' +
         '<p>There is one save, written after every choice. There is no going back to try it again.</p>' +
         '<h3>Keys</h3>' +
-        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
+        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>Space</dt><dd>Skip ahead while the dice roll</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
         '<h3>The draft</h3>' +
         '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins, and the places and people are prints drawn in code, from shapes.</p>' +
         '<h3>Director mode</h3>' +
@@ -1303,6 +1323,7 @@
         return;
       }
       if (dialogOpen || !app.inGame) return;
+      if (app.rolling && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); app.rolling.finish(); return; }
       if (e.key === 'd' || e.key === 'D') { e.preventDefault(); setDirector(!app.dir.on); return; }
       if ((e.key === 'b' || e.key === 'B') && app.dir.on) { e.preventDefault(); stepBack(); return; }
       if (/^[1-9]$/.test(e.key)) {
