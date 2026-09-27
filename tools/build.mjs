@@ -272,6 +272,14 @@ console.log(`Built ${build}: ${files.length} Ink files, ${scan.words.total.toLoc
 for (const [f, w] of Object.entries(scan.words.byFile)) console.log(`  ${f.padEnd(34)} ${String(w).padStart(6)} words`);
 if (problems.warnings.length) console.log(`${problems.warnings.length} warning(s).`);
 
+// The local files a stylesheet loads. Each url(...) is read whole, quotes and all, so a data: URI
+// with a url() inside it (an SVG filter) is passed over rather than taken apart.
+const CSS_URL = /url\(\s*(?:"([^"]*)"|'([^']*)'|([^)'"\s]+))\s*\)/g;
+const localUrl = (m) => {
+  const u = m[1] != null ? m[1] : m[2] != null ? m[2] : m[3];
+  return /^(?:https?:|data:)/.test(u) ? null : u;
+};
+
 // ---------------------------------------------------------------- offline: one file
 
 let offlineFile = null;
@@ -290,8 +298,10 @@ if (args.has('--offline') || args.has('--dist')) {
   const offContent = contentJs({ ...content, assets: offAssets, meta: { ...content.meta, assetBase: '', offline: true } });
   const inlineCss = (ref) => {
     const file = path.join(WEB, ref);
-    return fs.readFileSync(file, 'utf8').replace(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g,
-      (all, u) => 'url(' + dataUri(path.join(path.dirname(file), u)) + ')');
+    return fs.readFileSync(file, 'utf8').replace(CSS_URL, function (all) {
+      const u = localUrl(arguments);
+      return u ? 'url(' + dataUri(path.join(path.dirname(file), u)) + ')' : all;
+    });
   };
   const safeJs = (js) => js.replace(/<\/script/gi, '<\\/script');
   let out = html
@@ -322,8 +332,10 @@ if (args.has('--dist')) {
   for (const ref of localRefs.slice()) {
     if (!ref.endsWith('.css')) continue;
     const css = fs.readFileSync(path.join(WEB, ref), 'utf8');
-    for (const m of css.matchAll(/url\((?!['"]?(?:https?:|data:))['"]?([^)'"]+)['"]?\)/g)) {
-      const sub = path.posix.join(path.posix.dirname(ref), m[1]);
+    for (const m of css.matchAll(CSS_URL)) {
+      const u = localUrl(m);
+      if (!u) continue;
+      const sub = path.posix.join(path.posix.dirname(ref), u);
       if (!localRefs.includes(sub)) localRefs.push(sub);
     }
   }

@@ -44,7 +44,9 @@ Update this file at the end of every session: add a session entry, move items be
   7. **The room's noise follows the crowd:** the talk, the glasses, the pool table heating up, the jukebox, the rats and the rain, mixed by where he's standing.
   8. **The ending lands harder.** A plate of the hotel after close, one window lit, then the tally prints like the till's tape: rows with dots, what each group is saying about him, a pause before the bartender's word to the owner, a stamp, and the tape torn off.
 - The word on him and THE MANUAL's lessons are Claude's drafts, for Hutch to rewrite. The sound is still synthesized stand-ins; a recording dropped into its slot in `content/data/assets.yaml` replaces one.
-- Bots: every knot and stitch reached, no problems. The bigger ideas that aren't built are below under PROPOSED, and in `07_ENGAGEMENT.md`.
+- 1,000 bot nights: every knot and stitch reached, no problems. Hutch's saved night from round two loads in the new build and plays on to the end.
+- Published as version 4 at the same link; the offline copy is `releases/The-Bouncer.html` again (the offline and publish builds had broken on the stamp's texture, and were fixed).
+- The bigger ideas that aren't built are below under PROPOSED, and in `07_ENGAGEMENT.md`.
 
 ## Decisions register
 
