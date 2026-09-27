@@ -566,7 +566,11 @@
       odds: app.settings.odds === 'numbers' ? Math.round(p * 100) + '%' : B.Checks.oddsWord(p),
       audio: app.audio,
       speed: app.settings.dice === 'quick' ? 'quick' : 'full',
-      still: reducedMotion()
+      still: reducedMotion(),
+      // thrown by hand unless they're set to roll themselves
+      hand: app.settings.dice === 'full',
+      murmur: function (what) { return app.settings.notice !== false && app.game ? app.game.murmur(what) : null; },
+      styleOf: voiceStyle
     });
   }
 
@@ -1269,7 +1273,7 @@
       dlg.append(
         field('Text size', null, seg('Text size', [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']], s.size, function (v) { s.size = v; saveSettings(); })),
         field('New lines', 'One after another, or all at once.', seg('New lines', [['lines', 'One by one'], ['all', 'At once']], s.reveal, function (v) { s.reveal = v; saveSettings(); })),
-        field('Dice', 'How a check plays out. Tap the dice to skip ahead.', seg('Dice', [['full', 'Rolled out'], ['quick', 'Quick'], ['still', 'At once']], s.dice, function (v) { s.dice = v; saveSettings(); })),
+        field('Dice', 'How a check plays out. By hand: hold the dice to shake them, let go to throw. Tap the dice to skip ahead.', seg('Dice', [['full', 'By hand'], ['auto', 'Rolled out'], ['quick', 'Quick'], ['still', 'At once']], s.dice, function (v) { s.dice = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
         field('Pictures', 'A print of each place as he walks in, and the faces of the people.', toggle('set-plates', s.plates, function (v) { s.plates = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-plates'),
         field('The voices notice you', 'They lean in when your hand is on a choice, and notice when you hesitate or read back.', toggle('set-notice', s.notice !== false, function (v) { s.notice = v; saveSettings(); if (!v && app.hand) app.hand.stop(); }), 'set-notice'),
@@ -1331,10 +1335,10 @@
       d.innerHTML =
         '<p>You are the new doorman at the Sovereign Hotel, on the east coast of the island. It is Wednesday, your test shift, from 7:40 until they lock up.</p>' +
         '<p>Every choice costs minutes. The room keeps going while you are somewhere else: people come in past an empty stool, the pool table heats up, table 28 keeps drinking.</p>' +
-        '<p>There are voices in your head, people and books and stories you picked up at other doors. They talk over the scene, and they lend you checks. A check is two dice against a number. What moves the odds is how reliable the voice is, how much you have had to drink, and how loud the room in your head has got. The louder it is, the wider the dice swing, both ways. Once the first die is down, the page shows what the second one needs. Tap the dice to skip ahead.</p>' +
+        '<p>There are voices in your head, people and books and stories you picked up at other doors. They talk over the scene, and they lend you checks. A check is two dice against a number. What moves the odds is how reliable the voice is, how much you have had to drink, and how loud the room in your head has got. The louder it is, the wider the dice swing, both ways. Once the first die is down, the page shows what the second one needs. The dice are yours to throw: hold them to shake them, and let go. Tap them to skip ahead.</p>' +
         '<p>There is one save, written after every choice. There is no going back to try it again.</p>' +
         '<h3>Keys</h3>' +
-        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>Space</dt><dd>Skip ahead while the dice roll</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
+        '<dl><dt>1 to 9</dt><dd>Pick a choice</dd><dt>Space</dt><dd>Hold to shake the dice, let go to throw; again to skip ahead</dd><dt>D</dt><dd>Director mode on or off</dd><dt>B</dt><dd>Step back one choice (director mode)</dd><dt>Esc</dt><dd>Menu</dd></dl>' +
         '<h3>The draft</h3>' +
         '<p>This is a draft of day one. Writing prompts mark the places where it needs Hutch\'s own material. Art and music drop in later; until then the sounds are stand-ins, and the places and people are prints drawn in code, from shapes.</p>' +
         '<h3>Director mode</h3>' +
@@ -1586,13 +1590,22 @@
         return;
       }
       if (dialogOpen || !app.inGame) return;
-      if (app.rolling && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); app.rolling.finish(); return; }
+      if (app.rolling && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        // the dice in his hand: the key held down shakes them, let up throws them
+        if (app.rolling.inHand && app.rolling.inHand()) { if (!e.repeat) app.rolling.grip(); } else app.rolling.finish();
+        return;
+      }
       if (e.key === 'd' || e.key === 'D') { e.preventDefault(); setDirector(!app.dir.on); return; }
       if ((e.key === 'b' || e.key === 'B') && app.dir.on) { e.preventDefault(); stepBack(); return; }
       if (/^[1-9]$/.test(e.key)) {
         const b = document.querySelector('.choices .choice[data-k="' + e.key + '"]');
         if (b) { e.preventDefault(); b.click(); }
       }
+    });
+
+    document.addEventListener('keyup', function (e) {
+      if (app.rolling && app.rolling.inHand && app.rolling.inHand() && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); app.rolling.letGo(); }
     });
 
     // a republish or reload brings the player straight back into the night

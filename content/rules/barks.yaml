@@ -531,6 +531,7 @@
 #   hand:reread      scrolled back up the night, reading it again
 #   hand:back        back after a while away from the game
 #   hand:rush        choosing without reading
+#   hand:shake       shaking the dice in the fist before a throw (src/ui/roll.js), a while
 #   hand:resisted:<what>   had a hand on something he's tempted by, and chose something else
 # Each is said once a night, whatever the noise in his head, and only by a voice in the room. What
 # the voices say to the player isn't written into the night, except hand:resisted, which goes in
@@ -907,6 +908,38 @@
   on: hand:rush
   speaker: fighter
   text: Fast. Good. Don't think.
+
+# shaking the dice a while before throwing them
+
+- id: hand_shake_fighter
+  on: hand:shake
+  speaker: fighter
+  text: Throw them.
+
+- id: hand_shake_manual
+  on: hand:shake
+  speaker: manual
+  text: How long they are shaken has no bearing on the outcome.
+
+- id: hand_shake_father
+  on: hand:shake
+  speaker: father
+  text: They don't know it's you shaking them.
+
+- id: hand_shake_wrongman
+  on: hand:shake
+  speaker: wrongman
+  text: Everybody in the story thought they could feel it coming.
+
+- id: hand_shake_kid
+  on: hand:shake
+  speaker: kid
+  text: just throw them
+
+- id: hand_shake_table
+  on: hand:shake
+  speaker: table
+  text: Come on, big fella, let 'em go!
 
 # ---------------------------------------------------------------- voices he may take home (Friday on)
 

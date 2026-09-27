@@ -4,9 +4,15 @@
 // then the result stamped. The room goes quiet while they're in the air. A tap, space or enter
 // skips to the stamp. A check drawn again later (a reload, an edit) is drawn at rest.
 //
-// B.Roll.card(item, opts) -> { node, play(onDone), finish(), cancel() }
+// Thrown by hand (opts.hand): the dice wait at the end of the mat until the player picks them
+// up. Press and hold to shake them, let go to throw. How long they're shaken changes nothing;
+// the dice were decided when the choice was made. A voice may say something while they're
+// shaken (opts.murmur('shake'), the hand:shake lines in barks.yaml).
+//
+// B.Roll.card(item, opts) -> { node, play(onDone), finish(), cancel(), inHand(), grip(), letGo() }
 //   item: the check item from the Game ({voice, label, target, word, mods, roll, success, turn})
-//   opts: { voiceClass, odds (text for the head), audio, speed: 'full'|'quick', still: bool }
+//   opts: { voiceClass, odds (text for the head), audio, speed: 'full'|'quick', still: bool,
+//           hand: bool, murmur(what) -> {speaker, label, text} | null, styleOf(voice) }
 (function (B) {
   'use strict';
 
@@ -27,6 +33,8 @@
   const TURN = { 'x-': [0, 90], 'x+': [0, -90], 'y-': [-90, 0], 'y+': [90, 0] };
 
   const FULL = { shake: 500, d1: 720, n1: 4, d2: 1380, n2: 6, perT: 120, needs: 140, ring: 160, stamp: 400, after: 420 };
+  const RATTLE_MS = 150;        // a rattle of the dice in the fist, over and over while held
+  const SPEAK_MS = 1300;        // held this long, a voice may say something
   const QUICK = { shake: 150, d1: 380, n1: 3, d2: 560, n2: 3, perT: 0, needs: 40, ring: 60, stamp: 150, after: 160 };
   const STILL = { d1: 380, needs: 120, d2: 1150, ring: 150, stamp: 380, after: 380 };
 
@@ -184,8 +192,10 @@
         '<div class="rl-mat" aria-hidden="true"><div class="rl-plane">' +
           '<div class="rl-die d1">' + cubeHTML() + '</div><div class="rl-die d2">' + cubeHTML() + '</div>' +
         '</div></div>' +
-        '<div class="rl-stampbox"><div class="rl-stamp"><b>' + (item.success ? 'Success' : 'Failure') + '</b>' + (crit ? '<small>' + crit + '</small>' : '') + '</div></div>' +
+        '<div class="rl-stampbox"><div class="rl-stamp"><b>' + (item.success ? 'Success' : 'Failure') + '</b>' + (crit ? '<small>' + crit + '</small>' : '') + '</div>' +
+          '<div class="rl-hint" aria-hidden="true">Hold to shake them.<br>Let go to throw.</div></div>' +
       '</div>' +
+      '<div class="rl-voice" aria-live="polite"></div>' +
       '<div class="rl-needs"><span class="rl-faces" aria-hidden="true">' + faces + '</span><span class="rl-nt">' + esc(need.text) + '</span></div>' +
       '<div class="rl-sum">' + esc(sumText(item)) + '</div>' +
       '<span class="sr rl-sr"></span>';
@@ -197,6 +207,8 @@
     const rest = function (k) { return { x: drift[k], y: drift[1 - k] * 0.6, z: 0, yaw: yaws[k], rx: 0, ry: 0 }; };
 
     let timers = [], anims = [], done = null, over = false, stamped = false;
+    // in the hand: waiting to be picked up, then shaken; `held` is where each die sits meanwhile
+    let hand = null, held = null;
 
     function atRest(k) {
       const s = rest(k);
@@ -240,13 +252,115 @@
 
     function at(ms, fn) { timers.push(setTimeout(function () { if (!over) fn(); }, ms)); }
 
+    // ---- thrown by hand ----------------------------------------------------
+
+    // where the dice lie at the near end of the mat before they're thrown: loose, one against the other
+    function heldPose(k, lift) {
+      const W = (node.querySelector('.rl-mat') || {}).offsetWidth || 300;
+      const ds = dieEls[0].offsetWidth || 40;
+      const lefts = [0.3 * W, 0.66 * W];
+      return {
+        x: ds * (0.85 + k * 1.12) - lefts[k], y: (k ? 0.2 : -0.25) * ds, z: lift || 0,
+        yaw: (k ? 34 : -21) + yaws[k] * 0.5, rx: k ? -13 : 9, ry: k ? 17 : -8
+      };
+    }
+    function pose(k, s) {
+      cubes[k].style.transform = tf(s, tops[k]);
+      const sh = shadowOf(s);
+      shadows[k].style.transform = sh.transform;
+      shadows[k].style.opacity = sh.opacity;
+    }
+
+    function waitInHand() {
+      node.classList.add('in-hand');
+      held = [heldPose(0), heldPose(1)];
+      for (let k = 0; k < 2; k++) { pose(k, held[k]); dieEls[k].classList.add('in'); }
+      hand = { shaking: false, t0: 0, raf: 0, rattle: 0, spoke: false, jig: seeded(((item.turn | 0) * 131) ^ 77) };
+      node.addEventListener('pointerdown', onDown);
+      node.addEventListener('contextmenu', noMenu);
+      globalThis.addEventListener('pointerup', onUp);
+      globalThis.addEventListener('pointercancel', onUp);
+    }
+    function noMenu(e) { e.preventDefault(); }
+    function onDown(e) { if (e.button > 0) return; e.preventDefault(); grip(); }
+    function onUp() { if (hand && hand.shaking) letGo(); }
+
+    // picked up: the dice rattle in the fist, and jump about in it
+    function grip() {
+      if (!hand || hand.shaking || over) return;
+      hand.shaking = true;
+      hand.t0 = Date.now();
+      node.classList.add('shaking');
+      const a = opts.audio;
+      if (a) a.sfx('dice_shake', 0.55);
+      hand.rattle = setInterval(function () { if (a) a.sfx('dice_shake', 0.45 + hand.jig() * 0.35); }, RATTLE_MS * 3);
+      const jiggle = function () {
+        if (!hand || !hand.shaking) return;
+        const r = hand.jig, lift = 7 + r() * 9;
+        for (let k = 0; k < 2; k++) {
+          const b = heldPose(k, lift);
+          pose(k, { x: b.x + (r() - 0.5) * 9, y: b.y + (r() - 0.5) * 7, z: lift + r() * 5, yaw: b.yaw + (r() - 0.5) * 70, rx: b.rx + (r() - 0.5) * 120, ry: b.ry + (r() - 0.5) * 120 });
+        }
+        if (!hand.spoke && Date.now() - hand.t0 > SPEAK_MS) { hand.spoke = true; speak(); }
+        hand.raf = setTimeout(jiggle, 55 + r() * 35);
+      };
+      jiggle();
+      buzz(10);
+    }
+
+    // a voice, while they're being shaken
+    function speak() {
+      const w = opts.murmur ? opts.murmur('shake') : null;
+      if (!w) return;
+      const box = node.querySelector('.rl-voice');
+      box.className = 'rl-voice v-' + ((opts.styleOf && opts.styleOf(w.speaker)) || w.speaker);
+      box.innerHTML = '<span class="rv-who">' + esc(w.label) + '</span> ' + esc(w.text);
+      box.classList.add('said');
+      if (opts.audio) opts.audio.sfx('whisper', 0.8);
+    }
+
+    // let go: thrown from where they were in the fist
+    function letGo() {
+      if (!hand || over) return;
+      const shook = hand.shaking ? Date.now() - hand.t0 : 0;
+      clearTimeout(hand.raf);
+      clearInterval(hand.rattle);
+      unhand();
+      node.classList.remove('in-hand', 'shaking');
+      node.classList.add('thrown');
+      throwIt(shook);
+    }
+    function unhand() {
+      if (!hand) return;
+      clearTimeout(hand.raf);
+      clearInterval(hand.rattle);
+      node.removeEventListener('pointerdown', onDown);
+      node.removeEventListener('contextmenu', noMenu);
+      globalThis.removeEventListener('pointerup', onUp);
+      globalThis.removeEventListener('pointercancel', onUp);
+      hand = null;
+    }
+
     function play(onDone) {
       done = onDone || null;
       node.classList.add('playing');
+      if (opts.hand && !opts.still && opts.speed !== 'quick') {
+        if (B.Plates && B.Plates.hold) B.Plates.hold(60000);
+        if (opts.audio) opts.audio.duck(true);
+        waitInHand();
+        return;
+      }
+      throwIt(-1);
+    }
+
+    // shook: how long they were shaken in the hand (-1: not thrown by hand)
+    function throwIt(shook) {
+      const byHand = shook >= 0;
       if (B.Plates && B.Plates.hold) B.Plates.hold(8000);     // nothing off the press while they're in the air
       const a = opts.audio;
       if (a) a.duck(true);
-      node.addEventListener('click', finish);
+      // (a click that let go of the dice isn't a click to skip them)
+      setTimeout(function () { if (!over) node.addEventListener('click', finish); }, byHand ? 250 : 0);
 
       if (opts.still) {
         // no movement: the same beats, the dice simply there
@@ -261,7 +375,8 @@
         return;
       }
 
-      const T = opts.speed === 'quick' ? QUICK : FULL;
+      const T = Object.assign({}, opts.speed === 'quick' ? QUICK : FULL);
+      if (byHand) T.shake = shook > 250 ? 0 : 120;      // shaken already; a quick tap gets a short rattle
       const tension = Math.max(0, r.tension | 0);
       const mat = node.querySelector('.rl-mat');
       const W = (mat && mat.offsetWidth) || 300;
@@ -305,9 +420,13 @@
 
       // the louder his head, the longer the second die takes
       const d1 = T.d1, d2 = T.d2 + T.perT * Math.min(tension, 4) - (hang || opts.speed === 'quick' ? 0 : 260);
+      // thrown from the fist at the near end of the mat, or in from off the edge of it
+      const from = byHand
+        ? [heldPose(0), heldPose(1)].map(function (h, k) { const r0 = rest(k); return { x: h.x - r0.x, y: h.y - r0.y }; })
+        : [{ x: -(lefts[0] + ds * 1.3), y: -ds * 0.5 }, { x: -(lefts[1] + ds * 1.6), y: ds * 0.4 }];
       const plans = [
-        path({ n: T.n1, dur: d1, from: { x: -(lefts[0] + ds * 1.3), y: -ds * 0.5 }, air: ds * 0.9, yaw: yaws[0], end: [0, 0], ds: ds }, rand),
-        path({ n: T.n2 + (hang ? Math.min(tension, 3) : 0), dur: d2, from: { x: -(lefts[1] + ds * 1.6), y: ds * 0.4 }, air: ds * 1.1, yaw: yaws[1], end: end2, ds: ds }, rand)
+        path({ n: T.n1, dur: d1, from: from[0], air: ds * (byHand ? 1.2 : 0.9), yaw: yaws[0], end: [0, 0], ds: ds }, rand),
+        path({ n: T.n2 + (hang ? Math.min(tension, 3) : 0), dur: d2, from: from[1], air: ds * (byHand ? 1.4 : 1.1), yaw: yaws[1], end: end2, ds: ds }, rand)
       ];
       // shift the tumbles onto their resting spots
       for (let k = 0; k < 2; k++) {
@@ -353,7 +472,7 @@
           if (f) f.classList.add('top');
         });
       }
-      if (a) a.sfx('dice_shake', 1);
+      if (a && !(byHand && T.shake === 0)) a.sfx('dice_shake', 1);
       at(lands[0] + T.needs, showNeeds);
       const land2 = Math.max(lands[1], lands[0] + T.needs + 200);
       at(land2 + T.ring, ring);
@@ -365,6 +484,8 @@
     function finish() {
       if (over) return;
       const soundNow = !stamped;
+      unhand();
+      node.classList.remove('in-hand', 'shaking');
       settle();
       stamp(soundNow);
       over = true;
@@ -379,6 +500,7 @@
       if (over) return;
       over = true;
       done = null;
+      unhand();
       for (const a of anims) { try { a.cancel(); } catch (e) { /* gone */ } }
       for (const t of timers) clearTimeout(t);
       if (opts.audio) opts.audio.duck(false);
@@ -386,7 +508,12 @@
       if (B.Plates && B.Plates.hold) B.Plates.hold(0);
     }
 
-    return { node: node, play: play, finish: finish, cancel: cancel, still: still };
+    return {
+      node: node, play: play, finish: finish, cancel: cancel, still: still,
+      inHand: function () { return !!hand; },
+      grip: grip,
+      letGo: function () { if (hand && hand.shaking) letGo(); else if (hand) { grip(); letGo(); } }
+    };
   }
 
   function buzz(ms) {
