@@ -822,34 +822,52 @@ The room held five, and it had five. Somebody would have to go.
 -> voices_at_night.vs
 
 
-// ------------------------------------------------------------------ dawn: the ledger
+// ------------------------------------------------------------------ 3:20 am: the ledger
+
+// The night's tally prints like a till tape (#screen: ledger), under a picture of the hotel from the
+// lot after close. A line tagged #class: row is "What: how much", printed with dots between; the
+// other classes are in content/ink/README.md. The printer stops for a moment before the bartender's
+// word (#class: total).
+
+=== function any_word()
+~ return last_word("t28") != "" || last_word("kids") != "" || last_word("cook") != "" || last_word("owner") != "" || last_word("staff") != ""
 
 === ledger ===
 ~ here = upstairs
-# screen: ledger
+# plate: lot
 NARRATOR: That was Wednesday. The one nobody else remembers.
-WEDNESDAY. THE TEST SHIFT.
-The door: {count_in} in past the stool{uncounted > 0:, and {uncounted} more some other way|, and nobody got past him}.
-{ cash >= 0:
-    In his pocket: ${cash}.
+# screen: ledger
+THE SOVEREIGN HOTEL #class: head
+WEDNESDAY. THE TEST SHIFT. #class: head
+The door: {count_in} in past the stool #class: row
+{ uncounted > 0:
+    And {uncounted} more some other way. #class: sub
 - else:
-    In his pocket: nothing. He's ${0 - cash} down on the night.
+    Nobody got past him. #class: sub
 }
-{
-- drinks == 0:
-    He didn't drink.
-- drinks == 1:
-    He had one.
+{ cash >= 0:
+    In his pocket: ${cash} #class: row
 - else:
-    He had {num(drinks)}. {drinks >= 3:He'll feel them on Friday.}
+    In his pocket: nothing #class: row
+    He's ${0 - cash} down on the night. #class: sub
+}
+{ drinks == 0:
+    Drinks: none #class: row
+- else:
+    Drinks: {drinks} #class: row
+    { drinks >= 3:
+        He'll feel them on Friday. #class: sub
+    }
 }
 {
 - hurt == 1:
-    Knocked about. Nothing that won't heal by Friday.
+    Hurt: knocked about #class: row
+    Nothing that won't heal by Friday. #class: sub
 - hurt == 2:
-    Hurt. His hand, his face. Friday will know about it.
+    Hurt: his hand, his face #class: row
+    Friday will know about it. #class: sub
 - hurt >= 3:
-    Badly hurt.
+    Hurt: badly #class: row
 }
 {
 - fam ? dad_went && fam ? lot_scene:
@@ -883,14 +901,6 @@ The door: {count_in} in past the stool{uncounted > 0:, and {uncounted} more some
 }
 The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shaded, {LIST_COUNT(left_out)} left out.
 {
-- verdict == 2:
-    The bartender will tell the owner he'll do.
-- verdict == 1:
-    The bartender will tell the owner he showed up.
-- verdict == -1:
-    The bartender will tell the owner what she saw.
-}
-{
 - rep_t28 >= 3:
     Table 28 made room for him.
 - rep_t28 >= 1:
@@ -921,6 +931,32 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 { seated("table") || seated("kid"):
     In his head: {seated("table"):THE TABLE, new, }{seated("kid"):THE KID, new, }{seated("father"):THE FATHER, }{seated("fighter"):THE FIGHTER, }{seated("manual"):THE MANUAL, }{seated("wrongman"):THE WRONG MAN}.
 }
+{ any_word():
+    WHAT THEY'RE SAYING
+    { last_word("t28") != "":
+        Table 28: “{last_word("t28")}” #class: row
+    }
+    { last_word("kids") != "":
+        The kids: “{last_word("kids")}” #class: row
+    }
+    { last_word("cook") != "":
+        The cook: “{last_word("cook")}” #class: row
+    }
+    { last_word("owner") != "":
+        The owner: “{last_word("owner")}” #class: row
+    }
+    { last_word("staff") != "":
+        The bartender: “{last_word("staff")}” #class: row
+    }
+}
+{
+- verdict == 2:
+    The bartender will tell the owner he'll do. #class: total
+- verdict == 1:
+    The bartender will tell the owner he showed up. #class: total
+- verdict == -1:
+    The bartender will tell the owner what she saw. #class: total
+}
 Friday is two nights away. Friday's everybody.
-END OF THE TEST SHIFT
+END OF THE TEST SHIFT #class: end
 -> END

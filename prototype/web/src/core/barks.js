@@ -165,6 +165,11 @@
 
     name(group) { return this.names[group] || group; }
 
+    byId(id) {
+      for (const r of this.rules) if (r.id === id) return r;
+      return null;
+    }
+
     pick(group, way, by, now, getVar, psyche, used, rng) {
       const vars = function (name) { return name === 'by' ? by : name === 'now' ? now : getVar(name); };
       const cands = this.rules.filter(function (r) {

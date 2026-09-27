@@ -9,6 +9,7 @@
 //   #loc: pool            on a choice: where it happens (lights up that spot on the floor sketch)
 //   #room: -fighter +kid  on a choice: who it puts out of his head and lets in (the page previews it)
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
+//   #plate: lot     a picture of a place he isn't in, as it is now (the hotel after close, over the ledger)
 //
 // Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
@@ -16,7 +17,8 @@
 // When he moves, a {kind:'place'} item marks where the new place starts, with what a plate of it
 // would show at that moment (_plateState). When something he does lands with one of the groups
 // that judge him (rep_t28, rep_kids ...), a {kind:'word'} item follows the line it happened on:
-// what they'll say about him (content/rules/word.yaml).
+// what they'll say about him (content/rules/word.yaml). The Ink's last_word(group) reads back
+// what each group is saying about him by the end of the night.
 //
 // The sketch: what he last saw of the room and the doors, and when (see _see). The floor sketch
 // draws from it, so what he hasn't looked at in a while goes stale on the page.
@@ -40,6 +42,17 @@
   // path it came from is left out, and so are the director's lists of what each choice changed.
   function rawLine(it) {
     return it.role === 'teller' ? 'NARRATOR: ' + it.text : it.speaker ? String(it.speaker).toUpperCase() + ': ' + it.text : it.text;
+  }
+  // who said what about him, from a night's log (for saves from before it was kept)
+  function saidFrom(log) {
+    const out = {};
+    for (const it of log || []) {
+      if (it.kind !== 'word' || !it.text) continue;
+      const s = out[it.group] || (out[it.group] = {});
+      s[it.way] = { id: it.id, text: it.text };
+      s.last = it.way;
+    }
+    return out;
   }
   function packLog(log) {
     const out = [];
@@ -109,6 +122,7 @@
       this.checkHistory = [];
       this.barksUsed = [];
       this.wordUsed = [];
+      this.said = {};         // group -> {up, down: {id, text}, last: 'up'|'down'}: their word on him
       this.taught = [];       // what THE MANUAL has explained (teach:<what> in barks.yaml)
       this.turn = 0;
       this.screen = null;
@@ -145,6 +159,7 @@
         return ok;
       });
       bind('learn', function (v) { return P.learn(String(v)); });
+      bind('last_word', function (g) { return self._lastWord(String(g)); }, true);
       bind('bond', function (a, b, sign) {
         const before = P.getRel(String(a), String(b));
         const ok = P.setRel(String(a), String(b), sign);
@@ -182,6 +197,7 @@
         rng: this.rng.getState(),
         barksUsed: this.barksUsed.slice(),
         wordUsed: this.wordUsed.slice(),
+        said: B.util.deepClone(this.said),
         taught: this.taught.slice(),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
@@ -219,6 +235,7 @@
         if (o.screen === undefined) o.screen = null;
         return o;
       });
+      this.said = save.said || saidFrom(this.log);
       this.path = (save.path || []).slice();
       this.sketch = save.sketch || {};
       this.choices = this._readChoices();
@@ -434,9 +451,26 @@
         const way = d > 0 ? 'up' : 'down';
         const rule = this.word.pick(g, way, Math.abs(d), now[g], getVar, this.psyche, this.wordUsed, this.rng);
         out.push({ kind: 'word', group: g, who: this.word.name(g), way: way, by: Math.abs(d), text: rule ? rule.text : '', id: rule ? rule.id : '', turn: this.turn, screen: this.screen });
-        if (rule) this.wordUsed.push(rule.id);
+        if (rule) {
+          this.wordUsed.push(rule.id);
+          const s = this.said[g] || (this.said[g] = {});
+          s[way] = { id: rule.id, text: rule.text };
+          s.last = way;
+        }
       }
       return out;
+    }
+
+    // What a group is saying about him now (the ledger asks, through last_word in the Ink): the last
+    // thing they said that goes the way he stands with them, or else just the last thing they said.
+    _lastWord(g) {
+      const s = this.said[g];
+      if (!s) return '';
+      const rep = this.getVar('rep_' + g) | 0;
+      const w = s[rep > 0 && s.up ? 'up' : rep < 0 && s.down ? 'down' : s.last];
+      if (!w) return '';
+      const rule = this.word.byId(w.id);
+      return (rule && rule.text) || w.text || '';
     }
 
     _line(rawText, tags, items, events, from, last) {
@@ -451,6 +485,10 @@
             break;
           case 'portrait':
             items.push({ kind: 'fx', type: t.key, id: String(t.value), lean: this._lean(String(t.value)) });
+            break;
+          case 'plate':
+            // a picture of a place he isn't in (#plate: lot, over the ledger), as it is now
+            items.push({ kind: 'place', here: String(t.value), from: this.here(), clock: this.getVar('clock') | 0, state: this._plateState(), view: true });
             break;
           case 'screen':
             this.screen = (t.value === 'none' || t.value === true) ? null : String(t.value);
@@ -598,7 +636,8 @@
       const g = this.getVar.bind(this);
       return {
         n: g('room_count') | 0, rounds: g('t28_rounds') | 0, heat: g('pool_heat') | 0, rats: g('rat_count') | 0,
-        deck: !!g('deck_door'), kitchen: !!g('kitchen_door'), hotel: !!g('hotel_door'), walter: g('walter') | 0, clock: g('clock') | 0
+        deck: !!g('deck_door'), kitchen: !!g('kitchen_door'), hotel: !!g('hotel_door'), walter: g('walter') | 0, clock: g('clock') | 0,
+        keys: !!g('took_keys')
       };
     }
 

@@ -72,7 +72,9 @@ sfx:
   dice_shake: { synth: rattle, note: Two dice shaken in a loose fist, before a check. }
   die_tick: { synth: tick, note: A die's corner hitting the rubber bar mat as it rolls. Plays quieter each time. }
   die_land: { synth: tock, note: A die coming to rest on the bar mat. }
-  stamp: { synth: stamp, note: A rubber stamp on paper, when a check's result lands. }
+  stamp: { synth: stamp, note: A rubber stamp on paper, when a check's result lands, and at the end of the ledger. }
+  printer: { synth: printer, note: The till's receipt printer, one printed line of the ledger. }
+  tear: { synth: tear, note: The till tape torn off against the teeth, when the ledger's done. }
 
 portraits:
   bartender: { file: art/portraits/bartender.png }

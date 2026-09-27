@@ -157,6 +157,8 @@ EXTERNAL learn(voice)           // he has the voice, in the room or not
 EXTERNAL bond(a, b, sign)       // two voices become allied (1) or at odds (-1)
 EXTERNAL tension()              // 0 quiet ... 4 a riot
 EXTERNAL seats_free()
+// What a group is saying about him by now, from content/rules/word.yaml ("" if nothing yet).
+EXTERNAL last_word(group)
 
 // Fallbacks so the story also runs in Inky, where there's no engine.
 === function seated(voice)
@@ -173,3 +175,5 @@ EXTERNAL seats_free()
 ~ return 1
 === function seats_free()
 ~ return 1
+=== function last_word(group)
+~ return ""

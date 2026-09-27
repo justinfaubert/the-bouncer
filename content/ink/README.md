@@ -45,6 +45,7 @@ On a choice (inside the brackets):
 | `#check: father 8` | A check lent by that voice, target 8 on 2d6 (7 Easy, 9 Medium, 11 Hard). Optional third number: a situational bonus or penalty. The engine rolls, then sets `passed` (and `crit`: 1 double six, -1 double one) before the choice's content runs. A check from a voice that isn't seated is hidden. |
 | `#loc: pool` | Where this takes him. Lights up that spot on the floor sketch and fires the `visit:pool` bark event. |
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
+| `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 
@@ -52,6 +53,8 @@ On a line (or on its own line, which attaches it to the next line of text):
 |---|---|
 | `#sfx: clicker` `#music: jukebox_late` `#amb: rain_lot` `#portrait: cook` | Sound and art slots from `content/data/assets.yaml`. `none` stops music or ambience. Until a portrait has art, the face is drawn from the character's `look:` in `content/data/characters.yaml`. |
 | `#screen: log` / `#screen: none` | Switches the page to a special screen (the incident log, the ledger) and back. |
+| `#plate: lot` | A printed picture of a place he isn't in, as it is right now. The ledger opens on the hotel from the lot after close, his window the one lit. |
+| `#class: row` | On the ledger: a line written `What: how much` prints as a till-tape row with dots between. `#class: sub` is a small line under the row above it, `#class: head` the top of the tape, `#class: total` the bartender's word (the printer stops before it), and `#class: end` the stamp at the bottom. |
 | `#task: fetch :: Tell the big man his family's waiting.` | Adds a line to his notes. The id comes before `::`. |
 | `#done: fetch` | Crosses it off. |
 | `#bark: some_event` | Offers a named event to the barks in `content/rules/barks.yaml`. |
@@ -75,6 +78,7 @@ In director mode (key D in the game) Hutch rewrites, cuts and adds lines, reword
 - **Last call** is at 1:30 (`LAST_CALL`). `due()` includes it, so every loop returns to the hub, which goes to `last_call`.
 - **Counting.** `count_in` is the clicker. `uncounted` is everyone who got in some other way. `room_count` is who's actually in the room. Anyone who comes in or leaves has to move these, or the count at close won't add up.
 - **Numbers in narration** are written out: `{num(room_count)}`, or `{Num(x)}` at the start of a sentence. The incident log and the ledger can use digits.
+- **The word on him.** Moving one of the `rep_` numbers (`rep_t28`, `rep_kids`, `rep_staff`, `rep_owner`, `rep_cook`) puts that group's word on him under the line where it happened, from `content/rules/word.yaml`. `last_word("t28")` gives back what they're saying about him by now (`""` if they haven't said anything), for the ledger.
 - **The hidden measure.** `cocoon` goes up when he writes the log to read better than what happened, and never shows on screen.
 
 ## Ink things that bit us

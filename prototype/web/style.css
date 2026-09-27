@@ -25,6 +25,7 @@
   --lift: 0 1px 0 rgba(0, 0, 0, .04), 0 10px 30px rgba(35, 40, 30, .16);
   --receipt: #FAFAF5;
   --receipt-ink: #1D1C19;
+  --receipt-red: #B3261E;
 
   --v-father: #7A5418;
   --v-fighter: #7D2248;
@@ -65,6 +66,7 @@
     --lift: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 40px rgba(0, 0, 0, .5);
     --receipt: #D9D5CA;
     --receipt-ink: #1B1A17;
+    --receipt-red: #A8231B;
     --v-father: #DCAB5E;
     --v-fighter: #E68AAC;
     --v-manual: #94B7DF;
@@ -94,6 +96,7 @@
   --lift: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 40px rgba(0, 0, 0, .5);
   --receipt: #D9D5CA;
   --receipt-ink: #1B1A17;
+  --receipt-red: #A8231B;
   --v-father: #DCAB5E;
   --v-fighter: #E68AAC;
   --v-manual: #94B7DF;
@@ -710,6 +713,41 @@ button { font: inherit; color: inherit; }
 .blk-ledger .ln.caps { text-align: center; font-weight: 700; letter-spacing: .06em; margin: 1em 0; padding: .6em 0; border-block: 1px dashed currentColor; }
 .blk-ledger .ln.teller { border-left: 0; padding-left: 0; color: inherit; text-align: center; }
 .blk-ledger .ln.voice .said, .blk-ledger .ln.voice .who { color: inherit; font-family: inherit; font-size: inherit; font-style: normal; text-transform: none; }
+/* the top of the tape */
+.blk-ledger .ln.head { margin: 0; padding: 0; border: 0; text-align: center; font-weight: 700; letter-spacing: .08em; }
+.blk-ledger .ln.head:first-child { font-size: 1.12em; letter-spacing: .12em; }
+.blk-ledger .ln.head + .ln:not(.head) { margin-top: .9em; padding-top: .9em; border-top: 1px dashed currentColor; }
+/* rows: what, a run of dots, how much; a small line under a row */
+.blk-ledger .ln.row { display: flex; align-items: baseline; gap: .4em; margin: 0 0 .2em; }
+.blk-ledger .rw-k { flex: none; max-width: 58%; text-transform: uppercase; letter-spacing: .04em; }
+.blk-ledger .rw-dots { flex: 1 1 1.5em; min-width: 1.5em; overflow: hidden; white-space: nowrap; opacity: .5; }
+.blk-ledger .rw-dots::before { content: "................................................................................................................"; }
+.blk-ledger .rw-v { flex: 0 1 auto; min-width: 0; text-align: right; }
+.blk-ledger .ln.sub { margin: 0 0 .55em 1.4em; font-size: .88em; }
+.blk-ledger :is(.row, .sub) + .ln:not(.row, .sub, .total, .caps, .end) { margin-top: .9em; padding-top: .9em; border-top: 1px dashed currentColor; }
+/* the bartender's word: the total */
+.blk-ledger .ln.total { margin: 1.2em 0 1em; padding-top: .7em; border-top: 3px double currentColor; font-weight: 700; font-size: 1.06em; }
+/* the stamp at the bottom */
+.blk-ledger .ln.end {
+  display: table;
+  margin: 1.5em auto .3em;
+  padding: .16em .55em .2em;
+  border: 3px solid currentColor;
+  border-radius: 3px;
+  color: var(--receipt-red);
+  font-family: var(--f-display); font-weight: 800; font-size: 1.4rem; line-height: 1.05; letter-spacing: .07em; text-align: center;
+  transform: rotate(-4deg);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='70'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 4.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='70'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -7 4.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* printing: each line comes out of the head in a few passes; the tape stays square at the bottom
+   until it's torn off; the stamp comes down hard */
+.blk-ledger.feeding { -webkit-mask: none; mask: none; }
+.blk-ledger > .fresh { animation: tape-line .3s steps(4, end) both; }
+.blk-ledger > .ln.end.fresh { animation: rl-stamp .26s cubic-bezier(.3, 1.4, .5, 1) both; }
+.blk-ledger.thump { animation: rl-thump .22s ease-out; }
+@keyframes tape-line { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) { .blk-ledger > .fresh, .blk-ledger > .ln.end.fresh, .blk-ledger.thump { animation: none; } }
 
 /* ------------------------------------------------------------------ the title */
 

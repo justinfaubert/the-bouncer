@@ -503,6 +503,17 @@
       a.tone(t, 125, 0.17, 0.36 * v, 'sine', null, 52);
       a.burst(t, 0.07, 520, 0.8, 0.3 * v, null, 'lowpass');
       a.burst(t + 0.004, 0.035, 3000, 0.9, 0.07 * v);
+    },
+    // the till's receipt printer: the head buzzing across a line, then the paper stepping on
+    printer(a, t, v) {
+      for (let i = 0; i < 9; i++) a.burst(t + i * 0.017, 0.014, 3400 + Math.random() * 1400, 4, 0.11 * v);
+      a.tone(t, 610, 0.15, 0.02 * v, 'square');
+      a.tone(t + 0.155, 190, 0.05, 0.055 * v, 'sawtooth', null, 140);
+      a.burst(t + 0.155, 0.04, 900, 1.2, 0.07 * v);
+    },
+    // the tape torn off against the teeth
+    tear(a, t, v) {
+      for (let i = 0; i < 11; i++) a.burst(t + i * 0.017 + Math.random() * 0.007, 0.03, 1100 + i * 240 + Math.random() * 300, 1.3, (0.08 + i * 0.01) * v);
     }
   };
 

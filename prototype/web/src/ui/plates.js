@@ -238,8 +238,12 @@
   // Arriving: three storeys of old wood painted a red that has faded to brick, SOVEREIGN on the
   // roof in red neon with the second E dead, HOTEL under it, the cold beer and wine store lit at
   // one end, trucks nose-in along the front, the gravel lot, rain hard enough to bounce.
+  // After close (look.closed): the sign off, the store shut, the chairs up in the dark front
+  // window, the trucks gone, one window lit upstairs (his), and still the rain. A truck left in
+  // the lot if somebody's keys are in the lost-and-found drawer (look.truck).
   PLACES.lot = function (j, look, rnd) {
     const k = j.k, rd = j.r;
+    const shut = !!(look && look.closed);
     // the sky: low cloud, dark overhead, lighter where the town's light catches it
     k.rect(0, 0, W, H, k.lin(0, 0, 0, 150, [[0, 0.97], [0.5, 0.88], [1, 0.66]]));
     // the ridge behind the town
@@ -257,7 +261,7 @@
     k.line(bx - 10, by - 9, bx + bw + 10, by - 9, 0.9, 0.55, 'erase');
     for (let x = bx - 6; x < bx + bw + 8; x += 9) k.rect(x, by + 2, 3, 3, 0.9);
     // upstairs: two rows of rooms, a few with someone in them
-    const lit = { '0,6': 'blind', '1,2': 'man', '1,7': 'tv', '0,1': 'lamp' };
+    const lit = shut ? { '1,8': 'lamp' } : { '0,6': 'blind', '1,2': 'man', '1,7': 'tv', '0,1': 'lamp' };
     for (let row = 0; row < 2; row++) {
       for (let i = 0; i < 9; i++) {
         const x = bx + 20 + i * 43, y = by + 8 + row * 37, ww = 21, wh = 25;
@@ -284,20 +288,33 @@
     const fx = bx + 16, fw = 148;
     rd.rect(fx - 3, gy - 3, fw + 6, 40, 1, 'erase');
     k.rect(fx - 3, gy - 3, fw + 6, 40, 0.3, 'set');
-    k.rect(fx, gy, fw, 34, k.lin(0, gy, 0, gy + 34, [[0, 0.32], [1, 0.12]]), 'set');
-    k.light(fx + 118, gy + 7, 20, 0.4);
-    k.rect(fx + 108, gy + 3, 20, 11, 0.55, 'set'); k.rect(fx + 110, gy + 5, 16, 7, 0.12, 'set');
-    // table 28 in the window, five of them
-    const heads = [{ hat: 'cap' }, {}, { bun: 1 }, { glasses: 1 }, { flat: 1 }];
-    const hxs = [fx + 15, fx + 34, fx + 64, fx + 84, fx + 116];
-    for (let i = 0; i < 5; i++) {
-      const hx = hxs[i], hy = gy + 20 + (i % 2) * 2, o = heads[i];
-      k.oval(hx, hy, 4.2, 4.9, 1, 'set');
-      k.path('M' + (hx - 11) + ' ' + (gy + 34) + ' Q' + (hx - 10) + ' ' + (hy + 7) + ' ' + hx + ' ' + (hy + 6) + ' Q' + (hx + 10) + ' ' + (hy + 7) + ' ' + (hx + 11) + ' ' + (gy + 34) + ' Z', 1, 'set');
-      if (o.hat) { k.oval(hx, hy - 2.6, 4.6, 2.6, 1, 'set'); k.rect(hx - 1, hy - 2.2, 7.5, 1.3, 1, 'set'); }
-      if (o.bun) k.oval(hx - 1, hy - 5.4, 2.2, 2, 1, 'set');
-      if (o.flat) { k.oval(hx + 0.8, hy - 3.2, 5, 1.8, 1, 'set'); }
-      if (o.glasses) { k.line(hx + 1.5, hy - 0.4, hx + 4.6, hy - 0.4, 0.6, 1, 'erase'); }
+    if (shut) {
+      // closed: the room dark but for the backbar at the far end; the chairs up on the tables
+      k.rect(fx, gy, fw, 34, k.lin(fx, 0, fx + fw, 0, [[0, 0.93], [0.7, 0.86], [1, 0.72]]), 'set');
+      for (const tx of [fx + 22, fx + 70, fx + 118]) {
+        k.rect(tx - 15, gy + 22, 30, 2.2, 0.62, 'set');
+        for (const cx of [tx - 9, tx + 5]) {
+          k.rect(cx, gy + 13, 7, 1.6, 0.62, 'set');
+          k.line(cx + 0.8, gy + 13, cx + 0.3, gy + 5, 0.9, 0.62); k.line(cx + 6.2, gy + 13, cx + 6.7, gy + 5, 0.9, 0.62);
+          k.line(cx + 0.6, gy + 14.6, cx + 1.2, gy + 21.5, 0.9, 0.62); k.line(cx + 6.4, gy + 14.6, cx + 5.8, gy + 21.5, 0.9, 0.62);
+        }
+      }
+    } else {
+      k.rect(fx, gy, fw, 34, k.lin(0, gy, 0, gy + 34, [[0, 0.32], [1, 0.12]]), 'set');
+      k.light(fx + 118, gy + 7, 20, 0.4);
+      k.rect(fx + 108, gy + 3, 20, 11, 0.55, 'set'); k.rect(fx + 110, gy + 5, 16, 7, 0.12, 'set');
+      // table 28 in the window, five of them
+      const heads = [{ hat: 'cap' }, {}, { bun: 1 }, { glasses: 1 }, { flat: 1 }];
+      const hxs = [fx + 15, fx + 34, fx + 64, fx + 84, fx + 116];
+      for (let i = 0; i < 5; i++) {
+        const hx = hxs[i], hy = gy + 20 + (i % 2) * 2, o = heads[i];
+        k.oval(hx, hy, 4.2, 4.9, 1, 'set');
+        k.path('M' + (hx - 11) + ' ' + (gy + 34) + ' Q' + (hx - 10) + ' ' + (hy + 7) + ' ' + hx + ' ' + (hy + 6) + ' Q' + (hx + 10) + ' ' + (hy + 7) + ' ' + (hx + 11) + ' ' + (gy + 34) + ' Z', 1, 'set');
+        if (o.hat) { k.oval(hx, hy - 2.6, 4.6, 2.6, 1, 'set'); k.rect(hx - 1, hy - 2.2, 7.5, 1.3, 1, 'set'); }
+        if (o.bun) k.oval(hx - 1, hy - 5.4, 2.2, 2, 1, 'set');
+        if (o.flat) { k.oval(hx + 0.8, hy - 3.2, 5, 1.8, 1, 'set'); }
+        if (o.glasses) { k.line(hx + 1.5, hy - 0.4, hx + 4.6, hy - 0.4, 0.6, 1, 'erase'); }
+      }
     }
     for (let i = 1; i < 3; i++) k.rect(fx + i * fw / 3 - 1.2, gy, 2.4, 34, 1, 'set');
     k.line(fx - 4, gy + 36, fx + fw + 4, gy + 36, 1.6, 0.5, 'erase');
@@ -311,49 +328,63 @@
     k.poly([[dx - 15, gy - 6], [dx + 41, gy - 6], [dx + 13, gy - 22]], 0.96, 'set');
     k.line(dx - 15, gy - 6, dx + 13, gy - 22, 0.8, 0.45, 'erase');
     k.oval(dx + 13, gy - 3, 2.4, 1.8, 0, 'set');
-    k.light(dx + 13, gy + 4, 30, 0.4, 24);
-    cone(k, dx - 2, dx + 28, gy - 2, dx - 36, dx + 62, bb + 26, 0.22, 0.35);
+    k.light(dx + 13, gy + 4, 30, shut ? 0.22 : 0.4, 24);
+    cone(k, dx - 2, dx + 28, gy - 2, dx - 36, dx + 62, bb + 26, shut ? 0.12 : 0.22, 0.35);
     k.rect(dx - 6, bb - 2, 38, 3, 0.4, 'set');
     // the cold beer and wine store, its lights on
     const sx = 432, sw = 88;
     rd.rect(sx - 4, gy - 22, sw + 8, 64, 1, 'erase');
     k.rect(sx - 4, gy - 20, sw + 8, 62, 0.82, 'set');
-    k.rect(sx, gy - 17, sw, 13, 0.02, 'set');
-    k.text('COLD BEER & WINE', sx + sw / 2, gy - 6.6, 11, 0.95, { spacing: 0.4, max: sw - 6 });
-    k.rect(sx + 4, gy + 1, sw - 8, 34, 0.07, 'set');
-    for (let i = 0; i < 3; i++) {
-      k.line(sx + 4, gy + 11 + i * 9, sx + sw - 4, gy + 11 + i * 9, 1, 0.55);
-      for (let b = 0; b < 13; b++) if (rnd() < 0.8) k.rect(sx + 7 + b * 5.8, gy + 11 + i * 9 - 5 - rnd() * 2, 2.6, 5 + rnd() * 2, 0.45 + rnd() * 0.3);
+    if (shut) {
+      // shut: the sign unlit, the grille down
+      k.rect(sx, gy - 17, sw, 13, 0.7, 'set');
+      k.text('COLD BEER & WINE', sx + sw / 2, gy - 6.6, 11, 0.35, { spacing: 0.4, max: sw - 6 });
+      k.rect(sx + 4, gy + 1, sw - 8, 34, 0.9, 'set');
+      for (let y = gy + 3; y < gy + 35; y += 2.6) k.line(sx + 4, y, sx + sw - 4, y, 0.5, 0.22, 'erase');
+    } else {
+      k.rect(sx, gy - 17, sw, 13, 0.02, 'set');
+      k.text('COLD BEER & WINE', sx + sw / 2, gy - 6.6, 11, 0.95, { spacing: 0.4, max: sw - 6 });
+      k.rect(sx + 4, gy + 1, sw - 8, 34, 0.07, 'set');
+      for (let i = 0; i < 3; i++) {
+        k.line(sx + 4, gy + 11 + i * 9, sx + sw - 4, gy + 11 + i * 9, 1, 0.55);
+        for (let b = 0; b < 13; b++) if (rnd() < 0.8) k.rect(sx + 7 + b * 5.8, gy + 11 + i * 9 - 5 - rnd() * 2, 2.6, 5 + rnd() * 2, 0.45 + rnd() * 0.3);
+      }
+      k.light(sx + sw / 2, bb + 10, 80, 0.38, 28);
+      // somebody smoking against the store window
+      rd.rect(sx + 6, bb - 38, 22, 40, 1, 'erase');
+      PR.figure(k, { x: sx + 16, y: bb, h: 36, pose: 'smoke', top: 'jacket', hat: 'cap', tone: 0.97, light: -1, rim: 0.5, lit: 0.05 });
+      rd.glow(sx + 19, bb - 31.5, 5, 1); rd.oval(sx + 19, bb - 31.5, 0.9, 0.9, 1);
     }
-    k.light(sx + sw / 2, bb + 10, 80, 0.38, 28);
-    // somebody smoking against the store window
-    rd.rect(sx + 6, bb - 38, 22, 40, 1, 'erase');
-    PR.figure(k, { x: sx + 16, y: bb, h: 36, pose: 'smoke', top: 'jacket', hat: 'cap', tone: 0.97, light: -1, rim: 0.5, lit: 0.05 });
-    rd.glow(sx + 19, bb - 31.5, 5, 1); rd.oval(sx + 19, bb - 31.5, 0.9, 0.9, 1);
     // the sign on the roof: SOVEREIGN, the second E dead, HOTEL under it
     const sy = 42, letters = 'SOVEREIGN', sp = 27, s0 = 332 - sp * 4;
     const SIGN = { font: '"Big Shoulders Display", "Barlow Condensed", "Arial Narrow", sans-serif', weight: 800 };
     k.rect(s0 - 20, 10, sp * 8 + 40, 46, 0.96, 'set');
     for (let x = s0 - 16; x < s0 + sp * 8 + 18; x += 14) { k.line(x, 14, x + 14, 52, 0.45, 0.25, 'erase'); k.line(x + 14, 14, x, 52, 0.45, 0.25, 'erase'); }
     for (const px of [s0 - 8, s0 + sp * 4, s0 + sp * 8 + 8]) k.rect(px - 1.5, 52, 3, by - 52, 0.96, 'set');
-    rd.glow(332, 36, 160, 0.3, 58);
-    for (let i = 0; i < letters.length; i++) {
-      const x = s0 + i * sp;
-      if (i === 5) { k.text('E', x, sy, 38, 0.4, Object.assign({ mode: 'erase', stroke: 0.9 }, SIGN)); continue; }
-      k.text(letters[i], x, sy, 38, 1, Object.assign({ mode: 'erase' }, SIGN));
-      rd.c.save(); rd.c.shadowColor = 'rgba(0,0,0,0.95)'; rd.c.shadowBlur = 14 * j.scale;
-      rd.text(letters[i], x, sy, 38, 1, SIGN);
-      rd.c.restore();
-      rd.text(letters[i], x, sy, 38, 1, SIGN);
-      k.light(x, sy - 12, 18, 0.25, 26);
+    if (shut) {
+      // the neon off: dead tubes on the frame, a little lighter than the night behind them
+      for (let i = 0; i < letters.length; i++) k.text(letters[i], s0 + i * sp, sy, 38, 0.2, Object.assign({ mode: 'erase', stroke: 0.9 }, SIGN));
+      k.text('H O T E L', 332, 58, 13, 0.22, Object.assign({ mode: 'erase' }, SIGN));
+    } else {
+      rd.glow(332, 36, 160, 0.3, 58);
+      for (let i = 0; i < letters.length; i++) {
+        const x = s0 + i * sp;
+        if (i === 5) { k.text('E', x, sy, 38, 0.4, Object.assign({ mode: 'erase', stroke: 0.9 }, SIGN)); continue; }
+        k.text(letters[i], x, sy, 38, 1, Object.assign({ mode: 'erase' }, SIGN));
+        rd.c.save(); rd.c.shadowColor = 'rgba(0,0,0,0.95)'; rd.c.shadowBlur = 14 * j.scale;
+        rd.text(letters[i], x, sy, 38, 1, SIGN);
+        rd.c.restore();
+        rd.text(letters[i], x, sy, 38, 1, SIGN);
+        k.light(x, sy - 12, 18, 0.25, 26);
+      }
+      k.text('H O T E L', 332, 58, 13, 1, Object.assign({ mode: 'erase' }, SIGN));
+      rd.c.save(); rd.c.shadowColor = 'rgba(0,0,0,0.9)'; rd.c.shadowBlur = 8 * j.scale; rd.text('H O T E L', 332, 58, 13, 1, SIGN); rd.c.restore();
+      rd.text('H O T E L', 332, 58, 13, 1, SIGN);
+      // the neon lights the rain around it
+      rd.clip(function (c) { c.ellipse(332, 38, 200, 64, 0, 0, Math.PI * 2); });
+      rd.rain(rnd, 180, 120, 0, 420, 104, { ink: true, tone: 0.5, len: 11, w: 0.7 });
+      rd.done();
     }
-    k.text('H O T E L', 332, 58, 13, 1, Object.assign({ mode: 'erase' }, SIGN));
-    rd.c.save(); rd.c.shadowColor = 'rgba(0,0,0,0.9)'; rd.c.shadowBlur = 8 * j.scale; rd.text('H O T E L', 332, 58, 13, 1, SIGN); rd.c.restore();
-    rd.text('H O T E L', 332, 58, 13, 1, SIGN);
-    // the neon lights the rain around it
-    rd.clip(function (c) { c.ellipse(332, 38, 200, 64, 0, 0, Math.PI * 2); });
-    rd.rain(rnd, 180, 120, 0, 420, 104, { ink: true, tone: 0.5, len: 11, w: 0.7 });
-    rd.done();
     // the lot: wet gravel, ruts, puddles with the sign in them
     k.rect(0, bb, W, H - bb, k.lin(0, bb, 0, H, [[0, 0.78], [1, 0.92]]), 'set');
     for (let i = 0; i < 520; i++) k.oval(rnd() * W, bb + 2 + rnd() * (H - bb), 0.4 + rnd() * 0.7, 0.3, 0.35 + rnd() * 0.45, 'erase');
@@ -364,21 +395,38 @@
       k.oval(p[0], p[1], p[2], p[3], k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.42], [1, 0.72]]), 'set');
       k.clip(clipP);
       // the front window and the door lamp, upside down in it
-      k.rect(fx, p[1] - p[3], fw, p[3] * 2, k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.45], [1, 0]]), 'erase');
-      k.rect(dx + 5, p[1] - p[3], 16, p[3] * 2, k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.6], [1, 0]]), 'erase');
-      for (let i = 0; i < letters.length; i++) if (i !== 5) { const x = s0 + i * sp; k.rect(x - 2.5, p[1] - p[3], 5, p[3] * 2, 0.5, 'erase'); }
+      if (!shut) k.rect(fx, p[1] - p[3], fw, p[3] * 2, k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.45], [1, 0]]), 'erase');
+      k.rect(dx + 5, p[1] - p[3], 16, p[3] * 2, k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, shut ? 0.35 : 0.6], [1, 0]]), 'erase');
+      if (shut) k.rect(bx + 20 + 8 * 43, p[1] - p[3], 21, p[3] * 2, k.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.5], [1, 0]]), 'erase');
+      else for (let i = 0; i < letters.length; i++) if (i !== 5) { const x = s0 + i * sp; k.rect(x - 2.5, p[1] - p[3], 5, p[3] * 2, 0.5, 'erase'); }
       for (let y = p[1] - p[3] + 1.2; y < p[1] + p[3]; y += 1.7) k.line(p[0] - p[2], y, p[0] + p[2], y, 0.45, 0.35);
       k.done();
-      rd.clip(clipP);
-      for (let i = 0; i < letters.length; i++) if (i !== 5) { const x = s0 + i * sp + (rnd() - 0.5) * 1.5; rd.rect(x - 2.5, p[1] - p[3], 5, p[3] * 2, rd.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.95], [1, 0.35]])); }
-      for (let y = p[1] - p[3] + 1.2; y < p[1] + p[3]; y += 1.7) rd.line(p[0] - p[2], y, p[0] + p[2], y, 0.55, 0.8, 'erase');
-      rd.done();
+      if (!shut) {
+        rd.clip(clipP);
+        for (let i = 0; i < letters.length; i++) if (i !== 5) { const x = s0 + i * sp + (rnd() - 0.5) * 1.5; rd.rect(x - 2.5, p[1] - p[3], 5, p[3] * 2, rd.lin(0, p[1] - p[3], 0, p[1] + p[3], [[0, 0.95], [1, 0.35]])); }
+        for (let y = p[1] - p[3] + 1.2; y < p[1] + p[3]; y += 1.7) rd.line(p[0] - p[2], y, p[0] + p[2], y, 0.55, 0.8, 'erase');
+        rd.done();
+      }
     }
     // rain bouncing where the light is
     for (let i = 0; i < 70; i++) { const x = dx - 40 + rnd() * 250, y = bb + 3 + rnd() * 26; k.line(x - 1, y, x, y - 1.6, 0.5, 0.5, 'erase'); k.line(x + 1, y, x, y - 1.6, 0.5, 0.5, 'erase'); }
-    // trucks nose-in along the front, the near ones cut off by the edge
-    pickup(k, rd, 6, 228, 1.8, { side: 1 });
-    pickup(k, rd, 482, 234, 2.05, { side: -1, window: 0.22 });
+    // trucks nose-in along the front, the near ones cut off by the edge; after close, gone, unless
+    // one's been left where it was, its keys in the drawer inside
+    if (!shut) {
+      pickup(k, rd, 6, 228, 1.8, { side: 1 });
+      pickup(k, rd, 482, 234, 2.05, { side: -1, window: 0.22 });
+    } else if (look.truck) pickup(k, rd, 96, 222, 1.55, { side: 1, window: 0.75 });
+    if (shut) {
+      // with the sign off the front goes dark, and the red goes out of the paint; his window
+      // stays lit, a bulb with no shade
+      k.rect(bx - 10, by - 9, bw + 20, bb - by + 9, 0.26);
+      rd.rect(bx, by, bw, bb - by, 0.45, 'erase');
+      const wx = bx + 20 + 8 * 43, wy = by + 8 + 37;
+      k.rect(wx, wy, 21, 25, 0.04, 'set');
+      k.line(wx, wy + 12.5, wx + 21, wy + 12.5, 1.1, 0.8);
+      rd.rect(wx, wy, 21, 25, 0.3);
+      k.light(wx + 10.5, wy + 12, 34, 0.22, 20);
+    }
     // the light on the pole, and the rain you can only see in it
     const lx = 624;
     k.rect(lx - 1.8, 22, 3.6, 200, 0.97, 'set');
@@ -3330,6 +3378,8 @@
   // What each plate shows of the night, in steps, from Game._plateState. Plates with the same look
   // are the same picture.
   const LOOK = {
+    // after close the sign's off and one window upstairs is lit; a truck is left if he kept the keys
+    lot: function (st) { return (st.clock || 0) >= 1590 ? { closed: true, truck: !!st.keys } : {}; },
     floor: function (st) { return { crowd: clamp(Math.round(((st.n || 13) - 10) / 6), 0, 9), glasses: clamp((st.rounds || 3) + 2, 3, 12) }; },
     bar: function (st) { return { crowd: clamp(Math.round((st.n || 13) / 11), 0, 6) }; },
     t28: function (st) { return { glasses: clamp((st.rounds || 3) * 2, 4, 16), rat: st.walter !== 0 }; },

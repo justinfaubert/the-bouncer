@@ -35,7 +35,8 @@
     snaps: [],                   // director mode: the night before each choice, to step back to
     block: null, blockScreen: undefined,
     pending: null,               // items waiting behind a #pause, or behind dice still rolling
-    rolling: null,               // the check being rolled right now (src/ui/roll.js)
+    rolling: null,               // the check being rolled right now (src/ui/roll.js), or the tape printing
+    printing: null,              // the ledger's tape, while it prints (printTape)
     shownKnots: new Set(),
     seenPlates: new Set(),       // place|hour-of-night pairs that have had their plate this night
     plateLook: {},               // place -> what its last plate showed
@@ -259,7 +260,8 @@
     if (!quiet) unlockAudio();
     const earlier = app.game.log.slice();
     renderItems(earlier, false);
-    if (earlier.length) {
+    // (a night that's over comes back as it ended, with the tape last)
+    if (earlier.length && !app.game.ended) {
       const note = document.createElement('p');
       note.className = 'aside';
       note.innerHTML = '<b>Picked up where you left off.</b>';
@@ -445,6 +447,7 @@
     const p = document.createElement('p');
     p.className = 'ln ' + (item.role || 'narration');
     if (item.cls) p.classList.add(String(item.cls));
+    const cut = item.cls === 'row' ? item.text.indexOf(': ') : -1;
     if (item.role === 'voice' || item.role === 'dialogue') {
       if (item.role === 'voice') p.classList.add('v-' + voiceStyle(item.speaker));
       const who = document.createElement('span');
@@ -454,6 +457,18 @@
       said.className = 'said';
       said.textContent = item.text;
       p.append(who, said);
+    } else if (cut > 0) {
+      // a row on the till tape (#class: row): what, a run of dots, how much
+      const what = document.createElement('span');
+      what.className = 'rw-k';
+      what.textContent = item.text.slice(0, cut);
+      const dots = document.createElement('span');
+      dots.className = 'rw-dots';
+      dots.setAttribute('aria-hidden', 'true');
+      const much = document.createElement('span');
+      much.className = 'rw-v';
+      much.textContent = item.text.slice(cut + 2);
+      p.append(what, dots, much);
     } else {
       p.textContent = item.text;
     }
@@ -627,6 +642,12 @@
     };
     for (let i = 0; i < items.length; i++) {
       const src = items[i];
+      if (live && !app.printing && isTape(src) && tapeOn()) {
+        // the ledger prints a line at a time; the rest of the batch waits for the tape
+        app.pending = items.slice(i);
+        printTape();
+        return first;
+      }
       const shown = (src.kind === 'line' || src.kind === 'chosen') ? app.dir.overlay([src]) : [src];
       for (const it of shown) {
         switch (it.kind) {
@@ -702,6 +723,99 @@
       if (f) scrollToNode(f);
     });
     return go;
+  }
+
+  // The ledger prints the way the till prints its tape at close: a line at a time, the printer
+  // chattering, a stop before the bartender's word, the stamp at the bottom, and the tape torn off.
+  // Space, enter or a tap on the tape prints the rest at once.
+  function isTape(it) {
+    return !!it && ((it.kind === 'screen' && it.name === 'ledger') || (it.screen === 'ledger' && (it.kind === 'line' || it.kind === 'word' || it.kind === 'dnote')));
+  }
+
+  function tapeOn() { return app.settings.reveal === 'lines' && !reducedMotion(); }
+
+  function printTape() {
+    const root = document.getElementById('app');
+    const story = $('#story');
+    let timer = null, over = false, fast = false, block = null, follow = true, stamped = false;
+    const quiet = function () { follow = false; };
+    const tape = {
+      finish: function () { if (over || fast) return; fast = true; clearTimeout(timer); step(); },
+      cancel: function () { stop(); }
+    };
+    function stop() {
+      over = true;
+      clearTimeout(timer);
+      root.classList.remove('printing');
+      story.removeEventListener('wheel', quiet);
+      story.removeEventListener('touchmove', quiet);
+      if (block) block.removeEventListener('click', tape.finish);
+      if (app.rolling === tape) app.rolling = null;
+      if (app.printing === tape) app.printing = null;
+    }
+    // how many lines of tape an item takes, near enough
+    function rows(it) { return it.kind === 'line' || it.kind === 'word' ? Math.max(1, Math.ceil(String(it.text || '').length / 38)) : 0; }
+    function keep(node) {
+      if (!follow || !node || !node.getBoundingClientRect) return;
+      const low = node.getBoundingClientRect().bottom + 56 - story.getBoundingClientRect().bottom;
+      if (low > 0) story.scrollTo({ top: story.scrollTop + low, behavior: 'smooth' });
+    }
+    function stampIt(node) {
+      if (stamped) return;
+      stamped = true;
+      app.audio.sfx('stamp');
+      if (block && !fast) { block.classList.remove('thump'); void block.offsetWidth; block.classList.add('thump'); }
+      keep(node);
+    }
+    function step() {
+      if (over) return;
+      const rest = app.pending || [];
+      if (!fast && rest.length && isTape(rest[0])) {
+        const it = rest.shift();
+        const node = renderItems([it], true);
+        if (!block && app.blockScreen === 'ledger') {
+          block = app.block;
+          block.classList.add('feeding');
+          block.addEventListener('click', tape.finish);
+        }
+        const n = it.cls === 'end' ? 0 : rows(it);
+        for (let r = 0; r < n; r++) setTimeout(function () { if (!over && !fast) app.audio.sfx('printer'); }, r * 170);
+        if (it.cls === 'end') stampIt(node);
+        else keep(node);
+        const next = rest[0];
+        let wait = it.kind === 'screen' ? 380 : 170 + Math.max(1, n) * 170 + (it.cls === 'head' ? 120 : 0);
+        if (next && next.cls === 'total') wait += 1500;          // the printer stops before her word
+        else if (next && next.cls === 'end') wait += 700;
+        else if (next && next.kind === 'line' && isCaps(next.text)) wait += 300;
+        timer = setTimeout(step, wait);
+        return;
+      }
+      // the tape's done, or a tap wants the rest now
+      while (rest.length && isTape(rest[0])) {
+        const it = rest.shift();
+        const node = renderItems([it], false);
+        if (!block && app.blockScreen === 'ledger') block = app.block;
+        if (it.cls === 'end') stampIt(node);
+      }
+      const tear = function () {
+        if (block) block.classList.remove('feeding');
+        app.audio.sfx('tear');
+        const left = rest.slice();
+        stop();
+        app.pending = null;
+        renderItems(left, true);
+        if (!app.pending) after({ choices: app.game.choices, ended: app.game.ended }, true);
+        if (block) keep(block.lastElementChild);
+      };
+      if (fast) tear();
+      else timer = setTimeout(tear, 650);
+    }
+    app.rolling = tape;         // the same skip, and the same clean-up, as the dice
+    app.printing = tape;
+    root.classList.add('printing');
+    story.addEventListener('wheel', quiet, { passive: true });
+    story.addEventListener('touchmove', quiet, { passive: true });
+    timer = setTimeout(step, 900);
   }
 
   function fx(it, add) {
@@ -828,6 +942,8 @@
     d.className = 'end-card';
     const h = document.createElement('h2');
     h.textContent = 'End of the test shift';
+    // the stamp at the bottom of the tape says it already
+    if (app.game.log.some(function (it) { return it.cls === 'end'; })) h.className = 'sr';
     const p = document.createElement('p');
     p.textContent = 'Friday comes next, and it is not written yet. This night stays saved the way it ended until you start Wednesday over.';
     const row = document.createElement('div');
