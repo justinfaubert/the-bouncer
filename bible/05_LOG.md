@@ -66,6 +66,8 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude's read: HTML isn't why the pictures look amateur. They're drawn in code, and code draws like a machine: the same bottle down the shelf, one skull under every face. The ID works because it's design. Godot is still the move, for the room around the player and a game Hutch owns, but the look needs one artist's hand and real sources.
 - Written up in `08_FUTURE_FORM.md`, and as a page with the evidence marked up: https://claude.ai/artifact/YL6FR7cPoxNWihnWchgztT
 - Checked: Godot 4.7.2 runs and renders frames in Claude's cloud workspace (under a virtual display, software OpenGL). github.com and godotengine.org are blocked there; Godot came from the SourceForge mirror.
+- Hutch picked the form: through his eyes, from his posts (DECIDED below).
+- Camera test: the door post at 7:50 blocked out in Godot in grey shapes, with the lines from `door.ink` in the column (`sketches/door-camera/`, frames in its `frames/`). It follows the build's floor sketch, not the older one in `06_THE_HOTEL.md`. Found: the stool works beside the door, not square in front of it; from the door the bar is behind his right shoulder, so the end of the bar is a post of its own; a voice's mark can stay on the thing it marks while he looks away.
 
 ## Decisions register
 

@@ -68,3 +68,5 @@ Don't name or write the residents before Wednesday plays end to end. For now the
 ```
 
 Rough and not to scale. Fix it when the real layout of the room matters.
+
+[2026-09-27] The build's floor sketch (`prototype/web/src/ui/views.js`) has since put the bar along the side wall, running from near the back to near the main door, with his stool just inside the door and table 28 in the front window. The Godot camera test (`sketches/door-camera/`) follows that one.

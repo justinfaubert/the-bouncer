@@ -58,6 +58,8 @@ This decides the camera, the art list and the first scene.
 - **It needs the least art per view.** Each post is one composed view, finished like a painting, instead of a whole room that has to hold up from every angle.
 - Drink goes into the print (the inks slipping and doubling), not the camera, so it doesn't make anyone sick.
 
+**Camera test (27 September):** the door post blocked out in grey shapes in Godot, in `sketches/door-camera/`: the view out through the door glass, the kid at arm's length with the Wrong Man's mark on the door behind him, and the turn to the room.
+
 **From above.** Disco's view: the player walks him around a painted room. It shows his size in the doorway, which matters for a bouncer. It invites the direct comparison with Disco, which had a team of painters, and it needs every character animated head to toe.
 
 **Free walk.** First person, walking anywhere in the hotel. The most immersive, and the most art to make: every corner has to hold up at every distance.
