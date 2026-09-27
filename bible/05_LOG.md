@@ -96,6 +96,7 @@ Update this file at the end of every session: add a session entry, move items be
 - The rats: their numbers double if he ignores them. Throughout the game he has chances to parley with the Rat King, until the colony gets too huge or until he decides to exterminate them, which costs in other ways. (2026-09-26)
 - The Rat King is both: a real rat king (rats with knotted tails) in the wall behind table 28, and a man who seems to speak for it. (2026-09-26)
 - The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
+- The game is seen through his eyes: first person from his posts (the stool at the door, the bar, table 28 and the rest), not from above as in Disco and not a free walk. Hutch's pick on the form, 2026-09-27 (`08_FUTURE_FORM.md`).
 
 ### PROPOSED (waiting on Hutch)
 
@@ -160,7 +161,7 @@ Proposed with round three (2026-09-27). Built, to keep or cut:
 Proposed with the future form (2026-09-27), in `08_FUTURE_FORM.md`:
 
 - Godot 4.7 for the game. The browser build stays as the writers' room until the Godot build has its own director mode.
-- Through his eyes, from his posts: first person from the stool at the door, the end of the bar, table 28, the pool wall, the back hall, the kitchen, the deck, the keg room and the lot; the pointer as his attention; the voices marking the room itself; him seen only in reflections, the back-bar mirror among them; drink in the print, not the camera. The alternatives are the view from above, as in Disco, and a free walk.
+- With the view through his eyes (DECIDED above): the posts (the stool at the door, the end of the bar, table 28, the pool wall, the back hall, the kitchen, the deck, the keg room and the lot); the pointer as his attention; the voices marking the room itself; him seen only in reflections, the back-bar mirror among them; drink in the print, not the camera.
 - The print made real: the room built in 3D from photographs and measurements of a real empty bar; faces painted by one commissioned artist and printed through the same press; everything designed stays Claude's; no AI-generated images in the game.
 - The path: a home Hutch owns (a private GitHub repo attached to the project, Hutch's machine on Remote Control), then one scene at final quality (the door, 7:50 pm), then Wednesday post by post, then Thursday and Friday. This swaps M3 and M4 in `04_PRODUCTION.md`.
 
@@ -187,7 +188,7 @@ Proposed with the future form (2026-09-27), in `08_FUTURE_FORM.md`:
 8. What is the event, and what is the public date?
 9. Does the narrator frame stay?
 10. Is the relational psyche the core system?
-11. Art: does Hutch draw? Is there a local painter or printmaker? A budget? And the form of the Godot game: through his eyes, from above, or a free walk (`08_FUTURE_FORM.md`)?
+11. Art: does Hutch draw? Is there a local painter or printmaker? A budget?
 12. Which way does the game go on AI disclosure?
 13. Violence: Hutch describes how it actually goes.
 

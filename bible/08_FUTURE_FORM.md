@@ -48,7 +48,7 @@ Real art would lift the browser build too. What the browser can't give cheaply i
 
 This decides the camera, the art list and the first scene.
 
-**Through his eyes (recommended).** The player sees what he sees, from where he stands. He works from posts: the stool at the door, the end of the bar by the till, table 28, the wall by the pool table, the back hall, the kitchen, the deck, the keg room, the lot. At a post the player looks around; going to another post is a short walk through the room, and the clock moves. The text column stays: the teller's narration, the voices, the choices.
+**Through his eyes. [DECIDED 2026-09-27, Hutch's pick]** The player sees what he sees, from where he stands. He works from posts: the stool at the door, the end of the bar by the till, table 28, the wall by the pool table, the back hall, the kitchen, the deck, the keg room, the lot. At a post the player looks around; going to another post is a short walk through the room, and the clock moves. The text column stays: the teller's narration, the voices, the choices.
 
 - **The job is watching.** What the player looks at, and for how long, is the game. The pointer is his attention: on the room it's where he looks, on a choice it's his hand, and the voices notice both, the way they notice a hand resting on a choice now (the photo held against the face, the look that keeps going back to the sister).
 - **The door is face to face.** The kid stands in the doorway, close, lit by the vestibule light, and hands over his phone. The encounters that define the job happen at arm's length.
@@ -106,5 +106,5 @@ Nothing widens until the door scene is as good as it can be made.
 
 1. Does Hutch draw, paint or carve?
 2. Is there money for an artist, and is there anyone whose work Hutch would want?
-3. Through his eyes, from above, or free walk?
+3. ~~Through his eyes, from above, or free walk?~~ Through his eyes (Hutch, 2026-09-27).
 4. When Hutch can: a dozen photographs of an empty bar Hutch knows, before open.
