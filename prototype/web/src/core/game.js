@@ -25,7 +25,6 @@
 
   const SPEAKER = /^([A-Z][A-Z0-9_]*):\s+([\s\S]*)$/;
   const LOG_CAP = 1500;
-  const SAVE_LOG = 80;
   const SAVE_VERSION = 1;
   const ROOM = { door: true, floor: true, bar: true, t28: true, pool: true };   // one room: seen from anywhere in it
   const GROUPS = ['t28', 'kids', 'staff', 'owner', 'cook'];                       // rep_<group> in main.ink
@@ -34,6 +33,25 @@
   function knotOf(p) {
     const k = String(p || '').split('.')[0];
     return /^\d*$/.test(k) ? '' : k;
+  }
+
+  // The save carries the whole night so far, so a reload brings all of it back. It's packed: a
+  // line's raw text and label can be rebuilt from its speaker and text (unpack, in Game.load), the
+  // path it came from is left out, and so are the director's lists of what each choice changed.
+  function rawLine(it) {
+    return it.role === 'teller' ? 'NARRATOR: ' + it.text : it.speaker ? String(it.speaker).toUpperCase() + ': ' + it.text : it.text;
+  }
+  function packLog(log) {
+    const out = [];
+    for (const it of log) {
+      if (it.kind === 'diff') continue;
+      if (it.kind !== 'line') { out.push(it); continue; }
+      const o = {};
+      for (const k in it) if (k !== 'at' && k !== 'label' && it[k] !== undefined && it[k] !== null && it[k] !== false) o[k] = it[k];
+      if (o.raw === rawLine(it)) delete o.raw;
+      out.push(o);
+    }
+    return out;
   }
 
   // What a choice changed: scalars as {name, from, to}; lists as {name, add, del}.
@@ -169,7 +187,7 @@
         checks: this.checkHistory.slice(-40),
         screen: this.screen,
         ended: this.ended,
-        log: this.log.slice(-SAVE_LOG),
+        log: packLog(this.log),
         path: this.path.slice(),
         sketch: B.util.deepClone(this.sketch)
       };
@@ -193,7 +211,14 @@
       this.turn = save.turn | 0;
       this.screen = save.screen || null;
       this.ended = !!save.ended;
-      this.log = (save.log || []).slice();
+      this.log = (save.log || []).map((it) => {
+        if (it.kind !== 'line') return it;
+        const o = Object.assign({}, it);
+        if (o.raw == null) o.raw = rawLine(o);
+        if (o.speaker && !o.label) o.label = this._label(o.speaker);
+        if (o.screen === undefined) o.screen = null;
+        return o;
+      });
       this.path = (save.path || []).slice();
       this.sketch = save.sketch || {};
       this.choices = this._readChoices();
@@ -605,7 +630,7 @@
       if (shown.some(function (c) { return c.room; })) this._teach('room', items, items.length);
       if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
       for (const it of items) {
-        if (it.kind === 'fx' || it.kind === 'pause') continue;
+        if ((it.kind === 'fx' && it.type !== 'portrait') || it.kind === 'pause') continue;
         this.log.push(it);
       }
       // (place items are logged too: the page draws the place's plate from them on a redraw)

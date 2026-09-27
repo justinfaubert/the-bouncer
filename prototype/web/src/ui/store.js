@@ -16,6 +16,19 @@
   const EDITS_KEY = 'bouncer.edits.v1';
   const MIN_GAP_MS = 1500;
   const EDIT_GAP_MS = 250;
+  const CLOUD_MAX = 230000;   // characters; a document in the artifact's database holds 256 KiB
+
+  // The account's copy has to fit in one document: if the night's log won't, the earliest of it
+  // stays in this browser only.
+  function fitCloud(save) {
+    let size = JSON.stringify(save).length;
+    if (size <= CLOUD_MAX || !Array.isArray(save.log)) return save;
+    const log = save.log.slice();
+    const each = log.map(function (it) { return JSON.stringify(it).length + 1; });
+    let i = 0;
+    while (size > CLOUD_MAX && i < log.length) size -= each[i++];
+    return Object.assign({}, save, { log: log.slice(i) });
+  }
 
   function lsGet(k) { try { return globalThis.localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { globalThis.localStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -208,7 +221,7 @@
           this._job = null;
           try {
             if (job.op === 'delete') await this._ref().delete();
-            else await this._ref().set({ savedAt: job.save.savedAt, build: job.save.build, turn: job.save.turn, save: job.save });
+            else await this._ref().set({ savedAt: job.save.savedAt, build: job.save.build, turn: job.save.turn, save: fitCloud(job.save) });
           } catch (e) {
             const code = e && e.code;
             if (code === 'unavailable' || code === 'resource_exhausted') {
