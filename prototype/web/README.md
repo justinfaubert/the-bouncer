@@ -19,9 +19,13 @@ Merging them into the Ink: `node tools/director.mjs <edits.json> --apply` finds 
 
 ## What's on the page
 
-- **Plates** (`src/ui/plates.js`): a print of each place when he walks in, drawn in code as it is at that moment (how full the room is, table 28's glasses, the rats, which doors are propped), tinted by the hour. A place gets a new plate only when it has changed; otherwise a small one marks the move and the time. Faces for people with portraits are assembled from parts. Settings → Pictures turns them off.
+- **Plates** (`src/ui/plates.js`, screened like a two-colour press by `src/ui/print.js`): a print of each place when he walks in, drawn in code as it is at that moment (how full the room is, table 28's glasses, the rats, which doors are propped), tinted by the hour. A place gets a new plate only when it has changed; otherwise a small one marks the move and the time. Faces for people with portraits are assembled from parts, and look at him warmer or colder as he stands with their group. Settings → Pictures turns them off.
+- **Checks** (`src/ui/roll.js`): the dice tumble, hang, and the result is stamped; the room dims while they're in the air. Settings → Dice sets the pace; a tap skips.
+- **The word on him:** what a group says about him when something lands with them, under the line where it happened (`content/rules/word.yaml`).
 - **The floor sketch** carries his notes: what he last saw and when (`Game.sketch`), fading as it goes stale.
 - **The light of the night:** the page's wash follows the shift clock (`data-phase` and `data-here` on `.app`, in `style.css`).
+- **The sound of the room** (`src/ui/audio.js`, `AMB.bar`): the crowd, the pool table, the jukebox, the rats and the rain follow the night, mixed by where he's standing.
+- **The ledger** prints like the till's tape at close, a line at a time, and tears off (`printTape` in `src/ui/app.js`). Space, enter or a tap prints the rest.
 
 The design reasons are in `bible/07_ENGAGEMENT.md`.
 
