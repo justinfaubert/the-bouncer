@@ -723,8 +723,11 @@
       else if (st.here === 'keg') want = 'keg_room';
       else if (st.here === 'upstairs') want = null;
       else if (st.clock >= CLOSE_TIME) want = 'empty_bar';
-      else want = st.clock >= BUSY_FROM ? 'room_busy' : 'room_quiet';
+      else want = 'bar';
     }
+    // the bar's noise follows the room: the crowd, the pool table, the jukebox, the rats
+    const g = app.game.getVar.bind(app.game);
+    app.audio.room({ n: g('room_count') | 0, heat: g('pool_heat') | 0, rounds: g('t28_rounds') | 0, rats: g('rat_count') | 0, clock: st.clock, here: st.here });
     app.audio.ambience(want);
   }
 

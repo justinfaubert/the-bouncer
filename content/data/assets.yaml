@@ -32,6 +32,10 @@ ambience:
     file: audio/amb/rain_lot.ogg
     synth: rain
     note: Rain on gravel and on the truck roofs, the highway behind it.
+  bar:
+    file: audio/amb/bar.ogg
+    synth: bar
+    note: The bar while it's open, live. The stand-in follows the room (the crowd, the pool table, the jukebox, the rats, the rain, where he's standing); a recording here plays as one loop instead.
   room_quiet:
     file: audio/amb/room_quiet.ogg
     synth: room

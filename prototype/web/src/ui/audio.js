@@ -16,6 +16,7 @@
       this.levels = { master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6 };
       this.amb = { id: null, stop: null };
       this.music = { id: null, el: null };
+      this._room = null;      // the room as the game last said it was (see room())
       this._noise = null;
       this._brown = null;
     }
@@ -101,6 +102,15 @@
       if (url) { this.amb.stop = this._loopFile(url, this.bus.amb); return; }
       const recipe = AMB[(slot && slot.synth) || id];
       if (recipe) { try { this.amb.stop = recipe(this); } catch (e) { this.amb.stop = null; } }
+      if (this.amb.stop && this.amb.stop.set && this._room) this.amb.stop.set(this._room);
+    }
+
+    // What the room is doing, for an ambience that follows it (the bar's: see AMB.bar): how many
+    // are in, how hot the pool table is, the rats, the hour, and where he's standing.
+    // { n, heat, rounds, rats, clock, here }
+    room(state) {
+      this._room = Object.assign({}, state);
+      if (this.amb.stop && this.amb.stop.set) this.amb.stop.set(this._room);
     }
 
     track(id) {
@@ -305,6 +315,140 @@
       const drips = a.every(1.2, 4.5, function (t) { a.tone(t, 1700 + Math.random() * 500, 0.09, 0.05, 'sine', bus, 700); });
       const scratch = a.every(7, 20, function (t) { for (let i = 0; i < 5; i++) a.burst(t + i * 0.06, 0.035, 3200, 2, 0.03, bus); });
       return stopper(a, [tone, comp], [drips, scratch]);
+    },
+    // The bar, live. Its layers follow the room: the talk and the glasses grow with the crowd, the
+    // pool table gets louder as it heats up (and past a point, voices raised over it), the jukebox
+    // comes on through the evening, rats in the walls as there get to be more of them, rain on the
+    // windows. Where he's standing sets the mix: at the door the room is behind him and the rain
+    // is louder; from the back hall or the kitchen it comes through a wall.
+    bar(a) {
+      const c = a.ctx, amb = a.bus.amb;
+      const P = { crowd: 0.1, heat: 0, juke: 0, rats: 0, here: 'floor', rain: 0.03 };
+      // the room goes through a wall filter, so the places off the room can muffle it
+      const wall = c.createBiquadFilter(); wall.type = 'lowpass'; wall.frequency.value = 9000; wall.Q.value = 0.5;
+      const roomBus = c.createGain(); roomBus.gain.value = 1;
+      roomBus.connect(wall); wall.connect(amb);
+      const tone = a.bed(a.brown(), 'lowpass', 280, 0.7, 0.18, roomBus);
+      const talk = a.bed(a.noise(), 'bandpass', 520, 1.3, 0.02, roomBus);
+      const talk2 = a.bed(a.noise(), 'bandpass', 950, 1.8, 0.01, roomBus);
+      const shout = a.bed(a.noise(), 'bandpass', 1250, 2.2, 0, roomBus);
+      const lfos = [];
+      const wobble = function (param, rate, depth) {
+        const o = c.createOscillator(), d = c.createGain();
+        o.frequency.value = rate; d.gain.value = depth; o.connect(d); d.connect(param); o.start();
+        lfos.push(o);
+      };
+      wobble(talk.filter.frequency, 0.37, 170);
+      wobble(talk2.filter.frequency, 0.23, 260);
+      wobble(shout.filter.frequency, 1.7, 300);
+      // shouting comes and goes in bursts, not a steady hiss
+      const shoutAmp = c.createGain(); shoutAmp.gain.value = 0;
+      try { shout.gain.disconnect(); } catch (e) { /* not connected yet */ }
+      shout.gain.connect(shoutAmp); shoutAmp.connect(roomBus);
+      const hum = a.hum(60, 0.014, roomBus);
+      const hum2 = a.hum(120, 0.006, roomBus);
+      const rainHiss = a.bed(a.noise(), 'bandpass', 1600, 0.6, 0.03, amb);
+      // off the room: the kitchen's fryer and fan, the back hall's extractor
+      const fryer = a.bed(a.noise(), 'highpass', 5200, 0.5, 0, amb);
+      const fan = a.bed(a.brown(), 'lowpass', 190, 0.8, 0, amb);
+      const extractor = a.bed(a.noise(), 'bandpass', 380, 1.2, 0, amb);
+      const T = function () { return c.currentTime; };
+      const glide = function (g, v, k) { g.gain.cancelScheduledValues(T()); g.gain.setTargetAtTime(v, T(), k || 1.2); };
+      const loops = [];
+      // run fn at an interval that can change while it runs: gap() is read each time round
+      const pulse = function (gap, fn) {
+        let alive = true, timer = null;
+        const go = function () {
+          if (!alive) return;
+          try { fn(T() + 0.02); } catch (e) { /* ignore */ }
+          timer = setTimeout(go, Math.max(0.12, gap()) * 1000);
+        };
+        timer = setTimeout(go, Math.max(0.12, gap()) * 1000 * Math.random());
+        loops.push(function () { alive = false; clearTimeout(timer); });
+      };
+      const r = Math.random;
+      // glasses on the bar and the tables
+      pulse(function () { return (7 - 5.5 * P.crowd) * (0.5 + r()); }, function (t) {
+        const lvl = (P.here === 'bar' ? 0.04 : 0.025) * (0.6 + 0.4 * P.crowd);
+        a.tone(t, 2300 + r() * 1700, 0.22, lvl, 'sine', roomBus);
+        if (r() < 0.35) a.tone(t + 0.06 + r() * 0.05, 3000 + r() * 900, 0.18, lvl * 0.6, 'sine', roomBus);
+      });
+      // the whole room, or one table, laughing at once: a swell in the talk
+      pulse(function () { return (18 - 11 * P.crowd) * (0.6 + 0.8 * r()); }, function (t) {
+        const base = 0.012 + 0.11 * P.crowd, up = base * (1.5 + 0.6 * r());
+        talk.gain.gain.cancelScheduledValues(t);
+        talk.gain.gain.setTargetAtTime(up, t, 0.25);
+        talk.gain.gain.setTargetAtTime(base, t + 0.9 + r() * 0.8, 0.8);
+      });
+      // the pool table: a shot now and then, a break less often; closer and harder as it heats up
+      pulse(function () { return (9 - 5 * P.heat) * (0.5 + r()); }, function (t) {
+        const near = P.here === 'pool' ? 1.8 : 1;
+        const lvl = (0.05 + 0.05 * P.heat) * near;
+        if (r() < 0.18) { let d = 0; for (let i = 0; i < 6; i++) { a.burst(t + d, 0.016, 2300 + r() * 1400, 3, lvl * (1 - i * 0.1), roomBus); d += 0.02 + r() * 0.07; } }
+        else { a.burst(t, 0.018, 2600, 3, lvl, roomBus); a.burst(t + 0.25 + r() * 0.5, 0.014, 2400, 3, lvl * 0.6, roomBus); }
+      });
+      // voices raised at the pool table, in bursts
+      pulse(function () { return 2.2 + 3 * r(); }, function (t) {
+        const hot = Math.max(0, (P.heat - 0.3) / 0.7);
+        if (hot <= 0) { shoutAmp.gain.setTargetAtTime(0, t, 0.4); return; }
+        const v = 0.05 * hot * (P.here === 'pool' ? 1.6 : 1) * (0.5 + r() * 0.8);
+        shoutAmp.gain.setTargetAtTime(v, t, 0.08);
+        shoutAmp.gain.setTargetAtTime(v * 0.15, t + 0.35 + r() * 0.6, 0.25);
+      });
+      // the jukebox, through the room: kick and bass, the rest of the song lost in the talk
+      let beat = 0;
+      pulse(function () { return 0.625; }, function (t) {
+        if (P.juke <= 0 || a.music.el) return;   // a real jukebox track is playing instead
+        const bar = Math.floor(beat / 4) % 4, root = [55, 55, 49, 41.2][bar];
+        a.tone(t, 70, 0.2, 0.09 * P.juke, 'sine', roomBus, 42);
+        if (beat % 2 === 0) a.tone(t, root, 0.55, 0.035 * P.juke, 'triangle', roomBus);
+        beat++;
+      });
+      // the rats, in the wall behind table 28 and under the kitchen
+      pulse(function () { return (22 - 16 * P.rats) * (0.5 + r()); }, function (t) {
+        const near = P.here === 't28' || P.here === 'kitchen' || P.here === 'hall' ? 1 : 0.35;
+        const lvl = (0.03 + 0.04 * P.rats) * near;
+        const n = 3 + Math.floor(r() * 5);
+        for (let i = 0; i < n; i++) a.burst(t + i * (0.04 + r() * 0.05), 0.03, 2600 + r() * 1800, 2, lvl, amb);
+      });
+      // rain on the glass
+      pulse(function () { return 0.08 + 0.3 * r(); }, function (t) {
+        const lvl = P.rain * (0.8 + r());
+        a.burst(t, 0.025, 2600 + r() * 3000, 4, lvl, amb);
+      });
+      // the fryer spits
+      pulse(function () { return 0.1 + 0.5 * r(); }, function (t) {
+        if (P.here !== 'kitchen') return;
+        a.burst(t, 0.012, 3500 + r() * 3000, 1.5, 0.04 + 0.05 * r(), amb);
+      });
+      const clamp = function (x, lo, hi) { return Math.max(lo, Math.min(hi, x)); };
+      const stop = stopper(a, [tone, talk, talk2, shout, hum, hum2, rainHiss, fryer, fan, extractor], loops.concat([
+        function () { for (const o of lfos) { try { o.stop(); } catch (e) {} } },
+        function () { const t = T(); roomBus.gain.setTargetAtTime(0, t, 0.3); setTimeout(function () { try { roomBus.disconnect(); wall.disconnect(); shoutAmp.disconnect(); } catch (e) {} }, 2500); }
+      ]));
+      stop.set = function (st) {
+        st = st || {};
+        const n = st.n == null ? 13 : st.n;
+        P.crowd = clamp((n - 8) / 40, 0, 1);
+        P.heat = clamp(((st.heat || 0) - 2) / 8, 0, 1);
+        P.rats = clamp(Math.log2(Math.max(30, st.rats || 30) / 30) / 3, 0, 1);
+        const clock = st.clock || 0;
+        P.juke = clock >= 1230 && clock < 1530 && n >= 12 ? (0.6 + 0.4 * P.crowd) : 0;
+        P.here = st.here || 'floor';
+        P.rain = P.here === 'door' ? 0.09 : P.here === 'hall' || P.here === 'kitchen' ? 0.015 : 0.035;
+        glide(tone.gain, 0.13 + 0.1 * P.crowd);
+        glide(talk.gain, 0.012 + 0.11 * P.crowd);
+        glide(talk2.gain, 0.004 + 0.08 * Math.pow(P.crowd, 1.3));
+        glide(shout.gain, 1);
+        glide(rainHiss.gain, P.here === 'door' ? 0.07 : 0.025);
+        glide(fryer.gain, P.here === 'kitchen' ? 0.035 : 0);
+        glide(fan.gain, P.here === 'kitchen' ? 0.12 : 0);
+        glide(extractor.gain, P.here === 'hall' ? 0.05 : 0);
+        const muffle = { door: 1800, hall: 420, kitchen: 650 }[P.here] || 9000;
+        wall.frequency.setTargetAtTime(muffle, T(), 0.6);
+        roomBus.gain.setTargetAtTime(P.here === 'hall' ? 0.55 : P.here === 'kitchen' ? 0.5 : P.here === 'door' ? 0.8 : 1, T(), 0.6);
+      };
+      return stop;
     },
     room_empty(a) {
       const bus = a.bus.amb;
