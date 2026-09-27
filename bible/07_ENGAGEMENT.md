@@ -1,6 +1,6 @@
 # Engagement: what holds a player
 
-*Written 26 September 2026, with round two of the browser build, and added to on 27 September with the polish pass (sections 7 to 10). Everything here is [PROPOSED] until Hutch says otherwise. "Built" means it plays in the browser build now.*
+*Written 26 September 2026, with round two of the browser build, and added to on 27 September with the polish pass (sections 7 to 10) and round three (sections 11 to 14). Everything here is [PROPOSED] until Hutch says otherwise. "Built" means it plays in the browser build now.*
 
 `01_PILLARS.md` says what we keep from Disco Elysium and what we change. This file is narrower: the devices that keep a player leaning in, what each one does in Disco, where it falls short, and what this game does instead. The advantage we have is what the game already is: one building, one night at a time, and a job where attention is the scarce thing.
 
@@ -83,11 +83,42 @@
 
 - **Built** (the ledger in `content/ink/closing.ink`, printed by `src/ui/app.js`).
 
+## 11. The head reaches for the player's hand
+
+**Disco:** the skills speak when the story calls for a passive check, on the story's schedule. What the player does with the mouse means nothing until the click.
+
+**Here:** the voices watch the player's hand. Resting on a choice before committing to it brings a voice to lean in on it, if one has something to say. Pulling away from a tempting choice, waiting a long time, scrolling back to read again, and coming back to the game after a while away all get noticed. On a phone, pressing and holding a choice does it without choosing. It's the head in the book reaching past him to the person holding it.
+
+- **Built** (`src/ui/hand.js`, the `hand:` lines in `content/rules/barks.yaml`, Claude's drafts). Settings → The voices notice you.
+
+## 12. The voices mark up the pictures
+
+**Disco:** the skills talk in the text column; the painted world stays a backdrop.
+
+**Here:** a voice can reach into a plate, pull a detail out, ring it in its own colour and write a note beside it, drawn on as the player watches: the latch on the deck door, the door everybody came in through, the big man's left hand on the rail. His head lays itself over the world, on the page.
+
+- **Built:** 23 marks (`content/data/marks.yaml`, `#mark:` in the Ink, `src/ui/marks.js`).
+
+## 13. Things to handle
+
+**Disco:** objects are inventory icons and lines of dialogue.
+
+**Here:** what he's handed comes onto the page as a thing. A licence to turn over, tip under the light for the hologram, and hold up beside the face of whoever handed it over. The kid's phone to take and swipe. The binder under the till, forty sleeves of barred faces to leaf through. The clicker to press and zero. The dice to shake and throw. Handling them is play in itself, and the voices answer it; some of it moves the story. Some choices can only be made with the hands: swiping on to the kid's next photo, or recognising a face from the binder by holding his licence up beside him.
+
+- **Built** (`content/data/props.yaml`, `src/ui/props.js`, `src/ui/toys.js`, `#prop:`, `#toy:` and `#unlisted` in the Ink, `content/ink/toys.ink`).
+
+## 14. In his skin
+
+**Disco:** Harry's body is two numbers, health and morale, and a line of text when it matters.
+
+**Here:** what the night is doing to him shows on the page itself. Drink puts the print out of register: the red slips off the black first, then the pictures and the words double, and from the fourth drink the page sways; each drink going down lurches it. Hurt makes the edges of the page throb, strongly while it's new and then on and off. On the door, rain runs down the glass in the margins. His heart comes up in his ears while the dice are in his hand and in the air, faster the worse his odds, and after each thing that happens while his head is arguing or worse; the edges of the page darken with each beat.
+
+- **Built** (`src/ui/skin.js`). Settings → In his skin turns it off.
+
 ## Next, not built
 
-- **The door as a hands-on loop.** Each walk-in is a printed face and a card: the birthdate against tonight's date, the photo against the face, the regular who never carries one, the kid who's nineteen in two days. The line builds in the rain while he checks; hurrying lets mistakes through.
+- **The door as a hands-on loop.** Each walk-in is a printed face and a card: the birthdate against tonight's date, the photo against the face, the regular who never carries one, the kid who's nineteen in two days. The line builds in the rain while he checks; hurrying lets mistakes through. (The cards are built for the three people who hand one over, section 13.)
 - **The spike.** Each night's tape goes on the receipt spike behind the bar, to leaf back through, and the last night's reckoning reads the whole stack.
-- **The print goes out of register as he drinks.** The plates and the page double-print by a hair more with each drink, the way a cheap print misses. It's true to the printed look, and it's off with a switch.
 - **Voices remember across days.** On Friday, the Father answers what the Fighter said on Wednesday.
 - **The bartender's face after she's read his incident log.**
 - **The bar recorded in layers**, so the room's noise can follow the crowd with real sound.

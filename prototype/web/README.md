@@ -20,7 +20,11 @@ Merging them into the Ink: `node tools/director.mjs <edits.json> --apply` finds 
 ## What's on the page
 
 - **Plates** (`src/ui/plates.js`, screened like a two-colour press by `src/ui/print.js`): a print of each place when he walks in, drawn in code as it is at that moment (how full the room is, table 28's glasses, the rats, which doors are propped), tinted by the hour. A place gets a new plate only when it has changed; otherwise a small one marks the move and the time. Faces for people with portraits are assembled from parts, and look at him warmer or colder as he stands with their group. Settings → Pictures turns them off.
-- **Checks** (`src/ui/roll.js`): the dice tumble, hang, and the result is stamped; the room dims while they're in the air. Settings → Dice sets the pace; a tap skips.
+- **Checks** (`src/ui/roll.js`): the dice wait in his hand (hold to shake them, let go to throw), tumble, hang, and the result is stamped; the room dims while they're in the air. Settings → Dice sets the pace; a tap skips.
+- **The voices and the player's hand** (`src/ui/hand.js`): a voice leans in on the choice the pointer rests on (press and hold on a phone), and notices waiting, reading back and coming back. Settings → The voices notice you.
+- **Marks** (`src/ui/marks.js`): a voice rings a detail of a plate and writes beside it (`content/data/marks.yaml`).
+- **Things in his hands** (`src/ui/props.js`, `src/ui/toys.js`): the clicker, licences, the kid's phone and the binder, handed over by `#prop:` in the Ink (`content/data/props.yaml`). A choice marked `#toy:` is made by handling the thing.
+- **His skin** (`src/ui/skin.js`): drink, hurt, his heartbeat and the rain on the door's glass, laid over the page. Settings → In his skin.
 - **The word on him:** what a group says about him when something lands with them, under the line where it happened (`content/rules/word.yaml`).
 - **The floor sketch** carries his notes: what he last saw and when (`Game.sketch`), fading as it goes stale.
 - **The light of the night:** the page's wash follows the shift clock (`data-phase` and `data-here` on `.app`, in `style.css`).

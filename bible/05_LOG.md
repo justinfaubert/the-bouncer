@@ -48,6 +48,18 @@ Update this file at the end of every session: add a session entry, move items be
 - Published as version 4 at the same link; the offline copy is `releases/The-Bouncer.html` again (the offline and publish builds had broken on the stamp's texture, and were fixed).
 - The bigger ideas that aren't built are below under PROPOSED, and in `07_ENGAGEMENT.md`.
 
+### 2026-09-27 (Sunday), round three: things to handle, his skin, a head that reaches the player
+
+- Hutch, after the polish pass: "the more you do, the stranger and more singular and therefore interesting it gets." Then: the game needs things to interact with, toys and things that trigger events; fine detail to put the player in his skin, his surroundings and his head; and a Head mechanic more deeply embedded in the game world, one that reaches out and feels the player, and shows it.
+- Built, in four parts:
+  1. **The head reaches for the player's hand.** When the pointer rests on a choice, or a finger holds one on a phone, a voice with something to say about it leans in. The voices also notice a long wait, a tempting choice pulled away from, reading back, and coming back after a while away (`src/ui/hand.js`, the `hand:` lines in `content/rules/barks.yaml`). Settings → The voices notice you.
+  2. **The voices mark up the pictures.** A voice rings a detail of a plate in its colour and writes beside it, drawn on as you watch, with the sound of the pen (23 marks, `content/data/marks.yaml`, `#mark:` in the Ink).
+  3. **Things in his hands.** The clicker is a toy: press it, zero it with the knob, and the voices answer. The dice are thrown by hand: hold to shake, let go to throw. Licences are cards to turn over, tip under the light and hold up beside the face of whoever handed them over; the regular in the good shoes can be recognised from page three of the binder that way. The kid holds up his phone, and the next photo on it is the pool table, taken from the lot. The binder under the till has forty sleeves to leaf through. Some choices can only be made with the hands (`content/data/props.yaml`, `src/ui/props.js`, `#prop:`, `#toy:` and `#unlisted` in the Ink).
+  4. **In his skin** (Settings → In his skin). Drink puts the print out of register: the red slips first, then the pictures and the words double, and from the fourth drink the page sways; each drink going down lurches it. Hurt makes the edges throb. On the door, rain runs down the glass in the margins. His heart comes up while the dice are in his hand and in the air, faster the worse his odds, and while his head is arguing or worse (`src/ui/skin.js`).
+- Hutch answered the writing prompt on the kid with the photo of his ID, in director mode: take the ID, size up the kid, look at the info, deny him if he doesn't have ID, and try to build a rapport in the short time the interaction lasts. Merged by hand: the scene keeps that order and gains small talk ("Rough night to be out in."); after it, a no goes down easier, and his sister arrives knowing the doorman was all right about it. The new lines are Claude's drafts.
+- 1,000 bot nights: every knot and stitch reached, no problems. Hutch's saved night loads in the new build and plays on.
+- Published as version 5 at the same link, with the offline copy refreshed.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -124,11 +136,19 @@ Proposed with the polish pass (2026-09-27). Built, to keep or cut:
 
 Not built, for Hutch to say yes or no to:
 
-- **The door as a hands-on loop.** Each walk-in at the door is a printed face and a card: the birthdate against tonight's date, the photo against the face, the regular who never carries one, the kid who's nineteen in two days. Slow checking builds a line in the rain; fast checking lets mistakes through.
+- **The door as a hands-on loop.** Each walk-in at the door is a printed face and a card: the birthdate against tonight's date, the photo against the face, the regular who never carries one, the kid who's nineteen in two days. Slow checking builds a line in the rain; fast checking lets mistakes through. (Round three built the cards for the three people who hand one over; the line in the rain and the cost of speed aren't built.)
 - **The spike.** Every night's tape goes on the receipt spike behind the bar. The player can leaf back through the month, and the last night's reckoning reads the whole stack.
-- **The print slips as he drinks.** The page and the plates go a hair further out of register with each drink, the way a cheap press misses. Off with a switch.
 - **Voices remember across days.** On Friday THE FATHER answers something THE FIGHTER said on Wednesday.
 - **The bar recorded in layers.** A quiet room, a busy room, the pool table, the jukebox through the wall, rain on the glass, recorded separately so the mix can keep following the crowd with real sound.
+
+Proposed with round three (2026-09-27). Built, to keep or cut:
+
+- The voices leaning in on the choice under the player's hand, and noticing a wait, a pull-away, a reread and a return.
+- The voices marking up the plates.
+- Things to handle: the clicker, the dice by hand, the licences, the kid's phone and the binder, with choices only the hands can make.
+- In his skin: the print slipping and doubling with drink (the idea from the polish pass list), the throb when hurt, the rain on the door's glass, and his heartbeat with the dice and a loud head.
+- Facts drafted for the props, all Claude's placeholders: Wednesday is 4 November 2026, so a licence's birthday has a date to count from and the month runs out on Thursday 3 December; the names and numbers on the cards (the kid and his sister are Tyler and Kayla Moffat, the regular in the good shoes is Graham Ardagh); the kid photographed his dad at the pool table from the lot; forty sleeves in the binder, the first eleven written out, with dates and lengths under them (the reasons are Hutch's to write, at the binder's prompt in `content/ink/bar.ink`).
+- The small talk at the door, and what it changes, drafted from Hutch's answer.
 
 ### REJECTED
 
