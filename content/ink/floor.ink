@@ -221,10 +221,17 @@
 * [Heads.]
     ~ pass(3)
     ~ last_count = clock
+    // what the clicker makes it: idle clicks on it count as people (toys.ink)
+    ~ temp says = room_count - uncounted + fidget - zeroed
     He counted from the door clockwise, the way the Father had taught him, and didn't count anyone twice. He got {num(room_count)}.
-    { uncounted > 0:
-        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said {num(room_count - uncounted)}. {uncounted == 1:One more in the room than had come past him.|{Num(uncounted)} more in the room than had come past him.}
+    {
+    - says < room_count:
+        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said {num(says)}. {room_count - says == 1:One more in the room than had come past him.|{Num(room_count - says)} more in the room than had come past him.}
         FATHER: That's how you find out what the room thinks of your door.
+    - says > room_count:
+        // (Claude's draft)
+        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said {num(says)}. {says - room_count == 1:One more than was in the room.|{Num(says - room_count)} more than were in the room.}
+        FATHER: Every click is somebody. So who did you click?
     - else:
         The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said the same. It matched.
         MANUAL: Occupancy is within the licensed maximum. Occupancy is far within the licensed maximum. It's Wednesday.

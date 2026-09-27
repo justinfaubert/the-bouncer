@@ -44,7 +44,9 @@
     lastFocus: null,
     rainStop: null,
     hand: null,                  // the voices reaching for the player (src/ui/hand.js)
-    readChars: 0                 // how much story came before the choices now up
+    readChars: 0,                // how much story came before the choices now up
+    toys: null,                  // the clicker, and things he's handed (src/ui/toys.js)
+    saveTimer: 0
   };
 
   // The light of the night by the shift clock. The plates and the page take its tint (style.css).
@@ -77,6 +79,11 @@
       audio: app.audio,
       style: voiceStyle,
       reduced: reducedMotion
+    });
+    app.toys = B.Toys({
+      play: toyPlay,
+      live: function () { return app.inGame && !!app.game.story && !app.game.ended && !app.pending && !app.rolling && $('#overlay').hidden; },
+      audio: app.audio
     });
     applySettings();
 
@@ -235,6 +242,7 @@
   function resetStory() {
     if (app.rolling) { app.rolling.cancel(); app.rolling = null; }
     if (app.hand) app.hand.stop();
+    if (app.toys) app.toys.stop();
     document.getElementById('app').classList.remove('rolling');
     $('#log').innerHTML = '';
     $('#after').innerHTML = '';
@@ -296,7 +304,46 @@
     }
   }
 
+  // playing with a toy writes the save a moment after the last touch, not on every click
+  function persistSoon() {
+    clearTimeout(app.saveTimer);
+    app.saveTimer = setTimeout(persist, 900);
+  }
+
   // ---------------------------------------------------------------- playing
+
+  // Handling a thing between choices (Game.toy). If a choice was waiting for it, the night moves
+  // on from that choice as from any other; if not, what it changed goes quietly into the status,
+  // and anything said about it goes in above the choices.
+  function toyPlay(id, what) {
+    if (!app.inGame || app.pending || app.rolling || app.game.ended) return false;
+    const via = app.game.toyChoice(id, what);
+    if (via) snapshot();
+    let res;
+    try { res = app.game.toy(id, what); } catch (e) { if (via) app.snaps.pop(); return false; }
+    if (!res) { if (via) app.snaps.pop(); return false; }
+    if (res.chose) {
+      clearTimeout(app.saveTimer);
+      persist();
+      show(res, true);
+      return true;
+    }
+    if (res.items.length) {
+      const first = renderItems(res.items, true);
+      if (first) nearView(first);
+    }
+    renderRail();
+    persistSoon();
+    return true;
+  }
+
+  // bring a line that's just gone in above the choices into view, if it isn't
+  function nearView(node) {
+    const story = $('#story');
+    const r = node.getBoundingClientRect(), s = story.getBoundingClientRect();
+    if (r.top >= s.top + 8 && r.bottom <= s.bottom - 8) return;
+    story.scrollTop += r.top - s.top - Math.max(40, s.height * 0.3);
+  }
 
   function choose(visibleIndex) {
     if (!app.inGame || app.pending) return;
@@ -312,6 +359,7 @@
       toast('Something went wrong with that choice.');
       return;
     }
+    clearTimeout(app.saveTimer);
     persist();
     show(res, true);
   }
@@ -988,13 +1036,19 @@
     const day = DAY_NAMES[st.day] || ('Day ' + st.day);
     return '<div class="st-day">' + esc(day) + ', the test shift</div>' +
       '<div class="st-clock">' + cp.text + '<small>' + cp.ampm + '</small></div>' +
-      V.clickerHTML(st.count) +
+      V.clickerHTML(st.count, clickerLive(st)) +
       '<div class="st-where">' + esc(PLACE[st.here] || '') + '</div>' +
       '<div class="st-row">' +
         '<span class="st-item"><span class="st-k">Pocket</span><span class="st-v">$' + st.cash + '</span></span>' +
         '<span class="st-item"><span class="st-k">Drinks</span><span class="st-v">' + V.tallyHTML(st.drinks) + '</span></span>' +
         (st.hurt ? '<span class="st-item st-hurt"><span class="st-k">Hurt</span><span class="st-v">' + esc(HURT_WORDS[st.hurt] || 'Hurt') + '</span></span>' : '') +
       '</div>';
+  }
+
+  // the clicker's in his hand once the page has shown the bartender handing it over
+  function clickerLive(st) {
+    if (!st.clicker || !app.inGame || app.game.ended) return false;
+    return !(app.pending && app.pending.some(function (it) { return it.bark === 'teach_clicker'; }));
   }
 
   function renderRail() {
@@ -1006,6 +1060,7 @@
     root.setAttribute('data-phase', phaseOf(st.clock));
     root.setAttribute('data-here', st.here || '');
     for (const el of document.querySelectorAll('[data-status]')) el.innerHTML = html;
+    if (app.toys) app.toys.afterRail(st.count);
 
     // the map: every choice that goes somewhere lights its spot
     const open = {};

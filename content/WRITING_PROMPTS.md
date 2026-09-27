@@ -55,9 +55,10 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/closing.ink
 
 28. **last_call** (`content/ink/closing.ink:84`): Last call at the Sov. What really happens in a room like this when the bell goes?
-29. **incident_log** (`content/ink/closing.ink:470`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-30. **after_hours** (`content/ink/closing.ink:528`): The song she puts on for the count. Yours to pick, or to write.
-31. **after_hours** (`content/ink/closing.ink:539`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-32. **keg_parley** (`content/ink/closing.ink:607`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-33. **go_upstairs** (`content/ink/closing.ink:735`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+29. **still_in** (`content/ink/closing.ink:484`): The count is off the other way: the clicker says somebody's still in the building. Have you had a close like that? Where do you look, and what does the bartender say when you own up (or don't)?
+30. **incident_log** (`content/ink/closing.ink:532`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+31. **after_hours** (`content/ink/closing.ink:590`): The song she puts on for the count. Yours to pick, or to write.
+32. **after_hours** (`content/ink/closing.ink:601`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+33. **keg_parley** (`content/ink/closing.ink:669`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+34. **go_upstairs** (`content/ink/closing.ink:797`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 

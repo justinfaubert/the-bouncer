@@ -18,6 +18,7 @@ INCLUDE rats.ink
 INCLUDE hall.ink
 INCLUDE deck.ink
 INCLUDE closing.ink
+INCLUDE toys.ink
 
 -> prologue
 
@@ -40,7 +41,9 @@ VAR crit = 0                // 1 on double six, -1 on double one
 VAR cash = 40               // dollars in his pocket. He came with forty.
 VAR drinks = 0              // drinks in him tonight
 VAR hurt = 0                // 0 fine, 1 knocked about, 2 hurt, 3 badly hurt
-VAR count_in = 0            // the clicker
+VAR count_in = 0            // the clicker: everyone he clicked in
+VAR fidget = 0              // clicks on the clicker that weren't anybody (the player, playing with it: toys.ink)
+VAR zeroed = 0              // what the clicker said when the knob on its side was last turned back to nothing
 
 // ------------------------------------------------------------------ the doors
 

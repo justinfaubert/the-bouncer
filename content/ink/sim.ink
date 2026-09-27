@@ -12,7 +12,8 @@
 }
 
 // People drift in while the main door is unwatched: one every 45 unwatched minutes after 8:30, four at most on a Wednesday.
-{ clock >= 1230 && walk_ins < 4 && door_away / 45 > walk_ins:
+// Not once the front door's locked for the night.
+{ clock >= 1230 && walk_ins < 4 && door_away / 45 > walk_ins && not lock_up:
     ~ walk_ins++
     ~ uncounted++
     ~ room_count++

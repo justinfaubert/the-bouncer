@@ -12,6 +12,7 @@
 #          check_pass:<voice> / check_fail:<voice>
 #          answer:<voice>   right after that voice has said one of these (see "answers" below)
 #          hand:<...>    the voices and the player, before a choice is made (see "the hand" below)
+#          toy:<thing>:<what>   the player handling a thing between choices (see "toys" below)
 #          anything named by a #bark: tag in the Ink
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
@@ -25,7 +26,8 @@
 # these events itself: teach:check (the first check on offer), teach:tension (the first time the
 # noise in his head changes), teach:word (the first time a group's word on him shows), teach:room
 # (the first choice that would let a voice in or put one out), teach:hand (the first choices after
-# that which a voice has something to say about; see "the hand" below).
+# that which a voice has something to say about; see "the hand" below), teach:clicker (once the
+# bartender has handed him the clicker; see "toys" below).
 
 - id: teach_check
   on: teach:check
@@ -56,6 +58,12 @@
   speaker: manual
   always: true
   text: Before you commit to a choice, rest a hand on it. Point at it, or press and hold. A voice with something to say about it will say it.
+
+- id: teach_clicker
+  on: teach:clicker
+  speaker: manual
+  always: true
+  text: The tally counter is now in your possession. Each press of the button records one entry. The count is reconciled at close.
 
 # ---------------------------------------------------------------- the door
 
@@ -443,6 +451,69 @@
   speaker: manual
   when: [odds wrongman]
   text: The incident log has no field for a feeling.
+
+# ---------------------------------------------------------------- toys
+# The player playing with things between choices (content/ink/toys.ink). Each rule is tried every
+# time; there is no chance gate, so write the when: to say exactly when a voice speaks up.
+#   toy:clicker:click   an idle click on the clicker (fidget counts them)
+#   toy:clicker:zero    the knob on its side turned all the way back
+#   toy:<prop>:<what>   a thing he's been handed (content/data/props.yaml): flip, tilt, look ...
+
+- id: toy_click_father
+  on: toy:clicker:click
+  speaker: father
+  when: [fidget == 3]
+  text: Every click is somebody. That's the whole job.
+
+- id: toy_click_kid
+  on: toy:clicker:click
+  speaker: kid
+  when: [fidget >= 4]
+  text: that's not a person
+
+- id: toy_click_manual
+  on: toy:clicker:click
+  speaker: manual
+  when: [fidget == 5]
+  text: The count is the house's record of occupancy. Every entry on it is a person, in law.
+
+- id: toy_click_wrongman
+  on: toy:clicker:click
+  speaker: wrongman
+  when: [fidget == 7]
+  text: The doorman in the story had a lighter he did that with. Open, shut, open, shut. He didn't look up either.
+
+- id: toy_click_fighter
+  on: toy:clicker:click
+  speaker: fighter
+  when: [fidget >= 9]
+  text: You want something to hit, there's a whole room of it.
+
+- id: toy_click_table
+  on: toy:clicker:click
+  speaker: table
+  when: [fidget >= 14]
+  text: He's counting us again!
+
+- id: toy_zero_father
+  on: toy:clicker:zero
+  speaker: father
+  text: That was everybody you let in tonight. You just threw them away.
+
+- id: toy_zero_manual
+  on: toy:clicker:zero
+  speaker: manual
+  text: The count has been reset. The count cannot be reconstructed.
+
+- id: toy_zero_wrongman
+  on: toy:clicker:zero
+  speaker: wrongman
+  text: Now you don't know who's in here. Now it's the story.
+
+- id: toy_zero_fighter
+  on: toy:clicker:zero
+  speaker: fighter
+  text: Clean slate.
 
 # ---------------------------------------------------------------- the hand
 #

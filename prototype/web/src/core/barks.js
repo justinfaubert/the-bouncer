@@ -23,6 +23,10 @@
 // on a choice, and when they notice the player (Game.whisper, Game.murmur). They're said whatever
 // the tension, and each once a night.
 //
+// Toys: rules with `on: toy:<thing>:<what>` answer the player handling a thing between choices
+// (Game.toy): an idle click on the clicker, a card turned over. No chance gate here either: the
+// when: says exactly when a voice speaks up.
+//
 // Answers: after a voice barks, the others may answer it. A rule with `on: answer:father` is
 // offered right after THE FATHER says something; its speaker has to be someone else in the room.
 // Allies back each other up and voices at odds contradict, so the relationships in his head

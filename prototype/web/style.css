@@ -184,28 +184,106 @@ button { font: inherit; color: inherit; }
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 1px;
   justify-self: end;
 }
+/* the thing itself: a chrome tally counter, the button on top, the knob on its side, a ring for
+   a finger underneath. Press it; hold the knob (src/ui/toys.js). */
+.ck-thing { position: relative; display: inline-block; padding: 8px 11px 10px 0; -webkit-tap-highlight-color: transparent; }
+.ck-body {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 6px 7px 7px;
+  border: 0;
+  border-radius: 12px 12px 17px 17px;
+  font: inherit;
+  color: inherit;
+  background: radial-gradient(130% 95% at 28% 18%, #f6f7f7 0%, #cdd1d4 36%, #8f959a 70%, #6a7075 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -2px 4px rgba(0,0,0,.28), 0 2px 3px rgba(0,0,0,.45);
+  cursor: default;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.clicker.live .ck-body { cursor: pointer; }
+.clicker.live .ck-body:active { transform: translateY(1px); }
+.clicker:not(.live) .ck-thing { opacity: .62; filter: saturate(.6); }
+.ck-plunger {
+  position: absolute;
+  top: -7px;
+  right: 10px;
+  width: 15px;
+  height: 9px;
+  border-radius: 4px 4px 1px 1px;
+  background: linear-gradient(#eceeef, #979da1);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 1px rgba(0,0,0,.35);
+  transition: transform .05s;
+}
+.clicker.live .ck-body:active .ck-plunger { transform: translateY(3px); }
 .clicker-window {
   display: inline-flex;
   gap: 2px;
-  padding: 4px 5px;
-  border-radius: 7px;
-  background: linear-gradient(#cfd2d4, #8e9396);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 2px rgba(0,0,0,.35);
+  padding: 3px 4px;
+  border-radius: 5px;
+  background: #3a3e41;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.55);
 }
-.clicker-window span {
+.ck-d {
+  display: inline-block;
   width: 1.05em;
+  overflow: hidden;
   text-align: center;
   font-family: var(--f-ui);
-  font-weight: 600;
   font-size: 1.15rem;
   line-height: 1.35;
   color: #f4f2ec;
-  background: #1d1d1d;
+  background: linear-gradient(#0d0d0d, #262626 45%, #262626 55%, #0d0d0d);
   border-radius: 2px;
   font-variant-numeric: tabular-nums;
+}
+.ck-d b { display: block; font-weight: 600; }
+.ck-d.ck-up b { animation: ck-roll .17s cubic-bezier(.3, .7, .4, 1); }
+.ck-d.ck-back b { animation: ck-spin .44s cubic-bezier(.4, 0, .2, 1) calc(var(--i, 0) * 50ms) both; }
+@keyframes ck-roll { from { transform: translateY(75%); } to { transform: none; } }
+@keyframes ck-spin { 0% { transform: none; } 34% { transform: translateY(-90%); } 35% { transform: translateY(90%); } 100% { transform: none; } }
+.ck-knob {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#72787c 0 9deg, #cfd3d5 9deg 18deg);
+  box-shadow: 0 1px 1px rgba(0,0,0,.45);
+  cursor: default;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.clicker.live .ck-knob { cursor: grab; }
+.ck-knob::before { content: ""; position: absolute; inset: -9px -8px -9px -5px; }   /* room for a thumb */
+.ck-knob i { position: absolute; inset: 3px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f1f2f3, #979da1); }
+.ck-knob i::after { content: ""; position: absolute; left: 50%; top: 1px; bottom: 1px; width: 1.5px; margin-left: -.75px; background: #454a4e; }
+.ck-knob.turning { animation: ck-turn var(--turn, .95s) cubic-bezier(.45, .05, .7, .6) forwards; }
+.ck-knob.back { transition: transform .26s cubic-bezier(.3, 1.6, .5, 1); transform: none; }
+@keyframes ck-turn { to { transform: rotate(340deg); } }
+.ck-ring {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 17px);
+  width: 22px;
+  height: 12px;
+  border: 3px solid #9ba1a5;
+  border-top: 0;
+  border-radius: 0 0 13px 13px;
+  box-shadow: 0 1px 1px rgba(0,0,0,.3);
+}
+.ck-body:focus-visible, .ck-knob:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .ck-d.ck-up b, .ck-d.ck-back b, .ck-knob.turning { animation: none; }
 }
 .clicker-label, .st-k { font-family: var(--f-ui); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .st-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; }
@@ -1130,7 +1208,9 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
   .topbar .st-where { grid-column: 2; grid-row: 1; align-self: center; font-size: .9rem; line-height: 1.2; }
   .topbar .clicker { grid-column: 3; grid-row: 1; }
   .topbar .clicker-label { display: none; }
-  .topbar .clicker-window span { font-size: 1rem; }
+  .topbar .ck-d { font-size: 1rem; }
+  .topbar .ck-thing { padding: 7px 10px 2px 0; }
+  .topbar .ck-ring { display: none; }
   .topbar .st-row { margin-top: 2px; gap: 4px 14px; }
   .story-inner { padding: 22px 16px 30vh; }
   .log { font-size: 1.08rem; }

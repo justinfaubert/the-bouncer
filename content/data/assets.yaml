@@ -77,6 +77,11 @@ sfx:
   tear: { synth: tear, note: The till tape torn off against the teeth, when the ledger's done. }
   pen: { synth: pen, note: A felt pen going round something on a printed picture, when a voice marks it. Quiet. }
   whisper: { synth: whisper, note: A voice leaning in close, when one of them speaks to the player's hand on a choice. Very quiet. }
+  knob: { synth: ratchet, note: One notch of the knob on the clicker's side, turning. Plays over and over while it's held. }
+  zero: { synth: zero, note: The clicker's four number wheels snapping back to 0000. }
+  card: { synth: card, note: A plastic ID card turned over in the fingers. }
+  page: { synth: page, note: A plastic sleeve turning over in the barred binder. }
+  heart: { synth: heart, note: His heartbeat in his ears, one beat, when the voices get loud. Low and close. }
 
 portraits:
   bartender: { file: art/portraits/bartender.png }

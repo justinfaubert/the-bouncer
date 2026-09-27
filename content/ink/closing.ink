@@ -402,16 +402,33 @@ He locked the front door behind the last of them and turned the sign over. #sfx:
 { clock > CLOSE_TIME + 20:
     ~ incident += inc_after
 }
+// In is what the clicker says (toys.ink: every idle click on it is somebody, as far as this goes).
+~ temp said_in = clicker() + 13
+~ temp went_out = count_in + 13 + uncounted
 BARTENDER: Numbers.
-In, by the door: {num(count_in + 13)}, counting the thirteen who were here when he came on.
-Out, by the door and the back stairs: {num(count_in + 13 + uncounted)}.
-{ uncounted == 0:
+In, by the door: {num(said_in)}, counting the thirteen who were here when he came on.
+Out, by the door and the back stairs: {num(went_out)}.
+{
+- said_in == went_out:
     It matched.
     The bartender looked at the clicker, and at him, and didn't say anything, which from her was a lot.
     ~ rep(rep_staff, 1)
+    { uncounted > 0:
+        // his idle clicks made up the ones who got in past him (Claude's draft)
+        WRONGMAN: It came out right in the story, too. That's why nobody went looking.
+    }
     -> incident_log
+- said_in > went_out:
+    {said_in - went_out == 1:One fewer|{Num(said_in - went_out)} fewer} out than in.
+    BARTENDER: Then somebody's still in the building.
+    -> still_in
 }
-{uncounted == 1:One more|{Num(uncounted)} more} out than in.
+{went_out - said_in == 1:One more|{Num(went_out - said_in)} more} out than in.
+{ zeroed >= 6:
+    // the knob took more with it than anyone could have walked in with (Claude's draft)
+    She held her hand out for the clicker. He gave it to her. She read it, and looked round the room she'd served all night, and gave it back.
+    BARTENDER: Somebody turned the knob.
+}
 BARTENDER: So find out why.
 -> search
 
@@ -458,6 +475,51 @@ BARTENDER: So find out why.
     -> s
 + [That's enough. Write the log.]
     -> incident_log
+
+
+// The clicker says more came in than went out, so somebody's still inside. Nobody is: the
+// clicks nobody made were his. (Claude's draft.)
+=== still_in ===
+~ here = floor
+// HUTCH: The count is off the other way: the clicker says somebody's still in the building. Have you had a close like that? Where do you look, and what does the bartender say when you own up (or don't)?
+- (look)
+* (by_wash) [The washrooms.]
+    ~ pass(3)
+    Every stall door in the men's, open. Nobody. In the women's the tap in the second sink was running. He turned it off.
+    -> look
+* (by_tables) [Under the tables.]
+    ~ pass(2)
+    He went round the room bent over like a man looking for his keys. Coasters, a lighter, two quarters, and one shoe, a left one, still laced.
+    -> look
+* (by_stairs) [The hotel stairs.]
+    ~ pass(3)
+    The stairs went up into the dark. Somewhere on the second floor a TV was on. Nobody on the stairs, nobody on the landing.
+    -> look
+* (by_kegs) [The keg room.]
+    ~ pass(3)
+    He went down past the rotten third step. The kegs, the lines, the cold. Nobody.
+    { rats !? war:
+        Something moved behind the kegs, low down, and it wasn't anybody.
+    }
+    -> look
+* {by_wash + by_tables + by_stairs + by_kegs >= 2} [Tell her.]
+    -> own_up
++ {by_wash + by_tables + by_stairs + by_kegs >= 3} [That's enough. Write the log.]
+    -> incident_log
+
+= own_up
+She was at the end of the bar with the till drawer on her hip, waiting.
+* ["I was playing with it."]
+    BARTENDER: I know. I could hear you from here.
+    ~ rep(rep_staff, 1)
+    FATHER: Every click is somebody. You taught it to lie.
+* ["It must have stuck."]
+    BARTENDER: Must have.
+    She didn't believe it, and she didn't care enough to say so.
+    FATHER: It didn't stick.
+* [Say nothing.]
+    She looked at him, and at the clicker, and let it go.
+- -> incident_log
 
 
 // ------------------------------------------------------------------ the incident log
@@ -844,6 +906,10 @@ The door: {count_in} in past the stool #class: row
     And {uncounted} more some other way. #class: sub
 - else:
     Nobody got past him. #class: sub
+}
+{ fidget > 0:
+    // (Claude's draft)
+    And {fidget} {fidget == 1:click|clicks} that weren't anybody. #class: sub
 }
 { cash >= 0:
     In his pocket: ${cash} #class: row

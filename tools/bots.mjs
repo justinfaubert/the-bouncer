@@ -4,6 +4,7 @@
 //   node tools/bots.mjs                     300 runs, half random, half exploring
 //   node tools/bots.mjs --runs 2000 --seed 7
 //   node tools/bots.mjs --trace 42          print one full run (seed 42) as a transcript
+//   node tools/bots.mjs --trace 42 --fidget     ... with him playing with the clicker
 //   node tools/bots.mjs --json out.json     also write the report as JSON
 //
 // It checks for: Ink errors and warnings, runs that end anywhere but the dawn ledger, runs
@@ -106,6 +107,23 @@ function play(seed, policy, opts = {}) {
     }
     for (const c of vis) if (!c.text) problems.push({ kind: 'empty-choice', msg: 'a choice with no text', where: where(g) });
     if (steps === saveAt) saveTest = checkSaveLoad(g, res, rng.getState());
+    // his hands: some nights he plays with the clicker; and he handles what he's given, which
+    // can make a choice that isn't in the list (#toy: ... #unlisted)
+    if (opts.fidget && g.clickerInHand() && rng.next() < 0.12) {
+      const n = rng.int(1, 3);
+      for (let k = 0; k < n; k++) { const r = g.toy('clicker', 'click'); if (r) record(r.items); }
+      if (rng.next() < 0.04) { const r = g.toy('clicker', 'zero'); if (r) record(r.items); }
+    }
+    const handled = res.choices.filter((c) => c.toy && c.unlisted && g.toyChoice(c.toy.id, c.toy.what) === c);
+    if (handled.length && rng.next() < 0.35) {
+      const c = handled[rng.int(0, handled.length - 1)];
+      seenChoice.set(choiceKey(g, c), (seenChoice.get(choiceKey(g, c)) || 0) + 1);
+      if (opts.trace) transcript.push({ kind: 'pick', text: '(handles it) ' + c.text, options: [] });
+      res = g.toy(c.toy.id, c.toy.what);
+      record(res.items);
+      steps++;
+      continue;
+    }
     const i = pickIndex(g, vis, policy, rng);
     const c = vis[i];
     seenChoice.set(choiceKey(g, c), (seenChoice.get(choiceKey(g, c)) || 0) + 1);
@@ -167,6 +185,16 @@ function checkSaveLoad(g, res, rngState) {
   return { ok: true };
 }
 
+// what the clicker made of the night at close (closing.ink, lock_up)
+function countAtClose(v, g) {
+  let locked = false;
+  try { locked = g.story.state.VisitCountAtPathString('lock_up') > 0; } catch (e) { locked = false; }
+  if (!locked) return 'never counted';
+  const said = v.count_in + v.fidget - v.zeroed, out = v.count_in + v.uncounted;
+  if (said === out) return v.fidget || v.zeroed ? 'matched, by luck' : 'matched';
+  return said > out ? 'somebody still inside' : 'more out than in';
+}
+
 function outcomeOf(v, g) {
   const has = (list, item) => Array.isArray(list) && list.includes(item);
   const fam = v.fam || [];
@@ -194,6 +222,8 @@ function outcomeOf(v, g) {
     'new voice': g.psyche.seated.filter((s) => s === 'table' || s === 'kid').join('+') || 'none',
     'tension at dawn': String(g.psyche.tension()),
     'uncounted': String(v.uncounted),
+    'idle clicks on the clicker': v.fidget === 0 ? 'none' : v.fidget <= 5 ? '1 to 5' : '6 or more',
+    'the count at close': countAtClose(v, g),
     'ends at': B.util.fmtClock(v.clock | 0),
   };
 }
@@ -202,7 +232,7 @@ function outcomeOf(v, g) {
 
 if (TRACE !== null) {
   const seed = parseInt(TRACE, 10) || 1;
-  const r = play(seed, opt('policy', 'random'), { trace: true, saveTest: true });
+  const r = play(seed, opt('policy', 'random'), { trace: true, saveTest: true, fidget: !!opt('fidget', false) });
   for (const it of r.transcript) {
     if (it.kind === 'pick') { console.log('\n  > ' + it.text + '\n'); continue; }
     if (it.kind === 'line') console.log((it.label ? it.label + ': ' : it.role === 'teller' ? '[teller] ' : '') + it.text);
@@ -224,7 +254,7 @@ const results = [];
 const policies = ['random', 'explore', 'dawdle', 'explore'];
 for (let n = 0; n < RUNS; n++) {
   const seed = SEED0 + n;
-  results.push(play(seed, policies[n % policies.length], { saveTest: n % 5 === 0 }));
+  results.push(play(seed, policies[n % policies.length], { saveTest: n % 5 === 0, fidget: n % 3 === 1 }));
 }
 const secs = ((Date.now() - t0) / 1000).toFixed(1);
 

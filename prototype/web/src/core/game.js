@@ -12,6 +12,9 @@
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
 //   #plate: lot     a picture of a place he isn't in, as it is now (the hotel after close, over the ledger)
 //   #mark: pool.bigman A    on a voice's line: it marks that spot on the place's picture (marks.yaml)
+//   #prop: sister_card      on a line: a thing he's handed or picks up, drawn under it (props.yaml)
+//   #toy: sister_card look  on a choice: handling that thing that way makes this choice (see toy)
+//   #unlisted               on a choice: not in the list; only handling a thing makes it
 //
 // Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
@@ -28,6 +31,9 @@
 // The hand: the voices lean in on a choice while the player's hand is on it (whisper), and notice
 // the player (murmur): hesitating, reading back, coming back after a while away, not reading.
 // Their lines are the hand: rules in content/rules/barks.yaml.
+//
+// Toys: things the player can play with between choices, the clicker in his fist, a card at the
+// door, the binder under the till (toy, and content/ink/toys.ink).
 (function (B) {
   'use strict';
 
@@ -288,7 +294,8 @@
         day: g('day') | 0,
         cash: g('cash') | 0,
         drinks: g('drinks') | 0,
-        count: g('count_in') | 0,
+        count: (g('count_in') | 0) + (g('fidget') | 0) - (g('zeroed') | 0),   // what the clicker says
+        clicker: this.clickerInHand(),
         hurt: g('hurt') | 0,
         here: Array.isArray(here) ? (here[0] || '') : String(here || ''),
         tension: this.psyche.tension(),
@@ -330,7 +337,7 @@
       const varsBefore = this.vars();
       const passed = this._resisted(choice, looked || []);
       this.turn++;
-      items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null });
+      items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null, toy: choice.toy ? choice.toy.id : undefined });
       if (passed) items.push(passed);
       const step = { t: this.turn, c: before.clock, x: choice.text };
       this.path.push(step);
@@ -441,6 +448,75 @@
         return item;
       }
       return null;
+    }
+
+    // ---- toys --------------------------------------------------------------
+    //
+    // Things the player can pick up and play with between choices (content/ink/toys.ink): the
+    // clicker in his fist, a card held out at the door, the binder under the till. toy(id, what)
+    // is the player handling one. If a choice on offer is tagged for it (#toy: id what), that
+    // choice is made, like any other, and the night goes on from it. If not, the Ink's
+    // toy_<id>(what) runs, if there is one, and changes what it changes without moving the
+    // clock. Either way a voice may answer (toy:<id>:<what> in barks.yaml). The voices use their
+    // own random numbers for it, so playing never moves the night's dice.
+    // Returns {items, choices, ended, chose}, or null when nothing can happen.
+
+    toy(id, what) {
+      if (!this.story || this.ended) return null;
+      id = String(id);
+      what = String(what || '');
+      const via = this.toyChoice(id, what);
+      if (via) {
+        const res = this.chooseChoice(via, []);
+        res.chose = true;
+        return res;
+      }
+      if (id === 'clicker' && !this.clickerInHand()) return null;
+      const items = [];
+      const fn = 'toy_' + id;
+      let ran = false;
+      if (this.story.HasFunction(fn)) {
+        ran = true;
+        let out = null;
+        try { out = this.story.EvaluateFunction(fn, [what], true); } catch (e) { this.errors.push({ message: String(e && e.message || e), type: 2, turn: this.turn }); }
+        const text = out && typeof out.output === 'string' ? out.output : '';
+        for (const line of text.split('\n')) if (line.trim()) this._line(line, [], items, [], fn, '');
+      }
+      const rule = this.barks.best('toy:' + id + ':' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this._toyRng(id + ':' + what));
+      if (rule) {
+        if (rule.once) this.barksUsed.push(rule.id);
+        items.push(this._barkItem(rule));
+      }
+      if (!ran && !items.length) return null;
+      for (const it of items) this.log.push(it);
+      if (this.log.length > LOG_CAP) this.log.splice(0, this.log.length - LOG_CAP);
+      return { items: items, choices: this.choices, ended: this.ended, chose: false };
+    }
+
+    // the choice on offer that handling this thing this way would make, if there is one
+    toyChoice(id, what) {
+      for (const c of this.choices) {
+        if (!c.toy || c.toy.id !== id || c.toy.what !== what) continue;
+        if (c.check && !this.psyche.isSeated(c.check.voice)) continue;
+        return c;
+      }
+      return null;
+    }
+
+    // what can be done with a thing right now that would move the night on: ['look', 'swipe']
+    toyMoves(id) {
+      const out = [];
+      for (const c of this.choices) if (c.toy && c.toy.id === id && this.toyChoice(id, c.toy.what) === c) out.push(c.toy.what);
+      return out;
+    }
+
+    // the bartender hands him the clicker as he walks in
+    clickerInHand() {
+      try { return this.story.state.VisitCountAtPathString('prologue.inside') > 0; } catch (e) { return false; }
+    }
+
+    _toyRng(key) {
+      return new B.Rng(hash32(this.seed + ':' + this.turn + ':' + this.barksUsed.length + ':toy:' + key) || 1);
     }
 
     // ---- internals -------------------------------------------------------
@@ -651,6 +727,7 @@
         if (from) item.at = from;
         if (tagv.prompt) item.prompt = String(tagv.prompt);
         if (tagv.mark) item.mark = this._markOf(tagv.mark);
+        if (tagv.prop) item.prop = String(tagv.prop);
         if (tagv['class']) item.cls = String(tagv['class']);
         if (!item.suppressed) items.push(item);
       }
@@ -711,6 +788,13 @@
         const tv = {};
         for (const t of tags) tv[t.key] = t.value;
         const ch = { inkIndex: c.index, text: String(c.text || '').trim(), knot: knotOf(c.sourcePath), loc: tv.loc ? String(tv.loc) : null, cls: tv['class'] ? String(tv['class']) : null, check: null, hidden: false };
+        // "#toy: hoodie_phone swipe": handling that thing that way makes this choice; #unlisted keeps
+        // it out of the list, so handling it is the only way
+        if (tv.toy && tv.toy !== true) {
+          const tw = String(tv.toy).trim().split(/\s+/);
+          ch.toy = { id: tw[0], what: tw[1] || '' };
+          if (tv.unlisted) { ch.unlisted = true; ch.hidden = true; }
+        }
         if (tv.check) {
           const spec = B.Checks.parseSpec(tv.check);
           if (spec) {
@@ -789,6 +873,8 @@
       // how to put a hand on a choice: once the checks have been explained, the first time a voice
       // has something to say about one, and not in the same breath as another explanation
       if (this.taught.indexOf('hand') === -1 && this.taught.indexOf('check') !== -1 && this.turn >= 3 && !items.some(function (it) { return it.bark && /^teach_/.test(it.bark); }) && shown.some(this._leans, this)) this._teach('hand', items, items.length);
+      // the clicker, once it's in his hand
+      if (this.taught.indexOf('clicker') === -1 && this.clickerInHand()) this._teach('clicker', items, items.length);
       if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
       for (const it of items) {
         if ((it.kind === 'fx' && it.type !== 'portrait') || it.kind === 'pause') continue;

@@ -252,11 +252,24 @@
     return '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="3.5" class="die"/>' + pips + '</svg>';
   }
 
-  function clickerHTML(n) {
+  // The clicker: a chrome tally counter, the button on top, the knob on its side, the ring for a
+  // finger underneath. Live once it's in his hand: press it, or hold the knob (src/ui/toys.js).
+  function clickerHTML(n, live) {
     const s = String(Math.max(0, n | 0)).padStart(4, '0').slice(-4);
     let d = '';
-    for (const ch of s) d += '<span>' + ch + '</span>';
-    return '<span class="clicker"><span class="clicker-window" aria-label="Clicker: ' + (n | 0) + ' in">' + d + '</span><span class="clicker-label">Clicker</span></span>';
+    for (const ch of s) d += '<span class="ck-d"><b>' + ch + '</b></span>';
+    const off = live ? '' : ' disabled';
+    return '<span class="clicker' + (live ? ' live' : '') + '">' +
+      '<span class="ck-thing">' +
+        '<button type="button" class="ck-body" data-toy="clicker"' + off + ' aria-label="Clicker: ' + (n | 0) + '. Press it to click.">' +
+          '<span class="ck-plunger" aria-hidden="true"></span>' +
+          '<span class="clicker-window" aria-hidden="true">' + d + '</span>' +
+        '</button>' +
+        '<button type="button" class="ck-knob"' + off + ' aria-label="The knob on its side. Press and hold to turn the count back to nothing."><i></i></button>' +
+        '<span class="ck-ring" aria-hidden="true"></span>' +
+      '</span>' +
+      '<span class="clicker-label">Clicker</span>' +
+    '</span>';
   }
 
   function tallyHTML(n) {
