@@ -15,6 +15,10 @@
 #          anything named by a #bark: tag in the Ink
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
+#
+# mark: a voice talking about something you can see can mark it on the place's picture, in its
+# own hand (content/data/marks.yaml): "mark: pool.lefthand", or with a word it writes by it,
+# "mark: kitchen.backdoor PROPPED".
 
 # ---------------------------------------------------------------- teaching
 # The first time each part of the game comes up, THE MANUAL explains it, once. The engine raises
@@ -60,18 +64,21 @@
   speaker: father
   when: [door_away >= 60]
   text: An hour off the door. The door doesn't care that you had reasons.
+  mark: door.empty
 
 - id: door_uncounted
   on: visit:door
   speaker: wrongman
   when: [uncounted >= 2]
   text: People in you never saw. In the story it only took one.
+  mark: door.mat ?
 
 - id: door_first_quiet
   on: visit:door
   speaker: manual
   when: [clock >= 1260, count_in <= 1]
   text: Maintain a visible presence at the point of entry. Visible means sitting up.
+  mark: door.stool POST
 
 # ---------------------------------------------------------------- the pool table
 
@@ -80,18 +87,21 @@
   speaker: fighter
   when: [pool_heat >= 5, knows has pool_lefty]
   text: Left hand. Flat on the rail. It hasn't moved.
+  mark: pool.lefthand
 
 - id: pool_his_kid
   on: visit:pool
   speaker: father
   when: [knows has bigman_dad, fam_done == false]
   text: His kid's twenty feet away and he knows exactly where.
+  mark: pool.bigman
 
 - id: pool_early
   on: visit:pool
   speaker: manual
   when: [pool_heat >= 7, fam_done == false]
   text: De-escalation is most effective before physical contact. Before is now.
+  mark: pool.bigman A; pool.buddy B
 
 # ---------------------------------------------------------------- table 28
 
@@ -100,18 +110,21 @@
   speaker: father
   when: [drinks >= 2]
   text: They'll keep them coming. That's how they pay you.
+  mark: t28.glasses
 
 - id: t28_never_cut
   on: visit:t28
   speaker: manual
   when: [t28_rounds >= 7]
   text: Nobody has ever been refused service at this table. There is no section for that.
+  mark: t28.table TABLE 28
 
 - id: t28_walter
   on: visit:t28
   speaker: wrongman
   when: [knows has walter_name, walter == 1]
   text: In the story it was a dog under the table. Everybody fed it. Same thing.
+  mark: t28.under ?
 
 # ---------------------------------------------------------------- the bar
 
@@ -120,12 +133,14 @@
   speaker: father
   when: [drinks >= 3]
   text: I stopped at three once. Once.
+  mark: bar.three
 
 - id: bar_cold
   on: visit:bar
   speaker: fighter
   when: [rep_staff <= -2]
   text: She's not watching your back now. Nobody behind that bar is.
+  mark: bar.bartender
 
 # ---------------------------------------------------------------- the back
 
@@ -133,18 +148,21 @@
   on: visit:hall
   speaker: manual
   text: Check washrooms at regular intervals and record the time. You have not been recording the time.
+  mark: hall.signs TIME ____
 
 - id: hall_locked
   on: visit:hall
   speaker: wrongman
   when: [fam has kid_found, kid_out == false]
   text: A locked door with a kid behind it. That's a story nobody wants to finish.
+  mark: hall.single ?
 
 - id: kitchen_propped
   on: visit:kitchen
   speaker: manual
   when: [kitchen_door == true]
   text: Exterior doors must not be propped open during licensed hours.
+  mark: kitchen.backdoor PROPPED
 
 - id: kitchen_war
   on: visit:kitchen
@@ -157,11 +175,13 @@
   speaker: father
   when: [deck_door == true]
   text: That coaster's in the latch for somebody, and it isn't you.
+  mark: deck.latch
 
 - id: deck_story
   on: visit:deck
   speaker: wrongman
   text: This is where it always starts. Somebody out for a smoke, and the door left open behind them.
+  mark: deck.door ?
 
 - id: keg_head
   on: visit:keg
@@ -173,17 +193,20 @@
   speaker: wrongman
   when: [knows has knot_seen]
   text: You've seen it now. You can't go back to not having seen it.
+  mark: keg.dark
 
 - id: keg_stations
   on: visit:keg
   speaker: manual
   when: [poison == true]
   text: Inspect bait stations daily. Record uptake.
+  mark: keg.hole POINT OF ENTRY
 
 - id: lot_remember
   on: visit:lot
   speaker: father
   text: The ones who wait in the lot are the ones who remember you.
+  mark: lot.truck
 
 # ---------------------------------------------------------------- drink
 
@@ -826,3 +849,4 @@
   on: visit:door
   speaker: kid
   text: they all look at the door before they look at you
+  mark: door.door

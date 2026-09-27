@@ -512,6 +512,12 @@
       a.burst(t + 0.155, 0.04, 900, 1.2, 0.07 * v);
     },
     // the tape torn off against the teeth
+    // a felt pen going round something on a print: a short run of scratches
+    pen(a, t, v) {
+      const n = 7 + Math.round(v * 6);
+      for (let i = 0; i < n; i++) a.burst(t + i * 0.045 + Math.random() * 0.015, 0.05 + Math.random() * 0.03, 2600 + Math.random() * 2200, 2.2, (0.014 + Math.random() * 0.012) * v);
+      a.burst(t, 0.045 * n, 1200, 0.8, 0.008 * v, null, 'lowpass');
+    },
     // a voice leaning in: a breath close to one ear
     whisper(a, t, v) {
       const c = a.ctx;

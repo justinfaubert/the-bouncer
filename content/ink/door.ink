@@ -61,7 +61,7 @@ HOODIE: yeah
 He had earbuds in. He didn't take them out.
 FATHER: A picture of a card isn't a card.
 MANUAL: Acceptable identification is a valid government-issued card with a photograph, presented in person. When in doubt, two pieces. You're in doubt.
-WRONGMAN: Everybody in that story came in out of the rain. Every one of them.
+WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #mark: door.door
 // HUTCH: How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
 -> read
 
@@ -165,7 +165,7 @@ HOODIE: k
 He didn't argue. He looked past the doorman one more time, into the room, then went back across the lot with his hands in his pouch.
 The passenger door opened and shut. The truck didn't leave.
 { deck_door && knows ? coaster:
-    FATHER: There's a coaster in the deck door. You know that.
+    FATHER: There's a coaster in the deck door. You know that. #mark: deck.latch
 }
 -> hub
 

@@ -52,7 +52,7 @@
 He leaned on the pillar by the dartboard and watched a game and a half.
 The big man missed the shots he needed and made the ones that didn't matter. Every time he missed, his left hand went flat on the rail and stayed there a second too long. When the buddy won, the big man paid him from the bills under the rail, and neither of them looked at the money.
 ~ knows += pool_lefty
-FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes.
+FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #mark: pool.lefthand
 * [Read the game. #check: father 8]
     { passed:
         ~ knows += pool_hustle

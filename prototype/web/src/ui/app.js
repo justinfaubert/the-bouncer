@@ -671,6 +671,12 @@
             const node = add(lineNode(it), it.screen || null);
             app.dir.decorate(node, it);
             if (!it.inserted) prompts(it.src || it);
+            const mk = (it.src || it).mark;
+            if (mk && it.role === 'voice' && app.settings.plates && B.Marks) {
+              // the voice pulls that part of the picture out and marks it (src/ui/marks.js)
+              const fig = B.Marks.node(mk, voiceStyle(it.speaker), { phase: phaseOf(mk.clock | 0), draw: animate, delay: animate ? parseInt(node.style.animationDelay, 10) || 0 : 0, audio: live ? app.audio : null });
+              if (fig) appendNode(fig, it.screen || null);
+            }
             break;
           }
           case 'chosen': chosen = add(chosenNode(it)); app.dir.decorate(chosen, it); break;

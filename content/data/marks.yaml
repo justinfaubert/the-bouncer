@@ -1,0 +1,73 @@
+# Marks: where a voice puts its pen on a printed picture.
+#
+# When a voice says something about a thing you can see, it can pull that part of the picture out
+# and mark it in its own hand: the Fighter rings the big man's hand on the rail, the Manual boxes
+# the propped door and labels it, the Wrong Man puts a question mark by the deck door. The detail
+# comes up under the line, zoomed in, the mark drawn on as you watch.
+#
+# A line carries a mark with `mark:` in content/rules/barks.yaml, or a `#mark:` tag on a line in
+# the Ink:   mark: pool.lefthand           the spot "lefthand" on the pool table's picture
+#            mark: pool.bigman A; pool.buddy B    two spots, each with a word written by it
+#
+# The spots are in the picture's own measure: 640 across and 220 down, from the top left (render a
+# plate with a grid to find them). Each spot has:
+#   crop:  [x, y, w, h]     the part of the picture the detail shows (about twice as wide as tall)
+#   and one or more shapes, which each voice draws its own way:
+#   ring:  [cx, cy, rx, ry]     round something
+#   box:   [x, y, w, h]         a box round it
+#   line:  [x1, y1, x2, y2]     under it
+#   arrow: [x1, y1, x2, y2]     from one point to the other
+#   cross: [cx, cy, r]          an X on it
+#   tally: [x, y, n]            n strokes, the fifth across
+#   note:  [x, y]               where a word written with the mark goes (default: top right of the shape)
+#
+# Claude's first placement, by eye on the stand-in pictures. If the art changes, the spots move with it.
+
+door:
+  stool:   { crop: [60, 80, 280, 140], ring: [172, 163, 38, 14], note: [214, 142] }
+  empty:   { crop: [60, 80, 280, 140], cross: [172, 160, 17] }
+  mat:     { crop: [200, 100, 240, 120], box: [288, 171, 80, 28], note: [372, 168] }
+  door:    { crop: [200, 0, 280, 140], box: [280, 20, 100, 102], note: [384, 30] }
+  minors:  { crop: [150, 10, 240, 120], ring: [254, 62, 31, 17], note: [290, 44] }
+
+pool:
+  lefthand: { crop: [280, 80, 200, 100], ring: [376, 146, 18, 12], note: [396, 128] }
+  bigman:   { crop: [300, 20, 320, 160], ring: [428, 124, 54, 80], note: [484, 52] }
+  buddy:    { crop: [30, 30, 320, 160], ring: [150, 118, 38, 60], note: [190, 62] }
+  table:    { crop: [140, 60, 320, 160], box: [164, 134, 270, 50], note: [438, 132] }
+  three:    { crop: [230, 120, 150, 75], ring: [306, 163, 11, 8], note: [320, 150] }
+
+t28:
+  table:   { crop: [150, 60, 340, 160], ring: [320, 160, 144, 38], note: [180, 112] }
+  glasses: { crop: [180, 80, 280, 140], line: [216, 170, 426, 170], note: [430, 160] }
+  under:   { crop: [200, 110, 240, 110], ring: [320, 203, 72, 14], note: [396, 188] }
+
+bar:
+  three:     { crop: [300, 90, 240, 120], tally: [392, 158, 3], note: [418, 150] }
+  bartender: { crop: [110, 40, 240, 120], ring: [228, 100, 32, 48], note: [262, 58] }
+  till:      { crop: [320, 50, 240, 120], box: [402, 98, 66, 40], note: [472, 100] }
+
+kitchen:
+  backdoor: { crop: [290, 40, 240, 120], box: [381, 67, 46, 92], note: [430, 70] }
+  cook:     { crop: [180, 50, 220, 110], ring: [282, 122, 28, 52], note: [312, 72] }
+
+keg:
+  dark: { crop: [180, 70, 240, 120], ring: [302, 126, 62, 20], note: [366, 104] }
+  hole: { crop: [140, 110, 220, 110], ring: [228, 163, 17, 11], note: [248, 146] }
+
+deck:
+  door: { crop: [20, 20, 240, 120], box: [52, 52, 46, 150], note: [100, 56] }
+  latch: { crop: [10, 70, 180, 90], ring: [62, 134, 12, 12], note: [78, 118] }
+
+lot:
+  truck:  { crop: [400, 110, 240, 110], ring: [553, 176, 54, 22], note: [548, 146] }
+  window: { crop: [150, 70, 200, 100], ring: [244, 124, 21, 19], note: [268, 102] }
+
+hall:
+  single: { crop: [100, 30, 240, 120], box: [176, 90, 40, 44], note: [220, 92] }
+  signs:  { crop: [200, 10, 240, 120], box: [280, 48, 46, 28], note: [330, 50] }
+  wall:   { crop: [400, 20, 240, 120], ring: [502, 92, 72, 62], note: [560, 34] }
+
+floor:
+  pool: { crop: [20, 60, 260, 130], ring: [135, 122, 74, 25], note: [206, 96] }
+  t28:  { crop: [340, 60, 260, 130], ring: [455, 128, 60, 19], note: [512, 104] }

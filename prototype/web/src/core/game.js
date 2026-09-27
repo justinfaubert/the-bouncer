@@ -11,6 +11,7 @@
 //   #hand: drink    on a choice: what it tempts him with, for the voices to lean in on (see whisper)
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
 //   #plate: lot     a picture of a place he isn't in, as it is now (the hotel after close, over the ledger)
+//   #mark: pool.bigman A    on a voice's line: it marks that spot on the place's picture (marks.yaml)
 //
 // Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
@@ -500,7 +501,19 @@
     }
 
     _barkItem(rule, answer) {
-      return { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, answer: answer || undefined, screen: this.screen };
+      return { kind: 'line', role: 'voice', speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text, raw: rule.speaker.toUpperCase() + ': ' + rule.text, knot: '', bark: rule.id, answer: answer || undefined, screen: this.screen, mark: rule.mark ? this._markOf(rule.mark) : undefined };
+    }
+
+    // "pool.bigman A; pool.buddy B": the spots on a place's picture a voice marks (content/data/
+    // marks.yaml), each with the word it writes by it, and the place as it is now
+    _markOf(spec) {
+      const spots = String(spec).split(';').map(function (s) {
+        s = s.trim();
+        const sp = s.indexOf(' ');
+        return sp === -1 ? { at: s } : { at: s.slice(0, sp), note: s.slice(sp + 1).trim() };
+      }).filter(function (s) { return s.at; });
+      if (!spots.length) return undefined;
+      return { spots: spots, state: this._plateState(), clock: this.getVar('clock') | 0 };
     }
 
     // The first time a part of the game comes up, THE MANUAL explains it, once: a check on offer, the
@@ -637,6 +650,7 @@
         if (k2 && k2 !== item.knot) item.knot2 = k2;
         if (from) item.at = from;
         if (tagv.prompt) item.prompt = String(tagv.prompt);
+        if (tagv.mark) item.mark = this._markOf(tagv.mark);
         if (tagv['class']) item.cls = String(tagv['class']);
         if (!item.suppressed) items.push(item);
       }

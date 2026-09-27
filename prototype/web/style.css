@@ -555,6 +555,42 @@ button { font: inherit; color: inherit; }
 .pl-cap { color: var(--ink-2); font-weight: 600; }
 .pl-time { font-variant-numeric: tabular-nums; }
 
+/* A voice's pen on a picture (src/ui/marks.js): the part of the place it's talking about, pulled
+ * out under its line and zoomed, and marked in the voice's own ink, drawn on as you watch. The
+ * inks are fixed, not the theme's: they're on the print, and have to read on its black and its cream. */
+.mark { position: relative; margin: -.15em 0 1.2em 1.3em; max-width: 23rem; transform: rotate(var(--tilt, 0deg)); transform-origin: 0 0; }
+.mk-crop { position: relative; overflow: hidden; background: #E8E0CC; border: 4px solid #EEE7D8; box-shadow: 0 1px 0 rgba(0, 0, 0, .05), 0 8px 22px rgba(20, 18, 14, .2); }
+.mk-crop .mk-img { position: absolute; max-width: none; display: block; }
+.mk-crop .mk-img:not([src]) { visibility: hidden; }
+.mk-crop svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mk-father { --mk: #EDB65C; }
+.mk-fighter { --mk: #FF6F9F; }
+.mk-manual { --mk: #8EC0FF; }
+.mk-wrongman { --mk: #A9E0B0; }
+.mk-table { --mk: #F0D64F; }
+.mk-kid { --mk: #78E2EE; }
+.mark path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.mark .mk-under { stroke: rgba(12, 10, 8, .62); stroke-width: calc(var(--w) * 1px + 2.4px); }
+.mark .mk-ink { stroke: var(--mk); stroke-width: calc(var(--w) * 1px); }
+.mk-note {
+  position: absolute; transform: translateY(-50%);
+  font-family: var(--vf); font-size: 1.05rem; line-height: 1; white-space: nowrap;
+  color: var(--mk); text-shadow: 0 0 2px rgba(12, 10, 8, .95), 0 0 6px rgba(12, 10, 8, .7), 0 0 1px #000;
+}
+.mk-manual .mk-note { font-size: .78rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.mk-fighter .mk-note { font-size: 1.15rem; letter-spacing: .02em; }
+.mk-wrongman .mk-note { font-style: italic; font-weight: 600; font-size: 1.5rem; }
+.mk-kid .mk-note { font-weight: 400; text-transform: lowercase; }
+/* live: the detail comes out of the picture, then the pen goes round */
+.mark.drawing { animation: mk-pull .5s cubic-bezier(.2, .7, .2, 1) var(--delay, 0ms) backwards; }
+.mark.drawing path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: mk-draw var(--dur) cubic-bezier(.35, .1, .25, 1) calc(var(--delay, 0ms) + 380ms + var(--at)) forwards; }
+.mark.drawing .mk-note { animation: mk-note .35s ease-out calc(var(--delay, 0ms) + 380ms + var(--at)) backwards; }
+@keyframes mk-pull { from { opacity: 0; transform: translateY(-8px) rotate(0deg) scale(.96); } }
+@keyframes mk-draw { to { stroke-dashoffset: 0; } }
+@keyframes mk-note { from { opacity: 0; transform: translateY(-50%) scale(.9); } }
+@media (max-width: 560px) { .mark { margin-left: .6em; max-width: calc(100% - 1em); } }
+@media (prefers-reduced-motion: reduce) { .mark.drawing, .mark.drawing path, .mark.drawing .mk-note { animation: none; stroke-dashoffset: 0; } }
+
 /* back in a place he's already seen this hour: the plate small, for the move and the time */
 .place-strip { display: flex; align-items: center; gap: .75em; margin: 1.8em 0 1.1em; }
 .place-strip .pl-img { flex: none; width: 66px; aspect-ratio: 640 / 220; outline: 1px solid var(--rule-strong); }

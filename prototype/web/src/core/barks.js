@@ -11,6 +11,7 @@
 //     - seated fighter
 //   text: Left hand's flat on the rail. That's where it comes from.
 //   once: true                # default true
+//   mark: pool.lefthand       # optional: the voice marks that spot on the picture (content/data/marks.yaml)
 //
 // Criteria forms:  <var> <op> <number|true|false|word>   (op: >= <= > < == !=)
 //                  <var> has <item>   /   <var> hasnt <item>      (Ink LIST membership)
@@ -55,6 +56,7 @@
         when: when,
         once: r.once !== false,
         always: !!r.always,
+        mark: r.mark ? String(r.mark) : null,
         specificity: when.length
       };
     });
