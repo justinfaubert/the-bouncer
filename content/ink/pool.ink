@@ -13,6 +13,9 @@
 - at_pool == 1:
     The table had a lean to it that the regulars played. The cloth was burned in two places. Four twenties were tucked under the rail at the big man's end.
     The big man played left-handed, and badly, the way a good player plays badly: on purpose, and only on the shots that mattered. #sfx: balls #portrait: bigman
+    { knows ? kid_photo:
+        He'd seen it already, on the kid's phone, from the lot: the lamp, the green, the left hand flat on the rail.
+    }
     His buddy was small and quick and kept looking at the door.
 - pool_heat >= 6 && not fam_done:
     The two of them weren't playing so much as taking turns at the table. Neither one was talking.

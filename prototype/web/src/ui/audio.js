@@ -567,6 +567,20 @@
       for (let i = 0; i < 5; i++) a.burst(t + i * 0.03 + Math.random() * 0.02, 0.05, 1500 + Math.random() * 2500, 0.9, 0.03 * v);
       a.burst(t + 0.17, 0.05, 700, 0.8, 0.06 * v, null, 'lowpass');
     },
+    // a fingertip across a phone's glass
+    swipe(a, t, v) {
+      a.burst(t, 0.09, 5200, 0.6, 0.018 * v);
+      a.burst(t + 0.02, 0.05, 2600, 0.9, 0.012 * v);
+    },
+    // the rings of a binder snapping open
+    rings(a, t, v) {
+      for (let i = 0; i < 3; i++) {
+        const s = t + i * 0.018 + Math.random() * 0.006;
+        a.burst(s, 0.008, 5400 - i * 400, 7, 0.1 * v);
+        a.tone(s, 3200 - i * 260, 0.05, 0.022 * v, 'triangle');
+      }
+      a.burst(t + 0.09, 0.05, 600, 0.8, 0.09 * v, null, 'lowpass');
+    },
     // his heart, in his ears
     heart(a, t, v) {
       a.tone(t, 58, 0.12, 0.3 * v, 'sine', null, 38);

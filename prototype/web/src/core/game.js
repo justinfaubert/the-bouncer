@@ -122,6 +122,7 @@
       if (!this.ink) throw new Error('inkjs is not loaded');
       this.voiceDefs = content.voices || {};
       this.charDefs = content.characters || {};
+      this.props = content.props || {};
       this.speakers = {};
       for (const id in this.voiceDefs) this.speakers[id.toUpperCase()] = { id: id, kind: 'voice', def: this.voiceDefs[id] };
       for (const id in this.charDefs) this.speakers[id.toUpperCase()] = { id: id, kind: 'character', def: this.charDefs[id] };
@@ -482,7 +483,10 @@
         const text = out && typeof out.output === 'string' ? out.output : '';
         for (const line of text.split('\n')) if (line.trim()) this._line(line, [], items, [], fn, '');
       }
-      const rule = this.barks.best('toy:' + id + ':' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this._toyRng(id + ':' + what));
+      // a voice on this thing, or on any thing of its kind (toy:card:tilt)
+      const kind = this.props[id] && this.props[id].kind;
+      let rule = this.barks.best('toy:' + id + ':' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this._toyRng(id + ':' + what));
+      if (!rule && kind) rule = this.barks.best('toy:' + kind + ':' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this._toyRng(kind + ':' + what));
       if (rule) {
         if (rule.once) this.barksUsed.push(rule.id);
         items.push(this._barkItem(rule));
@@ -727,7 +731,13 @@
         if (from) item.at = from;
         if (tagv.prompt) item.prompt = String(tagv.prompt);
         if (tagv.mark) item.mark = this._markOf(tagv.mark);
-        if (tagv.prop) item.prop = String(tagv.prop);
+        if (tagv.prop) {
+          // #prop: hoodie_phone, or #prop: hoodie_phone held (how it's shown this time)
+          const pw = String(tagv.prop).trim().split(/\s+/);
+          item.prop = pw[0];
+          if (pw[1]) item.propHow = pw[1];
+          item.propAt = { turn: this.turn, clock: this.getVar('clock') | 0 };
+        }
         if (tagv['class']) item.cls = String(tagv['class']);
         if (!item.suppressed) items.push(item);
       }

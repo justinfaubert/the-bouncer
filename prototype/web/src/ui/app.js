@@ -80,11 +80,20 @@
       style: voiceStyle,
       reduced: reducedMotion
     });
-    app.toys = B.Toys({
+    const handsFree = function () { return app.inGame && !!app.game.story && !app.game.ended && !app.pending && !app.rolling && $('#overlay').hidden; };
+    app.toys = B.Toys({ play: toyPlay, live: handsFree, audio: app.audio });
+    // what he's handed: a licence, the kid's phone, the binder (src/ui/props.js)
+    app.props = B.Props ? B.Props({
+      content: C,
       play: toyPlay,
-      live: function () { return app.inGame && !!app.game.story && !app.game.ended && !app.pending && !app.rolling && $('#overlay').hidden; },
-      audio: app.audio
-    });
+      live: handsFree,
+      turn: function () { return app.game.turn | 0; },
+      waits: function (id) { return app.game.story && !app.game.ended ? app.game.toyMoves(id) : []; },
+      face: faceNow,
+      plates: function () { return !!app.settings.plates; },
+      audio: app.audio,
+      reduced: reducedMotion
+    }) : null;
     applySettings();
 
     $('#map').innerHTML = V.mapSVG();
@@ -315,6 +324,7 @@
   // Handling a thing between choices (Game.toy). If a choice was waiting for it, the night moves
   // on from that choice as from any other; if not, what it changed goes quietly into the status,
   // and anything said about it goes in above the choices.
+  // Returns 'chose' when it made a choice, 'said' when it only changed or said something, or false.
   function toyPlay(id, what) {
     if (!app.inGame || app.pending || app.rolling || app.game.ended) return false;
     const via = app.game.toyChoice(id, what);
@@ -324,9 +334,10 @@
     if (!res) { if (via) app.snaps.pop(); return false; }
     if (res.chose) {
       clearTimeout(app.saveTimer);
+      if (app.hand) app.hand.leave(-1);
       persist();
       show(res, true);
-      return true;
+      return 'chose';
     }
     if (res.items.length) {
       const first = renderItems(res.items, true);
@@ -334,7 +345,7 @@
     }
     renderRail();
     persistSoon();
-    return true;
+    return 'said';
   }
 
   // bring a line that's just gone in above the choices into view, if it isn't
@@ -643,6 +654,15 @@
     return fig;
   }
 
+  // someone as they look at him tonight, for holding their licence up by their face
+  function faceNow(charId) {
+    const c = C.characters[charId];
+    if (!c || !c.look || !app.settings.plates || !B.Plates) return null;
+    const pid = c.portrait || charId;
+    const lean = app.game.story ? app.game._lean(pid) : null;
+    return B.Plates.portrait(pid, lean ? Object.assign({}, c.look, { lean: lean }) : c.look);
+  }
+
   // The night's first pictures go through the press while the title is up: the lot, the room, the
   // door, and the woman behind the bar.
   function prewarmPlates() {
@@ -728,6 +748,11 @@
               // the voice pulls that part of the picture out and marks it (src/ui/marks.js)
               const fig = B.Marks.node(mk, voiceStyle(it.speaker), { phase: phaseOf(mk.clock | 0), draw: animate, delay: animate ? parseInt(node.style.animationDelay, 10) || 0 : 0, audio: live ? app.audio : null });
               if (fig) appendNode(fig, it.screen || null);
+            }
+            // a thing he's handed, under the line that hands it over (src/ui/props.js)
+            if ((it.src || it).prop && app.props) {
+              const pn = app.props.node(it.src || it);
+              if (pn) add(pn, it.screen || null);
             }
             break;
           }
@@ -1065,6 +1090,7 @@
     root.setAttribute('data-here', st.here || '');
     for (const el of document.querySelectorAll('[data-status]')) el.innerHTML = html;
     if (app.toys) app.toys.afterRail(st.count);
+    if (app.props) app.props.refresh();
 
     // the map: every choice that goes somewhere lights its spot
     const open = {};

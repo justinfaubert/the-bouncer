@@ -111,6 +111,13 @@
   text: De-escalation is most effective before physical contact. Before is now.
   mark: pool.bigman A; pool.buddy B
 
+- id: pool_kid_photo
+  on: visit:pool
+  speaker: wrongman
+  when: [knows has kid_photo]
+  text: The man in the kid's photo. Left hand on the rail, same as the picture.
+  mark: pool.lefthand
+
 # ---------------------------------------------------------------- table 28
 
 - id: t28_leash
@@ -458,6 +465,7 @@
 #   toy:clicker:click   an idle click on the clicker (fidget counts them)
 #   toy:clicker:zero    the knob on its side turned all the way back
 #   toy:<prop>:<what>   a thing he's been handed (content/data/props.yaml): flip, tilt, look ...
+#   toy:card:<what>     any licence, when nothing's written for that one (the same for phone, binder)
 
 - id: toy_click_father
   on: toy:clicker:click
@@ -514,6 +522,48 @@
   on: toy:clicker:zero
   speaker: fighter
   text: Clean slate.
+
+- id: toy_card_tilt
+  on: toy:card:tilt
+  speaker: manual
+  text: Tip it under the light. On a real one the hologram moves. On a printed one it sits there.
+
+- id: toy_card_flip
+  on: toy:card:flip
+  speaker: father
+  text: Turn it over. The ones who make them never bother with the back.
+
+- id: toy_card_look_father
+  on: toy:card:look
+  speaker: father
+  text: Card, then face. Look at the ears. People change their hair. Nobody changes their ears.
+
+- id: toy_card_look_wrongman
+  on: toy:card:look
+  speaker: wrongman
+  text: In the story the doorman checked his licence, and he was exactly who he said he was.
+
+- id: toy_hoodie_card_look
+  on: toy:hoodie_card:look
+  speaker: manual
+  text: Born the fourteenth of October, two thousand and seven. Nineteen years and twenty-one days. Legal.
+
+- id: toy_goodshoes_look_clean
+  on: toy:goodshoes_card:look
+  speaker: manual
+  when: [knows hasnt eighty_six]
+  text: Photograph matches bearer. Fifty-one years of age. Valid.
+
+- id: toy_goodshoes_look_known
+  on: toy:goodshoes_card:look
+  speaker: father
+  when: [knows has banned_face]
+  text: Same card as page three. He's not hiding from anybody.
+
+- id: toy_binder_page11
+  on: toy:binder:page11
+  speaker: fighter
+  text: Him, you don't walk out quietly.
 
 # ---------------------------------------------------------------- the hand
 #

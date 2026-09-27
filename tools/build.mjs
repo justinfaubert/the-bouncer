@@ -95,6 +95,8 @@ function scanInk(files) {
   const words = { total: 0, byFile: {} };
   const knots = [];             // "knot" and "knot.stitch", not functions
   const markRefs = [];          // {spec, loc}: #mark: tags
+  const propRefs = [];          // {id, loc}: #prop: tags
+  const toyRefs = [];           // {id, what, loc}: #toy: tags on choices
   for (const f of files) {
     const lines = fs.readFileSync(f, 'utf8').split('\n');
     let knot = '(top)';
@@ -114,6 +116,8 @@ function scanInk(files) {
       for (const m of code.matchAll(/#\s*prompt:\s*([^#]+)/g)) prompts.push({ kind: 'tag', text: m[1].trim(), loc, knot });
       for (const m of code.matchAll(/#\s*check:\s*([a-z_]+)/gi)) checks.push({ voice: m[1].toLowerCase(), loc });
       for (const m of code.matchAll(/#\s*mark:\s*([^#]+)/gi)) markRefs.push({ spec: m[1].trim(), loc });
+      for (const m of code.matchAll(/#\s*prop:\s*([^#\s\]]*)/gi)) propRefs.push({ id: m[1], loc });
+      for (const m of code.matchAll(/#\s*toy:\s*([^#\]]*)/gi)) { const w = m[1].trim().split(/\s+/); toyRefs.push({ id: w[0] || '', what: w[1] || '', loc }); }
       for (const m of code.matchAll(/#\s*(sfx|music|amb|portrait):\s*([a-z0-9_]+)/gi)) fx.push({ type: m[1].toLowerCase(), id: m[2], loc });
       // a speaker label at the start of a content line (after choice bullets / gathers)
       const body = code.replace(/^\s*(?:[*+\-]\s*)*(?:\([a-z0-9_]+\)\s*)?(?:\{[^}]*:\s*)?/i, '');
@@ -130,7 +134,7 @@ function scanInk(files) {
     words.byFile[rel(f)] = w;
     words.total += w;
   }
-  return { speakers, checks, fx, prompts, words, knots, markRefs };
+  return { speakers, checks, fx, prompts, words, knots, markRefs, propRefs, toyRefs };
 }
 
 // ---------------------------------------------------------------- main
@@ -144,6 +148,7 @@ const assets = yaml('content/data/assets.yaml', {});
 const barks = yaml('content/rules/barks.yaml', []);
 const word = yaml('content/rules/word.yaml', {});
 const marks = yaml('content/data/marks.yaml', {});
+const props = yaml('content/data/props.yaml', {});
 const psycheAll = JSON.parse(fs.readFileSync(P('data', 'psyche_states.json'), 'utf8'));
 const psyche = {
   classes: psycheAll.classes.map((c) => ({ class: c.class, tension: c.tension, states: c.states, share: c.share, mirror: c.mirror })),
@@ -223,6 +228,40 @@ const checkMark = (spec, where) => {
 };
 for (const r of barkSet.rules) if (r.mark) checkMark(r.mark, 'barks.yaml: ' + r.id);
 for (const m of scan.markRefs) checkMark(m.spec, m.loc);
+// Props: every thing a line hands over is in props.yaml, and every choice that waits for a thing
+// waits for something it can be done with (src/ui/props.js)
+const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'] };
+const propThings = Object.entries(props || {}).filter(([id]) => id !== 'tonight');
+if (props && props.tonight && isNaN(Date.parse(props.tonight))) err(`props.yaml: tonight "${props.tonight}" isn't a date (YYYY-MM-DD)`);
+for (const [id, pr] of propThings) {
+  if (!pr || !PROP_KINDS[pr.kind]) { err(`props.yaml: ${id} needs a kind (${Object.keys(PROP_KINDS).join(', ')})`); continue; }
+  if (pr.kind === 'card') {
+    for (const k of ['surname', 'given', 'born', 'class']) if (!pr[k]) err(`props.yaml: ${id} (a card) has no ${k}`);
+    if (pr.born && isNaN(Date.parse(pr.born))) err(`props.yaml: ${id} born "${pr.born}" isn't a date`);
+    if (pr.face && !charIds.has(pr.face)) err(`props.yaml: ${id} shows the face of "${pr.face}", who isn't in characters.yaml`);
+  }
+  if (pr.kind === 'phone' && (!Array.isArray(pr.photos) || !pr.photos.length)) err(`props.yaml: ${id} (a phone) has no photos`);
+  if (pr.kind === 'binder') {
+    if (!(pr.pages > 0)) err(`props.yaml: ${id} (a binder) needs pages: <how many>`);
+    for (const [n, pg] of Object.entries(pr.sleeves || {})) {
+      if (!(+n >= 1 && +n <= pr.pages)) err(`props.yaml: ${id} sleeve ${n} is past the last page`);
+      if (pg && pg.card && !(props[pg.card] && props[pg.card].kind === 'card')) err(`props.yaml: ${id} sleeve ${n} copies card "${pg.card}", which isn't a card`);
+      if (pg && pg.face && !charIds.has(pg.face)) err(`props.yaml: ${id} sleeve ${n} shows "${pg.face}", who isn't in characters.yaml`);
+    }
+  }
+}
+for (const r of scan.propRefs) if (!props || !props[r.id] || r.id === 'tonight') err(`#prop: "${r.id}" at ${r.loc} is not in props.yaml`);
+for (const t of scan.toyRefs) {
+  if (t.id === 'clicker') { if (!['click', 'zero'].includes(t.what)) err(`#toy: clicker ${t.what} at ${t.loc}: the clicker can click or zero`); continue; }
+  const pr = props && props[t.id];
+  if (!pr || t.id === 'tonight') { err(`#toy: "${t.id}" at ${t.loc} is not in props.yaml`); continue; }
+  const can = PROP_KINDS[pr.kind] || [];
+  if (!can.includes(t.what) && !(pr.kind === 'binder' && /^page\d+$/.test(t.what))) err(`#toy: ${t.id} ${t.what} at ${t.loc}: a ${pr.kind} can be ${can.join(', ')}${pr.kind === 'binder' ? ', or page<n>' : ''}`);
+}
+for (const r of barkSet.rules) {
+  const tm = /^toy:([a-z0-9_]+):/.exec(r.on || '');
+  if (tm && tm[1] !== 'clicker' && !PROP_KINDS[tm[1]] && !(props && props[tm[1]])) err(`barks.yaml: ${r.id} answers a thing, "${tm[1]}", that isn't in props.yaml or a kind of thing (${Object.keys(PROP_KINDS).join(', ')})`);
+}
 const wordSet = new B.Word(word || {});
 const GROUPS = ['t28', 'kids', 'staff', 'owner', 'cook'];
 for (const bad of wordSet.badCriteria()) err('word.yaml: cannot read criterion ' + bad);
@@ -266,7 +305,7 @@ if (!scan.prompts.length) promptMd.push('No open prompts.');
 
 // ---------------------------------------------------------------- report
 
-const hash = crypto.createHash('sha1').update(JSON.stringify([story, voices, characters, assets, barks, word, marks, merged])).digest('hex').slice(0, 8);
+const hash = crypto.createHash('sha1').update(JSON.stringify([story, voices, characters, assets, barks, word, marks, props, merged])).digest('hex').slice(0, 8);
 const stamp = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 const build = stamp.slice(0, 10) + '-' + hash;
 
@@ -283,7 +322,7 @@ fs.writeFileSync(P('data', 'build', 'story.json'), JSON.stringify(story));
 // prototype/web/index.html reaches them two folders up; dist/ carries its own copies.
 const content = {
   meta: { build, builtAt: stamp, words: scan.words.total, knots: scan.knots, prompts: scan.prompts, merged, assetBase: '../../' },
-  story, voices, characters, assets, barks, word, marks, psyche,
+  story, voices, characters, assets, barks, word, marks, props, psyche,
 };
 const contentJs = (c) =>
   '// Generated by tools/build.mjs. Do not edit; edit content/ and rebuild.\n' +

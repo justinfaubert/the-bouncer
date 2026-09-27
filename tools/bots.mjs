@@ -195,6 +195,10 @@ function countAtClose(v, g) {
   return said > out ? 'somebody still inside' : 'more out than in';
 }
 
+function visits(g, at) {
+  try { return g.story.state.VisitCountAtPathString(at) > 0; } catch (e) { return false; }
+}
+
 function outcomeOf(v, g) {
   const has = (list, item) => Array.isArray(list) && list.includes(item);
   const fam = v.fam || [];
@@ -224,6 +228,8 @@ function outcomeOf(v, g) {
     'uncounted': String(v.uncounted),
     'idle clicks on the clicker': v.fidget === 0 ? 'none' : v.fidget <= 5 ? '1 to 5' : '6 or more',
     'the count at close': countAtClose(v, g),
+    "the kid's phone": has(v.knows, 'kid_photo') ? 'swiped to the pool table' : (has(v.knows, 'kid_legal') ? 'saw his licence' : 'never looked'),
+    'GOOD SHOES known': visits(g, 'door_banned.recognised') ? 'by his licence, in his hand' : (has(v.knows, 'banned_face') ? 'from the binder or the bar' : 'never'),
     'ends at': B.util.fmtClock(v.clock | 0),
   };
 }

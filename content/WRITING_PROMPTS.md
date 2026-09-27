@@ -12,10 +12,10 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/door.ink
 
 3. **door_hoodie** (`content/ink/door.ink:65`): How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
-4. **ev_sister** (`content/ink/door.ink:231`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-5. **ev_sister** (`content/ink/door.ink:246`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-6. **door_banned** (`content/ink/door.ink:511`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-7. **door_wife** (`content/ink/door.ink:643`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+4. **ev_sister** (`content/ink/door.ink:242`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+5. **ev_sister** (`content/ink/door.ink:269`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+6. **door_banned** (`content/ink/door.ink:545`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+7. **door_wife** (`content/ink/door.ink:677`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 
@@ -26,13 +26,13 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/bar.ink
 
-12. **at_bar** (`content/ink/bar.ink:46`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't.
-13. **at_bar** (`content/ink/bar.ink:68`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
-14. **at_bar** (`content/ink/bar.ink:103`): The lifer's history with table 28. She knew them when they were young. What were they like?
-15. **at_bar** (`content/ink/bar.ink:110`): Her name. Or keep it back until he's earned it.
-16. **at_bar** (`content/ink/bar.ink:145`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
-17. **ev_card** (`content/ink/bar.ink:176`): The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?
-18. **ev_owner** (`content/ink/bar.ink:208`): The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?
+12. **at_bar** (`content/ink/bar.ink:46`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
+13. **at_bar** (`content/ink/bar.ink:69`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
+14. **at_bar** (`content/ink/bar.ink:104`): The lifer's history with table 28. She knew them when they were young. What were they like?
+15. **at_bar** (`content/ink/bar.ink:111`): Her name. Or keep it back until he's earned it.
+16. **at_bar** (`content/ink/bar.ink:146`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
+17. **ev_card** (`content/ink/bar.ink:177`): The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?
+18. **ev_owner** (`content/ink/bar.ink:209`): The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?
 
 ## content/ink/rats.ink
 

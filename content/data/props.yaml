@@ -1,0 +1,131 @@
+# Props: things he's handed, or picks up, that the player can handle.
+#
+# A line in the Ink hands one over with `#prop: <id>`, and it's drawn under that line
+# (prototype/web/src/ui/props.js). It stays in the player's hands while the choices it came with are
+# on offer, and while any choice is still waiting for it; after that it's a picture in the log.
+#
+# What each kind lets the player do, and what that tells the game (Game.toy, content/ink/toys.ink):
+#   card     tap it to turn it over (flip); tip it and the hologram moves (tilt); hold it up by the
+#            face of whoever handed it over (look)
+#   phone    tap it to look closer (look); swipe to the next photo (swipe). A swipe only goes
+#            through when the story is waiting for one; otherwise the owner's hand holds on to it.
+#   binder   leaf through it (page); stay on a page (page3 is staying on page three); get to the
+#            last sleeve (all)
+# A choice in the Ink can wait for one of those (`#toy: hoodie_phone swipe`), and with `#unlisted`
+# handling the thing is the only way to make it. The voices answer in content/rules/barks.yaml
+# (toy:<id>:<what>, or toy:card:<what> for any card).
+#
+# The cards are drawn in the printed style: a provincial driver's licence, but not any real one.
+# Names, numbers and dates are Claude's drafts. HUTCH: rename anyone.
+
+# Tonight. Nothing in the story says the date, but a licence has a birthday on it and a doorman does
+# the sum. Claude's placeholder, PROPOSED in bible/05_LOG.md: day 1 is Wednesday 4 November 2026, so
+# the month (thirty days, bible/03_WORLD.md) runs out on Thursday 3 December.
+tonight: "2026-11-04"
+
+# ---------------------------------------------------------------- licences
+#
+# face: whose face is on it (characters.yaml), drawn from the same person as their portrait
+# look: how the photo differs from tonight (it's always straight on, not smiling, the way they make
+#       you). Keep sex, age and build as in characters.yaml or it comes out a different person.
+# born, issued, expires: dates. A licence runs out on a birthday.
+# class: 5 is a full licence; 7N is a new driver's, the N stage.
+
+hoodie_card:
+  kind: card
+  face: hoodie
+  look: {age: young, hair: short, top: tshirt}          # younger, less hair in his eyes, no hood
+  surname: MOFFAT
+  given: TYLER JAMES
+  born: "2007-10-14"                                     # nineteen by three weeks tonight
+  issued: "2025-02-20"
+  expires: "2030-10-14"
+  class: 7N
+  sex: M
+  height: 178
+  weight: 61
+  eyes: BRN
+  hair: BRN
+  number: "7340218"
+  wear: wet                                              # it came out of a wet wallet
+
+driver_card:
+  kind: card
+  face: driver
+  look: {sex: f, age: young, hair: ponytail, top: tshirt}   # hair back, so you can see the jaw
+  surname: MOFFAT
+  given: KAYLA DAWN
+  born: "2004-09-07"                                     # twenty-two
+  issued: "2023-01-30"
+  expires: "2028-09-07"
+  class: 5
+  sex: F
+  height: 165
+  weight: 58
+  eyes: BRN
+  hair: BRN
+  number: "6918843"
+
+goodshoes_card:
+  kind: card
+  face: goodshoes
+  look: {hair: parted, top: suit}                        # the same good haircut
+  surname: ARDAGH
+  given: GRAHAM PETER
+  born: "1975-04-15"                                     # fifty-one
+  issued: "2023-04-15"
+  expires: "2028-04-15"
+  class: 5
+  sex: M
+  height: 183
+  weight: 86
+  eyes: BLU
+  hair: BRN
+  number: "2207159"
+
+# ---------------------------------------------------------------- the kid's phone
+#
+# photos, in order: card (a licence, photographed on something), or place (a plate of a place,
+# photographed through something). battery: percent.
+
+hoodie_phone:
+  kind: phone
+  whose: hoodie
+  battery: 6                                             # he's been awake two days
+  photos:
+    - {card: hoodie_card, on: kitchen table}
+    - {place: pool, through: the front window, from: the lot}
+
+# ---------------------------------------------------------------- the binder under the till
+#
+# "A two-inch binder, the plastic sleeves gone cloudy. Photocopied licences, phone photos printed on
+# the office printer, a few real photographs. Under each one, in marker, in her handwriting: a date,
+# sometimes a reason, always a length." (content/ink/bar.ink)
+#
+# She keeps the ones that matter at the front. Behind them it goes back years, and the six-month
+# ones that ran out are still in there, because nobody takes anybody out.
+#
+# sleeves: the pages written out. photo: photocopy (of a licence), printout (a phone photo off the
+#   office printer) or photograph. who: a look, as in characters.yaml, for a face nobody in the
+#   story has; face: someone who is in the story; card: a licence above, photocopied.
+#   date, length, reason, or words: what she wrote under it.
+# The pages that aren't written out are made up the same way every time, from the page number.
+#
+# HUTCH: the reasons are yours (the prompt at the binder in content/ink/bar.ink). Until then the
+# pages carry a date and a length, and page three carries what the Ink says it does.
+
+binder:
+  kind: binder
+  pages: 40
+  sleeves:
+    1:  {photo: printout, who: {age: young, hair: buzz, top: hoodie, face: [stubble], mood: hard}, date: "2026-10-17", length: SIX MONTHS}
+    2:  {photo: photocopy, who: {build: big, hair: short, top: flannel, face: [beard], mood: flat}, date: "2026-08-29", length: ONE YEAR}
+    3:  {photo: photocopy, card: goodshoes_card, words: NO. NOT EVER.}
+    4:  {photo: printout, who: {sex: f, hair: long, top: jacket, mood: drunk}, date: "2026-07-03", length: SIX MONTHS}
+    5:  {photo: photograph, who: {age: old, hat: cap, top: coat, face: [lined], mood: tired}, date: "2025-12-24", length: ONE YEAR}
+    6:  {photo: photocopy, who: {hair: messy, top: tshirt, mood: wary}, date: "2026-05-16", length: ONE YEAR}
+    7:  {photo: photograph, who: {sex: f, hair: short, top: jacket, mood: hard}, date: "2024-03-09", length: LIFE}
+    8:  {photo: printout, who: {age: young, hat: cap, top: hoodie, mood: smile}, date: "2026-10-02", length: THREE MONTHS}
+    9:  {photo: photocopy, who: {build: big, hair: bald, top: hivis, face: [stubble], mood: flat}, date: "2025-06-21", length: TWO YEARS}
+    10: {photo: printout, who: {hair: thin, top: jacket, face: [glasses], mood: drunk}, date: "2026-02-14", length: ONE YEAR}
+    11: {photo: printout, who: {hair: buzz, top: tshirt, face: [necktat], mood: hard}, date: "2023-11-11", length: LIFE}

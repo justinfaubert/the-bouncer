@@ -2842,6 +2842,7 @@
       paintFaceBits(j, p, r);
     });
     paintExtras(j, p, r, nb);
+    if (p.flat) return;                           // an ID photo: the flash, not the neon
     silRim(j, 2.8, 0.5, 0.5, 0.42);
     silRim(j, 1.2, 0, 0.95, 0.8);
   }
@@ -2933,7 +2934,7 @@
         for (let i = 0; i < 2; i++) k.stroke(pth('M', cx - hw * 0.45 + i * 2, p.ty + hh * (0.2 + i * 0.05), 'q', hw * 0.45 - i * 2, -1.2, hw * 0.9 - i * 4, 0), 0.7, 0.4);
       }
       // the neon's red on the far side of the face
-      rd.path(hd, rd.lin(cx - hw, 0, cx + hw, 0, [[0.72, 0], [0.9, 0.12], [1, 0.3]]));
+      if (!p.flat) rd.path(hd, rd.lin(cx - hw, 0, cx + hw, 0, [[0.72, 0], [0.9, 0.12], [1, 0.3]]));
     });
   }
 
@@ -3297,13 +3298,28 @@
       k.path(pth('M', cx + 31, 121, 'q', -6, 1.2, -7, 7, 'q', 6, 0, 7, -3.6, 'Z'), 0.5, 'set');
       k.stroke(pth('M', cx + 30.6, 121.6, 'q', -4.8, 1.2, -5.8, 5.6), 0.6, 0.2, 'erase');
     }
+    if (p.face.indexOf('necktat') >= 0) {
+      // a star on the side of his neck, and the script under it that goes round to the front
+      const tx = cx - p.neck * 0.48, ty = (p.cy + nb) / 2 - 0.5, R = 5.8;
+      let st = '';
+      for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? R * 0.42 : R; st += (i ? 'L' : 'M') + ' ' + (tx + Math.cos(a) * rr) + ' ' + (ty + Math.sin(a) * rr) + ' '; }
+      k.path(st + 'Z', 0.94, 'set');
+      k.stroke(pth('M', tx - 5, nb - 1.6, 'q', 2, -2.6, 3.4, 0, 'q', 1.4, 2.4, 3, -0.4, 'q', 1.6, -2.4, 3.2, 0.2, 'q', 1.2, 2, 3, -0.6), 1.5, 0.92);
+    }
     if (x.indexOf('lanyard') >= 0) { k.stroke(pth('M', cx - 9, nb - 3, 'L', cx, nb + 24, 'L', cx + 9, nb - 3), 1, 0.9); k.rect(cx - 5, nb + 24, 10, 13, 0.1, 'set'); rd.rect(cx - 5, nb + 24, 10, 3, 0.9); }
   }
 
   // the room behind them: dark behind the lit side, the bar's lights out of focus and the sign's
   // glow behind the dark side
-  function paintGround(j, r) {
+  function paintGround(j, r, plain) {
     const k = j.k, rd = j.r;
+    if (plain) {
+      // the backdrop they stand you against for a licence: flat and pale, the same for everybody.
+      // It takes the same draws from r as the room would, so the face that follows is the same face.
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.14], [1, 0.24]]), 'set');
+      for (let i = 0; i < 35; i++) r();
+      return;
+    }
     k.rect(0, 0, FW, FH, k.lin(0, 0, FW, 0, [[0, 0.93], [0.4, 0.87], [0.75, 0.72], [1, 0.64]]), 'set');
     k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.06], [0.6, 0], [1, 0.12]]));
     for (let i = 0; i < 7; i++) { const x = 70 + r() * 50, y = 6 + r() * 70, rr = 3 + r() * 6; k.light(x, y, rr, 0.1 + r() * 0.12); if (r() < 0.6) rd.glow(x, y, rr * 1.3, 0.35); }
@@ -3315,12 +3331,17 @@
     const c = k.c; c.save(); c.fillStyle = '#000'; c.beginPath(); c.rect(0, 0, FW, FH); c.rect(1.6, 1.6, FW - 3.2, FH - 3.2); c.fill('evenodd'); c.restore();
   }
 
+  // look.ground 'plain' is an ID photo: the same person, against the pale backdrop, flat lit, no
+  // mood on their face and nothing in their hands (content/data/props.yaml)
   function paintFace(j, id, look) {
     const r = rng(seedOf('face:' + id));
-    paintGround(j, r);
+    const plain = !!(look && look.ground === 'plain');
+    paintGround(j, r, plain);
     if (look && look.group) { paintTable(j, id, look, r); return; }
-    paintBust(j, planFace(id, look, r), r);
-    faceVignette(j.k);
+    const p = planFace(id, plain ? Object.assign({}, look, { mood: 'flat', lean: null, extra: [] }) : look, r);
+    p.flat = plain;
+    paintBust(j, p, r);
+    if (!plain) faceVignette(j.k);
   }
 
   // table 28 as one: the five of them close in round the table, the glasses in front. Each one's

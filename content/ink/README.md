@@ -21,6 +21,7 @@ node tools/bots.mjs --trace 11 --policy explore   print one whole night as a tra
 | `pool.ink` | The big man, his buddy, the fight, telling him about the hospital. |
 | `bar.ink` | The bartender, the binder, the card machine, the owner's call. |
 | `rats.ink` | The kitchen, the keg room, the knot in the wall, bait and traps, the rat on the carpet. |
+| `toys.ink` | What the player's hands do between choices: the clicker's idle clicks and its knob, `toy_<thing>(what)`. |
 | `hall.ink` | The washrooms, the payphone, the kid in the single washroom. |
 | `deck.ink` | The deck, the one in the cardigan, the pickup in the lot. |
 | `closing.ink` | Last call, clearing the room, the count, the incident log, after hours, the parley, upstairs, the voices at night, the ledger. |
@@ -46,6 +47,8 @@ On a choice (inside the brackets):
 | `#loc: pool` | Where this takes him. Lights up that spot on the floor sketch and fires the `visit:pool` bark event. |
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 | `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
+| `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`; `clicker click` and `clicker zero` are the clicker in his fist. |
+| `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo). Give it words anyway, for the director and the bots. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 
@@ -60,6 +63,8 @@ On a line (or on its own line, which attaches it to the next line of text):
 | `#bark: some_event` | Offers a named event to the barks in `content/rules/barks.yaml`. |
 | `#pause` | The page waits for a tap before going on. |
 | `#prompt: text` | A writing prompt that shows in the game when Settings → Show writing prompts is on. |
+| `#prop: hoodie_phone` | A thing he's handed, drawn under the line for the player to handle (`content/data/props.yaml`, `prototype/web/src/ui/props.js`): a licence to turn over, tip to the light and hold up by a face; a phone to look at closer and swipe; the binder to leaf through. It stays in his hands while the choices it came with are on offer, or while a choice is waiting for it (`#toy:`). A second word says how it's shown: `#prop: hoodie_phone held`. |
+| `#mark: pool.lefthand` | On a voice's line: that voice marks the spot on the place's picture, in its own hand (`content/data/marks.yaml`). |
 
 ## Writing prompts
 
@@ -90,4 +95,6 @@ In director mode (key D in the game) Hutch rewrites, cuts and adds lines, reword
 - Knots, stitches, VARs and LIST items share one namespace. A knot called `upstairs` collides with the LIST item `upstairs`. Check `main.ink` before naming anything.
 - **Visit counts don't go up when you divert to a container you're already inside.** A stitch that loops back to itself, or `-> at_kitchen` from inside `at_kitchen`, won't count again. Use a VAR (like `door_reads`), or a labelled choice, which counts each time it's chosen.
 - A stitch's gather labels are reachable from other stitches in the same knot (`-> t_opts` from `again_loop`).
+- Choice labels share the namespace with functions too: a choice labelled `(stairs)` won't build next to a function `stairs()`.
+- A choice with no words at all is a fallback, taken on its own when nothing else is left. An `#unlisted` choice needs words.
 - Ink trims the spaces at the ends of lines. To join text across two lines, use glue: `<>`.

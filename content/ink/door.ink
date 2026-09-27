@@ -56,7 +56,7 @@
 === door_hoodie ===
 ~ here = door
 The passenger door of the pickup opened. A kid got out and came across the gravel with his hood up and his hands in the pouch of his sweatshirt, not hurrying, getting soaked.
-He stopped in front of the stool and held up his phone. On the screen was a photo of a driver's licence. #portrait: hoodie
+He stopped in front of the stool and held up his phone. On the screen was a photo of a driver's licence. #portrait: hoodie #prop: hoodie_phone
 HOODIE: yeah
 He had earbuds in. He didn't take them out.
 FATHER: A picture of a card isn't a card.
@@ -67,12 +67,23 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
 
 = read
 ~ door_reads++
-* [Take the phone and look at the photo.]
+* (took) {not swiped} [Take the phone and look at the photo. #toy: hoodie_phone look]
     ~ pass(1)
     He took the phone. The kid let him, but his hand stayed up for a second after, like he'd forgotten to lower it.
-    The licence was a real one, photographed on a kitchen table. Same face, younger and with less hair in his eyes. The birthday made him nineteen by three weeks.
+    The licence was a real one, photographed on a kitchen table. Same face, younger and with less hair in his eyes. The birthday made him nineteen by three weeks. #prop: hoodie_phone held
     ~ knows += kid_legal
     MANUAL: Nineteen by three weeks. Legal. The photograph is still not identification.
+    -> read
+// Only the player's hands make this one: swiping the kid's phone to the next photo (content/ink/toys.ink).
+* (swiped) [Swipe to the next photo. #toy: hoodie_phone swipe #unlisted]
+    ~ pass(1)
+    ~ knows += kid_photo
+    {took:He swiped to the next one.|He reached over and swiped the screen while the kid was still holding it up.}
+    It wasn't a licence. It was the pool table, taken from the lot through the front window, at night, in the rain. The lamp over the table, the green of the cloth, and a big man bent over a shot with his left hand flat on the rail.
+    HOODIE: hey
+    The kid took the phone back. He didn't snatch it. He put it in the pouch of his sweatshirt and kept his hand in there with it.
+    ~ rep(rep_kids, -1)
+    FATHER: Now you know something you weren't handed.
     -> read
 * [Look at him, not the phone. #check: father 8]
     ~ pass(1)
@@ -126,7 +137,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
     * * [Let it go.]
     - - FATHER: He's not here to drink. He's here for somebody inside. That's worse.
     -> read
-+ [Scan the phone.]
++ {not swiped} [Scan the phone.]
     ~ pass(1)
     He held the phone under the scanner. It thought about it and gave him the red light. #sfx: scanner_bad
     MANUAL: The scanner reads cards. It does not read photographs of cards. The scanner is, in this respect, correct.
@@ -179,7 +190,7 @@ The passenger door opened and shut. The truck didn't leave.
 ~ rep(rep_kids, 1)
 ~ rep(rep_staff, 1)
 The kid went back across the lot. The driver's window came down. There was a conversation, short, with a lot of hand in it from the driver's side. The window went up.
-He came back with a wet wallet and held out a licence, the real one. The scanner gave it a green light. #sfx: scanner_ok
+He came back with a wet wallet and held out a licence, the real one. The scanner gave it a green light. #sfx: scanner_ok #prop: hoodie_card
 MANUAL: Valid. Nineteen. Thank you.
 He went past into the room and stood by the jukebox with his hood still up, dripping on the carpet. He didn't order. #sfx: clicker
 FATHER: His sister's still out there with the engine running. Wonder why.
@@ -225,13 +236,25 @@ A young woman stood in the vestibule with car keys in her fist and rain in her h
 - else:
     DRIVER: My brother's in there. Kid in the grey hoodie.
 }
-She had her licence out already, held up at eye level, not a photo, the card. Twenty-two.
+She had her licence out already, held up at eye level, not a photo, the card. Twenty-two. #prop: driver_card
 VAPE: we're just here to get her dad bro. two minutes
 DRIVER: Shut up, Kyle.
 // HUTCH: The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
 -> sister_opts
 
 = sister_opts
+// Only the player's hands make this one: holding her licence up by her face.
+* [Look from the card to her face. #toy: driver_card look #unlisted]
+    ~ pass(1)
+    MOFFAT, KAYLA DAWN. Twenty-two, as advertised{knows ? kid_legal:, and the same surname as the kid's}. In the photo she had her hair pulled back, and without it in the way you could see the jaw.
+    { at_pool:
+        He'd seen that jaw already tonight, at the pool table, bent over a cue.
+        ~ knows += bigman_dad
+        FATHER: So that's whose they are.
+    - else:
+        MANUAL: Photograph matches bearer. Valid.
+    }
+    -> sister_opts
 * ["Get who?"]
     ~ pass(1)
     DRIVER: Our dad. Big guy. At the pool table, I'd bet my life.
@@ -450,7 +473,7 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
 ~ arrivals += banned_done
 A man in a good wool coat came in, closing a golf umbrella. Shaved that evening. Shoes that had never walked on gravel before tonight. #portrait: goodshoes
 GOOD SHOES: Evening. Filthy out there.
-He had his licence ready before he was asked, and he smiled like they'd met.
+He had his licence ready before he was asked, and he smiled like they'd met. #prop: goodshoes_card
 { knows ? banned_face:
     He had met him. In the binder. Page three, a photocopied driver's licence and the bartender's handwriting underneath: NO. NOT EVER.
     -> known
@@ -468,8 +491,17 @@ He had his licence ready before he was asked, and he smiled like they'd met.
         }
     * [Let it go.]
         -> unknown
+    // Only the player's hands make this one: holding his licence up by his face, and looking at the card.
+    * [Hold the licence up by his face. #toy: goodshoes_card look #unlisted]
+        -> recognised
 }
 -> unknown
+
+= recognised
+~ pass(1)
+~ knows += banned_face
+He held the card up beside the man's face, the way you do, and then he stopped looking at the face and looked at the card. ARDAGH, GRAHAM PETER. The same card, the same photo, the same good haircut. He'd seen it on page three, gone grey in the photocopier, over the bartender's handwriting.
+-> known
 
 = unknown
 FATHER: Too clean for a Wednesday.
@@ -484,6 +516,8 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
     ~ pass(1)
     GOOD SHOES: Years ago. Place hasn't changed. That's the charm.
     -> gs
+* {knows ? eighty_six} [Hold the licence up by his face. #toy: goodshoes_card look #unlisted]
+    -> recognised
 + ["Go ahead."]
     -> let_in
 + {knows ? eighty_six} ["Give me a second." Go check the binder.]

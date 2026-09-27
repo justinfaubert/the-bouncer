@@ -81,6 +81,8 @@ sfx:
   zero: { synth: zero, note: The clicker's four number wheels snapping back to 0000. }
   card: { synth: card, note: A plastic ID card turned over in the fingers. }
   page: { synth: page, note: A plastic sleeve turning over in the barred binder. }
+  swipe: { synth: swipe, note: A fingertip across a phone's glass, to the next photo. }
+  rings: { synth: rings, note: The rings of the barred binder snapping open. }
   heart: { synth: heart, note: His heartbeat in his ears, one beat, when the voices get loud. Low and close. }
 
 portraits:

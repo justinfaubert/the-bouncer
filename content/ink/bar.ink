@@ -43,16 +43,17 @@
 ~ pass(5)
 ~ knows += eighty_six
 She slid it along the bar to him without being asked twice. A two-inch binder, the plastic sleeves gone cloudy. Photocopied licences, phone photos printed on the office printer, a few real photographs. Under each one, in marker, in her handwriting: a date, sometimes a reason, always a length. SIX MONTHS. ONE YEAR. LIFE.
-// HUTCH: What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't.
-Page three was a man in his fifties with a good haircut, photographed off his driver's licence. Under it, not a date or a reason. Just: NO. NOT EVER.
-* [Fix the faces in his head. #check: manual 6]
+// HUTCH: What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
+Page three was a man in his fifties with a good haircut, photographed off his driver's licence. Under it, not a date or a reason. Just: NO. NOT EVER. #prop: binder
+// Leafing through to the last sleeve makes the first choice; staying on page three makes the second.
+* [Fix the faces in his head. #check: manual 6 #toy: binder all]
     { passed:
         MANUAL: Memorise the barred list at the start of every shift. Page three. Page seven. Page eleven, the one with the tattoo on his neck.
         ~ knows += banned_face
     - else:
         He went through it twice. Forty faces, most of them the same man in bad light. They'd blur by ten o'clock. He knew that about himself.
     }
-* [Just page three.]
+* [Just page three. #toy: binder page3]
     He looked at page three for a long time.
     ~ knows += banned_face
     FATHER: The ones they write NOT EVER about, they come back. They always come back. That's why somebody wrote it.
