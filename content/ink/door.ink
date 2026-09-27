@@ -62,7 +62,9 @@ He had earbuds in. He didn't take them out.
 FATHER: A picture of a card isn't a card.
 MANUAL: Acceptable identification is a valid government-issued card with a photograph, presented in person. When in doubt, two pieces. You're in doubt.
 WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #mark: door.door
-// HUTCH: How does a real doorman handle a kid holding up a photo of his ID? What gets said, in what order? What does the kid say back?
+// Hutch, in director mode (27 Sept), on how a real doorman handles it: take the ID, size up the kid,
+// look at the info, deny him if he doesn't have ID, and try to build a rapport in the short time the
+// interaction lasts. The small talk below, and what it changes later, is Claude's draft from that.
 -> read
 
 = read
@@ -109,6 +111,13 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
         Rain on the windshield, wipers going, the dash lights. Someone in the driver's seat. Somebody else in the back.
         WRONGMAN: Could be anyone in there. In the story it could have been anyone. That was the point.
     }
+    -> read
+* ["Rough night to be out in."]
+    ~ pass(1)
+    ~ fam += hoodie_rapport
+    The kid looked at him properly for the first time, and took one earbud out.
+    HOODIE: it's been raining since tuesday
+    FATHER: That's it. You get a minute with each of them. Be decent in it, and the no goes down easier.
     -> read
 * ["Take the earbuds out."]
     ~ pass(1)
@@ -171,9 +180,14 @@ The kid went and stood by the jukebox with his hood still up. He didn't order. H
 ~ pass(1)
 ~ fam += hoodie_refused
 ~ incident += inc_kid_refused
-~ rep(rep_kids, -1)
-HOODIE: k
-He didn't argue. He looked past the doorman one more time, into the room, then went back across the lot with his hands in his pouch.
+{ fam ? hoodie_rapport:
+    HOODIE: yeah ok. fair
+    He put the earbud back in. He looked past the doorman one more time, into the room, then went back across the lot with his hands in his pouch.
+- else:
+    ~ rep(rep_kids, -1)
+    HOODIE: k
+    He didn't argue. He looked past the doorman one more time, into the room, then went back across the lot with his hands in his pouch.
+}
 The passenger door opened and shut. The truck didn't leave.
 { deck_door && knows ? coaster:
     FATHER: There's a coaster in the deck door. You know that. #mark: deck.latch
@@ -232,7 +246,11 @@ He let him past. The kid went and stood by the jukebox. He watched the pool tabl
 The bartender caught his eye and pointed her chin at the front door.
 A young woman stood in the vestibule with car keys in her fist and rain in her hair. Behind her, holding the door open with his shoulder, a guy in a soaked hoodie with a vape in his hand. #portrait: driver
 { fam ? hoodie_refused:
-    DRIVER: My brother was just here. You told him no.
+    { fam ? hoodie_rapport:
+        DRIVER: My brother was just here. He said you were all right about it.
+    - else:
+        DRIVER: My brother was just here. You told him no.
+    }
 - else:
     DRIVER: My brother's in there. Kid in the grey hoodie.
 }

@@ -79,7 +79,7 @@ LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 
-LIST fam = hoodie_refused, hoodie_admitted, hoodie_conditions, sister_met, sister_refused, sister_admitted, sister_fetched, via_deck, kid_found, kid_opened, dad_told, dad_went, dad_stayed, dad_ejected, dad_drove, vape_ejected, pool_fight, lot_scene, kids_waiting
+LIST fam = hoodie_refused, hoodie_admitted, hoodie_conditions, sister_met, sister_refused, sister_admitted, sister_fetched, via_deck, kid_found, kid_opened, dad_told, dad_went, dad_stayed, dad_ejected, dad_drove, vape_ejected, pool_fight, lot_scene, kids_waiting, hoodie_rapport
 VAR kids_in = 0             // how many of the three are inside
 VAR fam_done = false
 VAR vape_out_at = 0         // when the boyfriend was put out
