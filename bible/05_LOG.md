@@ -60,6 +60,13 @@ Update this file at the end of every session: add a session entry, move items be
 - 1,000 bot nights: every knot and stitch reached, no problems. Hutch's saved night loads in the new build and plays on.
 - Published as version 5 at the same link, with the offline copy refreshed.
 
+### 2026-09-27 (Sunday afternoon), the future form
+
+- Hutch, after playing version 5: the system being built is wonderful and the ID graphic was well done; the plates and portraits are interesting in their style but look amateurish. Hutch wants to talk about the game's future form: better than HTML, a more immersive world, perhaps in Godot, and more than a Claude artifact. "Let's talk about how to achieve greatness."
+- Claude's read: HTML isn't why the pictures look amateur. They're drawn in code, and code draws like a machine: the same bottle down the shelf, one skull under every face. The ID works because it's design. Godot is still the move, for the room around the player and a game Hutch owns, but the look needs one artist's hand and real sources.
+- Written up in `08_FUTURE_FORM.md`, and as a page with the evidence marked up: https://claude.ai/artifact/YL6FR7cPoxNWihnWchgztT
+- Checked: Godot 4.7.2 runs and renders frames in Claude's cloud workspace (under a virtual display, software OpenGL). github.com and godotengine.org are blocked there; Godot came from the SourceForge mirror.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -150,6 +157,13 @@ Proposed with round three (2026-09-27). Built, to keep or cut:
 - Facts drafted for the props, all Claude's placeholders: Wednesday is 4 November 2026, so a licence's birthday has a date to count from and the month runs out on Thursday 3 December; the names and numbers on the cards (the kid and his sister are Tyler and Kayla Moffat, the regular in the good shoes is Graham Ardagh); the kid photographed his dad at the pool table from the lot; forty sleeves in the binder, the first eleven written out, with dates and lengths under them (the reasons are Hutch's to write, at the binder's prompt in `content/ink/bar.ink`).
 - The small talk at the door, and what it changes, drafted from Hutch's answer.
 
+Proposed with the future form (2026-09-27), in `08_FUTURE_FORM.md`:
+
+- Godot 4.7 for the game. The browser build stays as the writers' room until the Godot build has its own director mode.
+- Through his eyes, from his posts: first person from the stool at the door, the end of the bar, table 28, the pool wall, the back hall, the kitchen, the deck, the keg room and the lot; the pointer as his attention; the voices marking the room itself; him seen only in reflections, the back-bar mirror among them; drink in the print, not the camera. The alternatives are the view from above, as in Disco, and a free walk.
+- The print made real: the room built in 3D from photographs and measurements of a real empty bar; faces painted by one commissioned artist and printed through the same press; everything designed stays Claude's; no AI-generated images in the game.
+- The path: a home Hutch owns (a private GitHub repo attached to the project, Hutch's machine on Remote Control), then one scene at final quality (the door, 7:50 pm), then Wednesday post by post, then Thursday and Friday. This swaps M3 and M4 in `04_PRODUCTION.md`.
+
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
@@ -173,7 +187,7 @@ Proposed with round three (2026-09-27). Built, to keep or cut:
 8. What is the event, and what is the public date?
 9. Does the narrator frame stay?
 10. Is the relational psyche the core system?
-11. Art: does Hutch draw? Is there a local painter or printmaker? A budget?
+11. Art: does Hutch draw? Is there a local painter or printmaker? A budget? And the form of the Godot game: through his eyes, from above, or a free walk (`08_FUTURE_FORM.md`)?
 12. Which way does the game go on AI disclosure?
 13. Violence: Hutch describes how it actually goes.
 

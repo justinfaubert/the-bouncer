@@ -95,3 +95,5 @@ The rule for a small team is to pick a style that's cheap per asset and strong a
 | **Then** | Week one. Then thirty days. |
 
 Rule: nothing new gets built until the current milestone plays end to end.
+
+[PROPOSED 2026-09-27] Swap M3 and M4: the look first, on one scene at final quality (the door, 7:50 pm), then the port. See `08_FUTURE_FORM.md`.
