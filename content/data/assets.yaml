@@ -75,6 +75,7 @@ sfx:
   stamp: { synth: stamp, note: A rubber stamp on paper, when a check's result lands, and at the end of the ledger. }
   printer: { synth: printer, note: The till's receipt printer, one printed line of the ledger. }
   tear: { synth: tear, note: The till tape torn off against the teeth, when the ledger's done. }
+  whisper: { synth: whisper, note: A voice leaning in close, when one of them speaks to the player's hand on a choice. Very quiet. }
 
 portraits:
   bartender: { file: art/portraits/bartender.png }

@@ -8,6 +8,7 @@
 //   #check: father 8 {n}  on a choice: a check lent by that voice, target 8, situational modifier n
 //   #loc: pool            on a choice: where it happens (lights up that spot on the floor sketch)
 //   #room: -fighter +kid  on a choice: who it puts out of his head and lets in (the page previews it)
+//   #hand: drink    on a choice: what it tempts him with, for the voices to lean in on (see whisper)
 //   #sfx / #music / #amb / #portrait / #screen / #task / #done / #bark / #pause / #prompt / #always
 //   #plate: lot     a picture of a place he isn't in, as it is now (the hotel after close, over the ledger)
 //
@@ -22,6 +23,10 @@
 //
 // The sketch: what he last saw of the room and the doors, and when (see _see). The floor sketch
 // draws from it, so what he hasn't looked at in a while goes stale on the page.
+//
+// The hand: the voices lean in on a choice while the player's hand is on it (whisper), and notice
+// the player (murmur): hesitating, reading back, coming back after a while away, not reading.
+// Their lines are the hand: rules in content/rules/barks.yaml.
 (function (B) {
   'use strict';
 
@@ -94,6 +99,13 @@
     return v;
   }
 
+  // FNV-1a, for the hand's own random numbers (whisper)
+  function hash32(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return h >>> 0;
+  }
+
   class Game {
     // content: { story, voices, characters, barks, psyche, assets, meta }
     constructor(content, opts) {
@@ -124,6 +136,8 @@
       this.wordUsed = [];
       this.said = {};         // group -> {up, down: {id, text}, last: 'up'|'down'}: their word on him
       this.taught = [];       // what THE MANUAL has explained (teach:<what> in barks.yaml)
+      this.handUsed = [];     // hand: lines the voices have said to the player (whisper, murmur)
+      this._hand = {};        // what each choice on offer whispers, worked out once per set of choices
       this.turn = 0;
       this.screen = null;
       this.ended = false;
@@ -199,6 +213,7 @@
         wordUsed: this.wordUsed.slice(),
         said: B.util.deepClone(this.said),
         taught: this.taught.slice(),
+        handUsed: this.handUsed.slice(),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
         screen: this.screen,
@@ -222,6 +237,7 @@
       this.barksUsed = (save.barksUsed || []).slice();
       this.wordUsed = (save.wordUsed || []).slice();
       this.taught = (save.taught || ['check', 'tension', 'word', 'room']).slice();
+      this.handUsed = (save.handUsed || []).slice();
       this.tasks = save.tasks || {};
       this.checkHistory = (save.checks || []).slice();
       this.turn = save.turn | 0;
@@ -297,19 +313,24 @@
       return this._finish(items);
     }
 
-    choose(visibleIndex) {
-      const choice = this.choices.filter(function (c) { return !c.hidden; })[visibleIndex];
+    // opts.considered: the other choices the player had a hand on first (visible indexes)
+    choose(visibleIndex, opts) {
+      const shown = this.choices.filter(function (c) { return !c.hidden; });
+      const choice = shown[visibleIndex];
       if (!choice) throw new Error('No such choice: ' + visibleIndex);
-      return this.chooseChoice(choice);
+      const looked = ((opts && opts.considered) || []).map(function (i) { return shown[i]; }).filter(Boolean);
+      return this.chooseChoice(choice, looked);
     }
 
-    chooseChoice(choice) {
+    chooseChoice(choice, looked) {
       const items = [];
       const events = [];
       const before = this._watch();
       const varsBefore = this.vars();
+      const passed = this._resisted(choice, looked || []);
       this.turn++;
       items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null });
+      if (passed) items.push(passed);
       const step = { t: this.turn, c: before.clock, x: choice.text };
       this.path.push(step);
       if (choice.check) {
@@ -345,6 +366,80 @@
       this._continue(items, events);
       this._afterBatch(before, items, events);
       return this._finish(items);
+    }
+
+    // ---- the hand ----------------------------------------------------------
+    //
+    // While the player's hand is on a choice (hovering it, holding it on a phone, a key on it), a
+    // voice can lean in on it before it's made: whisper(i) says who and what, or null. The kinds of
+    // thing a choice is (_readChoices, `hand`) are tried in order, most particular first: what it
+    // tempts him with (#hand: in the Ink), the voice lending a check, who it lets in or puts out of
+    // his head, leaving the door, where it goes. The line is the most specific hand:<kind> rule in
+    // barks.yaml whose voice is in the room; each is said once a night.
+    //
+    // murmur(what) is the voices noticing the player: hand:wait (sitting on the choices a long
+    // time), hand:reread (scrolled back up the night), hand:back (away from the game a while),
+    // hand:rush (choosing without reading).
+    //
+    // None of it touches the night's dice: it has its own random numbers. What they say to the
+    // player isn't written into the night, except that when the player had a hand on something he's
+    // tempted by and chose otherwise, a voice may say so under the choice (hand:resisted:<kind>).
+
+    whisper(visibleIndex) {
+      const c = this.choices.filter(function (x) { return !x.hidden; })[visibleIndex];
+      if (!c || !c.hand || !c.hand.length) return null;
+      const key = 'c' + c.inkIndex + ':' + c.text;
+      if (key in this._hand) return this._hand[key];
+      const rng = this._handRng(key);
+      let out = null;
+      for (const kind of c.hand) {
+        const rule = this.barks.best('hand:' + kind, this.getVar.bind(this), this.psyche, this.handUsed, rng);
+        if (rule) { out = this._handLine(rule, kind); break; }
+      }
+      this._hand[key] = out;
+      return out;
+    }
+
+    murmur(what) {
+      const rule = this.barks.best('hand:' + what, this.getVar.bind(this), this.psyche, this.handUsed, this._handRng('m:' + what));
+      return rule ? this._handLine(rule, what) : null;
+    }
+
+    // whether a voice in the room has something to say about this choice (without saying it)
+    _leans(c) {
+      const getVar = this.getVar.bind(this);
+      for (const k of c.hand || []) if (this.barks.candidates('hand:' + k, getVar, this.psyche, this.handUsed).length) return true;
+      return false;
+    }
+
+    _handRng(key) {
+      return new B.Rng(hash32(this.seed + ':' + this.turn + ':' + this.handUsed.length + ':' + key) || 1);
+    }
+
+    _handLine(rule, kind) {
+      if (rule.once) this.handUsed.push(rule.id);
+      return { id: rule.id, kind: kind, speaker: rule.speaker, label: this._label(rule.speaker), text: rule.text };
+    }
+
+    // The player had a hand on something he's tempted by (a drink, shading the log), and chose
+    // something else: a voice may say so, under the choice.
+    _resisted(choice, looked) {
+      const mine = choice.tempt || [];
+      const kinds = [];
+      for (const c of looked) {
+        if (c === choice) continue;
+        for (const k of c.tempt || []) if (mine.indexOf(k) === -1 && kinds.indexOf(k) === -1) kinds.push(k);
+      }
+      const rng = this._handRng('resisted');
+      for (const k of kinds) {
+        const rule = this.barks.best('hand:resisted:' + k, this.getVar.bind(this), this.psyche, this.handUsed, rng);
+        if (!rule) continue;
+        if (rule.once) this.handUsed.push(rule.id);
+        const item = this._barkItem(rule);
+        item.hand = k;
+        return item;
+      }
+      return null;
     }
 
     // ---- internals -------------------------------------------------------
@@ -594,6 +689,8 @@
     _readChoices() {
       const out = [];
       const list = this.story.currentChoices || [];
+      const here = this.here();
+      this._hand = {};
       for (let i = 0; i < list.length; i++) {
         const c = list[i];
         const tags = (c.tags || []).map(B.util.parseTag);
@@ -625,6 +722,14 @@
           ch.room = { seated: next, now: this.psyche.tension(), full: next.length > B.Psyche.MAX_SEATS };
           ch.room.tension = ch.room.full ? null : this.psyche.tension(next);
         }
+        // what the voices can lean in on while the player's hand is on it (whisper), most particular first
+        ch.tempt = tv.hand ? String(tv.hand).split(/\s+/).filter(Boolean) : [];
+        const hand = ch.tempt.slice();
+        if (ch.check) hand.push('check:' + ch.check.voice);
+        if (tv.room) for (const op of String(tv.room).split(/\s+/)) if (op.length > 1 && (op[0] === '+' || op[0] === '-')) hand.push((op[0] === '+' ? 'room_in:' : 'room_out:') + op.slice(1).toLowerCase());
+        if (ch.loc && here === 'door' && ch.loc !== 'door') hand.push('leave_door');
+        if (ch.loc && ch.loc !== here) hand.push('loc:' + ch.loc);
+        ch.hand = hand;
         out.push(ch);
       }
       return out;
@@ -667,6 +772,9 @@
       const shown = this.choices.filter(function (c) { return !c.hidden; });
       if (shown.some(function (c) { return c.check; })) this._teach('check', items, items.length);
       if (shown.some(function (c) { return c.room; })) this._teach('room', items, items.length);
+      // how to put a hand on a choice: once the checks have been explained, the first time a voice
+      // has something to say about one, and not in the same breath as another explanation
+      if (this.taught.indexOf('hand') === -1 && this.taught.indexOf('check') !== -1 && this.turn >= 3 && !items.some(function (it) { return it.bark && /^teach_/.test(it.bark); }) && shown.some(this._leans, this)) this._teach('hand', items, items.length);
       if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
       for (const it of items) {
         if ((it.kind === 'fx' && it.type !== 'portrait') || it.kind === 'pause') continue;

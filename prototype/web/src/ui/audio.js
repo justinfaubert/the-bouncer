@@ -512,6 +512,28 @@
       a.burst(t + 0.155, 0.04, 900, 1.2, 0.07 * v);
     },
     // the tape torn off against the teeth
+    // a voice leaning in: a breath close to one ear
+    whisper(a, t, v) {
+      const c = a.ctx;
+      const src = c.createBufferSource();
+      src.buffer = a.noise();
+      const f = c.createBiquadFilter();
+      f.type = 'bandpass'; f.Q.value = 1.3;
+      f.frequency.setValueAtTime(1500, t);
+      f.frequency.linearRampToValueAtTime(3100, t + 0.55);
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.034 * v, t + 0.2);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+      let out = g;
+      if (c.createStereoPanner) {
+        const p = c.createStereoPanner();
+        p.pan.value = (Math.random() < 0.5 ? -1 : 1) * (0.45 + Math.random() * 0.3);
+        g.connect(p); out = p;
+      }
+      src.connect(f); f.connect(g); out.connect(a.bus.sfx);
+      src.start(t, Math.random()); src.stop(t + 0.85);
+    },
     tear(a, t, v) {
       for (let i = 0; i < 11; i++) a.burst(t + i * 0.017 + Math.random() * 0.007, 0.03, 1100 + i * 240 + Math.random() * 300, 1.3, (0.08 + i * 0.01) * v);
     }

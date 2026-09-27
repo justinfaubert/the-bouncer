@@ -628,9 +628,64 @@ button { font: inherit; color: inherit; }
 .choice .ck { display: block; font-family: var(--f-ui); font-size: .82rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--vc); margin-bottom: .1em; }
 .choice .ck .odds { font-weight: 500; color: var(--muted); letter-spacing: .04em; }
 .choice .where { font-family: var(--f-ui); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-left: .5em; white-space: nowrap; }
-.choice:hover { background: var(--paper-3); border-left-color: var(--accent); }
+@media (hover: hover) { .choice:hover { background: var(--paper-3); border-left-color: var(--accent); } }
 .choice:focus-visible { outline: none; background: var(--paper-3); border-left-color: var(--accent); }
 .choice[disabled] { opacity: .5; cursor: default; }
+
+/* a phone's long press on a choice is the voices' cue, not the browser's */
+.choice { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+/* held, and nobody in his head has anything to say about it */
+.choice.held { animation: held .7s ease-out; }
+@keyframes held { from { background: var(--paper-3); border-left-color: var(--rule-strong); } }
+
+/* ------------------------------------------------------------------ the hand
+ * A voice leaning in on the choice the player's hand is on, or noticing the player (src/ui/hand.js):
+ * its words in its own type and colour. In the margin beside the choice when there's a margin; a
+ * slip laid over the page under it when there isn't; under the choice when it's held on a phone;
+ * over the choices when one of them pushes; at the foot of the page when the player is elsewhere. */
+.story-inner { position: relative; }
+.whisper {
+  font-family: var(--vf); color: var(--vc);
+  font-size: 1rem; line-height: 1.36;
+  pointer-events: none;
+  opacity: 0; transition: opacity .2s ease;
+}
+.whisper.on { opacity: 1; }
+.whisper.off { opacity: 0; }
+.whisper .wh-who { display: block; font-family: var(--f-ui); font-weight: 600; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; margin-bottom: .12em; }
+.whisper .wh-said > span { display: inline-block; animation: wh-in .36s ease-out backwards; animation-delay: calc(var(--d) * 65ms + 60ms); }
+@keyframes wh-in { from { opacity: 0; transform: translateY(3px); filter: blur(1.5px); } to { opacity: 1; transform: none; filter: none; } }
+.whisper.v-fighter .wh-said { letter-spacing: .01em; }
+.whisper.v-manual .wh-said { font-size: .86em; }
+.whisper.v-wrongman .wh-said { font-style: italic; font-size: 1.1em; }
+.whisper.v-table .wh-said { font-size: .9em; }
+.whisper.v-kid .wh-said { font-weight: 300; text-transform: lowercase; }
+
+.whisper.gutter { position: absolute; z-index: 4; }
+.whisper.gutter::before { content: ""; position: absolute; top: .5em; left: calc(-1 * var(--lead, 16px) - 6px); width: var(--lead, 16px); border-top: 1px dotted var(--vc); }
+.whisper.scrap, .whisper.float {
+  background: var(--paper-3);
+  padding: .5em .85em .6em;
+  border-left: 3px solid var(--vc);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .05), 0 8px 22px rgba(20, 18, 14, .18);
+}
+.whisper.scrap { position: absolute; z-index: 4; transform: rotate(-.7deg); transform-origin: 100% 0; }
+.whisper.float { position: fixed; z-index: 30; box-sizing: border-box; }
+.whisper.inline { padding: .1em .7em .55em 2.1em; }
+.whisper.lead { margin: 0 0 .5em; padding: .15em .75em .25em; border-left: 2px solid var(--vc); }
+.choices.ways + .whisper.inline { padding-left: .4em; }
+
+/* the voice's seat in the head panel, while it speaks */
+.head .voice-node.leans circle { animation: node-lean 1.25s ease-out 2; }
+@keyframes node-lean {
+  0% { stroke: var(--vc); stroke-width: 2.5; stroke-opacity: 1; }
+  35% { stroke: var(--vc); stroke-width: 11; stroke-opacity: .28; }
+  100% { stroke: var(--paper-2); stroke-width: 2.5; stroke-opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .whisper { transition: none; }
+  .whisper .wh-said > span, .head .voice-node.leans circle, .choice.held { animation: none; }
+}
 
 /* the ways out of a place: a row of places under what there is to do */
 .ways { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 1.1em 0 0; padding: .9em 0 0 .4em; border-top: 1px solid var(--rule); }
@@ -643,7 +698,8 @@ button { font: inherit; color: inherit; }
   color: var(--ink-2);
 }
 .choice.way .n { font-size: .74rem; padding: 0; color: var(--muted); }
-.choice.way:hover, .choice.way:focus-visible { background: var(--paper-3); border-color: var(--ink-2); color: var(--ink); }
+.choice.way:focus-visible { background: var(--paper-3); border-color: var(--ink-2); color: var(--ink); }
+@media (hover: hover) { .choice.way:hover { background: var(--paper-3); border-color: var(--ink-2); color: var(--ink); } }
 .choice.way.hot { border-color: var(--accent); color: var(--accent); }
 .choice.way.hot .n { color: var(--accent); }
 @media (pointer: coarse) { .ways { gap: 8px; } .choice.way { min-height: 40px; align-items: center; padding: .4em .8em; } }

@@ -11,6 +11,7 @@
 #          tension_up / tension_down
 #          check_pass:<voice> / check_fail:<voice>
 #          answer:<voice>   right after that voice has said one of these (see "answers" below)
+#          hand:<...>    the voices and the player, before a choice is made (see "the hand" below)
 #          anything named by a #bark: tag in the Ink
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
@@ -19,7 +20,8 @@
 # The first time each part of the game comes up, THE MANUAL explains it, once. The engine raises
 # these events itself: teach:check (the first check on offer), teach:tension (the first time the
 # noise in his head changes), teach:word (the first time a group's word on him shows), teach:room
-# (the first choice that would let a voice in or put one out).
+# (the first choice that would let a voice in or put one out), teach:hand (the first choices after
+# that which a voice has something to say about; see "the hand" below).
 
 - id: teach_check
   on: teach:check
@@ -44,6 +46,12 @@
   speaker: manual
   always: true
   text: Occupancy in here is limited to five. Some choices let a voice in or put one out. The note under the choice says what it will do to the noise.
+
+- id: teach_hand
+  on: teach:hand
+  speaker: manual
+  always: true
+  text: Before you commit to a choice, rest a hand on it. Point at it, or press and hold. A voice with something to say about it will say it.
 
 # ---------------------------------------------------------------- the door
 
@@ -412,6 +420,399 @@
   speaker: manual
   when: [odds wrongman]
   text: The incident log has no field for a feeling.
+
+# ---------------------------------------------------------------- the hand
+#
+# The voices and the player. While the player has a hand on a choice (the pointer resting on it, a
+# press and hold on a phone, a key on it), a voice can lean in on it before it's made. The engine
+# tries what the choice is, most particular first:
+#   hand:<what it tempts him with>     #hand: in the Ink. drink; shade (writing the log so it reads
+#                                      better); omit (leaving something out of the log)
+#   hand:check:<voice>                 the voice lending the check
+#   hand:room_in:<voice> / hand:room_out:<voice>    letting a voice in, putting one out
+#   hand:leave_door                    walking away from the door
+#   hand:loc:<place>                   where it goes
+# And they notice the player:
+#   hand:wait        the choices have been sitting there a long while
+#   hand:reread      scrolled back up the night, reading it again
+#   hand:back        back after a while away from the game
+#   hand:rush        choosing without reading
+#   hand:resisted:<what>   had a hand on something he's tempted by, and chose something else
+# Each is said once a night, whatever the noise in his head, and only by a voice in the room. What
+# the voices say to the player isn't written into the night, except hand:resisted, which goes in
+# under the choice.
+
+- id: hand_drink_first
+  on: hand:drink
+  speaker: father
+  when: [drinks == 0]
+  text: Nobody has to take the first one.
+
+- id: hand_drink_hand
+  on: hand:drink
+  speaker: father
+  when: [drinks >= 2]
+  text: I know that hand. I had that hand.
+
+- id: hand_drink_count
+  on: hand:drink
+  speaker: father
+  when: [drinks == 1]
+  text: You're counting the door. Count these.
+
+- id: hand_drink_fighter
+  on: hand:drink
+  speaker: fighter
+  when: [drinks <= 1]
+  text: Take it. They're watching to see if you will.
+
+- id: hand_drink_manual
+  on: hand:drink
+  speaker: manual
+  text: Staff may accept a drink from a patron and hold it without drinking it. See Refusals.
+
+- id: hand_drink_wrongman
+  on: hand:drink
+  speaker: wrongman
+  text: The doorman in the story had one with them too. To be friendly.
+
+- id: hand_drink_table
+  on: hand:drink
+  speaker: table
+  text: Get it down you, big fella!
+
+- id: hand_drink_kid
+  on: hand:drink
+  speaker: kid
+  text: you can just hold it. nobody checks
+
+- id: hand_resisted_drink_father
+  on: hand:resisted:drink
+  speaker: father
+  text: You looked at it, though.
+
+- id: hand_resisted_drink_fighter
+  on: hand:resisted:drink
+  speaker: fighter
+  text: Suit yourself.
+
+- id: hand_resisted_drink_wrongman
+  on: hand:resisted:drink
+  speaker: wrongman
+  when: [drinks == 0]
+  text: In the story he said no the first time too.
+
+- id: hand_resisted_drink_table
+  on: hand:resisted:drink
+  speaker: table
+  text: Next time, big fella.
+
+- id: hand_shade_father
+  on: hand:shade
+  speaker: father
+  text: I wrote mine so they read better. For years.
+
+- id: hand_shade_manual
+  on: hand:shade
+  speaker: manual
+  text: The incident log may be requested by the police, the owner or the licensing branch.
+
+- id: hand_shade_wrongman
+  on: hand:shade
+  speaker: wrongman
+  text: The log in the story read fine. That was the trouble with it.
+
+- id: hand_shade_fighter
+  on: hand:shade
+  speaker: fighter
+  text: Nobody reads them.
+
+- id: hand_omit_father
+  on: hand:omit
+  speaker: father
+  text: What you leave out, you carry.
+
+- id: hand_omit_manual
+  on: hand:omit
+  speaker: manual
+  text: An incident that is not recorded is an incident the house cannot defend.
+
+- id: hand_omit_wrongman
+  on: hand:omit
+  speaker: wrongman
+  text: He left one thing out of his log, in the story. Guess which.
+
+- id: hand_resisted_shade
+  on: hand:resisted:shade
+  speaker: father
+  text: That's how it happened. Leave it like that.
+
+- id: hand_resisted_omit
+  on: hand:resisted:omit
+  speaker: father
+  text: Put it all in. You'll sleep.
+
+- id: hand_check_fighter_own
+  on: hand:check:fighter
+  speaker: fighter
+  text: Mine. Let me have it.
+
+- id: hand_check_fighter_father
+  on: hand:check:fighter
+  speaker: father
+  when: [odds fighter]
+  text: Hands down till you've said something.
+
+- id: hand_check_fighter_manual
+  on: hand:check:fighter
+  speaker: manual
+  when: [odds fighter]
+  text: If you put hands on him, you write it up. All of it.
+
+- id: hand_check_fighter_wrongman
+  on: hand:check:fighter
+  speaker: wrongman
+  when: [odds fighter]
+  text: In the story the doorman won the fight. He still let the wrong man in.
+
+- id: hand_check_father_own
+  on: hand:check:father
+  speaker: father
+  text: I've stood where you're standing. Let me.
+
+- id: hand_check_father_fighter
+  on: hand:check:father
+  speaker: fighter
+  when: [odds father]
+  text: He'll still be talking when it lands.
+
+- id: hand_check_manual_own
+  on: hand:check:manual
+  speaker: manual
+  text: This is covered. Page nine.
+
+- id: hand_check_manual_fighter
+  on: hand:check:manual
+  speaker: fighter
+  when: [odds manual]
+  text: You going to read it to him?
+
+- id: hand_check_manual_wrongman
+  on: hand:check:manual
+  speaker: wrongman
+  when: [odds manual]
+  text: The book's never met anybody from here.
+
+- id: hand_check_wrongman_own
+  on: hand:check:wrongman
+  speaker: wrongman
+  text: I know how this one goes.
+
+- id: hand_check_wrongman_manual
+  on: hand:check:wrongman
+  speaker: manual
+  when: [odds wrongman]
+  text: Observe what is in front of you, not what happened to somebody's brother.
+
+- id: hand_out_father
+  on: hand:room_out:father
+  speaker: father
+  text: You learned that from me. Putting people out.
+
+- id: hand_out_fighter
+  on: hand:room_out:fighter
+  speaker: fighter
+  text: You'll want me back the first time it goes wrong.
+
+- id: hand_out_manual
+  on: hand:room_out:manual
+  speaker: manual
+  text: Responsibility for the premises remains with you.
+
+- id: hand_out_wrongman
+  on: hand:room_out:wrongman
+  speaker: wrongman
+  text: You'll still let him in. You just won't know it's him.
+
+- id: hand_out_table
+  on: hand:room_out:table
+  speaker: table
+  text: We'll be at the table.
+
+- id: hand_in_table_father
+  on: hand:room_in:table
+  speaker: father
+  text: They'll sit in your head the way they sit in those chairs. For good.
+
+- id: hand_in_kid_fighter
+  on: hand:room_in:kid
+  speaker: fighter
+  text: A kid. In here.
+
+- id: hand_door_manual
+  on: hand:leave_door
+  speaker: manual
+  text: Your post is the door. It says so on the schedule.
+
+- id: hand_door_father
+  on: hand:leave_door
+  speaker: father
+  when: [clock >= 1320]
+  text: Somebody walks in the second you go.
+
+- id: hand_door_wrongman
+  on: hand:leave_door
+  speaker: wrongman
+  text: That's when he got in, in the story. When the doorman went to look at something.
+
+- id: hand_door_fighter
+  on: hand:leave_door
+  speaker: fighter
+  when: [pool_heat >= 5]
+  text: Go. The door'll keep.
+
+- id: hand_loc_pool_fighter
+  on: hand:loc:pool
+  speaker: fighter
+  when: [pool_heat >= 5]
+  text: Now we're talking.
+
+- id: hand_loc_pool_father
+  on: hand:loc:pool
+  speaker: father
+  when: [pool_heat >= 5]
+  text: Walk over slow. Let him see you coming.
+
+- id: hand_loc_t28
+  on: hand:loc:t28
+  speaker: father
+  when: [drinks >= 1]
+  text: They'll pour and you'll drink. That's the table.
+
+- id: hand_loc_keg_seen
+  on: hand:loc:keg
+  speaker: wrongman
+  when: [knows has knot_seen]
+  text: You know what's behind that wall now.
+
+- id: hand_loc_keg
+  on: hand:loc:keg
+  speaker: manual
+  text: Nobody asked you to go back there.
+
+- id: hand_loc_lot
+  on: hand:loc:lot
+  speaker: father
+  text: Nobody waits in a lot for a good reason.
+
+- id: hand_loc_deck
+  on: hand:loc:deck
+  speaker: manual
+  when: [deck_door == true]
+  text: A propped door is an unmonitored entrance.
+
+- id: hand_loc_kitchen
+  on: hand:loc:kitchen
+  speaker: manual
+  when: [kitchen_door == true]
+  text: Somebody propped it. The log will want to know who.
+
+- id: hand_loc_hall
+  on: hand:loc:hall
+  speaker: father
+  text: Washrooms. Look under the doors. Feet tell you everything.
+
+- id: hand_loc_bar
+  on: hand:loc:bar
+  speaker: father
+  when: [drinks >= 2]
+  text: You're not going over there for water.
+
+- id: hand_wait_door
+  on: hand:wait
+  speaker: manual
+  when: [here has door]
+  text: They are still standing there.
+
+- id: hand_wait_father
+  on: hand:wait
+  speaker: father
+  text: Pick one and stand by it.
+
+- id: hand_wait_fighter
+  on: hand:wait
+  speaker: fighter
+  text: Decide, or somebody decides for you.
+
+- id: hand_wait_wrongman
+  on: hand:wait
+  speaker: wrongman
+  text: The doorman in the story stood there thinking, too.
+
+- id: hand_wait_kid
+  on: hand:wait
+  speaker: kid
+  text: you can take as long as you want. they won't
+
+- id: hand_wait_table
+  on: hand:wait
+  speaker: table
+  text: Come on, big fella, it's going warm.
+
+- id: hand_reread_wrongman
+  on: hand:reread
+  speaker: wrongman
+  text: It happened the way it happened. Reading it again won't change it.
+
+- id: hand_reread_manual
+  on: hand:reread
+  speaker: manual
+  text: Reviewing the log is good practice. The shift is still on.
+
+- id: hand_reread_father
+  on: hand:reread
+  speaker: father
+  text: Don't look back there. Look at the door.
+
+- id: hand_reread_kid
+  on: hand:reread
+  speaker: kid
+  text: i do that too
+
+- id: hand_back_father
+  on: hand:back
+  speaker: father
+  text: You went somewhere.
+
+- id: hand_back_manual
+  on: hand:back
+  speaker: manual
+  text: Nothing was logged while you were away.
+
+- id: hand_back_fighter
+  on: hand:back
+  speaker: fighter
+  text: Back. Eyes up.
+
+- id: hand_back_wrongman
+  on: hand:back
+  speaker: wrongman
+  text: Where were you? That's what they'll ask you.
+
+- id: hand_rush_father
+  on: hand:rush
+  speaker: father
+  text: Slow down. You're not reading them.
+
+- id: hand_rush_manual
+  on: hand:rush
+  speaker: manual
+  text: You are not reading.
+
+- id: hand_rush_fighter
+  on: hand:rush
+  speaker: fighter
+  text: Fast. Good. Don't think.
 
 # ---------------------------------------------------------------- voices he may take home (Friday on)
 

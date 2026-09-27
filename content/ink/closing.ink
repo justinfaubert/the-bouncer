@@ -362,7 +362,7 @@ TEAM_JACKET: We're going. We're going. Look at us going.
     ~ rep(rep_t28, 1)
     ~ pass(25)
     They took it. The bartender put the chairs up on the tables around them and they didn't notice, or noticed and didn't care, and at half past two they went, together, the way they'd come.
-* {walter != 0 || rep_t28 >= 0} [Sit down with them for the last one.]
+* {walter != 0 || rep_t28 >= 0} [Sit down with them for the last one. #hand: drink]
     ~ pass(15)
     ~ pull_table++
     ~ drink()
@@ -487,12 +487,12 @@ The bartender pushed it along the bar to him with a pen.
     { x == inc_drinking || x == inc_hurt:
         ~ cocoon--
     }
-+ [Write it so it reads better.]
++ [Write it so it reads better. #hand: shade]
     ~ shaded += x
     { x == inc_drinking || x == inc_hurt || x == inc_banned || x == inc_deck:
         ~ cocoon++
     }
-+ [Leave it out.]
++ [Leave it out. #hand: omit]
     ~ left_out += x
     ~ cocoon++
 - -> log_next
@@ -527,7 +527,7 @@ She turned the book round and read it.
 The chairs went up on the tables. The bartender put one song on the jukebox, the same one, he'd find out, every night, and counted the till with a rye at her elbow. #sfx: till
 // HUTCH: The song she puts on for the count. Yours to pick, or to write.
 She'd poured two. She pushed the other one along the bar to him without looking up from the twenties.
-* [Drink it.]
+* [Drink it. #hand: drink]
     ~ drink()
     FATHER: {Num(drinks)}. After hours still counts.
 * [Leave it where it is.]

@@ -95,7 +95,7 @@ Nobody moved, and a rye arrived anyway. The bartender put it down in front of hi
 FATHER: You know what that is.
 FIGHTER: It's a drink. Drink it. They'll trust you or they won't.
 - (the_rye)
-* [Drink it.]
+* [Drink it. #hand: drink]
     ~ drink()
     ~ pull_table++
     ~ rep(rep_t28, 1)
@@ -137,7 +137,7 @@ The price of diesel. The mill, which was on its last contract, everyone knew, no
     TEAM_JACKET: Longer than the owner.
     TABLE28: We were here first. Then Walter. Then everybody else.
     -> topics
-* {pull_table >= 2} [Stay for another.]
+* {pull_table >= 2} [Stay for another. #hand: drink]
     -> another
 + [Get up.]
     TEAM_JACKET: Don't be a stranger.
@@ -298,7 +298,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
 }
 - (t_opts)
 <- moves(t28)
-+ [Sit down with them.]
++ [Sit down with them. #hand: {at_t28.sit > 0:drink}]
     { at_t28.sit == 0:
         -> sit
     - else:

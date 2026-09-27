@@ -18,6 +18,10 @@
 //                  ally <voice>       /   odds <voice>     (how the speaker gets on with that voice now)
 //                  tension <op> <n>
 //
+// The hand: rules with `on: hand:<kind>` are what the voices say to the player while a hand is
+// on a choice, and when they notice the player (Game.whisper, Game.murmur). They're said whatever
+// the tension, and each once a night.
+//
 // Answers: after a voice barks, the others may answer it. A rule with `on: answer:father` is
 // offered right after THE FATHER says something; its speaker has to be someone else in the room.
 // Allies back each other up and voices at odds contradict, so the relationships in his head
@@ -103,13 +107,19 @@
       });
     }
 
-    pick(event, getVar, psyche, used, rng, not) {
+    // The most specific rule that holds, whatever the noise in his head (the hand's lines use it:
+    // a voice that's leaning in on a choice always gets a word in).
+    best(event, getVar, psyche, used, rng, not) {
       const cands = this.candidates(event, getVar, psyche, used, not);
       if (!cands.length) return null;
       let top = -1;
       for (const r of cands) if (r.specificity > top) top = r.specificity;
-      const best = cands.filter(function (r) { return r.specificity === top; });
-      const rule = rng.pick(best);
+      return rng.pick(cands.filter(function (r) { return r.specificity === top; }));
+    }
+
+    pick(event, getVar, psyche, used, rng, not) {
+      const rule = this.best(event, getVar, psyche, used, rng, not);
+      if (!rule) return null;
       if (!rule.always) {
         const t = Math.min(4, psyche.tension());
         if (rng.next() >= CHANCE[t]) return null;

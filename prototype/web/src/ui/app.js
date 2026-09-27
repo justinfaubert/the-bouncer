@@ -24,7 +24,7 @@
   const DEFAULTS = {
     size: 'm', reveal: 'lines', odds: 'words', dice: 'full', prompts: true, plates: true,
     sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false,
-    director: false
+    director: false, notice: true
   };
   const SNAPS = 80;          // how many choices director mode can step back through
   const SIZES = { s: 15, m: 16, l: 17.5 };
@@ -42,7 +42,9 @@
     plateLook: {},               // place -> what its last plate showed
     inkAmb: null,
     lastFocus: null,
-    rainStop: null
+    rainStop: null,
+    hand: null,                  // the voices reaching for the player (src/ui/hand.js)
+    readChars: 0                 // how much story came before the choices now up
   };
 
   // The light of the night by the shift clock. The plates and the page take its tint (style.css).
@@ -67,6 +69,15 @@
     app.game = new B.Game(C);
     app.audio = new B.Audio(C.assets, (C.meta && C.meta.assetBase) || '');
     app.dir = B.DirectorUI(directorApi());
+    app.hand = B.Hand({
+      game: function () { return app.game; },
+      on: function () { return app.settings.notice !== false && app.inGame && !!app.game.story && !app.game.ended; },
+      busy: function () { return !!app.pending || !!app.rolling || !$('#overlay').hidden || $('#rail').classList.contains('open') && globalThis.matchMedia && globalThis.matchMedia('(max-width: 860px)').matches; },
+      after: $('#after'), story: $('#story'), inner: $('.story-inner'), head: $('#head'),
+      audio: app.audio,
+      style: voiceStyle,
+      reduced: reducedMotion
+    });
     applySettings();
 
     $('#map').innerHTML = V.mapSVG();
@@ -164,6 +175,7 @@
 
   function showTitle() {
     if (app.rolling) app.rolling.finish();
+    if (app.hand) app.hand.stop();
     closeDialog();
     closeRail();
     app.inGame = false;
@@ -222,6 +234,7 @@
 
   function resetStory() {
     if (app.rolling) { app.rolling.cancel(); app.rolling = null; }
+    if (app.hand) app.hand.stop();
     document.getElementById('app').classList.remove('rolling');
     $('#log').innerHTML = '';
     $('#after').innerHTML = '';
@@ -290,9 +303,11 @@
     const list = app.game.choices.filter(function (c) { return !c.hidden; });
     if (!list[visibleIndex]) return;
     snapshot();
+    // the other choices the player had a hand on first, so a voice can say so (src/ui/hand.js)
+    const considered = app.hand ? app.hand.leave(visibleIndex) : [];
     let res;
     try {
-      res = app.game.choose(visibleIndex);
+      res = app.game.choose(visibleIndex, { considered: considered });
     } catch (e) {
       toast('Something went wrong with that choice.');
       return;
@@ -303,6 +318,7 @@
 
   function show(res, live) {
     $('#after').innerHTML = '';
+    if (live) app.readChars = res.items.reduce(function (n, it) { return n + (it.kind === 'line' && it.text ? it.text.length : 0); }, 0);
     const first = renderItems(res.items, live);
     if (!app.pending) after(res, live);
     else renderRail();
@@ -850,6 +866,7 @@
   function renderChoices(choices, ended) {
     const box = $('#after');
     box.innerHTML = '';
+    if (app.hand) app.hand.stop();
     if (ended) { box.append(endCard()); return; }
     const list = choices.filter(function (c) { return !c.hidden; });
     // The ways out of a place (#class: move) go under what there is to do there, as a row of
@@ -917,6 +934,7 @@
       });
       box.append(nav);
     }
+    if (app.hand) app.hand.attach(app.readChars);
   }
 
   // A choice that lets a voice into his head or puts one out (#room in the Ink) says first how loud
@@ -1193,6 +1211,7 @@
         field('Dice', 'How a check plays out. Tap the dice to skip ahead.', seg('Dice', [['full', 'Rolled out'], ['quick', 'Quick'], ['still', 'At once']], s.dice, function (v) { s.dice = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
         field('Pictures', 'A print of each place as he walks in, and the faces of the people.', toggle('set-plates', s.plates, function (v) { s.plates = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-plates'),
+        field('The voices notice you', 'They lean in when your hand is on a choice, and notice when you hesitate or read back.', toggle('set-notice', s.notice !== false, function (v) { s.notice = v; saveSettings(); if (!v && app.hand) app.hand.stop(); }), 'set-notice'),
         field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-prompts'),
         field('Director mode', 'Tap any line to rewrite, cut or add to it. Key: D.', toggle('set-director', app.dir.on, function (v) { setDirector(v, true); }), 'set-director'),
         field('Sound', null, toggle('set-sound', s.sound, function (v) { s.sound = v; saveSettings(); if (v) app.audio.unlock(); }), 'set-sound'),

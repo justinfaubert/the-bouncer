@@ -34,7 +34,7 @@
     -> how_long
 * {at_bar.how_long > 0} ["What do I call you?"]
     -> name
-+ [{drinks == 0:"Pour me one."|"Another."}]
++ [{drinks == 0:"Pour me one."|"Another."} #hand: drink]
     -> shift_drink
 + {knows ? endbar_seen && at_bar.endbar < 3} [Go and stand by the old man at the end of the bar.]
     -> endbar
