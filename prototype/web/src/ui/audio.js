@@ -581,10 +581,16 @@
       }
       a.burst(t + 0.09, 0.05, 600, 0.8, 0.09 * v, null, 'lowpass');
     },
-    // his heart, in his ears
+    // his heart, in his ears: lub, dub. The low of it is felt more than heard, so each beat carries
+    // an octave up and a soft thud too, or a phone's speaker would play nothing at all.
     heart(a, t, v) {
+      v = Math.max(0.02, v);
       a.tone(t, 58, 0.12, 0.3 * v, 'sine', null, 38);
+      a.tone(t, 116, 0.07, 0.1 * v, 'sine', null, 72);
+      a.burst(t, 0.05, 190, 0.9, 0.09 * v, null, 'lowpass');
       a.tone(t + 0.19, 52, 0.15, 0.22 * v, 'sine', null, 34);
+      a.tone(t + 0.19, 104, 0.08, 0.07 * v, 'sine', null, 66);
+      a.burst(t + 0.19, 0.045, 170, 0.9, 0.06 * v, null, 'lowpass');
     }
   };
 

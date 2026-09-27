@@ -336,11 +336,12 @@ for (const [f, w] of Object.entries(scan.words.byFile)) console.log(`  ${f.padEn
 if (problems.warnings.length) console.log(`${problems.warnings.length} warning(s).`);
 
 // The local files a stylesheet loads. Each url(...) is read whole, quotes and all, so a data: URI
-// with a url() inside it (an SVG filter) is passed over rather than taken apart.
+// with a url() inside it (an SVG filter) is passed over rather than taken apart, and so is a
+// reference to something in the page itself (url(#slip1), a filter src/ui/skin.js puts there).
 const CSS_URL = /url\(\s*(?:"([^"]*)"|'([^']*)'|([^)'"\s]+))\s*\)/g;
 const localUrl = (m) => {
   const u = m[1] != null ? m[1] : m[2] != null ? m[2] : m[3];
-  return /^(?:https?:|data:)/.test(u) ? null : u;
+  return /^(?:https?:|data:|#)/.test(u) ? null : u;
 };
 
 // ---------------------------------------------------------------- offline: one file

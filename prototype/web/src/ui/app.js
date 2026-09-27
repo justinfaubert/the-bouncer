@@ -24,7 +24,7 @@
   const DEFAULTS = {
     size: 'm', reveal: 'lines', odds: 'words', dice: 'full', prompts: true, plates: true,
     sound: true, master: 0.8, amb: 0.6, sfx: 0.8, music: 0.6, cloud: false,
-    director: false, notice: true
+    director: false, notice: true, skin: true
   };
   const SNAPS = 80;          // how many choices director mode can step back through
   const SIZES = { s: 15, m: 16, l: 17.5 };
@@ -46,6 +46,7 @@
     hand: null,                  // the voices reaching for the player (src/ui/hand.js)
     readChars: 0,                // how much story came before the choices now up
     toys: null,                  // the clicker, and things he's handed (src/ui/toys.js)
+    skin: null,                  // drink, hurt, his heart and the rain, on the page (src/ui/skin.js)
     saveTimer: 0
   };
 
@@ -91,6 +92,11 @@
       waits: function (id) { return app.game.story && !app.game.ended ? app.game.toyMoves(id) : []; },
       face: faceNow,
       plates: function () { return !!app.settings.plates; },
+      audio: app.audio,
+      reduced: reducedMotion
+    }) : null;
+    app.skin = B.Skin ? B.Skin({
+      on: function () { return app.settings.skin !== false && app.inGame; },
       audio: app.audio,
       reduced: reducedMotion
     }) : null;
@@ -192,6 +198,7 @@
   function showTitle() {
     if (app.rolling) app.rolling.finish();
     if (app.hand) app.hand.stop();
+    if (app.skin) app.skin.stop();
     closeDialog();
     closeRail();
     app.inGame = false;
@@ -252,6 +259,7 @@
     if (app.rolling) { app.rolling.cancel(); app.rolling = null; }
     if (app.hand) app.hand.stop();
     if (app.toys) app.toys.stop();
+    if (app.skin) app.skin.stop();
     document.getElementById('app').classList.remove('rolling');
     $('#log').innerHTML = '';
     $('#after').innerHTML = '';
@@ -581,7 +589,9 @@
       // thrown by hand unless they're set to roll themselves
       hand: app.settings.dice === 'full',
       murmur: function (what) { return app.settings.notice !== false && app.game ? app.game.murmur(what) : null; },
-      styleOf: voiceStyle
+      styleOf: voiceStyle,
+      // his heart, while they're in his hand and in the air (src/ui/skin.js)
+      pulse: function (what) { if (app.skin) app.skin.dice(what, p); }
     });
   }
 
@@ -1091,6 +1101,8 @@
     for (const el of document.querySelectorAll('[data-status]')) el.innerHTML = html;
     if (app.toys) app.toys.afterRail(st.count);
     if (app.props) app.props.refresh();
+    // his skin shows what's happened once it's on the page, not while the dice are still out
+    if (app.skin && !app.pending) app.skin.update(st, g.turn);
 
     // the map: every choice that goes somewhere lights its spot
     const open = {};
@@ -1302,6 +1314,7 @@
         field('Dice', 'How a check plays out. By hand: hold the dice to shake them, let go to throw. Tap the dice to skip ahead.', seg('Dice', [['full', 'By hand'], ['auto', 'Rolled out'], ['quick', 'Quick'], ['still', 'At once']], s.dice, function (v) { s.dice = v; saveSettings(); })),
         field('Odds on checks', 'How the chance on a check is shown.', seg('Odds on checks', [['words', 'Words'], ['numbers', 'Numbers']], s.odds, function (v) { s.odds = v; saveSettings(); if (app.inGame) renderChoices(app.game.choices, app.game.ended); })),
         field('Pictures', 'A print of each place as he walks in, and the faces of the people.', toggle('set-plates', s.plates, function (v) { s.plates = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-plates'),
+        field('In his skin', 'Drink, hurt and nerves show on the page: the print slips, the edges throb, his heart comes up.', toggle('set-skin', s.skin !== false, function (v) { s.skin = v; saveSettings(); if (app.inGame) renderRail(); }), 'set-skin'),
         field('The voices notice you', 'They lean in when your hand is on a choice, and notice when you hesitate or read back.', toggle('set-notice', s.notice !== false, function (v) { s.notice = v; saveSettings(); if (!v && app.hand) app.hand.stop(); }), 'set-notice'),
         field('Show writing prompts', 'Marks the places where the draft needs your material.', toggle('set-prompts', s.prompts, function (v) { s.prompts = v; saveSettings(); if (app.inGame) rerenderLog(); }), 'set-prompts'),
         field('Director mode', 'Tap any line to rewrite, cut or add to it. Key: D.', toggle('set-director', app.dir.on, function (v) { setDirector(v, true); }), 'set-director'),

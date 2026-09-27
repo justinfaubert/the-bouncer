@@ -883,9 +883,10 @@
       // how to put a hand on a choice: once the checks have been explained, the first time a voice
       // has something to say about one, and not in the same breath as another explanation
       if (this.taught.indexOf('hand') === -1 && this.taught.indexOf('check') !== -1 && this.turn >= 3 && !items.some(function (it) { return it.bark && /^teach_/.test(it.bark); }) && shown.some(this._leans, this)) this._teach('hand', items, items.length);
-      // the clicker, once it's in his hand
-      if (this.taught.indexOf('clicker') === -1 && this.clickerInHand()) this._teach('clicker', items, items.length);
-      if (!this.story.canContinue && this.choices.length === 0) this.ended = true;
+      // the clicker, once it's in his hand (not after the night's over: a night saved before there was a lesson)
+      const over = !this.story.canContinue && this.choices.length === 0;
+      if (!over && this.taught.indexOf('clicker') === -1 && this.clickerInHand()) this._teach('clicker', items, items.length);
+      if (over) this.ended = true;
       for (const it of items) {
         if ((it.kind === 'fx' && it.type !== 'portrait') || it.kind === 'pause') continue;
         this.log.push(it);

@@ -12,7 +12,8 @@
 // B.Roll.card(item, opts) -> { node, play(onDone), finish(), cancel(), inHand(), grip(), letGo() }
 //   item: the check item from the Game ({voice, label, target, word, mods, roll, success, turn})
 //   opts: { voiceClass, odds (text for the head), audio, speed: 'full'|'quick', still: bool,
-//           hand: bool, murmur(what) -> {speaker, label, text} | null, styleOf(voice) }
+//           hand: bool, murmur(what) -> {speaker, label, text} | null, styleOf(voice),
+//           pulse(what): 'hand' (waiting in the hand), 'throw', 'stamp', 'stop' (his heart, src/ui/skin.js) }
 (function (B) {
   'use strict';
 
@@ -229,6 +230,7 @@
     function stamp(sound) {
       if (stamped) return;
       stamped = true;
+      pulse('stamp');
       node.classList.add('stamped');
       node.querySelector('.rl-sr').textContent = 'Rolled ' + r.d1 + ' and ' + r.d2 + '. ' + (item.success ? 'Success' : 'Failure') + (crit ? ', ' + crit.toLowerCase() : '') + '.';
       if (opts.audio) {
@@ -251,6 +253,7 @@
     function still() { settle(); stamped = true; node.classList.add('stamped'); node.querySelector('.rl-sr').textContent = 'Rolled ' + r.d1 + ' and ' + r.d2 + '. ' + (item.success ? 'Success' : 'Failure') + '.'; }
 
     function at(ms, fn) { timers.push(setTimeout(function () { if (!over) fn(); }, ms)); }
+    function pulse(what) { if (opts.pulse) { try { opts.pulse(what); } catch (e) { /* not worth the roll */ } } }
 
     // ---- thrown by hand ----------------------------------------------------
 
@@ -348,6 +351,7 @@
         if (B.Plates && B.Plates.hold) B.Plates.hold(60000);
         if (opts.audio) opts.audio.duck(true);
         waitInHand();
+        pulse('hand');
         return;
       }
       throwIt(-1);
@@ -357,6 +361,7 @@
     function throwIt(shook) {
       const byHand = shook >= 0;
       if (B.Plates && B.Plates.hold) B.Plates.hold(8000);     // nothing off the press while they're in the air
+      pulse('throw');
       const a = opts.audio;
       if (a) a.duck(true);
       // (a click that let go of the dice isn't a click to skip them)
@@ -506,6 +511,7 @@
       if (opts.audio) opts.audio.duck(false);
       node.removeEventListener('click', finish);
       if (B.Plates && B.Plates.hold) B.Plates.hold(0);
+      pulse('stop');
     }
 
     return {

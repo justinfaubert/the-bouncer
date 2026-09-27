@@ -1506,3 +1506,82 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
   .lic.lifted, .lic-compare, .lic-compare.again, .phone.tug, .bd-page { animation: none; }
   .phone { transition: none; }
 }
+
+/* ------------------------------------------------------------------ his skin
+ *
+ * What the night is doing to him, laid over the page (src/ui/skin.js; Settings → In his skin).
+ * Drink: the print slips out of register, the red first, then the black and the words doubling,
+ * and from the fourth drink the page sways. Hurt: the edges throb. His heart: the edges go dark on
+ * each beat. The door: rain on the glass, in the margins.
+ */
+:root {
+  --sk-hurt: 132, 14, 10; --sk-hurt-a: .5; --sk-beat: 24, 12, 8; --sk-beat-a: .34; --sk-img: brightness(1);
+  --sk-drop: 28, 27, 24; --sk-drop-dark: 0; --sk-glass: 56, 70, 84; --sk-glass-a: .07;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sk-hurt: 186, 22, 14; --sk-hurt-a: .5; --sk-beat: 0, 0, 0; --sk-beat-a: .66; --sk-img: brightness(.93);
+    --sk-drop: 234, 226, 211; --sk-drop-dark: 1; --sk-glass: 0, 0, 0; --sk-glass-a: .3;
+  }
+}
+:root[data-theme="dark"] {
+  --sk-hurt: 186, 22, 14; --sk-hurt-a: .5; --sk-beat: 0, 0, 0; --sk-beat-a: .66; --sk-img: brightness(.93);
+  --sk-drop: 234, 226, 211; --sk-drop-dark: 1; --sk-glass: 0, 0, 0; --sk-glass-a: .3;
+}
+
+.skin { grid-area: story; position: relative; z-index: 25; pointer-events: none; overflow: hidden; }
+.app[data-state="title"] .skin { display: none; }
+.skin > * { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* hurt: a throb at the edges, slower than a heart; strong when it's new, then it comes and goes */
+.sk-hurt { opacity: 0; transition: opacity 1.6s ease; }
+.sk-hurt i {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 72% 66% at 50% 46%, transparent 50%, rgba(var(--sk-hurt), calc(var(--sk-hurt-a) * .45)) 76%, rgba(var(--sk-hurt), var(--sk-hurt-a)) 100%);
+  animation: sk-throb 2.6s ease-in-out infinite;
+}
+.app[data-hurt="1"] .sk-hurt { opacity: 1; animation: sk-ache 26s ease-in-out infinite; }
+.app[data-hurt="2"] .sk-hurt { opacity: 1; animation: sk-ache2 15s ease-in-out infinite; }
+.app[data-hurt="2"] .sk-hurt i {
+  animation-duration: 1.8s;
+  background: radial-gradient(ellipse 68% 62% at 50% 46%, transparent 42%, rgba(var(--sk-hurt), calc(var(--sk-hurt-a) * .6)) 72%, rgba(var(--sk-hurt), calc(var(--sk-hurt-a) * 1.35)) 100%);
+}
+@keyframes sk-throb { 0%, 100% { opacity: .3; } 16% { opacity: 1; } 42% { opacity: .55; } }
+@keyframes sk-ache { 0%, 36% { opacity: 1; } 62% { opacity: .12; } 82% { opacity: .5; } 100% { opacity: 1; } }
+@keyframes sk-ache2 { 0%, 45% { opacity: 1; } 70% { opacity: .35; } 100% { opacity: 1; } }
+
+/* his heart: the edges go dark with each beat */
+.sk-beat {
+  opacity: 0;
+  background: radial-gradient(ellipse 78% 72% at 50% 46%, transparent 56%, rgba(var(--sk-beat), calc(var(--sk-beat-a) * .5)) 80%, rgba(var(--sk-beat), var(--sk-beat-a)) 100%);
+  transition: opacity .55s ease-out;
+}
+.skin.beat .sk-beat { opacity: var(--beat, .6); transition: opacity .06s ease-in; }
+
+/* the rain on the door's glass (the canvas masks itself to the margins) */
+.sk-glass { opacity: 0; transition: opacity 1.4s ease; background: linear-gradient(rgba(var(--sk-glass), calc(var(--sk-glass-a) * .6)), rgba(var(--sk-glass), var(--sk-glass-a))); }
+.sk-glass.on { opacity: 1; }
+
+/* drink: the pictures near the foot of the page slip out of register (filters made in skin.js) */
+.app[data-drunk="1"] { --slip: url(#slip1); }
+.app[data-drunk="2"] { --slip: url(#slip2); --dbl: .045em .012em 0; --dbl-a: 20%; }
+.app[data-drunk="3"] { --slip: url(#slip3); --dbl: .08em .02em 0; --dbl-a: 25%; }
+.app[data-drunk="4"] { --slip: url(#slip4); --dbl: .12em .03em 0; --dbl-a: 30%; }
+.app[data-drunk]:not([data-drunk="0"]) .log img.slips { filter: var(--slip) var(--sk-img); }
+/* and the words double */
+.app[data-drunk="2"] .log .ln, .app[data-drunk="3"] .log .ln, .app[data-drunk="4"] .log .ln,
+.app[data-drunk="3"] .after .choice, .app[data-drunk="4"] .after .choice {
+  text-shadow: var(--dbl) color-mix(in srgb, currentColor var(--dbl-a), transparent);
+}
+/* and from the fourth drink, the room moves */
+.app[data-drunk="3"] .story-inner { animation: sk-sway 9s ease-in-out infinite; }
+.app[data-drunk="4"] .story-inner { animation: sk-sway-hard 6.5s ease-in-out infinite; }
+.app.jolt .story-inner { animation: sk-lurch 1.7s cubic-bezier(.3, .6, .3, 1) 1; }
+@keyframes sk-sway { 0%, 100% { translate: 0 0; } 30% { translate: 2.5px .6px; } 70% { translate: -2px -.5px; } }
+@keyframes sk-sway-hard { 0%, 100% { translate: 0 0; } 22% { translate: 5px 1.2px; } 48% { translate: 1px 2px; } 74% { translate: -4.5px -.8px; } }
+@keyframes sk-lurch { 0% { translate: 0 0; } 14% { translate: 8px 2px; } 38% { translate: -5px -1px; } 64% { translate: 2px .5px; } 100% { translate: 0 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-hurt i, .app[data-hurt] .sk-hurt { animation: none; }
+  .app[data-drunk] .story-inner, .app.jolt .story-inner { animation: none; }
+}
