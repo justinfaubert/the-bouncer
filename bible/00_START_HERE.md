@@ -22,6 +22,7 @@ Made by **Hutch** (showrunner with final cut, music, sound, voice) and **Claude*
 | `bible/05_LOG.md` | Session log, decisions register, open questions |
 | `bible/07_ENGAGEMENT.md` | What holds a player: the devices taken from Disco Elysium and what this game does past them |
 | `bible/08_FUTURE_FORM.md` | The game past the prototype: Godot, the view through his eyes, the print made real, who makes the pictures, and the path |
+| `bible/09_REVIEW.md` | The honest review before the Godot polish pass (28 September 2026): what works, what doesn't, what to invent, and what the pass builds; marked-up frames in `bible/review/` |
 | `tools/psyche_census.py` | Generates the 34 psyche states and checks the math (zip only) |
 | `data/psyche_states.json` | Its output (zip only) |
 
