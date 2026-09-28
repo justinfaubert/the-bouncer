@@ -1,0 +1,17 @@
+; The Bouncer: Wednesday, the test shift, through his eyes, printed.
+; Built from content/ink and content/data by tools/build.mjs; see README.md.
+
+config_version=5
+
+[application]
+config/name="The Bouncer"
+config/description="Wednesday night at the Sovereign, from the door."
+
+[display]
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=1

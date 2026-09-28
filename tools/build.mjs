@@ -329,6 +329,11 @@ const contentJs = (c) =>
   'globalThis.BOUNCER_CONTENT = ' + JSON.stringify(c) + ';\n';
 fs.writeFileSync(P('data', 'build', 'content.json'), JSON.stringify(content));
 fs.writeFileSync(P('prototype', 'web', 'content.js'), contentJs(content));
+// the Godot build reads the same content (godot/README.md)
+if (fs.existsSync(P('godot', 'project.godot'))) {
+  fs.mkdirSync(P('godot', 'data'), { recursive: true });
+  fs.writeFileSync(P('godot', 'data', 'content.json'), JSON.stringify(content));
+}
 fs.writeFileSync(P('content', 'WRITING_PROMPTS.md'), promptMd.join('\n') + '\n');
 
 console.log(`Built ${build}: ${files.length} Ink files, ${scan.words.total.toLocaleString()} words, ${Object.keys(voices).length} voices, ${Object.keys(characters).length} characters, ${barkSet.rules.length} barks, ${wordSet.rules.length} lines of the word on him, ${scan.prompts.length} writing prompts, ${assetFiles.length} art and sound files.`);
