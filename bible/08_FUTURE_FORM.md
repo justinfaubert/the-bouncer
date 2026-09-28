@@ -77,8 +77,11 @@ Keep the print. It's the game's identity, and it belongs to a world of pamphlets
 Three routes to the faces:
 
 1. **An artist Hutch commissions** (recommended): a painter or printmaker whose work Hutch loves, ideally someone local who can sit in the kind of room we're making. Wednesday has ten people with portraits. Prices vary a lot by artist; expect low thousands of dollars for ten, not hundreds, and get quotes.
-2. **Hutch's own hand,** if Hutch draws, paints or carves.
+2. ~~**Hutch's own hand,** if Hutch draws, paints or carves.~~ Hutch isn't a visual artist (2026-09-27).
 3. **Photographed sitters,** printed like the photos on licences. It fits a job made of ID photos, but the sitters are real people who have to agree to it, and a photograph can't exaggerate the way a painting can.
+4. **Carved in code** [PROPOSED 2026-09-28]: the faces sculpted by Claude along with the bodies, like whittled figures, so they read as a style rather than failed realism. The look test uses them. It costs nothing and it's the least human of the four; an artist's faces can replace them later without changing anything else.
+
+**The look test (28 September):** Hutch asked Claude to take a crack at the modelling and texturing, for "a coherent, novel visual design that feels good to look at while being a way to get away with a lack of visual complexity". The answer is the night, printed: every view a print in three inks (night, lamp and neon) on the build's cream stock, the light picking the ink, the dark cut like a lino block in strokes that follow the surfaces, a keyline at every edge, the grain staying on the world as he turns his head, and drink pushing the plates out of register. Simple models look deliberate in it, the way Return of the Obra Dinn's one-bit screen made its models look drawn, and the detail goes where the story is. The door scene in the look, with every model, texture and shader made in code, is in `sketches/door-look/`.
 
 ## Sound
 
@@ -89,13 +92,13 @@ Hutch's, recorded, as already proposed: the jukebox songs Hutch plays; the empty
 | Who | Does |
 |---|---|
 | Hutch | Director and writer with final cut. The music, the recordings, the teller's voice. The reality: photographs, measurements, how the door really goes. |
-| Claude | The Godot game: engine, systems, the print renderer and shaders, the room's build and light, every designed object, the tools (director mode, bots), and drafts for Hutch to cut. |
+| Claude | The Godot game: engine, systems, the print renderer and shaders, the room's build and light, the models and textures (Hutch's ask, 27 September), every designed object, the tools (director mode, bots), and drafts for Hutch to cut. |
 | One artist | The faces, and the look of the people in the room. |
 
 ## The path
 
 1. **Pick the form and the route to the faces.** The conversation of 27 September.
-2. **Give the game a home Hutch owns.** A private GitHub repo with everything in it (bible, Ink, tools, the browser build, the Godot project), attached to the project. Hutch's Arch machine connected with Remote Control (`claude remote-control` in the game's folder), so Claude works in Godot there, on the 3080, while Hutch watches it in the editor. Claude's cloud workspace can't reach github.com or godotengine.org (Godot 4.7.2 came from the SourceForge mirror); adding those hosts to the allowed domains in the project's environment settings lets the cloud threads build too. If Hutch built the Godot bridge they designed in April 2026, use it.
+2. **Give the game a home Hutch owns.** A private GitHub repo with everything in it (bible, Ink, tools, the browser build, the Godot project), attached to the project. (Hutch linked their GitHub account on 27 September; the push waits on an empty private repo named `the-bouncer`.) Hutch's Arch machine connected with Remote Control (`claude remote-control` in the game's folder), so Claude works in Godot there, on the 3080, while Hutch watches it in the editor. Claude's cloud workspace can't reach github.com or godotengine.org (Godot 4.7.2 came from the SourceForge mirror); adding those hosts to the allowed domains in the project's environment settings lets the cloud threads build too. If Hutch built the Godot bridge they designed in April 2026, use it.
 3. **One scene at final quality: the door, 7:50 pm.** The vestibule from his stool, the lot through the glass in the rain, the room behind him, the kid with his phone and then his licence, a check thrown on the ledge, the voices, Hutch's recordings. A stand-in face, marked as one, until the artist's arrives. It proves the form, the look, the sound, the head in the world and the hands. It becomes the artist's brief, the first thing on a store page, and the yardstick for everything after.
 4. **Then Wednesday, post by post,** in that form: the checks, the psyche, the word on him, the voices, the sketch, director mode and the bots, rewritten in GDScript against the same Ink. The Ink runs through inkgd (pure GDScript, with no official Godot 4 release yet, so it has to pass a smoke test on Wednesday first), with the C# runtime as the fallback.
 5. **Then Thursday and Friday,** written in Ink as before and played in Godot.
@@ -106,7 +109,7 @@ Nothing widens until the door scene is as good as it can be made.
 
 ## Open, for Hutch
 
-1. Does Hutch draw, paint or carve?
+1. ~~Does Hutch draw, paint or carve?~~ No. Hutch does the audio and the writing (2026-09-27).
 2. Is there money for an artist, and is there anyone whose work Hutch would want?
 3. ~~Through his eyes, from above, or free walk?~~ Through his eyes (Hutch, 2026-09-27).
 4. When Hutch can: a dozen photographs of an empty bar Hutch knows, before open.

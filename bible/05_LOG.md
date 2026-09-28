@@ -69,6 +69,13 @@ Update this file at the end of every session: add a session entry, move items be
 - Hutch picked the form: through his eyes, from his posts (DECIDED below).
 - Camera test: the door post at 7:50 blocked out in Godot in grey shapes, with the lines from `door.ink` in the column (`sketches/door-camera/`, frames in its `frames/`). It follows the build's floor sketch, not the older one in `06_THE_HOTEL.md`. Found: the stool works beside the door, not square in front of it; from the door the bar is behind his right shoulder, so the end of the bar is a post of its own; a voice's mark can stay on the thing it marks while he looks away.
 
+### 2026-09-27 to 28 (Sunday night), the look
+
+- Hutch: going through his eyes feels like the right move. Hutch isn't a visual artist (AI image generation or some photoshopping at most) and will do the audio and refine the writing. Hutch asked Claude to take a crack at the modelling and texturing: "a coherent, novel visual design that feels good to look at while being a way to get away with a lack of visual complexity". And to push everything to git; Hutch linked their GitHub account.
+- Claude's suggestions: the night, printed (the look, PROPOSED below); Hutch directs, writes and does the sound, and Claude does the models, textures, look and code; photographs of real surfaces are the most useful thing Hutch can give the look; AI images kept out of what ships (Hutch's call, question 12); keep writing in the browser build's director mode, since the Godot build reads the same Ink.
+- Git: waiting on Hutch to create an empty private repo named `the-bouncer` on GitHub. Claude can't create one from the cloud workspace, where github.com is blocked, so the push goes through the GitHub connection once it exists.
+- The look test, in `sketches/door-look/` (frames in its `frames/`): the door scene from the camera test built properly and run through the press. The view out through the door, the kid with his phone, the room, the kid four drinks in, and the head turn. Every model, texture and shader was made in code: the people sculpted as signed distance fields from their looks in `content/data/characters.yaml`, the things modelled by script in Blender, the textures drawn in Python.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -167,6 +174,13 @@ Proposed with the future form (2026-09-27), in `08_FUTURE_FORM.md`:
 - The print made real: the room built in 3D from photographs and measurements of a real empty bar; faces painted by one commissioned artist and printed through the same press; everything designed stays Claude's; no AI-generated images in the game.
 - The path: a home Hutch owns (a private GitHub repo attached to the project, Hutch's machine on Remote Control), then one scene at final quality (the door, 7:50 pm), then Wednesday post by post, then Thursday and Friday. This swaps M3 and M4 in `04_PRODUCTION.md`.
 
+Proposed with the look test (2026-09-28), in `sketches/door-look/`:
+
+- The look: the night, printed. Every view is a print on cream stock in three inks (night, lamp and neon), and the light picks the ink. The dark is cut like a lino block, in strokes that follow the surfaces; every edge takes a keyline; the grain stays on the world when he turns his head; drink pushes the plates out of register.
+- Claude makes the models and textures in code, simple and cut rather than detailed, and spends the detail where the story is: the licence on the phone, the tape by the door, the signs, the gold leaf.
+- The faces carved in code like whittled figures, a style of their own: a fourth route to the faces beside the three in `08_FUTURE_FORM.md`.
+- The room's details: the old dining room's sconces; the carpet (maroon, a navy trellis, gold rosettes) worn to the backing past the mat and along the bar; a coin-op pool table; the wall jukebox that takes a card; the dartboard with the chalked scores on its doors; the hockey on one TV and the news on the other (a rainfall warning for the east coast of the island); SOVEREIGN over PUB in gold leaf on the door; the house rule on the ID sign, "no pictures on phones"; masking tape by the door with the night's sum in marker, `19 = NOV 4 07`.
+
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
@@ -190,7 +204,7 @@ Proposed with the future form (2026-09-27), in `08_FUTURE_FORM.md`:
 8. What is the event, and what is the public date?
 9. Does the narrator frame stay?
 10. Is the relational psyche the core system?
-11. Art: does Hutch draw? Is there a local painter or printmaker? A budget?
+11. Art: Hutch isn't a visual artist (2026-09-27). Open: is there a local painter or printmaker, and a budget, or do the faces carved in code carry it (the look test)?
 12. Which way does the game go on AI disclosure?
 13. Violence: Hutch describes how it actually goes.
 
