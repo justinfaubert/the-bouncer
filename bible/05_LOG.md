@@ -73,8 +73,8 @@ Update this file at the end of every session: add a session entry, move items be
 
 - Hutch: going through his eyes feels like the right move. Hutch isn't a visual artist (AI image generation or some photoshopping at most) and will do the audio and refine the writing. Hutch asked Claude to take a crack at the modelling and texturing: "a coherent, novel visual design that feels good to look at while being a way to get away with a lack of visual complexity". And to push everything to git; Hutch linked their GitHub account.
 - Claude's suggestions: the night, printed (the look, PROPOSED below); Hutch directs, writes and does the sound, and Claude does the models, textures, look and code; photographs of real surfaces are the most useful thing Hutch can give the look; AI images kept out of what ships (Hutch's call, question 12); keep writing in the browser build's director mode, since the Godot build reads the same Ink.
-- Git: waiting on Hutch to create an empty private repo named `the-bouncer` on GitHub. Claude can't create one from the cloud workspace, where github.com is blocked, so the push goes through the GitHub connection once it exists.
 - The look test, in `sketches/door-look/` (frames in its `frames/`): the door scene from the camera test built properly and run through the press. The view out through the door, the kid with his phone, the room, the kid four drinks in, and the head turn. Every model, texture and shader was made in code: the people sculpted as signed distance fields from their looks in `content/data/characters.yaml`, the things modelled by script in Blender, the textures drawn in Python.
+- Git: Hutch made a private repo on GitHub, `justinfaubert/the-bouncer`, and on 28 September everything here went up to it with its history, through the GitHub connection (github.com itself is blocked in the cloud workspace). This folder's repo tracks it as `origin`.
 
 ## Decisions register
 
