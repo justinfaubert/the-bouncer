@@ -1,0 +1,894 @@
+# Things in his hands: what he's handed at the door, or picks up (content/data/props.yaml; a line
+# in the Ink hands one over with #prop:). They come up into his view, printed clean, and the player
+# handles them with their own hands:
+#
+#   a licence   click it and it turns over; the pointer over it tips it to the light (the laminate
+#               catches the lamp); E holds it up beside the face of whoever handed it over, in the
+#               room, for the player to compare the two.
+#   the phone   the kid holds it up with a photo of his licence on it. E, or a click on it, takes it;
+#               then R (or a drag across it) swipes to the next photo, and E brings it closer.
+#   the binder  the 86 binder from under the till: Q and R leaf through the sleeves. Staying on a
+#               page is looking at it; getting to the back is having been through them all.
+#   the clicker in his left hand at the door: C clicks it (the count goes on with nobody coming in);
+#               holding Z turns the knob that sets it back to nothing.
+#
+# Every handling goes to the game (main.toy, Game.toy): if a choice on offer is waiting for it,
+# that choice is made; otherwise a voice may say something. A thing stays in his hands while the
+# choices it came with are on offer, or while a choice on offer waits for it; after that he hands it
+# back. Esc puts it down for a moment; E picks it up again.
+#
+# The pictures on them (the licence's face and fields, the phone's photos, the binder's sleeves) are
+# made once, in a darkroom of small viewports, before the night starts.
+class_name Props
+extends Node
+
+const PEOPLE := "res://models/people/"
+const CARD := Vector2(0.0856, 0.054)
+const TILT := 16.0
+const TILT_SEEN := 40.0
+const DWELL := 3.0
+const KNOB := 0.95
+const MONTHS := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+# the licence's photo: whose face, as a model
+const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card"}
+
+var main
+var P := {}                      # content.props
+var tex := {}                    # the darkroom's pictures, by name
+var jobs: Array = []
+var developing := false
+var held = null                  # what's in his hands: a Dictionary, or null
+var hint: Label
+var _zero_at := -1.0
+var _notch := 0.0
+var t := 0.0
+
+
+func setup(m) -> void:
+	main = m
+	P = main.content.get("props", {})
+	hint = Label.new()
+	hint.add_theme_font_override("font", UiBits.spaced("ui_b", 2))
+	hint.add_theme_font_size_override("font_size", 19)
+	hint.add_theme_color_override("font_color", Color(Look.STOCK, 0.92))
+	hint.add_theme_color_override("font_outline_color", Color(Look.NIGHT, 0.9))
+	hint.add_theme_constant_override("outline_size", 6)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.anchor_left = 0.0
+	hint.anchor_right = View.WORLD_W
+	hint.anchor_top = 1.0
+	hint.anchor_bottom = 1.0
+	hint.offset_top = -64
+	hint.offset_bottom = -30
+	hint.visible = false
+	main.root.add_child(hint)
+	main.view.sheet.gui_input.connect(_on_sheet_input)
+	# the pictures: faces first, then what they're printed on
+	for face in FACES:
+		_job("face_" + face, _portrait.bind(FACES[face]))
+	for id in P:
+		var pr = P[id]
+		if pr is Dictionary and pr.get("kind") == "card":
+			_job("card_%s_front" % id, _card_face.bind(pr, true))
+			_job("card_%s_back" % id, _card_face.bind(pr, false))
+	_job("photo_table", _photo_table)
+	_job("photo_pool", _photo_pool)
+	if P.has("binder"):
+		var sleeves: Dictionary = P.binder.get("sleeves", {})
+		for k in sleeves:
+			_job("sleeve_" + str(k), _sleeve.bind(str(k), sleeves[k]))
+		_job("sleeve_empty", _sleeve.bind("", {}))
+	_develop.call_deferred()
+
+
+# ---------------------------------------------------------------- the darkroom
+
+func _job(name: String, build: Callable) -> void:
+	jobs.append([name, build])
+
+
+func _develop() -> void:
+	if developing or DisplayServer.get_name() == "headless":
+		return
+	developing = true
+	while not jobs.is_empty():
+		var job: Array = jobs.pop_front()
+		var sv: SubViewport = job[1].call()
+		if sv == null:
+			continue
+		sv.render_target_update_mode = SubViewport.UPDATE_ONCE
+		await RenderingServer.frame_post_draw
+		await RenderingServer.frame_post_draw
+		var img := sv.get_texture().get_image()
+		if img != null and not img.is_empty():
+			img.convert(Image.FORMAT_RGBA8)
+			img.generate_mipmaps()
+			tex[job[0]] = ImageTexture.create_from_image(img)
+		sv.queue_free()
+	developing = false
+
+
+func _viewport(size: Vector2i, own_world: bool) -> SubViewport:
+	var sv := SubViewport.new()
+	sv.size = size
+	sv.own_world_3d = own_world
+	sv.transparent_bg = false
+	sv.msaa_3d = Viewport.MSAA_4X
+	sv.msaa_2d = Viewport.MSAA_4X
+	sv.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(sv)
+	return sv
+
+
+# A face for a licence: the head of their model, straight on against the pale backdrop, lit flat
+# the way the licensing office lights everybody.
+func _portrait(model: String) -> SubViewport:
+	if not FileAccess.file_exists(PEOPLE + model + ".glb"):
+		return null
+	var sv := _viewport(Vector2i(300, 380), true)
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color("c6ccd0")
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color("d8dde2")
+	env.ambient_light_energy = 0.55
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	var body: Node3D = main.pub.model(PEOPLE + model + ".glb", Vector3.ZERO, sv)
+	body.rotation.y = 0.0
+	var an: Dictionary = main.stage.anchors_of(model)
+	var h: Array = an.get("head", [0, 1.5, 0])
+	var hp := Vector3(h[0], h[1], h[2])
+	var cam := Camera3D.new()
+	cam.fov = 21.0
+	cam.environment = env
+	cam.set_cull_mask_value(View.MASK_LAYER, false)
+	sv.add_child(cam)
+	cam.position = hp + Vector3(0, 0.035, -1.2)
+	cam.look_at(hp + Vector3(0, -0.02, 0), Vector3.UP)
+	var back := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(3, 3)
+	back.mesh = q
+	var bm := StandardMaterial3D.new()
+	bm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	bm.albedo_color = Color("bfc6cb")
+	back.material_override = bm
+	sv.add_child(back)
+	back.position = hp + Vector3(0, 0, 0.7)
+	var key := DirectionalLight3D.new()
+	sv.add_child(key)
+	key.light_energy = 1.1
+	key.look_at_from_position(hp + Vector3(0.3, 0.8, -1.5), hp, Vector3.UP)
+	var fill := OmniLight3D.new()
+	fill.position = hp + Vector3(-0.6, 0.1, -0.9)
+	fill.light_energy = 0.6
+	fill.omni_range = 3.0
+	sv.add_child(fill)
+	return sv
+
+
+func _page(sv: SubViewport) -> Control:
+	var c := Control.new()
+	c.size = Vector2(sv.size)
+	sv.add_child(c)
+	return c
+
+
+func _text(parent: Control, text: String, at: Vector2, font: String, size: int, col: Color, spacing := 0) -> Label:
+	var l := UiBits.label(text, font, size, col, spacing)
+	l.position = at
+	parent.add_child(l)
+	return l
+
+
+func _rect(parent: Control, r: Rect2, col: Color, radius := 0) -> Panel:
+	var p := Panel.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = col
+	sb.set_corner_radius_all(radius)
+	sb.anti_aliasing = true
+	p.add_theme_stylebox_override("panel", sb)
+	p.position = r.position
+	p.size = r.size
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(p)
+	return p
+
+
+func _pic(parent: Control, name: String, r: Rect2, alpha := 1.0) -> TextureRect:
+	var tr := TextureRect.new()
+	tr.texture = tex.get(name)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	tr.position = r.position
+	tr.size = r.size
+	tr.modulate.a = alpha
+	parent.add_child(tr)
+	return tr
+
+
+func _rng(seed_text: String) -> RandomNumberGenerator:
+	var r := RandomNumberGenerator.new()
+	r.seed = hash(seed_text)
+	return r
+
+
+# "2026-10-17" as she writes it in marker: OCT 17/26
+static func hand_date(iso: String) -> String:
+	var p := iso.split("-")
+	if p.size() < 3:
+		return ""
+	return "%s %d/%s" % [MONTHS[clampi(int(p[1]) - 1, 0, 11)], int(p[2]), p[0].substr(2)]
+
+
+# A driver's licence, front or back, a hundred pixels to the centimetre.
+func _card_face(pr: Dictionary, front: bool) -> SubViewport:
+	var sv := _viewport(Vector2i(856, 540), true)
+	var c := _page(sv)
+	var ink := Color("1d2430")
+	_rect(c, Rect2(Vector2.ZERO, c.size), Color("d9e0e3"), 0)
+	var r := _rng(str(pr.get("number", "")) + ("f" if front else "b"))
+	# the guilloche: fine waves across the whole card, the pattern nobody reads
+	for i in 44:
+		var ln := Line2D.new()
+		ln.width = 1.2
+		ln.default_color = Color("b7c7cf")
+		var y0 := 20.0 + i * 12.5
+		for x in range(0, 860, 12):
+			ln.add_point(Vector2(x, y0 + sin(x * 0.021 + i * 0.7) * 6.0 + sin(x * 0.007 + i) * 4.0))
+		c.add_child(ln)
+	if front:
+		_rect(c, Rect2(0, 0, 856, 74), Color("2d4868"))
+		_text(c, "DRIVER'S LICENCE", Vector2(34, 12), "ui_b", 40, Color("eef2f4"), 3)
+		_text(c, "CLASS " + str(pr.get("class", "")), Vector2(640, 16), "ui_b", 34, Color("eef2f4"), 2)
+		var face := "face_" + str(pr.get("face", ""))
+		_rect(c, Rect2(32, 98, 238, 300), Color("bfc6cb"))
+		if tex.has(face):
+			_pic(c, face, Rect2(32, 98, 238, 300))
+		var x := 300.0
+		_text(c, str(pr.get("surname", "")), Vector2(x, 92), "ui_b", 50, ink, 1)
+		_text(c, str(pr.get("given", "")), Vector2(x, 146), "ui", 36, ink, 1)
+		# the address, worn past reading, like every address on every licence
+		_rect(c, Rect2(x, 198, 330, 12), Color(ink, 0.35), 5)
+		_rect(c, Rect2(x, 220, 250, 12), Color(ink, 0.3), 5)
+		var cells := [["DOB", str(pr.get("born", ""))], ["EXP", str(pr.get("expires", ""))], ["ISS", str(pr.get("issued", ""))],
+			["SEX", str(pr.get("sex", ""))], ["HGT", "%s cm" % str(pr.get("height", ""))], ["WGT", "%s kg" % str(pr.get("weight", ""))],
+			["EYES", str(pr.get("eyes", ""))], ["HAIR", str(pr.get("hair", ""))]]
+		for i in cells.size():
+			var cx := x + (i % 2) * 262.0
+			var cy := 248.0 + (i / 2) * 50.0
+			_text(c, cells[i][0], Vector2(cx, cy + 8), "mono", 17, Color(ink, 0.7))
+			var v := _text(c, cells[i][1], Vector2(cx + 58, cy), "ui_b", 30 if i == 0 else 27, Color("a3261f") if i == 0 else ink, 1)
+			v.name = cells[i][0]
+		_text(c, "DL " + str(pr.get("number", "")), Vector2(x, 452), "mono", 24, ink)
+		# the signature: loops along a line, and the tail back under it
+		var sig := Line2D.new()
+		sig.width = 2.4
+		sig.default_color = Color("1f2a44")
+		sig.joint_mode = Line2D.LINE_JOINT_ROUND
+		var sx := 560.0
+		var n := 5 + r.randi() % 4
+		for i in n:
+			var w := r.randf_range(14, 26)
+			var up := r.randf_range(10, 26)
+			for k in 9:
+				var f := k / 8.0
+				sig.add_point(Vector2(sx + w * f, 470.0 - up * sin(f * PI) + r.randf_range(-1, 1)))
+			sx += w
+		sig.add_point(Vector2(sx - 30, 486))
+		sig.add_point(Vector2(560, 480))
+		c.add_child(sig)
+		# the ghost: the face again, small and faint
+		if tex.has(face):
+			_pic(c, face, Rect2(700, 330, 112, 140), 0.22)
+		if str(pr.get("wear", "")) == "wet":
+			for i in 7:
+				var s := r.randf_range(40, 130)
+				_rect(c, Rect2(r.randf_range(0, 800), r.randf_range(80, 500), s, s * r.randf_range(0.5, 0.9)), Color(0.2, 0.25, 0.3, 0.1), int(s / 2))
+	else:
+		# the stacked barcode, and the small print
+		var bx := 60.0
+		var by := 70.0
+		for y in 13:
+			var xx := bx
+			var on := true
+			while xx < 796.0:
+				var w2 := float(r.randi_range(2, 8))
+				if on:
+					_rect(c, Rect2(xx, by + y * 16.0, w2, 16.0), ink)
+				xx += w2
+				on = not on
+		var cls := str(pr.get("class", ""))
+		var line1 := ("CLASS %s  ·  NEW DRIVER  ·  DISPLAY N" % cls.trim_suffix("N")) if cls.ends_with("N") else "CLASS " + cls
+		_text(c, line1, Vector2(60, 310), "mono", 26, ink)
+		_text(c, "RESTRICTIONS: NONE  ·  ENDORSEMENTS: NONE", Vector2(60, 352), "mono", 22, Color(ink, 0.7))
+		var num := str(pr.get("number", ""))
+		var rev := ""
+		for i in range(num.length() - 1, -1, -1):
+			rev += num[i]
+		_text(c, rev + "   " + str(pr.get("issued", "")).replace("-", ""), Vector2(60, 470), "mono", 20, Color(ink, 0.55))
+	return sv
+
+
+# The kid's first photo: the licence on the kitchen table at home, under the light over it,
+# taken from where he stood.
+func _photo_table() -> SubViewport:
+	if not tex.has("card_hoodie_card_front"):
+		return null
+	var sv := _viewport(Vector2i(540, 720), true)
+	var env := Environment.new()
+	env.background_mode = Environment.BG_COLOR
+	env.background_color = Color("1a1714")
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color("6e6456")
+	env.ambient_light_energy = 0.5
+	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	var cam := Camera3D.new()
+	cam.environment = env
+	cam.fov = 52.0
+	sv.add_child(cam)
+	cam.look_at_from_position(Vector3(0.03, 0.34, 0.19), Vector3(0, 0, -0.01), Vector3.UP)
+	cam.rotation.z += deg_to_rad(-6)
+	var top := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(1.4, 0.04, 1.0)
+	top.mesh = bm
+	var tm := StandardMaterial3D.new()
+	tm.albedo_texture = Pub.tex_static("res://textures/wood.png")
+	tm.uv1_scale = Vector3(1.6, 1.6, 1.6)
+	tm.albedo_color = Color("c9b79c")
+	tm.roughness = 0.55
+	top.material_override = tm
+	top.position = Vector3(0, -0.02, 0)
+	sv.add_child(top)
+	var card := MeshInstance3D.new()
+	var cq := QuadMesh.new()
+	cq.size = CARD
+	card.mesh = cq
+	var cm := StandardMaterial3D.new()
+	cm.albedo_texture = tex["card_hoodie_card_front"]
+	cm.roughness = 0.35
+	card.material_override = cm
+	card.rotation = Vector3(deg_to_rad(-90), deg_to_rad(8), 0)
+	card.position = Vector3(0.0, 0.001, 0.0)
+	sv.add_child(card)
+	# a mug at the edge, and the salt
+	var mug := MeshInstance3D.new()
+	var mc := CylinderMesh.new()
+	mc.top_radius = 0.042
+	mc.bottom_radius = 0.04
+	mc.height = 0.1
+	mug.mesh = mc
+	var mm := StandardMaterial3D.new()
+	mm.albedo_color = Color("7a3a2e")
+	mug.material_override = mm
+	mug.position = Vector3(0.14, 0.05, -0.12)
+	sv.add_child(mug)
+	var l := OmniLight3D.new()
+	l.position = Vector3(-0.1, 0.9, -0.2)
+	l.light_color = Color("ffd8a0")
+	l.light_energy = 1.6
+	l.omni_range = 3.0
+	l.shadow_enabled = true
+	sv.add_child(l)
+	return sv
+
+
+# The kid's second photo: the pool table through the front window, from the lot, in the rain,
+# earlier tonight. He was looking for someone.
+func _photo_pool() -> SubViewport:
+	var sv := _viewport(Vector2i(540, 720), false)
+	sv.world_3d = main.view.eye.find_world_3d()
+	var cam := Camera3D.new()
+	cam.environment = main.view.env
+	cam.fov = 44.0
+	cam.set_cull_mask_value(View.MASK_LAYER, false)
+	sv.add_child(cam)
+	cam.look_at_from_position(Vector3(8.4, 1.5, 12.9), Pub.POOL + Vector3(0.6, 0.9, 0), Vector3.UP)
+	cam.rotation.z += deg_to_rad(3)
+	return sv
+
+
+# A sleeve in the binder: the sheet in it (a printout, a photocopy, a photograph), the date in
+# marker, and how long.
+func _sleeve(k: String, s: Dictionary) -> SubViewport:
+	var sv := _viewport(Vector2i(600, 780), true)
+	var c := _page(sv)
+	var r := _rng("sleeve" + k)
+	_rect(c, Rect2(Vector2.ZERO, c.size), Color("2a2b2e"))
+	_rect(c, Rect2(18, 14, 564, 752), Color("e9e5da"), 4)
+	for hole in [120, 390, 660]:
+		_rect(c, Rect2(34, hole, 22, 22), Color("2a2b2e"), 11)
+	if s.is_empty():
+		_text(c, "", Vector2(80, 80), "hand", 40, Color("222"))
+	else:
+		var kind := str(s.get("photo", "printout"))
+		var ph := Rect2(110, 70, 400, 480)
+		var ground := Color("d7d3c8") if kind != "photocopy" else Color("bdb8ad")
+		_rect(c, ph, ground)
+		if s.has("card") and tex.has("face_" + str(P.get(str(s.card), {}).get("face", ""))):
+			_pic(c, "face_" + str(P[str(s.card)].face), ph)
+		else:
+			_silhouette(c, ph, s.get("who", {}), kind, r)
+		if kind == "photocopy":
+			for i in 160:
+				_rect(c, Rect2(r.randf_range(ph.position.x, ph.end.x), r.randf_range(ph.position.y, ph.end.y), 2, 2), Color(0.1, 0.1, 0.1, 0.5))
+			_rect(c, Rect2(ph.position.x + r.randf_range(40, 360), ph.position.y, 2, ph.size.y), Color(0.15, 0.15, 0.15, 0.35))
+		var red := Color("b3261e")
+		if s.has("words"):
+			var w := _text(c, str(s.words), Vector2(120, 580), "hand", 64, Color("1c1c1c"))
+			w.rotation = deg_to_rad(-3)
+		else:
+			var d := _text(c, hand_date(str(s.get("date", ""))), Vector2(120, 575), "hand", 52, Color("1c1c1c"))
+			d.rotation = deg_to_rad(r.randf_range(-3, 2))
+			var ln := _text(c, str(s.get("length", "")), Vector2(130, 650), "hand", 46, red)
+			ln.rotation = deg_to_rad(r.randf_range(-2, 3))
+	# the sleeve's plastic: a sheen across it
+	var sheen := _rect(c, Rect2(-100, 200, 900, 90), Color(1, 1, 1, 0.08))
+	sheen.rotation = deg_to_rad(-24)
+	return sv
+
+
+# Someone nobody's modelled, as the copier left them: a head and shoulders, dark on pale.
+func _silhouette(c: Control, ph: Rect2, who: Dictionary, kind: String, r: RandomNumberGenerator) -> void:
+	var dark := Color("2b2622") if kind == "photocopy" else Color("4a4038")
+	var big: bool = who.get("build", "") == "big"
+	var cx := ph.position.x + ph.size.x / 2.0 + r.randf_range(-20, 20)
+	var sw := 330.0 if big else 280.0
+	_rect(c, Rect2(cx - sw / 2.0, ph.end.y - 160, sw, 170), Color(dark, 0.9), 80)
+	var hw := 150.0 if big else 130.0
+	var hh := 190.0
+	_rect(c, Rect2(cx - hw / 2.0, ph.position.y + 90, hw, hh), Color(dark.lightened(0.25), 0.95), int(hw / 2))
+	if who.get("hair", "") == "long":
+		_rect(c, Rect2(cx - hw / 2.0 - 18, ph.position.y + 80, hw + 36, hh + 90), Color(dark, 0.8), int(hw / 2))
+		_rect(c, Rect2(cx - hw / 2.0 + 10, ph.position.y + 100, hw - 20, hh - 20), Color(dark.lightened(0.3), 0.95), int(hw / 2))
+	if who.get("hat", "") == "cap":
+		_rect(c, Rect2(cx - hw / 2.0 - 6, ph.position.y + 78, hw + 12, 62), Color(dark.darkened(0.3), 1.0), 30)
+	if "beard" in who.get("face", []):
+		_rect(c, Rect2(cx - hw / 2.0 + 14, ph.position.y + 90 + hh * 0.6, hw - 28, hh * 0.45), Color(dark.darkened(0.2), 0.95), 40)
+
+
+# ---------------------------------------------------------------- in his hands
+
+func _surface(front: Texture2D) -> ShaderMaterial:
+	var m: ShaderMaterial = main.pub.mat(Color(1, 1, 1), 0.3, 0.0, 5)
+	if front != null:
+		m.set_shader_parameter("albedo_tex", front)
+		m.set_shader_parameter("emission_tex", front)
+	m.set_shader_parameter("emission", Color(1, 1, 1))
+	m.set_shader_parameter("emission_energy", 0.32)
+	return m
+
+
+func _quad(size: Vector2, m: Material, parent: Node3D) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = size
+	mi.mesh = q
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)
+	return mi
+
+
+func _box(size: Vector3, pos: Vector3, m: Material, parent: Node3D) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = size
+	mi.mesh = b
+	mi.material_override = m
+	mi.position = pos
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)
+	return mi
+
+
+# A line hands something over. Live, it comes into his hands (or, the kid's phone, stays in the
+# kid's hand where he's holding it up); read back from a save, it's just in the story.
+func offer(it: Dictionary, live: bool) -> void:
+	var spec := str(it.get("prop", "")).strip_edges().split(" ", false)
+	if spec.is_empty():
+		return
+	var id: String = spec[0]
+	var state: String = spec[1] if spec.size() > 1 else ""
+	var pr = P.get(id)
+	if not (pr is Dictionary) or not live:
+		return
+	var kind := str(pr.get("kind", ""))
+	if kind == "phone" and state != "held":
+		# held up at arm's length: it's the kid's still; E or a click on it takes it
+		_let_go(true)
+		held = {"id": id, "kind": kind, "turn": main.game.turn, "node": null, "away": true, "pr": pr, "photo": 0}
+		_hint()
+		return
+	_let_go(true)
+	var node := Node3D.new()
+	main.view.hands.add_child(node)
+	held = {"id": id, "kind": kind, "turn": main.game.turn, "node": node, "away": false, "pr": pr, "flipped": false,
+		"tilt": Vector2.ZERO, "tipped": 0.0, "tilt_said": false, "pose": "rest", "photo": 0, "page": 0, "stay": 0.0,
+		"all": false, "seen": {}, "look_at": Vector3.INF}
+	match kind:
+		"card":
+			var body := Node3D.new()
+			node.add_child(body)
+			var f := _quad(CARD, _surface(tex.get("card_%s_front" % id)), body)
+			f.position.z = 0.0004
+			var b := _quad(CARD, _surface(tex.get("card_%s_back" % id)), body)
+			b.rotation.y = PI
+			b.position.z = -0.0004
+			held.body = body
+			main.audio.sfx("card")
+		"phone":
+			var body2 := Node3D.new()
+			node.add_child(body2)
+			_box(Vector3(0.074, 0.152, 0.008), Vector3(0, 0, -0.0045), main.pub.mat(Color("141417"), 0.35, 0.2, 5), body2)
+			held.screen = _quad(Vector2(0.066, 0.142), _surface(null), body2)
+			held.body = body2
+			_phone_photo()
+			main.audio.sfx("swipe", 0.6)
+		"binder":
+			var body3 := Node3D.new()
+			node.add_child(body3)
+			_box(Vector3(0.25, 0.32, 0.012), Vector3(0, 0, -0.008), main.pub.mat(Color("1d1f24"), 0.6, 0.0, 5), body3)
+			held.screen = _quad(Vector2(0.22, 0.286), _surface(null), body3)
+			held.screen.position.z = 0.0005
+			held.body = body3
+			_binder_page()
+			main.audio.sfx("page")
+	_pose(held.pose, true)
+	_hint()
+
+
+func _phone_photo() -> void:
+	if held == null or not held.has("screen"):
+		return
+	var names := ["photo_table", "photo_pool"]
+	var name: String = names[clampi(int(held.photo), 0, names.size() - 1)]
+	var m: ShaderMaterial = (held.screen as MeshInstance3D).material_override
+	var tx = tex.get(name)
+	m.set_shader_parameter("albedo_tex", tx)
+	m.set_shader_parameter("emission_tex", tx)
+	m.set_shader_parameter("albedo", Color(0.2, 0.2, 0.2))
+	m.set_shader_parameter("emission_energy", 1.0)
+
+
+func _binder_page() -> void:
+	if held == null or not held.has("screen"):
+		return
+	var sleeves: Dictionary = held.pr.get("sleeves", {})
+	var keys := sleeves.keys()
+	keys.sort_custom(func(a, b): return int(a) < int(b))
+	var k := int(held.page)
+	var name := ("sleeve_" + str(keys[k])) if k < keys.size() else "sleeve_empty"
+	var m: ShaderMaterial = (held.screen as MeshInstance3D).material_override
+	m.set_shader_parameter("albedo_tex", tex.get(name))
+	m.set_shader_parameter("emission_tex", tex.get(name))
+
+
+# where a thing sits in his hands, in front of his eyes (the camera's space: -z ahead, y up)
+func _pose(p: String, instant := false) -> void:
+	if held == null or held.node == null:
+		return
+	held.pose = p
+	var node: Node3D = held.node
+	var pos := Vector3.ZERO
+	var rot := Vector3.ZERO
+	match str(held.kind) + ":" + p:
+		"card:rest":
+			pos = Vector3(0.062, -0.07, -0.25)
+			rot = Vector3(12, -8, 4)
+		"card:look":
+			var at := _beside_face()
+			pos = at
+			rot = Vector3(0, 0, 0)
+		"phone:rest":
+			pos = Vector3(0.05, -0.085, -0.27)
+			rot = Vector3(14, -6, 2)
+		"phone:look":
+			pos = Vector3(0.0, -0.02, -0.2)
+			rot = Vector3(4, 0, 0)
+		"binder:rest":
+			pos = Vector3(0.0, -0.15, -0.36)
+			rot = Vector3(-38, 0, 0)
+		"binder:look":
+			pos = Vector3(0.0, -0.045, -0.33)
+			rot = Vector3(-8, 0, 0)
+		_:
+			pos = Vector3(0.0, -0.4, -0.3)
+			rot = Vector3(-40, 0, 0)
+	var basis := Basis.from_euler(Vector3(deg_to_rad(rot.x), deg_to_rad(rot.y), deg_to_rad(rot.z)))
+	var tr := Transform3D(basis, pos)
+	if instant:
+		node.transform = Transform3D(basis, pos + Vector3(0, -0.25, 0.05))
+	var tw := node.create_tween()
+	tw.tween_property(node, "transform", tr, 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+
+
+# Up by the face of whoever handed it over, to one side, so the player sees the two together.
+func _beside_face() -> Vector3:
+	var who := str(held.pr.get("face", ""))
+	var cam: Camera3D = main.view.cam
+	var head: Vector3 = main.stage.head_of(who)
+	if head == Vector3.INF or not main.stage.in_sight(head, main.stage.figure_zone(who)):
+		return Vector3(0.0, -0.005, -0.2)
+	var local := cam.global_transform.affine_inverse() * head
+	var d := local.normalized()
+	var p := d * 0.26
+	# to the side of the face that's nearer the middle of his view
+	var side := Vector3(-0.07 if local.x > 0.0 else 0.07, 0.0, 0.0)
+	return p + side
+
+
+func holding() -> bool:
+	return held != null and held.node != null and not held.away
+
+
+func _let_go(quick: bool) -> void:
+	if held == null:
+		return
+	var node = held.node
+	held = null
+	hint.visible = false
+	if node == null:
+		return
+	if quick:
+		(node as Node3D).queue_free()
+		return
+	var tw := (node as Node3D).create_tween()
+	tw.tween_property(node, "position", (node as Node3D).position + Vector3(0.05, -0.3, 0.1), 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tw.tween_callback((node as Node3D).queue_free)
+
+
+func drop_all() -> void:
+	_let_go(true)
+	_zero_at = -1.0
+
+
+# Esc: down for a moment, out of his eyes. E brings it back up while it's still his to handle.
+func put_down() -> void:
+	if not holding():
+		return
+	held.away = true
+	var node: Node3D = held.node
+	var tw := node.create_tween()
+	tw.tween_property(node, "position", Vector3(0.1, -0.42, -0.22), 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_hint()
+
+
+func raise() -> bool:
+	if held == null or not held.away:
+		return false
+	if held.node == null:
+		# the kid's phone, held up to him: take it
+		return _play("look") != ""
+	held.away = false
+	_pose("rest")
+	_hint()
+	return true
+
+
+func _live() -> bool:
+	if held == null or not main.in_game or main.game.ended:
+		return false
+	return int(held.turn) == main.game.turn or not main.game.toy_moves(str(held.id)).is_empty()
+
+
+func _waits(what: String) -> bool:
+	return held != null and what in main.game.toy_moves(str(held.id))
+
+
+func _play(what: String) -> String:
+	if held == null or not _live():
+		return ""
+	return main.toy(str(held.id), what)
+
+
+# after every batch: while it's live it stays; when it isn't, he hands it back
+func status(_st: Dictionary) -> void:
+	if held == null:
+		return
+	if not _live():
+		_let_go(false)
+		return
+	_hint()
+
+
+func _hint() -> void:
+	if held == null:
+		hint.visible = false
+		return
+	var whose := "her" if str(held.pr.get("sex", "")) == "F" else "his"
+	var s := ""
+	match str(held.kind):
+		"card":
+			s = "Click it to turn it over   ·   E  hold it up by %s face   ·   Esc  down" % whose
+		"phone":
+			s = "E  take the phone" if held.node == null else "R  or drag across it: the next photo   ·   E  closer   ·   Esc  down"
+		"binder":
+			s = "Q  R  the sleeves   ·   E  closer   ·   Esc  down"
+	if held.away and held.node != null:
+		s = "E  pick it up again"
+	hint.text = s
+	hint.visible = main.settings.get("notice", true) or held.away
+
+
+# the keys while he's holding something
+func key(k: int) -> void:
+	if held == null:
+		return
+	match k:
+		KEY_E, KEY_F:
+			_verb_look()
+		KEY_R:
+			_next(1)
+		KEY_Q:
+			_next(-1)
+
+
+func _verb_look() -> void:
+	if held.away:
+		raise()
+		return
+	match str(held.kind):
+		"card":
+			if held.pose == "look":
+				_pose("rest")
+				return
+			if held.flipped:
+				_flip(false)
+			_pose("look")
+			main.audio.sfx("card", 0.7)
+			_play("look")
+		"phone", "binder":
+			_pose("rest" if held.pose == "look" else "look")
+			if held.kind == "phone":
+				main.audio.sfx("swipe", 0.6)
+				_play("look")
+
+
+func _flip(say := true) -> void:
+	if held == null or held.kind != "card":
+		return
+	held.flipped = not held.flipped
+	var body: Node3D = held.body
+	var tw := body.create_tween()
+	tw.tween_property(body, "rotation:y", PI if held.flipped else 0.0, 0.34).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	main.audio.sfx("card")
+	if say:
+		_play("flip")
+
+
+func _next(d: int) -> void:
+	match str(held.kind):
+		"phone":
+			if d > 0 and held.photo == 0:
+				# a swipe only goes through when the story's waiting for one; otherwise the hand holding it holds on
+				if _waits("swipe"):
+					main.audio.sfx("swipe")
+					held.photo = 1
+					_phone_photo()
+					_play("swipe")
+				else:
+					var body: Node3D = held.body
+					var tw := body.create_tween()
+					tw.tween_property(body, "position:x", -0.012, 0.12)
+					tw.tween_property(body, "position:x", 0.0, 0.2)
+			elif d < 0 and held.photo > 0:
+				held.photo = 0
+				_phone_photo()
+				main.audio.sfx("swipe", 0.6)
+		"binder":
+			var n: int = held.pr.get("sleeves", {}).size()
+			var p := clampi(int(held.page) + d, 0, n)
+			if p == held.page:
+				return
+			held.page = p
+			held.stay = 0.0
+			_binder_page()
+			main.audio.sfx("page")
+
+
+# ---------------------------------------------------------------- the clicker
+
+func clicker_key(zero: bool) -> void:
+	if not main.in_game or not main.game.clicker_in_hand():
+		return
+	if zero:
+		if _zero_at < 0.0:
+			_zero_at = t
+			_notch = 0.0
+		return
+	if main.toy("clicker", "click") != "":
+		main.audio.sfx("clicker")
+
+
+# ---------------------------------------------------------------- the pointer on what he's holding
+
+func _on_sheet_input(e: InputEvent) -> void:
+	if not holding():
+		return
+	if e is InputEventMouseMotion and held.kind == "card":
+		var c := _screen_of_held()
+		if c.x < 0.0:
+			return
+		var off: Vector2 = (e.position + main.view.sheet.global_position - c) / 180.0
+		var was: Vector2 = held.tilt
+		held.tilt = Vector2(clampf(off.y * TILT, -TILT, TILT), clampf(off.x * TILT, -TILT, TILT))
+		held.tipped += absf(held.tilt.x - was.x) + absf(held.tilt.y - was.y)
+		if not held.tilt_said and held.tipped > TILT_SEEN:
+			held.tilt_said = true
+			_play("tilt")
+	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed:
+		if main.view.was_click() and _near_held(e.position + main.view.sheet.global_position):
+			if held.kind == "card":
+				_flip()
+			elif held.kind == "phone":
+				_verb_look()
+			elif held.kind == "binder":
+				var c2 := _screen_of_held()
+				_next(1 if e.position.x + main.view.sheet.global_position.x > c2.x else -1)
+			main.view.sheet.accept_event()
+	elif e is InputEventMouseMotion and held.kind == "phone" and (e.button_mask & MOUSE_BUTTON_MASK_LEFT) and e.relative.x < -14.0:
+		if _near_held(e.position + main.view.sheet.global_position):
+			_next(1)
+
+
+func _screen_of_held() -> Vector2:
+	if held == null or held.node == null:
+		return Vector2(-1, -1)
+	var s: Vector3 = main.view.on_screen((held.node as Node3D).global_position)
+	return Vector2(s.x, s.y) if s.z > 0.0 else Vector2(-1, -1)
+
+
+func _near_held(p: Vector2) -> bool:
+	var c := _screen_of_held()
+	if c.x < 0.0:
+		return false
+	var reach := 200.0 if held.kind == "binder" else 130.0
+	return p.distance_to(c) < reach * (1.6 if held.pose == "look" else 1.0)
+
+
+func _process(dt: float) -> void:
+	t += dt
+	# the clicker's knob, held all the way round
+	if _zero_at >= 0.0:
+		if not Input.is_physical_key_pressed(KEY_Z):
+			_zero_at = -1.0
+			main.audio.sfx("knob", 0.5, 1.2)
+		else:
+			_notch -= dt
+			if _notch <= 0.0:
+				_notch = 0.075
+				main.audio.sfx("knob", 0.6)
+			if t - _zero_at >= KNOB:
+				_zero_at = -1.0
+				if main.toy("clicker", "zero") != "":
+					main.audio.sfx("zero")
+	if held == null or held.node == null:
+		return
+	# the card tipped to the light
+	if held.kind == "card" and held.has("body"):
+		var body: Node3D = held.body
+		var base_y := PI if held.flipped else 0.0
+		var want := Vector3(deg_to_rad(held.tilt.x), base_y + deg_to_rad(held.tilt.y), 0.0)
+		body.rotation.x = lerpf(body.rotation.x, want.x, 1.0 - exp(-dt * 10.0))
+		if absf(wrapf(body.rotation.y - base_y, -PI, PI)) < 0.5:
+			body.rotation.y = lerpf(body.rotation.y, want.y, 1.0 - exp(-dt * 10.0))
+		held.tilt = held.tilt.lerp(Vector2.ZERO, 1.0 - exp(-dt * 0.8))
+	# the binder: staying on a page is looking at it; the back of it is having been through them all
+	if held.kind == "binder" and not held.away:
+		held.stay += dt
+		var n: int = held.pr.get("sleeves", {}).size()
+		var k := int(held.page) + 1
+		if held.stay >= DWELL and not held.seen.has(k) and k <= n:
+			held.seen[k] = true
+			_play("page" + str(k))
+		if int(held.page) >= n - 1 and held.stay >= 0.7 and not held.all:
+			held.all = true
+			_play("all")
+	# the card up by a face: keep it there as his head moves
+	if held.kind == "card" and held.pose == "look":
+		var want_p := _beside_face()
+		var node: Node3D = held.node
+		node.position = node.position.lerp(want_p, 1.0 - exp(-dt * 6.0))

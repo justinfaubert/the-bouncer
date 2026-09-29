@@ -1,0 +1,1262 @@
+# The Sov: the pub on the ground floor of the Sovereign Hotel, built in code, and everything round
+# it he can get to on a Wednesday night: the back hall and the washrooms, the kitchen, the keg room
+# under the bar, the smoking deck, the gravel lot out front, and a room upstairs.
+#
+# Units are metres. The bar room runs x 0..16 along the front and z 0..10 from its back wall to the
+# front wall (the main door and the front window). Looking out of the main door, +x is on the left.
+# Behind the back wall a strip 2.64 deep holds the kitchen (x 0..4.8) and the back hall (x 4.8..16)
+# with the washrooms off it. The keg room is under the bar. The deck runs along the outside of the
+# east wall. The lot is out the front, z > 10.2; past it the highway and the seawall and the strait.
+# The layout follows the floor sketch (prototype/web/src/ui/views.js); the door and the room come
+# from the look test (sketches/door-look/main.gd), where the way they're printed is explained.
+class_name Pub
+extends Node3D
+
+const EYE_DOOR := Vector3(1.7, 1.62, 8.85)       # his eyes, sitting on the stool beside the door
+const TABLES := [Vector3(4.3, 0, 4.45), Vector3(13.1, 0, 4.9), Vector3(5.4, 0, 8.3), Vector3(13.4, 0, 8.2)]
+const T28 := Vector3(9.4, 0, 8.1)
+const POOL := Vector3(9.4, 0, 3.9)
+const DOOR_W := 2.3                            # the main door runs x 2.3..4.1
+const DOOR_E := 4.1
+const ZF := 10.1                               # the front wall
+const BACK := -2.64                            # the back of the back strip
+const HALL_Z := -1.21                          # the washrooms' fronts, on the hall
+const KEG_Y := -2.5                            # the keg room's floor
+const UP_Y := 3.4                              # the upstairs floor
+const MASK_LAYER := 20
+
+var M := {}
+var rng := RandomNumberGenerator.new()
+var anchors := {}          # named points: posts, hotspots, marks
+var lights := {}           # named lights, for the clock and the posts
+var dyn := {}              # things that change with the night: doors, glasses, chairs up
+var lamps: Array = []      # the room's lamps, dimmed and brightened with the clock
+var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
+
+var SURFACE := preload("res://look/surface.gdshader")
+var GLASS := preload("res://look/glass.gdshader")
+
+
+func build() -> void:
+	rng.seed = 28
+	_materials()
+	_room()
+	_vestibule()
+	_bar()
+	_floor_things()
+	_back_strip()
+	_keg_room()
+	_deck()
+	_outside()
+	_facade()
+	_store()
+	_truck()
+	_upstairs()
+	_rain()
+	_lights()
+
+
+# ---------------------------------------------------------------- materials and shapes
+
+# A surface. `cut` is how the key block is cut on it (look/surface.gdshader): 0 strokes at a
+# constant height, 1 strokes across the floor at right angles to `dir`, 2 strokes across the
+# object's own `dir`, 3 none, 4 strokes that wrap round a form (faces, heads).
+func mat(c: Color, rough := 0.9, metal := 0.0, cut := 0, dir := Vector3.UP, px := 7.0, lines := 1.0) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = SURFACE
+	m.set_shader_parameter("albedo", c)
+	m.set_shader_parameter("roughness", rough)
+	m.set_shader_parameter("metallic", metal)
+	m.set_shader_parameter("cut", cut)
+	m.set_shader_parameter("cut_dir", dir)
+	m.set_shader_parameter("cut_px", px)
+	m.set_shader_parameter("lines", lines)
+	return m
+
+
+# Something that gives light: the key block is left solid or cut clean away, nothing between.
+func glow(c: Color, e: float) -> ShaderMaterial:
+	var m := mat(c, 1.0, 0.0, 3)
+	m.set_shader_parameter("emission", c)
+	m.set_shader_parameter("emission_energy", e)
+	return m
+
+
+func screen_quad(size: Vector2, pos: Vector3, picture: String, energy: float, rot_y := 0.0, parent: Node = null) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = size
+	mi.mesh = q
+	mi.position = pos
+	mi.rotation.y = deg_to_rad(rot_y)
+	var sm := glow(Color(1, 1, 1), energy)
+	sm.set_shader_parameter("albedo", Color(0.04, 0.04, 0.05))
+	sm.set_shader_parameter("emission_tex", tex("res://textures/" + picture + ".png"))
+	mi.material_override = sm
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	(parent if parent else self).add_child(mi)
+	return mi
+
+
+func surfaced(m: ShaderMaterial, t: String, size: float) -> ShaderMaterial:
+	m.set_shader_parameter("albedo_tex", tex("res://textures/" + t + ".png"))
+	m.set_shader_parameter("mapping", 1)
+	m.set_shader_parameter("tex_size", size)
+	return m
+
+
+static var _glb_cache := {}
+
+
+# A model from models/, straight from its .glb, its materials swapped for the print's by name.
+func model(path: String, at := Vector3.ZERO, parent: Node = null) -> Node3D:
+	var root: Node3D
+	if _glb_cache.has(path):
+		root = (_glb_cache[path] as PackedScene).instantiate()
+	else:
+		var doc := GLTFDocument.new()
+		var state := GLTFState.new()
+		var err := doc.append_from_file(path, state)
+		if err != OK:
+			push_warning("model " + path + ": " + str(err))
+			return Node3D.new()
+		root = doc.generate_scene(state) as Node3D
+		_reprint(root)
+		var ps := PackedScene.new()
+		_own(root, root)
+		ps.pack(root)
+		_glb_cache[path] = ps
+		# the scene the file made is only the pattern now: free it, or it's still holding its
+		# meshes when the game quits
+		root.free()
+		root = ps.instantiate()
+	(parent if parent else self).add_child(root)
+	root.position = at
+	return root
+
+
+func _own(n: Node, owner_node: Node) -> void:
+	for c in n.get_children():
+		c.owner = owner_node
+		_own(c, owner_node)
+
+
+func _reprint(n: Node) -> void:
+	if n is MeshInstance3D:
+		var mi := n as MeshInstance3D
+		for i in mi.mesh.get_surface_count():
+			mi.set_surface_override_material(i, _from_model(mi.mesh.surface_get_material(i)))
+	for c in n.get_children():
+		_reprint(c)
+
+
+const GLOWS := {"headlight": 9.0, "taillight": 3.0, "bulb": 4.0, "screen": 0.8, "phone_screen": 0.45, "juke_light": 0.9,
+	"dome": 2.5, "amber_marker": 2.0}
+const SCREENS := {"phone_screen": "phone_screen"}
+# red is the sign's and blood's: a red flannel would print as either, so the flannels are brown
+const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36")}
+# how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight]
+const CUTS := {
+	"skin": [4, Vector3.UP, 4.5, 0.7], "eye": [3, Vector3.UP, 5.0, 0.0], "iris": [3, Vector3.UP, 5.0, 0.0], "hair": [4, Vector3.UP, 3.5, 0.5],
+	"hoodie": [4, Vector3.UP, 5.5, 0.8], "jeans": [2, Vector3.UP, 5.5, 0.7], "cord": [3, Vector3.UP, 5.0, 0.0],
+	"paint": [2, Vector3(0.25, 1, 0), 6.0, 1.0], "tire": [2, Vector3(0, 1, 0), 6.0, 1.0],
+	"felt": [1, Vector3(0, 0, 1), 7.0, 0.5], "laminate": [1, Vector3(0, 0, 1), 7.0, 1.0],
+	"slacks": [2, Vector3.UP, 5.5, 0.7], "khaki": [2, Vector3.UP, 5.5, 0.7], "trousers": [2, Vector3.UP, 5.5, 0.7],
+	"flannel": [4, Vector3.UP, 5.5, 0.8], "jacket": [4, Vector3.UP, 5.5, 0.8], "coat": [4, Vector3.UP, 5.5, 0.8],
+	"cardigan": [4, Vector3.UP, 5.5, 0.8], "tweed": [4, Vector3.UP, 5.5, 0.8], "tshirt": [4, Vector3.UP, 5.5, 0.8],
+	"apron": [4, Vector3.UP, 5.5, 0.8], "hivis": [4, Vector3.UP, 5.5, 0.8], "sweatshirt": [4, Vector3.UP, 5.5, 0.8],
+	"suit": [4, Vector3.UP, 5.0, 0.8], "raincoat": [4, Vector3.UP, 5.5, 0.8], "whites": [4, Vector3.UP, 5.5, 0.8],
+}
+var from_model_cache := {}
+
+
+func _from_model(src: Material) -> Material:
+	if src == null:
+		return M.wall
+	var key := src.resource_name
+	if from_model_cache.has(key):
+		return from_model_cache[key]
+	var sm := src as BaseMaterial3D
+	var c := sm.albedo_color if sm else Color(0.7, 0.7, 0.7)
+	if RECOLOUR.has(key):
+		c = RECOLOUR[key]
+	var out: Material
+	if key == "wood":
+		out = M.top
+	elif key == "glass" or (sm and sm.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED):
+		out = glass(c, clampf(c.a, 0.08, 0.5))
+	elif GLOWS.has(key):
+		var e := sm.emission if sm and sm.emission_enabled else c
+		out = glow(e, GLOWS[key])
+		if SCREENS.has(key):
+			out.set_shader_parameter("albedo", Color(0.04, 0.04, 0.05))
+			out.set_shader_parameter("emission", Color(1, 1, 1))
+			out.set_shader_parameter("emission_tex", tex("res://textures/" + SCREENS[key] + ".png"))
+	else:
+		var cut: Array = CUTS.get(key, [0, Vector3.UP, 6.0, 1.0])
+		out = mat(c, sm.roughness if sm else 0.8, sm.metallic if sm else 0.0, cut[0], cut[1], cut[2], cut[3])
+	from_model_cache[key] = out
+	return out
+
+
+static var _tex_cache := {}
+
+
+func tex(path: String, mips := true) -> ImageTexture:
+	return tex_static(path, mips)
+
+
+static func tex_static(path: String, mips := true) -> ImageTexture:
+	var key := path + ("" if mips else "#nomip")
+	if _tex_cache.has(key):
+		return _tex_cache[key]
+	# read as bytes: the pictures are kept as they are in the export (their .import says "keep"),
+	# so this works the same in the editor and in the game
+	var img := Image.new()
+	var bytes := FileAccess.get_file_as_bytes(path)
+	var err := img.load_png_from_buffer(bytes) if path.ends_with(".png") else img.load_jpg_from_buffer(bytes)
+	if err != OK or img.is_empty():
+		push_warning("texture " + path + " didn't load")
+		img = Image.create(4, 4, false, Image.FORMAT_RGBA8)
+		img.fill(Color(1, 0, 1))
+	if mips:
+		img.generate_mipmaps()
+	var t := ImageTexture.create_from_image(img)
+	_tex_cache[key] = t
+	return t
+
+
+func glass(c: Color, a: float) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = GLASS
+	m.set_shader_parameter("albedo", Color(c.r, c.g, c.b, a))
+	return m
+
+
+func _materials() -> void:
+	var across := Vector3(1, 0, 0.3)
+	var along := Vector3(0, 0, 1)
+	M.wall = surfaced(mat(Color(1, 1, 1)), "plaster", 2.0)
+	M.wall.set_shader_parameter("split_y", 1.0)
+	M.wall.set_shader_parameter("albedo_tex2", tex("res://textures/panel.png"))
+	M.plain = surfaced(mat(Color(0.92, 0.9, 0.86)), "plaster", 2.0)          # the back strip's walls: no wainscot
+	M.tile = mat(Color("b9b8b0"), 0.35, 0.0, 1, Vector3(1, 0, 1), 6.0, 0.6)    # washrooms and the kitchen
+	M.lino = mat(Color("6c6a5f"), 0.5, 0.0, 1, Vector3(1, 0, 0.2), 7.0, 0.4)
+	M.steel = mat(Color("9aa0a3"), 0.35, 0.7, 2, Vector3.UP, 5.0, 1.0)
+	M.ceiling = mat(Color("8e8a83"), 0.9, 0.0, 1, across)
+	M.carpet = surfaced(mat(Color(1, 1, 1), 0.9, 0.0, 1, across, 7.0, 0.4), "carpet", 0.9)
+	M.carpet.set_shader_parameter("wear_tex", tex("res://textures/wear.png"))
+	M.carpet.set_shader_parameter("wear_rect", Vector4(0, 0, 16, 10))
+	M.carpet.set_shader_parameter("worn", Color("66594b"))
+	M.wood = surfaced(mat(Color(1, 1, 1), 0.7), "wood", 1.2)
+	M.top = surfaced(mat(Color(1, 1, 1), 0.45, 0.0, 1, along), "top", 1.0)
+	M.boards = surfaced(mat(Color(0.78, 0.76, 0.72), 0.6, 0.0, 1, Vector3(0, 0, 1), 6.0, 0.8), "wood", 1.6)
+	M.dark = mat(Color("4a4843"), 0.6)
+	M.black = mat(Color("1f1e22"), 0.5)
+	M.frame = mat(Color("3d3a36"), 0.45, 0.35)
+	M.felt = mat(Color("6f716c"), 0.9, 0.0, 1, along)
+	M.paper = mat(Color("d9d4c8"), 0.9, 0.0, 3)
+	M.burn = mat(Color("2c2825"), 0.9, 0.0, 3, Vector3.UP, 7.0, 0.0)
+	M.person = mat(Color("b1aca3"), 0.9, 0.0, 0, Vector3.UP, 6.0)
+	M.gravel = mat(Color("4a4946"), 0.34, 0.0, 1, Vector3(1, 0, 0.15), 7.0, 0.3)
+	M.dirt = mat(Color("3c3530"), 0.95, 0.0, 1, Vector3(1, 0, 0.4), 7.0, 0.3)
+	M.concrete = mat(Color("6d6b66"), 0.9, 0.0, 0, Vector3.UP, 7.0, 0.8)
+	M.brick = mat(Color("6a4a3e"), 0.9, 0.0, 0, Vector3.UP, 5.0, 0.8)
+	M.siding = mat(Color("8c8778"), 0.8, 0.0, 0, Vector3.UP, 5.0, 0.9)
+	M.paint = mat(Color("80473a"), 0.8, 0.0, 0, Vector3.UP, 5.0, 0.9)
+	M.puddle = mat(Color("1b1c1f"), 0.04, 0.2, 1, Vector3(1, 0, 0.15), 7.0, 0.0)
+	M.road = mat(Color("333336"), 0.28, 0.0, 1, Vector3(0, 0, 1), 7.0, 0.3)
+	M.water = mat(Color("111317"), 0.1, 0.2, 1, Vector3(0, 0, 1), 7.0, 0.0)
+	M.seat = mat(Color("2e2d2f"), 0.8)
+	M.bottle = mat(Color("7a776f"), 0.2)
+	M.keg = mat(Color("a4a8aa"), 0.3, 0.8, 0, Vector3.UP, 4.0, 1.0)
+	M.mirror = mat(Color("2e3033"), 0.04, 0.95)
+	M.porcelain = mat(Color("dcdad2"), 0.15, 0.0, 3, Vector3.UP, 5.0, 1.0)
+	M.bed = mat(Color("8a8272"), 0.9, 0.0, 1, Vector3(1, 0, 0), 6.0, 0.8)
+	M.glass = glass(Color("a9bccb"), 0.12)
+	M.pint = glass(Color("d8cfb5"), 0.5)
+	M.drop = glass(Color("eef2f6"), 0.5)
+	M.tv = glow(Color("b5c6de"), 1.1)
+	M.juke = glow(Color("e0708e"), 0.9)
+	M.lamp = glow(Color("ffdfae"), 3.0)
+	M.bulb = glow(Color("ffd9a0"), 4.0)
+	M.shade = glow(Color("f0c890"), 0.9)
+	# the reds are picked for after the eye's tonemapper, which turns a bright red salmon: this one
+	# comes out as the neon ink itself (tests/agx_probe.gd)
+	M.neon = glow(Color("cc001a"), 1.0)
+	M.screen = glow(Color("e6eefc"), 0.8)
+	M.lotto = glow(Color("c8e6a0"), 1.2)
+	M.cooler = glow(Color("dfe9f2"), 1.2)
+	M.sodium = glow(Color("ffb060"), 6.0)
+	M.tail = glow(Color("cc001a"), 1.0)
+	M.head = glow(Color("f4f6ff"), 9.0)
+	M.far = glow(Color("ffd49a"), 7.0)
+	M.tube = glow(Color("e8f0ff"), 3.5)
+	M.exit = glow(Color("cc0a1a"), 1.0)
+	M.window_lit = glow(Color("ffcf8a"), 1.6)
+
+
+func box(size: Vector3, pos: Vector3, m: Material, rot_y := 0.0, parent: Node = null) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = size
+	mi.mesh = bm
+	mi.material_override = m
+	mi.position = pos
+	mi.rotation.y = deg_to_rad(rot_y)
+	(parent if parent else self).add_child(mi)
+	return mi
+
+
+func cyl(r_top: float, r_bot: float, h: float, pos: Vector3, m: Material, parent: Node = null, seg := 20) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var cm := CylinderMesh.new()
+	cm.top_radius = r_top
+	cm.bottom_radius = r_bot
+	cm.height = h
+	cm.radial_segments = seg
+	cm.rings = 1
+	mi.mesh = cm
+	mi.material_override = m
+	mi.position = pos
+	(parent if parent else self).add_child(mi)
+	return mi
+
+
+func ball(r: float, pos: Vector3, m: Material, parent: Node = null) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = r
+	sm.height = r * 2.0
+	sm.radial_segments = 20
+	sm.rings = 12
+	mi.mesh = sm
+	mi.material_override = m
+	mi.position = pos
+	(parent if parent else self).add_child(mi)
+	return mi
+
+
+# A floor, ceiling or wall cut into tiles, so every lamp near a tile reaches it: the Compatibility
+# renderer lights each mesh with its nearest few lights only.
+func tiled(size: Vector3, center: Vector3, m: Material, tile := 2.0, parent: Node = null) -> void:
+	var nx := maxi(1, ceili(size.x / tile))
+	var ny := maxi(1, ceili(size.y / tile))
+	var nz := maxi(1, ceili(size.z / tile))
+	var s := Vector3(size.x / nx, size.y / ny, size.z / nz)
+	for i in nx:
+		for j in ny:
+			for k in nz:
+				box(s, center - size / 2.0 + Vector3(s.x * (i + 0.5), s.y * (j + 0.5), s.z * (k + 0.5)), m, 0.0, parent)
+
+
+# A wall from a to b on the floor (x, z), `h` high from `y0`, with openings: [from, to] along it and
+# [bottom, top] up it. Tiled.
+func wall(a: Vector2, b: Vector2, h: float, m: Material, holes: Array = [], y0 := 0.0, thick := 0.2) -> void:
+	var d := b - a
+	var L := d.length()
+	var dir := d / L
+	var along_x: bool = absf(dir.x) > absf(dir.y)
+	var spans: Array = [[0.0, L, 0.0, h]]
+	for hole in holes:
+		var cut: Array = []
+		for s in spans:
+			var o0: float = hole[0]
+			var o1: float = hole[1]
+			if o1 <= s[0] or o0 >= s[1]:
+				cut.append(s)
+				continue
+			if o0 > s[0]:
+				cut.append([s[0], o0, s[2], s[3]])
+			if o1 < s[1]:
+				cut.append([o1, s[1], s[2], s[3]])
+			# over and under the opening
+			if hole[3] < s[3]:
+				cut.append([maxf(o0, s[0]), minf(o1, s[1]), hole[3], s[3]])
+			if hole[2] > s[2]:
+				cut.append([maxf(o0, s[0]), minf(o1, s[1]), s[2], hole[2]])
+		spans = cut
+	for s in spans:
+		var run: float = s[1] - s[0]
+		var hh: float = s[3] - s[2]
+		if run < 0.01 or hh < 0.01:
+			continue
+		var mid: Vector2 = a + dir * (s[0] + run / 2.0)
+		var size := Vector3(run, hh, thick) if along_x else Vector3(thick, hh, run)
+		tiled(size, Vector3(mid.x, y0 + s[2] + hh / 2.0, mid.y), m, 2.0)
+
+
+func omni(pos: Vector3, c: Color, e: float, r: float, shadow := false, name := "") -> OmniLight3D:
+	var l := OmniLight3D.new()
+	l.position = pos
+	l.light_color = c
+	l.light_energy = e
+	l.omni_range = r
+	l.shadow_enabled = false
+	add_child(l)
+	if shadow:
+		shadowed.append([l, pos])
+	if name != "":
+		lights[name] = l
+	return l
+
+
+func spot(pos: Vector3, target: Vector3, c: Color, e: float, r: float, angle: float, shadow := false, parent: Node = null) -> SpotLight3D:
+	var l := SpotLight3D.new()
+	l.light_color = c
+	l.light_energy = e
+	l.spot_range = r
+	l.spot_angle = angle
+	l.spot_angle_attenuation = 1.6
+	l.shadow_enabled = false
+	(parent if parent else self).add_child(l)
+	l.global_position = pos
+	var d := (target - pos).normalized()
+	l.look_at(target, Vector3.UP if absf(d.y) < 0.98 else Vector3.FORWARD)
+	if shadow:
+		shadowed.append([l, pos])
+	return l
+
+
+# A door he's going through swings open ahead of him and falls to behind him.
+func swing_door(which: String, open: bool) -> void:
+	var list: Array = []
+	match which:
+		"main":
+			list = [[dyn.leaf_l, -68.0 * float(dyn.leaf_l.get_meta("dir"))], [dyn.leaf_r, -64.0 * float(dyn.leaf_r.get_meta("dir"))]]
+		"swing":
+			list = [[dyn.swing, 75.0]]
+		"deck":
+			list = [[dyn.deck_door, 80.0]]
+	for pair in list:
+		var n: Node3D = pair[0]
+		var tw := n.create_tween()
+		if open:
+			tw.tween_property(n, "rotation:y", deg_to_rad(pair[1]), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		else:
+			tw.tween_interval(0.5)
+			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 0.9).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# The doors the night props open or shuts: the deck door on its folded coaster, the kitchen's back
+# door for the fryer, the hotel door on its wedge.
+func prop_door(which: String, open: bool) -> void:
+	var n: Node3D = dyn.get(which)
+	if n == null:
+		return
+	var a := 0.0
+	match which:
+		"deck_door":
+			a = deg_to_rad(9.0) if open else 0.0
+			dyn.coaster.visible = open
+		"kitchen_door":
+			a = deg_to_rad(-72.0) if open else 0.0
+		"hotel_door":
+			a = deg_to_rad(-58.0) if open else 0.0
+			dyn.hotel_wedge.visible = open
+	n.set_meta("rest", a)
+	n.rotation.y = a
+
+
+# The room's light by the clock: as it is all night, up a little at last call, and at two the
+# house lights, the ones nobody's meant to see the room by.
+func set_clock(clock: int) -> void:
+	if clock == int(dyn.get("clock", -1)):
+		return
+	dyn.clock = clock
+	var up := 1.0
+	var work := 0.0
+	if clock >= 1560:
+		up = 1.35
+		work = 1.0
+	elif clock >= 1530:
+		up = 1.15
+	for l in lamps:
+		var li := l as Light3D
+		if not li.has_meta("base"):
+			li.set_meta("base", li.light_energy)
+		li.light_energy = float(li.get_meta("base")) * up
+	for l in dyn.get("work", []):
+		(l as Light3D).light_energy = 0.9 * work
+		(l as Light3D).visible = work > 0.0
+
+
+# Shadows from the lights near where he is, and none from the rest: they cost a pass each.
+func shadows_near(p: Vector3, reach := 7.5) -> void:
+	for pair in shadowed:
+		var l: Light3D = pair[0]
+		l.shadow_enabled = (pair[1] as Vector3).distance_to(p) < reach
+
+
+# ---------------------------------------------------------------- the bar room
+
+func _room() -> void:
+	tiled(Vector3(16, 0.1, 10), Vector3(8, -0.05, 5), M.carpet)
+	tiled(Vector3(16, 0.1, 10), Vector3(8, 3.25, 5), M.ceiling)
+	for z in [2.9, 5.6, 8.3]:                                            # the old dining room's beams
+		tiled(Vector3(16, 0.28, 0.24), Vector3(8, 3.06, z), M.wood, 4.0)
+	# the west wall, behind the bar
+	tiled(Vector3(0.2, 3.2, 10), Vector3(-0.1, 1.6, 5), M.wall)
+	# the back wall: the kitchen's swing door behind the bar, and the way through to the back hall
+	wall(Vector2(0, -0.1), Vector2(16, -0.1), 3.2, M.wall, [[2.8, 3.7, 0.0, 2.1], [5.9, 7.1, 0.0, 2.3]])
+	# the swing door: a leaf with a porthole, on double-acting hinges
+	var sw := Node3D.new()
+	sw.position = Vector3(2.8, 0, -0.1)
+	add_child(sw)
+	box(Vector3(0.9, 2.08, 0.05), Vector3(0.45, 1.05, 0), M.dark, 0.0, sw)
+	var porthole := cyl(0.14, 0.14, 0.06, Vector3(0.45, 1.55, 0.0), M.lamp, sw, 20)
+	porthole.rotation.x = deg_to_rad(90)
+	dyn.swing = sw
+	# the east wall, with the deck door
+	wall(Vector2(16.1, 0), Vector2(16.1, 10), 3.2, M.wall, [[6.5, 7.7, 0.0, 2.3]])
+	var dk := Node3D.new()
+	dk.position = Vector3(16.06, 0, 6.5)
+	add_child(dk)
+	box(Vector3(0.06, 2.28, 1.18), Vector3(0, 1.14, 0.6), M.dark, 0.0, dk)
+	box(Vector3(0.07, 0.8, 0.6), Vector3(0, 1.5, 0.6), M.glass, 0.0, dk)
+	box(Vector3(0.1, 0.03, 0.14), Vector3(-0.07, 1.0, 1.04), M.frame, 0.0, dk)        # the push bar
+	dyn.deck_door = dk
+	# the coaster folded in its latch
+	dyn.coaster = box(Vector3(0.012, 0.05, 0.03), Vector3(16.02, 1.02, 7.66), M.paper)
+	# the front wall: the main door at x 2.3..4.1, the front window at x 6.2..12.6
+	tiled(Vector3(2.3, 3.2, 0.2), Vector3(1.15, 1.6, ZF), M.wall)
+	box(Vector3(1.8, 0.9, 0.2), Vector3(3.2, 2.75, ZF), M.wall)
+	tiled(Vector3(2.1, 3.2, 0.2), Vector3(5.15, 1.6, ZF), M.wall)
+	tiled(Vector3(6.4, 0.9, 0.2), Vector3(9.4, 0.45, ZF), M.wall)
+	tiled(Vector3(6.4, 0.8, 0.2), Vector3(9.4, 2.8, ZF), M.wall)
+	tiled(Vector3(3.4, 3.2, 0.2), Vector3(14.3, 1.6, ZF), M.wall)
+	box(Vector3(6.4, 1.5, 0.03), Vector3(9.4, 1.65, ZF), M.glass)
+	for x in [6.2, 7.8, 9.4, 11.0, 12.6]:
+		box(Vector3(0.07, 1.5, 0.14), Vector3(x, 1.65, ZF), M.frame)
+	box(Vector3(6.5, 0.07, 0.3), Vector3(9.4, 0.93, ZF - 0.05), M.wood)
+	# the exit sign over the deck door
+	box(Vector3(0.05, 0.14, 0.34), Vector3(16.0, 2.45, 7.1), M.exit)
+	anchors["deck_door"] = Vector3(16.0, 1.2, 7.1)
+	anchors["hall_way"] = Vector3(6.5, 1.3, -0.1)
+	anchors["swing_door"] = Vector3(3.25, 1.3, -0.1)
+
+
+func _vestibule() -> void:
+	# the door frame and its two glass leaves; they open out to the lot
+	model("res://models/door_frame.glb", Vector3((DOOR_W + DOOR_E) / 2.0, 0, ZF))
+	dyn.leaf_l = _leaf(DOOR_W + 0.04, 1.0)
+	dyn.leaf_r = _leaf(DOOR_E - 0.04, -1.0)
+	# the screen between the vestibule and the room: panelled to the waist, glass above
+	box(Vector3(0.1, 1.05, 1.2), Vector3(4.55, 0.525, 9.5), M.wood)
+	box(Vector3(0.14, 0.06, 1.24), Vector3(4.55, 1.08, 9.5), M.frame)
+	box(Vector3(0.14, 0.08, 1.24), Vector3(4.55, 2.24, 9.5), M.frame)
+	box(Vector3(0.12, 2.28, 0.08), Vector3(4.55, 1.14, 8.92), M.frame)
+	box(Vector3(0.02, 1.1, 1.1), Vector3(4.55, 1.66, 9.5), M.glass)
+	var sign := MeshInstance3D.new()
+	var sq := QuadMesh.new()
+	sq.size = Vector2(0.21, 0.28)
+	sign.mesh = sq
+	sign.position = Vector3(4.535, 1.6, 9.72)
+	sign.rotation.y = deg_to_rad(-90)
+	var sm := mat(Color(1, 1, 1), 0.5, 0.0, 3)
+	sm.set_shader_parameter("albedo_tex", tex("res://textures/sign_id.png"))
+	sign.material_override = sm
+	add_child(sign)
+	# the ledge along the front wall, by his right hand: the scanner, the clicker, the incident
+	# book, and the old cigarette burns
+	box(Vector3(1.85, 1.0, 0.45), Vector3(1.275, 0.5, 9.78), M.wood)
+	box(Vector3(1.95, 0.05, 0.55), Vector3(1.275, 1.025, 9.75), M.top)
+	for i in 11:
+		var b := cyl(0.012, 0.012, 0.002, Vector3(rng.randf_range(0.4, 2.15), 1.051, rng.randf_range(9.55, 9.96)), M.burn, null, 8)
+		b.scale = Vector3(rng.randf_range(1.0, 2.6), 1, 1)
+	# masking tape on the wall beside the door, with the night's sum on it in marker: born on this
+	# date or before, you're nineteen tonight
+	var tape := MeshInstance3D.new()
+	var tq := QuadMesh.new()
+	tq.size = Vector2(0.15, 0.042)
+	tape.mesh = tq
+	tape.position = Vector3(2.157, 1.4, 9.996)
+	tape.rotation = Vector3(0, deg_to_rad(180), deg_to_rad(-2.5))
+	var tm := mat(Color(1, 1, 1), 0.8, 0.0, 3, Vector3.UP, 7.0, 0.3)
+	tm.set_shader_parameter("albedo_tex", tex("res://textures/tape_date.png"))
+	tm.set_shader_parameter("alpha_scissor", 0.5)
+	tape.material_override = tm
+	add_child(tape)
+	var things := model("res://models/ledge_props.glb")
+	var spots := {"scanner": [Vector3(1.92, 1.05, 9.72), 184.0], "clicker": [Vector3(1.55, 1.05, 9.76), 200.0],
+		"book": [Vector3(1.05, 1.05, 9.74), 172.0], "lighter": [Vector3(0.72, 1.05, 9.82), 140.0],
+		"mug": [Vector3(0.48, 1.05, 9.7), 190.0]}
+	for c in things.get_children():
+		if spots.has(String(c.name)):
+			var sp: Array = spots[String(c.name)]
+			c.position = sp[0]
+			c.rotation = Vector3(0, deg_to_rad(sp[1]), 0)
+			dyn["ledge_" + String(c.name)] = c
+	# his stool, and the mat inside the door
+	stool(Vector3(EYE_DOOR.x, 0, EYE_DOOR.z), 0.78)
+	box(Vector3(1.8, 0.012, 1.0), Vector3((DOOR_W + DOOR_E) / 2.0, 0.006, 9.45), M.dark)
+	anchors["tape"] = Vector3(2.157, 1.4, 9.99)
+	anchors["ledge"] = Vector3(1.3, 1.06, 9.72)
+	anchors["main_door"] = Vector3(3.2, 1.2, 10.1)
+	anchors["scanner"] = Vector3(1.92, 1.1, 9.72)
+
+
+func _leaf(hinge_x: float, dir: float) -> Node3D:
+	var pivot := Node3D.new()
+	pivot.position = Vector3(hinge_x, 0, 10.12)
+	add_child(pivot)
+	var w := 0.86
+	model("res://models/door_leaf_" + ("left" if dir > 0.0 else "right") + ".glb", Vector3.ZERO, pivot)
+	var letters := MeshInstance3D.new()
+	var lq := QuadMesh.new()
+	lq.size = Vector2(w - 0.1, (w - 0.1) * 2.0)
+	letters.mesh = lq
+	letters.position = Vector3(dir * w / 2.0, 1.35, 0.012)
+	var lm := glass(Color(1, 1, 1), 1.0)
+	lm.set_shader_parameter("albedo_tex", tex("res://textures/door_glass_" + ("left" if dir > 0.0 else "right") + ".png"))
+	lm.set_shader_parameter("roughness", 0.35)
+	lm.set_shader_parameter("metallic", 0.0)
+	letters.material_override = lm
+	letters.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pivot.add_child(letters)
+	for i in 34:
+		box(Vector3(0.005, rng.randf_range(0.012, 0.07), 0.003), Vector3(dir * rng.randf_range(0.1, w - 0.1), rng.randf_range(0.3, 2.05), 0.016), M.drop, 0.0, pivot)
+	pivot.set_meta("dir", dir)
+	return pivot
+
+
+func _bar() -> void:
+	# the bar runs along the west wall, from near the back to near the door
+	tiled(Vector3(0.6, 1.06, 6.7), Vector3(1.9, 0.53, 4.35), M.wood)
+	tiled(Vector3(0.8, 0.06, 6.8), Vector3(1.95, 1.09, 4.35), M.top)
+	box(Vector3(0.05, 0.05, 6.7), Vector3(2.34, 0.22, 4.35), M.frame)
+	# the beer tower: a steel bar on two legs, six faucets on the bartender's side, their handles
+	# in the brewers' colours facing the room, and a drip tray under them
+	var tz0 := 1.9
+	var tlen := 1.3
+	var tmid := tz0 + tlen / 2.0
+	for tz in [tz0 + 0.1, tz0 + tlen - 0.1]:
+		cyl(0.024, 0.03, 0.24, Vector3(1.72, 1.24, tz), M.steel, null, 12)
+	box(Vector3(0.07, 0.07, tlen), Vector3(1.72, 1.39, tmid), M.steel)
+	box(Vector3(0.16, 0.02, tlen + 0.06), Vector3(1.62, 1.13, tmid), M.black)
+	var inks := ["d8cfb5", "a8382b", "2e3b4c", "d99a3c", "506142", "1f1e22"]
+	for i in 6:
+		var z := tz0 + 0.18 + i * (tlen - 0.36) / 5.0
+		box(Vector3(0.1, 0.03, 0.03), Vector3(1.66, 1.38, z), M.steel)
+		cyl(0.008, 0.008, 0.06, Vector3(1.62, 1.34, z), M.steel, null, 8)
+		var hm := mat(Color(inks[i]), 0.5)
+		if i % 3 == 1:
+			box(Vector3(0.018, 0.2, 0.06), Vector3(1.68, 1.53, z), hm)
+		else:
+			cyl(0.013, 0.019, 0.19 + 0.03 * (i % 2), Vector3(1.68, 1.52, z), hm, null, 10)
+	box(Vector3(0.36, 0.26, 0.32), Vector3(1.75, 1.25, 7.3), M.dark)          # the till, at the door end
+	var lot := box(Vector3(0.5, 0.34, 0.05), Vector3(2.0, 1.36, 6.7), M.dark, 90.0)
+	screen_quad(Vector2(0.44, 0.28), Vector3(0, 0, 0.03), "lotto", 1.2, 0.0, lot)
+	tiled(Vector3(0.5, 0.95, 6.2), Vector3(0.25, 0.475, 4.3), M.wood)
+	box(Vector3(0.04, 1.35, 4.4), Vector3(0.03, 1.82, 4.4), M.mirror)
+	for y in [1.28, 1.66, 2.04]:
+		box(Vector3(0.3, 0.03, 4.4), Vector3(0.17, y, 4.4), M.wood)
+		# not a library: bottles with shoulders and necks, a few squat ones, the odd gap where
+		# something's been poured out and not put back
+		var z := 2.3
+		while z < 6.5:
+			if rng.randf() < 0.08:
+				z += rng.randf_range(0.12, 0.3)
+				continue
+			var squat := rng.randf() < 0.2
+			var h := rng.randf_range(0.13, 0.17) if squat else rng.randf_range(0.17, 0.23)
+			var r := rng.randf_range(0.038, 0.048) if squat else rng.randf_range(0.027, 0.036)
+			var bx := rng.randf_range(0.12, 0.2)
+			cyl(r, r, h, Vector3(bx, y + 0.015 + h / 2.0, z), M.bottle, null, 10)
+			var nh := rng.randf_range(0.05, 0.07) if squat else rng.randf_range(0.07, 0.11)
+			cyl(0.011, r * 0.8, nh, Vector3(bx, y + 0.015 + h + nh / 2.0, z), M.bottle, null, 8)
+			z += r * 2.0 + rng.randf_range(0.012, 0.05)
+	box(Vector3(0.4, 0.05, 4.6), Vector3(0.4, 2.75, 4.4), M.dark)
+	box(Vector3(0.3, 0.01, 4.4), Vector3(0.4, 2.72, 4.4), M.lamp)
+	box(Vector3(0.62, 2.1, 1.0), Vector3(0.31, 1.05, 0.7), M.dark)
+	box(Vector3(0.02, 1.84, 0.86), Vector3(0.63, 1.1, 0.7), M.cooler)
+	for sy in [0.55, 0.95, 1.35, 1.75]:
+		box(Vector3(0.02, 0.02, 0.86), Vector3(0.645, sy, 0.7), M.frame)
+	# the trapdoor to the keg room behind the bar, at the far end: a hole with a hinged lid
+	var trap := Node3D.new()
+	trap.position = Vector3(0.6, 0.0, 1.4)
+	add_child(trap)
+	box(Vector3(0.9, 0.04, 1.0), Vector3(0.45, 0.02, 0.5), M.dark, 0.0, trap)
+	box(Vector3(0.05, 0.02, 0.2), Vector3(0.75, 0.05, 0.5), M.frame, 0.0, trap)    # the ring pull
+	dyn.trapdoor = trap
+	# the stools along the bar
+	var z2 := 1.6
+	while z2 < 7.4:
+		stool(Vector3(2.65, 0, z2), 0.76)
+		z2 += 0.85
+	# the binder and the incident book under the till
+	box(Vector3(0.28, 0.06, 0.34), Vector3(1.55, 0.92, 7.3), M.black)
+	anchors["till"] = Vector3(1.75, 1.3, 7.3)
+	anchors["bar_top"] = Vector3(2.1, 1.12, 5.8)
+	anchors["cooler"] = Vector3(0.63, 1.2, 0.7)
+	anchors["trapdoor"] = Vector3(1.05, 0.1, 1.9)
+	anchors["bottles"] = Vector3(0.2, 1.7, 4.4)
+
+
+func stool(at: Vector3, seat := 0.64) -> Node3D:
+	var s := model("res://models/stool_" + ("bar" if seat >= 0.7 else "low") + ".glb", at)
+	s.rotation.y = rng.randf_range(0.0, TAU)
+	return s
+
+
+func table(at: Vector3, round := false) -> Node3D:
+	return model("res://models/table_" + ("round" if round else "square") + ".glb", at)
+
+
+func sconce(at: Vector3, rot_y: float) -> void:
+	var n := Node3D.new()
+	n.position = at
+	n.rotation.y = deg_to_rad(rot_y)
+	add_child(n)
+	box(Vector3(0.09, 0.14, 0.03), Vector3(0, -0.04, 0.015), M.frame, 0.0, n)
+	box(Vector3(0.02, 0.02, 0.14), Vector3(0, -0.04, 0.09), M.frame, 0.0, n)
+	cyl(0.05, 0.075, 0.12, Vector3(0, 0.02, 0.16), M.shade, n, 14)
+	ball(0.028, Vector3(0, -0.03, 0.16), M.bulb, n)
+	for d in [1.0, -1.0]:
+		var sp := SpotLight3D.new()
+		sp.position = Vector3(0, 0.02 * d, 0.16)
+		sp.rotation.x = deg_to_rad(90.0 * d)
+		sp.light_color = Color("ffc98a")
+		sp.light_energy = 1.5 if d > 0.0 else 1.0
+		sp.spot_range = 2.4
+		sp.spot_angle = 44.0
+		sp.spot_angle_attenuation = 4.0
+		n.add_child(sp)
+		lamps.append(sp)
+	var l := OmniLight3D.new()
+	l.position = Vector3(0, 0.0, 0.3)
+	l.light_color = Color("ffc98a")
+	l.light_energy = 0.18
+	l.omni_range = 2.0
+	n.add_child(l)
+
+
+func pint(at: Vector3, parent: Node = null) -> MeshInstance3D:
+	return cyl(0.042, 0.034, 0.15, at + Vector3(0, 0.075, 0), M.pint, parent, 12)
+
+
+func pendant(p: Vector3, drop := 2.35) -> void:
+	cyl(0.005, 0.005, 3.2 - drop - 0.1, Vector3(p.x, (3.2 + drop + 0.1) / 2.0, p.z), M.frame, null, 6)
+	var lamp := model("res://models/pendant.glb", Vector3(p.x, drop + 0.1, p.z))
+	lamp.rotation.y = rng.randf_range(0.0, TAU)
+
+
+func _floor_things() -> void:
+	# the pool table, a coin-op, with its lamp; the balls where the big man's buddy left them
+	model("res://models/pool_table.glb", POOL)
+	var balls := [[Vector2(-0.62, -0.28), "e8e4d8"], [Vector2(-0.45, 0.06), "b8342a"], [Vector2(0.58, -0.38), "d9a52e"],
+		[Vector2(0.21, 0.3), "2a3a78"], [Vector2(-0.88, 0.16), "d86a2a"], [Vector2(0.77, 0.24), "6a2430"], [Vector2(0.05, -0.12), "141414"]]
+	for b in balls:
+		ball(0.0286, POOL + Vector3(b[0].x, 0.8286, b[0].y), mat(Color(b[1]), 0.2, 0.0, 3, Vector3.UP, 5.0, 0.3))
+	model("res://models/pool_light.glb", POOL + Vector3(0, 2.06, 0))
+	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(-0.7, 2.65, 0), M.frame)
+	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(0.7, 2.65, 0), M.frame)
+	# a cue on the rack by the back wall, and the chalk
+	var rack := box(Vector3(0.6, 0.9, 0.04), Vector3(11.6, 1.4, 0.03), M.wood)
+	for i in 4:
+		var cue := cyl(0.006, 0.012, 1.45, Vector3(11.4 + i * 0.13, 0.78, 0.07), M.wood, null, 8)
+		cue.rotation.z = deg_to_rad(rng.randf_range(-3, 3))
+	# table 28, the big round one in the front window, with its glasses and six stools
+	table(T28, true)
+	var glasses := Node3D.new()
+	add_child(glasses)
+	dyn.t28_glasses = glasses
+	for k in 6:
+		var a2 := TAU * k / 6.0 + 0.25
+		stool(T28 + Vector3(cos(a2) * 1.18, 0, sin(a2) * 1.18))
+	pendant(T28)
+	# the other tables
+	for t in TABLES:
+		table(t)
+		for s in [Vector3(0.62, 0, 0), Vector3(-0.62, 0, 0), Vector3(0, 0, 0.62)]:
+			stool(t + s)
+		pendant(t)
+	for z in [2.4, 4.4, 6.4]:
+		pendant(Vector3(1.95, 0, z), 2.3)
+	# the jukebox on the back wall, a screen that takes a card and plays anything
+	var juke := model("res://models/jukebox.glb", Vector3(13.2, 0.95, 0.0))
+	juke.rotation.y = PI
+	var jq := screen_quad(Vector2(0.43, 0.31), Vector3(0, 0.7205, -0.268), "jukebox", 1.0, 180.0, juke)
+	jq.rotation.x = deg_to_rad(-4.3)
+	# a TV on the back wall that table 28 watches, on the hockey, and one on the east wall on the news
+	for tv in [[Vector3(9.4, 2.45, 0.0), 180.0, "tv_hockey"], [Vector3(16.0, 2.35, 4.0), 90.0, "tv_news"]]:
+		var set := model("res://models/tv.glb", tv[0])
+		set.rotation.y = deg_to_rad(tv[1])
+		screen_quad(Vector2(1.21, 0.69), Vector3(0, 0.0025, -0.107), tv[2], 1.1, 180.0, set)
+	# the dartboard on the east wall, and the oche on the carpet at 2.37 m
+	var board := model("res://models/dartboard.glb", Vector3(16.0, 1.73, 2.3))
+	board.rotation.y = PI / 2.0
+	box(Vector3(0.04, 0.008, 0.6), Vector3(16.0 - 2.37, 0.004, 2.3), M.frame)
+	anchors["pool_table"] = POOL + Vector3(0, 0.85, 0)
+	anchors["t28"] = T28 + Vector3(0, 0.8, 0)
+	anchors["jukebox"] = Vector3(13.2, 1.5, 0.25)
+	anchors["tv"] = Vector3(9.4, 2.45, 0.1)
+	anchors["tv_news"] = Vector3(15.9, 2.35, 4.0)
+	anchors["dartboard"] = Vector3(15.9, 1.73, 2.3)
+	anchors["t28_under"] = T28 + Vector3(0.3, 0.1, 0.9)
+	anchors["t28_wall"] = Vector3(9.4, 0.3, 9.95)
+
+
+# Table 28's glasses: a round's worth for each round they've ordered since the last clear, up to what
+# the table holds.
+func set_t28_glasses(rounds: int, cleared: bool) -> void:
+	var g: Node3D = dyn.t28_glasses
+	for c in g.get_children():
+		c.queue_free()
+	if cleared:
+		return
+	var r := RandomNumberGenerator.new()
+	r.seed = 2828
+	var n := clampi(4 + rounds * 2, 0, 22)
+	for i in n:
+		var a := TAU * i / 11.0 + r.randf() * 0.3
+		pint(T28 + Vector3(cos(a) * r.randf_range(0.2, 0.66), 0.785, sin(a) * r.randf_range(0.2, 0.66)), g)
+
+
+# ---------------------------------------------------------------- behind the back wall
+
+func _back_strip() -> void:
+	var y := 2.6          # the back strip's ceiling is lower
+	# floors and ceilings
+	tiled(Vector3(4.8, 0.1, 2.64), Vector3(2.4, -0.05, BACK / 2.0), M.tile)
+	tiled(Vector3(11.2, 0.1, 2.64), Vector3(10.4, -0.05, BACK / 2.0), M.lino)
+	tiled(Vector3(16, 0.1, 2.64), Vector3(8, y + 0.05, BACK / 2.0), M.ceiling)
+	# the back wall of the building, with the kitchen's back door (propped for the fryer)
+	wall(Vector2(0, BACK - 0.1), Vector2(16, BACK - 0.1), y, M.plain)
+	wall(Vector2(-0.1, BACK), Vector2(-0.1, 0), y, M.plain, [[0.66, 1.54, 0.0, 2.05]])
+	# the kitchen's side of things: the wall between it and the hall
+	wall(Vector2(4.8, BACK), Vector2(4.8, 0), y, M.plain)
+	# the washrooms: three fronts on the hall, each with its door
+	for w in [[6.4, 8.64, 7.1, 7.84, "men"], [8.64, 10.88, 9.34, 10.08, "women"], [10.88, 13.12, 11.58, 12.3, "single"]]:
+		wall(Vector2(w[0], HALL_Z), Vector2(w[1], HALL_Z), y, M.plain, [[w[2] - w[0], w[3] - w[0], 0.0, 2.05]], 0.0, 0.1)
+		var door := Node3D.new()
+		door.position = Vector3(w[2], 0, HALL_Z)
+		add_child(door)
+		box(Vector3(w[3] - w[2] - 0.02, 2.02, 0.04), Vector3((w[3] - w[2]) / 2.0, 1.01, 0), M.dark, 0.0, door)
+		box(Vector3(0.12, 0.05, 0.05), Vector3((w[3] - w[2]) - 0.12, 1.02, 0.04), M.frame, 0.0, door)
+		# the little window in the handle: VACANT or OCCUPIED, and a sign on each door
+		box(Vector3(0.16, 0.16, 0.01), Vector3((w[3] - w[2]) / 2.0, 1.55, 0.025), M.paper, 0.0, door)
+		dyn["wc_" + w[4]] = door
+		anchors["wc_" + w[4]] = Vector3((w[2] + w[3]) / 2.0, 1.3, HALL_Z)
+		# inside: tile, a sink and a mirror; a stall or a urinal
+		tiled(Vector3(w[1] - w[0], 0.1, BACK * -1.0 - 1.21), Vector3((w[0] + w[1]) / 2.0, 0.0, (BACK + HALL_Z) / 2.0), M.tile)
+		cyl(0.2, 0.16, 0.14, Vector3(w[0] + 0.35, 0.82, BACK + 0.3), M.porcelain, null, 14)
+		box(Vector3(0.5, 0.6, 0.02), Vector3(w[0] + 0.35, 1.55, BACK + 0.02), M.mirror)
+		box(Vector3(0.06, 0.06, 0.06), Vector3(w[0] + 0.35, 2.4, (BACK + HALL_Z) / 2.0), M.tube)
+	for x in [6.4, 8.64, 10.88, 13.12]:
+		wall(Vector2(x, BACK), Vector2(x, HALL_Z), y, M.tile, [], 0.0, 0.1)
+	# the payphone, dead, and forty years of numbers round it
+	box(Vector3(0.24, 0.42, 0.14), Vector3(13.86, 1.45, BACK + 0.07), M.steel)
+	box(Vector3(0.06, 0.2, 0.08), Vector3(13.72, 1.5, BACK + 0.16), M.black)       # the handset
+	var scrawl := mat(Color("a8a295"), 0.9, 0.0, 0, Vector3(0.2, 1, 0), 3.0, 0.6)
+	box(Vector3(1.2, 1.0, 0.01), Vector3(13.86, 1.5, BACK + 0.005), scrawl)
+	# the hotel door at the end of the hall: to the front desk and the stairs up
+	wall(Vector2(16.1, BACK), Vector2(16.1, 0), y, M.plain, [[1.6, 2.48, 0.0, 2.05]])
+	var hd := Node3D.new()
+	hd.position = Vector3(16.08, 0, BACK + 1.6)
+	add_child(hd)
+	box(Vector3(0.05, 2.02, 0.86), Vector3(0, 1.01, 0.43), M.wood, 0.0, hd)
+	box(Vector3(0.03, 0.4, 0.3), Vector3(-0.02, 1.5, 0.43), M.glass, 0.0, hd)
+	dyn.hotel_door = hd
+	dyn.hotel_wedge = box(Vector3(0.12, 0.03, 0.06), Vector3(15.96, 0.015, BACK + 2.46), M.wood)
+	# the hall's light: two tubes
+	for x in [9.0, 14.5]:
+		box(Vector3(1.2, 0.04, 0.08), Vector3(x, y - 0.03, -0.6), M.tube)
+	# the kitchen: the fryer, the steel counter, the pass, the walk-in's door
+	box(Vector3(0.7, 0.9, 0.7), Vector3(0.45, 0.45, BACK + 0.45), M.steel)          # the fryer
+	box(Vector3(0.62, 0.05, 0.62), Vector3(0.45, 0.93, BACK + 0.45), M.black)
+	box(Vector3(1.8, 0.9, 0.62), Vector3(2.0, 0.45, BACK + 0.4), M.steel)           # the counter
+	box(Vector3(1.8, 0.04, 0.66), Vector3(2.0, 0.92, BACK + 0.4), M.steel)
+	box(Vector3(1.0, 0.7, 0.5), Vector3(0.9, 2.1, BACK + 0.3), M.steel)             # the hood
+	box(Vector3(0.9, 2.0, 0.06), Vector3(4.0, 1.0, BACK + 0.04), M.steel)           # the walk-in
+	box(Vector3(0.5, 0.9, 0.5), Vector3(4.3, 0.45, -0.5), M.steel)                  # the dish pit
+	box(Vector3(0.06, 0.06, 1.4), Vector3(2.4, y - 0.05, -1.3), M.tube)
+	# the fryer's baskets hung up to drain over the oil, its splash-back; the flat-top on the
+	# counter, scraped; shelves over it, the plates and the pots and the cook's radio; the pass
+	# under its heat lamp with tonight's tickets on the rail; a mop bucket by the back door
+	box(Vector3(0.7, 0.55, 0.04), Vector3(0.45, 1.2, BACK + 0.12), M.steel)
+	for bx in [0.29, 0.61]:
+		box(Vector3(0.24, 0.12, 0.3), Vector3(bx, 1.08, BACK + 0.36), M.frame)
+		box(Vector3(0.03, 0.03, 0.3), Vector3(bx, 1.16, BACK + 0.66), M.black)
+	box(Vector3(0.7, 0.03, 0.55), Vector3(1.45, 0.955, BACK + 0.4), M.black)
+	box(Vector3(0.7, 0.08, 0.03), Vector3(1.45, 1.0, BACK + 0.12), M.steel)
+	for sy in [1.55, 1.95]:
+		box(Vector3(1.8, 0.03, 0.32), Vector3(2.0, sy, BACK + 0.18), M.steel)
+	for k in 3:
+		cyl(0.12, 0.12, 0.012 * 9, Vector3(2.5 + k * 0.1, 1.57 + 0.054, BACK + 0.2), M.porcelain, null, 16)
+	cyl(0.16, 0.15, 0.22, Vector3(1.55, 1.97 + 0.11, BACK + 0.19), M.steel, null, 14)
+	cyl(0.12, 0.12, 0.16, Vector3(1.9, 1.97 + 0.08, BACK + 0.19), M.steel, null, 14)
+	box(Vector3(0.3, 0.17, 0.12), Vector3(2.55, 2.055, BACK + 0.14), M.dark)          # the radio
+	for k in 4:
+		cyl(0.028, 0.03, 0.2, Vector3(1.25 + k * 0.08, 1.57 + 0.1, BACK + 0.12), M.bottle, null, 8)
+	var heat := glow(Color("ffa050"), 0.9)
+	box(Vector3(0.9, 0.05, 0.22), Vector3(2.45, 1.4, BACK + 0.6), M.steel)
+	box(Vector3(0.8, 0.02, 0.14), Vector3(2.45, 1.375, BACK + 0.6), heat)
+	omni(Vector3(2.45, 1.2, BACK + 0.6), Color("ffa050"), 0.8, 1.4, false, "heat_lamp")
+	box(Vector3(0.9, 0.02, 0.02), Vector3(2.45, 1.52, BACK + 0.72), M.steel)          # the ticket rail
+	for k in 4:
+		box(Vector3(0.08, 0.13, 0.004), Vector3(2.1 + k * 0.2 + rng.randf_range(-0.03, 0.03), 1.45, BACK + 0.73), M.paper)
+	cyl(0.17, 0.14, 0.3, Vector3(0.35, 0.15, -0.5), mat(Color("a58a3a"), 0.6), null, 14)   # the bucket
+	var mop := cyl(0.012, 0.012, 1.4, Vector3(0.4, 0.75, -0.45), M.wood, null, 6)
+	mop.rotation = Vector3(deg_to_rad(8.0), 0.0, deg_to_rad(-10.0))
+	for k in 3:
+		box(Vector3(0.55, 0.3, 0.4), Vector3(3.5 + rng.randf_range(-0.03, 0.03), 0.15 + k * 0.3, -0.45), M.dark)   # crates by the walk-in
+	var kd := Node3D.new()
+	kd.position = Vector3(-0.1, 0, BACK + 0.66)
+	add_child(kd)
+	box(Vector3(0.05, 2.02, 0.86), Vector3(0, 1.01, 0.43), M.steel, 0.0, kd)
+	dyn.kitchen_door = kd
+	anchors["fryer"] = Vector3(0.45, 1.0, BACK + 0.45)
+	anchors["kitchen_back"] = Vector3(-0.1, 1.2, BACK + 1.1)
+	anchors["payphone"] = Vector3(13.86, 1.5, BACK + 0.1)
+	anchors["hotel_door"] = Vector3(16.05, 1.2, BACK + 2.04)
+	anchors["hall_end"] = Vector3(15.0, 1.3, -0.6)
+
+
+# ---------------------------------------------------------------- the keg room, under the bar
+
+func _keg_room() -> void:
+	var y0 := KEG_Y
+	var h := 2.3
+	# a cellar under the bar and the kitchen: stone walls, a dirt floor at the far end, the lines up
+	tiled(Vector3(4.8, 0.1, 6.0), Vector3(2.4, y0 - 0.05, 2.0), M.concrete)
+	tiled(Vector3(4.8, 0.1, 2.6), Vector3(2.4, y0 - 0.04, -1.2), M.dirt)
+	for w in [[Vector2(-0.1, -2.5), Vector2(-0.1, 5.0)], [Vector2(4.9, -2.5), Vector2(4.9, 5.0)], [Vector2(0, -2.6), Vector2(4.8, -2.6)], [Vector2(0, 5.1), Vector2(4.8, 5.1)]]:
+		wall(w[0], w[1], h, M.concrete, [], y0)
+	# the ceiling is the bar's floor, with a hole for the ladder
+	tiled(Vector3(4.8, 0.08, 1.8), Vector3(2.4, -0.04, 0.5), M.boards)
+	tiled(Vector3(4.8, 0.08, 2.6), Vector3(2.4, -0.04, 3.7), M.boards)
+	tiled(Vector3(3.3, 0.08, 1.0), Vector3(3.15, -0.04, 1.9), M.boards)
+	# the ladder down from the trapdoor
+	for i in 9:
+		box(Vector3(0.6, 0.04, 0.12), Vector3(1.05, y0 + 0.25 + i * 0.27, 2.25 - i * 0.07), M.wood)
+	box(Vector3(0.05, 2.6, 0.08), Vector3(0.73, y0 + 1.25, 2.0), M.wood)
+	box(Vector3(0.05, 2.6, 0.08), Vector3(1.37, y0 + 1.25, 2.0), M.wood)
+	# kegs on the floor, and the lines going up
+	for i in 7:
+		var p := Vector3(3.9 - (i % 4) * 0.5, y0 + 0.3, 3.2 + (i / 4) * 0.55)
+		cyl(0.2, 0.2, 0.6, p, M.keg, null, 16)
+		cyl(0.004, 0.004, 1.9, p + Vector3(0, 1.25, 0), M.black, null, 6)
+	for i in 3:
+		cyl(0.2, 0.2, 0.6, Vector3(0.5 + i * 0.45, y0 + 0.3, 4.6), M.keg, null, 16)
+	# the hole in the wall at the dirt end, where they come and go, and the knot in the wall above
+	box(Vector3(0.3, 0.22, 0.12), Vector3(2.9, y0 + 0.11, -2.52), M.black)
+	box(Vector3(0.9, 0.5, 0.06), Vector3(2.6, y0 + 1.1, -2.55), M.dark)
+	# a bare bulb on a cord
+	cyl(0.004, 0.004, 0.4, Vector3(2.4, y0 + h - 0.2, 1.4), M.frame, null, 6)
+	ball(0.05, Vector3(2.4, y0 + h - 0.42, 1.4), M.bulb)
+	anchors["keg_hole"] = Vector3(2.9, y0 + 0.15, -2.45)
+	anchors["kegs"] = Vector3(3.2, y0 + 0.5, 3.5)
+	anchors["keg_ladder"] = Vector3(1.05, y0 + 1.2, 2.0)
+
+
+# ---------------------------------------------------------------- the deck, on the water side
+
+func _deck() -> void:
+	var x0 := 16.2
+	var x1 := 18.4
+	# boards, a rail, a tin awning, plastic chairs, the coffee can
+	tiled(Vector3(x1 - x0, 0.1, 5.6), Vector3((x0 + x1) / 2.0, -0.12, 7.1), M.boards, 1.5)
+	tiled(Vector3(x1 - x0 + 0.4, 0.04, 5.8), Vector3((x0 + x1) / 2.0 + 0.2, 2.75, 7.1), M.steel, 2.0)
+	for z in [4.3, 5.7, 7.1, 8.5, 9.9]:
+		box(Vector3(0.08, 2.8, 0.08), Vector3(x1, 1.35, z), M.wood)
+	box(Vector3(0.06, 0.06, 5.6), Vector3(x1, 1.0, 7.1), M.wood)
+	box(Vector3(0.04, 0.04, 5.6), Vector3(x1, 0.5, 7.1), M.wood)
+	for i in 3:
+		var c := Node3D.new()
+		c.position = Vector3(17.3 + (i % 2) * 0.5, 0, 5.0 + i * 1.6)
+		c.rotation.y = rng.randf_range(0, TAU)
+		add_child(c)
+		box(Vector3(0.44, 0.04, 0.42), Vector3(0, 0.42, 0), M.porcelain, 0.0, c)
+		box(Vector3(0.44, 0.4, 0.04), Vector3(0, 0.64, -0.2), M.porcelain, 0.0, c)
+		for s in [Vector2(-0.19, -0.18), Vector2(0.19, -0.18), Vector2(-0.19, 0.18), Vector2(0.19, 0.18)]:
+			box(Vector3(0.03, 0.42, 0.03), Vector3(s.x, 0.21, s.y), M.porcelain, 0.0, c)
+	cyl(0.08, 0.08, 0.18, Vector3(17.9, 0.09, 8.9), M.steel, null, 12)
+	# the building's outside wall, siding
+	wall(Vector2(16.25, 3.6), Vector2(16.25, 10.4), 3.4, M.siding, [[2.9, 4.1, 0.0, 2.3]], 0.0, 0.05)
+	# a bulb over the door in a cage
+	ball(0.05, Vector3(16.4, 2.5, 7.1), M.bulb)
+	anchors["deck_rail"] = Vector3(18.3, 1.0, 7.1)
+	anchors["deck_can"] = Vector3(17.9, 0.2, 8.9)
+
+
+# ---------------------------------------------------------------- outside
+
+func _outside() -> void:
+	tiled(Vector3(40, 0.1, 18), Vector3(8, -0.05, 19.2), M.gravel, 3.0)
+	for p in [Vector3(4.2, 0, 11.7), Vector3(6.8, 0, 12.5), Vector3(5.6, 0, 14.8), Vector3(10.6, 0, 13.3), Vector3(12.5, 0, 17.9), Vector3(3.0, 0, 16.4)]:
+		box(Vector3(rng.randf_range(0.8, 1.9), 0.01, rng.randf_range(0.5, 1.1)), p + Vector3(0, 0.003, 0), M.puddle, rng.randf_range(-30.0, 30.0))
+	# the ground along the east side, under the deck and past it
+	tiled(Vector3(12, 0.1, 12), Vector3(24, -0.3, 5.0), M.gravel, 3.0)
+	box(Vector3(160, 0.1, 6), Vector3(8, -0.06, 30.6), M.gravel)
+	box(Vector3(160, 0.02, 8), Vector3(8, 0.0, 31.6), M.road)
+	for x in range(-60, 80, 6):
+		box(Vector3(2.5, 0.01, 0.12), Vector3(x, 0.02, 31.6), M.wall)
+	box(Vector3(160, 0.9, 0.5), Vector3(8, 0.2, 35.9), M.dark)
+	box(Vector3(900, 0.02, 900), Vector3(8, -0.4, 486), M.water)
+	for i in 16:
+		ball(rng.randf_range(0.5, 1.1), Vector3(rng.randf_range(-260, 420), rng.randf_range(0.5, 6.0), 420 + rng.randf_range(0, 40)), M.far)
+	# outside the door: the step, and the sign over it
+	box(Vector3(2.6, 0.12, 1.2), Vector3(3.2, 0.06, 10.8), M.dark)
+	box(Vector3(4.6, 1.0, 0.12), Vector3(4.3, 3.85, 10.3), M.black)
+	box(Vector3(4.3, 0.07, 0.04), Vector3(4.3, 3.62, 10.37), M.neon)
+	box(Vector3(4.3, 0.07, 0.04), Vector3(4.3, 4.08, 10.37), M.neon)
+	# the lamp on a pole at the edge of the lot
+	cyl(0.07, 0.09, 6.5, Vector3(15.8, 3.25, 21.5), M.frame, null, 10)
+	box(Vector3(0.9, 0.12, 0.35), Vector3(15.4, 6.5, 21.5), M.frame)
+	box(Vector3(0.7, 0.02, 0.25), Vector3(15.4, 6.43, 21.5), M.sodium)
+	# cars on the highway
+	ball(0.09, Vector3(19.0, 0.7, 30.3), M.head)
+	ball(0.09, Vector3(19.0, 0.7, 31.1), M.head)
+	ball(0.07, Vector3(-9.0, 0.75, 32.2), M.tail)
+	ball(0.07, Vector3(-9.0, 0.75, 33.0), M.tail)
+	# two more cars in the lot, parked nose in
+	for c in [[Vector3(13.0, 0, 12.4), 0.0], [Vector3(-1.5, 0, 13.4), 8.0]]:
+		var car := Node3D.new()
+		car.position = c[0]
+		car.rotation.y = deg_to_rad(c[1])
+		add_child(car)
+		box(Vector3(1.8, 0.7, 4.3), Vector3(0, 0.55, 0), M.seat, 0.0, car)
+		box(Vector3(1.6, 0.55, 2.2), Vector3(0, 1.15, 0.2), M.seat, 0.0, car)
+		box(Vector3(1.55, 0.45, 0.02), Vector3(0, 1.15, -0.91), M.glass, 0.0, car)
+	anchors["lot"] = Vector3(8.0, 1.0, 15.0)
+	anchors["sign"] = Vector3(4.3, 3.85, 10.4)
+
+
+# The hotel over the pub, as it's seen from the lot: two floors of rooms, the windows, the fire
+# escape, his window the one lit at the end of the night.
+func _facade() -> void:
+	var z := ZF + 0.12
+	# three storeys of old wood, painted a red that had faded to the colour of brick
+	tiled(Vector3(17.2, 3.3, 0.2), Vector3(8.0, 3.2 + 1.65 + 0.2, z - 0.05), M.paint, 3.0)
+	tiled(Vector3(17.2, 3.1, 0.2), Vector3(8.0, 6.7 + 1.55, z - 0.05), M.paint, 3.0)
+	# the ground floor's outside: the same boards, round the door and the front window
+	wall(Vector2(-0.1, ZF + 0.13), Vector2(16.3, ZF + 0.13), 3.4, M.paint, [[DOOR_W + 0.1, DOOR_E + 0.1, 0.0, 2.3], [6.3, 12.7, 0.9, 2.4]], 0.0, 0.04)
+	# on the roof the sign: SOVEREIGN in red neon with the second E dead, and HOTEL under it, all
+	# five letters working
+	var word := "SOVEREIGN"
+	for i in word.length():
+		_neon(word[i], Vector3(8.0 + (i - 4) * 1.02, 10.95, z + 0.35), 1.0, i != 5)
+	var h2 := "HOTEL"
+	for i in h2.length():
+		_neon(h2[i], Vector3(8.0 + (i - 2) * 0.62, 10.12, z + 0.35), 0.58, true)
+	box(Vector3(10.2, 0.08, 0.08), Vector3(8.0, 10.42, z + 0.3), M.frame)
+	for x in [3.6, 8.0, 12.4]:
+		box(Vector3(0.08, 1.6, 0.08), Vector3(x, 10.7, z + 0.3), M.frame)
+	# its light: the roof's edge and the top floor, gone by the second
+	var glow_l := omni(Vector3(8.0, 10.6, z + 1.6), Color("ff3a28"), 1.3, 5.5, false, "roof_sign")
+	glow_l.omni_attenuation = 1.3
+	box(Vector3(17.6, 0.3, 1.2), Vector3(8.0, 9.9, z - 0.4), M.dark)
+	var wins: Array = []
+	for row in [4.5, 7.8]:
+		for x in [1.4, 3.6, 5.8, 8.0, 10.2, 12.4, 14.6]:
+			var w := box(Vector3(1.0, 1.3, 0.05), Vector3(x, row, z + 0.03), M.black)
+			box(Vector3(1.12, 0.08, 0.1), Vector3(x, row - 0.7, z + 0.06), M.wood)
+			wins.append(w)
+	dyn.windows = wins
+	# a window or two lit: residents up late
+	wins[3].material_override = M.window_lit
+	wins[9].material_override = M.window_lit
+	# the fire escape on the east end
+	for fy in [4.0, 7.3]:
+		box(Vector3(2.2, 0.05, 1.0), Vector3(15.8, fy - 0.9, z + 0.55), M.frame)
+		box(Vector3(2.2, 0.9, 0.03), Vector3(15.8, fy - 0.45, z + 1.05), M.frame)
+	# the side of the building, over the deck
+	tiled(Vector3(0.2, 6.6, 10.2), Vector3(16.3, 3.2 + 3.3, 5.0), M.siding, 3.0)
+	anchors["his_window"] = Vector3(14.6, 4.5, z)
+
+
+# A letter of the roof sign: neon, lit or dead.
+func _neon(ch: String, at: Vector3, h: float, lit: bool) -> void:
+	var l := Label3D.new()
+	l.text = ch
+	l.font = Look.font("ui_b")
+	l.font_size = 192
+	l.pixel_size = h / 150.0
+	l.outline_size = 0
+	l.modulate = Color("cc001a") if lit else Color(0.16, 0.1, 0.1)
+	l.position = at
+	l.double_sided = false
+	l.shaded = false
+	l.no_depth_test = false
+	add_child(l)
+
+
+# The cold beer and wine store at the west end, its lights on; the big man's work truck nose-in by
+# it, a toolbox across the bed.
+func _store() -> void:
+	var x0 := -6.4
+	var x1 := -0.15
+	wall(Vector2(x0, ZF + 0.1), Vector2(x1, ZF + 0.1), 3.4, M.paint, [[1.2, 4.4, 0.5, 2.5], [4.8, 5.8, 0.0, 2.3]], 0.0, 0.12)
+	wall(Vector2(x0, 4.0), Vector2(x0, ZF + 0.1), 3.4, M.paint, [], 0.0, 0.12)
+	tiled(Vector3(x1 - x0, 0.2, 6.3), Vector3((x0 + x1) / 2.0, 3.5, 7.0), M.dark, 3.0)
+	box(Vector3(3.2, 2.0, 0.03), Vector3(x0 + 2.8, 1.5, ZF + 0.1), M.window_lit)
+	box(Vector3(1.0, 2.3, 0.03), Vector3(x0 + 5.3, 1.15, ZF + 0.1), M.window_lit)
+	var sign := Label3D.new()
+	sign.text = "COLD BEER & WINE"
+	sign.font = Look.font("ui_b")
+	sign.font_size = 96
+	sign.pixel_size = 0.0042
+	sign.modulate = Color(1.0, 0.93, 0.8)
+	sign.shaded = false
+	sign.position = Vector3((x0 + x1) / 2.0, 2.95, ZF + 0.2)
+	add_child(sign)
+	var spill := omni(Vector3((x0 + x1) / 2.0, 2.0, ZF + 1.4), Color("ffe6bf"), 1.4, 7.5, false, "store")
+	spill.omni_attenuation = 1.2
+	var wt := model("res://models/truck.glb", Vector3(-3.4, 0, 13.6))
+	wt.look_at(Vector3(-3.4, 0, 20.0), Vector3.UP)
+	wt.rotate_y(PI)
+	_repaint(wt, Color("b9b6ad"))
+	box(Vector3(1.7, 0.45, 0.5), Vector3(0, 1.2, 1.3), mat(Color("8f9396"), 0.4, 0.7, 2), 0.0, wt)
+	dyn.work_truck = wt
+	anchors["work_truck"] = wt.to_global(Vector3(0, 1.2, 0))
+	anchors["store"] = Vector3((x0 + x1) / 2.0, 1.5, ZF + 0.2)
+
+
+# a model's painted parts in another colour (the same model, a different truck)
+func _repaint(n: Node, c: Color) -> void:
+	if n is MeshInstance3D:
+		var mi := n as MeshInstance3D
+		for i in mi.get_surface_override_material_count():
+			var m := mi.get_surface_override_material(i)
+			if m is ShaderMaterial and (m as ShaderMaterial).get_shader_parameter("albedo") == RECOLOUR.paint:
+				var m2 := (m as ShaderMaterial).duplicate() as ShaderMaterial
+				m2.set_shader_parameter("albedo", c)
+				mi.set_surface_override_material(i, m2)
+	for ch in n.get_children():
+		_repaint(ch, c)
+
+
+# The pickup the kid got out of: nose in, facing the door, the engine running and the lights on.
+func _truck() -> void:
+	var t := Node3D.new()
+	t.position = Vector3(9.2, 0, 15.8)
+	add_child(t)
+	t.look_at(Vector3(3.2, 0, 10.1), Vector3.UP)
+	model("res://models/truck.glb", Vector3.ZERO, t)
+	dyn.truck = t
+	var dome := OmniLight3D.new()
+	dome.position = Vector3(0, 1.72, -0.3)
+	dome.light_color = Color("ffe0b0")
+	dome.light_energy = 0.7
+	dome.omni_range = 2.0
+	t.add_child(dome)
+	dyn.truck_dome = dome
+	var beams: Array = []
+	for sx in [-0.72, 0.72]:
+		var beam := spot(Vector3.ZERO, Vector3(0, -0.5, -10), Color("eef2ff"), 4.5, 22.0, 22.0, true, t)
+		beam.position = Vector3(sx, 0.95, -3.0)
+		beam.look_at(t.to_global(Vector3(sx * 1.4, 0.2, -12.0)), Vector3.UP)
+		beams.append(beam)
+	dyn.truck_beams = beams
+	anchors["truck"] = t.to_global(Vector3(0, 1.3, 0))
+	anchors["truck_cab"] = t.to_global(Vector3(-0.45, 1.35, -0.2))
+
+
+# ---------------------------------------------------------------- upstairs
+
+# His room on the second floor, at the east end over the lot: a bed, a sink, a chair, the window
+# with the sign's red coming up through it.
+func _upstairs() -> void:
+	var y0 := UP_Y
+	var x0 := 13.4
+	var x1 := 16.0
+	var z0 := 6.4
+	var z1 := 9.95
+	tiled(Vector3(x1 - x0, 0.1, z1 - z0), Vector3((x0 + x1) / 2.0, y0 - 0.05, (z0 + z1) / 2.0), M.carpet)
+	tiled(Vector3(x1 - x0, 0.1, z1 - z0), Vector3((x0 + x1) / 2.0, y0 + 2.6, (z0 + z1) / 2.0), M.ceiling)
+	wall(Vector2(x0, z0), Vector2(x1, z0), 2.6, M.plain, [[0.3, 1.1, 0.0, 2.0]], y0, 0.1)
+	wall(Vector2(x0, z0), Vector2(x0, z1), 2.6, M.plain, [], y0, 0.1)
+	wall(Vector2(x1, z0), Vector2(x1, z1), 2.6, M.plain, [], y0, 0.1)
+	wall(Vector2(x0, z1), Vector2(x1, z1), 2.6, M.plain, [[0.7, 1.7, 0.9, 2.2]], y0, 0.1)
+	box(Vector3(1.0, 1.3, 0.02), Vector3(x0 + 1.2, y0 + 1.55, z1), M.glass)
+	# the bed, the chair, the sink
+	box(Vector3(1.0, 0.45, 2.0), Vector3(x1 - 0.6, y0 + 0.22, z0 + 1.4), M.bed)
+	box(Vector3(1.0, 0.12, 0.3), Vector3(x1 - 0.6, y0 + 0.5, z0 + 0.55), M.porcelain)
+	box(Vector3(0.45, 0.45, 0.45), Vector3(x0 + 0.5, y0 + 0.22, z1 - 1.3), M.wood)
+	cyl(0.18, 0.14, 0.14, Vector3(x0 + 0.25, y0 + 0.85, z0 + 0.5), M.porcelain, null, 12)
+	box(Vector3(0.02, 0.5, 0.4), Vector3(x0 + 0.06, y0 + 1.5, z0 + 0.5), M.mirror)
+	ball(0.05, Vector3((x0 + x1) / 2.0, y0 + 2.45, (z0 + z1) / 2.0), M.bulb)
+	anchors["his_bed"] = Vector3(x1 - 0.6, y0 + 0.5, z0 + 1.4)
+	anchors["up_window"] = Vector3(x0 + 1.2, y0 + 1.55, z1)
+
+
+func _rain() -> void:
+	var rain := CPUParticles3D.new()
+	rain.amount = 3000
+	rain.lifetime = 1.1
+	rain.preprocess = 3.0
+	rain.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	rain.emission_box_extents = Vector3(12.0, 0.3, 7.5)
+	rain.position = Vector3(8.0, 7.5, 17.5)
+	rain.direction = Vector3(0.06, -1.0, 0.0)
+	rain.spread = 1.5
+	rain.gravity = Vector3(0, -6.0, 0)
+	rain.initial_velocity_min = 7.0
+	rain.initial_velocity_max = 8.5
+	var q := QuadMesh.new()
+	q.size = Vector2(0.007, 0.34)
+	var rm := ShaderMaterial.new()
+	rm.shader = preload("res://look/rain.gdshader")
+	q.material = rm
+	rain.mesh = q
+	add_child(rain)
+	dyn.rain = rain
+	# and past the deck's rail
+	var r2 := rain.duplicate() as CPUParticles3D
+	r2.amount = 900
+	r2.emission_box_extents = Vector3(2.0, 0.3, 5.0)
+	r2.position = Vector3(20.2, 6.0, 7.0)
+	add_child(r2)
+
+
+# ---------------------------------------------------------------- light
+
+func _lights() -> void:
+	# the vestibule: the lamp over the door and his stool
+	omni(Vector3(2.25, 2.95, 9.2), Color("ffc27a"), 1.8, 4.6, true, "door_lamp")
+	cyl(0.16, 0.16, 0.05, Vector3(2.25, 3.17, 9.2), M.lamp)
+	omni(Vector3(2.3, 1.95, 8.1), Color("ffcf93"), 0.55, 3.2)
+	omni(Vector3(4.1, 3.4, 11.1), Color("ff3a28"), 0.7, 7.0, true, "sign")
+	var s := omni(Vector3(15.4, 6.2, 21.5), Color("ffa04a"), 5.0, 16.0, true, "sodium")
+	s.omni_attenuation = 1.4
+	var pl := spot(POOL + Vector3(0, 1.86, 0), POOL, Color("fff0d6"), 7.0, 3.2, 58.0, true)
+	lights["pool"] = pl
+	lamps.append(pl)
+	var t28l := spot(T28 + Vector3(0, 2.2, 0), T28, Color("ffb865"), 3.2, 3.6, 55.0, true)
+	lamps.append(t28l)
+	for t in TABLES:
+		lamps.append(spot(t + Vector3(0, 2.2, 0), t, Color("ffb865"), 3.0, 3.6, 55.0))
+	for z in [2.4, 4.4, 6.4]:
+		lamps.append(spot(Vector3(1.95, 2.15, z), Vector3(1.95, 0, z), Color("ffb865"), 2.6, 3.4, 52.0, z > 5.0))
+	for sc in [[Vector3(4.8, 2.05, 0.1), 0.0], [Vector3(11.6, 2.05, 0.1), 0.0], [Vector3(15.9, 2.05, 6.0), -90.0],
+			[Vector3(15.9, 2.05, 9.3), -90.0], [Vector3(14.3, 2.05, 9.98), 180.0]]:
+		sconce(sc[0], sc[1])
+	lamps.append(omni(Vector3(0.7, 2.5, 4.4), Color("ffcf93"), 1.2, 4.5, false, "back_bar"))
+	omni(Vector3(1.1, 1.2, 0.7), Color("dfe9f2"), 0.5, 2.6)
+	omni(Vector3(9.4, 2.3, 0.7), Color("a9c0e8"), 0.55, 4.5)
+	omni(Vector3(15.2, 2.3, 4.0), Color("a9c0e8"), 0.45, 4.0)
+	omni(Vector3(13.2, 1.6, 0.7), Color("f07aa0"), 0.8, 3.0, false, "juke")
+	# the house lights, off until two, when they come up hard on everything
+	var work: Array = []
+	for p in [Vector3(4.0, 3.0, 2.5), Vector3(12.0, 3.0, 2.5), Vector3(4.0, 3.0, 7.5), Vector3(12.0, 3.0, 7.5)]:
+		var w := omni(p, Color("eef3f5"), 0.0, 7.5)
+		w.visible = false
+		work.append(w)
+	dyn.work = work
+	# the room's middle: a little light off the ceiling so the depth reads (the review: frame 3)
+	for p in [Vector3(5.5, 2.6, 3.0), Vector3(12.5, 2.6, 3.0), Vector3(6.5, 2.6, 7.2), Vector3(12.0, 2.6, 7.0)]:
+		lamps.append(omni(p, Color("e8b87a"), 0.28, 5.5))
+	# behind the back wall: the hall's tubes, the kitchen's, the washrooms'
+	omni(Vector3(9.0, 2.3, -0.6), Color("dfe8f0"), 0.9, 4.5, true, "hall")
+	omni(Vector3(14.5, 2.3, -0.6), Color("dfe8f0"), 0.8, 4.0, false, "hall2")
+	omni(Vector3(2.4, 2.3, -1.3), Color("eef2f6"), 1.1, 4.5, true, "kitchen")
+	for x in [7.5, 9.8, 12.0]:
+		omni(Vector3(x, 2.2, -1.9), Color("e6eef4"), 0.5, 2.2)
+	# the keg room's bare bulb
+	omni(Vector3(2.4, KEG_Y + 1.85, 1.4), Color("ffcf93"), 1.3, 6.0, true, "keg")
+	# the deck's caged bulb
+	omni(Vector3(16.6, 2.45, 7.1), Color("ffc98a"), 1.1, 4.5, true, "deck")
+	# upstairs: the bulb, and the sign's red up through the window
+	omni(Vector3(14.7, UP_Y + 2.3, 8.2), Color("ffcf93"), 0.8, 4.0, true, "upstairs")
+	omni(Vector3(14.6, UP_Y + 0.6, 10.6), Color("ff3a28"), 0.6, 3.5)
