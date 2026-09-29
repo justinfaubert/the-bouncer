@@ -19,6 +19,10 @@
 #
 # The pictures on them (the licence's face and fields, the phone's photos, the binder's sleeves) are
 # made once, in a darkroom of small viewports, before the night starts.
+#
+# His own hands are in view with them (models/people/his_*.glb): the right one holds the licence or
+# the phone, and turns and tips with it; the left one has the clicker, up at the door with the count
+# in its window, and brought up anywhere else when it's clicked.
 class_name Props
 extends Node
 
@@ -38,6 +42,19 @@ var tex := {}                    # the darkroom's pictures, by name
 var jobs: Array = []
 var developing := false
 var held = null                  # what's in his hands: a Dictionary, or null
+# his own hands: which holds what, and the left one's clicker
+const HAND_FOR := {"card": ["his_right_card", "card"], "phone": ["his_right_phone", "phone"]}
+const LEFT_UP := Vector3(-0.2, -0.285, -0.42)
+const LEFT_DOWN := Vector3(-0.24, -0.66, -0.34)
+var left: Node3D                 # the left hand, with the clicker
+var left_count: Label3D          # the count in the clicker's window
+var _left_up := 0.0              # how long it stays up away from the door after a click
+var _left_dip := 0.0
+var _count_in := 0.0             # till the count in the window is read again
+# a card or a phone that's in his hands isn't in theirs: which figure holds each, and its parts
+const ON_FIGURE := {"driver_card": ["driver", ["card", "card_body"]], "goodshoes_card": ["goodshoes", ["card", "card_body"]],
+	"hoodie_phone": ["hoodie", ["phone", "phone_screen"]]}
+var _figs_in := 0.0
 var hint: Label
 var _zero_at := -1.0
 var _notch := 0.0
@@ -115,7 +132,6 @@ func _viewport(size: Vector2i, own_world: bool) -> SubViewport:
 	sv.own_world_3d = own_world
 	sv.transparent_bg = false
 	sv.msaa_3d = Viewport.MSAA_4X
-	sv.msaa_2d = Viewport.MSAA_4X
 	sv.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	add_child(sv)
 	return sv
@@ -536,8 +552,113 @@ func offer(it: Dictionary, live: bool) -> void:
 			held.body = body3
 			_binder_page()
 			main.audio.sfx("page")
+	if HAND_FOR.has(kind) and held.has("body"):
+		_right_hand(held.body, HAND_FOR[kind][0], HAND_FOR[kind][1])
 	_pose(held.pose, true)
 	_hint()
+
+
+# His right hand on what he's holding: the model's own card or phone lines up with the one in his
+# view (its anchor: the middle of it, which way it faces, which way is up), and the model's copy of
+# it is hidden.
+func _right_hand(body: Node3D, model: String, what: String) -> void:
+	if not FileAccess.file_exists(PEOPLE + model + ".glb"):
+		return
+	var a: Dictionary = _anchors(model)
+	if not (a.has(what) and a.has(what + "_facing") and a.has(what + "_up")):
+		return
+	var hand: Node3D = main.pub.model(PEOPLE + model + ".glb", Vector3.ZERO, body)
+	for n in ["card", "card_body", "phone", "phone_screen"]:
+		var c := hand.find_child(n, true, false)
+		if c is Node3D:
+			(c as Node3D).visible = false
+	var z := _v3(a[what + "_facing"]).normalized()
+	var x := _v3(a[what + "_up"]).cross(z).normalized()
+	var y := z.cross(x)
+	hand.transform = Transform3D(Basis(x, y, z), _v3(a[what])).affine_inverse()
+	_no_shadows(hand)
+
+
+func _anchors(model: String) -> Dictionary:
+	var path := PEOPLE + model + ".json"
+	if not FileAccess.file_exists(path):
+		return {}
+	var d = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return d if d is Dictionary else {}
+
+
+static func _v3(a) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2])) if a is Array and a.size() >= 3 else Vector3.ZERO
+
+
+func _no_shadows(n: Node) -> void:
+	if n is GeometryInstance3D:
+		(n as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for c in n.get_children():
+		_no_shadows(c)
+
+
+func _figure_props() -> void:
+	if main.stage == null:
+		return
+	for id in ON_FIGURE:
+		var f = main.stage.figures.get(ON_FIGURE[id][0])
+		if f == null or not is_instance_valid(f.node):
+			continue
+		var mine: bool = holding() and str(held.id) == id
+		for n in ON_FIGURE[id][1]:
+			var c := (f.node as Node).find_child(n, true, false)
+			if c is Node3D:
+				(c as Node3D).visible = not mine
+
+
+# The left hand and the clicker in it, made once; the count goes in its window.
+func _left_hand() -> void:
+	if left != null or not FileAccess.file_exists(PEOPLE + "his_left_clicker.glb"):
+		return
+	left = Node3D.new()
+	main.view.hands.add_child(left)
+	var hand: Node3D = main.pub.model(PEOPLE + "his_left_clicker.glb", Vector3.ZERO, left)
+	_no_shadows(hand)
+	var a := _anchors("his_left_clicker")
+	left_count = Label3D.new()
+	left_count.font = Look.font("mono")
+	left_count.font_size = 48
+	left_count.pixel_size = 0.00011
+	left_count.outline_size = 0
+	left_count.modulate = Color(0.06, 0.06, 0.07)
+	left_count.text = "0000"
+	left_count.double_sided = false
+	var z := _v3(a.get("clicker_facing", [0, 0, 1])).normalized()
+	var x := Vector3.UP.cross(z).normalized()
+	var y := z.cross(x)
+	left_count.transform = Transform3D(Basis(x, y, z), _v3(a.get("clicker_window", [0, 0, 0])) + z * 0.0012)
+	hand.add_child(left_count)
+	left.position = LEFT_DOWN
+	left.visible = false
+
+
+func _left_hand_step(dt: float) -> void:
+	if left == null:
+		if main.in_game and main.game.story != null and main.game.clicker_in_hand():
+			_left_hand()
+		return
+	var st: bool = main.in_game and main.game.story != null and main.game.clicker_in_hand() and not main.menus.is_open() \
+		and not main.view.walking
+	_left_up = maxf(_left_up - dt, 0.0)
+	var up: bool = st and (main.view.place == "door" or _left_up > 0.0) and not (holding() and held.kind == "binder")
+	var want := LEFT_UP if up else LEFT_DOWN
+	_left_dip = maxf(_left_dip - dt * 5.0, 0.0)
+	want += Vector3(0, -0.012, 0.004) * _left_dip
+	left.position = left.position.lerp(want, 1.0 - exp(-dt * (9.0 if up else 6.0)))
+	left.visible = st and left.position.y > LEFT_DOWN.y + 0.02
+	_count_in -= dt
+	if left.visible and _count_in <= 0.0:
+		_count_in = 0.25
+		var n: int = clampi(int(main.game.status().count), 0, 9999)
+		var txt := "%04d" % n
+		if left_count.text != txt:
+			left_count.text = txt
 
 
 func _phone_photo() -> void:
@@ -798,7 +919,10 @@ func clicker_key(zero: bool) -> void:
 		if _zero_at < 0.0:
 			_zero_at = t
 			_notch = 0.0
+			_left_up = 4.0
 		return
+	_left_up = 4.0
+	_left_dip = 1.0
 	if main.toy("clicker", "click") != "":
 		main.audio.sfx("clicker")
 
@@ -851,6 +975,11 @@ func _near_held(p: Vector2) -> bool:
 
 func _process(dt: float) -> void:
 	t += dt
+	_left_hand_step(dt)
+	_figs_in -= dt
+	if _figs_in <= 0.0:
+		_figs_in = 0.1
+		_figure_props()
 	# the clicker's knob, held all the way round
 	if _zero_at >= 0.0:
 		if not Input.is_physical_key_pressed(KEY_Z):

@@ -1,0 +1,127 @@
+<title>The Bouncer in Godot</title>
+<style>
+  :root {
+    --night: #1b2130;
+    --paper: #eae2cf;
+    --lamp: #f0a23c;
+    --neon: #d9382c;
+    --dim: #8d8a80;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; margin: 0; background: var(--night); color: var(--paper); overflow: hidden; }
+  body { font: 15px/1.5 Georgia, "Times New Roman", serif; }
+  #canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  #canvas:focus { outline: none; }
+  #status {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 18px; padding-inline: 16px; background: var(--night); text-align: center;
+  }
+  #status[hidden] { display: none; }
+  .sign { font: 600 clamp(28px, 6vw, 56px)/1 Georgia, serif; letter-spacing: 0.32em; color: var(--neon); text-indent: 0.32em; }
+  .sign .dead { color: #3a2a2a; }
+  .sub { font-style: italic; color: var(--dim); }
+  .bar { width: min(360px, 80vw); height: 2px; background: #2e3548; position: relative; overflow: hidden; }
+  .bar i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--lamp); transition: width 0.2s linear; }
+  .bar.busy i { width: 30%; animation: sweep 1.4s ease-in-out infinite; }
+  @keyframes sweep { from { left: -30%; } to { left: 100%; } }
+  #note { max-width: 34em; color: var(--paper); min-height: 1.5em; font-size: 14px; }
+  #note.bad { color: #f2b8a8; }
+  .keys { font: 12px/1.6 ui-monospace, "SFMono-Regular", Menlo, monospace; color: var(--dim); letter-spacing: 0.04em; }
+</style>
+
+<canvas id="canvas" tabindex="0">This needs a browser that draws a canvas.</canvas>
+<div id="status">
+  <div class="sign" aria-label="SOVEREIGN">SOVER<span class="dead">E</span>IGN</div>
+  <div class="sub">Wednesday, the test shift</div>
+  <div class="bar busy" id="bar"><i></i></div>
+  <div id="note">Getting the night ready. It's about /*MB*/ MB the first time.</div>
+  <div class="keys">Click into the picture once it opens, for the keys and the sound.</div>
+</div>
+
+<script src="index.js"></script>
+<script>
+(function () {
+  const GODOT_CONFIG = /*GODOT_CONFIG*/;
+  // The engine and the game, gzipped and cut into parts small enough to publish, put back together
+  // as they stream in so the engine's own progress count still works.
+  const PARTS = /*PARTS*/;
+  const status = document.getElementById('status');
+  const bar = document.getElementById('bar');
+  const note = document.getElementById('note');
+
+  function fail(msg) {
+    bar.hidden = true;
+    note.className = 'bad';
+    note.textContent = msg;
+    status.hidden = false;
+  }
+
+  const realFetch = window.fetch.bind(window);
+  function joined(files) {
+    let i = 0;
+    let reader = null;
+    return new ReadableStream({
+      async pull(ctrl) {
+        for (;;) {
+          if (!reader) {
+            if (i >= files.length) { ctrl.close(); return; }
+            const r = await realFetch(files[i++]);
+            if (!r.ok) throw new Error('Couldn’t fetch ' + files[i - 1] + ' (' + r.status + ')');
+            reader = r.body.getReader();
+          }
+          const { done, value } = await reader.read();
+          if (done) { reader = null; continue; }
+          ctrl.enqueue(value);
+          return;
+        }
+      },
+    });
+  }
+  window.fetch = function (input, init) {
+    const url = typeof input === 'string' ? input : (input && input.url) || '';
+    const name = url.split('?')[0].split('/').pop();
+    const p = PARTS[name];
+    if (!p) return realFetch(input, init);
+    const body = joined(p.parts).pipeThrough(new DecompressionStream('gzip'));
+    return Promise.resolve(new Response(body, { headers: { 'Content-Type': p.type, 'Content-Length': String(p.size) } }));
+  };
+
+  // Can this page run WebAssembly at all? Some pages' security rules forbid it.
+  let wasmOk = false;
+  try {
+    new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]));
+    wasmOk = true;
+  } catch (e) { wasmOk = false; }
+  if (!wasmOk) {
+    fail('This page isn’t allowed to run the game here: WebAssembly is blocked. Play the download from the thread instead (Linux or Windows).');
+    return;
+  }
+  if (typeof DecompressionStream === 'undefined') {
+    fail('This browser is too old to unpack the game. A current Chrome, Firefox or Safari will do, or play the download.');
+    return;
+  }
+  const missing = Engine.getMissingFeatures({ threads: false });
+  if (missing.length) {
+    fail('This browser is missing what the game needs: ' + missing.join(', ') + '. Play the download instead.');
+    return;
+  }
+
+  const engine = new Engine(GODOT_CONFIG);
+  engine.startGame({
+    onProgress: function (current, total) {
+      if (current > 0 && total > 0) {
+        bar.classList.remove('busy');
+        bar.firstChild.style.width = Math.min(100, (100 * current) / total).toFixed(1) + '%';
+        if (current >= total) note.textContent = 'Opening the door.';
+      }
+    },
+  }).then(function () {
+    status.hidden = true;
+    const c = document.getElementById('canvas');
+    c.focus();
+  }, function (err) {
+    console.error(err);
+    fail((err && err.message) ? 'The game stopped while starting: ' + err.message : 'The game stopped while starting.');
+  });
+}());
+</script>

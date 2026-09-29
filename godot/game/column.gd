@@ -736,6 +736,11 @@ class WayChip extends MarginContainer:
 		lit = on
 		queue_redraw()
 
+	# the hand on it from elsewhere than the pointer (a pad's d-pad)
+	func hand(on: bool) -> void:
+		set_lit(on)
+		hand_on.emit(index, on)
+
 	func set_looked(on: bool) -> void:
 		looked = on
 		queue_redraw()

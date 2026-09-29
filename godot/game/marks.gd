@@ -187,13 +187,15 @@ func _mark(m: Dictionary, grow: float, c: Color) -> void:
 		"ring":
 			var rx := maxf(_px(centre, sp[2]), 7.0)
 			var ry := rx * float(sp[3])
-			_ring(p, rx + 6.0, ry + 5.0, grow, c, w, rng)
-			note_at = p + Vector2(rx + 10.0, -ry - 6.0)
+			var fit := _fit(p, rx + 6.0, ry + 5.0)
+			_ring(Vector2(fit.x, fit.y), fit.z, fit.w, grow, c, w, rng)
+			note_at = Vector2(fit.x, fit.y) + Vector2(fit.z + 4.0, -fit.w - 1.0)
 		"fig":
 			if sp[2] == "":
 				var rx2 := maxf(_px(centre, 0.42), 10.0)
-				_ring(p, rx2, rx2 * 1.9, grow, c, w, rng)
-				note_at = p + Vector2(rx2 + 8.0, -rx2 * 1.9)
+				var fit2 := _fit(p, rx2, rx2 * 1.9)
+				_ring(Vector2(fit2.x, fit2.y), fit2.z, fit2.w, grow, c, w, rng)
+				note_at = Vector2(fit2.x, fit2.y) + Vector2(fit2.z + 8.0, -fit2.w)
 			else:
 				var rx3 := maxf(_px(centre, float(sp[3])), 7.0)
 				_ring(p, rx3 + 5.0, rx3 * 0.8 + 5.0, grow, c, w, rng)
@@ -207,7 +209,11 @@ func _mark(m: Dictionary, grow: float, c: Color) -> void:
 			var box := _box_rect(centre, sp[2])
 			if box.size == Vector2.ZERO:
 				return
-			box = box.grow(5.0)
+			# a thing bigger than his eyes (the door, from the stool) gets its box drawn inside the
+			# view, so it reads as a box and not a stray line down one side
+			box = box.grow(5.0).intersection(Rect2(Vector2(18, 18), size - Vector2(36, 36)))
+			if box.size.x < 12.0 or box.size.y < 12.0:
+				return
 			var pts := [box.position, Vector2(box.end.x, box.position.y), box.end, Vector2(box.position.x, box.end.y), box.position + Vector2(6, -2)]
 			var n := pts.size() - 1
 			for i in n:
@@ -235,7 +241,20 @@ func _mark(m: Dictionary, grow: float, c: Color) -> void:
 					_line(Vector2(x, p.y - h / 2.0) + _j(rng, 1.5), Vector2(x + 2.0, p.y + h / 2.0) + _j(rng, 1.5), g2, c, w, rng)
 			note_at = p + Vector2(n2 * 5.0 + 10.0, -h / 2.0)
 	if m.note != "" and grow >= 1.0:
+		var nw := Look.font("hand").get_string_size(m.note, HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
+		note_at.x = clampf(note_at.x, 10.0, maxf(10.0, size.x - nw - 12.0))
+		note_at.y = clampf(note_at.y, 30.0, size.y - 12.0)
 		_note(note_at, m, c)
+
+
+# A ring round something close enough to fill his eyes (the table he's sitting at) is kept inside
+# the view, so the pen goes round what he sees of it instead of off the edges: (x, y, rx, ry).
+func _fit(p: Vector2, rx: float, ry: float) -> Vector4:
+	rx = minf(rx, size.x * 0.44)
+	ry = minf(ry, size.y * 0.44)
+	var x := clampf(p.x, minf(rx + 16.0, size.x / 2.0), maxf(size.x - rx - 16.0, size.x / 2.0))
+	var y := clampf(p.y, minf(ry + 16.0, size.y / 2.0), maxf(size.y - ry - 16.0, size.y / 2.0))
+	return Vector4(x, y, rx, ry)
 
 
 func _j(rng: RandomNumberGenerator, a: float) -> Vector2:

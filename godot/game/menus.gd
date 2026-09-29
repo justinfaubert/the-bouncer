@@ -244,6 +244,7 @@ const HELP := [
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
+	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, X clicks the clicker, Back opens his notes and the left shoulder the sketch."],
 ]
 
 

@@ -76,6 +76,15 @@ Update this file at the end of every session: add a session entry, move items be
 - The look test, in `sketches/door-look/` (frames in its `frames/`): the door scene from the camera test built properly and run through the press. The view out through the door, the kid with his phone, the room, the kid four drinks in, and the head turn. Every model, texture and shader was made in code: the people sculpted as signed distance fields from their looks in `content/data/characters.yaml`, the things modelled by script in Blender, the textures drawn in Python.
 - Git: Hutch made a private repo on GitHub, `justinfaubert/the-bouncer`, and on 28 September everything here went up to it with its history, through the GitHub connection (github.com itself is blocked in the cloud workspace). This folder's repo tracks it as `origin`.
 
+### 2026-09-28 to 29 (Monday night), the polish pass and the first playable build in Godot
+
+- Hutch: "this is good progress. I need you to polish and tighten everything here and publish a playable build, but only after you've honestly and thoroughly gone over every single aspect." On a decision card Hutch picked Godot for the playable build, over the browser game or both.
+- The review came first: `09_REVIEW.md`, and a page with the frames marked up in pen (https://claude.ai/artifact/NaKyMWZE4Yrf4ZkGSRB6yi). The print works and the door is the best frame in the project. The people didn't work yet, the kid least of all; the licence on his phone printed as noise; and the Godot scene was a picture of a game, with no Ink and nothing to touch.
+- The build, in `godot/` (its README says how to play it, check it and export it): all of Wednesday, first person from his posts, in the printed look. The Ink runs in Godot through a GDScript port of inkjs 2.3.2, and the browser build's engine is ported line for line. Played side by side over 40 seeded nights, the two builds agree on every line (7,265 choices). The whole Sov is built in code, with a post in each of the Ink's eleven places, and the people are placed by the clock and the story (`godot/docs/STAGING.md` says who is where, and why, from the Ink).
+- Checked on the final build: five whole nights played headless by a random player who also handles what he's given and saves and reloads, with no script errors; the controller; the night in pictures from 7:50 to 10:37, with the arrivals at the door and the licences in his hand; the exported Linux build starts and quits normally; the web build runs in Chromium here, from a local server (inside the Claude app it hasn't been tried). Earlier in the pass: pictures of every post, and the night in pictures to midnight. The Windows build is exported the same way as the Linux one but hasn't been run on Windows.
+- Delivered in the thread: the Linux and Windows builds as downloads (copies in `releases/`, which git leaves out), and the web build as a page, https://claude.ai/artifact/FB8yU3reaBzuJD5JMcrrzF
+- Kept as it was: director mode stays in the browser build. Both builds read the same Ink, and `node tools/build.mjs` writes it into both, so Hutch's edits reach both.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -180,6 +189,23 @@ Proposed with the look test (2026-09-28), in `sketches/door-look/`:
 - Claude makes the models and textures in code, simple and cut rather than detailed, and spends the detail where the story is: the licence on the phone, the tape by the door, the signs, the gold leaf.
 - The faces carved in code like whittled figures, a style of their own: a fourth route to the faces beside the three in `08_FUTURE_FORM.md`.
 - The room's details: the old dining room's sconces; the carpet (maroon, a navy trellis, gold rosettes) worn to the backing past the mat and along the bar; a coin-op pool table; the wall jukebox that takes a card; the dartboard with the chalked scores on its doors; the hockey on one TV and the news on the other (a rainfall warning for the east coast of the island); SOVEREIGN over PUB in gold leaf on the door; the house rule on the ID sign, "no pictures on phones"; masking tape by the door with the night's sum in marker, `19 = NOV 4 07`.
+
+Proposed with the playable build (2026-09-29), in `godot/`. Built, to keep or cut:
+
+- The Godot build as the game from here, first person from his posts. The browser build stays at its link as the writers' room until Godot has a director mode of its own.
+- The screen: the room through his eyes on the left, and the night's words in a column on the right third, knocked out of a solid of the night ink, with the voices in their own type and colour and the whole night there to scroll back through.
+- Looking as choosing: a choice about something he can see (the kid's phone, the truck, the big man, the propped door) is pinned to it in the room. When his eyes rest on it the choice lights in the column and a voice may lean in; E or a click makes it. The numbered list stays.
+- Dice thrown by hand onto whatever is in front of him (the ledge by the door, the bar, table 28, the felt, the kitchen's steel): hold to shake, let go to throw, and the second die can ride up onto an edge and hang there. The result was decided when the choice was made, as in the browser build.
+- The voices marking the room itself in their own colours: a ring round the big man, a box round the propped door, a cross on the empty stool, a tally on the bar. A pen tick at the edge of his sight points to a mark he has turned away from.
+- The print as his body, with no meters: drink pushes the plates out of register, nerves bring the red up in the dark, hurt thickens the red at the edges of his sight, his heart swells the ink when his head is loud, and late in the night the ink runs thin and the strokes break.
+- The room moves between glances: people breathe and shift while he watches, and come and go while he looks elsewhere.
+- Things in his hands in the room: a licence tipped to the lamp and held up beside the face of whoever handed it over, the kid's phone, the binder, and the clicker (C clicks it, holding Z turns it back to nothing).
+- The lot in three framings: arriving, with the whole hotel and the sign over it; the pickup's window; the big man at his work truck by the beer store.
+- Claude's guesses at the back of the house, drawn from the Ink, for Hutch to correct from the real thing: the keg room (two rows of kegs on pallets under a board ceiling, the gas and the compressor, the concrete giving out to dirt and old pilings at the far end), the kitchen line, the deck facing the strait, and his room (a bed, a chair, a sink, a radiator, the one bag he came with, and the fire escape outside the window).
+- The people re-carved, and eighteen more, all Claude's: a model for each pose the night needs (the kid at the door hunched against the rain, his sister with her card up and her keys in her fist, the boyfriend holding the door with his shoulder, HI-VIS with the two-four, GOOD SHOES with his licence out and later at the bar with a cola, RAINCOAT holding her coat shut, the cook at the pass, the two women from upstairs with their white wine, and six regulars who fill the room as the count goes up), with fingered hands, clothes with collars and cuffs, and faces carved like whittled figures. And his own hands, from his eyes: the licence or the kid's phone in his right, the clicker in his left with the count in its window, up at the door and brought up anywhere else when he clicks it.
+- Three nights of saves, each saved after every choice and played through once. This adds slots to "One save slot" above; a night still can't be replayed from a choice.
+- Placeholder sound made in code. Hutch's recordings go in by dropping a file with the same name into a folder called `audio` next to the game; more takes of one sound are picked among.
+- A controller covers the basics: either stick looks round, the d-pad goes through the choices and A makes one.
 
 ### REJECTED
 

@@ -96,6 +96,11 @@ func _hand(on: bool) -> void:
 		_tip = null
 
 
+# the hand on it from elsewhere than the pointer (a pad's d-pad)
+func hand(on: bool) -> void:
+	_hand(on)
+
+
 func set_lit(on: bool) -> void:
 	if lit == on:
 		return

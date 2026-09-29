@@ -662,6 +662,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		_key(e)
 	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		dice.mouse(e.pressed)
+	elif e is InputEventJoypadButton:
+		_pad(e)
+	elif e is InputEventJoypadMotion:
+		_stick(e)
 
 
 func _key(e: InputEventKey) -> void:
@@ -752,6 +756,96 @@ func _key(e: InputEventKey) -> void:
 		if row != null:
 			hand.key_on(row.index)
 			choose(row.index)
+
+
+# ---------------------------------------------------------------- a controller
+
+# The basics on a pad. Either stick looks round. Up and down on the d-pad go through the choices,
+# and A makes the one that's lit; with none lit, A is space (go on, or hold to shake the dice and
+# let go to throw). B and Start are Esc, Y is E, X clicks the clicker, Back opens his notes, and the
+# shoulders go through what's in his hands, or the left one opens the floor sketch. The menus take
+# the d-pad and A themselves.
+const PAD_DEAD := 0.25
+var pad_row: Control = null
+var _sticks := {}
+var _stick_on := false
+
+
+func _pad_key(k: Key, pressed := true) -> void:
+	var ev := InputEventKey.new()
+	ev.physical_keycode = k
+	ev.keycode = k
+	ev.pressed = pressed
+	_key(ev)
+
+
+func _pad(e: InputEventJoypadButton) -> void:
+	match e.button_index:
+		JOY_BUTTON_A:
+			if e.pressed and not menus.is_open() and column.rows.has(pad_row) and is_instance_valid(pad_row):
+				var i: int = pad_row.index
+				_pad_pick(null)
+				hand.key_on(i)
+				choose(i)
+				return
+			_pad_key(KEY_SPACE, e.pressed)
+		JOY_BUTTON_B, JOY_BUTTON_START:
+			if e.pressed:
+				_pad_key(KEY_ESCAPE)
+		JOY_BUTTON_Y:
+			if e.pressed:
+				_pad_key(KEY_E)
+		JOY_BUTTON_X:
+			if e.pressed:
+				_pad_key(KEY_C)
+		JOY_BUTTON_BACK:
+			if e.pressed:
+				_pad_key(KEY_TAB)
+		JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER:
+			if not e.pressed:
+				return
+			if props.holding():
+				_pad_key(KEY_Q if e.button_index == JOY_BUTTON_LEFT_SHOULDER else KEY_R)
+			elif e.button_index == JOY_BUTTON_LEFT_SHOULDER:
+				_pad_key(KEY_M)
+		JOY_BUTTON_DPAD_UP, JOY_BUTTON_DPAD_DOWN:
+			if e.pressed and not menus.is_open() and in_game:
+				_pad_step(-1 if e.button_index == JOY_BUTTON_DPAD_UP else 1)
+
+
+func _pad_step(d: int) -> void:
+	var rows: Array = column.rows.filter(func(r): return is_instance_valid(r) and r.is_visible_in_tree())
+	if rows.is_empty():
+		return
+	var at := rows.find(pad_row)
+	at = clampi(at + d, 0, rows.size() - 1) if at >= 0 else (0 if d > 0 else rows.size() - 1)
+	_pad_pick(rows[at])
+	column.keep_in_view(rows[at])
+
+
+func _pad_pick(r: Control) -> void:
+	if pad_row != null and is_instance_valid(pad_row) and pad_row != r:
+		pad_row.hand(false)
+	pad_row = r
+	if r != null:
+		r.hand(true)
+
+
+func _stick(e: InputEventJoypadMotion) -> void:
+	if e.axis > JOY_AXIS_RIGHT_Y:
+		return
+	_sticks[e.axis] = e.axis_value
+	var v := Vector2(float(_sticks.get(JOY_AXIS_LEFT_X, 0.0)) + float(_sticks.get(JOY_AXIS_RIGHT_X, 0.0)),
+		-(float(_sticks.get(JOY_AXIS_LEFT_Y, 0.0)) + float(_sticks.get(JOY_AXIS_RIGHT_Y, 0.0)))).limit_length(1.0)
+	if v.length() < PAD_DEAD or menus.is_open():
+		v = Vector2.ZERO
+	if settings.get("invert", false):
+		v.y = -v.y
+	# a stick at rest leaves the keys alone
+	if v == Vector2.ZERO and not _stick_on:
+		return
+	_stick_on = v != Vector2.ZERO
+	view.keys_turn = v
 
 
 func _process(dt: float) -> void:

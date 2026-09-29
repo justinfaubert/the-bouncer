@@ -125,6 +125,37 @@ def cylinder(a, b, r, radius=0.0):
     return f
 
 
+def econe(a, b, ra, rb, side):
+    """A tube from a to b whose section is an ellipse, tapering from ra to rb (each: its half-width
+    along `side` and its half-thickness across that), its ends flat: a forearm flattening to the
+    wrist. (An approximate distance.)"""
+    a, b = _v(a), _v(b)
+    ax = b - a
+    L = float(np.linalg.norm(ax))
+    ax = ax / L
+    sd = _v(side) - ax * float(np.dot(_v(side), ax))
+    sd = sd / np.linalg.norm(sd)
+    th = np.cross(ax, sd)
+    ra, rb = _v(ra), _v(rb)
+    def f(P):
+        q = P - a
+        z = q @ ax
+        t = np.clip(z / L, 0.0, 1.0)
+        rx = ra[0] + (rb[0] - ra[0]) * t
+        ry = ra[1] + (rb[1] - ra[1]) * t
+        x, y = q @ sd, q @ th
+        dr = (np.sqrt((x / rx) ** 2 + (y / ry) ** 2) - 1.0) * np.minimum(rx, ry)
+        dz = np.maximum(-z, z - L)
+        return np.minimum(np.maximum(dr, dz), 0.0) + np.sqrt(np.maximum(dr, 0.0) ** 2 + np.maximum(dz, 0.0) ** 2)
+    return f
+
+
+def halfspace(p0, n):
+    """Everything on the far side of the plane through p0 from its normal n (n points out)."""
+    p0, n = _v(p0), _v(n) / np.linalg.norm(n)
+    return lambda P: (P - p0) @ n
+
+
 # ------------------------------------------------------------------ combining
 
 def union(*fs):
@@ -195,9 +226,10 @@ def warp(f, fn):
 
 class Part:
     """A shape with a material name. The figure is the union of its parts; each face of the mesh
-    takes the material of the nearest part."""
-    def __init__(self, name, f, blend_k=0.0, order=0):
-        self.name, self.f, self.k, self.order = name, f, blend_k, order
+    takes the material of the nearest part. `group` marks parts meshed apart from the rest, finer
+    (the hands)."""
+    def __init__(self, name, f, blend_k=0.0, order=0, group=None):
+        self.name, self.f, self.k, self.order, self.group = name, f, blend_k, order, group
 
 
 def solid(parts, k=0.0):

@@ -20,10 +20,10 @@ const POSTS := {
 	"pool": {"at": Vector3(7.85, STAND, 5.5), "look": Vector3(10.2, 0.9, 3.9), "node": "pool"},
 	"hall": {"at": Vector3(7.3, STAND, -0.6), "look": Vector3(15.2, 1.3, -0.62), "node": "hall"},
 	"kitchen": {"at": Vector3(3.7, STAND, -1.35), "look": Vector3(0.45, 1.05, -2.25), "node": "kitchen"},
-	"keg": {"at": Vector3(1.45, -2.5 + STAND, 1.25), "look": Vector3(2.9, -2.2, -2.45), "node": "keg"},
-	"deck": {"at": Vector3(16.95, 1.69, 6.2), "look": Vector3(23.0, 0.9, 9.0), "node": "deck"},
+	"keg": {"at": Vector3(3.42, -2.5 + STAND, 4.35), "look": Vector3(3.42, -1.7, -1.5), "node": "keg"},
+	"deck": {"at": Vector3(17.5, 1.69, 8.7), "look": Vector3(21.0, 0.6, 30.0), "node": "deck"},
 	"lot": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
-	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.3, 9.95), "node": "upstairs", "seat": true},
+	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.1, 9.95), "node": "upstairs", "seat": true},
 }
 
 # the ways on foot: points on the floor (x, z, floor height)
@@ -43,7 +43,7 @@ const NODES := {
 	"kitchen": Vector3(3.7, 0, -1.35),
 	"barend": Vector3(1.95, 0, 0.45),
 	"trap": Vector3(1.05, 0, 1.75),
-	"keg": Vector3(1.45, -2.5, 1.25),
+	"keg": Vector3(3.42, -2.5, 4.35),
 	"deck_in": Vector3(15.3, 0, 7.1),
 	"deck_out": Vector3(16.75, -0.07, 7.1),
 	"deck": Vector3(16.95, -0.07, 6.2),

@@ -153,8 +153,10 @@ func _reprint(n: Node) -> void:
 const GLOWS := {"headlight": 9.0, "taillight": 3.0, "bulb": 4.0, "screen": 0.8, "phone_screen": 0.45, "juke_light": 0.9,
 	"dome": 2.5, "amber_marker": 2.0}
 const SCREENS := {"phone_screen": "phone_screen"}
-# red is the sign's and blood's: a red flannel would print as either, so the flannels are brown
-const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36")}
+# red is the sign's and blood's: a red flannel would print as either, so the flannels are brown, and
+# so are the red hair, the rose cardigan and the tie. The women from upstairs drink white wine.
+const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36"),
+	"hair_red": Color("5a4028"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c")}
 # how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight]
 const CUTS := {
 	"skin": [4, Vector3.UP, 4.5, 0.7], "eye": [3, Vector3.UP, 5.0, 0.0], "iris": [3, Vector3.UP, 5.0, 0.0], "hair": [4, Vector3.UP, 3.5, 0.5],
@@ -166,6 +168,14 @@ const CUTS := {
 	"cardigan": [4, Vector3.UP, 5.5, 0.8], "tweed": [4, Vector3.UP, 5.5, 0.8], "tshirt": [4, Vector3.UP, 5.5, 0.8],
 	"apron": [4, Vector3.UP, 5.5, 0.8], "hivis": [4, Vector3.UP, 5.5, 0.8], "sweatshirt": [4, Vector3.UP, 5.5, 0.8],
 	"suit": [4, Vector3.UP, 5.0, 0.8], "raincoat": [4, Vector3.UP, 5.5, 0.8], "whites": [4, Vector3.UP, 5.5, 0.8],
+	"sweater": [4, Vector3.UP, 5.5, 0.8], "fleece": [4, Vector3.UP, 5.5, 0.8], "workjacket": [4, Vector3.UP, 5.5, 0.8],
+	"cardigan_b": [4, Vector3.UP, 5.5, 0.8], "cardigan_c": [4, Vector3.UP, 5.5, 0.8], "doorman_jacket": [4, Vector3.UP, 5.0, 0.8],
+	"shirt_white": [4, Vector3.UP, 5.5, 0.8], "shirt_dark": [4, Vector3.UP, 5.5, 0.8],
+	"denim": [2, Vector3.UP, 5.5, 0.7], "jeans_black": [2, Vector3.UP, 5.5, 0.7], "jeans_light": [2, Vector3.UP, 5.5, 0.7],
+	"skirt": [2, Vector3.UP, 5.5, 0.7],
+	"hair_grey": [4, Vector3.UP, 3.5, 0.5], "hair_white": [4, Vector3.UP, 3.5, 0.5], "hair_blonde": [4, Vector3.UP, 3.5, 0.5],
+	"hair_red": [4, Vector3.UP, 3.5, 0.5], "hair_dark": [4, Vector3.UP, 3.5, 0.5], "stubble": [4, Vector3.UP, 3.5, 0.5],
+	"card": [1, Vector3(0, 0, 1), 7.0, 1.0], "card_back": [1, Vector3(0, 0, 1), 7.0, 1.0], "cardboard": [2, Vector3.UP, 6.0, 1.0],
 }
 var from_model_cache := {}
 
@@ -923,30 +933,53 @@ func _keg_room() -> void:
 	tiled(Vector3(4.8, 0.1, 2.6), Vector3(2.4, y0 - 0.04, -1.2), M.dirt)
 	for w in [[Vector2(-0.1, -2.5), Vector2(-0.1, 5.0)], [Vector2(4.9, -2.5), Vector2(4.9, 5.0)], [Vector2(0, -2.6), Vector2(4.8, -2.6)], [Vector2(0, 5.1), Vector2(4.8, 5.1)]]:
 		wall(w[0], w[1], h, M.concrete, [], y0)
-	# the ceiling is the bar's floor, with a hole for the ladder
-	tiled(Vector3(4.8, 0.08, 1.8), Vector3(2.4, -0.04, 0.5), M.boards)
-	tiled(Vector3(4.8, 0.08, 2.6), Vector3(2.4, -0.04, 3.7), M.boards)
-	tiled(Vector3(3.3, 0.08, 1.0), Vector3(3.15, -0.04, 1.9), M.boards)
+	# the ceiling is the underside of the floor above: boards on joists, with a hole for the ladder
+	tiled(Vector3(4.8, 0.08, 2.2), Vector3(2.4, -0.15, -1.5), M.boards)
+	tiled(Vector3(4.8, 0.08, 1.8), Vector3(2.4, -0.15, 0.5), M.boards)
+	tiled(Vector3(4.8, 0.08, 2.6), Vector3(2.4, -0.15, 3.7), M.boards)
+	tiled(Vector3(3.3, 0.08, 1.0), Vector3(3.15, -0.15, 1.9), M.boards)
+	var jz := -2.3
+	while jz < 5.0:
+		if absf(jz - 1.9) > 0.55:
+			box(Vector3(4.8, 0.2, 0.09), Vector3(2.4, -0.29, jz), M.dark)
+		jz += 0.6
 	# the ladder down from the trapdoor
 	for i in 9:
 		box(Vector3(0.6, 0.04, 0.12), Vector3(1.05, y0 + 0.25 + i * 0.27, 2.25 - i * 0.07), M.wood)
 	box(Vector3(0.05, 2.6, 0.08), Vector3(0.73, y0 + 1.25, 2.0), M.wood)
 	box(Vector3(0.05, 2.6, 0.08), Vector3(1.37, y0 + 1.25, 2.0), M.wood)
-	# kegs on the floor, and the lines going up
-	for i in 7:
-		var p := Vector3(3.9 - (i % 4) * 0.5, y0 + 0.3, 3.2 + (i / 4) * 0.55)
-		cyl(0.2, 0.2, 0.6, p, M.keg, null, 16)
-		cyl(0.004, 0.004, 1.9, p + Vector3(0, 1.25, 0), M.black, null, 6)
-	for i in 3:
-		cyl(0.2, 0.2, 0.6, Vector3(0.5 + i * 0.45, y0 + 0.3, 4.6), M.keg, null, 16)
-	# the hole in the wall at the dirt end, where they come and go, and the knot in the wall above
-	box(Vector3(0.3, 0.22, 0.12), Vector3(2.9, y0 + 0.11, -2.52), M.black)
-	box(Vector3(0.9, 0.5, 0.06), Vector3(2.6, y0 + 1.1, -2.55), M.dark)
-	# a bare bulb on a cord
-	cyl(0.004, 0.004, 0.4, Vector3(2.4, y0 + h - 0.2, 1.4), M.frame, null, 6)
-	ball(0.05, Vector3(2.4, y0 + h - 0.42, 1.4), M.bulb)
+	# kegs on pallets in two rows down the room, the lines going up through the ceiling to the taps;
+	# an upturned one in the aisle between the rows to sit on
+	for row_x in [2.65, 4.2]:
+		box(Vector3(0.95, 0.12, 3.4), Vector3(row_x, y0 + 0.06, 2.0), M.wood)
+		for k in 6:
+			var p := Vector3(row_x, y0 + 0.12 + 0.3, 3.45 - k * 0.58)
+			cyl(0.2, 0.2, 0.6, p, M.keg, null, 16)
+			cyl(0.035, 0.035, 0.08, p + Vector3(0, 0.34, 0), M.black, null, 8)          # the coupler
+			cyl(0.006, 0.006, 1.55, p + Vector3(0, 1.1, 0), M.black, null, 6)          # its line
+	box(Vector3(3.0, 0.06, 0.1), Vector3(3.2, -0.14, 2.0), M.black)                    # the bundle, to the bar
+	cyl(0.2, 0.2, 0.6, Vector3(3.42, y0 + 0.3, 1.25), M.keg, null, 16)
+	# the gas: two cylinders chained to the wall; the compressor ticking over in the corner
+	for gz in [4.35, 4.75]:
+		cyl(0.11, 0.11, 1.3, Vector3(0.25, y0 + 0.65, gz), M.steel, null, 12)
+	box(Vector3(0.02, 0.02, 0.7), Vector3(0.12, y0 + 1.0, 4.55), M.frame)
+	box(Vector3(0.7, 0.55, 0.5), Vector3(4.4, y0 + 0.28, 4.7), M.dark)
+	box(Vector3(0.02, 0.4, 0.36), Vector3(4.04, y0 + 0.3, 4.7), M.frame)
+	# cases of stock along the front wall
+	for k in 5:
+		box(Vector3(0.5, 0.28, 0.35), Vector3(1.6 + k * 0.52, y0 + 0.14 + (k % 2) * 0.28, 4.85), M.dark)
+	# past the last kegs the concrete gives out to dirt, and the foundation runs on into the dark over
+	# the black stumps of old pilings
+	for k in 9:
+		var sp := Vector3(rng.randf_range(0.4, 4.4), 0.0, rng.randf_range(-2.3, -0.4))
+		var sh := rng.randf_range(0.2, 0.7)
+		cyl(rng.randf_range(0.11, 0.17), rng.randf_range(0.14, 0.2), sh, Vector3(sp.x, y0 + sh / 2.0, sp.z), M.burn, null, 9)
+	box(Vector3(0.3, 0.22, 0.12), Vector3(2.9, y0 + 0.11, -2.52), M.black)             # their way in and out
+	# a bare bulb on a cord, over the kegs; nothing lights the dirt
+	cyl(0.004, 0.004, 0.4, Vector3(2.9, y0 + h - 0.2, 2.6), M.frame, null, 6)
+	ball(0.05, Vector3(2.9, y0 + h - 0.42, 2.6), M.bulb)
 	anchors["keg_hole"] = Vector3(2.9, y0 + 0.15, -2.45)
-	anchors["kegs"] = Vector3(3.2, y0 + 0.5, 3.5)
+	anchors["kegs"] = Vector3(3.4, y0 + 0.6, 2.4)
 	anchors["keg_ladder"] = Vector3(1.05, y0 + 1.2, 2.0)
 
 
@@ -962,6 +995,18 @@ func _deck() -> void:
 		box(Vector3(0.08, 2.8, 0.08), Vector3(x1, 1.35, z), M.wood)
 	box(Vector3(0.06, 0.06, 5.6), Vector3(x1, 1.0, 7.1), M.wood)
 	box(Vector3(0.04, 0.04, 5.6), Vector3(x1, 0.5, 7.1), M.wood)
+	# the front end's rail, where you stand to look at the water
+	box(Vector3(x1 - x0, 0.06, 0.06), Vector3((x0 + x1) / 2.0, 1.0, 9.9), M.wood)
+	box(Vector3(x1 - x0, 0.04, 0.04), Vector3((x0 + x1) / 2.0, 0.5, 9.9), M.wood)
+	# the rain off the tin awning in ropes, along its two open edges
+	var zr := 4.4
+	while zr < 9.95:
+		box(Vector3(0.012, 2.75, 0.012), Vector3(x1 + 0.38, 1.37, zr), M.drop)
+		zr += rng.randf_range(0.22, 0.38)
+	var xr := x0 + 0.15
+	while xr < x1 + 0.4:
+		box(Vector3(0.012, 2.75, 0.012), Vector3(xr, 1.37, 10.02), M.drop)
+		xr += rng.randf_range(0.22, 0.38)
 	for i in 3:
 		var c := Node3D.new()
 		c.position = Vector3(17.3 + (i % 2) * 0.5, 0, 5.0 + i * 1.6)
@@ -1028,7 +1073,8 @@ func _outside() -> void:
 func _facade() -> void:
 	var z := ZF + 0.12
 	# three storeys of old wood, painted a red that had faded to the colour of brick
-	tiled(Vector3(17.2, 3.3, 0.2), Vector3(8.0, 3.2 + 1.65 + 0.2, z - 0.05), M.paint, 3.0)
+	# the second floor: the boards, with a hole for his window at the east end, so he can see out
+	wall(Vector2(-0.6, z - 0.05), Vector2(16.6, z - 0.05), 3.3, M.paint, [[14.7, 15.7, 0.45, 1.75]], 3.4, 0.2)
 	tiled(Vector3(17.2, 3.1, 0.2), Vector3(8.0, 6.7 + 1.55, z - 0.05), M.paint, 3.0)
 	# the ground floor's outside: the same boards, round the door and the front window
 	wall(Vector2(-0.1, ZF + 0.13), Vector2(16.3, ZF + 0.13), 3.4, M.paint, [[DOOR_W + 0.1, DOOR_E + 0.1, 0.0, 2.3], [6.3, 12.7, 0.9, 2.4]], 0.0, 0.04)
@@ -1036,15 +1082,16 @@ func _facade() -> void:
 	# five letters working
 	var word := "SOVEREIGN"
 	for i in word.length():
-		_neon(word[i], Vector3(8.0 + (i - 4) * 1.02, 10.95, z + 0.35), 1.0, i != 5)
+		_neon(word[i], Vector3(8.0 + (i - 4) * 1.02, 11.35, z + 0.35), 1.0, i != 5)
 	var h2 := "HOTEL"
 	for i in h2.length():
-		_neon(h2[i], Vector3(8.0 + (i - 2) * 0.62, 10.12, z + 0.35), 0.58, true)
-	box(Vector3(10.2, 0.08, 0.08), Vector3(8.0, 10.42, z + 0.3), M.frame)
-	for x in [3.6, 8.0, 12.4]:
-		box(Vector3(0.08, 1.6, 0.08), Vector3(x, 10.7, z + 0.3), M.frame)
+		_neon(h2[i], Vector3(8.0 + (i - 2) * 0.62, 10.5, z + 0.35), 0.58, true)
+	# the rack they're bolted to, behind them, its posts clear of the letters
+	box(Vector3(10.2, 0.08, 0.08), Vector3(8.0, 10.86, z + 0.2), M.frame)
+	for x in [3.3, 8.31, 12.7]:
+		box(Vector3(0.08, 1.9, 0.08), Vector3(x, 10.95, z + 0.2), M.frame)
 	# its light: the roof's edge and the top floor, gone by the second
-	var glow_l := omni(Vector3(8.0, 10.6, z + 1.6), Color("ff3a28"), 1.3, 5.5, false, "roof_sign")
+	var glow_l := omni(Vector3(8.0, 10.9, z + 1.6), Color("ff3a28"), 1.3, 5.5, false, "roof_sign")
 	glow_l.omni_attenuation = 1.3
 	box(Vector3(17.6, 0.3, 1.2), Vector3(8.0, 9.9, z - 0.4), M.dark)
 	var wins: Array = []
@@ -1057,6 +1104,8 @@ func _facade() -> void:
 	# a window or two lit: residents up late
 	wins[3].material_override = M.window_lit
 	wins[9].material_override = M.window_lit
+	# his, at the east end of the second floor: glass
+	wins[6].material_override = M.glass
 	# the fire escape on the east end
 	for fy in [4.0, 7.3]:
 		box(Vector3(2.2, 0.05, 1.0), Vector3(15.8, fy - 0.9, z + 0.55), M.frame)
@@ -1163,22 +1212,31 @@ func _upstairs() -> void:
 	var x1 := 16.0
 	var z0 := 6.4
 	var z1 := 9.95
-	tiled(Vector3(x1 - x0, 0.1, z1 - z0), Vector3((x0 + x1) / 2.0, y0 - 0.05, (z0 + z1) / 2.0), M.carpet)
+	var worn := mat(Color("4e4a3f"), 0.95, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.5)
+	tiled(Vector3(x1 - x0, 0.1, z1 - z0), Vector3((x0 + x1) / 2.0, y0 - 0.05, (z0 + z1) / 2.0), worn)
 	tiled(Vector3(x1 - x0, 0.1, z1 - z0), Vector3((x0 + x1) / 2.0, y0 + 2.6, (z0 + z1) / 2.0), M.ceiling)
 	wall(Vector2(x0, z0), Vector2(x1, z0), 2.6, M.plain, [[0.3, 1.1, 0.0, 2.0]], y0, 0.1)
 	wall(Vector2(x0, z0), Vector2(x0, z1), 2.6, M.plain, [], y0, 0.1)
 	wall(Vector2(x1, z0), Vector2(x1, z1), 2.6, M.plain, [], y0, 0.1)
-	wall(Vector2(x0, z1), Vector2(x1, z1), 2.6, M.plain, [[0.7, 1.7, 0.9, 2.2]], y0, 0.1)
-	box(Vector3(1.0, 1.3, 0.02), Vector3(x0 + 1.2, y0 + 1.55, z1), M.glass)
+	# the window lines up with its hole in the front of the building (the facade's second-floor row)
+	wall(Vector2(x0, z1), Vector2(x1, z1), 2.6, M.plain, [[0.7, 1.7, 0.45, 1.75]], y0, 0.1)
+	box(Vector3(1.0, 1.3, 0.02), Vector3(x0 + 1.2, y0 + 1.1, z1), M.glass)
 	# the bed, the chair, the sink
 	box(Vector3(1.0, 0.45, 2.0), Vector3(x1 - 0.6, y0 + 0.22, z0 + 1.4), M.bed)
 	box(Vector3(1.0, 0.12, 0.3), Vector3(x1 - 0.6, y0 + 0.5, z0 + 0.55), M.porcelain)
 	box(Vector3(0.45, 0.45, 0.45), Vector3(x0 + 0.5, y0 + 0.22, z1 - 1.3), M.wood)
+	# the one bag he came with, on the chair
+	var bag := cyl(0.16, 0.16, 0.55, Vector3(x0 + 0.5, y0 + 0.61, z1 - 1.3), M.dark, null, 12)
+	bag.rotation.z = deg_to_rad(90.0)
+	bag.rotation.y = deg_to_rad(20.0)
+	# the radiator under the window
+	for k in 8:
+		box(Vector3(0.05, 0.34, 0.1), Vector3(x0 + 0.85 + k * 0.1, y0 + 0.23, z1 - 0.14), M.frame)
 	cyl(0.18, 0.14, 0.14, Vector3(x0 + 0.25, y0 + 0.85, z0 + 0.5), M.porcelain, null, 12)
 	box(Vector3(0.02, 0.5, 0.4), Vector3(x0 + 0.06, y0 + 1.5, z0 + 0.5), M.mirror)
 	ball(0.05, Vector3((x0 + x1) / 2.0, y0 + 2.45, (z0 + z1) / 2.0), M.bulb)
 	anchors["his_bed"] = Vector3(x1 - 0.6, y0 + 0.5, z0 + 1.4)
-	anchors["up_window"] = Vector3(x0 + 1.2, y0 + 1.55, z1)
+	anchors["up_window"] = Vector3(x0 + 1.2, y0 + 1.1, z1)
 
 
 func _rain() -> void:
@@ -1254,7 +1312,7 @@ func _lights() -> void:
 	for x in [7.5, 9.8, 12.0]:
 		omni(Vector3(x, 2.2, -1.9), Color("e6eef4"), 0.5, 2.2)
 	# the keg room's bare bulb
-	omni(Vector3(2.4, KEG_Y + 1.85, 1.4), Color("ffcf93"), 1.3, 6.0, true, "keg")
+	omni(Vector3(2.9, KEG_Y + 1.85, 2.6), Color("ffcf93"), 1.3, 3.9, true, "keg")
 	# the deck's caged bulb
 	omni(Vector3(16.6, 2.45, 7.1), Color("ffc98a"), 1.1, 4.5, true, "deck")
 	# upstairs: the bulb, and the sign's red up through the window

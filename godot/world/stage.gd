@@ -66,6 +66,8 @@ func _spots() -> void:
 		var a := TAU * k / 6.0 + 0.25
 		s["t28_%d" % k] = {"pos": T28 + Vector3(cos(a) * 1.18, 0, sin(a) * 1.18), "face": T28, "zone": "room"}
 	s["t28_stand"] = {"pos": T28 + Vector3(-1.35, 0, -1.25), "face": T28, "zone": "room"}
+	var a5 := TAU * 5 / 6.0 + 0.25
+	s["t28_behind5"] = {"pos": T28 + Vector3(cos(a5) * 1.75, 0, sin(a5) * 1.75), "face": T28, "zone": "room"}
 	# the bar: behind it, and its stools from the far end to the door end
 	s["bar_back_mid"] = {"pos": Vector3(1.15, 0, 4.8), "face": Vector3(6.0, 0, 4.8), "zone": "room"}
 	s["bar_back_till"] = {"pos": Vector3(1.15, 0, 6.7), "face": Vector3(6.0, 0, 7.4), "zone": "room"}
@@ -92,10 +94,14 @@ func _spots() -> void:
 	s["juke_kid"] = {"pos": Vector3(12.7, 0, 1.15), "face": Vector3(13.2, 0, 0.0), "zone": "room"}
 	s["pool_rail"] = {"pos": POOL + Vector3(-1.2, 0, 1.45), "face": POOL, "zone": "room"}
 	s["bar_stand_v"] = {"pos": Vector3(2.95, 0, 4.55), "face": Vector3(0.0, 0, 4.4), "zone": "room"}
+	# on their feet with a pint: behind the stools at the bar, and by the front window
+	s["stand_bar"] = {"pos": Vector3(3.15, 0, 2.9), "face": Vector3(0.0, 0, 3.1), "zone": "room"}
+	s["stand_window"] = {"pos": Vector3(11.7, 0, 9.35), "face": Vector3(9.4, 0, 8.1), "zone": "room"}
 	s["vest_wait"] = {"pos": Vector3(3.85, 0, 9.35), "face": Vector3(2.0, 0, 9.0), "zone": "vest"}
 	s["vest_behind"] = {"pos": Vector3(3.55, 0, 10.0), "face": eye, "zone": "vest"}
 	s["vest_stand"] = {"pos": Vector3(3.3, 0, 9.7), "face": Vector3(6.0, 0, 7.0), "zone": "vest"}
-	s["keg_parley"] = {"pos": Vector3(2.3, Pub.KEG_Y, -0.55), "face": Vector3(1.45, Pub.KEG_Y, 1.25), "zone": "keg", "y": -0.16}
+	# on the upturned keg in the aisle between the rows, facing the way down
+	s["keg_parley"] = {"pos": Vector3(3.42, Pub.KEG_Y, 1.25), "face": Vector3(3.42, Pub.KEG_Y, 4.35), "zone": "keg", "y": -0.16}
 	s["deck_chair_rail"] = {"pos": Vector3(17.8, 0, 6.6), "face": Vector3(18.4, 0, 6.6), "zone": "deck", "y": -0.29}
 	# the door: in front of his stool, and out on the gravel
 	# far enough back that the door's still behind them: about where anyone stops to be carded
@@ -171,19 +177,28 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 				out.slippers_b = ["bar_s5", "slippers_b"]
 		elif not up:
 			out.slippers = ["bar_s6_stand", "slippers"]
+	# The three who come to the door later each have a scene there. The Ink marks the arrival done
+	# as the scene starts, and marks how it went at its end, so a scene is on between the two.
 	# 5. HI-VIS: at the store, then at the door, then at the bar (or upstairs)
-	if here == "door" and clock >= 1260 and not arr.call("hivis_done"):
-		out.hivis = ["door_front", "hivis_door"]
+	if arr.call("hivis_done") and not (arr.call("hivis_in") or arr.call("hivis_out") or arr.call("hivis_hotel")):
+		if here == "door":
+			out.hivis = ["door_front", "hivis_door"]
 	elif (arr.call("hivis_in") or arr.call("hivis_hotel")) and not cleared.call("cl_hivis"):
 		out.hivis = ["bar_s3", "hivis"]
-	# 6. GOOD SHOES: at the door from half ten, at the bar if he got in
-	if here == "door" and clock >= 1350 and not arr.call("banned_done"):
-		out.goodshoes = ["door_front", "goodshoes_card"]
+	# 6. GOOD SHOES: at the door from half ten (in the vestibule while he checks the binder or asks),
+	# at the bar if he got in
+	if arr.call("banned_done") and not (arr.call("banned_inside") or arr.call("banned_in") or arr.call("banned_out")):
+		out.goodshoes = ["door_front", "goodshoes_card"] if here == "door" else ["vest_wait", "goodshoes_card"]
 	elif (arr.call("banned_in") or (arr.call("banned_inside") and not arr.call("banned_out"))) and not cleared.call("cl_banned"):
 		out.goodshoes = ["bar_s2", "goodshoes_bar"]
-	# 7. RAINCOAT, in the vestibule, no further in
-	if here == "door" and clock >= 1480 and not arr.call("wife_done"):
-		out.raincoat = ["vest_stand", "raincoat"]
+	# 7. RAINCOAT, in the vestibule, no further in; or, when nobody was on the door, standing behind
+	# Dennis at table 28 while that plays out, and then gone with him
+	if arr.call("wife_done") and not (arr.call("wife_lied") or arr.call("wife_told") or arr.call("wife_in") or arr.call("wife_inside")):
+		if here == "door":
+			out.raincoat = ["vest_stand", "raincoat"]
+	elif not cleared.call("cl_t28") and _scene(game) == "ev_wife_inside":
+		out.raincoat = ["t28_behind5", "raincoat"]
+		out.glasses = ["t28_5", "glasses"]
 	# 4. the kids. kids_in is only a head count: which of them are inside is worked out from it
 	var kids_in := int(BUtil.js_int(v.get("kids_in", 0)))
 	var fam_done := bool(BUtil.js_truthy(v.get("fam_done", false)))
@@ -235,25 +250,27 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 		extra = 0
 	elif clock >= 1530:
 		extra = mini(extra, 3)
-	var fillers := ["crew_b", "patron_a", "patron_b", "patron_c", "patron_d", "patron_e", "patron_f", "crew_a"]
-	var free := ["table_d_0", "table_c_1", "table_d_1", "table_c_0", "table_a_2", "table_d_2", "table_c_2", "bar_s4"]
+	# in the order the room fills, each to a place their pose fits: a table's stool, the bar's, or
+	# on their feet with a pint
+	var fillers := [["crew_b", "table"], ["patron_a", "table"], ["patron_e", "bar"], ["patron_c", "stand"],
+		["patron_b", "table"], ["patron_f", "table"], ["patron_d", "stand"], ["crew_a", "table"]]
+	var free := {"table": ["table_d_0", "table_c_1", "table_d_1", "table_c_0", "table_a_2", "table_d_2", "table_c_2"],
+		"bar": ["bar_s4", "bar_s1", "bar_s5"], "stand": ["pool_watch", "stand_bar", "stand_window"]}
 	var used := {}
 	for id in out:
 		used[out[id][0]] = true
 	var k := 0
-	var fi := 0
-	for spot in free:
+	for f in fillers:
 		if k >= extra:
 			break
-		if used.has(spot):
+		if not _exists(f[0]):
 			continue
-		while fi < fillers.size() and not _exists(fillers[fi]):
-			fi += 1
-		if fi >= fillers.size():
-			break
-		out[fillers[fi]] = [spot, fillers[fi]]
-		fi += 1
-		k += 1
+		for spot in free[f[1]]:
+			if not used.has(spot):
+				used[spot] = true
+				out[f[0]] = [spot, f[0]]
+				k += 1
+				break
 	# anything whose model hasn't been made yet stays out
 	for id in out.keys():
 		if not _exists(out[id][1]):
@@ -276,6 +293,12 @@ func _visits(game: Game, path: String) -> int:
 	if game.story == null:
 		return 0
 	return int(game.story.state().visit_count_at_path_string(path))
+
+
+# the scene the night is waiting in: the knot its choices come from
+func _scene(game: Game) -> String:
+	var vis := game.visible_choices()
+	return str(vis[0].get("knot", "")) if not vis.is_empty() else ""
 
 
 func _exists(model: String) -> bool:
