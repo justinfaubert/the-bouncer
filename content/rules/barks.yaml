@@ -90,18 +90,30 @@
 
 # ---------------------------------------------------------------- the pool table
 
+# The big man is at the table until the family's done (fam_done): every way he leaves sets it.
+# After the fight he can stay on with fam_done set (dad_stayed); then only the truck says he's there.
+
 - id: pool_left_hand
   on: visit:pool
   speaker: fighter
-  when: [pool_heat >= 5, knows has pool_lefty]
+  when: [pool_heat >= 5, knows has pool_lefty, fam_done == false]
   text: Left hand. Flat on the rail. It hasn't moved.
   mark: pool.lefthand
 
 - id: pool_his_kid
   on: visit:pool
   speaker: father
-  when: [knows has bigman_dad, fam_done == false]
+  when: [knows has bigman_dad, fam_done == false, kid_at has s_jukebox]
   text: His kid's twenty feet away and he knows exactly where.
+  mark: pool.bigman
+
+# Every way the big man leaves before close sends the pickup away too (family_gone in sim.ink),
+# so while it's there with his daughter in it, he's at the table: before the fight, or after it.
+- id: pool_his_daughter_waiting
+  on: visit:pool
+  speaker: father
+  when: [knows has bigman_dad, fam has kids_waiting, sister_at has s_truck, truck_gone == false]
+  text: His daughter's sitting out in that truck with the engine running, and he's chalking his cue.
   mark: pool.bigman
 
 - id: pool_early
@@ -114,7 +126,7 @@
 - id: pool_kid_photo
   on: visit:pool
   speaker: wrongman
-  when: [knows has kid_photo]
+  when: [knows has kid_photo, fam_done == false]
   text: The man in the kid's photo. Left hand on the rail, same as the picture.
   mark: pool.lefthand
 
@@ -168,7 +180,7 @@
 - id: hall_locked
   on: visit:hall
   speaker: wrongman
-  when: [fam has kid_found, kid_out == false]
+  when: [fam has kid_found, kid_at has s_single]
   text: A locked door with a kid behind it. That's a story nobody wants to finish.
   mark: hall.single ?
 

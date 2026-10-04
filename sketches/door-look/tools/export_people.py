@@ -36,6 +36,10 @@ COLOURS = {
     'glass': '#d9e3e1', 'beer': '#b2761e', 'foam': '#efe6cf', 'wine': '#5c1626', 'cola': '#2b160d',
     'card': '#e9e5db', 'card_back': '#d6d1c4', 'chrome': '#c9ccd0', 'black': '#18181a', 'vape': '#3b3e45',
     'cardboard': '#9b784b', 'clicker_window': '#e4e0d4', 'doorman_jacket': '#25272b',
+    # the constable's duty jacket, its collar, cuffs and band a shade darker
+    'uniform': '#1d2330', 'uniform_trim': '#121620',
+    # the night clerk's lanyard and key card, and his shirt: a blue flannel, not the big man's red
+    'lanyard': '#2b3446', 'badge': '#e2ddd0', 'flannel_b': '#4a5768',
 }
 ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 'glasses': 0.3, 'reflective': 0.4, 'cue': 0.4,
          'glass': 0.05, 'beer': 0.2, 'wine': 0.2, 'cola': 0.2, 'chrome': 0.25, 'vape': 0.35, 'card': 0.4, 'clicker_window': 0.3}
@@ -112,9 +116,17 @@ PEOPLE = {
     'slippers_b': (dict(sex='f', age='old', build='slight', hair='bob', hair_mat='hair_white', top='cardigan', top_mat='cardigan_b',
                         bottoms='skirt', shoes='slippers', shoe_mat='slipper_b', glasses=True, face=['glasses']),
                    'sit', dict(seat=0.76, table=1.08, lean=0.15, head_turn=-0.4), 0.012),
+    # the constable from the detachment in town, forty minutes after the call: her cap on in the
+    # rain, the duty jacket with its band, standing just inside the door looking at the room
+    'constable': (dict(sex='f', hair='bun', hat='cap', top='jacket', top_mat='uniform', trim_mat='uniform_trim',
+                       bottoms='trousers', shoes='boots'), 'stand', dict(head_turn=0.2), 0.008),
+    # Terry, the night clerk, on his stool behind the front desk with his chin on his fist, watching
+    # the bar's TV down the back hall through the gap he props the door open for
+    'terry': (dict(build='slight', hair='thin', face=['glasses'], top='flannel', top_mat='flannel_b', trim_mat='flannel_b',
+                   extra=['lanyard'], bottoms='slacks'), 'chin', dict(head_tilt=0.08), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
-NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door'}
+NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry'}
 
 
 def build(name, preview=False):
@@ -318,6 +330,26 @@ def card(pr):
     return _place([body, face], pr['at'], pr['R'])
 
 
+def lanyard(pr):
+    """A lanyard: a flat strap from each side of the neck down to the clip, and the key card
+    hanging off it, its face forward."""
+    obs = []
+    for k, (a, b) in enumerate(pr['straps']):
+        a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+        z = (b - a) / np.linalg.norm(b - a)
+        x = np.cross(z, np.array([0.0, 1.0, 0.0]))
+        x = x / (np.linalg.norm(x) + 1e-9)
+        y = np.cross(z, x)
+        R = np.stack([x, y, z], axis=1)
+        st = _box(f'lanyard_strap_{k}', 'lanyard', (0.0055, 0.0009, np.linalg.norm(b - a) / 2 + 0.003))
+        obs += _place([st], (a + b) / 2, R)
+    clip = _box('lanyard_clip', 'chrome', (0.005, 0.004, 0.008), bevel=0.0015)
+    badge = _box('badge', 'badge', (0.027, 0.043, 0.0009), at=(0, -0.05, 0), bevel=0.0012)
+    band = _box('badge_band', 'lanyard', (0.0272, 0.009, 0.001), at=(0, -0.017, 0))
+    obs += _place([clip, badge, band], pr['at'], pr['R'])
+    return obs
+
+
 def glass(pr):
     """A glass on its foot at `at`, and what's in it. A pint and a tumbler taper out to the lip; a
     wine glass is a bowl on a stem."""
@@ -424,7 +456,7 @@ def clicker(pr):
     return _place([body, btn, knob, win], pr['at'], pr['R'])
 
 
-PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
+PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'lanyard': lanyard, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
          'case': case}
 
 

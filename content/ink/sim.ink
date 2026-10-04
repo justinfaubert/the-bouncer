@@ -41,20 +41,47 @@
 // Turned away at the front, the kids try the deck, if it's still propped.
 { fam ? hoodie_refused && fam !? sister_met && fam !? via_deck && deck_door && clock >= 1240:
     ~ fam += via_deck
-    ~ kids_in = 3
+    ~ move(kid_at, s_jukebox)
+    ~ move(sister_at, s_rail)
+    ~ move(vape_at, s_bar)
     ~ uncounted += 3
-    ~ room_count += 3
     ~ incident += inc_deck
 }
 
-// Put out the front, the boyfriend comes back in the back, if the deck's still propped.
-{ fam ? vape_ejected && deck_door && not fam_done && not vape_returned && clock >= vape_out_at + 30:
+// Put out the front, the boyfriend comes back in the back, if the deck's still propped. Twice at most.
+{ vape_at == s_lot && fam ? vape_ejected && deck_door && not fam_done && not vape_returned && vape_backs < 2 && clock >= vape_out_at + 30:
     ~ vape_returned = true
+    ~ vape_backs++
     ~ fam -= vape_ejected
-    ~ kids_in++
+    ~ move(vape_at, s_bar)
     ~ uncounted++
-    ~ room_count++
     ~ heat(2)
+}
+
+// The kid in the hoodie, let in and left alone by the jukebox, locks himself in the single washroom by twenty to ten.
+{ kid_at == s_jukebox && not kid_out && fam !? kid_opened && not fam_done && clock >= 1300:
+    ~ kid_at = s_single
+}
+
+// The sister, waiting in the vestibule for him to bring her father out, gives it half an hour and goes back to the truck.
+{ sister_at == s_vestibule && fam ? sister_fetched && not fam_done && sister_wait_at > 0 && clock >= sister_wait_at + 30:
+    ~ sister_at = s_truck
+    ~ fam += kids_waiting
+    ~ fam += sister_gave_up
+}
+
+// The cook needs the air. Shut his back door while he's on, and it's open again in twenty minutes.
+{ not kitchen_door && kitchen_shut_at > 0 && cook_here() && clock >= kitchen_shut_at + 20:
+    ~ kitchen_door = true
+    ~ kitchen_shut_at = 0
+    ~ reprops += rp_kitchen
+}
+
+// The night clerk wants to see the TV. Kick his wedge out and it's back within the hour, unless somebody's asked him.
+{ not hotel_door && hotel_shut_at > 0 && not terry_asked && clock >= hotel_shut_at + 40 && clock < LAST_CALL:
+    ~ hotel_door = true
+    ~ hotel_shut_at = 0
+    ~ reprops += rp_hotel
 }
 
 // Bait in the hole behind table 28: Walter finds it within the hour. It takes days after that.
@@ -63,7 +90,8 @@
 }
 
 // HI-VIS was due at nine. Nobody at the door by 9:40, so he comes in through the hotel.
-{ clock >= 1300 && arrivals !? hivis_done:
+// (If he's on the door, in the middle of something, they wait for him; the door's checks bring them on.)
+{ clock >= 1300 && arrivals !? hivis_done && here != door:
     ~ arrivals += hivis_done
     { hotel_door:
         ~ arrivals += hivis_hotel
@@ -75,7 +103,7 @@
 }
 
 // GOOD SHOES was due at 10:30. Nobody at the door by 10:50, so he's at the bar.
-{ clock >= 1370 && arrivals !? banned_done:
+{ clock >= 1370 && arrivals !? banned_done && here != door:
     ~ arrivals += banned_done
     ~ arrivals += banned_inside
     ~ uncounted++
@@ -84,7 +112,7 @@
 }
 
 // RAINCOAT was due at 12:40. Nobody at the door by one, so she walks straight to table 28.
-{ clock >= 1500 && arrivals !? wife_done:
+{ clock >= 1500 && clock < LAST_CALL && arrivals !? wife_done && here != door:
     ~ arrivals += wife_done
     ~ arrivals += wife_inside
     ~ incident += inc_wife
@@ -201,6 +229,50 @@
 === function walter_alive()
 ~ return walter == 1 || walter == 3
 
+
+// ------------------------------------------------------------------ where the family is
+
+// The places that are inside, in the bar's count: by the jukebox, locked in the single washroom,
+// at the rail by the pool table, at the bar.
+=== function indoors(s)
+~ return s == s_jukebox || s == s_single || s == s_rail || s == s_bar
+
+=== function kids_count()
+~ temp n = 0
+{ indoors(kid_at):
+    ~ n++
+}
+{ indoors(sister_at):
+    ~ n++
+}
+{ indoors(vape_at):
+    ~ n++
+}
+~ return n
+
+// One of the three goes somewhere. Coming in or going out moves the room's count; whether the
+// clicker saw them is up to whoever calls this (count_in, or uncounted).
+=== function move(ref who, to)
+{ indoors(who) && not indoors(to):
+    ~ room_count--
+}
+{ not indoors(who) && indoors(to):
+    ~ room_count++
+}
+~ who = to
+~ kids_in = kids_count()
+
+// All three gone, and the pickup with them.
+=== function family_gone()
+~ move(kid_at, s_gone)
+~ move(sister_at, s_gone)
+~ move(vape_at, s_gone)
+~ truck_gone = true
+
+// Where she is now, in words, for whoever's telling it.
+=== function in_truck(who)
+~ return who == s_truck && not truck_gone
+
 // Nudge the pool table's heat, and keep it between 0 and 10.
 === function heat(n)
 ~ pool_heat += n
@@ -219,6 +291,41 @@
 
 === function tip(n)
 ~ cash += n
+
+// A time the way he'd say it: "one", "quarter to one", "half past twelve". To the nearest quarter.
+=== function q_words(t)
+~ temp q = (t + 7) / 15 * 15
+~ temp m = q mod 60
+~ temp h = (q mod 1440) / 60
+{ m == 45:
+    ~ h++
+}
+~ h = h mod 12
+{ h == 0:
+    ~ h = 12
+}
+{
+- m == 15:
+    ~ return "quarter past " + num(h)
+- m == 30:
+    ~ return "half past " + num(h)
+- m == 45:
+    ~ return "quarter to " + num(h)
+}
+~ return num(h)
+
+// How long a message has been sitting with him since t.
+=== function late_words(t)
+~ temp d = clock - t
+{
+- d >= 85:
+    ~ return "An hour and a half late."
+- d >= 50:
+    ~ return "An hour late."
+- d >= 25:
+    ~ return "Half an hour late."
+}
+~ return "Late."
 
 === function clock_text()
 ~ temp m = clock mod 1440
@@ -245,11 +352,13 @@
     ~ return "deckkids"
 - arrivals ? banned_inside && banned_stage == 0:
     ~ return "banned"
+- police_called && not police_seen && clock >= police_at + 40:
+    ~ return "police"
 - not fam_done && kids_in > 0 && pool_heat >= 7 && fam !? pool_fight:
     ~ return "pool"
 - not fam_done && kids_in == 0 && pool_heat >= 9 && fam !? pool_fight:
     ~ return "pool"
-- vape_returned && not vape_seen && not fam_done && kids_in > 0:
+- vape_returned && not vape_seen && not fam_done && indoors(vape_at):
     ~ return "vapeback"
 - trap_at ? t28 && walter_alive() && not trap_sprung && clock >= traps_set + 40:
     ~ return "trap"
@@ -261,6 +370,8 @@
     ~ return "owner"
 - arrivals ? wife_inside && arrivals !? wife_in && arrivals !? wife_told && arrivals !? wife_lied:
     ~ return "wife"
+- banned_one > 0 && banned_held == 0 && arrivals ? banned_in && arrivals !? banned_out && clock >= banned_one + 40 && clock < LAST_CALL:
+    ~ return "onedrink"
 }
 ~ return ""
 
@@ -270,6 +381,10 @@ VAR ev_owner_done = false
 // The interrupting events run from the floor, one at a time.
 === events ===
 ~ temp e = ev_ready()
+// Whatever happens is the room for now: no line about the room straight after it.
+{ e != "":
+    ~ last_room_line = clock
+}
 {
 - e == "sister": -> ev_sister ->
 - e == "deckkids": -> ev_deck_kids ->
@@ -281,5 +396,34 @@ VAR ev_owner_done = false
 - e == "card": -> ev_card ->
 - e == "owner": -> ev_owner ->
 - e == "wife": -> ev_wife_inside ->
+- e == "police": -> ev_police ->
+- e == "onedrink": -> ev_one_drink ->
 }
 ->->
+
+// Whoever of the three is inside goes back out to the pickup.
+=== function kids_out()
+{ indoors(kid_at):
+    ~ move(kid_at, s_truck)
+}
+{ indoors(sister_at):
+    ~ move(sister_at, s_truck)
+}
+{ indoors(vape_at):
+    ~ move(vape_at, s_truck)
+}
+
+// What the Fighter made of the boyfriend, as a bonus or penalty on putting hands on him: the read at
+// the door (door.ink), and the empties in the back seat of the pickup (deck.ink).
+=== function vape_mod()
+~ temp m = 0
+{ knows ? vape_read:
+    ~ m++
+}
+{ knows ? vape_misread:
+    ~ m--
+}
+{ knows ? vape_cans:
+    ~ m++
+}
+~ return m

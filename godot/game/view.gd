@@ -211,7 +211,12 @@ func walk_to(where: String, instant := false) -> void:
 		arrived.emit(where)
 		return
 	var from := place
+	var from_frame := _framed
 	var steps := Posts.way(from, where)
+	# seen from somewhere of its own (the front desk), he goes back to the place's post first
+	var from_node: String = Posts.post(from, from_frame).node
+	if from_node != Posts.post(from).node and not steps.is_empty():
+		steps.push_front([Posts.post(from).node, "walk"])
 	place = where
 	_framed = frame
 	if _walk != null and _walk.is_valid():
@@ -223,7 +228,7 @@ func walk_to(where: String, instant := false) -> void:
 		# the same place seen another way: walk across it
 		steps = [[p.node, "walk"]]
 	var at := eye_pos
-	var last_node: String = Posts.post(from).node
+	var last_node: String = from_node
 	var speed := 2.3
 	for s in steps:
 		var node: String = s[0]

@@ -1,0 +1,81 @@
+[
+ {
+  "build": "2026-09-27-ca7affdb",
+  "clock": 1218,
+  "created": "2026-09-27T16:38:00.688Z",
+  "here": "bar",
+  "id": "emuk1ldkgp9xf",
+  "kind": "prompt",
+  "knot": "ev_card",
+  "prompt": {
+   "knot": "ev_card",
+   "loc": "content/ink/bar.ink:177",
+   "text": "The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?"
+  },
+  "status": "draft",
+  "text": "It's an island so shipments of goods from the mainland. When diesel is too high for transportation to be viable, we begin seeing products disappear slowly and then all at once",
+  "updated": "2026-09-27T16:38:00.688Z"
+ },
+ {
+  "build": "2026-09-27-ca7affdb",
+  "clock": 1201,
+  "created": "2026-09-27T16:51:28.352Z",
+  "here": "floor",
+  "id": "emuk22ork7p0b",
+  "kind": "choice",
+  "knot": "hub",
+  "orig": "Stand the door.",
+  "status": "draft",
+  "text": "Stand at the door.",
+  "updated": "2026-09-27T16:51:28.352Z"
+ },
+ {
+  "build": "2026-09-27-ca7affdb",
+  "clock": 1267,
+  "created": "2026-09-27T16:59:50.208Z",
+  "here": "keg",
+  "id": "emuk2dg00f7zb",
+  "kind": "prompt",
+  "knot": "at_keg",
+  "prompt": {
+   "knot": "at_keg",
+   "loc": "content/ink/rats.ink:252",
+   "text": "A real keg room under an old bar. What's down there that customers never see?"
+  },
+  "status": "draft",
+  "text": "Rodents, empties, cases of clamato and tomato and other fruit juices for mix, napkins, straws etc. and an Office where money is held, due backs for the servers, a place to do cocaine",
+  "updated": "2026-09-27T16:59:50.208Z"
+ },
+ {
+  "at": "ev_sister.sister_opts.0.c-3.0",
+  "build": "2026-09-27-ca7affdb",
+  "clock": 1303,
+  "created": "2026-09-27T17:04:46.952Z",
+  "here": "door",
+  "id": "emuk2jsyx3w18",
+  "kind": "rewrite",
+  "knot": "ev_sister",
+  "orig": "FIGHTER: He's had eight and he wants a ninth. Weight on his heels, chin up. He's the one who'll swing, and he'll swing at the biggest thing in the room.",
+  "speaker": "fighter",
+  "status": "draft",
+  "text": "He's had eight and he wants a ninth. Weight on his heels, chin up. He's the one who'll swing if anyone does, and he'll swing at the biggest fucker in the bar: You.",
+  "updated": "2026-09-27T17:04:46.952Z"
+ },
+ {
+  "build": "2026-09-27-ca7affdb",
+  "clock": 1451,
+  "created": "2026-09-27T18:15:50.061Z",
+  "here": "bar",
+  "id": "emuk536eljbl6",
+  "kind": "prompt",
+  "knot": "ev_owner",
+  "prompt": {
+   "knot": "ev_owner",
+   "loc": "content/ink/bar.ink:209",
+   "text": "The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?"
+  },
+  "status": "draft",
+  "text": "\"How is it tonight?\" meaning \"how busy is it, how much money am I making?\"",
+  "updated": "2026-09-27T18:15:50.061Z"
+ }
+]

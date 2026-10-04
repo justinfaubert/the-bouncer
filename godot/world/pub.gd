@@ -54,6 +54,7 @@ func build() -> void:
 	_upstairs()
 	_rain()
 	_lights()
+	_lobby()
 
 
 # ---------------------------------------------------------------- materials and shapes
@@ -176,6 +177,8 @@ const CUTS := {
 	"hair_grey": [4, Vector3.UP, 3.5, 0.5], "hair_white": [4, Vector3.UP, 3.5, 0.5], "hair_blonde": [4, Vector3.UP, 3.5, 0.5],
 	"hair_red": [4, Vector3.UP, 3.5, 0.5], "hair_dark": [4, Vector3.UP, 3.5, 0.5], "stubble": [4, Vector3.UP, 3.5, 0.5],
 	"card": [1, Vector3(0, 0, 1), 7.0, 1.0], "card_back": [1, Vector3(0, 0, 1), 7.0, 1.0], "cardboard": [2, Vector3.UP, 6.0, 1.0],
+	"uniform": [4, Vector3.UP, 5.0, 0.8], "uniform_trim": [4, Vector3.UP, 5.0, 0.8], "flannel_b": [4, Vector3.UP, 5.5, 0.8],
+	"badge": [1, Vector3(0, 0, 1), 7.0, 1.0], "lanyard": [3, Vector3.UP, 5.0, 0.0],
 }
 var from_model_cache := {}
 
@@ -438,6 +441,8 @@ func swing_door(which: String, open: bool) -> void:
 			list = [[dyn.swing, 75.0]]
 		"deck":
 			list = [[dyn.deck_door, 80.0]]
+		"hotel":
+			list = [[dyn.hotel_door, -86.0]]
 	for pair in list:
 		var n: Node3D = pair[0]
 		var tw := n.create_tween()
@@ -462,7 +467,8 @@ func prop_door(which: String, open: bool) -> void:
 		"kitchen_door":
 			a = deg_to_rad(-72.0) if open else 0.0
 		"hotel_door":
-			a = deg_to_rad(-58.0) if open else 0.0
+			# all the way back against the wall: the night clerk props it to see down the hall
+			a = deg_to_rad(-88.0) if open else 0.0
 			dyn.hotel_wedge.visible = open
 	n.set_meta("rest", a)
 	n.rotation.y = a
@@ -868,7 +874,7 @@ func _back_strip() -> void:
 	box(Vector3(0.05, 2.02, 0.86), Vector3(0, 1.01, 0.43), M.wood, 0.0, hd)
 	box(Vector3(0.03, 0.4, 0.3), Vector3(-0.02, 1.5, 0.43), M.glass, 0.0, hd)
 	dyn.hotel_door = hd
-	dyn.hotel_wedge = box(Vector3(0.12, 0.03, 0.06), Vector3(15.96, 0.015, BACK + 2.46), M.wood)
+	dyn.hotel_wedge = box(Vector3(0.12, 0.03, 0.06), Vector3(15.17, 0.015, BACK + 1.66), M.wood, deg_to_rad(90.0))
 	# the hall's light: two tubes
 	for x in [9.0, 14.5]:
 		box(Vector3(1.2, 0.04, 0.08), Vector3(x, y - 0.03, -0.6), M.tube)
@@ -921,6 +927,124 @@ func _back_strip() -> void:
 	anchors["payphone"] = Vector3(13.86, 1.5, BACK + 0.1)
 	anchors["hotel_door"] = Vector3(16.05, 1.2, BACK + 2.04)
 	anchors["hall_end"] = Vector3(15.0, 1.3, -0.6)
+
+
+# ---------------------------------------------------------------- the front desk, through the hotel door
+
+# Through the hotel door at the end of the back hall: the hotel's front desk, a counter with a bell
+# on it and a key board with most of the keys still on their hooks, the night clerk's stool behind
+# it (Terry sits on it: world/stage.gd), his lamp, and the stairs up. He props the door so he can
+# watch the bar's TV down the hall, so it's all in line with the doorway: from the far end of the
+# hall, a warm room the size of a stamp at the end of the cold one. Built last, with its own dice,
+# so nothing else in the building moves.
+func _lobby() -> void:
+	var r := RandomNumberGenerator.new()
+	r.seed = 1958
+	var y := 2.6
+	var x0 := 16.0
+	var x1 := 19.5
+	var z1 := 0.6
+	var carpet := surfaced(mat(Color(0.74, 0.7, 0.66), 0.9, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.4), "carpet", 0.7)
+	var brass := mat(Color("8a7444"), 0.4, 0.6, 2, Vector3.UP, 5.0, 1.0)
+	tiled(Vector3(x1 - x0, 0.1, z1 - BACK), Vector3((x0 + x1) / 2.0, -0.05, (BACK + z1) / 2.0), carpet)
+	# the walls: the building's back wall carried on, the east wall, the south wall with the hotel's
+	# own front door in it, shut for the night
+	wall(Vector2(x0, BACK - 0.1), Vector2(x1 + 0.2, BACK - 0.1), y, M.plain)
+	wall(Vector2(x1 + 0.1, BACK), Vector2(x1 + 0.1, z1 + 0.2), y, M.plain)
+	wall(Vector2(x0, z1 + 0.1), Vector2(x1 + 0.2, z1 + 0.1), y, M.plain, [[2.45, 3.3, 0.0, 2.1]])
+	box(Vector3(0.85, 2.08, 0.05), Vector3(x0 + 2.875, 1.04, z1 + 0.1), M.wood)
+	box(Vector3(0.36, 0.5, 0.02), Vector3(x0 + 2.875, 1.5, z1 + 0.07), M.glass)
+	# outside: siding over the lobby's two outer walls and the bar's east wall up to the deck
+	wall(Vector2(x0 + 0.2, z1 + 0.22), Vector2(x1 + 0.22, z1 + 0.22), 3.4, M.siding, [], 0.0, 0.04)
+	wall(Vector2(x1 + 0.22, BACK - 0.2), Vector2(x1 + 0.22, z1 + 0.24), 3.4, M.siding, [], 0.0, 0.04)
+	wall(Vector2(16.25, z1 + 0.24), Vector2(16.25, 3.6), 3.4, M.siding, [], 0.0, 0.05)
+	# the stairs up, along the back wall from beside the hotel door into the dark, carpet runner up
+	# the middle; a ceiling over the rest, open over the stairs
+	var sz0 := BACK
+	var sz1 := BACK + 0.9
+	var run := 0.25
+	var rise := 0.2
+	for k in 13:
+		var sx := 16.25 + run * k
+		box(Vector3(run, rise * (k + 1), sz1 - sz0), Vector3(sx + run / 2.0, rise * (k + 1) / 2.0, (sz0 + sz1) / 2.0), M.wood)
+		box(Vector3(run + 0.01, 0.012, 0.56), Vector3(sx + run / 2.0, rise * (k + 1) + 0.006, (sz0 + sz1) / 2.0), carpet)
+	# the handrail, a metre over the nosings, on its balusters, from the newel post up
+	var rail_a := Vector3(16.25, rise + 1.02, sz1 - 0.03)
+	var rail_b := Vector3(16.25 + run * 12.0, rise * 13.0 + 1.02, sz1 - 0.03)
+	var rail := box(Vector3(0.05, 0.05, rail_a.distance_to(rail_b)), (rail_a + rail_b) / 2.0, M.frame)
+	rail.basis = Basis.looking_at(rail_b - rail_a, Vector3.UP)
+	for k in 13:
+		var bx := 16.25 + run * k + run / 2.0
+		box(Vector3(0.025, 1.02, 0.025), Vector3(bx, rise * (k + 1) + 0.51, sz1 - 0.03), M.frame)
+	box(Vector3(0.09, 1.25, 0.09), Vector3(16.3, 0.625, sz1 - 0.03), M.wood)
+	tiled(Vector3(x1 - x0 + 0.2, 0.1, z1 - sz1 + 0.2), Vector3((x0 + x1 + 0.2) / 2.0, y + 0.05, (sz1 + z1 + 0.2) / 2.0), M.ceiling)
+	tiled(Vector3(1.0, 0.1, sz1 - sz0), Vector3(16.5, y + 0.05, (sz0 + sz1) / 2.0), M.ceiling)
+	# the stairwell over it, dark, going up
+	wall(Vector2(17.0, sz1), Vector2(x1 + 0.2, sz1), 2.8, M.plain, [], y, 0.1)
+	wall(Vector2(17.0, sz0), Vector2(17.0, sz1), 2.8, M.plain, [], y, 0.1)
+	wall(Vector2(17.0, sz0 - 0.1), Vector2(x1 + 0.2, sz0 - 0.1), 2.8, M.plain, [], y, 0.1)
+	wall(Vector2(x1 + 0.1, sz0), Vector2(x1 + 0.1, sz1), 2.8, M.plain, [], y, 0.1)
+	box(Vector3(x1 - 16.9, 0.1, sz1 - sz0 + 0.1), Vector3((16.9 + x1) / 2.0, y + 2.85, (sz0 + sz1) / 2.0), M.dark)
+	# the counter, square to the hotel door: a guest ledge at the front with the bell and the
+	# register on it, and behind and below that the clerk's own surface, his phone face down on it,
+	# his mug, his lamp at the end
+	var cz0 := -1.5
+	var cz1 := -0.22
+	var czm := (cz0 + cz1) / 2.0
+	var cl := cz1 - cz0
+	box(Vector3(0.06, 1.1, cl), Vector3(17.47, 0.55, czm), M.wood)
+	box(Vector3(0.4, 0.04, cl + 0.06), Vector3(17.58, 1.12, czm), M.top)
+	box(Vector3(0.5, 0.035, cl), Vector3(17.93, 0.9625, czm), M.top)
+	box(Vector3(0.5, 0.96, 0.04), Vector3(17.75, 0.48, cz0), M.wood)
+	box(Vector3(0.5, 0.96, 0.04), Vector3(17.75, 0.48, cz1), M.wood)
+	box(Vector3(0.04, 0.12, cl), Vector3(17.5, 0.06, czm), M.dark)                     # a kick plate, scuffed
+	cyl(0.036, 0.042, 0.014, Vector3(17.6, 1.147, -0.98), M.dark, null, 16)             # the bell
+	var dome := ball(0.03, Vector3(17.6, 1.157, -0.98), M.steel)
+	dome.scale = Vector3(1.0, 0.75, 1.0)
+	cyl(0.004, 0.004, 0.02, Vector3(17.6, 1.19, -0.98), M.steel, null, 6)
+	box(Vector3(0.24, 0.012, 0.32), Vector3(17.6, 1.146, -0.62), M.dark)                # the register
+	box(Vector3(0.22, 0.01, 0.15), Vector3(17.6, 1.156, -0.7), M.paper)
+	box(Vector3(0.22, 0.01, 0.15), Vector3(17.6, 1.156, -0.54), M.paper)
+	box(Vector3(0.012, 0.004, 0.14), Vector3(17.65, 1.163, -0.48), M.black)             # its pen
+	box(Vector3(0.075, 0.009, 0.155), Vector3(17.86, 0.985, -1.12), M.black)            # his phone, face down
+	cyl(0.04, 0.038, 0.1, Vector3(18.06, 1.03, -0.3), M.porcelain, null, 14)            # his mug
+	cyl(0.065, 0.075, 0.022, Vector3(17.97, 0.991, -1.36), M.frame, null, 14)            # the lamp
+	cyl(0.009, 0.009, 0.32, Vector3(17.97, 1.16, -1.36), M.frame, null, 8)
+	var shade := cyl(0.05, 0.1, 0.09, Vector3(17.97, 1.34, -1.36), M.shade, null, 16)
+	shade.rotation.z = deg_to_rad(18.0)
+	ball(0.022, Vector3(17.95, 1.3, -1.36), M.bulb)
+	omni(Vector3(17.9, 1.25, -1.3), Color("ffc285"), 1.05, 3.2, true, "desk_lamp")
+	# his stool, four legs and a ring for his feet
+	var st := Vector3(18.35, 0, -0.62)
+	cyl(0.17, 0.17, 0.05, st + Vector3(0, 0.735, 0), M.seat, null, 18)
+	for c in [Vector2(0.12, 0.12), Vector2(-0.12, 0.12), Vector2(0.12, -0.12), Vector2(-0.12, -0.12)]:
+		cyl(0.014, 0.016, 0.72, st + Vector3(c.x, 0.36, c.y), M.frame, null, 6)
+	for c in [[Vector3(0.12, 0.25, 0), 0.0], [Vector3(-0.12, 0.25, 0), 0.0], [Vector3(0, 0.25, 0.12), 90.0], [Vector3(0, 0.25, -0.12), 90.0]]:
+		box(Vector3(0.02, 0.02, 0.24), st + c[0], M.frame, deg_to_rad(c[1]))
+	# the key board behind him: twenty-one hooks in three rows, a brass fob on most of them
+	var kx := x1 - 0.02
+	box(Vector3(0.025, 0.62, 0.92), Vector3(kx, 1.56, -0.62), M.wood)
+	for row in 3:
+		for col in 7:
+			var hy := 1.78 - row * 0.21
+			var hz := -0.95 + col * 0.11
+			box(Vector3(0.035, 0.007, 0.007), Vector3(kx - 0.03, hy, hz), M.steel)
+			if r.randf() < 0.24:
+				continue
+			box(Vector3(0.008, 0.05, 0.004), Vector3(kx - 0.045, hy - 0.03, hz), M.steel)
+			var fob := box(Vector3(0.012, 0.075, 0.034), Vector3(kx - 0.046, hy - 0.085, hz), brass)
+			fob.rotation.x = r.randf_range(-0.06, 0.06)
+	# on the walls: a sign over the board, and a picture of the ferry by the door
+	box(Vector3(0.02, 0.09, 0.5), Vector3(kx - 0.005, 1.98, -0.62), M.paper)
+	box(Vector3(0.03, 0.42, 0.58), Vector3(16.22, 1.62, 0.25), M.frame)
+	box(Vector3(0.01, 0.34, 0.5), Vector3(16.24, 1.62, 0.25), M.paper)
+	box(Vector3(0.012, 0.06, 0.36), Vector3(16.25, 1.56, 0.25), M.dark)
+	# the light: one bulb in a frosted dish
+	cyl(0.17, 0.12, 0.06, Vector3(18.0, y - 0.04, -0.3), M.shade, null, 18)
+	omni(Vector3(18.0, y - 0.25, -0.3), Color("f2d2a2"), 0.45, 3.6, false, "lobby")
+	anchors["front_desk"] = Vector3(17.6, 1.15, -0.85)
+	anchors["desk_bell"] = Vector3(17.6, 1.17, -0.98)
+	anchors["key_board"] = Vector3(kx, 1.56, -0.62)
 
 
 # ---------------------------------------------------------------- the keg room, under the bar
@@ -988,16 +1112,27 @@ func _keg_room() -> void:
 func _deck() -> void:
 	var x0 := 16.2
 	var x1 := 18.4
-	# boards, a rail, a tin awning, plastic chairs, the coffee can
-	tiled(Vector3(x1 - x0, 0.1, 5.6), Vector3((x0 + x1) / 2.0, -0.12, 7.1), M.boards, 1.5)
+	# boards, level with the bar's floor through the door, a rail, a tin awning, plastic chairs, the
+	# coffee can
+	tiled(Vector3(x1 - x0, 0.1, 5.6), Vector3((x0 + x1) / 2.0, -0.05, 7.1), M.boards, 1.5)
 	tiled(Vector3(x1 - x0 + 0.4, 0.04, 5.8), Vector3((x0 + x1) / 2.0 + 0.2, 2.75, 7.1), M.steel, 2.0)
 	for z in [4.3, 5.7, 7.1, 8.5, 9.9]:
 		box(Vector3(0.08, 2.8, 0.08), Vector3(x1, 1.35, z), M.wood)
-	box(Vector3(0.06, 0.06, 5.6), Vector3(x1, 1.0, 7.1), M.wood)
-	box(Vector3(0.04, 0.04, 5.6), Vector3(x1, 0.5, 7.1), M.wood)
-	# the front end's rail, where you stand to look at the water
-	box(Vector3(x1 - x0, 0.06, 0.06), Vector3((x0 + x1) / 2.0, 1.0, 9.9), M.wood)
-	box(Vector3(x1 - x0, 0.04, 0.04), Vector3((x0 + x1) / 2.0, 0.5, 9.9), M.wood)
+	# the long rail, open at the back between the last two posts for the steps
+	box(Vector3(0.06, 0.06, 4.2), Vector3(x1, 1.0, 7.8), M.wood)
+	box(Vector3(0.04, 0.04, 4.2), Vector3(x1, 0.5, 7.8), M.wood)
+	# the front end's rail, where you stand to look at the water, and the back end's
+	for z in [9.9, 4.3]:
+		box(Vector3(x1 - x0, 0.06, 0.06), Vector3((x0 + x1) / 2.0, 1.0, z), M.wood)
+		box(Vector3(x1 - x0, 0.04, 0.04), Vector3((x0 + x1) / 2.0, 0.5, z), M.wood)
+	# the deck steps, two down to the gravel along the side of the building: the way round from the
+	# lot, for whoever wasn't let in the front (deck.ink)
+	box(Vector3(0.3, 0.125, 1.22), Vector3(x1 + 0.15, -0.1875, 5.0), M.boards)
+	box(Vector3(0.04, 0.04, 1.22), Vector3(x1 + 0.28, -0.13, 5.0), M.wood)
+	# the boards' edge down to the ground, so the deck sits on something
+	box(Vector3(0.03, 0.16, 5.6), Vector3(x1 + 0.015, -0.17, 7.1), M.wood)
+	box(Vector3(x1 - x0, 0.16, 0.03), Vector3((x0 + x1) / 2.0, -0.17, 9.915), M.wood)
+	box(Vector3(x1 - x0, 0.16, 0.03), Vector3((x0 + x1) / 2.0, -0.17, 4.285), M.wood)
 	# the rain off the tin awning in ropes, along its two open edges
 	var zr := 4.4
 	while zr < 9.95:
@@ -1007,10 +1142,15 @@ func _deck() -> void:
 	while xr < x1 + 0.4:
 		box(Vector3(0.012, 2.75, 0.012), Vector3(xr, 1.37, 10.02), M.drop)
 		xr += rng.randf_range(0.22, 0.38)
-	for i in 3:
+	# the chairs where people sit in them (stage.gd's deck_chair spots), each turned the way its
+	# sitter faces, give or take, and a fourth at the back for the mill crew
+	var chairs := [[Vector3(17.3, 0, 5.0), Vector3(18.4, 0, 6.2)], [Vector3(17.8, 0, 6.6), Vector3(18.4, 0, 6.6)],
+			[Vector3(17.3, 0, 8.2), Vector3(18.4, 0, 8.2)], [Vector3(16.75, 0, 5.35), Vector3(17.6, 0, 6.4)]]
+	for i in chairs.size():
 		var c := Node3D.new()
-		c.position = Vector3(17.3 + (i % 2) * 0.5, 0, 5.0 + i * 1.6)
-		c.rotation.y = rng.randf_range(0, TAU)
+		var to: Vector3 = chairs[i][1] - chairs[i][0]
+		c.position = chairs[i][0]
+		c.rotation.y = atan2(to.x, to.z) + (rng.randf_range(0, TAU) - PI) * 0.04 if i < 3 else atan2(to.x, to.z)
 		add_child(c)
 		box(Vector3(0.44, 0.04, 0.42), Vector3(0, 0.42, 0), M.porcelain, 0.0, c)
 		box(Vector3(0.44, 0.4, 0.04), Vector3(0, 0.64, -0.2), M.porcelain, 0.0, c)
@@ -1031,8 +1171,16 @@ func _outside() -> void:
 	tiled(Vector3(40, 0.1, 18), Vector3(8, -0.05, 19.2), M.gravel, 3.0)
 	for p in [Vector3(4.2, 0, 11.7), Vector3(6.8, 0, 12.5), Vector3(5.6, 0, 14.8), Vector3(10.6, 0, 13.3), Vector3(12.5, 0, 17.9), Vector3(3.0, 0, 16.4)]:
 		box(Vector3(rng.randf_range(0.8, 1.9), 0.01, rng.randf_range(0.5, 1.1)), p + Vector3(0, 0.003, 0), M.puddle, rng.randf_range(-30.0, 30.0))
-	# the ground along the east side, under the deck and past it
-	tiled(Vector3(12, 0.1, 12), Vector3(24, -0.3, 5.0), M.gravel, 3.0)
+	# the ground along the east side, from the hotel's front door past the deck to the lot, a step
+	# below it, with the lot's timber edge where it ends
+	tiled(Vector3(14, 0.1, 14), Vector3(23, -0.3, 4.0), M.gravel, 3.0)
+	box(Vector3(9.6, 0.27, 0.2), Vector3(23.2, -0.115, 10.1), M.wood)
+	# the foundation under the siding, the hotel's front door and the bar's east wall, down to it,
+	# and the hotel door's step
+	box(Vector3(3.56, 0.27, 0.06), Vector3(17.96, -0.135, 0.86), M.dark)
+	box(Vector3(0.06, 0.27, 3.7), Vector3(19.76, -0.135, -1.0), M.dark)
+	box(Vector3(0.06, 0.27, 3.5), Vector3(16.27, -0.135, 2.58), M.dark)
+	box(Vector3(1.2, 0.125, 0.4), Vector3(18.875, -0.1875, 1.08), M.dark)
 	box(Vector3(160, 0.1, 6), Vector3(8, -0.06, 30.6), M.gravel)
 	box(Vector3(160, 0.02, 8), Vector3(8, 0.0, 31.6), M.road)
 	for x in range(-60, 80, 6):

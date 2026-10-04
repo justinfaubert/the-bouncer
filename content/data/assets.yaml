@@ -96,3 +96,5 @@ portraits:
   hivis: { file: art/portraits/hivis.png }
   goodshoes: { file: art/portraits/goodshoes.png }
   endbar: { file: art/portraits/endbar.png }
+  constable: { file: art/portraits/constable.png }
+  terry: { file: art/portraits/terry.png }

@@ -153,9 +153,14 @@ func _grab(path: String) -> void:
 
 
 # The lot is three places in one: the building from across the gravel when he arrives, the
-# pickup's window, and the step at the end with the big man at his truck.
+# pickup's window, and the step at the end with the big man at his truck. And the back hall has the
+# front desk through the hotel door, for as long as he's talking to the night clerk.
 func _frame_for(where: String) -> String:
-	if where != "lot" or game.story == null:
+	if game.story == null:
+		return ""
+	if where == "hall":
+		return "clerk" if _choices_from("at_hall.night_clerk") else ""
+	if where != "lot":
 		return ""
 	var v: Dictionary = game.vars()
 	if int(BUtil.js_int(v.get("clock", 0))) < 1190:
@@ -163,6 +168,14 @@ func _frame_for(where: String) -> String:
 	if "lot_scene" in v.get("fam", []):
 		return "truck"
 	return "pickup"
+
+
+# whether the choices on offer come out of this stitch of the Ink
+func _choices_from(path: String) -> bool:
+	for c in game.story.current_choices():
+		if str(c.source_path).begins_with(path + "."):
+			return true
+	return false
 
 
 func _load_content() -> Dictionary:
@@ -213,6 +226,17 @@ func start_new(in_slot: int) -> void:
 	audio.unlock()
 
 
+# A night saved by an earlier build was played under a story that has changed since. It loads and
+# plays on, but whatever the new story added starts partway through the night, so it says so.
+func older_story(save) -> bool:
+	if save == null or save.get("ended", false):
+		return false
+	var meta = game.content.get("meta", {})
+	var now := str(meta.get("build", "")) if meta is Dictionary else ""
+	var then := str(save.get("build", ""))
+	return now != "" and then != "" and then != now
+
+
 func resume(in_slot: int) -> void:
 	var save = store.load_slot(in_slot)
 	if save == null:
@@ -221,6 +245,7 @@ func resume(in_slot: int) -> void:
 	slot = in_slot
 	settings["slot"] = slot
 	store.save_settings()
+	var older := older_story(save)
 	var res := game.load_save(save)
 	if res.is_empty():
 		menus.toast("That night couldn't be read. Starting it fresh.")
@@ -232,12 +257,22 @@ func resume(in_slot: int) -> void:
 	column.begin_batch()
 	render_items(game.night_log, false)
 	if not game.night_log.is_empty() and not game.ended:
-		column.add_aside([["Picked up where you left off.", true]])
+		if older:
+			column.add_aside([["Picked up where you left off.", true], [" This night was saved under an older version of the story, so it goes on from the floor, and some of it may not line up. Start Wednesday over for the night as it is now.", false]])
+		else:
+			column.add_aside([["Picked up where you left off.", true]])
 	column.reveal(false)
 	view.frame = _frame_for(game.here())
 	view.jump_to(game.here() if game.here() != "" else "door")
 	stage.sync(game, true)
-	after({"choices": game.choices, "ended": game.ended}, false)
+	if older and not game.ended:
+		# the scene it was saved in may not be in this story any more, or not where it was: a
+		# night picked up mid-scene can lose its place and run out early, so it goes on from the floor
+		var floor_res := game.jump("hub")
+		persist()
+		show(floor_res, true)
+	else:
+		after({"choices": game.choices, "ended": game.ended}, false)
 	column.scroll_to_end()
 	audio.unlock()
 
@@ -350,6 +385,12 @@ func after(res: Dictionary, live: bool) -> void:
 	else:
 		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
 	refresh_status()
+	# a scene in the hall that's seen from the front desk: through the door to it, and back
+	if view.place == "hall" and not res.get("ended", false):
+		var f := _frame_for("hall")
+		if f != view.frame:
+			view.frame = f
+			view.walk_to("hall", not live)
 	stage.sync(game, false)
 	spots.refresh()
 	hand.attach(read_chars)

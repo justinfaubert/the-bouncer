@@ -142,6 +142,8 @@ func title() -> void:
 		var ended: bool = save.get("ended", false)
 		_button("See how it ended" if ended else "Continue the shift", true, func(): main.resume(cur), 30)
 		box.add_child(UiBits.label(("NIGHT %d   " % cur) + Store.meta(save).to_upper(), "ui_b", 15, Look.MUTED, 2))
+		if main.older_story(save):
+			box.add_child(UiBits.label("SAVED UNDER AN OLDER VERSION OF THE STORY", "ui_b", 13, Look.FAINT, 2))
 		_gap(6)
 		_button("Start Wednesday over", false, func():
 			confirm("Start Wednesday over?", "Night %d, as it stands, goes. A new one starts in its place. (Your other nights are kept.)" % cur, "Start over", func():
@@ -208,6 +210,8 @@ func nights(from: String) -> void:
 		row.add_theme_constant_override("separation", 4)
 		row.add_child(UiBits.label("NIGHT %d" % s + ("   (LAST PLAYED)" if s == main.slot and save != null else ""), "ui_b", 17, Look.MUTED, 3))
 		row.add_child(UiBits.label(Store.meta(save) if save != null else "Not started.", "read", 22, Look.INK_2))
+		if main.older_story(save):
+			row.add_child(UiBits.para([["read", 18, Look.MUTED, "Saved under an older version of the story, so some of it may not line up."]]))
 		var h := HBoxContainer.new()
 		h.add_theme_constant_override("separation", 22)
 		var slot_n := s

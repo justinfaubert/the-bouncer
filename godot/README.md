@@ -8,6 +8,10 @@ writers' room: the Ink, the rules and Hutch's director edits all come in through
 
 Download the build for your machine from the thread (or export it yourself, below):
 
+- **Linux, the zip** (`The-Bouncer-<date>.zip`, made by `tools/bundle/make.sh`): unzip it anywhere
+  and run `./play.sh`. `./open-in-godot.sh` opens the Godot project that's in it, with a Godot 4.7
+  if there is one, and otherwise offers to fetch the official 4.7.2 editor and checks its
+  fingerprint. Its `README.txt` has the keys and what's new.
 - **Linux**: `TheBouncer.x86_64`. Mark it executable (`chmod +x TheBouncer.x86_64`) and run it.
   Wayland is fine; Godot runs through XWayland unless you start it with `--display-driver wayland`.
 - **Windows**: `TheBouncer.exe`. It isn't signed, so SmartScreen asks first: More info, Run anyway.
@@ -121,6 +125,13 @@ godot --headless --path godot --export-release "Windows" ../build/windows/TheBou
 ```
 
 Both come out as one file with the game packed inside.
+
+The zip to play from on Linux, with `play.sh`, this project and `open-in-godot.sh` beside the game
+(`tools/bundle/`), from the repo's root:
+
+```
+sh godot/tools/bundle/make.sh            # writes releases/The-Bouncer-<date>.zip
+```
 
 The web build is the same game in a page. Godot's web files are too big for a Claude artifact as
 they come, so `tools/web/pack.py` gzips them and cuts them into parts, and the page it writes

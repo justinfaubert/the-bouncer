@@ -3,14 +3,16 @@
 // (bible/02_SYSTEMS.md). The kid talks here, if he talks anywhere, and that's where THE KID
 // voice comes from (pull_kid).
 
+// Where they are is in main.ink (kid_at, sister_at, vape_at). The kid locks himself in by twenty to
+// ten if he's left alone by the jukebox (sim.ink), or straight away if the doorman pushes him there.
 === function kid_locked_in()
-~ return kids_in > 0 && fam ? hoodie_admitted && fam !? kid_opened && not fam_done && not kid_out && (fam ? kid_found || clock >= 1300)
+~ return kid_at == s_single && not fam_done
 
 === function vape_in_mens()
-~ return kids_in >= 3 && fam !? vape_ejected && not fam_done && clock >= 1290 && not at_hall.vape_line
+~ return vape_at == s_bar && not fam_done && clock >= 1290 && not at_hall.vape_line
 
 === function sister_in_womens()
-~ return fam ? sister_admitted && kids_in > 0 && not fam_done && fam !? dad_told && clock >= 1320 && not at_hall.sister_sink
+~ return sister_at == s_rail && not fam_done && fam !? dad_told && clock >= 1320 && not at_hall.sister_sink
 
 === function hivis_on_stairs()
 ~ return arrivals ? hivis_out && arrivals !? hivis_hotel && arrivals !? hivis_in && hotel_door && clock >= 1320 && not at_hall.hivis_stairs
@@ -30,6 +32,10 @@
 }
 { kid_locked_in():
     The single washroom was locked. The little window in the handle said OCCUPIED.
+}
+{ reprops ? rp_hotel && hotel_door:
+    ~ reprops -= rp_hotel
+    The wedge was back under the hotel door at the end of the hall. Through the gap, whoever was on the front desk had his view of the bar's TV back.
 }
 -> h_opts
 
@@ -51,9 +57,13 @@
 + {hotel_door} [Kick the wedge out from under the hotel door.]
     ~ pass(1)
     ~ hotel_door = false
-    He kicked the wedge out. The door eased shut on its closer and latched. On the other side the TV at the front desk went on talking to itself.
+    ~ hotel_shut_at = clock
+    He kicked the wedge out. The door eased shut on its closer and latched. On the other side, somebody who'd been watching the hockey through the gap said one word to nobody.
     WRONGMAN: The night clerk will wedge it again the minute you're gone. That's every door.
     -> h_opts
+// The bartender told him the night clerk's name, and why he props it (bar.ink). Don't tell him I told you.
+* {knows ? terry && not terry_asked} [Go through and ask Terry to leave the door shut.]
+    -> night_clerk
 
 
 // ------------------------------------------------------------------ the men's
@@ -83,11 +93,12 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ pass(3)
     ~ fam += vape_ejected
     ~ vape_out_at = clock
-    ~ kids_in--
-    ~ room_count--
+    ~ vape_returned = false
+    ~ vape_seen = false
+    ~ move(vape_at, s_lot)
     ~ heat(-2)
     He took him by the back of the hoodie and walked him down the hall, past the pool table and the jukebox, and out the front door onto the gravel, and the boyfriend talked the whole way and none of it was words. #sfx: door
-    { fam ? sister_admitted:
+    { sister_at == s_rail:
         His girlfriend watched it happen from the rail by the pool table. She didn't go after him.
         DRIVER: Thank you.
         She said it to the carpet.
@@ -149,8 +160,9 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
     ~ fam += sister_fetched
     # task: fetch :: Tell the big man at the pool table about his wife.
 * ["Give him a minute."]
+    ~ heat(1)
     DRIVER: He's had all day.
-    She turned the tap off.
+    She turned the tap off, and went back out to the rail, and stood closer to the pool table than she had been.
 * ["Go home. He'll come or he won't."]
     DRIVER: That's what my mom says.
     She dried her hands on her jeans and went out past him. She didn't go home.
@@ -173,6 +185,11 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
 ~ pass(1)
 He knocked.
 HOODIE: occupied
+// The condition he let the kid in on (door.ink).
+{ kid_terms == 2 && single == 1:
+    HOODIE: you said where you can see me
+    HOODIE: you can see the door
+}
 - (kd)
 * ["It's the door. You all right in there?"]
     ~ pass(1)
@@ -192,8 +209,11 @@ HOODIE: occupied
     -> two_minutes
 * [Open it with a coin.]
     -> coin
-+ [Leave him be.]
++ (left_be) [Leave him be.]
     ~ pass(1)
+    { left_be == 1:
+        ~ kid_ease++
+    }
     -> h_opts
 
 = sit_outside
@@ -203,9 +223,11 @@ He didn't say anything. The jukebox came through the wall. Somebody at the pool 
 After a while the lock clicked. Nobody opened the door. It was just unlocked.
 WRONGMAN: That's an invitation. In the story nobody ever got one.
 * [Stay where you are.]
-    He stayed where he was. After another while the kid spoke through the door, low, close to it, as if he was sitting on the floor on the other side of it too.
+    ~ pass(5)
     ~ pull_kid++
+    He stayed where he was. After another while the kid spoke through the door, low, close to it, as if he was sitting on the floor on the other side of it too.
 * [Go in.]
+    ~ kid_ease--
     He went in and shut the door behind him. The kid was sitting on the closed lid of the toilet with his hood up and his phone face down on his knee. He wasn't doing anything. That was the thing about him. He never seemed to be doing anything.
 - -> kid_talk
 
@@ -214,6 +236,7 @@ WRONGMAN: That's an invitation. In the story nobody ever got one.
 HOODIE: ok
 Two minutes later, to the second, the lock clicked and the kid came out past him without a word and went back to the jukebox. His eyes were red. He hadn't been doing anything in there. That was the thing about him.
 ~ kid_out = true
+~ move(kid_at, s_jukebox)
 ~ rep(rep_kids, -1)
 FATHER: Good. Rules.
 -> h_opts
@@ -230,6 +253,7 @@ HOODIE: i'm not doing anything. i'm sitting
     HOODIE: whatever
     He got up and went past the doorman, back to the jukebox.
     ~ kid_out = true
+    ~ move(kid_at, s_jukebox)
     -> h_opts
 * [Stay. Lean on the sink.]
     He leaned on the sink. The kid looked at him, and then at his phone, and then at the floor, and seemed to decide that the doorman was going to be there whether he liked it or not, like weather.
@@ -242,6 +266,9 @@ HOODIE: i'm not doing anything. i'm sitting
 // HUTCH: The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
 HOODIE: i'm not high
 HOODIE: everybody thinks i'm high. i just haven't slept
+{ kid_terms == 1:
+    HOODIE: and i didn't drink. you said
+}
 - (kt)
 * ["When did you last sleep?"]
     ~ pass(3)
@@ -272,6 +299,14 @@ HOODIE: everybody thinks i'm high. i just haven't slept
     -> kt
 * ["My old man drank."]
     -> own_father
+// He heard it leaking out of the earbuds at the door, when he made the kid take them out (door.ink).
+* {fam ? earbuds_out} ["What were you listening to, at the door?"]
+    ~ pass(2)
+    ~ pull_kid++
+    HOODIE: her playlist
+    HOODIE: my mom's. it's on the family account. she made it for the car so we'd stop fighting about the aux
+    HOODIE: i've had it on since the ambulance
+    -> kt
 * {fries == 1} [Give him the fries.]
     ~ fries = 2
     ~ pull_kid++
@@ -282,6 +317,7 @@ HOODIE: everybody thinks i'm high. i just haven't slept
     -> kid_decides
 + {pull_kid < 2} [Leave him be.]
     ~ kid_out = true
+    ~ move(kid_at, s_jukebox)
     He left him there. When he looked back from the end of the hall, the kid was back by the jukebox.
     -> h_opts
 
@@ -291,21 +327,28 @@ HOODIE: everybody thinks i'm high. i just haven't slept
 He hadn't meant to say it. It came out the way things come out in bathrooms.
 HOODIE: like drank drank?
 * ["Twenty years. Then he stopped."]
+    ~ claims += said_father_stopped
     HOODIE: did it help
     * * ["It helped everybody else."]
+        ~ claims += said_helped_others
         HOODIE: that's something i guess
     * * ["No."]
+        ~ claims += said_didnt_help
         The kid nodded like that was the answer he'd been expecting his whole life.
     * * ["I don't know. He died before I worked it out."]
+        ~ claims += said_father_dead
         HOODIE: sorry
         HOODIE: that's shit
     - - FATHER: That's mine to tell. Not yours.
 * ["He worked doors. Like this."]
+    ~ claims += said_father_doors
     HOODIE: so you're like him
     * * ["No."]
+        ~ claims += said_not_like_him
         HOODIE: ok
         The kid didn't believe him, and didn't seem to mind.
     * * ["I'm trying not to be."]
+        ~ claims += said_trying_not
         HOODIE: same
     - - FATHER: ...
 - -> kid_talk.kt
@@ -318,6 +361,7 @@ HOODIE: i want to go home and sleep. i want my mom to not be in the hospital. i 
     HOODIE: ok
     HOODIE: ok. thanks
     ~ kid_out = true
+    ~ move(kid_at, s_jukebox)
     ~ fam += sister_fetched
     # task: fetch :: Tell the big man at the pool table about his wife.
     He came out of the washroom behind the doorman and went and stood by the jukebox again, closer to the pool table this time.
@@ -328,20 +372,22 @@ HOODIE: i want to go home and sleep. i want my mom to not be in the hospital. i 
     -> kid_tells(false)
 * ["Go home and sleep. I'll make sure he knows."]
     ~ kid_out = true
-    ~ kids_in--
-    ~ room_count--
+    ~ fam += kid_home
     ~ fam += sister_fetched
+    ~ move(kid_at, s_truck)
     # task: fetch :: Tell the big man at the pool table about his wife.
     { hotel_door:
-        He went out through the hotel door at the end of the hall, and round the building in the rain, so he wouldn't have to walk past the pool table.
+        He went out through the hotel door at the end of the hall, and round the building in the rain to the pickup, so he wouldn't have to walk past the pool table.
     - else:
-        He went out the front, with his hood up, the long way round the room so he wouldn't have to walk past the pool table.
+        He went out the front, with his hood up, the long way round the room so he wouldn't have to walk past the pool table, and across the lot to the pickup.
     }
+    The pickup didn't leave. Home was a word. His sister had the keys.
     -> h_opts
 
 = kid_tells(with)
 ~ pass(3)
 ~ kid_out = true
+~ move(kid_at, s_rail)
 ~ fam += dad_told
 He went out to the pool table with his hood down, for the first time all night. {with:The doorman went with him, and stood a step behind him where the big man could see him.|The doorman stayed at the end of the hall and watched.}
 The big man was lining up a shot. The kid stood at the end of the table, in the way of it, until his father had to look up.
@@ -364,10 +410,13 @@ The kid stood there. Then he reached over and took the cue out of his father's h
 }
 BIGMAN: Don't.
 The kid let go of the cue. He went out the front door into the rain without looking back, and the big man picked the cue back up.
+{ sister_at == s_rail:
+    His sister went after him{indoors(vape_at):, and the boyfriend after her}.
+}
+Out in the lot the pickup's lights came on, and after a minute it went.
 ~ fam += dad_stayed
 ~ fam_done = true
-~ room_count -= kids_in
-~ kids_in = 0
+~ family_gone()
 # done: fetch
 ~ rep(rep_kids, 1)
 FATHER: That's what I'd have done. Picked the cue back up.
@@ -377,13 +426,13 @@ FATHER: That's what I'd have done. Picked the cue back up.
 ~ fam += dad_went
 ~ fam_done = true
 # done: fetch
-{ fam ? kids_waiting || fam !? sister_admitted:
-    The big man went out the front door with his son, into the rain, without his jacket. Through the glass the doorman watched the pickup's door open, and the young woman get out, and the three of them stand in the headlights. Then they all got in.
+{ sister_at == s_rail:
+    The big man went to his daughter at the rail and said something to her that nobody else heard. {indoors(vape_at):The three of them went out the front door together, and the boyfriend after them, holding the door.|They went out the front door together, the three of them.}
 - else:
-    The big man went to his daughter at the rail and said something to her that nobody else heard. {kids_in >= 3:The three of them went out the front door together, and the boyfriend after them, holding the door.|They went out the front door together, the three of them.}
+    The big man went out the front door with his son, into the rain, without his jacket. Through the glass the doorman watched the pickup's door open, and the young woman get out, and the three of them stand in the headlights. Then they all got in.
 }
-~ room_count -= kids_in + 1
-~ kids_in = 0
+~ family_gone()
+~ room_count--
 ~ rep(rep_kids, 2)
 The pickup pulled out onto the highway toward town. #sfx: door
 BUDDY: He left his money.
@@ -397,6 +446,7 @@ FATHER: He went. I wouldn't have.
 
 = payphone
 ~ pass(3)
+~ knows += aa_wall
 // HUTCH: What's written on the wall around a dead payphone in a bar like yours?
 The payphone had been dead since before anyone stopped needing it. The wall around it was covered in ink: phone numbers with names, phone numbers without names, a cab company that had closed years ago, TRUCK FOR SALE, a heart with two sets of initials, and a third set scratched in later and scratched out again.
 High up, where you'd have to reach, in faded marker: TUESDAYS 7 PM. UNITED CHURCH HALL. YOU ARE NOT THE ONLY ONE.
@@ -404,9 +454,44 @@ FATHER: I went to those.
 FATHER: For a year. Then I stopped going and kept on not drinking, and everybody said that was worse. They were probably right.
 It was more than his father had said about it in the whole of his life.
 * [Pick up the receiver.]
-    Nothing. Not even the hum. He put it back.
-* [Leave it.]
+    ~ picked_receiver = true
+    Nothing. Not even the hum. He held it to his ear anyway, longer than there was any reason to, and then he put it back.
+// The Father has something to say about the wall at night, if he left the phone alone (closing.ink).
+* (left_receiver) [Leave it.]
 - -> h_opts
+
+
+// ------------------------------------------------------------------ the night clerk
+
+// Terry, at the front desk on the other side of the hotel door, with the hockey on.
+= night_clerk
+~ pass(4)
+He went through the hotel door. On the other side was the front desk, a counter with a bell on it and a key board with most of the keys still on their hooks, and the night clerk on a stool behind it with his chin on his fist, {hotel_door:watching the bar's TV through the gap where the door had been propped|looking at the shut door the way you'd look at a TV somebody had switched off}. #portrait: terry
+TERRY: Something wrong?
+* ["Residents come down that way. I can't count them." #check: father 7]
+    { passed:
+        TERRY: They're only going to the bar.
+        TERRY: Yeah. All right. I'll get the game on my phone.
+        ~ terry_asked = true
+    - else:
+        TERRY: They live here. That's what the door's for.
+        {hotel_door:He went back to the hockey|He went back to looking at the door}. He hadn't been rude about it. He just wasn't going to.
+    }
+* ["She says you prop it for the TV."]
+    TERRY: She told you that.
+    He looked past the doorman down the hall toward the bar, for a while.
+    TERRY: Fine. Door stays shut. Tell her thanks.
+    ~ terry_asked = true
+    ~ rep(rep_staff, -1)
+    FATHER: She told you not to tell him she told you. You told him.
+* (never_mind) [Never mind.]
+    TERRY: Okay.
+- { terry_asked:
+    ~ hotel_door = false
+    ~ hotel_shut_at = clock
+    He pulled the door to behind him on the way back, and it latched, and for the rest of the night nobody propped it.
+}
+-> h_opts
 
 
 // ------------------------------------------------------------------ HI-VIS on the back stairs

@@ -9,6 +9,10 @@
 // Wednesday: bait or traps start a war (rats = war). The first parley is after close
 // (closing.ink). Small courtesies count toward terms (rat_favour); kills count against
 // (rats_killed). Still undecided at dawn means ignored, and the count doubles.
+//
+// The bait and the traps are in the office, which is in the keg room (Hutch, 27 Sept). Laying them
+// down there costs nothing but the war; carrying them up through the trapdoor behind the bar means
+// carrying them past her (carry_up).
 
 === function cook_here()
 ~ return clock < 1380
@@ -39,6 +43,10 @@
     - The cook looked up, saw who it was, and went back to the wings.
     }
 }
+{ reprops ? rp_kitchen && kitchen_door:
+    ~ reprops -= rp_kitchen
+    The milk crate was back in the alley door. The cook didn't look at him about it, which was looking at him about it.
+}
 -> k_opts
 
 = k_opts
@@ -49,10 +57,6 @@
     -> cook_rats
 * [Look behind the walk-in. #check: manual 7]
     -> behind_walkin
-+ {at_kitchen.cook_rats && not poison} [Get the bait out of the office.]
-    -> lay_poison
-+ {at_kitchen.cook_rats && not traps} [Get the traps out of the office.]
-    -> set_traps
 + {fries == 0} [Take the fries going soft under the heat lamp.]
     -> take_fries
 * [Take the garbage out for him.]
@@ -65,6 +69,7 @@
 = cook_rats
 ~ pass(4)
 ~ knows += kitchen_gap
+~ knows += keg_hole
 The cook didn't stop working to answer. He didn't stop working for anything.
 COOK: Dealt with. Right.
 COOK: They come up the pipe chase behind the walk-in, from the keg room. Every morning there's droppings on my prep table, and every morning I bleach it before I do anything else.
@@ -72,22 +77,27 @@ COOK: The inspector finds one dropping, he shuts the kitchen. Kitchen's shut, I 
 // HUTCH: How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
 - (cr)
 * ["So why hasn't anybody?"]
-    COOK: There's a bucket of bait in the office. Owner bought it in the summer. There's a box of traps beside it.
+    ~ knows += bait_office
+    COOK: There's a bucket of bait in the office, downstairs past the kegs. Owner bought it in the summer. There's a box of traps beside it.
     COOK: She won't let anybody put them down. Something about table 28 and their pet.
     He tipped the wings into a bowl and rang the bell on the pass.
     COOK: I'm not getting into it with table 28. I have to work here.
     -> cr
 * ["How many are there?"]
+    ~ knows += rat_numbers
     COOK: You see one, there's fifty. I've seen a lot more than one.
     MANUAL: A single sighting indicates an established population.
     -> cr
 * ["What would you do?"]
+    ~ knows += cook_advice
     COOK: Bait. Down in the keg room, where they live. They eat it, they go in the walls to die, it stinks for a week, and then it's done.
     COOK: Traps are for people who want to feel like they did something. You'll catch three.
     FATHER: He's not wrong. A week of stink in a bar is a week of nobody coming in.
     -> cr
 * {knows ? t28_rat} ["Table 28 feeds one."]
+    ~ knows += cook_fries
     COOK: I know they do. I fry the fries.
+    COOK: An extra basket, Wednesdays. Don't tell her.
     COOK: I don't care what they feed. I care what's on my prep table in the morning.
     -> cr
 + [Leave him to it.]
@@ -110,79 +120,6 @@ He got down on one knee beside the walk-in, where the compressor blew warm air a
 }
 -> k_opts
 
-= lay_poison
-~ pass(3)
-The bait was in a white bucket on the office floor under the schedule, with a lid that didn't want to come off. Inside were green blocks the size of a thumb, each with a hole through the middle. The bucket was half empty.
-MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can contaminate food.
-{ cook_here():
-    COOK: About time.
-}
-- (where_bait)
-* [In the keg room, where they live.]
-    ~ poison_at += keg
-    He went down through the trapdoor and put the blocks along the foundation wall and in the dark past the kegs, where the droppings were thickest. There were old blocks down there already, gnawed down to the holes.
-* [Along the pipes behind the walk-in.]
-    ~ poison_at += kitchen
-    He pushed the blocks into the gap around the pipes, as far in as he could reach.
-    MANUAL: Never where it can contaminate food.
-    { cook_here():
-        COOK: If the inspector sees that, it's my kitchen he shuts.
-        ~ rep(rep_cook, -1)
-    }
-* {knows ? t28_rat} [In the hole in the baseboard behind table 28.]
-    ~ poison_at += t28
-    He waited until table 28 were watching the hockey and put two blocks into the hole in the baseboard where Walter went in and out, and pushed them in with the side of his boot.
-    Nobody saw. That was the idea.
-    WRONGMAN: Somebody always sees. In the story it was the one nobody was watching.
-* [Put the lid back on.]
-    He put the lid back on the bucket.
-    { cook_here():
-        COOK: Right.
-        COOK: Everybody puts the lid back on.
-    }
-    -> k_opts
-- ~ poison = true
-~ poison_laid = clock
-~ go_to_war()
-~ incident += inc_poison
-{ cook_here():
-    ~ rep(rep_cook, 2)
-}
-FIGHTER: Good. Finish it.
-FATHER: Poison's how you do it when you don't want to be there when it happens.
--> k_opts
-
-= set_traps
-~ pass(3)
-The traps were in a box on the office shelf, twelve of them, still in the plastic. The owner had bought them the same day as the bait, going by the receipt taped to the box.
-{ cook_here():
-    COOK: You'll catch three.
-}
-- (where_traps)
-* [Set them in the keg room.]
-    ~ trap_at += keg
-    He set them along the foundation wall downstairs, with peanut butter from the walk-in on the triggers, the way his father had done it in the garage.
-    FATHER: Along the wall. They run the walls. They don't cross open floor if they can help it.
-* [Set them behind the walk-in.]
-    ~ trap_at += kitchen
-    He set them in a row along the wall behind the walk-in, where the droppings were.
-    { cook_here():
-        COOK: Great. Now I lose a finger.
-    }
-* {knows ? t28_rat} [Set one under table 28.]
-    ~ trap_at += t28
-    He set one in the dark under the radiator beside table 28, a foot from the hole in the baseboard, while they argued about the power play.
-    FATHER: You know what'll walk into that first.
-* [Put them back on the shelf.]
-    -> k_opts
-- ~ traps = true
-~ traps_set = clock
-~ go_to_war()
-{ cook_here():
-    ~ rep(rep_cook, 1)
-}
--> k_opts
-
 = take_fries
 ~ pass(1)
 ~ fries = 1
@@ -201,8 +138,15 @@ The dumpster was twenty feet up the alley under a light that buzzed. When he lif
 He put the bags in on top of them. They moved just enough to let the bags down.
 FIGHTER: They're not scared of you.
 MANUAL: Harbourage outside the premises. Keep dumpster lids closed.
-The lid had been propped open with a brick. He took the brick out.
-{ cook_here():
+The lid had been propped open with a brick.
+// Somebody props it every night (closing.ink: the old man says who, if he's asked down).
+* (brick_out) [Take the brick out.]
+    He took the brick out and let the lid down.
+* [Leave the brick where it is.]
+    // Whoever propped it was feeding them. Leaving it is a courtesy, and somebody down there counts those.
+    ~ rat_favour++
+    He left it. Somebody had put it there on purpose, and it wasn't the cook.
+- { cook_here():
     The cook was on the back step when he came in, smoking in the rain with his apron on.
     COOK: Thanks.
     It sounded like he didn't say it much.
@@ -226,10 +170,6 @@ The lid had been propped open with a brick. He took the brick out.
     ~ kitchen_door = false
     The door swung shut and he checked it twice. Out in the alley something knocked over a can.
     -> d_opts
-+ {not poison} [Get the bait out of the office.]
-    -> lay_poison
-+ {not traps} [Get the traps out of the office.]
-    -> set_traps
 + {fries == 0} [Take the fries left under the dead heat lamp.]
     ~ pass(1)
     ~ fries = 1
@@ -249,7 +189,7 @@ The lid had been propped open with a brick. He took the brick out.
     The third step was soft. So was the fourth.
     A stone foundation, sweating. Kegs on pallets in two rows, the beer lines going up through the ceiling to the taps. The compressor ticking over. It smelled of wet stone and old beer and, under that, something sweet and stale that he knew from other cellars.
     Past the last row of kegs the concrete gave out to dirt, and the foundation ran on into the dark toward the front of the building, over the black stumps of old pilings.
-    // HUTCH: A real keg room under an old bar. What's down there that customers never see?
+    In the corner by the stairs somebody had built a room out of plywood, with a door that locked and a desk lamp left on that you could see through the gap at the top. The office.
 - else:
     {shuffle:
     - He went down through the trapdoor, over the third step. The cold, the compressor, the smell.
@@ -265,6 +205,8 @@ The lid had been propped open with a brick. He took the brick out.
 = kg_opts
 { due(): -> called_up }
 <- moves(keg)
++ [The office.]
+    -> office
 * [Look around with the flashlight.]
     -> look
 * {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 8]
@@ -278,8 +220,155 @@ The lid had been propped open with a brick. He took the brick out.
 * {clock >= 1320} [Change the lager. It's been spitting foam since ten.]
     -> change_keg
 
+// Hutch, in director mode (27 Sept), on what's in a keg room the customers never see: rats, empties,
+// cases of clamato and tomato and the other juices for mix, napkins, straws, and an office where the
+// money's kept, the servers' due-backs, and somewhere to do cocaine. (Worked in by Claude.)
+= office
+~ pass(2)
+~ knows += office_seen
+{ at_keg.office == 1:
+    The office was a plywood box with a desk in it, built into the corner by somebody with a weekend and a sheet of ply. A safe under the desk. A coffee can of pens. On the wall, the schedule, with his name on it for Wednesday and Friday in the bartender's writing, and a row of brown envelopes on bulldog clips, one for each server, DUE BACK across the top of every one.
+    Stacked to the ceiling around it: cases of clamato, tomato juice, orange, the grapefruit nobody ordered; boxes of napkins and straws; the empties going back, sticky, in their cases.
+    On the desk, a little square mirror, wiped. Not quite wiped. A dust of white in one corner of it, and a straw cut down to two inches lying beside it.
+    FATHER: Every bar. Every single bar.
+    MANUAL: The use of controlled substances by staff on the premises is grounds for dismissal and must be recorded.
+    { knows ? bait_office:
+        The bucket the cook had talked about was on the floor under the schedule, and the box of traps on the shelf beside it, still in the plastic.
+    - else:
+        On the floor under the schedule there was a white bucket with a lid, RODENTICIDE on the side, and a box of rat traps on the shelf beside it, still in the plastic.
+        ~ knows += bait_office
+    }
+- else:
+    The office. The safe, the envelopes, the juice, the bucket under the schedule.
+}
+-> office_opts
+
+= office_opts
+// The mirror on the desk: a thing for the book, or a thing he wiped, or a thing he never saw.
+* {not office_wiped} [Note it. It goes in the book.]
+    ~ incident += inc_office
+    He looked at it long enough to be able to say what it was, and left it where it was.
+    WRONGMAN: Somebody always writes it down, in the story. Then everybody knows who.
+    -> office_opts
+* {incident !? inc_office} [Wipe the mirror clean.]
+    ~ office_wiped = true
+    He wiped it with the side of his hand until it was only a mirror, and put the straw in his pocket.
+    FATHER: Now it's yours. That's what wiping it does.
+    -> office_opts
++ {not poison} [Take the bait.]
+    -> lay_poison
++ {not traps} [Take the traps.]
+    -> set_traps
++ [Out of the office.]
+    -> kg_opts
+
+= lay_poison
+~ pass(3)
+The bait was in the white bucket on the office floor, with a lid that didn't want to come off. Inside were green blocks the size of a thumb, each with a hole through the middle. The bucket was half empty.
+MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can contaminate food.
+- (where_bait)
+* [Here in the keg room, where they live.]
+    ~ poison_at += keg
+    He put the blocks along the foundation wall and in the dark past the kegs, where the droppings were thickest. There were old blocks down there already, gnawed down to the holes.
+    { knows ? cook_advice:
+        ~ rep(rep_cook, 1)
+        FATHER: Where the cook said. He'll hear you listened.
+    }
+* [Along the pipes behind the walk-in.]
+    ~ poison_at += kitchen
+    -> carry_up ->
+    He pushed the blocks into the gap around the pipes, as far in as he could reach.
+    MANUAL: Never where it can contaminate food.
+    { cook_here():
+        COOK: If the inspector sees that, it's my kitchen he shuts.
+        ~ rep(rep_cook, -1)
+    }
+* {knows ? t28_rat} [In the hole in the baseboard behind table 28.]
+    ~ poison_at += t28
+    -> carry_up ->
+    He waited until table 28 were watching the hockey and put two blocks into the hole in the baseboard where Walter went in and out, and pushed them in with the side of his boot.
+    Nobody saw. That was the idea.
+    WRONGMAN: Somebody always sees. In the story it was the one nobody was watching.
++ (lid_back) [Put the lid back on.]
+    He put the lid back on the bucket and pushed it back under the schedule with his foot.
+    { lid_back == 1:
+        ~ rat_favour++
+        ~ rats_heard += h_lid
+        Past the kegs, in the dark, the scratching stopped, for about as long as it takes to notice something.
+    }
+    -> office_opts
+- ~ poison = true
+~ poison_laid = clock
+~ go_to_war()
+~ incident += inc_poison
+{ cook_here():
+    ~ rep(rep_cook, 2)
+}
+# done: bait
+FIGHTER: Good. Finish it.
+FATHER: Poison's how you do it when you don't want to be there when it happens.
+{ poison_at ? keg:
+    -> kg_opts
+}
+-> hub
+
+= set_traps
+~ pass(3)
+The traps were in a box on the office shelf, twelve of them, still in the plastic. The owner had bought them the same day as the bait, going by the receipt taped to the box.
+{ knows ? cook_advice:
+    FATHER: You'll catch three, the cook said.
+}
+- (where_traps)
+* [Set them here in the keg room.]
+    ~ trap_at += keg
+    He set them along the foundation wall, with peanut butter from the walk-in on the triggers, the way his father had done it in the garage.
+    FATHER: Along the wall. They run the walls. They don't cross open floor if they can help it.
+* [Set them behind the walk-in.]
+    ~ trap_at += kitchen
+    -> carry_up ->
+    He set them in a row along the wall behind the walk-in, where the droppings were.
+    { cook_here():
+        COOK: Great. Now I lose a finger.
+    }
+* {knows ? t28_rat} [Set one under table 28.]
+    ~ trap_at += t28
+    -> carry_up ->
+    He set one in the dark under the radiator beside table 28, a foot from the hole in the baseboard, while they argued about the power play.
+    FATHER: You know what'll walk into that first.
++ (traps_back) [Put them back on the shelf.]
+    He put the box back on the shelf, still in the plastic.
+    { traps_back == 1:
+        ~ rat_favour++
+        ~ rats_heard += h_lid
+    }
+    -> office_opts
+- ~ traps = true
+~ traps_set = clock
+~ go_to_war()
+{ cook_here():
+    ~ rep(rep_cook, 1)
+}
+{ trap_at ? keg:
+    -> kg_opts
+}
+-> hub
+
+// Up the stairs from the keg room with the bucket or the box, out of the trapdoor behind the bar,
+// past her. She said deal with them however you want, but not in front of the customers.
+= carry_up
+~ pass(2)
+He came up the stairs with it, over the third step, and out of the trapdoor behind the bar. The bartender looked at what he was carrying, and then at him, and stepped around the hole.
+{ at_keg.carry_up == 1:
+    BARTENDER: Not where they can see it. I said.
+}
+~ rep(rep_staff, -1)
+->->
+
 = called_up
-Somebody was stamping on the trapdoor over his head. The bartender.
+{stopping:
+- Somebody was stamping on the trapdoor over his head. The bartender.
+- The stamping again, over his head.
+}
 BARTENDER: You're wanted.
 ~ pass(1)
 -> hub
@@ -306,7 +395,9 @@ The sound was everywhere and nowhere, and then it stopped all at once, the way a
 He cracked his head on a joist backing out, and came up the stairs with dirt on his knees and nothing to show for it.
 BARTENDER: Find anything?
 * ["No."]
+    ~ rats_heard += h_said_no
 * ["They're down there."]
+    ~ rats_heard += h_said_down
     BARTENDER: I know they're down there.
 - -> hub
 
@@ -350,6 +441,14 @@ The Fighter didn't say anything. There was nothing in it to hit.
 He put the light out. The dark was total. The ring breathed.
 Over him, a foot from his face, boots on the floor. Table 28.
 {
+- claims ? said_city_line:
+    TEAM_JACKET: The kind with a line outside, he says. I've stood in that line. I never saw him.
+    SCRATCH: You were never in the city.
+    TEAM_JACKET: I've stood in a line.
+- claims ? said_city_unnamed:
+    TEAM_JACKET: Ten years on a door in the city, and he won't say which door. You notice he wouldn't say which.
+    SCRATCH: Something happened.
+    TABLE28: Something happened.
 - claims ? said_city_door:
     TEAM_JACKET: Ten years in the city, he says. Nobody does ten years on a city door and ends up here.
     SCRATCH: Unless something happened.
@@ -406,8 +505,15 @@ Two of the traps along the wall had gone off. One had a young rat in it, the bar
 FATHER: One. Out of however many there are.
 * [Put it in the dumpster and reset the traps.]
     ~ pass(5)
+    ~ traps_reset = true
     He carried it up through the kitchen by the tail and out to the alley, and came back and reset both traps with fresh peanut butter.
+    { cook_here():
+        COOK: Not through my kitchen. Not by the tail. Come on.
+        ~ rep(rep_cook, -1)
+    }
 * [Leave it where it is.]
+    ~ rat_favour--
+    ~ rats_heard += h_left_trap
     WRONGMAN: Leave it where the others can see it. In the story that's a message. Nobody ever says what it means.
 - -> kg_opts
 
@@ -432,7 +538,7 @@ FATHER: Do the job that's in front of you. The rest comes to you.
 = bold
 Something came out from under the bar rail and crossed the carpet in three quick runs, stopping under the stools between runs, the way they do.
 A rat. {knows ? t28_rat:Not Walter. A young one, thin, with a torn ear.|A young one, thin, with a torn ear.} Out in the light at half past nine, with the room half full.
-One of the women in slippers lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it. Yet.
+{slippers_upstairs:The woman in slippers, the one who'd stayed with the bottle,|One of the women in slippers} lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it. Yet.
 FIGHTER: Now. While it's in the open.
 FATHER: Whatever you do, do it like it's nothing.
 * [Stamp on it. #check: fighter 7]
@@ -480,8 +586,13 @@ FATHER: Whatever you do, do it like it's nothing.
         FATHER: Keep your voice down and people will believe anything you tell them.
     - else:
         SLIPPERS: That's not a mouse. I'm not stupid.
-        She took her glass and went up through the hotel door in her slippers. Her friend stayed with the bottle.
-        ~ slippers_upstairs = true
+        { slippers_upstairs:
+            She took her glass and went up through the hotel door in her slippers, after her friend. The bottle stayed on the bar, a third of it left.
+            ~ slippers_both = true
+        - else:
+            She took her glass and went up through the hotel door in her slippers. Her friend stayed with the bottle.
+            ~ slippers_upstairs = true
+        }
         ~ room_count--
     }
 * [Let it go.]

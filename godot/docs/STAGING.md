@@ -2,7 +2,7 @@
 
 This covers every file under `/mnt/project-files/the-bouncer/content/ink/`, plus `content/data/characters.yaml`, `props.yaml` and `marks.yaml`, and the door-look sketch. References are `file:line` under `/mnt/project-files/the-bouncer/content/ink/`. Conditions use the Ink's own names. A stitch visit count is written `knot.stitch` and can be read like a variable. Inside tables, "and" and "or" stand for `&&` and `||`.
 
-The short version: most figures sit at fixed spots, and a small set of flags moves them. The three kids are the hard case. `kids_in` is only a headcount, so section 4 gives a rule for working out which of them is inside. Section 18 lists places where the Ink contradicts itself, with my best reading for each.
+The short version: most figures sit at fixed spots, and a small set of flags moves them. The three kids were the hard case; the Ink now keeps where each of them is (section 4). Section 18 lists places where the Ink contradicts itself, with my best reading for each.
 
 ## 0. Rules that apply to every figure
 
@@ -69,7 +69,7 @@ All five sit at the round table in the front window from open (they've been ther
 | All five at table 28 | From open until `cleared ? cl_t28` | `t28_rounds = 3 + (clock-1180)/45`. At `here == t28` he either stands at the end of the table with his arms folded or sits in a too-small chair. | prologue.ink:33; sim.ink:23; table28.ink:18, 88-94, 239-241 |
 | GLASSES (Dennis) gone: empty chair with his half-full glass | `arrivals ? wife_told` or `wife_in` or `wife_inside` (the Ink's own test) | Leaves with RAINCOAT by the front door. `room_count` never goes down for him. The text says both "closed up the gap" and "the gap was still there"; best reading is an empty seat. | door.ink:719-732; table28.ink:337, 371; closing.ink:342-343 |
 | GLASSES raising his drink an inch at him | `wife_lied` | He stays until close. | door.ink:713 |
-| CARDIGAN at the deck rail, back to the building, smoking alone | `cardigan_on_deck()`: `clock < 1350` and `not at_deck.cardigan` and `arrivals !? wife_in`, while he's on the deck | "They think I'm in the can." After the talk he's back at the table. `cardigan_go` (1 means "Go" to Calgary, -1 means stay) does not send him anywhere tonight. | deck.ink:9-10, 36-39, 75-109 |
+| CARDIGAN at the deck rail, back to the building and the room, smoking (in the plastic chair at the rail, `deck_chair_rail`, turned to the rail) | `cardigan_on_deck()`: `clock < 1350` and `not at_deck.cardigan` and `arrivals !? wife_in`, while he's on the deck | "They think I'm in the can." After the talk he's back at the table. `cardigan_go` (1 means "Go" to Calgary, -1 means stay) does not send him anywhere tonight. | deck.ink:9-10, 36-39, 75-109 |
 | CARDIGAN last out, nods at him at the door | close_t28 with `cardigan_go == 1` | | closing.ink:377-379 |
 | HEARING AID at the men's trough | The second men's check that isn't the Vape scene (a `stopping` list) | Nods to him in the mirror. | hall.ink:61-72 |
 | SCRATCH lowering fries under the table | walter_intro; ev_rat bold "Let it go" | | table28.ink:153; rats.ink:490 |
@@ -99,7 +99,7 @@ All five sit at the round table in the front window from open (they've been ther
 | Empty table with a coffee | sort_out coffee | Passed: leaves with the kids (`dad_went`). Failed: back at the pool table (`dad_stayed`). | pool.ink:449-466 |
 | Walked to the front door, stops, turns | sort_out "Put the big man out" (`dad_ejected`) | With `kids_in > 0`: they argue by the pickup, he gets in the passenger side, it leaves (adds `dad_went`). Otherwise he walks off along the highway toward town. | pool.ink:411-425 |
 | Everyone into the pickup, gone | sort_out "Everybody who was in that, out." (`dad_ejected`, no `dad_went`) | Same flags as the walk-off above when `kids_in` was 0. | pool.ink:438-448 |
-| Out the front to the lot and the pickup, toward town | at_pool.went (`dad_went`) | If `sister_fetched` or `kids_waiting`: hugs his daughter in the lot in the headlights. Else if `sister_admitted` or `kids_in >= 2`: crosses to them and they go out together. Else: hand on the kid's neck at the jukebox, out together. Leaves without his jacket. | pool.ink:208-239 |
+| Out the front to the lot and the pickup, toward town | at_pool.went (`dad_went`) | If his daughter's in the pickup or the vestibule: hugs her in the lot in the headlights, and the kid comes out to them. If she's at the rail: crosses to them and they go out together. Else: hand on the kid's neck (at the jukebox, or knocking on the single washroom), out together. Leaves without his jacket. | pool.ink, went |
 | With the kid at the pool table | at_hall.kid_tells | Ends in kid_leave (`dad_went`) or "I'll come by after" (`dad_stayed`). | hall.ink:342-393 |
 | Stays at the pool table after being told | `dad_stayed` (from stayed, kid_tells, or coffee failed) | | pool.ink:247-277 |
 | At close: pool table, then out to his own work truck (toolbox across the bed, nose-in by the beer store); drops his keys | close_pool (only offered if `pool_still()` at last call), then the_lot (`lot_scene`) | See section 16. | closing.ink:124-200 |
@@ -117,27 +117,23 @@ All five sit at the round table in the front window from open (they've been ther
 
 ## 4. The three kids
 
-**Which of them is inside.** `kids_in` counts all three together. Work out who is inside like this:
-- S (the sister is inside) = `kids_in > 0` and (`fam ? sister_admitted` or `fam ? via_deck`)
-- r = `kids_in` − S
-- V (Vape is inside) = r == 2, or (r == 1 and Vape has come in and `fam !? vape_ejected`)
-  - "Vape has come in" = `ev_sister.sister_all > 0` or `fam ? via_deck`
-- K (the kid is inside) = r − V
+**Where each of them is.** Since 3 October 2026 the Ink keeps it exactly, one spot each, so nothing here has to be worked out: `kid_at`, `sister_at` and `vape_at`, each one item of `LIST spot = s_truck, s_door, s_vestibule, s_jukebox, s_single, s_rail, s_bar, s_lot, s_gone` (main.ink). Every move goes through `move(ref who, to)` in sim.ink, which keeps `kids_in` and `room_count` in step; `indoors()` is the jukebox, the single washroom, the rail and the bar; `family_gone()` sends all three to `s_gone` and sets `truck_gone`. `stage.gd` stages each of them straight from their spot:
 
-This holds on every path I traced, apart from the conflicts in section 18.
-- Don't use `kid_locked_in()` or `kids_in` on their own. After the kids are put out and she comes back alone through at_lot "Come in. Just you" (`at_lot.goes_in`), `kid_locked_in()` is true while the kid is actually in the truck.
+| Spot | The kid | The sister | The boyfriend |
+|---|---|---|---|
+| `s_truck` | in the pickup, out of sight (at the stool instead before anything's been decided, for the title) | at the wheel | across the back seat |
+| `s_door` | in front of the stool, phone up | in front of the stool, card up | behind her, holding the door |
+| `s_vestibule` | | waiting in the vestibule | behind her |
+| `s_jukebox` | by the jukebox | | |
+| `s_single` | locked in, out of sight | | |
+| `s_rail` | by the pool table with his father | at the rail by the pool table | |
+| `s_bar` | | | at the bar, trying to get served |
+| `s_lot` | loose in the lot | out of the truck, in the headlights | rattling round the lot |
+| `s_gone` | gone | gone | gone |
 
-**The pickup.** It's theirs: engine running, wipers going, at the edge of the lot from 1190 (prologue.ink:95).
-- **It leaves on:**
-  - at_pool.went (pool.ink:239)
-  - at_hall.kid_leave (hall.ink:388)
-  - at_pool.stayed when `sister_fetched` or `kids_waiting` (pool.ink:263)
-  - sort_out "Put the big man out" with `kids_in > 0` (pool.ink:418)
-  - sort_out "Everybody out" (pool.ink:446)
-  - the_lot to_pickup, or following his work truck in drives when `family_in_lot` (closing.ink:237, 251)
-- Best reading, it's also gone after coffee passed, and after `fam_done` once nobody is inside or waiting.
-- **Variable version:** `clock >= 1190` and `fam !? dad_went` and `fam !? lot_scene` and not (`fam_done` and `kids_in == 0` and `fam !? kids_waiting`).
-  - This is wrong after "Everybody out" when `kids_waiting` was already set, and after stayed branch 1 when someone is still inside.
+The older rule, worked out from `kids_in` and the family's flags, is in this file's git history; nothing needs it now. The tables below still give the scenes and the evidence for each place.
+
+**The pickup.** It's theirs: engine running, wipers going, at the edge of the lot from 1190 (prologue.ink:95), until `truck_gone` (every departure calls `family_gone()`).
 - Its engine goes off only after at_lot "Come in" (deck.ink:247).
 - `kids_waiting` only controls whether he can walk out to the pickup (floor.ink:39). It doesn't mean all three are in the truck.
 
@@ -185,7 +181,7 @@ This holds on every path I traced, apart from the conflicts in section 18.
 | At the pool table in the fight | ev_pool with `kids_in >= 3` | Failed checks shove him into the jukebox or the table. | pool.ink:307-309, 345, 359, 374 |
 | Walked the length of the room and out the front onto the gravel; then in the lot ("she locked it") | `vape_ejected` (and `vape_out_at = clock`): vape_line "Put him out"; ev_pool "Take the boyfriend out first" (passed); ev_vape_back "Put him out again" | | hall.ink:82-97; pool.ink:334-343; deck.ink:284-301 |
 | Back at the bar, dripping, prints from the deck door | Sim: `vape_ejected` and `deck_door` and `not fam_done` and `not vape_returned` and `clock >= vape_out_at + 30` sets `vape_returned`. ev_vape_back plays if `not vape_seen`. | "Put him out again" without pulling the coaster resets `vape_returned`, so he can come back again silently. | sim.ink:50-58, 252; deck.ink:278-307 |
-| On the deck steps, rattling the locked deck door | `vape_on_deck()`: `vape_ejected` and `not deck_door` and `clock >= vape_out_at + 20` and `not fam_done` and `not at_deck.vape_back` | Next: round the side to the pickup; or walked there by the doorman; or falls down the steps into the gravel; or let back in (goes to the bar). | deck.ink:6-7, 111-137 |
+| Up the deck steps, rattling the locked deck door | `vape_on_deck()`: `vape_ejected` and `not deck_door` and `clock >= vape_out_at + 20` and `not fam_done` and `not at_deck.vape_back` | Next: round the side to the pickup; or walked there by the doorman; or falls down the steps into the gravel; or let back in (goes to the bar). | deck.ink:6-7, 111-137 |
 | Last out with the family, holding the door | Family departures with `kids_in >= 3` | | pool.ink:228, 266; hall.ink:383 |
 
 ## 5. HI-VIS (and the work crew)
@@ -259,8 +255,8 @@ She's never counted in `room_count`.
 
 ## 11. The owner, the night clerk, the police
 - **The owner** is only ever a voice on the phone: ev_owner at 1440 or later, and the unanswered call from the door (bar.ink:203-258; door.ink:570-574). He's "in town" (table28.ink:170).
-- **The night clerk (Terry)** is never on screen. He's at the hotel front desk on the other side of the hotel door, watching the bar's TV while it's propped (bar.ink:67; hall.ink:54).
-- **The police:** "Call it." sets `police_called` and "It would be forty minutes" (pool.ink:395-403). They never arrive.
+- **The night clerk (Terry)** is on his stool behind the hotel's front desk all night, through the hotel door at the end of the back hall, with his chin on his fist (spot `desk_stool`, model `terry`). The desk is in line with the doorway, so while the door's propped he can be seen from the far end of the hall, watching the bar's TV through the gap; when it's shut, he can't (bar.ink:67; hall.ink:38, 466-490). While he talks to the doorman (at_hall.night_clerk) the view walks through the door to the front desk (`Posts.FRAMES["hall:clerk"]`, picked in main.gd while the choices come from that stitch) and back to the hall post after.
+- **The police:** "Call it." sets `police_called` and "It would be forty minutes" (pool.ink:395-403). The constable comes in ev_police and stands inside the door while she asks about it (spot `door_front`, model `constable`).
 
 ## 12. Rats
 
@@ -290,7 +286,7 @@ She's never counted in `room_count`.
   - The nth one needs a single unbroken absence of 45×n minutes.
   - He finds wet prints on the mat (door.ink:9-16).
   - After close, if `walk_ins > 0`, one of them is asleep on the single washroom floor. The doorman finds him in the search and walks him out to the lot (closing.ink:470-475).
-- **Deck smokers** while `deck_door` is propped: "a woman smoking by the steps" (floor.ink:289, 307; deck.ink:48).
+- **Deck smokers.** While he's on the deck before last call: a woman smoking at the top of the deck steps (`deck_steps`, patron_d), the one who watches him pull the coaster (deck.ink, d_opts); and whoever's next to talk in front of him in at_deck.air, by the same tests the Ink uses (`_deck_smokers` in stage.gd): the two women with the news about GOOD SHOES (patron_f in the chair at the rail, or the far chair if Cardigan has it), the man watching the pickup (patron_c at the top of the steps, facing the lot, `deck_steps_lot`), or two of the mill crew in the chairs at the back (crew_a, still in his vest, and crew_b). Once they've talked (`deck_smokers`, `smokers_at`), they stay out for twenty minutes, a smoke's worth. Floor.ink's "a woman smoking by the steps" (floor.ink:289, 307) is her too. The deck steps are two down off the side of the deck between its last two posts, onto the gravel along the side of the building that goes from the hotel's front door to the lot.
 
 ## 14. `room_count`
 - **What it counts** ("actually in the building's bar", main.ink:54): patrons in the room, the back-hall washrooms and on the deck.

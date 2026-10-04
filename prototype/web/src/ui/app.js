@@ -155,6 +155,13 @@
     return (clock ? B.util.fmtClock(clock) + ', ' : '') + n + (n === 1 ? ' choice' : ' choices') + ' in';
   }
 
+  // A night saved by an earlier build was played under a story that has changed since. It loads and
+  // plays on, but whatever the new story added starts partway through the night, so it says so.
+  function olderStory(save) {
+    const now = (C.meta && C.meta.build) || '';
+    return !!(save && !save.ended && save.build && now && save.build !== now);
+  }
+
   async function bestSave() {
     const local = app.store.loadLocal();
     if (!app.store.db || !app.store.cloudSaves) return local;
@@ -173,6 +180,12 @@
       meta.className = 'meta';
       meta.textContent = saveMeta(mine);
       menu.append(meta);
+      if (olderStory(mine)) {
+        const older = document.createElement('div');
+        older.className = 'meta';
+        older.textContent = 'Saved under an older version of the story, so some of it may not line up.';
+        menu.append(older);
+      }
       menu.append(button('Start Wednesday over', 'btn', function () { confirmTitleRestart(); }));
     } else {
       menu.append(button('Start the shift', 'btn primary', function () { unlockAudio(); startNew(); }));
@@ -297,15 +310,26 @@
     app.inGame = true;
     if (!quiet) unlockAudio();
     const earlier = app.game.log.slice();
+    const older = olderStory(save);
     renderItems(earlier, false);
     // (a night that's over comes back as it ended, with the tape last)
     if (earlier.length && !app.game.ended) {
       const note = document.createElement('p');
       note.className = 'aside';
-      note.innerHTML = '<b>Picked up where you left off.</b>';
+      note.innerHTML = '<b>Picked up where you left off.</b>' + (older
+        ? ' This night was saved under an older version of the story, so it goes on from the floor, and some of it may not line up. Start Wednesday over for the night as it is now.'
+        : '');
       appendNode(note);
     }
-    after({ choices: app.game.choices, ended: app.game.ended }, false);
+    if (older && !app.game.ended) {
+      // the scene it was saved in may not be in this story any more, or not where it was: a night
+      // picked up mid-scene can lose its place and run out early, so it goes on from the floor
+      const res = app.game.jump('hub');
+      persist();
+      show(res, true);
+    } else {
+      after({ choices: app.game.choices, ended: app.game.ended }, false);
+    }
     const story = $('#story');
     story.scrollTop = story.scrollHeight;
     // sound for where he is now

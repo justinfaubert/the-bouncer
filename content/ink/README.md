@@ -6,6 +6,7 @@ Everything that happens on a night at the Sov is written here, in [Ink](https://
 node tools/build.mjs            compile, check, and write prototype/web/content.js and content/WRITING_PROMPTS.md
 node tools/bots.mjs --runs 400  play 400 nights at random; report scenes never reached and anything that broke
 node tools/bots.mjs --trace 11 --policy explore   print one whole night as a transcript
+node tools/audit.mjs            does every choice change something the night reads later? (--map writes content/CONSEQUENCES.md)
 ```
 
 ## The files
@@ -85,6 +86,10 @@ In director mode (key D in the game) Hutch rewrites, cuts and adds lines, reword
 - **Numbers in narration** are written out: `{num(room_count)}`, or `{Num(x)}` at the start of a sentence. The incident log and the ledger can use digits.
 - **The word on him.** Moving one of the `rep_` numbers (`rep_t28`, `rep_kids`, `rep_staff`, `rep_owner`, `rep_cook`) puts that group's word on him under the line where it happened, from `content/rules/word.yaml`. `last_word("t28")` gives back what they're saying about him by now (`""` if they haven't said anything), for the ledger.
 - **The hidden measure.** `cocoon` goes up when he writes the log to read better than what happened, and never shows on screen.
+- **Who stands where.** The kid, his sister and her boyfriend each have one spot, `kid_at`, `sister_at` and `vape_at` (`LIST spot` in main.ink: the pickup, the door, the vestibule, the jukebox, the single washroom, the rail, the bar, loose in the lot, gone). Move them only with `move(kid_at, s_jukebox)`, which keeps `kids_in` and `room_count` right; `indoors()`, `kids_count()`, `in_truck()` and `family_gone()` (all three gone, and the pickup: `truck_gone`) are beside it in sim.ink. No line should put one of them anywhere but where their spot says, and the Godot build stands them there (`godot/world/stage.gd`).
+- **Every choice has a consequence.** The design's rule (bible/02_SYSTEMS.md) is that every choice changes something someone says or does later. `node tools/audit.mjs` reads every choice and lists any that change nothing the night reads, and any state written that nothing reads; keep both lists at zero. Leaving a place or a conversation is listed apart, as a way out: the clock is what it changes. A choice whose difference is only that it didn't do something needs a label the later line can read: `* (left_receiver) [Leave it.]`, read as `at_hall.payphone.left_receiver`.
+- **The doors he looked at.** Walking the doors and leaving them as they are puts each propped one in `doors_left`, and whatever comes through it later says he saw it and left it.
+- **At close.** The incident log takes each incident through `inc_name()`, `inc_text()` (as it happened) and `inc_shade()` (written to read better), and the bartender reads it back. After hours she says two things about the night at most, the ones that matter most to her, in the order they're written. The constable who comes for a fight is a tunnel (`ev_police`), so she can come forty minutes later, after the door's locked.
 
 ## Ink things that bit us
 
@@ -98,3 +103,7 @@ In director mode (key D in the game) Hutch rewrites, cuts and adds lines, reword
 - Choice labels share the namespace with functions too: a choice labelled `(stairs)` won't build next to a function `stairs()`.
 - A choice with no words at all is a fallback, taken on its own when nothing else is left. An `#unlisted` choice needs words.
 - Ink trims the spaces at the ends of lines. To join text across two lines, use glue: `<>`.
+- A colon inside an inline conditional's text ends the condition early: `{x:FATHER: Yes.|...}` won't do what it says. Put speaker lines, and any text with a colon, in a block conditional.
+- A label on a choice inside a stitch is read with the whole path from another knot: `at_hall.payphone.left_receiver`. A stitch is read as `knot.stitch`.
+- Stitches can take parameters (`= the_lot(to_them)`, `-> the_lot(true)`), and a knot can be a tunnel (`-> ev_police ->`, ending `->->`) so it can be called from more than one place and come back.
+- The events are tunnels that mostly don't come back: `-> ev_sister ->` from `events`, which the hub enters as `-> events ->`, ends in `-> hub` or a place. Each one that fires leaves two frames on Ink's call stack for the rest of the night (about fifteen by close). It's harmless, since they'd only ever return to the hub, but a save carries them, and a save from an older story carries frames the new one can't find. Both builds pick such a night up from the hub (`older_story()`), because one picked up mid-scene can lose its place and end early.

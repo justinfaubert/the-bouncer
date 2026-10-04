@@ -247,6 +247,47 @@ def pose_sit(B, seat=0.64, table=0.78, lean=0.25, hands=None, feet='ring', floor
     return p
 
 
+def pose_chin(B, seat=0.76, desk=0.98, lean=-0.45, fist=1, **kw):
+    """On a stool behind a desk with nothing to do: slumped forward, one elbow on the desk out in
+    front and his chin on that fist, the other forearm along the desk; the feet on the stool's ring.
+    `lean` is negative: forward."""
+    s = B.size
+    p = _base(B, (0, -0.02, seat + 0.1 * s), lean=lean, **kw)
+    _legs(B, p, [(-0.12, 0.12, 0.3), (0.12, 0.1, 0.3)], [(-0.15, 1, 0.8), (0.15, 1, 0.8)], [(-0.1, 1, -0.3), (0.1, 1, -0.3)])
+    i = fist
+    sx = -1.0 if i == 0 else 1.0
+    chin = p.head + p.Rh @ V(0, 0.108 * s, -0.118 * s)
+    # the elbow on the desk an upper arm's length from the shoulder, out in front toward the chin;
+    # the forearm from it up toward the chin
+    sh = p.sh[i]
+    elbow_z = desk + 0.045
+    flat = np.sqrt(max(B.upper_arm ** 2 - (elbow_z - sh[2]) ** 2, 0.0))
+    toward = norm(V((chin[0] - sh[0]) * 0.5, 1.0, 0.0))
+    elbow = V(sh[0] + toward[0] * flat, sh[1] + toward[1] * flat, elbow_z)
+    up = norm(chin - elbow)
+    wrist = elbow + up * B.forearm * 0.995
+    # the head comes down onto the top of the fist
+    knuckles = wrist + up * 0.088 * B.hands * s
+    shift = knuckles + V(0, 0, 0.012) - chin
+    if np.linalg.norm(shift) < 0.08:
+        p.head = p.head + shift
+    hands = [None, None]
+    hands[i] = tuple(wrist)
+    hands[1 - i] = (-sx * 0.1, 0.4, desk + 0.04)
+    poles = [None, None]
+    poles[i] = elbow + (elbow - (sh + wrist) / 2) * 2.0
+    poles[1 - i] = p.sh[1 - i] + V(-sx * 0.5, -0.1, -0.4)
+    palms = [None, None]
+    palms[i] = (-sx * 0.45, -0.9, 0.0)                     # the fist turned in, toward his face
+    palms[1 - i] = (sx * 0.3, 0, -1)
+    _arms(B, p, hands, poles, palms)
+    p.grip = [None, None]
+    p.grip[i] = 'fist'
+    p.grip[1 - i] = dict(grip='open', on=below(desk))
+    p.desk = V(0, 0.42, desk)
+    return p
+
+
 def pose_cue(B, left_handed=True, **kw):
     """Standing by the table between shots, the cue upright in one hand, its butt on the floor."""
     s = B.size
@@ -749,7 +790,7 @@ def body_parts(B, p, look):
             cuff = S.cone(wr - d * 0.055, wr - d * 0.004, r0, r1)
             rin = r1 - 0.0035
             cuff = S.carve(cuff, S.capsule(wr - d * (0.014 - rin), wr + d * 0.05, rin), 0.0015)
-            add(shirt if top != 'jacket' else 'jacket_trim', cuff, order=1, group=grp)
+            add(shirt if top != 'jacket' else look.get('trim_mat', 'jacket_trim'), cuff, order=1, group=grp)
         if look.get('sleeves') == 'rolled':
             add(shirt, S.torus(el + d * 0.02, 0.045 * b, 0.016, S.frame(np.cross(d, V(0, 0, 1)) if abs(d[2]) < 0.9 else V(1, 0, 0), np.cross(d, np.cross(d, V(0, 0, 1))) if abs(d[2]) < 0.9 else V(0, 1, 0))), order=2)
         if hd is not None:
@@ -827,8 +868,8 @@ def body_parts(B, p, look):
                 a = p.head + p.Rh @ V(sx * 0.04, 0.03, -0.19)
                 add('cord', S.capsule(a, p.chest + R @ V(sx * 0.045, 0.12 * b + loose + 0.01, 0.02), 0.0055), order=3)
     elif top in ('jacket', 'coat', 'suit', 'tweed', 'cardigan', 'whites', 'flannel', 'raincoat'):
-        col = {'jacket': 'jacket_trim', 'coat': 'coat', 'suit': 'suit', 'tweed': 'tweed', 'cardigan': shirt,
-               'whites': 'whites', 'flannel': 'flannel', 'raincoat': 'raincoat'}[top]
+        col = look.get('trim_mat', {'jacket': 'jacket_trim', 'coat': 'coat', 'suit': 'suit', 'tweed': 'tweed', 'cardigan': shirt,
+               'whites': 'whites', 'flannel': 'flannel', 'raincoat': 'raincoat'}[top])
         if top == 'raincoat':
             # the collar turned up round her neck
             add(col, S.carve(S.cone(p.neck + R @ V(0, 0.004, -0.03), p.neck + R @ V(0, -0.004, 0.06), neck_r + 0.034, neck_r + 0.026),
@@ -849,7 +890,7 @@ def body_parts(B, p, look):
         if top == 'jacket':
             # the ribbed band at the hem, and the snaps down the front
             hemz = p.pelvis + R @ V(0, 0, hem * s)
-            add('jacket_trim', _panel(body, S.intersect(S.halfspace(hemz, -(R @ V(0, 0, 1))), S.halfspace(hemz + R @ V(0, 0, 0.05), R @ V(0, 0, 1))), 0.006), order=2)
+            add(look.get('trim_mat', 'jacket_trim'), _panel(body, S.intersect(S.halfspace(hemz, -(R @ V(0, 0, 1))), S.halfspace(hemz + R @ V(0, 0, 0.05), R @ V(0, 0, 1))), 0.006), order=2)
             add('jacket', _panel(body, front(-0.014, 0.014, -0.62, -0.02, p.neck), 0.003), order=1)
             for k in range(4):
                 c0 = p.neck + R @ V(0, 0, -0.08 - k * 0.1)
@@ -903,6 +944,19 @@ def body_parts(B, p, look):
             add('apron', S.cone(p.hip[i] + R @ V(0, 0.04, 0.02), p.knee[i] + R @ V(0, 0.06, 0.0), 0.095, 0.075), order=1)
         add('apron', S.torus(p.waist + R @ V(0, 0, 0.0), 0.15 * b + 0.01, 0.008, R), order=2)
         add(shirt, S.torus(p.neck + R @ V(0, 0.012, -0.004), neck_r + 0.005, 0.006, Rn), order=2)
+    if 'lanyard' in look.get('extra', ()):
+        # a lanyard round the neck with the key card on it, hanging straight down off the chest
+        # whichever way he leans. Too thin to sculpt at this grain: export_people.py makes it.
+        fwd = R @ V(0, 1, 0)
+        out = norm(V(fwd[0], fwd[1], 0.0))
+        tip = p.neck + R @ V(0, 0.07 * b + loose + 0.01, -0.06) + V(0, 0, -0.12)
+        for _ in range(40):
+            if body(tip[None, :])[0] > 0.014:
+                break
+            tip = tip + out * 0.005
+        side = norm(np.cross(V(0, 0, 1), out))
+        straps = [(p.neck + R @ V(sx * (neck_r + 0.006), 0.006, -0.018), tip + V(sx * 0.005, 0, 0.01)) for sx in (-1, 1)]
+        p.props = list(getattr(p, 'props', [])) + [dict(kind='lanyard', at=tip, straps=straps, R=S.frame(side, V(0, 0, 1)))]
     return parts
 
 
@@ -1427,7 +1481,7 @@ POSES = {
     'stand': pose_stand, 'walk_pouch': pose_walk_pouch, 'pouch': pose_pouch, 'phone_out': pose_phone_out,
     'sit': pose_sit, 'cue': pose_cue, 'bar': pose_bar, 'reach': pose_reach, 'counter': pose_counter,
     'card': pose_card, 'close': pose_close, 'pint': pose_pint, 'door': pose_door, 'bar_lean': pose_bar_lean,
-    'carry': pose_carry, 'sit_drink': pose_sit_drink,
+    'carry': pose_carry, 'sit_drink': pose_sit_drink, 'chin': pose_chin,
 }
 
 

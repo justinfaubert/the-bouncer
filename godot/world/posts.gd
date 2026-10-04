@@ -21,7 +21,7 @@ const POSTS := {
 	"hall": {"at": Vector3(7.3, STAND, -0.6), "look": Vector3(15.2, 1.3, -0.62), "node": "hall"},
 	"kitchen": {"at": Vector3(3.7, STAND, -1.35), "look": Vector3(0.45, 1.05, -2.25), "node": "kitchen"},
 	"keg": {"at": Vector3(3.42, -2.5 + STAND, 4.35), "look": Vector3(3.42, -1.7, -1.5), "node": "keg"},
-	"deck": {"at": Vector3(17.5, 1.69, 8.7), "look": Vector3(21.0, 0.6, 30.0), "node": "deck"},
+	"deck": {"at": Vector3(17.5, STAND, 8.7), "look": Vector3(21.0, 0.6, 30.0), "node": "deck"},
 	"lot": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
 	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.1, 9.95), "node": "upstairs", "seat": true},
 }
@@ -45,9 +45,10 @@ const NODES := {
 	"trap": Vector3(1.05, 0, 1.75),
 	"keg": Vector3(3.42, -2.5, 4.35),
 	"deck_in": Vector3(15.3, 0, 7.1),
-	"deck_out": Vector3(16.75, -0.07, 7.1),
-	"deck": Vector3(16.95, -0.07, 6.2),
+	"deck_out": Vector3(16.75, 0, 7.1),
+	"deck": Vector3(16.95, 0, 6.2),
 	"hotel": Vector3(15.5, 0, -0.62),
+	"desk": Vector3(16.85, 0, -0.5),
 	"upstairs": Vector3(14.1, 3.4, 7.1),
 }
 
@@ -68,13 +69,16 @@ const DOORS_ON := {
 	"swing|kitchen": "swing", "kitchen|swing": "swing",
 	"deck_in|deck_out": "deck", "deck_out|deck_in": "deck",
 	"hall|hotel": "", "hotel|hall": "",
+	"hall|desk": "hotel", "desk|hall": "hotel", "hotel|desk": "hotel", "desk|hotel": "hotel",
 }
 
 
 # A place seen more than one way. The lot: the whole building from across the gravel when he
 # arrives; the pickup's driver's window, the glass fogged; the step under the light over the door
-# at the end, the big man at his truck by the beer store.
+# at the end, the big man at his truck by the beer store. The back hall: through the hotel door to
+# the front desk, while he talks to the night clerk.
 const FRAMES := {
+	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62), "node": "desk"},
 	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
 	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99), "node": "lot"},
 	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4), "node": "lot"},

@@ -109,6 +109,19 @@ goodshoes:
 raincoat:
   label: RAINCOAT
   note: Glasses' wife, looking for him after midnight.
+smoker:
+  label: A SMOKER
+  note: Claude's draft. Whoever's out on the deck, talking in front of the doorman as if he were a post (deck.ink).
+terry:
+  label: TERRY
+  portrait: terry
+  look: {build: slight, hair: thin, face: [glasses], top: flannel, extra: [lanyard], mood: tired}
+  note: Claude's draft. The hotel's night clerk, on a stool behind the front desk. Props the hotel door so he can watch the bar's TV. The bartender gives his name (bar.ink).
+constable:
+  label: THE CONSTABLE
+  portrait: constable
+  look: {build: medium, sex: f, hair: bun, hat: cap, top: coat, extra: [phone], mood: tired}
+  note: Claude's draft. The one car from the detachment in town, forty minutes after the bartender calls it in. Comes only if a fight is called in (pool.ink, ev_police).
 endbar:
   label: END OF THE BAR
   portrait: endbar

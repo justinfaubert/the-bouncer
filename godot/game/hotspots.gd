@@ -29,11 +29,14 @@ const LEXICON := [
 	["team jacket", "fig:team_jacket"],
 	["table 28|the table|twenty-eight|sit down with them|the last one", "a:t28"],
 	["buddy", "fig:buddy"],
-	["big man|pool|\\bcue\\b|the game", "fig:bigman"],
+	["big man|pool|\\bcue\\b|the game|his keys", "fig:bigman"],
+	["constable|police|officer", "fig:constable"],
 	["hi-vis|work crew|the crew", "fig:hivis"],
 	["end of the bar|flat ?cap|walter|rat king|the old man", "fig:endbar"],
 	["\\bcook\\b|fryer", "fig:cook"],
-	["kitchen door|back door|propped", "a:kitchen_back"],
+	["kitchen door|back door|propped|brick|dumpster|\\bbins?\\b|garbage|alley", "a:kitchen_back"],
+	["terry|night clerk", "fig:terry"],
+	["hotel door|wedge", "a:hotel_door"],
 	["slippers", "fig:slippers"],
 	["\\brats?\\b|the hole|behind the wall|poison|trap", "rat_hole"],
 	["deck door|coaster|latch", "a:deck_door"],
@@ -41,13 +44,13 @@ const LEXICON := [
 	["washroom|stall|the single|occupied", "a:wc_single"],
 	["payphone|numbers on the wall", "a:payphone"],
 	["trapdoor|trap door|ladder", "a:trapdoor"],
-	["\\bkegs?\\b|lines", "a:kegs"],
+	["\\bkegs?\\b|lines|office|mirror|bucket|\\bbait\\b", "a:kegs"],
 	["\\btape\\b|the date|nineteen", "a:tape"],
 	["scanner|\\bscan", "a:scanner"],
 	["clicker|click|the count|count (him|her|them)", "clicker"],
 	["\\btill\\b|binder|86|eighty-six|page three|the faces", "a:till"],
 	["bartender|pour me|another\\.|a drink|tab\\b", "fig:bartender"],
-	["incident|the book|write it|leave it out", "a:ledge"],
+	["incident|the book|write it|the log|leave it out", "a:ledge"],
 	["\\btv\\b|hockey", "a:tv"],
 	["dart", "a:dartboard"],
 	["window", "p:9.4,1.65,10.1"],
@@ -195,7 +198,7 @@ static func zone_of(p: Vector3) -> String:
 	if p.z > 10.15:
 		return "lot"
 	if p.x > 16.15:
-		return "deck"
+		return "lobby" if p.z < 1.0 else "deck"
 	if p.z < -0.05:
 		return "kitchen" if p.x < 4.8 else "hall"
 	if p.x < 4.6 and p.z > 8.9:

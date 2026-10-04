@@ -22,7 +22,7 @@ var SPOTS := {}
 const SEEN := {
 	"door": ["vest", "room", "lot", "truck"],
 	"floor": ["vest", "room", "lot"], "bar": ["vest", "room"], "t28": ["vest", "room", "lot", "truck"], "pool": ["room", "vest"],
-	"hall": ["hall", "room"], "kitchen": ["kitchen"], "keg": ["keg"], "deck": ["deck", "lot"],
+	"hall": ["hall", "room", "lobby"], "kitchen": ["kitchen"], "keg": ["keg"], "deck": ["deck", "lot"],
 	"lot": ["lot", "truck", "vest", "room"], "upstairs": ["upstairs", "lot", "truck"],
 }
 # the ones who drift on their own between glances, and where to
@@ -119,7 +119,14 @@ func _spots() -> void:
 	s["hall_phone"] = {"pos": Vector3(13.6, 0, -1.7), "face": Vector3(13.86, 0, -2.6), "zone": "hall"}
 	s["hall_wc"] = {"pos": Vector3(11.9, 0, -0.55), "face": Vector3(11.9, 0, -1.2), "zone": "hall"}
 	s["deck_rail"] = {"pos": Vector3(17.8, 0, 6.0), "face": Vector3(18.4, 0, 6.6), "zone": "deck"}
-	s["deck_chair"] = {"pos": Vector3(17.3, 0, 8.2), "face": Vector3(18.4, 0, 8.2), "zone": "deck"}
+	# through the hotel door: the night clerk's stool behind the front desk, square to the doorway
+	s["desk_stool"] = {"pos": Vector3(18.35, 0, -0.62), "face": Vector3(16.1, 0, -0.62), "zone": "lobby"}
+	s["deck_chair"] = {"pos": Vector3(17.3, 0, 8.2), "face": Vector3(18.4, 0, 8.2), "zone": "deck", "y": -0.29}
+	s["deck_chair_far"] = {"pos": Vector3(17.3, 0, 5.0), "face": Vector3(18.4, 0, 6.2), "zone": "deck", "y": -0.29}
+	s["deck_chair_back"] = {"pos": Vector3(16.75, 0, 5.35), "face": Vector3(17.6, 0, 6.4), "zone": "deck", "y": -0.29}
+	# at the top of the deck steps: one looking across at the door, one looking down the deck at the lot
+	s["deck_steps"] = {"pos": Vector3(17.95, 0, 5.3), "face": Vector3(16.3, 0, 7.0), "zone": "deck"}
+	s["deck_steps_lot"] = {"pos": Vector3(18.05, 0, 5.85), "face": Vector3(19.0, 0, 16.0), "zone": "deck"}
 	SPOTS = s
 
 
@@ -140,8 +147,10 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	var fam := func(item: String) -> bool: return _has(v, "fam", item)
 	var arr := func(item: String) -> bool: return _has(v, "arrivals", item)
 	var cleared := func(item: String) -> bool: return _has(v, "cleared", item)
-	# 1. the bartender, behind the bar all night; 10. the cook, till he goes home at eleven
+	# 1. the bartender, behind the bar all night; 10. the cook, till he goes home at eleven; Terry on
+	# the front desk through the hotel door, all night
 	out.bartender = ["bar_back_mid", "bartender"]
+	out.terry = ["desk_stool", "terry"]
 	if clock < 1380:
 		out.cook = ["kitchen_fryer", "cook"]
 	# 2. table 28, all five, from two in the afternoon till they're cleared; Dennis goes with his wife
@@ -156,7 +165,7 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 		if here == "deck" and clock < 1350 and _visits(game, "at_deck.cardigan") == 0 and not arr.call("wife_in"):
 			out.cardigan = ["deck_chair_rail", "cardigan"]
 	# 3. the big man and his buddy at the pool table while the big man's still there
-	var pool_still: bool = not (fam.call("dad_went") or fam.call("dad_ejected") or fam.call("lot_scene") or fam.call("dad_drove"))
+	var pool_still: bool = not (fam.call("dad_went") or fam.call("dad_ejected") or fam.call("lot_scene") or fam.call("dad_drove") or fam.call("dad_walked"))
 	if pool_still and not cleared.call("cl_pool"):
 		out.bigman = ["pool_cue", "bigman"]
 		out.buddy = ["pool_buddy", "buddy"]
@@ -199,46 +208,63 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	elif not cleared.call("cl_t28") and _scene(game) == "ev_wife_inside":
 		out.raincoat = ["t28_behind5", "raincoat"]
 		out.glasses = ["t28_5", "glasses"]
-	# 4. the kids. kids_in is only a head count: which of them are inside is worked out from it
-	var kids_in := int(BUtil.js_int(v.get("kids_in", 0)))
-	var fam_done := bool(BUtil.js_truthy(v.get("fam_done", false)))
-	var pickup: bool = clock >= 1190 and not fam.call("dad_went") and not fam.call("lot_scene") and not (fam_done and kids_in == 0 and not fam.call("kids_waiting"))
-	var S := 1 if kids_in > 0 and (fam.call("sister_admitted") or fam.call("via_deck")) else 0
-	var r := kids_in - S
-	var vape_came: bool = _visits(game, "ev_sister.sister_all") > 0 or fam.call("via_deck")
-	var V := 1 if r == 2 or (r == 1 and vape_came and not fam.call("vape_ejected")) else 0
-	var K := r - V
-	var sister_at_door: bool = fam.call("sister_met") and not fam.call("via_deck") and not fam.call("sister_admitted") \
-		and not fam.call("sister_refused") and _visits(game, "ev_sister.sister_fetch") == 0 and not fam_done
-	var sister_waiting: bool = _visits(game, "ev_sister.sister_fetch") > 0 and not fam.call("sister_admitted") \
-		and not fam.call("kids_waiting") and not fam_done
-	# the kid: in front of the stool with his phone up until he's let in or not; by the jukebox
-	# inside (or locked in the single, out of sight); otherwise in the pickup, out of sight
-	if pickup and not (fam.call("hoodie_admitted") or fam.call("hoodie_refused")):
-		out.hoodie = ["door_front", "hoodie_door"]
-	elif K >= 1 and not _kid_locked_in(v, clock):
-		out.hoodie = ["juke_kid", "hoodie_juke" if _exists("hoodie_juke") else "hoodie_door"]
-	# the sister: at the wheel, at the door with her card up, waiting in the vestibule, or inside
-	# at the rail by the pool table
-	if sister_at_door:
-		out.driver = ["door_front", "driver_door"]
-		out.vape = ["vest_behind", "vape_door"]
-	elif sister_waiting:
-		out.driver = ["vest_wait", "driver_door"]
-	elif S == 1:
-		out.driver = ["pool_rail", "driver_rail"] if _exists("driver_rail") else ["bar_s4", "driver"]
-	elif pickup:
-		out.driver = ["truck_wheel", "driver"]
-	# her boyfriend: across the back seat, or at the bar trying to get served
-	if not out.has("vape"):
-		if V == 1:
+	# the constable, forty minutes after a fight's called in: just inside the door while she asks
+	# about it (before close, or knocking on the glass after he's locked up and let in)
+	if _scene(game) == "ev_police":
+		out.constable = ["door_front", "constable"]
+	# 4. the kids: where each of the three is, as the Ink keeps it (kid_at, sister_at, vape_at, one
+	# spot each, moved by move() in sim.ink), and the pickup till it goes (truck_gone)
+	var kid := _spot_of(v, "kid_at")
+	var sister := _spot_of(v, "sister_at")
+	var vape := _spot_of(v, "vape_at")
+	var pickup: bool = clock >= 1190 and not bool(BUtil.js_truthy(v.get("truck_gone", false)))
+	# the kid: in front of the stool with his phone up (or walking up to it, before anything's been
+	# decided); by the jukebox; at the rail with his father; loose in the lot. Locked in the single
+	# washroom, or in the pickup, he's out of sight.
+	match kid:
+		"s_door":
+			out.hoodie = ["door_front", "hoodie_door"]
+		"s_jukebox":
+			out.hoodie = ["juke_kid", "hoodie_juke" if _exists("hoodie_juke") else "hoodie_door"]
+		"s_rail":
+			out.hoodie = ["pool_watch", "hoodie_door"]
+		"s_lot":
+			out.hoodie = ["lot_walk", "hoodie_lot" if _exists("hoodie_lot") else "hoodie_door"]
+		"s_truck":
+			if pickup and not (fam.call("hoodie_admitted") or fam.call("hoodie_refused")):
+				out.hoodie = ["door_front", "hoodie_door"]
+	# the sister: at the door with her card up, waiting in the vestibule, at the rail by the pool
+	# table, or at the wheel of the pickup
+	match sister:
+		"s_door":
+			out.driver = ["door_front", "driver_door"]
+		"s_vestibule":
+			out.driver = ["vest_wait", "driver_door"]
+		"s_rail":
+			out.driver = ["pool_rail", "driver_rail"] if _exists("driver_rail") else ["bar_s4", "driver"]
+		"s_bar":
+			out.driver = ["bar_s4", "driver"]
+		"s_lot":
+			out.driver = ["lot_truck", "driver_door"]
+		"s_truck":
+			if pickup:
+				out.driver = ["truck_wheel", "driver"]
+	# her boyfriend: behind her at the door, at the bar trying to get served, rattling round the lot,
+	# or across the pickup's back seat
+	match vape:
+		"s_door", "s_vestibule":
+			out.vape = ["vest_behind", "vape_door"]
+		"s_bar", "s_jukebox", "s_rail":
 			out.vape = ["bar_stand_v", "vape_bar"] if _exists("vape_bar") else ["bar_s4" if not out.has("driver") or out.driver[0] != "bar_s4" else "bar_s3", "vape"]
-		elif pickup and not fam.call("vape_ejected"):
-			out.vape = ["truck_back", "vape"]
+		"s_lot":
+			out.vape = ["lot_walk" if not out.has("hoodie") or out.hoodie[0] != "lot_walk" else "door_step", "vape_door"]
+		"s_truck":
+			if pickup:
+				out.vape = ["truck_back", "vape"]
 	# 13, 14. whoever else is in: the room's count, less the ones with faces, at the free tables
 	var named := 0
 	for id in out:
-		if id in ["bartender", "cook", "raincoat"]:
+		if id in ["bartender", "cook", "raincoat", "terry"]:
 			continue
 		if SPOTS[out[id][0]].zone in ["room", "hall", "deck"]:
 			named += 1
@@ -271,6 +297,20 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 				out[f[0]] = [spot, f[0]]
 				k += 1
 				break
+	# out on the deck before last call: a woman smoking at the top of the steps (she watches him pull
+	# the coaster, in deck.ink), and whoever else is out there to talk in front of him as if a doorman
+	# were a post (_deck_smokers)
+	if here == "deck" and clock < 1530:
+		out.patron_d = ["deck_steps", "patron_d"]
+		var smokers := _deck_smokers(v, clock)
+		if smokers == 1:
+			var rail_free: bool = not (out.has("cardigan") and out.cardigan[0] == "deck_chair_rail")
+			out.patron_f = ["deck_chair_rail" if rail_free else "deck_chair_far", "patron_f"]
+		elif smokers == 2:
+			out.patron_c = ["deck_steps_lot", "patron_c"]
+		elif smokers == 3:
+			out.crew_a = ["deck_chair_far", "crew_a"]
+			out.crew_b = ["deck_chair_back", "crew_b"]
 	# anything whose model hasn't been made yet stays out
 	for id in out.keys():
 		if not _exists(out[id][1]):
@@ -283,10 +323,29 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 var pickup_here := false
 
 
-func _kid_locked_in(v: Dictionary, clock: int) -> bool:
-	return int(BUtil.js_int(v.get("kids_in", 0))) > 0 and _has(v, "fam", "hoodie_admitted") and not _has(v, "fam", "kid_opened") \
-		and not bool(BUtil.js_truthy(v.get("fam_done", false))) and not bool(BUtil.js_truthy(v.get("kid_out", false))) \
-		and (_has(v, "fam", "kid_found") or clock >= 1300)
+# where one of the three is: the one item of their spot list ("s_jukebox"), or "" if none
+func _spot_of(v: Dictionary, name: String) -> String:
+	var l = v.get(name)
+	if l is Array:
+		return str(l[0]) if not l.is_empty() else ""
+	return str(l) if l != null else ""
+
+
+# Who's smoking on the deck besides the woman at the steps (deck.ink, the air stitch): the ones who
+# just talked in front of him, till their smoke's done, or else the next ones who will, by the same
+# tests the Ink uses. 1 the two women with the news about GOOD SHOES, 2 the man watching the pickup,
+# 3 two of the mill crew at the back, 0 nobody else.
+func _deck_smokers(v: Dictionary, clock: int) -> int:
+	var said := int(BUtil.js_int(v.get("deck_smokers", 0)))
+	if said != 0 and clock < int(BUtil.js_int(v.get("smokers_at", 0))) + 20:
+		return said
+	if not _has(v, "arrivals", "banned_done") and not _has(v, "knows", "ardagh") and clock >= 1230:
+		return 1
+	if not _has(v, "knows", "truck") and not BUtil.js_truthy(v.get("truck_gone", false)):
+		return 2
+	if not _has(v, "knows", "mill_closing"):
+		return 3
+	return 0
 
 
 func _visits(game: Game, path: String) -> int:

@@ -69,6 +69,7 @@ BARTENDER: And if the card machine goes down, it's cash, and if they haven't got
 // HUTCH: The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
 ~ knows += hotel_gap
 ~ knows += kitchen_gap
+~ knows += terry
 FATHER: Every bar's got its rules and none of them are written down. The written ones are for the inspector.
 -> opts
 
@@ -106,6 +107,7 @@ BARTENDER: That's Dennis in the big glasses. His wife'll come in around one. She
 
 = name
 ~ pass(1)
+~ asked_name = true
 She looked at him for a second longer than she needed to.
 BARTENDER: Last a week. Then ask me.
 // HUTCH: Her name. Or keep it back until he's earned it.
@@ -132,8 +134,12 @@ BARTENDER: Last a week. Then ask me.
     FATHER: I stopped. You know I stopped. You know what it cost me to stop.
 - else:
     BARTENDER: No.
-    She put a glass of water on the ledge.
-    BARTENDER: Drink that, and go and stand at your door.
+    {stopping:
+    - She put a glass of water on the ledge.
+        BARTENDER: Drink that, and go and stand at your door.
+    - She pushed the glass of water along the ledge an inch, toward him.
+        BARTENDER: Your door's still there.
+    }
     ~ rep(rep_staff, -1)
 }
 -> opts
@@ -147,6 +153,9 @@ BARTENDER: Last a week. Then ask me.
     ENDBAR: You're the new door.
     ENDBAR: It was a cannery, this, before it was a hotel. Did anyone tell you that? The tide came in under the floor. Twice a day, right under where you're standing. Fish heads and salt.
     ENDBAR: They built the hotel on the pilings and the pilings are still there. So's everything that lived in them.
+    { nursed:
+        ENDBAR: You held a rye at that table and didn't drink it. Not many do. I saw.
+    }
     FATHER: He's drunk.
     But the glass was full.
 - at_bar.endbar == 2:
@@ -174,7 +183,13 @@ BARTENDER: Network's down. Third time this week. It's cash, everybody.
 TABLE28: Cash is king!
 They'd never paid any other way. Table 28 thought cards were a fad.
 The TV over the bar had cut to a panel of men in suits talking in front of a map. The sound was off. The banner under them said something about the capital that nobody in the bar read.
-// HUTCH: The empire ending shows up as modern things failing (decided: a modern setting). What else stops working first, in a town like yours?
+// Hutch, in director mode (27 Sept), on what stops working first in a town like his: it's an island, so
+// it's the shipments from the mainland. When diesel's too dear for the trucks to make sense, things
+// start disappearing off the shelves, slowly, and then all at once. (Worked in by Claude.)
+The limes had come in short again. She was cutting them into eighths instead of quarters, and there was a strip of cardboard taped over one of the taps with NO MORE TIL TUES on it in marker.
+BARTENDER: Truck didn't come off the ferry with half of it. Again.
+TABLE28: It's the diesel!
+They'd been saying it since two o'clock. It was the first thing they'd said all day that everyone in the room agreed with.
 SLIPPERS: I haven't got cash.
 One of the two women from upstairs, with an empty wine glass, standing at the bar in her slippers.
 SLIPPERS: I never have cash. Who has cash?
@@ -194,6 +209,7 @@ SLIPPERS: I never have cash. Who has cash?
     ~ room_count--
     BARTENDER: Sorry, hon.
     The woman went back upstairs in her slippers. Her friend stayed with the bottle.
+    WRONGMAN: Twenty dollars. In the story it was always about twenty dollars, once you got to the bottom of it.
 - ~ pass(3)
 -> hub
 
@@ -206,11 +222,37 @@ SLIPPERS: I never have cash. Who has cash?
 The bar phone rang. It was the kind of phone with a cord. #sfx: phone
 The bartender answered, listened, said "He's fine," listened, and held it out across the bar.
 BARTENDER: For you.
-// HUTCH: The owner, on the phone, at midnight. The money code. What does an owner who's never there actually ask?
-OWNER: How's my new door.
-OWNER: Quiet? Wednesday's quiet. Did you do something about the rats?
+// Hutch, in director mode (27 Sept): an owner who's never there asks "How is it tonight?", and means
+// how busy is it, how much money am I making. What the doorman tells him, the till tells him too in
+// the morning. (Worked in by Claude.)
+OWNER: How is it tonight?
+{ owner_missed:
+    OWNER: Somebody rang me from the bar phone at {q_words(owner_missed)}. I was at dinner.
+}
+// What the clicker says is what he'll tell the owner it was: idle clicks and all (toys.ink).
+* [Give him the number on the clicker.]
+    ~ owner_count = 1
+    He looked at the clicker and gave him the number, and the thirteen who'd been in when he came on.
+    { clicker() + 13 > room_count + 3:
+        OWNER: That's a good Wednesday. That's a very good Wednesday.
+        Behind the bar, the bartender, who'd rung in every drink, looked at the clicker in his hand.
+    - else:
+        OWNER: That's a Wednesday.
+    }
+    ~ rep(rep_owner, 1)
+* ["Quiet."]
+    ~ owner_count = 0
+    OWNER: Wednesday's quiet. I know Wednesday's quiet. I just like to hear it.
+* ["Busy."]
+    ~ owner_count = -1
+    ~ rep(rep_owner, 1)
+    ~ rep(rep_staff, -1)
+    OWNER: Busy. Good. That's what I like to hear.
+    The bartender, who'd rung in every drink, looked at him over the till.
+    FATHER: He'll have the till tape in the morning. You'll have said busy.
+- OWNER: Did you do something about the rats?
 - (oc)
-* {poison} ["Poison's down."]
+* (told_poison) {poison} ["Poison's down."]
     OWNER: Good man. That's what I like to hear.
     ~ rep(rep_owner, 2)
 * {traps} ["Traps are set."]
@@ -218,6 +260,8 @@ OWNER: Quiet? Wednesday's quiet. Did you do something about the rats?
     ~ rep(rep_owner, 1)
 * {rats_killed > 0 && not poison && not traps} ["I've killed {rats_killed == 1:one|a couple}."]
     OWNER: One at a time. There's hundreds of them. The inspector's on the fourteenth.
+    OWNER: There's a bucket of bait in the office. I paid for it. Put it down.
+    # task: bait :: The owner wants the bait down. It's in the office in the keg room.
 * {not poison && not traps} ["It's handled."]
     ~ owner_lie = true
     OWNER: Good. I'll hold you to that. Inspector's on the fourteenth.
@@ -228,22 +272,37 @@ OWNER: Quiet? Wednesday's quiet. Did you do something about the rats?
     ~ rep(rep_owner, -1)
 - OWNER: And listen. Table 28. Whatever they want.
 {
-- arrivals ? banned_in:
-    OWNER: And a fella might come in tonight, good coat. He's all right now. Let him in.
+- arrivals ? banned_in && arrivals !? banned_out:
+    OWNER: And a fella might come in tonight, good coat. {owner_missed:Graham. That'll be what you rang about. }He's all right now. Let him in.
     The doorman looked down the bar at the good coat, already in.
 - arrivals ? banned_out:
     -> turned_away
+- owner_missed:
+    OWNER: And whatever you rang about, it can't have been much. Nobody's called me about it.
 }
 -> hang_up
 
 = turned_away
-OWNER: Did a fella come in tonight, good coat? He says you turned him away.
+{ arrivals ? banned_in:
+    OWNER: A fella in a good coat says you let him in for one drink and then put him out. Graham. That'll be what you rang about.
+- else:
+    OWNER: Did a fella come in tonight, good coat? He says you turned him away. {owner_missed:That'll be what you rang about.}
+}
 * ["The book says not ever."]
     OWNER: The book's old.
     OWNER: Fine. Fine. We'll talk about it.
     ~ rep(rep_owner, -1)
     ~ rep(rep_staff, 1)
     The bartender, who could hear every word, didn't look up.
+// Learned when GOOD SHOES got in without him (door.ink): "The owner didn't write it. I did."
+* {knows ? binder_hers} ["She wrote it. Not you."]
+    OWNER: She writes a lot of things.
+    There was a long breath at the other end, the sound of a man deciding what a thing was going to cost him.
+    OWNER: Put her on.
+    ~ rep(rep_owner, -2)
+    ~ rep(rep_staff, 2)
+    The bartender took the phone. She listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the bar as if she'd never stopped.
+    -> hub
 * ["I'll let him in next time."]
     OWNER: Good man.
     ~ rep(rep_owner, 1)
