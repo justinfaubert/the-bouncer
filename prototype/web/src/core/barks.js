@@ -24,7 +24,7 @@
 // the tension, and each once a night.
 //
 // Toys: rules with `on: toy:<thing>:<what>` answer the player handling a thing between choices
-// (Game.toy): an idle click on the clicker, a card turned over. No chance gate here either: the
+// (Game.toy): a card tipped to the light, or turned over. No chance gate here either: the
 // when: says exactly when a voice speaks up.
 //
 // Answers: after a voice barks, the others may answer it. A rule with `on: answer:father` is

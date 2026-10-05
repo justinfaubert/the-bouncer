@@ -252,7 +252,6 @@ for (const [id, pr] of propThings) {
 }
 for (const r of scan.propRefs) if (!props || !props[r.id] || r.id === 'tonight') err(`#prop: "${r.id}" at ${r.loc} is not in props.yaml`);
 for (const t of scan.toyRefs) {
-  if (t.id === 'clicker') { if (!['click', 'zero'].includes(t.what)) err(`#toy: clicker ${t.what} at ${t.loc}: the clicker can click or zero`); continue; }
   const pr = props && props[t.id];
   if (!pr || t.id === 'tonight') { err(`#toy: "${t.id}" at ${t.loc} is not in props.yaml`); continue; }
   const can = PROP_KINDS[pr.kind] || [];
@@ -260,7 +259,7 @@ for (const t of scan.toyRefs) {
 }
 for (const r of barkSet.rules) {
   const tm = /^toy:([a-z0-9_]+):/.exec(r.on || '');
-  if (tm && tm[1] !== 'clicker' && !PROP_KINDS[tm[1]] && !(props && props[tm[1]])) err(`barks.yaml: ${r.id} answers a thing, "${tm[1]}", that isn't in props.yaml or a kind of thing (${Object.keys(PROP_KINDS).join(', ')})`);
+  if (tm && !PROP_KINDS[tm[1]] && !(props && props[tm[1]])) err(`barks.yaml: ${r.id} answers a thing, "${tm[1]}", that isn't in props.yaml or a kind of thing (${Object.keys(PROP_KINDS).join(', ')})`);
 }
 const wordSet = new B.Word(word || {});
 const GROUPS = ['t28', 'kids', 'staff', 'owner', 'cook'];

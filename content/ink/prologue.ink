@@ -21,14 +21,12 @@ He went in.
 Beer, cleaner, piss, old wood and dust. The carpet had had a pattern once. By the bar rail it gave a little under his boots, where thirty years of spills had soaked through to the underlay.
 A woman behind the bar was cutting limes. She looked at him, looked at the size of him, and went back to the limes. #portrait: bartender
 // HUTCH: The lifer's first words to a new doorman. What does she actually say, and what does she not bother saying?
-BARTENDER: You're the new one.
-BARTENDER: Clicker. #sfx: clicker
-She put it on the bar: a chrome tally counter with the numbers worn off the button.
-BARTENDER: Count them in, count them out. If the numbers don't match at close, you find out why before you go home.
-BARTENDER: Owner left you a note.
+BARTENDER: You'll be the door, then. Hang on.
+BARTENDER: Every drink in this room goes through my till. Anybody I pour for who didn't come past you, you find out how before you go home.
+BARTENDER: Junior left you a note. The owner, I mean. I worked for his dad.
 It was taped to the till in black marker. RATS. DEAL WITH IT. INSPECTOR ON THE 14TH. # task: rats :: Deal with the rats before the inspector comes on the 14th.
 ~ knows += the_note
-# task: count :: Count them in, count them out.
+# task: past :: Anybody who gets in without coming past him: find out how, before he goes home.
 He turned around and looked at the room.
 Five men at a round table in the front window, with the best view of the door and the TV. They were talking about the price of diesel, all at once, in one voice. The table had a number screwed to its edge: 28.
 At the pool table, a big man and a smaller one were playing for money, the bills tucked under the rail.
@@ -53,9 +51,9 @@ WRONGMAN: It was a slow night in the story too. The man who told it said his bro
     -> the_truck
 
 = where_want
-BARTENDER: Front door's yours. That's the one that counts.
-BARTENDER: Hotel door's at the end of the back hall. Residents come down that way. The night clerk props it so he can hear the TV.
-BARTENDER: Deck door for the smokers. Kitchen door, the cook opens it because the fryer runs about a hundred degrees.
+BARTENDER: Front door's yours, that's the one that counts.
+BARTENDER: Hotel door's at the end of the back hall. Residents come down that way, and the night clerk props it so he can hear the TV.
+BARTENDER: Deck door's for the smokers. Kitchen door, the cook props that open, his fryer runs about a hundred degrees back there.
 BARTENDER: They're all locked at night.
 She cut another lime in half.
 BARTENDER: Mostly.
@@ -66,14 +64,14 @@ FATHER: Four doors, and one of them's yours. That's three you're answerable for 
 - (where_more)
 * (asked_last) ["What happened to the last doorman?"]
     ~ pass(2)
-    BARTENDER: Walked out in the middle of a Friday. Left his jacket.
-    BARTENDER: Ask table 28 why. They'll give you three different stories and all of them will have happened.
+    BARTENDER: Walked out on a Friday, middle of the rush, and left his jacket.
+    BARTENDER: Ask table 28 why. You'll get three stories, and the hell of it is they all happened.
     ~ knows += old_doorman
     -> where_more
 * (asked_anyone) ["Anyone I should know about?"]
     ~ pass(2)
     She tapped the underside of the bar with the knife.
-    BARTENDER: Binder under the till. The eighty-sixes. Photos, most of them. Read it before somebody in it reads you.
+    BARTENDER: Binder under the till, the eighty-sixes. Photos, most of them, and for how long. You read it before you sit on that stool.
     -> where_more
 * {not asked_last && not asked_anyone} ["Okay."]
     -> before_eight

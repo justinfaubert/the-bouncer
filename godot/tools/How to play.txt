@@ -12,7 +12,6 @@ Look round        drag across the room, or the arrow keys (or W A S D); the whee
 Look at a thing   rest the pointer on what a choice is about: the choice lights up; E or a click does it
 Throw the dice    hold Space or the mouse button to shake, let go to throw
 In his hands      drag to turn it, E to look closer, Q and R to go through it, Esc to put it down
-The clicker       C clicks it; hold Z to turn the knob back to nothing
 Notes, sketch     Tab, M
 Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
 On a pad          either stick looks round; the d-pad goes through the choices and A makes one
@@ -22,11 +21,10 @@ Windows.
 
 Every sound is a placeholder made in code. A .wav, .ogg or .mp3 with the same name in a folder
 called "audio" next to the game takes its place from the next start; more takes of one sound go in
-as click_2, click_3 and so on. The names:
+as card_2, card_3 and so on. The names:
 
   the room      amb_rain_glass amb_rain_out amb_rain_roof amb_room_tone amb_talk_a amb_talk_b
                 amb_shout amb_juke amb_pool amb_fryer amb_fan amb_tube amb_cellar amb_rats amb_sea
-  things        click (the clicker) ratchet (its knob) zero beep_ok beep_bad (the scanner)
-                thump (the door) gust rattle tick tock (the dice) clack (the balls) thud ring
-                glass scratch till bell card page pen printer swipe tear stamp steps heart
-                whisper lift choose click_ui
+  things        beep_ok beep_bad (the scanner) thump (the door) gust rattle tick tock (the dice)
+                clack (the balls) thud ring glass scratch till bell card page pen printer swipe
+                tear stamp steps heart whisper lift choose click_ui

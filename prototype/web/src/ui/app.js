@@ -45,7 +45,6 @@
     rainStop: null,
     hand: null,                  // the voices reaching for the player (src/ui/hand.js)
     readChars: 0,                // how much story came before the choices now up
-    toys: null,                  // the clicker, and things he's handed (src/ui/toys.js)
     skin: null,                  // drink, hurt, his heart and the rain, on the page (src/ui/skin.js)
     saveTimer: 0
   };
@@ -82,7 +81,6 @@
       reduced: reducedMotion
     });
     const handsFree = function () { return app.inGame && !!app.game.story && !app.game.ended && !app.pending && !app.rolling && $('#overlay').hidden; };
-    app.toys = B.Toys({ play: toyPlay, live: handsFree, audio: app.audio });
     // what he's handed: a licence, the kid's phone, the binder (src/ui/props.js)
     app.props = B.Props ? B.Props({
       content: C,
@@ -271,7 +269,6 @@
   function resetStory() {
     if (app.rolling) { app.rolling.cancel(); app.rolling = null; }
     if (app.hand) app.hand.stop();
-    if (app.toys) app.toys.stop();
     if (app.skin) app.skin.stop();
     document.getElementById('app').classList.remove('rolling');
     $('#log').innerHTML = '';
@@ -1099,19 +1096,12 @@
     const day = DAY_NAMES[st.day] || ('Day ' + st.day);
     return '<div class="st-day">' + esc(day) + ', the test shift</div>' +
       '<div class="st-clock">' + cp.text + '<small>' + cp.ampm + '</small></div>' +
-      V.clickerHTML(st.count, clickerLive(st)) +
       '<div class="st-where">' + esc(PLACE[st.here] || '') + '</div>' +
       '<div class="st-row">' +
         '<span class="st-item"><span class="st-k">Pocket</span><span class="st-v">$' + st.cash + '</span></span>' +
         '<span class="st-item"><span class="st-k">Drinks</span><span class="st-v">' + V.tallyHTML(st.drinks) + '</span></span>' +
         (st.hurt ? '<span class="st-item st-hurt"><span class="st-k">Hurt</span><span class="st-v">' + esc(HURT_WORDS[st.hurt] || 'Hurt') + '</span></span>' : '') +
       '</div>';
-  }
-
-  // the clicker's in his hand once the page has shown the bartender handing it over
-  function clickerLive(st) {
-    if (!st.clicker || !app.inGame || app.game.ended) return false;
-    return !(app.pending && app.pending.some(function (it) { return it.bark === 'teach_clicker'; }));
   }
 
   function renderRail() {
@@ -1123,7 +1113,6 @@
     root.setAttribute('data-phase', phaseOf(st.clock));
     root.setAttribute('data-here', st.here || '');
     for (const el of document.querySelectorAll('[data-status]')) el.innerHTML = html;
-    if (app.toys) app.toys.afterRail(st.count);
     if (app.props) app.props.refresh();
     // his skin shows what's happened once it's on the page, not while the dice are still out
     if (app.skin && !app.pending) app.skin.update(st, g.turn);
@@ -1345,7 +1334,7 @@
         field('Sound', null, toggle('set-sound', s.sound, function (v) { s.sound = v; saveSettings(); if (v) app.audio.unlock(); }), 'set-sound'),
         field('Volume', null, slider('set-master', s.master, function (v) { s.master = v; saveSettings(); }), 'set-master'),
         field('The room', 'Rain, the cooler, the bar at night.', slider('set-amb', s.amb, function (v) { s.amb = v; saveSettings(); }), 'set-amb'),
-        field('Effects', 'The clicker, the bell, the door.', slider('set-sfx', s.sfx, function (v) { s.sfx = v; saveSettings(); app.audio.unlock(); app.audio.sfx('clicker'); }), 'set-sfx'),
+        field('Effects', 'The scanner, the bell, the door.', slider('set-sfx', s.sfx, function (v) { s.sfx = v; saveSettings(); app.audio.unlock(); app.audio.sfx('scanner_ok'); }), 'set-sfx'),
         field('Music', 'Silent until the music is added.', slider('set-music', s.music, function (v) { s.music = v; saveSettings(); }), 'set-music')
       );
       dlg.append(cloudField());

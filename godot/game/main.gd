@@ -774,10 +774,6 @@ func _key(e: InputEventKey) -> void:
 		else:
 			spots.use()
 		return
-	if k == KEY_C or k == KEY_Z:
-		get_viewport().set_input_as_handled()
-		props.clicker_key(k == KEY_Z)
-		return
 	if k == KEY_Q or k == KEY_R:
 		if props.holding():
 			get_viewport().set_input_as_handled()
@@ -803,7 +799,7 @@ func _key(e: InputEventKey) -> void:
 
 # The basics on a pad. Either stick looks round. Up and down on the d-pad go through the choices,
 # and A makes the one that's lit; with none lit, A is space (go on, or hold to shake the dice and
-# let go to throw). B and Start are Esc, Y is E, X clicks the clicker, Back opens his notes, and the
+# let go to throw). B and Start are Esc, Y is E, Back opens his notes, and the
 # shoulders go through what's in his hands, or the left one opens the floor sketch. The menus take
 # the d-pad and A themselves.
 const PAD_DEAD := 0.25
@@ -836,9 +832,6 @@ func _pad(e: InputEventJoypadButton) -> void:
 		JOY_BUTTON_Y:
 			if e.pressed:
 				_pad_key(KEY_E)
-		JOY_BUTTON_X:
-			if e.pressed:
-				_pad_key(KEY_C)
 		JOY_BUTTON_BACK:
 			if e.pressed:
 				_pad_key(KEY_TAB)

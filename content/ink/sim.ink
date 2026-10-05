@@ -251,7 +251,7 @@
 ~ return n
 
 // One of the three goes somewhere. Coming in or going out moves the room's count; whether the
-// clicker saw them is up to whoever calls this (count_in, or uncounted).
+// door saw them is up to whoever calls this (count_in, or uncounted).
 === function move(ref who, to)
 { indoors(who) && not indoors(to):
     ~ room_count--

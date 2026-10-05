@@ -573,8 +573,8 @@ func _vestibule() -> void:
 	sm.set_shader_parameter("albedo_tex", tex("res://textures/sign_id.png"))
 	sign.material_override = sm
 	add_child(sign)
-	# the ledge along the front wall, by his right hand: the scanner, the clicker, the incident
-	# book, and the old cigarette burns
+	# the ledge along the front wall, by his right hand: the scanner, the incident book, and the old
+	# cigarette burns
 	box(Vector3(1.85, 1.0, 0.45), Vector3(1.275, 0.5, 9.78), M.wood)
 	box(Vector3(1.95, 0.05, 0.55), Vector3(1.275, 1.025, 9.75), M.top)
 	for i in 11:
@@ -594,10 +594,13 @@ func _vestibule() -> void:
 	tape.material_override = tm
 	add_child(tape)
 	var things := model("res://models/ledge_props.glb")
-	var spots := {"scanner": [Vector3(1.92, 1.05, 9.72), 184.0], "clicker": [Vector3(1.55, 1.05, 9.76), 200.0],
+	var spots := {"scanner": [Vector3(1.92, 1.05, 9.72), 184.0],
 		"book": [Vector3(1.05, 1.05, 9.74), 172.0], "lighter": [Vector3(0.72, 1.05, 9.82), 140.0],
 		"mug": [Vector3(0.48, 1.05, 9.7), 190.0]}
 	for c in things.get_children():
+		# the model has a tally counter on the ledge too; the door here doesn't count
+		if String(c.name) == "clicker":
+			(c as Node3D).visible = false
 		if spots.has(String(c.name)):
 			var sp: Array = spots[String(c.name)]
 			c.position = sp[0]

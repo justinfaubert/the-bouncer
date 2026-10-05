@@ -32,8 +32,8 @@
 // the player (murmur): hesitating, reading back, coming back after a while away, not reading.
 // Their lines are the hand: rules in content/rules/barks.yaml.
 //
-// Toys: things the player can play with between choices, the clicker in his fist, a card at the
-// door, the binder under the till (toy, and content/ink/toys.ink).
+// Toys: things the player can play with between choices, a card at the door, the kid's phone, the
+// binder under the till (toy, and content/ink/toys.ink).
 (function (B) {
   'use strict';
 
@@ -295,8 +295,6 @@
         day: g('day') | 0,
         cash: g('cash') | 0,
         drinks: g('drinks') | 0,
-        count: (g('count_in') | 0) + (g('fidget') | 0) - (g('zeroed') | 0),   // what the clicker says
-        clicker: this.clickerInHand(),
         hurt: g('hurt') | 0,
         here: Array.isArray(here) ? (here[0] || '') : String(here || ''),
         tension: this.psyche.tension(),
@@ -454,7 +452,7 @@
     // ---- toys --------------------------------------------------------------
     //
     // Things the player can pick up and play with between choices (content/ink/toys.ink): the
-    // clicker in his fist, a card held out at the door, the binder under the till. toy(id, what)
+    // card held out at the door, the kid's phone, the binder under the till. toy(id, what)
     // is the player handling one. If a choice on offer is tagged for it (#toy: id what), that
     // choice is made, like any other, and the night goes on from it. If not, the Ink's
     // toy_<id>(what) runs, if there is one, and changes what it changes without moving the
@@ -472,7 +470,6 @@
         res.chose = true;
         return res;
       }
-      if (id === 'clicker' && !this.clickerInHand()) return null;
       const items = [];
       const fn = 'toy_' + id;
       let ran = false;
@@ -512,11 +509,6 @@
       const out = [];
       for (const c of this.choices) if (c.toy && c.toy.id === id && this.toyChoice(id, c.toy.what) === c) out.push(c.toy.what);
       return out;
-    }
-
-    // the bartender hands him the clicker as he walks in
-    clickerInHand() {
-      try { return this.story.state.VisitCountAtPathString('prologue.inside') > 0; } catch (e) { return false; }
     }
 
     _toyRng(key) {
@@ -883,9 +875,7 @@
       // how to put a hand on a choice: once the checks have been explained, the first time a voice
       // has something to say about one, and not in the same breath as another explanation
       if (this.taught.indexOf('hand') === -1 && this.taught.indexOf('check') !== -1 && this.turn >= 3 && !items.some(function (it) { return it.bark && /^teach_/.test(it.bark); }) && shown.some(this._leans, this)) this._teach('hand', items, items.length);
-      // the clicker, once it's in his hand (not after the night's over: a night saved before there was a lesson)
       const over = !this.story.canContinue && this.choices.length === 0;
-      if (!over && this.taught.indexOf('clicker') === -1 && this.clickerInHand()) this._teach('clicker', items, items.length);
       if (over) this.ended = true;
       for (const it of items) {
         if ((it.kind === 'fx' && it.type !== 'portrait') || it.kind === 'pause') continue;

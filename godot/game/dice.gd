@@ -1,38 +1,78 @@
 # The dice, in the room. A check is two dice, and the night takes its time with them: they wait in
 # his fist until the player picks them up (hold the mouse on the room, or space, to shake them; let
 # go to throw), they go down on whatever's in front of him (the ledge by the door, the bar, table 28,
-# the felt, the kitchen's steel, the floor at his feet), the first stops and the column says what
-# the second needs, the second rolls on, and when it matters it rides up onto an edge and hangs
-# there before it falls. Then the stamp. His eyes narrow on them while they're down, and his heart
-# is up. A tap, space or enter while they're rolling skips to the stamp. How long they're shaken
-# changes nothing: the dice were decided when the choice was made (prototype/web/src/ui/roll.js).
+# the felt, the kitchen's steel, the floor at his feet) and knock about on it the way dice do: off
+# the wall behind the ledge, the cushions, the glasses on table 28, each other (game/dice_sim.gd
+# works each throw out before it's shown). The first stops and the column says what the second
+# needs; the second rolls on, and when it matters, the last time it stands up on an edge the night
+# slows down to watch it come down. Then the stamp. His eyes narrow on them while they're down, and
+# his heart is up. A tap, space or enter while they're rolling skips to the stamp. How long they're
+# shaken changes nothing: the dice were decided when the choice was made
+# (prototype/web/src/ui/roll.js).
 class_name Dice
 extends Node
 
-const SIZE := 0.019
+const SIZE := DiceSim.S
 const RATTLE := 0.45
 const SPEAK := 1.3
-const FULL := {"shake": 0.5, "d1": 0.72, "n1": 4, "d2": 1.38, "n2": 6, "per_t": 0.12, "needs": 0.14, "ring": 0.16, "stamp": 0.4, "after": 0.42}
-const QUICK := {"shake": 0.15, "d1": 0.38, "n1": 3, "d2": 0.56, "n2": 3, "per_t": 0.0, "needs": 0.04, "ring": 0.06, "stamp": 0.15, "after": 0.16}
+# the shake before they leave his hand, how much faster than life they run, and the column's beats
+# after each one lies still
+const FULL := {"shake": 0.5, "speed": 1.0, "needs": 0.14, "ring": 0.16, "stamp": 0.4, "after": 0.42}
+const QUICK := {"shake": 0.15, "speed": 1.8, "needs": 0.04, "ring": 0.06, "stamp": 0.15, "after": 0.16}
 # which way each face points on the die (opposite faces make seven)
 const NORMAL := {1: Vector3.UP, 6: Vector3.DOWN, 2: Vector3.RIGHT, 5: Vector3.LEFT, 3: Vector3.BACK, 4: Vector3.FORWARD}
-# where they go down, from each post: the top of something in front of him. Anywhere else, the
-# floor at his feet.
-const TABLE := {
-	"door": Vector3(1.38, 1.05, 9.7), "bar": Vector3(2.12, 1.12, 5.15), "t28": Vector3(9.25, 0.785, 7.55),
-	"pool": Vector3(8.75, 0.805, 4.35), "kitchen": Vector3(2.35, 0.94, -2.0),
+# Where they go down, from each post: the top of something in front of him (where they should end
+# up), what it's made of, the stretch of it they can run on (a box, x0 x1 z0 z1, or a round top, its
+# middle and radius), the walls round it [a point, the way it faces, how high it stands (0 all the
+# way), bounce], the pockets they'd drop down, what's lying on it (the balls; the arms of whoever's
+# on the stools either side of him), what hangs over it (so the throw goes in low, under it), and
+# how far off the middle they can end up. Anywhere else, the floor at his feet.
+const SPOTS := {
+	"door": {"at": Vector3(1.47, 1.05, 9.76), "of": "wood", "box": [1.24, 1.74, 9.5, 10.0],
+		"walls": [[Vector3(0, 0, 10.0), Vector3(0, 0, -1), 0.0, 0.35]]},
+	"bar": {"at": Vector3(2.02, 1.12, 5.42), "of": "wood", "box": [1.6, 2.33, 4.9, 5.95],
+		"lying": [[Vector2(2.2, 5.0), 0.2], [Vector2(2.2, 5.85), 0.2]]},
+	"t28": {"at": Vector3(9.27, 0.78, 7.62), "of": "wood", "round": [Vector2(9.4, 8.1), 0.83],
+		"lying": [[Vector2(8.77, 7.94), 0.2], [Vector2(9.85, 7.63), 0.2]]},
+	"pool": {"at": Vector3(8.82, 0.8, 4.22), "of": "felt", "box": [8.4475, 10.3525, 3.4225, 4.3775],
+		"walls": [[Vector3(8.4475, 0, 0), Vector3(1, 0, 0), 0.042, 0.6], [Vector3(10.3525, 0, 0), Vector3(-1, 0, 0), 0.042, 0.6],
+			[Vector3(0, 0, 3.4225), Vector3(0, 0, 1), 0.042, 0.6], [Vector3(0, 0, 4.3775), Vector3(0, 0, -1), 0.042, 0.6]],
+		"holes": [[Vector2(8.422, 3.397), 0.075], [Vector2(10.378, 3.397), 0.075], [Vector2(8.422, 4.403), 0.075],
+			[Vector2(10.378, 4.403), 0.075], [Vector2(9.4, 3.383), 0.07], [Vector2(9.4, 4.417), 0.07]],
+		"lying": [[Vector2(8.78, 3.62), 0.0286], [Vector2(8.95, 3.96), 0.0286], [Vector2(9.98, 3.52), 0.0286],
+			[Vector2(9.61, 4.2), 0.0286], [Vector2(8.52, 4.06), 0.0286], [Vector2(10.17, 4.14), 0.0286], [Vector2(9.45, 3.78), 0.0286]]},
+	"kitchen": {"at": Vector3(2.55, 0.94, -2.16), "of": "steel", "box": [1.83, 2.85, -2.52, -1.93],
+		"over": [[Vector3(1.98, 1.36, -2.17), Vector3(2.92, 1.44, -1.91)]], "low": true, "reach": 0.4},
 }
+# what a surface is made of: bounce, grip, how fast it takes the spin out of a die; and how a die
+# sounds on it (loudness, pitch)
+const STUFF := {"wood": [0.42, 0.38, 2.5, 1.0, 1.0], "felt": [0.2, 0.65, 6.0, 0.45, 0.78],
+	"steel": [0.45, 0.3, 1.8, 1.0, 1.32], "carpet": [0.12, 0.85, 8.0, 0.35, 0.72]}
+const TRIES := 14
+# how many milliseconds a frame go on working the throw out: while it's in his fist, while he
+# shakes it, and once it's let go and the throw still isn't worked out
+const WORK_MS := {"hand": 3.0, "shake": 5.0, "wind": 6.0, "let_go": 14.0}
+# the 24 ways to turn a cube onto itself
+static var TURNS: Array = []
 
 var main
-var dice: Array = []            # the two die nodes
-var state := ""                 # "", "hand", "shake", "roll", "done"
+var dice: Array = []            # the two die nodes; each holds its faces in a child turned TURNS-wise
+var state := ""                 # "", "hand", "shake", "wind", "let_go", "roll", "done"
 var item := {}
 var card: CheckCard
 var cb: Callable
 var need := {}
-var t := 0.0                    # time since the throw
-var plans: Array = []           # per die: frames [{t, pos, basis}]
-var beats: Array = []           # [time, Callable], in order
+var T: Dictionary = FULL
+var t := 0.0                    # real time since the throw
+var ts := 0.0                   # the throw's own time, which slows when the night holds its breath
+var sim: DiceSim
+var planner: Planner
+var quick := false
+var order: Array = [0, 1]       # which die lies still first, which second
+var apex := {}                  # the second die's last stand on an edge: {t, deg}
+var beats: Array = []           # [throw time, Callable], in order
+var spot := {}
+var rest_mid := Vector3.ZERO
 var shake_t := 0.0
 var rattle_t := 0.0
 var said := false
@@ -52,6 +92,9 @@ func _die() -> Node3D:
 	var d := Node3D.new()
 	d.visible = false
 	main.pub.add_child(d)
+	var inner := Node3D.new()
+	inner.name = "faces"
+	d.add_child(inner)
 	for v in NORMAL:
 		var mi := MeshInstance3D.new()
 		var q := QuadMesh.new()
@@ -79,14 +122,14 @@ func _die() -> Node3D:
 			mi.rotation.x = -PI / 2.0
 		else:
 			mi.rotation.x = PI / 2.0
-		d.add_child(mi)
+		inner.add_child(mi)
 	# the body inside, so an edge never shows daylight
 	var core := MeshInstance3D.new()
 	var b := BoxMesh.new()
 	b.size = Vector3.ONE * SIZE * 0.985
 	core.mesh = b
 	core.material_override = main.pub.mat(Color("e6dfcf"), 0.4, 0.0, 5)
-	d.add_child(core)
+	inner.add_child(core)
 	return d
 
 
@@ -134,17 +177,30 @@ func play(it: Dictionary, c: CheckCard, _p: float, done: Callable) -> void:
 	_rng.seed = hash(str(it.get("label", "")) + str(it.roll.d1) + str(it.roll.d2) + str(main.game.turn))
 	said = false
 	var mode := str(main.settings.get("dice", "full"))
+	quick = mode == "quick"
+	T = QUICK if quick else FULL
 	main.view.heart = 1.25 + 0.12 * mini(int(it.roll.get("tension", 0)), 4)
+	# start working the throw out now, while they're still in his hand
+	var cam: Camera3D = main.view.cam
+	spot = spot_for(main.view.place, main.view.eye_pos, -cam.global_transform.basis.z)
+	if main.view.place == "t28":
+		spot.glasses = _t28_glasses(spot.at.y)
+	var plan_rng := RandomNumberGenerator.new()
+	plan_rng.seed = _rng.randi()
+	planner = Planner.new(spot, main.view.eye_pos, plan_rng, need.n > 0 and need.n < 6 and not quick)
 	if mode == "full":
 		state = "hand"
 		card.waiting_in_hand(true)
 		main.audio.sfx("rattle", 0.35)
 	else:
-		_throw(mode == "quick", 0.0)
+		# thrown for him: a shake first, then they go
+		state = "wind"
+		shake_t = 0.0
+		main.audio.sfx("rattle", 1.0)
 
 
 func wants_click() -> bool:
-	return state in ["hand", "shake", "roll"]
+	return state in ["hand", "shake", "wind", "let_go", "roll"]
 
 
 func mouse(pressed: bool) -> void:
@@ -161,7 +217,7 @@ func key(pressed: bool) -> bool:
 	if state == "shake" and not pressed:
 		_let_go()
 		return true
-	if state == "roll" and pressed:
+	if state in ["wind", "let_go", "roll"] and pressed:
 		finish()
 		return true
 	return state != ""
@@ -169,7 +225,7 @@ func key(pressed: bool) -> bool:
 
 func _on_sheet_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
-		if state == "roll" and e.pressed:
+		if state in ["wind", "let_go", "roll"] and e.pressed:
 			finish()
 			main.view.sheet.accept_event()
 			return
@@ -184,211 +240,460 @@ func _grip() -> void:
 	main.view.heart = 1.6 + 0.15 * mini(int(item.roll.get("tension", 0)), 4)
 
 
+# let go: they're out of his hand as soon as the throw's worked out, which it nearly always is
 func _let_go() -> void:
 	card.waiting_in_hand(false)
-	_throw(false, shake_t)
-
-
-func _throw(quick: bool, shook: float) -> void:
-	var T: Dictionary = QUICK if quick else FULL
-	var tension := mini(int(item.roll.get("tension", 0)), 4)
-	var split: bool = need.n > 0 and need.n < 6
-	var hang := split and not quick
-	var shake: float = T.shake if shook <= 0.0 else (0.0 if shook > 0.25 else 0.12)
-	if shook <= 0.0 or shake > 0.0:
+	if shake_t <= 0.25:
 		main.audio.sfx("rattle", 1.0)
-	# where they go down, and where from: his right hand, low in his eyes
-	var cam: Camera3D = main.view.cam
-	var surface: Vector3 = TABLE.get(main.view.place, Vector3.INF)
-	if surface == Vector3.INF:
-		var fwd := -cam.global_transform.basis.z
-		fwd.y = 0.0
-		fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
-		var feet: Vector3 = main.view.eye_pos + fwd * 0.75
-		feet.y = main.view.eye_pos.y - Posts.STAND
-		surface = feet
-	var from := cam.global_transform * Vector3(0.14, -0.2, -0.32)
-	var across: Vector3 = surface - main.view.eye_pos
-	across.y = 0.0
-	across = across.normalized() if across.length() > 0.01 else Vector3.FORWARD
-	var side: Vector3 = across.cross(Vector3.UP).normalized()
-	var rests := [surface + side * SIZE * 1.4 + Vector3(0, SIZE / 2.0, 0), surface - side * SIZE * 1.3 + across * SIZE * 0.8 + Vector3(0, SIZE / 2.0, 0)]
-	var finals := [_final(int(item.roll.d1)), _final(int(item.roll.d2))]
-	var d1: float = T.d1
-	var d2: float = T.d2 + T.per_t * tension - (0.0 if hang or quick else 0.26)
-	plans = []
+	state = "let_go"
+	planner.hurry = true
+	_try_throw()
+
+
+func _try_throw() -> void:
+	if not planner.done:
+		return
+	_throw(planner.result())
+
+
+func _throw(plan: Dictionary) -> void:
+	sim = plan.sim
+	order = plan.order
+	apex = plan.apex if planner.drama else {}
+	# deal the faces: the first die to lie still shows the first number, the other the second; and
+	# when the second matters, the face it stood up toward on its last edge is one that would have
+	# turned the night the other way
+	var want_other := not bool(item.get("success", false))
+	_deal(order[0], int(item.roll.d1), Vector3.ZERO, -1)
+	var near := Vector3.ZERO
+	if not apex.is_empty():
+		near = apex.near
+	_deal(order[1], int(item.roll.d2), near, 1 if want_other else 0)
+	# the beats, on the throw's own clock: the knocks, then the column
 	beats = []
-	var end2: Basis = finals[1]
-	var tail: Array = []
-	if hang:
-		# a face of the other outcome, beside the real one: it rides up onto the edge between them
-		var want := not bool(item.success)
-		var near: Array = []
-		for f in range(1, 7):
-			var nw: Vector3 = finals[1] * NORMAL[f]
-			if absf(nw.y) < 0.5 and need.pass[f - 1] == want:
-				near.append(f)
-		if near.is_empty():
-			for f in range(1, 7):
-				if absf((finals[1] * NORMAL[f]).y) < 0.5:
-					near.append(f)
-					break
-		var other: int = near[_rng.randi() % near.size()]
-		var nw2: Vector3 = finals[1] * NORMAL[other]
-		var axis := nw2.cross(Vector3.UP).normalized()
-		var hold := 0.48 + 0.09 * tension
-		var lift := SIZE * 0.21
-		var r2: Vector3 = rests[1]
-		var f1: Basis = finals[1]
-		if _rng.randf() < 0.5:
-			# it comes over the other face, rides up onto the edge, and hangs there
-			end2 = Basis(axis, PI / 2.0) * f1
-			tail = [[0.3, Basis(axis, PI / 4.0) * f1, lift], [hold * 0.35, Basis(axis, PI / 4.0 * 1.16) * f1, lift],
-				[hold * 0.35, Basis(axis, PI / 4.0 * 0.9) * f1, lift], [hold * 0.3, Basis(axis, PI / 4.0 * 1.02) * f1, lift]]
-		else:
-			# it lands on the real face, rolls on up onto the edge, and hangs there
-			tail = [[0.34, Basis(axis, PI / 4.0) * f1, lift], [hold * 0.35, Basis(axis, PI / 4.0 * 1.14) * f1, lift],
-				[hold * 0.35, Basis(axis, PI / 4.0 * 0.9) * f1, lift], [hold * 0.3, Basis(axis, PI / 4.0 * 1.02) * f1, lift]]
-		tail.append([0.2, finals[1], 0.0, "land"])
-		tail.append([0.07, Basis(axis, -PI / 4.0 * 0.09) * finals[1], SIZE * 0.02])
-		tail.append([0.09, finals[1], 0.0])
-	plans.append(_path(from + side * 0.02, rests[0], finals[0], d1, int(T.n1), 0.16))
-	plans.append(_path(from - side * 0.02, rests[1], end2, d2, int(T.n2) + (mini(tension, 3) if hang else 0), 0.2))
-	var t2: float = plans[1][-1].t
-	for f in tail:
-		t2 += f[0]
-		plans[1].append({"t": t2, "pos": rests[1] + Vector3(0, f[2], 0), "basis": f[1], "hit": f[3] if f.size() > 3 else "", "ease": true})
-	# the beats: sounds at each contact, then the column
-	for k in 2:
-		var fr: Array = plans[k]
-		var vol := 1.0
-		for i in fr.size():
-			var h: String = fr[i].get("hit", "")
-			if h == "":
-				continue
-			var last: bool = i == fr.size() - 1 or h == "land"
-			var v := vol
-			beats.append([shake + fr[i].t, func(): main.audio.sfx("die_land" if last else "die_tick", 0.9 if last else v)])
-			vol *= 0.8
-	var land1: float = shake + plans[0][-1].t
-	var land2: float = shake + plans[1][-1].t
-	beats.append([land1 + T.needs, card.first_down])
-	beats.append([land2 + T.ring, card.second_down])
-	beats.append([land2 + T.stamp, _stamp])
-	beats.append([land2 + T.stamp + T.after, _done])
+	var stuff: Array = STUFF.get(str(spot.get("of", "wood")), STUFF.wood)
+	var last_knock := [-1, -1]
+	for i in sim.hits.size():
+		var h: Array = sim.hits[i]
+		if float(h[0]) <= float(sim.rest_t[h[1]]):
+			last_knock[h[1]] = i
+	for i in sim.hits.size():
+		var h2: Array = sim.hits[i]
+		var loud := clampf(float(h2[3]) / 1.3, 0.1, 1.0)
+		var what: String = h2[2]
+		var name := "die_land" if i == last_knock[h2[1]] else "die_tick"
+		var gain: float = loud * float(stuff[3])
+		var pitch: float = float(stuff[4])
+		if what == "die":
+			name = "die_tick"
+			gain = loud * 0.8
+			pitch = 1.55
+		elif what == "glass":
+			name = "glass"
+			gain = loud * 0.45
+			pitch = 1.35
+		elif what == "wall":
+			pitch *= 0.9
+		beats.append([float(h2[0]), func(): main.audio.sfx(name, gain, pitch)])
+	var still1: float = sim.rest_t[order[0]]
+	var still2: float = sim.rest_t[order[1]]
+	beats.append([still1 + T.needs, card.first_down])
+	beats.append([still2 + T.ring, card.second_down])
+	beats.append([still2 + T.stamp, _stamp])
+	beats.append([still2 + T.stamp + T.after, _done])
 	beats.sort_custom(func(a, b): return a[0] < b[0])
-	for k in 2:
-		for f in plans[k]:
-			f.t += shake
-		(dice[k] as Node3D).visible = false
-	# his eyes go to where they're going down, and narrow on it
+	for d in dice:
+		(d as Node3D).visible = false
+	# his eyes go to where they'll lie, and narrow on it
+	var p0: Vector3 = sim.pos[0]
+	var p1: Vector3 = sim.pos[1]
+	rest_mid = (p0 + p1) / 2.0
 	_look_back = Vector2(main.view.want_yaw, main.view.want_pitch)
-	main.view.look_at_point(surface + Vector3(0, 0.02, 0))
-	var dist: float = main.view.eye_pos.distance_to(surface)
-	main.view.focus_fov = clampf(rad_to_deg(2.0 * atan(0.17 / maxf(dist, 0.3))), 12.0, 45.0)
+	main.view.look_at_point(rest_mid + Vector3(0, 0.01, 0))
+	var dist: float = main.view.eye_pos.distance_to(rest_mid)
+	var half := maxf(0.12, p0.distance_to(p1) / 2.0 + 0.075)
+	main.view.focus_fov = clampf(rad_to_deg(2.0 * atan(half / maxf(dist, 0.3))), 12.0, 45.0)
 	t = 0.0
+	ts = 0.0
 	state = "roll"
 
 
-# the die's last turn: the face it shows on top, and a turn about the up for how it lies
-func _final(v: int) -> Basis:
-	var n: Vector3 = NORMAL[v]
-	var align: Basis
-	if n == Vector3.UP:
-		align = Basis.IDENTITY
-	elif n == Vector3.DOWN:
-		align = Basis(Vector3.RIGHT, PI)
-	else:
-		align = Basis(Quaternion(n, Vector3.UP))
-	return Basis(Vector3.UP, _rng.randf_range(0.0, TAU)) * align
+# The faces on a die: turn its six so the one on top at the end shows v; with a near face (the
+# one it stood up toward on its last edge), so that face's number is one that passes (1) or fails
+# (0) the check.
+func _deal(k: int, v: int, near: Vector3, near_passes: int) -> void:
+	_turns()
+	var up := DiceSim.up_face(sim.rot[k])
+	var fits: Array = []
+	for r in TURNS:
+		if ((r as Basis) * NORMAL[v]).is_equal_approx(up):
+			fits.append(r)
+	var pick: Basis = fits[_rng.randi() % fits.size()]
+	if near != Vector3.ZERO and near_passes >= 0:
+		var good: Array = []
+		for r2 in fits:
+			for f in range(1, 7):
+				if ((r2 as Basis) * NORMAL[f]).is_equal_approx(near) and bool(need.pass[f - 1]) == (near_passes == 1):
+					good.append(r2)
+		if not good.is_empty():
+			pick = good[_rng.randi() % good.size()]
+	((dice[k] as Node3D).get_node("faces") as Node3D).basis = pick
 
 
-# A tumble from the hand to where it stops: hops shorter each time, turning less each time, ending
-# exactly on the turn it's meant to show.
-func _path(from: Vector3, rest: Vector3, end: Basis, dur: float, hops: int, air: float) -> Array:
+static func _turns() -> void:
+	if not TURNS.is_empty():
+		return
+	var axes := [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]
+	for x in axes:
+		for y in axes:
+			if absf((x as Vector3).dot(y)) > 0.5:
+				continue
+			TURNS.append(Basis(x, y, (x as Vector3).cross(y)))
+
+
+# where they go down from here (SPOTS), or the floor at his feet
+static func spot_for(place: String, eye: Vector3, fwd: Vector3) -> Dictionary:
+	if SPOTS.has(place):
+		return (SPOTS[place] as Dictionary).duplicate(true)
+	fwd.y = 0.0
+	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
+	var feet := eye + fwd * 0.8
+	feet.y = eye.y - Posts.STAND
+	return {"at": feet, "of": "carpet", "round": [Vector2(feet.x, feet.z), 0.6]}
+
+
+# table 28's glasses, as they stand tonight
+func _t28_glasses(top: float) -> Array:
 	var out: Array = []
-	var axis0 := _rng.randf_range(0.0, TAU)
-	var spin := _rng.randf_range(2.2, 3.4) * TAU
-	var ground_from := Vector3(from.x, rest.y, from.z)
-	var fracs: Array = []
-	var total := 0.0
-	var w := 1.0
-	for i in hops + 1:
-		fracs.append(w)
-		total += w
-		w *= 0.62
-	var tt := 0.0
-	var prev := from
-	out.append({"t": 0.0, "pos": from, "basis": _turned(end, axis0, spin, 0.0), "hit": "", "air": 0.0})
-	var along := 0.0
-	for i in hops + 1:
-		var seg: float = fracs[i] / total
-		tt += dur * seg
-		along += seg
-		var k := clampf(0.55 + 0.45 * pow(along, 0.8), 0.0, 1.0) if i < hops else 1.0
-		var p := ground_from.lerp(rest, k)
-		var h := air * pow(0.5, i) if i > 0 else air * 0.6
-		out.append({"t": tt, "pos": p, "basis": _turned(end, axis0 + i * 0.9, spin, tt / dur), "hit": "tick" if i < hops else "land", "air": h, "from": prev})
-		prev = p
-	out[-1].basis = end
+	var g = main.pub.dyn.get("t28_glasses")
+	if g == null:
+		return out
+	for c in (g as Node).get_children():
+		if c is Node3D:
+			var p: Vector3 = (c as Node3D).global_position
+			out.append([Vector2(p.x, p.z), 0.037, top + 0.15])
 	return out
 
 
-func _turned(end: Basis, axis_a: float, spin: float, f: float) -> Basis:
-	var left := spin * pow(1.0 - clampf(f, 0.0, 1.0), 1.7)
-	var axis := Vector3(cos(axis_a), 0.0, sin(axis_a))
-	return Basis(axis, left) * end
+# Works the throw out, a few milliseconds a frame, while the dice are still in his hand: a run of
+# throws from his hand at the spot, each played through to the end, and the best kept. Both dice
+# have to stay on what they were thrown at, not go down a pocket or into the balls or under the
+# pass, and lie still a moment apart; and when the second die matters (drama), the throw wanted is
+# one where the second stands up high on an edge near the end before it comes down. Each throw
+# that misses tells the next where to aim. The same throws in the same order whatever the frame
+# rate, so the same choice comes down the same way.
+class Planner:
+	var sp: Dictionary
+	var drama := false
+	var hurry := false          # let go: take the best there is as soon as there's one
+	var done := false
+	var tries := 0
+	var _rng: RandomNumberGenerator
+	var _at: Vector3
+	var _hand: Vector3
+	var _toward: Vector3
+	var _side: Vector3
+	var _stuff: Array
+	var _aim := Vector3.ZERO
+	var _cur: DiceSim
+	var _best := {}
+	var _best_score := -INF
+	var _fallback: DiceSim
 
+	func _init(spot: Dictionary, eye: Vector3, rng: RandomNumberGenerator, want_drama: bool) -> void:
+		sp = spot
+		sp["eye"] = eye
+		_rng = rng
+		drama = want_drama
+		_at = sp.at
+		_toward = Vector3(_at.x - eye.x, 0.0, _at.z - eye.z)
+		var flat := _toward.length()
+		_toward = _toward / flat if flat > 0.01 else Vector3.FORWARD
+		_side = _toward.cross(Vector3.UP).normalized()
+		# his hand goes out over what he's throwing at, short of where they're meant to end up, a
+		# hand's height off it (in low, under anything hanging over it)
+		var low: bool = sp.get("low", false)
+		_hand = _at - _toward * minf(flat - 0.25, 0.3 if low else 0.42) + _side * 0.04
+		_hand.y = _at.y + (0.13 if low else clampf(eye.y - _at.y - 0.45, 0.2, 0.5))
+		_stuff = Dice.STUFF.get(str(sp.get("of", "wood")), Dice.STUFF.wood)
+
+	func work(ms: float) -> void:
+		var until := Time.get_ticks_usec() + int(ms * 1000.0)
+		while not done and Time.get_ticks_usec() < until:
+			if hurry and not _best.is_empty():
+				done = true
+				return
+			if _cur == null:
+				if tries >= Dice.TRIES:
+					done = true
+					return
+				_cur = _next()
+				tries += 1
+			_cur.run(16)
+			if _cur.done:
+				_judge(_cur)
+				_cur = null
+
+	func result() -> Dictionary:
+		if not _best.is_empty():
+			return _best
+		# nothing landed where it should: the last that finished at all will have to do, and
+		# failing that, the dice simply lying there
+		var s: DiceSim = _fallback if _fallback != null else Dice._lying(sp, _rng)
+		return {"sim": s, "order": [0, 1] if float(s.rest_t[0]) <= float(s.rest_t[1]) else [1, 0], "apex": {}}
+
+	func _next() -> DiceSim:
+		var s := DiceSim.new()
+		s.floor_y = _at.y
+		s.e_floor = _stuff[0]
+		s.mu_floor = _stuff[1]
+		s.drag = _stuff[2]
+		s.walls = sp.get("walls", [])
+		s.glasses = sp.get("glasses", [])
+		var land := _at + _aim - _toward * _rng.randf_range(0.06, 0.13) + _side * _rng.randf_range(-0.035, 0.035)
+		var from: Array = []
+		var v0: Array = []
+		var r0: Array = []
+		var w0: Array = []
+		var fly := clampf(0.25 + 0.3 * _hand.distance_to(land), 0.3, 0.62) * _rng.randf_range(0.92, 1.08)
+		if sp.get("low", false):
+			# in low and flat, under what's over it
+			fly = _rng.randf_range(0.24, 0.32)
+		# the second comes off his fingers a moment after the first; when it's the one that
+		# matters, a longer moment
+		var after := _rng.randf_range(0.3, 0.48) if drama else _rng.randf_range(0.08, 0.2)
+		for k in 2:
+			var f := _hand + _side * (0.02 if k == 0 else -0.02) + Vector3(0, 0.012 * k, 0)
+			var l := land + _side * _rng.randf_range(-0.02, 0.02) + _toward * _rng.randf_range(-0.025, 0.025)
+			var tk := fly * _rng.randf_range(0.96, 1.04)
+			from.append(f)
+			v0.append((l + Vector3(0, DiceSim.H, 0) - f) / tk - DiceSim.GRAV * (0.5 * tk))
+			var axis := Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-1, 1), _rng.randf_range(-1, 1))
+			r0.append(Basis(axis.normalized() if axis.length() > 0.01 else Vector3.UP, _rng.randf_range(0.0, TAU)))
+			var spin := Vector3(_rng.randf_range(-1, 1), _rng.randf_range(-1, 1), _rng.randf_range(-1, 1))
+			w0.append((spin.normalized() if spin.length() > 0.01 else Vector3.RIGHT) * _rng.randf_range(9.0, 24.0))
+		s.throw(from, v0, r0, w0, after)
+		return s
+
+	func _judge(s: DiceSim) -> void:
+		if not s.ok:
+			return
+		if _fallback == null:
+			_fallback = s
+		# where it ended against where it was meant to: the next throw aims off by that much
+		var mid: Vector3 = ((s.pos[0] as Vector3) + (s.pos[1] as Vector3)) / 2.0
+		var miss := Vector3(_at.x - mid.x, 0.0, _at.z - mid.z)
+		_aim = (_aim + miss * 0.5).limit_length(0.35)
+		if not Dice._fits(s, sp):
+			return
+		var o := [0, 1] if float(s.rest_t[0]) <= float(s.rest_t[1]) else [1, 0]
+		var gap: float = float(s.rest_t[o[1]]) - float(s.rest_t[o[0]])
+		var score := 1.0 - maxf(0.0, 0.3 - gap) * 3.0 + minf(gap, 0.6) * 0.5 - maxf(0.0, float(s.rest_t[o[1]]) - 2.4) * 1.5
+		var ap := {}
+		if drama:
+			# its last stand counts only once the first is down and the column's said what it needs
+			ap = Dice._teeter(s, o[1], float(s.rest_t[o[0]]) + 0.2)
+			if not ap.is_empty():
+				score += 2.0 * smoothstep(14.0, 40.0, float(ap.deg))
+		if score > _best_score:
+			_best_score = score
+			_best = {"sim": s, "order": o, "apex": ap}
+		if (not drama and gap >= 0.3) or (drama and score >= 2.75):
+			done = true
+
+
+# both dice still on the stretch they were thrown at, nowhere they couldn't be on the way
+static func _fits(s: DiceSim, sp: Dictionary) -> bool:
+	var y0: float = s.floor_y
+	var at: Vector3 = sp.at
+	var p0: Vector3 = s.pos[0]
+	var p1: Vector3 = s.pos[1]
+	if p0.distance_to(p1) > float(sp.get("reach", 0.28)) + 0.06:
+		return false
+	for k in 2:
+		var p: Vector3 = s.pos[k]
+		if Vector2(p.x - at.x, p.z - at.z).length() > float(sp.get("reach", 0.28)):
+			return false
+		var fr: Array = s.frames[k]
+		for i in range(0, fr.size(), 2):
+			var q: Vector3 = fr[i][0]
+			for o in sp.get("over", []):
+				var lo: Vector3 = (o[0] as Vector3) - Vector3.ONE * DiceSim.H
+				var hi: Vector3 = (o[1] as Vector3) + Vector3.ONE * DiceSim.H
+				if q.x > lo.x and q.x < hi.x and q.y > lo.y and q.y < hi.y and q.z > lo.z and q.z < hi.z:
+					return false
+			# what's lying there stands up off it, a ball or an arm: nothing goes through it, low or
+			# in the air
+			for l in sp.get("lying", []):
+				var lr := float(l[1])
+				if q.y < y0 + minf(2.0 * lr, 0.12) + DiceSim.H and Vector2(q.x, q.z).distance_to(l[0]) < lr + DiceSim.H * 1.8:
+					return false
+			if q.y > y0 + DiceSim.S * 1.2:
+				continue
+			# down on it: on it, and not over a pocket
+			if sp.has("box"):
+				var b: Array = sp.box
+				var m := DiceSim.H * 0.8
+				if q.x < float(b[0]) + m or q.x > float(b[1]) - m or q.z < float(b[2]) + m or q.z > float(b[3]) - m:
+					return false
+			if sp.has("round"):
+				if Vector2(q.x, q.z).distance_to(sp.round[0]) > float(sp.round[1]) - DiceSim.H * 1.3:
+					return false
+			for h in sp.get("holes", []):
+				if Vector2(q.x, q.z).distance_to(h[0]) < float(h[1]):
+					return false
+	# and he has to be able to read them where they lie: not tucked in under the near cushion, with
+	# the rail between his eye and the face that's up
+	if sp.has("eye"):
+		var eye: Vector3 = sp.eye
+		for k in 2:
+			var top: Vector3 = (s.pos[k] as Vector3) + Vector3(0, DiceSim.H, 0)
+			for w in sp.get("walls", []):
+				var n: Vector3 = w[1]
+				var a: float = (eye - (w[0] as Vector3)).dot(n)
+				var b: float = (top - (w[0] as Vector3)).dot(n)
+				if a < 0.0 and b > 0.0:
+					var y: float = eye.y + (top.y - eye.y) * (a / (a - b))
+					if float(w[2]) <= 0.0 or y < y0 + float(w[2]) + 0.004:
+						return false
+	return true
+
+
+# The second die's last stand: over its last second before it lay still (and not before a given
+# time), the moment it stood up highest on an edge, down on the surface, and the face it stood up
+# toward (or the face it came over from): {t, deg, near}, or nothing if it never rose much.
+static func _teeter(s: DiceSim, k: int, not_before := 0.0) -> Dictionary:
+	var fr: Array = s.frames[k]
+	var end := mini(int(float(s.rest_t[k]) * DiceSim.FPS), fr.size() - 1)
+	var from := maxi(maxi(1, end - int(1.1 * DiceSim.FPS)), int(not_before * DiceSim.FPS))
+	var final_up := DiceSim.up_face(Basis(fr[end][1] as Quaternion))
+	var best := {}
+	var prev := -1.0
+	var rising := false
+	for i in range(from, end + 1):
+		var b := Basis(fr[i][1] as Quaternion)
+		var deg := rad_to_deg(acos(clampf(float(_two_up(b)[0][1]), -1.0, 1.0)))
+		var down := DiceSim.lowest(fr[i][0], b) < s.floor_y + 0.0015
+		if prev >= 0.0 and deg < prev and rising:
+			# a peak, one frame back, if it was standing on the surface then
+			var bp := Basis(fr[i - 1][1] as Quaternion)
+			if DiceSim.lowest(fr[i - 1][0], bp) < s.floor_y + 0.0015 and prev >= 12.0 and prev <= 46.0:
+				var tp := _two_up(bp)
+				var a: Vector3 = tp[0][0]
+				var c: Vector3 = tp[1][0]
+				var near := Vector3.ZERO
+				if a.is_equal_approx(final_up):
+					near = c
+				elif c.is_equal_approx(final_up):
+					near = a
+				if near != Vector3.ZERO and (best.is_empty() or prev >= float(best.deg) - 4.0):
+					best = {"t": (i - 1) / DiceSim.FPS, "deg": prev, "near": near}
+		rising = prev >= 0.0 and deg > prev and down
+		prev = deg
+	return best
+
+
+# the two faces nearest pointing up, and how nearly: [[face, cos], [face, cos]]
+static func _two_up(b: Basis) -> Array:
+	var all: Array = []
+	for f in [Vector3.RIGHT, Vector3.LEFT, Vector3.UP, Vector3.DOWN, Vector3.BACK, Vector3.FORWARD]:
+		all.append([f, (b * f).dot(Vector3.UP)])
+	all.sort_custom(func(x, y): return float(x[1]) > float(y[1]))
+	return [all[0], all[1]]
+
+
+# no throw would come right: the two dice lying at the spot, as if they'd been there all along
+static func _lying(sp: Dictionary, rng: RandomNumberGenerator) -> DiceSim:
+	var s := DiceSim.new()
+	var at: Vector3 = sp.at
+	s.floor_y = at.y
+	for k in 2:
+		var p := at + Vector3(0.022 * (1 if k == 0 else -1), DiceSim.H, 0.01 * k)
+		s.pos[k] = p
+		s.rot[k] = Basis(Vector3.UP, rng.randf_range(0.0, TAU))
+		s.frames[k] = [[p, Quaternion(s.rot[k])]]
+		s.asleep[k] = true
+		s.rest_t[k] = 0.05 + 0.3 * k
+	s.done = true
+	s.ok = true
+	return s
+
+
+# ---------------------------------------------------------------- playing it back
 
 func _process(dt: float) -> void:
-	if state == "shake":
+	if planner != null and not planner.done and state in ["hand", "shake", "wind", "let_go"]:
+		planner.work(WORK_MS.get(state, 4.0))
+	if state == "hand":
+		return
+	if state == "shake" or state == "wind":
 		shake_t += dt
 		rattle_t += dt
 		if rattle_t >= RATTLE:
 			rattle_t = 0.0
 			main.audio.sfx("rattle", 0.45 + _rng.randf() * 0.35)
-		if not said and shake_t >= SPEAK:
+		if state == "shake" and not said and shake_t >= SPEAK:
 			said = true
 			var w = main.game.murmur("shake")
 			if w != null:
 				card.said(w, main.column.size_px)
+		if state == "wind" and shake_t >= T.shake:
+			state = "let_go"
+			planner.hurry = true
+		else:
+			return
+	if state == "let_go":
+		_try_throw()
 		return
 	if state != "roll":
 		return
 	t += dt
-	while not beats.is_empty() and beats[0][0] <= t:
+	ts += dt * float(T.speed) * _pace(ts)
+	while not beats.is_empty() and beats[0][0] <= ts:
 		var b: Array = beats.pop_front()
 		b[1].call()
 		if state != "roll":
 			return
 	for k in 2:
 		_pose_die(k)
+	# his eyes follow them a little, on the way to where they'll lie
+	var now := Vector3.ZERO
+	var out := 0
+	for d in dice:
+		if (d as Node3D).visible:
+			now += (d as Node3D).global_position
+			out += 1
+	main.view.look_at_point((rest_mid.lerp(now / out, 0.25) if out > 0 else rest_mid) + Vector3(0, 0.01, 0))
+
+
+# The throw's clock against the night's: the same, except round the second die's last stand on an
+# edge, when it runs slow, slower the higher it stood and the more rides on it.
+func _pace(at: float) -> float:
+	if apex.is_empty():
+		return 1.0
+	var tension := mini(int(item.roll.get("tension", 0)), 4)
+	var hold := (1.4 + 0.45 * tension) * smoothstep(14.0, 40.0, float(apex.deg))
+	var x := (at - float(apex.t)) / 0.13
+	return 1.0 / (1.0 + hold * exp(-x * x))
 
 
 func _pose_die(k: int) -> void:
-	var fr: Array = plans[k]
+	var fr: Array = sim.frames[k]
 	var d: Node3D = dice[k]
-	if t < fr[0].t:
-		d.visible = false
+	# still in his hand
+	d.visible = ts >= float(sim.release[k])
+	if not d.visible:
 		return
-	d.visible = true
-	var i := 1
-	while i < fr.size() and fr[i].t < t:
-		i += 1
-	if i >= fr.size():
-		d.global_transform = Transform3D(fr[-1].basis, fr[-1].pos)
+	var f := ts * DiceSim.FPS
+	if f >= fr.size() - 1:
+		d.global_transform = Transform3D(Basis(fr[-1][1] as Quaternion), fr[-1][0])
 		return
-	var a: Dictionary = fr[i - 1]
-	var b: Dictionary = fr[i]
-	var u := clampf((t - a.t) / maxf(b.t - a.t, 0.0001), 0.0, 1.0)
-	var pos: Vector3
-	if b.get("ease", false):
-		var e := u * u * (3.0 - 2.0 * u)
-		pos = a.pos.lerp(b.pos, e)
-	else:
-		pos = a.pos.lerp(b.pos, u) + Vector3.UP * 4.0 * float(b.get("air", 0.0)) * u * (1.0 - u)
-	var q := Quaternion(a.basis.orthonormalized()).slerp(Quaternion(b.basis.orthonormalized()), u)
-	d.global_transform = Transform3D(Basis(q), pos)
+	var i := int(f)
+	var u := f - i
+	var a: Array = fr[i]
+	var b: Array = fr[i + 1]
+	var q: Quaternion = (a[1] as Quaternion).slerp(b[1], u)
+	d.global_transform = Transform3D(Basis(q), (a[0] as Vector3).lerp(b[0], u))
 
 
 func _stamp() -> void:
@@ -400,6 +705,7 @@ func _stamp() -> void:
 # the stamp's down: back to the night
 func _done() -> void:
 	state = "done"
+	planner = null
 	_restore()
 	var c := cb
 	cb = Callable()
@@ -422,21 +728,25 @@ func _restore() -> void:
 		tw.tween_callback(func(): if state in ["", "done"]: node.visible = false)
 
 
-# space, enter or a tap: straight to the stamp
+# space, enter or a tap: straight to the stamp, the dice lying where they'd have ended (or, if the
+# throw isn't worked out yet, just lying there)
 func finish() -> void:
-	if state == "hand" or state == "shake":
+	if state in ["hand", "shake", "wind", "let_go"]:
 		card.waiting_in_hand(false)
-		_throw(true, 1.0)
+		quick = true
+		T = QUICK
+		planner.drama = false
+		if planner.done or planner.tries > 0:
+			planner.hurry = true
+			planner.work(4.0)
+		_throw(planner.result() if planner.done else {"sim": _lying(spot, _rng), "order": [0, 1], "apex": {}})
 	if state != "roll":
 		return
-	var end := 0.0
-	for b in beats:
-		end = maxf(end, b[0])
-	t = end
+	ts = INF
 	for k in 2:
-		var fr: Array = plans[k]
+		var fr: Array = sim.frames[k]
 		(dice[k] as Node3D).visible = true
-		(dice[k] as Node3D).global_transform = Transform3D(fr[-1].basis, fr[-1].pos)
+		(dice[k] as Node3D).global_transform = Transform3D(Basis(fr[-1][1] as Quaternion), fr[-1][0])
 	beats.clear()
 	card.first_down()
 	card.stamp()
@@ -448,6 +758,7 @@ func cancel() -> void:
 	if state == "":
 		return
 	state = ""
+	planner = null
 	beats.clear()
 	for d in dice:
 		(d as Node3D).visible = false

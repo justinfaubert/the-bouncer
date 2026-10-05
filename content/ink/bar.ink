@@ -62,10 +62,10 @@ Page three was a man in his fifties with a good haircut, photographed off his dr
 
 = know
 ~ pass(3)
-BARTENDER: Table 28 doesn't get cut off. Owner's rule.
-BARTENDER: The cook's all right, he's just hot. Leave the kitchen door alone unless you want to hear about it.
-BARTENDER: Night clerk's name is Terry. He props the hotel door so he can watch our TV from the desk. Don't tell him I told you that.
-BARTENDER: And if the card machine goes down, it's cash, and if they haven't got cash, they haven't got a drink.
+BARTENDER: Table 28 don't get cut off. That's Junior's rule, so don't look at me.
+BARTENDER: Cook's all right, he's just hot, and you'd be hot. Leave his kitchen door alone unless you want an earful.
+BARTENDER: Night clerk's Terry. Props the hotel door so he can watch our TV off the desk. You didn't hear that from me.
+BARTENDER: And when the card machine goes down, and it will, it's cash, and if they haven't got cash, they haven't got a drink.
 // HUTCH: The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
 ~ knows += hotel_gap
 ~ knows += kitchen_gap
@@ -78,7 +78,7 @@ FATHER: Every bar's got its rules and none of them are written down. The written
 ~ knows += endbar_seen
 She didn't look down the bar. She didn't need to.
 BARTENDER: Him? He was coming in before I started, and I started when I was nineteen.
-BARTENDER: Don't ask me his name. I've never known it. He buys one glass and he doesn't drink it.
+BARTENDER: Don't ask me his name. Thirty-one years and I never got it. Buys one glass and doesn't touch it.
 BARTENDER: He's no trouble.
 She wiped the bar where it didn't need wiping.
 BARTENDER: He's the only one in here who's never been any trouble.
@@ -87,9 +87,9 @@ WRONGMAN: Everybody said that about somebody, in the story.
 
 = rats_talk
 ~ pass(3)
-BARTENDER: Owner wants them dead. Cook wants them dead. Inspector's on the fourteenth.
-BARTENDER: Table 28 feeds one. They think I don't know.
-BARTENDER: They come up through the keg room. There's a trapdoor behind me. Third step's rotten.
+BARTENDER: Junior wants them dead, the cook wants them dead, and the inspector's on the fourteenth.
+BARTENDER: Table 28 feed one, under the table. They think I don't know.
+BARTENDER: They come up through the keg room. Trapdoor's behind me, and mind the third step, it's rotten.
 ~ knows += keg_hole
 BARTENDER: Me, I want a quiet night. Deal with them however you want, but don't do it in front of the customers.
 FATHER: That's the job. Not dealing with it. Not being seen to.
@@ -97,11 +97,11 @@ FATHER: That's the job. Not dealing with it. Not being seen to.
 
 = how_long
 ~ pass(2)
-BARTENDER: Thirty-one years. Thirty-two in March.
-BARTENDER: I've seen nine doormen. You're ten.
-BARTENDER: Table 28 have seen more than that. They were the young ones, when I started. They were worse than any kids you'll see tonight.
+BARTENDER: Thirty-one years. Thirty-two in March, God help me.
+BARTENDER: I've had nine doormen. You're ten.
+BARTENDER: Table 28's had more than that. They were the young ones when I started, and they were worse than any kids you'll see tonight, believe me.
 ~ knows += dennis
-BARTENDER: That's Dennis in the big glasses. His wife'll come in around one. She always does.
+BARTENDER: That's Dennis, in the big glasses. His wife'll be in for him around one. She always is.
 // HUTCH: The lifer's history with table 28. She knew them when they were young. What were they like?
 -> opts
 
@@ -109,7 +109,7 @@ BARTENDER: That's Dennis in the big glasses. His wife'll come in around one. She
 ~ pass(1)
 ~ asked_name = true
 She looked at him for a second longer than she needed to.
-BARTENDER: Last a week. Then ask me.
+BARTENDER: Last a week, Door. Then ask me.
 // HUTCH: Her name. Or keep it back until he's earned it.
 -> opts
 
@@ -118,7 +118,7 @@ BARTENDER: Last a week. Then ask me.
 {
 - drinks == 0:
     She poured a rye and put it on the ledge, not the bar, where the customers couldn't see it. #sfx: glass
-    BARTENDER: One's fine. Nobody's fine on two.
+    BARTENDER: That's your one. On the ledge, not the bar, and you don't come back for two.
     ~ drink()
     FATHER: One.
 - drinks == 1:
@@ -150,24 +150,24 @@ BARTENDER: Last a week. Then ask me.
 - at_bar.endbar == 1:
     He went and stood by the old man at the end of the bar, near the trapdoor. Up close he was older than he'd looked, and cleaner, in a jacket that had been good fifty years ago. The glass in front of him was full to the brim. Nothing had been drunk out of it. #portrait: endbar
     // HUTCH: The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
-    ENDBAR: You're the new door.
-    ENDBAR: It was a cannery, this, before it was a hotel. Did anyone tell you that? The tide came in under the floor. Twice a day, right under where you're standing. Fish heads and salt.
-    ENDBAR: They built the hotel on the pilings and the pilings are still there. So's everything that lived in them.
+    ENDBAR: You are the new door.
+    ENDBAR: This was a cannery, before it was a hotel. Did no one tell you? The tide came in under the floor twice a day, right under where you are standing. Fish heads and salt.
+    ENDBAR: They built the hotel on the pilings, and the pilings are still there. So is everything that lived in them.
     { nursed:
-        ENDBAR: You held a rye at that table and didn't drink it. Not many do. I saw.
+        ENDBAR: You held a rye at that table and did not drink it. Not many can. I saw.
     }
     FATHER: He's drunk.
     But the glass was full.
 - at_bar.endbar == 2:
-    ENDBAR: The owner wants you to deal with them.
+    ENDBAR: The owner would like you to deal with them.
     He said it like he'd read the note. Maybe he had. It was taped to the till.
-    ENDBAR: People always think it's a matter of poison. It's a matter of terms.
-    ENDBAR: Go down, after, when it's quiet. If you want to talk about it.
+    ENDBAR: People always think it is a matter of poison. It is a matter of terms.
+    ENDBAR: Go down, after, when it is quiet. If you would care to talk about it.
     WRONGMAN: Talk about it. With who.
     ~ knows += keg_hole
     ~ knows += endbar_invite
 - else:
-    ENDBAR: {shuffle:Still raining.|They're listening, you know. In the walls. They hear everything table 28 says.|Terms. That's all it ever is.}
+    ENDBAR: {shuffle:Still raining. High water at two, and the wind behind it.|They are listening, you know. In the walls. They hear every word table 28 says.|Terms. It is only ever a matter of terms.}
 }
 -> opts
 
@@ -178,8 +178,8 @@ BARTENDER: Last a week. Then ask me.
 ~ ev_card_done = true
 ~ here = bar
 The card machine beeped three times and its screen went blank. Then the one at the other end of the bar did it too. #sfx: till
-BARTENDER: And there it goes.
-BARTENDER: Network's down. Third time this week. It's cash, everybody.
+BARTENDER: And there she goes.
+BARTENDER: Network's down, third time this week. Cash only, folks. Cash only.
 TABLE28: Cash is king!
 They'd never paid any other way. Table 28 thought cards were a fad.
 The TV over the bar had cut to a panel of men in suits talking in front of a map. The sound was off. The banner under them said something about the capital that nobody in the bar read.
@@ -187,17 +187,17 @@ The TV over the bar had cut to a panel of men in suits talking in front of a map
 // it's the shipments from the mainland. When diesel's too dear for the trucks to make sense, things
 // start disappearing off the shelves, slowly, and then all at once. (Worked in by Claude.)
 The limes had come in short again. She was cutting them into eighths instead of quarters, and there was a strip of cardboard taped over one of the taps with NO MORE TIL TUES on it in marker.
-BARTENDER: Truck didn't come off the ferry with half of it. Again.
+BARTENDER: Truck didn't come off the ferry with half my order. Again.
 TABLE28: It's the diesel!
 They'd been saying it since two o'clock. It was the first thing they'd said all day that everyone in the room agreed with.
-SLIPPERS: I haven't got cash.
+SLIPPERS: Cash? I haven't got cash.
 One of the two women from upstairs, with an empty wine glass, standing at the bar in her slippers.
-SLIPPERS: I never have cash. Who has cash?
+SLIPPERS: I never have cash. My husband always carried the cash.
 - (card)
 * (lent) [Lend her twenty.]
     ~ cash -= 20
     She took it and looked at it like she'd forgotten what they looked like.
-    SLIPPERS: I'm in nine. I'll get it to you. I will.
+    SLIPPERS: I'm in nine, dear. I'll get it to you. I will.
     FATHER: You'll never see it again.
     WRONGMAN: Or you will, and it'll be the worst twenty you ever got back.
 * ["Can she run a tab till it's back up?"]
@@ -221,59 +221,58 @@ SLIPPERS: I never have cash. Who has cash?
 ~ here = bar
 The bar phone rang. It was the kind of phone with a cord. #sfx: phone
 The bartender answered, listened, said "He's fine," listened, and held it out across the bar.
-BARTENDER: For you.
+BARTENDER: It's Junior. For you.
 // Hutch, in director mode (27 Sept): an owner who's never there asks "How is it tonight?", and means
 // how busy is it, how much money am I making. What the doorman tells him, the till tells him too in
 // the morning. (Worked in by Claude.)
 OWNER: How is it tonight?
 { owner_missed:
-    OWNER: Somebody rang me from the bar phone at {q_words(owner_missed)}. I was at dinner.
+    OWNER: Somebody rang me from the bar phone at {q_words(owner_missed)}. I'm at dinner here.
 }
-// What the clicker says is what he'll tell the owner it was: idle clicks and all (toys.ink).
-* [Give him the number on the clicker.]
+// The door's number: everyone he let in, and the thirteen. Short of the room by whoever got past
+// him, and the bartender, who rings in every drink, knows it.
+* [Give him the door's number.]
     ~ owner_count = 1
-    He looked at the clicker and gave him the number, and the thirteen who'd been in when he came on.
-    { clicker() + 13 > room_count + 3:
-        OWNER: That's a good Wednesday. That's a very good Wednesday.
-        Behind the bar, the bartender, who'd rung in every drink, looked at the clicker in his hand.
-    - else:
-        OWNER: That's a Wednesday.
+    He gave him the number: everyone he'd let in past the stool, and the thirteen who'd been in when he came on.
+    OWNER: That's a Wednesday. I can live with a Wednesday.
+    { uncounted > 0:
+        Behind the bar, the bartender, who'd rung in drinks tonight for more faces than that, didn't say anything.
     }
     ~ rep(rep_owner, 1)
 * ["Quiet."]
     ~ owner_count = 0
-    OWNER: Wednesday's quiet. I know Wednesday's quiet. I just like to hear it.
+    OWNER: Quiet. Sure. Wednesday's quiet, I know Wednesday's quiet. I just like to hear it.
 * ["Busy."]
     ~ owner_count = -1
     ~ rep(rep_owner, 1)
     ~ rep(rep_staff, -1)
-    OWNER: Busy. Good. That's what I like to hear.
+    OWNER: Busy. Good. That's what I like to hear, buddy.
     The bartender, who'd rung in every drink, looked at him over the till.
     FATHER: He'll have the till tape in the morning. You'll have said busy.
-- OWNER: Did you do something about the rats?
+- OWNER: Now. The rats. Did we do something about the rats?
 - (oc)
 * (told_poison) {poison} ["Poison's down."]
     OWNER: Good man. That's what I like to hear.
     ~ rep(rep_owner, 2)
 * {traps} ["Traps are set."]
-    OWNER: Traps. Fine. Traps are fine.
+    OWNER: Traps. Fine, fine. Traps are a start.
     ~ rep(rep_owner, 1)
 * {rats_killed > 0 && not poison && not traps} ["I've killed {rats_killed == 1:one|a couple}."]
-    OWNER: One at a time. There's hundreds of them. The inspector's on the fourteenth.
-    OWNER: There's a bucket of bait in the office. I paid for it. Put it down.
+    OWNER: One at a time. Buddy, there's hundreds of them, and the inspector's on the fourteenth.
+    OWNER: There's a bucket of bait in the office. I paid for that bait. Put it down.
     # task: bait :: The owner wants the bait down. It's in the office in the keg room.
 * {not poison && not traps} ["It's handled."]
     ~ owner_lie = true
-    OWNER: Good. I'll hold you to that. Inspector's on the fourteenth.
+    OWNER: Good. I'm going to hold you to that. The fourteenth.
     ~ rep(rep_owner, 1)
     FATHER: It isn't handled. Now it's a lie with a date on it.
 * ["Not yet."]
     OWNER: Not yet. The inspector is on the fourteenth. Not yet is not a thing I can put in front of an inspector.
     ~ rep(rep_owner, -1)
-- OWNER: And listen. Table 28. Whatever they want.
+- OWNER: And listen. Table 28 get whatever they want. That's half my Wednesday right there.
 {
 - arrivals ? banned_in && arrivals !? banned_out:
-    OWNER: And a fella might come in tonight, good coat. {owner_missed:Graham. That'll be what you rang about. }He's all right now. Let him in.
+    OWNER: And a fella might come by tonight, good coat. {owner_missed:Graham. That'll be what you rang about. }We had a talk. He's all right now, let him in.
     The doorman looked down the bar at the good coat, already in.
 - arrivals ? banned_out:
     -> turned_away
@@ -284,13 +283,13 @@ OWNER: How is it tonight?
 
 = turned_away
 { arrivals ? banned_in:
-    OWNER: A fella in a good coat says you let him in for one drink and then put him out. Graham. That'll be what you rang about.
+    OWNER: Fella in a good coat called me. Graham. Says you let him in for one and then put him out. That'll be what you rang about.
 - else:
-    OWNER: Did a fella come in tonight, good coat? He says you turned him away. {owner_missed:That'll be what you rang about.}
+    OWNER: Fella in a good coat tried to come in tonight? Says you turned him away at the door. {owner_missed:That'll be what you rang about.}
 }
 * ["The book says not ever."]
-    OWNER: The book's old.
-    OWNER: Fine. Fine. We'll talk about it.
+    OWNER: That book's old, buddy.
+    OWNER: Fine, fine. We'll talk about it.
     ~ rep(rep_owner, -1)
     ~ rep(rep_staff, 1)
     The bartender, who could hear every word, didn't look up.
@@ -311,7 +310,7 @@ OWNER: How is it tonight?
 - -> hang_up
 
 = hang_up
-OWNER: Right. Good. Put her back on.
+OWNER: Good. Good. Put her back on, my food's here.
 He handed the phone back. She listened, said "Yep," and "Yep," and hung up.
 ~ pass(4)
 -> hub

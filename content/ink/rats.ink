@@ -34,8 +34,8 @@
     A fryer, a flat-top, a steel prep table, the walk-in humming at the back. {kitchen_door:The back door to the alley was propped open with a milk crate, and the steam went out through it and the rain came in.|The back door to the alley was shut, and the kitchen was hotter for it.}
     The cook was a man about forty in a t-shirt soaked dark down the back, shaking a basket of wings over the fryer. Wednesday was wing night. He'd made a hundred and sold thirty. #portrait: cook
     // HUTCH: The cook. What's a pub kitchen like on a Wednesday where you've worked? The menu, the heat, what the cook complains about, what he says to a new doorman standing in his kitchen.
-    COOK: You're the door.
-    COOK: Don't lean on anything. It's all hot or it's all wet.
+    COOK: Security, eh? Behind you. Behind!
+    COOK: Don't lean on anything. It's all hot or it's all wet, and that flat-top's a bastard, it'll have your hand off.
 - else:
     {shuffle:
     - The heat met him in the doorway again.
@@ -71,34 +71,34 @@
 ~ knows += kitchen_gap
 ~ knows += keg_hole
 The cook didn't stop working to answer. He didn't stop working for anything.
-COOK: Dealt with. Right.
-COOK: They come up the pipe chase behind the walk-in, from the keg room. Every morning there's droppings on my prep table, and every morning I bleach it before I do anything else.
-COOK: The inspector finds one dropping, he shuts the kitchen. Kitchen's shut, I don't get paid. So yeah. I'd like them dealt with.
+COOK: Dealt with. Dealt with! Sure.
+COOK: Pipe chase behind the walk-in, up from the keg room. Every morning, droppings on my prep table, every morning I'm bleaching the son of a bitch before I've had a coffee.
+COOK: Inspector finds one dropping, he shuts the kitchen. Kitchen's shut, I don't get paid, and I've got a, never mind. So yeah. Dealt with would be nice.
 // HUTCH: How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
 - (cr)
 * ["So why hasn't anybody?"]
     ~ knows += bait_office
-    COOK: There's a bucket of bait in the office, downstairs past the kegs. Owner bought it in the summer. There's a box of traps beside it.
-    COOK: She won't let anybody put them down. Something about table 28 and their pet.
+    COOK: Bucket of bait in the office, downstairs, past the kegs. Owner bought it in the summer. Box of traps right beside it, still in the plastic.
+    COOK: She won't let anybody put it down. Something about table 28 and their goddamn pet.
     He tipped the wings into a bowl and rang the bell on the pass.
-    COOK: I'm not getting into it with table 28. I have to work here.
+    COOK: I'm not getting into it with table 28. I work here. Some of us work here.
     -> cr
 * ["How many are there?"]
     ~ knows += rat_numbers
-    COOK: You see one, there's fifty. I've seen a lot more than one.
+    COOK: You see one, there's fifty. Me? I've seen a lot more than one, Security.
     MANUAL: A single sighting indicates an established population.
     -> cr
 * ["What would you do?"]
     ~ knows += cook_advice
-    COOK: Bait. Down in the keg room, where they live. They eat it, they go in the walls to die, it stinks for a week, and then it's done.
-    COOK: Traps are for people who want to feel like they did something. You'll catch three.
+    COOK: Bait. Keg room, where they live. They eat it, they crawl in the walls and die, it stinks for a week, done.
+    COOK: Traps are for people who want to feel useful. You'll catch three.
     FATHER: He's not wrong. A week of stink in a bar is a week of nobody coming in.
     -> cr
 * {knows ? t28_rat} ["Table 28 feeds one."]
     ~ knows += cook_fries
-    COOK: I know they do. I fry the fries.
+    COOK: I know they do. Who do you think fries the fries?
     COOK: An extra basket, Wednesdays. Don't tell her.
-    COOK: I don't care what they feed. I care what's on my prep table in the morning.
+    COOK: I don't care what they feed. I care what's on my prep table at seven in the morning.
     -> cr
 + [Leave him to it.]
     -> k_opts
@@ -116,7 +116,7 @@ He got down on one knee beside the walk-in, where the compressor blew warm air a
     It was dark back there and the compressor was loud. He saw droppings, and then more of them, and then he stopped counting.
 }
 { cook_here():
-    COOK: Don't touch anything back there.
+    COOK: Don't touch anything back there! That compressor's held together with tape.
 }
 -> k_opts
 
@@ -124,9 +124,9 @@ He got down on one knee beside the walk-in, where the compressor blew warm air a
 ~ pass(1)
 ~ fries = 1
 He took the basket of fries that had been going soft under the heat lamp since seven.
-COOK: Take them. Nobody's eating those.
+COOK: Take 'em, take 'em. Nobody's eating those.
 { knows ? t28_rat:
-    COOK: Table 28 will want them for their rat.
+    COOK: Table 28'll want 'em for the rat.
 }
 -> k_opts
 
@@ -148,7 +148,7 @@ The lid had been propped open with a brick.
     He left it. Somebody had put it there on purpose, and it wasn't the cook.
 - { cook_here():
     The cook was on the back step when he came in, smoking in the rain with his apron on.
-    COOK: Thanks.
+    COOK: Thanks, Security.
     It sounded like he didn't say it much.
 }
 -> k_opts
@@ -280,7 +280,7 @@ MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can
     He pushed the blocks into the gap around the pipes, as far in as he could reach.
     MANUAL: Never where it can contaminate food.
     { cook_here():
-        COOK: If the inspector sees that, it's my kitchen he shuts.
+        COOK: Are you kidding me? The inspector sees that, it's my kitchen he shuts, not yours.
         ~ rep(rep_cook, -1)
     }
 * {knows ? t28_rat} [In the hole in the baseboard behind table 28.]
@@ -328,7 +328,7 @@ The traps were in a box on the office shelf, twelve of them, still in the plasti
     -> carry_up ->
     He set them in a row along the wall behind the walk-in, where the droppings were.
     { cook_here():
-        COOK: Great. Now I lose a finger.
+        COOK: Great. Beautiful. Now I lose a finger.
     }
 * {knows ? t28_rat} [Set one under table 28.]
     ~ trap_at += t28
@@ -369,7 +369,7 @@ He came up the stairs with it, over the third step, and out of the trapdoor behi
 - Somebody was stamping on the trapdoor over his head. The bartender.
 - The stamping again, over his head.
 }
-BARTENDER: You're wanted.
+BARTENDER: Door! You're wanted.
 ~ pass(1)
 -> hub
 
@@ -398,7 +398,7 @@ BARTENDER: Find anything?
     ~ rats_heard += h_said_no
 * ["They're down there."]
     ~ rats_heard += h_said_down
-    BARTENDER: I know they're down there.
+    BARTENDER: I know they're down there. Thirty-one years I've known.
 - -> hub
 
 = knot
@@ -454,14 +454,14 @@ Over him, a foot from his face, boots on the floor. Table 28.
     SCRATCH: Unless something happened.
     TABLE28: Something happened.
 - claims ? said_father:
-    CARDIGAN: His old man worked doors. You can see it on him. He stands like somebody's watching him do it.
+    CARDIGAN: His father worked doors. You can see it on him. He stands as if somebody's watching him do it.
 - claims ? said_up_island:
     SCRATCH: Up island. They're all from up island.
 - claims ? said_around:
     TEAM_JACKET: Around. What kind of an answer is around.
 - else:
-    TEAM_JACKET: Where's the new one got to?
-    SCRATCH: Keg room. I saw him go down.
+    TEAM_JACKET: Where's the new kid got to?
+    SCRATCH: Keg room. I saw him go down. Bad luck, that keg room.
 }
 {
 - rep_t28 >= 3:
@@ -508,7 +508,7 @@ FATHER: One. Out of however many there are.
     ~ traps_reset = true
     He carried it up through the kitchen by the tail and out to the alley, and came back and reset both traps with fresh peanut butter.
     { cook_here():
-        COOK: Not through my kitchen. Not by the tail. Come on.
+        COOK: Not through my kitchen! Not by the tail! Come on, Security, I've got food out.
         ~ rep(rep_cook, -1)
     }
 * [Leave it where it is.]
@@ -555,7 +555,7 @@ FATHER: Whatever you do, do it like it's nothing.
             SCRATCH: Is that Walter? That's not Walter.
             TEAM_JACKET: That's not Walter. Walter's twice the size.
         - else:
-            TABLE28: Good man!
+            TABLE28: There he is!
         }
     - else:
         His boot came down on carpet. The rat went under table 28 at a flat run, and table 28 lifted their feet, all five, together, like they'd practised it.
@@ -580,12 +580,12 @@ FATHER: Whatever you do, do it like it's nothing.
     { passed:
         He leaned on the bar beside her and said, low, that it was a mouse, that they came in out of the rain, that it was more scared of her. She put her feet back down, slowly.
         SLIPPERS: A mouse.
-        SLIPPERS: That was a big mouse.
+        SLIPPERS: That was a big mouse, dear.
         But she stayed where she was and she didn't tell anyone, and by the time anyone else looked it was gone into the back hall.
         ~ rep(rep_staff, 1)
         FATHER: Keep your voice down and people will believe anything you tell them.
     - else:
-        SLIPPERS: That's not a mouse. I'm not stupid.
+        SLIPPERS: That's not a mouse, dear. I've lived upstairs eleven years.
         { slippers_upstairs:
             She took her glass and went up through the hotel door in her slippers, after her friend. The bottle stayed on the bar, a third of it left.
             ~ slippers_both = true
@@ -609,7 +609,7 @@ FATHER: Whatever you do, do it like it's nothing.
     ~ pass(4)
     He carried it through the kitchen and out the back door and lifted the glass in the alley. The rat sat on the coaster for a second, as if to show him it could, and then went up the alley toward the dumpster.
     { cook_here():
-        COOK: You're kidding me.
+        COOK: You're kidding me. You're kidding me, right?
         ~ rep(rep_cook, -1)
     }
 * [Drown it in the mop bucket.]
@@ -668,7 +668,7 @@ The whole room was looking at it now. The woman in slippers had both hands over 
         ~ rep(rep_t28, -3)
         Table 28 didn't say anything. The one who'd stood up picked up his chair and sat back down in it and looked at the table.
     - else:
-        BARTENDER: Jesus.
+        BARTENDER: Jesus Christ.
         She got the mop out from behind the bar and held it out to him, handle first.
     }
 * [Pick it up in a bar towel and carry it out.]

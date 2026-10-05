@@ -125,33 +125,33 @@ FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #
 = talk
 ~ pass(4)
 He waited until the big man was chalking his cue.
-BIGMAN: You're the new one.
-BIGMAN: Lot of doors in this place for one fella.
+BIGMAN: You'd be the new one, bud.
+BIGMAN: Lot of doors in this old place for one fella.
 - (tk)
 * (asked_regular) ["You're a regular?"]
-    BIGMAN: Wednesdays. Most days, lately.
+    BIGMAN: Wednesdays. Well. Most days, lately.
     -> tk
 * {knows ? pool_hustle} ["You're paying him, not playing him."]
     ~ knows += transmission
     ~ heat(1)
     The big man looked at him for the first time, properly.
-    BIGMAN: That's between me and him.
-    BUDDY: He owes me for a transmission. Big deal.
-    BIGMAN: It's between me and him.
+    BIGMAN: Now that's between me and him.
+    BUDDY: No no no, it's nothing, pal. He owes me for a transmission, is all.
+    BIGMAN: Me and him.
     FIGHTER: Now they're both looking at you. That's what saying it out loud costs.
     -> tk
 * [Ask how his night's going. #check: father 8 {asked_regular:1|0}]
     { passed:
         He asked it the way the Father used to, like it didn't matter, and it got an answer.
-        BIGMAN: Rough week.
-        BIGMAN: Family stuff. You know.
+        BIGMAN: Ah, it's been a week, bud. One of them weeks.
+        BIGMAN: Family stuff. You know how it is.
         He didn't say anything else about it. He put the chalk down.
-        BIGMAN: Do me a favour, eh. Anybody comes in here looking for me tonight, I'm not here.
+        BIGMAN: Do me a favour, eh. Anybody comes in here looking for me tonight, I'm not here. You never saw me.
         FATHER: There it is.
         ~ knows += bigman_dad
         -> favour
     - else:
-        BIGMAN: Fine.
+        BIGMAN: Ah, can't complain.
         He bent over the table and took a shot that didn't need taking.
     }
     -> tk
@@ -162,21 +162,21 @@ BIGMAN: Lot of doors in this place for one fella.
 = favour
 * ["All right."]
     ~ promised_bigman = true
-    BIGMAN: Good man.
+    BIGMAN: Appreciate it.
     He went back to the table.
 * [Say nothing.]
     ~ promised_bigman = true
     He didn't say anything. The big man took that for a yes, the way men like him take most things.
 * ["Depends who's asking."]
     ~ bigman_ease--
-    BIGMAN: Then forget I asked.
+    BIGMAN: Sure. Forget I asked, then.
     He bent over the table again. He didn't forget he'd asked. Neither did the doorman.
 - -> talk.tk
 
 = play
 ~ pass(15)
 He put a twenty on the rail. The buddy looked relieved to sit one out.
-BIGMAN: You any good?
+BIGMAN: Rack 'em, then. You any good?
 * [Play to win. #check: fighter 8]
     { passed:
         He ran four balls, missed, and then the big man handed him the eight, deliberately, the way he'd been handing the buddy games all night.
@@ -193,18 +193,18 @@ BIGMAN: You any good?
     ~ cash -= 20
 - ~ heat(-2)
 While they racked, the big man spoke to the table, not to him.
-BIGMAN: You got kids?
+BIGMAN: You got kids yourself?
 // What he says here is his now (main.ink, claims). It comes back in the lot at close.
 * ["No."]
     ~ claims += said_no_kids
     BIGMAN: Don't.
-    BIGMAN: No. That's not right. They're fine. It's me that's the problem.
+    BIGMAN: Nah. That's not right. They're good kids. It's me that's the problem.
 * ["Not that I know of."]
     ~ claims += said_maybe_kids
     The big man laughed, once, like a cough.
 * ["Do you?"]
     ~ claims += said_asked_back
-    BIGMAN: Two. Grown, near enough. They're better than me.
+    BIGMAN: Two. My girl and the boy. Grown, near enough, and better than me.
     BIGMAN: Low bar.
     He broke. The balls went everywhere and none of them dropped.
 - ~ knows += bigman_dad
@@ -242,7 +242,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
     He didn't point. He didn't have to.
     ~ knows += bigman_dad
     ~ pull_kid++
-    HOODIE: i'm supposed to tell him something. my sister's supposed to. she sent me in because she thought he wouldn't make a scene with me
+    HOODIE: i'm supposed to tell him something. well my sister's supposed to. she sent me in cause she thought he wouldn't make a scene with me or whatever
     HOODIE: i need to piss
     He went down the back hall. The single washroom door shut and locked.
     ~ fam += kid_found
@@ -255,7 +255,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
 * ["That your dad?" #check: wrongman 8 {kid_mod()}]
     { passed:
         WRONGMAN: Ask it like you already know. People answer what you already know.
-        HOODIE: ...yeah
+        HOODIE: yeah. i mean yeah
         ~ knows += bigman_dad
         ~ pull_kid++
     - else:
@@ -273,7 +273,7 @@ FATHER: Not in front of his friend. Never tell a man anything in front of his fr
 // He said he'd say the big man wasn't here, and then he let her in, or went to get him (door.ink).
 { promise_kept == -1:
     The big man saw him coming and knew what he was coming with.
-    BIGMAN: I asked you one thing.
+    BIGMAN: One thing, bud. I asked you one thing.
 }
 * [Tell him right here, at the table. #check: father 10 {bigman_mod()}]
     ~ heat(2)
@@ -336,7 +336,7 @@ BIGMAN: Where are they.
 ~ rep(rep_kids, 2)
 ~ rep(rep_staff, 1)
 The pickup's lights came on and it pulled out onto the highway, going toward town. #sfx: door
-BUDDY: He left the money.
+BUDDY: He left it. He left the money.
 Four twenties under the rail. The buddy looked at them for a long time and then put them in the tip jar at the bar, all four, and left too.
 ~ room_count--
 { knows ? transmission:
@@ -355,8 +355,8 @@ FATHER: I never would have gone.
 - else:
     He said it at the end of the bar, low. The big man listened to all of it and then looked past him at the pool table.
 }
-BIGMAN: I'll finish the game.
-BIGMAN: Tell them I'll come by after. Tell them I'm coming.
+BIGMAN: Yeah, okay. I'll just finish this game.
+BIGMAN: Tell 'em I'll come by after, eh. Tell 'em I'm coming.
 FATHER: He's not coming. I wasn't.
 {
 - sister_at == s_vestibule:
@@ -417,9 +417,9 @@ BIGMAN: Who asked you.
 - sister_at == s_rail:
     It started the way they start: afterward nobody could have told you how.
     The sister had gone to the pool table. She was standing at the big man's elbow saying something with her hands in fists at her sides. The big man was looking at the table.
-    BUDDY: Not now, sweetheart. Your dad's working.
+    BUDDY: No no, not now, sweetheart. Your dad's working, okay? He's working.
     { indoors(vape_at):
-        VAPE: the fuck did you call her
+        VAPE: the fuck did you just CALL her
     }
 - kid_at == s_jukebox:
     It started the way they start: afterward nobody could have told you how.
@@ -512,13 +512,13 @@ Table 28 had turned all the way around in their chairs to watch. The bartender h
 -> sort_out
 
 = call_it
-BARTENDER: Do I call it?
+BARTENDER: Door. Do I call it or not?
 * [Call it.]
     ~ rep(rep_owner, -1)
     ~ police_called = true
     ~ police_at = clock
     ~ incident += inc_police
-    BARTENDER: Okay.
+    BARTENDER: Yep.
     She dialled. It would be forty minutes. It was always forty minutes out here.
     MANUAL: Correct.
     FATHER: Now it's on paper. Now it's the owner's night, and the owner's insurance.
@@ -526,7 +526,7 @@ BARTENDER: Do I call it?
     ~ rep(rep_owner, 1)
     ~ name_on_log = true
     She put the phone down.
-    BARTENDER: Your name on the log, then.
+    BARTENDER: Your name goes on the log, then. Not mine.
 - -> sort_out
 
 = sort_out
@@ -559,7 +559,7 @@ BARTENDER: Do I call it?
     ~ rep(rep_kids, -3)
     { she_was:
         He walked them out. The sister didn't fight it. At the door she looked at him the way you look at a wall you've walked into.
-        DRIVER: He's the one who hit someone.
+        DRIVER: We didn't hit anybody. He did.
     - else:
         He walked them out. Nobody fought it.
     }
@@ -628,12 +628,12 @@ BARTENDER: Do I call it?
 { lock_up:
     Headlights came into the empty lot and stopped crooked across two spaces, and a constable got out and put her hat on in the rain, and knocked on the glass of the door he'd just locked. One car. It was always one car out here. #portrait: constable
     He let her in.
-    CONSTABLE: Somebody called about a fight.
+    CONSTABLE: Okay. So. We had a call about a fight.
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands. There was nobody in it but the bartender and him, and the chairs up on the tables.
-    CONSTABLE: Forty minutes. I know. It's always forty minutes out here.
+    CONSTABLE: Forty minutes. I know. I've got one car for the whole valley.
 - else:
     Headlights came into the lot slowly and stopped crooked across two spaces, and a constable got out and put her hat on in the rain. One car. It was always one car out here. #portrait: constable
-    CONSTABLE: Somebody called about a fight.
+    CONSTABLE: Okay. So. We had a call about a fight.
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands.
     { pool_still():
         At the pool table the big man was racking, as if none of it had been about him.
@@ -647,10 +647,10 @@ BARTENDER: Do I call it?
     ~ rep(rep_staff, 1)
     He told her the way it happened, in order, with the names he had and without the ones he didn't. She wrote it in a notebook with a pencil, the way they did out here, where the laptops didn't get signal.
     { hurt > 0:
-        CONSTABLE: And the eye?
+        CONSTABLE: Got it. And the eye, sir?
         He told her about the eye.
     }
-    CONSTABLE: That's the first time I've had one in order from a doorman.
+    CONSTABLE: Alright. First time I've had one in order from a doorman.
     FATHER: You told it straight to a cop. Remember what it felt like. You won't always.
 * [Tell her less than that.]
     ~ pass(4)

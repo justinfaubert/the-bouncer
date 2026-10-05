@@ -244,11 +244,10 @@ const HELP := [
 	["Looking", "Drag across the room to turn his head, or use the arrow keys. The wheel narrows his eyes on something far off. Rest the pointer on someone or something a choice is about and that choice lights up; a voice may lean in on it. Click it to do it."],
 	["Checks", "Some choices have a voice's dice behind them: its name, how hard it is, and the odds. Hover the tag to see what's for and against it tonight. When the dice come, hold Space or the mouse button to shake them and let go to throw. The first die down tells you what the second one needs."],
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
-	["The clicker", "Once the bartender has handed it over, C clicks it and Z turns the knob back to nothing. It's the room's count, as far as he knows it."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
-	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, X clicks the clicker, Back opens his notes and the left shoulder the sketch."],
+	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],
 ]
 
 

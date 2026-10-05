@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, the test shift. The Godot build of 4 October 2026.
+Wednesday, the test shift. The Godot build of 5 October 2026.
 
 
 PLAY IT
@@ -44,18 +44,57 @@ HANDS ON
     Throw the dice    hold Space or the mouse button to shake, let go to throw
     In his hands      drag to turn it, E to look closer, Q and R to go through it,
                       Esc to put it down
-    The clicker       C clicks it; hold Z to turn the knob back to nothing
     Notes, sketch     Tab, M
     Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
     On a pad          either stick looks round; the d-pad goes through the choices and A makes one
 
-Saves and settings are in ~/.local/share/The Bouncer/. A night saved by the first Godot build
-(29 September) was saved under a story that has changed since. The title says so, and if you
-continue it, it goes on from the floor rather than from the middle of a scene, and some of it
-won't line up. Start Wednesday over for the night as it is now.
+Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earlier build was
+saved under a story that has changed since. If you continue it, the column says so and it goes on
+from the floor rather than from the middle of a scene, and some of it won't line up. Start
+Wednesday over for the night as it is now, with everyone in their own voice from the first line.
 
 
-WHAT'S NEW SINCE THE FIRST GODOT BUILD
+WHAT'S NEW SINCE 4 OCTOBER
+
+Your notes on the last build, one at a time:
+
+- The text column reads clean. The paper's grain and mottle belong to the picture of the room;
+  the column is now one even ink with the words knocked out of it, and only the paper's slowest
+  drift, broader than a paragraph, comes through.
+- No more empty blocks. Rest the pointer on a choice and a voice can lean in with a line; its box
+  was being laid out two thousand pixels tall, which is what showed as a big empty block in the
+  column. The box now fits what's said, beside the choice. The word on him (what a group says
+  under a line) sits at the right with its stamp and wraps properly when it's long.
+- The receipt lines up like a till's: what, a run of dots, and how much, on one grid of
+  characters. When the how-much won't fit on the line, the dots run to the edge and it prints
+  underneath, indented, instead of being squeezed down the far margin a letter at a time.
+- The clicker is gone, and the counting chore with it. Nobody hands it to him. The door still
+  counts: everyone he lets in past the stool is on the till tape, and the ones who got in some
+  other way still come back to him at close.
+- The licences have a real hologram. Pick one up and tip it toward the lamp (drag, or turn it in
+  your hand): the foil wakes, its colours run through the spectrum as the card turns, and a
+  bright band crosses it where the foil catches the light square on. Away from the lamp it's a
+  pale outline in the laminate. The fakes' holograms are printed ink and sit still however you
+  tip them, which is how you tell.
+- The dice are objects now. Each throw is worked out as two cubes with weight, bounce and grip:
+  off the ledge by the door and the wall behind it, the bar, the pool table's cushions, the
+  glasses on table 28's table, the steel in the kitchen, the floor, and each other, until both
+  lie still. The surfaces and walls are fitted to the models, so a die stops against a cushion's
+  nose instead of inside it, and a throw only counts if both faces end up where he can read them
+  from where he stands, not tucked under a rail.
+- Everyone talks like themselves. Until now nearly everyone spoke the way the narration does:
+  short, flat, and a lot of it landing as rules, which is the Father's register. Every line from
+  someone in the room has been gone through (650 of them, about 300 rewritten), and the word on
+  him from each group too. The bartender talks while she works, calls him Door and the owner
+  Junior; the cook barks; the big man calls him bud and goes to two words when something lands;
+  the old man at the end of the bar never uses a contraction; the kids are lowercase. The facts,
+  the choices and what they lead to haven't changed. bible/10_VOICES.md in the repo is the guide
+  to who talks how, and your writing prompts are where they were.
+
+Everything new is logged as PROPOSED in the repo's bible/05_LOG.md, for you to keep or cut.
+
+
+WHAT'S NEW SINCE THE FIRST GODOT BUILD (4 OCTOBER)
 
 Every choice now has a consequence. Each one changes something the night comes back to later: a
 line someone says, a person's mind about him, the word on him, what goes in the book, who's
@@ -102,11 +141,10 @@ SOUND
 
 Every sound is still a placeholder made in code. A .wav, .ogg or .mp3 with the same name, in a
 folder called audio inside game/ (next to the game), takes its place from the next start; more
-takes of one sound go in as click_2, click_3 and so on. The names:
+takes of one sound go in as card_2, card_3 and so on. The names:
 
     the room   amb_rain_glass amb_rain_out amb_rain_roof amb_room_tone amb_talk_a amb_talk_b
                amb_shout amb_juke amb_pool amb_fryer amb_fan amb_tube amb_cellar amb_rats amb_sea
-    things     click (the clicker) ratchet (its knob) zero beep_ok beep_bad (the scanner)
-               thump (the door) gust rattle tick tock (the dice) clack (the balls) thud ring
-               glass scratch till bell card page pen printer swipe tear stamp steps heart
-               whisper lift choose click_ui
+    things     beep_ok beep_bad (the scanner) thump (the door) gust rattle tick tock (the dice)
+               clack (the balls) thud ring glass scratch till bell card page pen printer swipe
+               tear stamp steps heart whisper lift choose click_ui

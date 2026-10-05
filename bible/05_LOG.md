@@ -85,6 +85,16 @@ Update this file at the end of every session: add a session entry, move items be
 - Delivered in the thread: the Linux and Windows builds as downloads (copies in `releases/`, which git leaves out), and the web build as a page, https://claude.ai/artifact/FB8yU3reaBzuJD5JMcrrzF
 - Kept as it was: director mode stays in the browser build. Both builds read the same Ink, and `node tools/build.mjs` writes it into both, so Hutch's edits reach both.
 
+### 2026-10-03 to 04 (Saturday night), every choice a consequence
+
+- Hutch: "everything needs to have consequence, nothing is meaningless, even the more meaningless aspects", and a zip to play on Linux with the Godot project in it. Delivered on 4 October (eabee50): `releases/The-Bouncer-2026-10-04.zip`, both web builds republished, Hutch's five director-mode notes merged. What it built is under PROPOSED, "Proposed with the polish pass (2026-10-04)".
+
+### 2026-10-05 (Monday), up to a professional level
+
+- Hutch, on the 4 October build: "The positive things about this current build are innumerable and so I think you're doing great work on the right track. but let's bring this up to a professional level." Seven notes: the mottled paper filter looks good but obscures the text column; the dice don't have proper collision; the licences have no holographic sheen to inspect; the end-of-day receipt pushes some of the text to the far margin; some characters' responses come up as large empty blocks; the clicker is "unnecessarily tedious and really shouldn't be a thing"; and "The dialogue sounds the same across characters."
+- All seven were found in the running game first. The empty blocks were a voice's note beside a choice, laid out about 2,100 pixels tall; the receipt was squeezing its amounts down the right margin a letter a line.
+- What it built is under PROPOSED, "Proposed with the professional pass (2026-10-05)", except the clicker coming out, which is Hutch's call (DECIDED). Who talks how is `10_VOICES.md`.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -115,6 +125,7 @@ Update this file at the end of every session: add a session entry, move items be
 - The Rat King is both: a real rat king (rats with knotted tails) in the wall behind table 28, and a man who seems to speak for it. (2026-09-26)
 - The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
 - The game is seen through his eyes: first person from his posts (the stool at the door, the bar, table 28 and the rest), not from above as in Disco and not a free walk. Hutch's pick on the form, 2026-09-27 (`08_FUTURE_FORM.md`).
+- No clicker. Hutch, 2026-10-05: "the clicker mechanic is unnecessarily tedious and really shouldn't be a thing." Nobody hands him one and there's nothing to click. The door still counts (`count_in`, everyone he lets in past the stool), and the ones who got in some other way (`uncounted`) still come back to him at close.
 
 ### PROPOSED (waiting on Hutch)
 
@@ -171,7 +182,7 @@ Proposed with round three (2026-09-27). Built, to keep or cut:
 
 - The voices leaning in on the choice under the player's hand, and noticing a wait, a pull-away, a reread and a return.
 - The voices marking up the plates.
-- Things to handle: the clicker, the dice by hand, the licences, the kid's phone and the binder, with choices only the hands can make.
+- Things to handle: the dice by hand, the licences, the kid's phone and the binder, with choices only the hands can make. (The clicker was one too, until it came out on 5 October: DECIDED.)
 - In his skin: the print slipping and doubling with drink (the idea from the polish pass list), the throb when hurt, the rain on the door's glass, and his heartbeat with the dice and a loud head.
 - Facts drafted for the props, all Claude's placeholders: Wednesday is 4 November 2026, so a licence's birthday has a date to count from and the month runs out on Thursday 3 December; the names and numbers on the cards (the kid and his sister are Tyler and Kayla Moffat, the regular in the good shoes is Graham Ardagh); the kid photographed his dad at the pool table from the lot; forty sleeves in the binder, the first eleven written out, with dates and lengths under them (the reasons are Hutch's to write, at the binder's prompt in `content/ink/bar.ink`).
 - The small talk at the door, and what it changes, drafted from Hutch's answer.
@@ -199,10 +210,10 @@ Proposed with the playable build (2026-09-29), in `godot/`. Built, to keep or cu
 - The voices marking the room itself in their own colours: a ring round the big man, a box round the propped door, a cross on the empty stool, a tally on the bar. A pen tick at the edge of his sight points to a mark he has turned away from.
 - The print as his body, with no meters: drink pushes the plates out of register, nerves bring the red up in the dark, hurt thickens the red at the edges of his sight, his heart swells the ink when his head is loud, and late in the night the ink runs thin and the strokes break.
 - The room moves between glances: people breathe and shift while he watches, and come and go while he looks elsewhere.
-- Things in his hands in the room: a licence tipped to the lamp and held up beside the face of whoever handed it over, the kid's phone, the binder, and the clicker (C clicks it, holding Z turns it back to nothing).
+- Things in his hands in the room: a licence tipped to the lamp and held up beside the face of whoever handed it over, the kid's phone and the binder. (The clicker came out on 5 October.)
 - The lot in three framings: arriving, with the whole hotel and the sign over it; the pickup's window; the big man at his work truck by the beer store.
 - Claude's guesses at the back of the house, drawn from the Ink, for Hutch to correct from the real thing: the keg room (two rows of kegs on pallets under a board ceiling, the gas and the compressor, the concrete giving out to dirt and old pilings at the far end), the kitchen line, the deck facing the strait, and his room (a bed, a chair, a sink, a radiator, the one bag he came with, and the fire escape outside the window).
-- The people re-carved, and eighteen more, all Claude's: a model for each pose the night needs (the kid at the door hunched against the rain, his sister with her card up and her keys in her fist, the boyfriend holding the door with his shoulder, HI-VIS with the two-four, GOOD SHOES with his licence out and later at the bar with a cola, RAINCOAT holding her coat shut, the cook at the pass, the two women from upstairs with their white wine, and six regulars who fill the room as the count goes up), with fingered hands, clothes with collars and cuffs, and faces carved like whittled figures. And his own hands, from his eyes: the licence or the kid's phone in his right, the clicker in his left with the count in its window, up at the door and brought up anywhere else when he clicks it.
+- The people re-carved, and eighteen more, all Claude's: a model for each pose the night needs (the kid at the door hunched against the rain, his sister with her card up and her keys in her fist, the boyfriend holding the door with his shoulder, HI-VIS with the two-four, GOOD SHOES with his licence out and later at the bar with a cola, RAINCOAT holding her coat shut, the cook at the pass, the two women from upstairs with their white wine, and six regulars who fill the room as the count goes up), with fingered hands, clothes with collars and cuffs, and faces carved like whittled figures. And his own hands, from his eyes: the licence or the kid's phone in his right. (His left held the clicker until it came out on 5 October.)
 - Three nights of saves, each saved after every choice and played through once. This adds slots to "One save slot" above; a night still can't be replayed from a choice.
 - Placeholder sound made in code. Hutch's recordings go in by dropping a file with the same name into a folder called `audio` next to the game; more takes of one sound are picked among.
 - A controller covers the basics: either stick looks round, the d-pad goes through the choices and A makes one.
@@ -223,6 +234,21 @@ Proposed with the polish pass (2026-10-04), asked for by Hutch on 3 October ("ev
 - The voices that talk about the family follow where they are, as the lines do: the Father's "His kid's twenty feet away and he knows exactly where." only while the kid's by the jukebox; a new one while the daughter waits in the truck ("His daughter's sitting out in that truck with the engine running, and he's chalking his cue."); the Wrong Man on the man in the kid's photo, and the Fighter on his left hand, only while he's at the table (Hutch's saved night from 27 September had the photo line at an empty table); "A locked door with a kid behind it" only while the kid is in there.
 - A night saved under an older version of the story says so, on the title and when it's picked up, in both builds, and goes on from the floor rather than mid-scene. Continued mid-scene, a night saved by the 29 September build could lose its place and end early.
 - A zip to play from on Linux: the game with `play.sh`, and the Godot project with `open-in-godot.sh`, which uses a Godot 4.7 if there is one and otherwise offers to fetch the official 4.7.2 editor and checks its fingerprint. `godot/tools/bundle/make.sh` makes it.
+
+Proposed with the professional pass (2026-10-05), from Hutch's notes on the 4 October build. Built, to keep or cut:
+
+- The text column as one even solid of the night ink, with the words knocked out of it. The paper's tooth and grain stay in the room's print; under a letter they read as dirt. All that comes through is the paper's slowest mottle, broader than a paragraph, and the block's edge a hair heavier where it meets the room (`godot/look/column.gdshader`).
+- A voice's note beside a choice is a box the size of what it says, beside the choice. The word on him sits at the right of the page with its stamp after it, and a long one wraps in the room the stamp leaves.
+- The till tape on a till's grid of characters: what, a run of dots, how much. When the how-much won't fit on its line the dots run to the edge and it prints underneath, indented. A heading too long to stay on one line spaced out isn't spaced out.
+- A hologram in each licence's laminate, drawn once per card: a field of small waves, a seal over the corner of the photo, the face again, and the birthday in a line of tiny print. Away from the lamp it's a pale outline. Tipped toward the lamp the foil splits the light: its colours run through the spectrum as the card tips, and a bright band crosses it where the foil sits at the mirror angle. A fake's printed hologram (`holo: printed` in `props.yaml`) is ink, and sits still however the card is tipped (`godot/look/licence.gdshader`).
+- The dice as two solid cubes with weight, bounce and grip (`godot/game/dice_sim.gd`), worked out before anyone sees them, so the same throw falls the same way every time: off the surface, its walls (the front wall behind the ledge, the pool table's cushions), the glasses on table 28's table, and each other. Each surface has its own bounce, grip and knock (wood, felt, steel, carpet). The surfaces and walls are fitted to the models (a die stops on a cushion's nose, the kitchen board ends where the board does), the balls lying on the felt are solid in the air too, and a throw only counts if both faces can be read from his eye. The number was settled when the choice was made, as before; the faces are dealt to the cubes after they land.
+- The voice pass. `10_VOICES.md` sets down how each of them talks (rhythm, words, what they do with a question, what they never say) and how each says yes, no and fine, and every line from someone in the room was gone through against it: about 300 of 650 rewritten, and the word on him from each group in that group's voice. Every fact, number, name, promise, choice and condition is unchanged, and so is the story's shape; Hutch's own lines are word for word, and the `// HUTCH:` prompts are where they were (the draft lines under them are in voice now too, for Hutch to replace). Claude's, to keep or cut, among others:
+  - The bartender calls the new man *Door*, never his name, until he's lasted a week, and the owner *Junior* behind his back: she worked for his father.
+  - The old man at the end of the bar never uses a contraction, and calls him *Doorman*.
+  - The big man calls him *bud*, and his own kids *my girl* and *the boy*; when something lands he goes to two words.
+  - Table 28 talk about him in front of him: *the new kid*, *big fella*. Team Jacket is the table's mouth and keeps its books; *Hear, hear!* and *There he is!* are the table's, and *Good man.* is the owner's alone.
+  - Terry asks the score before anything else and calls everyone *pal*. HI-VIS's greeting is the island's working one, *How's she goin'.*
+  - The kids' word on him is lowercase, the way it'll be typed.
 
 ### REJECTED
 

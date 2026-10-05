@@ -70,7 +70,6 @@ function play(night) {
     }
     const vis = g.choices.filter((c) => !c.hidden);
     if (!vis.length) { lines.push('STUCK'); break; }
-    if (g.clickerInHand() && rnd() % 9 === 0) lines.push('K ' + canon(g.toy('clicker', 'click') || {}));
     const handled = res.choices.filter((c) => c.toy && c.unlisted && g.toyChoice(c.toy.id, c.toy.what) === c);
     if (handled.length && rnd() % 3 === 0) {
       const hc = handled[rnd() % handled.length];

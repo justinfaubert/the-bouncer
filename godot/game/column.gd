@@ -181,8 +181,6 @@ func set_status(st: Dictionary) -> void:
 	head_clock.pop()
 	head_row.clear()
 	var bits := [["POCKET", "$" + str(int(st.cash))], ["DRINKS", Look.tally(int(st.drinks))]]
-	if bool(st.get("clicker", false)):
-		bits.append(["CLICKER", "%04d" % int(st.count)])
 	if int(st.hurt) > 0:
 		bits.append(["HURT", Look.HURT_WORDS[clampi(int(st.hurt), 0, 3)]])
 	for i in bits.size():
@@ -300,25 +298,13 @@ func _tape_line(it: Dictionary) -> Control:
 	match cls:
 		"row":
 			var cut := text.find(": ")
-			var h := HBoxContainer.new()
-			h.add_theme_constant_override("separation", 6)
-			h.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var k := UiBits.label((text.substr(0, cut) if cut > 0 else text).to_upper(), "receipt", s, ink)
-			h.add_child(k)
-			var dots := UiBits.label(".".repeat(80), "receipt", s, Color(ink, 0.45))
-			dots.clip_text = true
-			dots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			dots.custom_minimum_size = Vector2(24, 0)
-			h.add_child(dots)
-			if cut > 0:
-				var v := UiBits.label(text.substr(cut + 2), "receipt", s, ink)
-				v.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-				v.custom_minimum_size = Vector2(0, 0)
-				v.size_flags_horizontal = Control.SIZE_SHRINK_END
-				v.size_flags_stretch_ratio = 2.0
-				h.add_child(v)
-			return h
+			var row := TapeRow.new()
+			row.key = (text.substr(0, cut) if cut > 0 else text).to_upper()
+			row.value = text.substr(cut + 2) if cut > 0 else ""
+			row.font = Look.font("receipt")
+			row.fsize = s
+			row.ink = ink
+			return row
 		"sub":
 			var m := MarginContainer.new()
 			m.add_theme_constant_override("margin_left", 24)
@@ -328,7 +314,8 @@ func _tape_line(it: Dictionary) -> Control:
 			m.add_child(l)
 			return m
 		"head":
-			var l := UiBits.label(text, "receipt_b", s + (2 if text.begins_with("THE ") else 0), ink, 2)
+			# spaced out, unless it's too long to stay on one line that way
+			var l := UiBits.label(text, "receipt_b", s + (2 if text.begins_with("THE ") else 0), ink, 2 if text.length() <= 24 else 0)
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			return l
@@ -418,18 +405,22 @@ func add_word(it: Dictionary) -> Control:
 		return null
 	var s := size_px
 	var down := str(it.get("way", "up")) == "down"
-	var h := HFlowContainer.new()
-	h.alignment = FlowContainer.ALIGNMENT_END
-	h.add_theme_constant_override("h_separation", 12)
+	# the stamp, then what they're saying, set to the right of the page; a long one wraps in the
+	# room the stamp leaves it, never down to a letter a line
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 12)
 	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var who := StampLabel.new()
 	who.text = str(it.get("who", it.get("group", ""))).to_upper()
 	who.small = true
 	who.ink = Look.RED if down else Look.INK_2
-	h.add_child(who)
+	who.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	var q := UiBits.label("“" + str(it.text) + "”", "read_i", int(s * 0.94), Look.INK_2)
 	q.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	q.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	q.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(q)
+	h.add_child(who)
 	return _add(h, _screen_of(it))
 
 
@@ -811,6 +802,62 @@ class TapeBlock extends MarginContainer:
 				y += 32.0
 			draw_line(Vector2(44, 0), Vector2(44, size.y), Color("c0463b"), 1.0)
 			draw_line(Vector2(48, 0), Vector2(48, size.y), Color("c0463b"), 1.0)
+
+
+# A row on the till tape: what, a run of dots, and how much, the way a till prints in its one
+# typeface on a grid of characters. When the how-much won't fit on the line with its what, the dots
+# run out to the edge and it prints underneath, indented, on as many lines as it takes.
+class TapeRow extends Control:
+	const INDENT := 3                 # characters in, for a how-much on the lines under
+	var key := ""
+	var value := ""
+	var font: Font
+	var fsize := 19
+	var ink := Color.BLACK
+	var _cw := 11.0                   # a character's width: the grid
+	var _lh := 26.0
+	var _under: TextParagraph = null
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_cw = font.get_char_size(ord("M"), fsize).x
+		_lh = ceilf(font.get_height(fsize) + 5.0)
+		custom_minimum_size = Vector2(0, _lh)
+		resized.connect(_layout)
+		_layout()
+
+	func _cols() -> int:
+		return int(floor(size.x / _cw))
+
+	func _layout() -> void:
+		var cols := _cols()
+		if cols < 8:
+			return
+		# the what, two dots at least, a space, the how-much
+		if value == "" or key.length() + 3 + value.length() <= cols:
+			_under = null
+			custom_minimum_size.y = _lh
+		else:
+			_under = TextParagraph.new()
+			_under.add_string(value, font, fsize)
+			_under.width = (cols - INDENT) * _cw
+			custom_minimum_size.y = _lh + ceilf(_under.get_size().y) + 3.0
+		queue_redraw()
+
+	func _draw() -> void:
+		var cols := _cols()
+		var base := font.get_ascent(fsize) + 2.0
+		draw_string(font, Vector2(0, base), key, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, ink)
+		var stop := cols
+		if _under == null and value != "":
+			stop = cols - value.length() - 1
+			draw_string(font, Vector2((cols - value.length()) * _cw, base), value, HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, ink)
+		var dot := Color(ink, 0.45)
+		for i in range(key.length() + 1, stop):
+			draw_string(font, Vector2(i * _cw, base), ".", HORIZONTAL_ALIGNMENT_LEFT, -1, fsize, dot)
+		if _under != null:
+			_under.draw(get_canvas_item(), Vector2(INDENT * _cw, _lh - 2.0), ink)
 
 
 # A stamp: letters in a box, knocked a little crooked. On the tape it's the end of the shift; small,

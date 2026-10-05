@@ -30,6 +30,9 @@ tonight: "2026-11-04"
 #       you). Keep sex, age and build as in characters.yaml or it comes out a different person.
 # born, issued, expires: dates. A licence runs out on a birthday.
 # class: 5 is a full licence; 7N is a new driver's, the N stage.
+# holo: the hologram under the laminate. foil (the default, every real licence): tipped to the light
+#       its colours run and a bright band crosses it; printed (a fake): ink, it sits there however
+#       it's tipped; none. All three tonight are real.
 
 hoodie_card:
   kind: card

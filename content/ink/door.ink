@@ -3,8 +3,8 @@
 // GOOD SHOES 10:30, RAINCOAT 12:40. If he isn't at the door when they come, see sim.ink.
 //
 // Where the three from the pickup are is kept exactly (kid_at, sister_at, vape_at in main.ink),
-// and move() in sim.ink keeps the room's count in step with it. Whether the clicker saw them come
-// in is up to the line that moves them: count_in when he clicks, uncounted when he doesn't.
+// and move() in sim.ink keeps the room's count in step with it. Whether he saw them come in is up
+// to the line that moves them: count_in when he lets them in, uncounted when they got past him.
 
 === at_door ===
 ~ here = door
@@ -42,9 +42,9 @@
 { due(): -> hub }
 { clock >= LAST_CALL: -> hub }
 { stopping:
-- He sat on the stool with the clicker in his fist. The rain ran down the glass. A truck went by on the highway and its lights went across the ceiling.
+- He sat on the stool with his hands between his knees. The rain ran down the glass. A truck went by on the highway and its lights went across the ceiling.
 - Nothing came in for a while. The ice machine dumped a load behind the bar. Table 28 laughed at something on the TV, together, on the same beat.
-- Two men came in out of the rain, shaking it off, regulars by the way they didn't look at him. He clicked them in. #sfx: clicker
+- Two men came in out of the rain, shaking it off, regulars by the way they didn't look at him. He nodded them through.
     ~ count_in += 2
     ~ room_count += 2
 - A woman came in to buy smokes from the machine by the door and went out again without looking at anybody.
@@ -127,7 +127,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
     ~ knows += kid_photo
     {took:He swiped to the next one.|He reached over and swiped the screen while the kid was still holding it up.}
     It wasn't a licence. It was the pool table, taken from the lot through the front window, at night, in the rain. The lamp over the table, the green of the cloth, and a big man bent over a shot with his left hand flat on the rail.
-    HOODIE: hey
+    HOODIE: hey. that's my phone
     The kid took the phone back. He didn't snatch it. He put it in the pouch of his sweatshirt and kept his hand in there with it.
     ~ rep(rep_kids, -1)
     ~ kid_ease--
@@ -217,7 +217,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
         MANUAL: The scanner reads cards. It does not read photographs of cards. The scanner is, in this respect, correct.
     - else:
         HOODIE: it's not gonna work
-        HOODIE: it didn't work the first time
+        HOODIE: it didn't work the first time either. it's a picture
         ~ kid_ease--
         MANUAL: The scanner keeps a record of every card it is shown, with the time. It now has two of these.
     }
@@ -238,7 +238,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
 ~ count_in++
 ~ incident += inc_no_id
 ~ rep(rep_kids, 1)
-He stood aside. The kid went past him without a word and stopped just inside, dripping on the carpet, looking at the room. #sfx: clicker
+He stood aside. The kid went past him without a word and stopped just inside, dripping on the carpet, looking at the room.
 { knows !? kid_legal:
     ~ rep(rep_staff, -1)
     Behind the bar, the bartender had stopped cutting limes. She'd seen the phone. She didn't say anything. She started cutting again.
@@ -255,7 +255,7 @@ The kid went and stood by the jukebox with his hood still up. He didn't order. H
 ~ incident += inc_kid_refused
 ~ move(kid_at, s_truck)
 { knows ? card_in_truck:
-    HOODIE: it's in the truck though
+    HOODIE: it's literally in the truck though
     He waited, in case the doorman was going to tell him to go and get it. The doorman wasn't.
     ~ rep(rep_kids, -1)
 }
@@ -286,7 +286,7 @@ The passenger door opened and shut. The truck didn't leave.
 The kid went back across the lot. The driver's window came down. There was a conversation, short, with a lot of hand in it from the driver's side. The window went up.
 He came back with a wet wallet and held out a licence, the real one. The scanner gave it a green light. #sfx: scanner_ok #prop: hoodie_card
 MANUAL: Valid. Nineteen. Thank you.
-He went past into the room and stood by the jukebox with his hood still up, dripping on the carpet. He didn't order. #sfx: clicker
+He went past into the room and stood by the jukebox with his hood still up, dripping on the carpet. He didn't order.
 FATHER: His sister's still out there with the engine running. Wonder why.
 ~ knows += truck
 -> hub
@@ -318,7 +318,7 @@ He held up a hand.
 { knows ? kid_legal:
     ~ rep(rep_staff, 1)
 }
-He let him past. The kid went and stood by the jukebox. He watched the pool table the way you watch a dog you don't know. #sfx: clicker
+He let him past. The kid went and stood by the jukebox. He watched the pool table the way you watch a dog you don't know.
 { kid_terms == 3:
     Through the glass, the doorman watched him take his phone out and type something with both thumbs, and out in the lot the screen lit up in the driver's hand.
 }
@@ -338,18 +338,18 @@ The bartender caught his eye and pointed her chin at the front door.
 A young woman stood in the vestibule with car keys in her fist and rain in her hair. Behind her, holding the door open with his shoulder, a guy in a soaked hoodie with a vape in his hand. #portrait: driver
 {
 - fam ? hoodie_refused && knows ? card_in_truck:
-    DRIVER: My brother was just here. His card's in the truck. It was in the truck the whole time.
+    DRIVER: My brother was just at this door. His licence is in the truck. It's been in the truck the whole time.
 - fam ? hoodie_refused && fam ? hoodie_rapport:
-    DRIVER: My brother was just here. He said you were all right about it.
+    DRIVER: My brother was just here. He said you were decent about it. Thank you for that.
 - fam ? hoodie_refused:
-    DRIVER: My brother was just here. You told him no.
+    DRIVER: My brother was just at this door, and you told him no. That's fine. That's not why I'm here.
 - kid_terms == 3:
-    DRIVER: My brother says you'll only let him stay if I come in. So I'm here.
+    DRIVER: My brother texted me. He says he can only stay if I come in. So I'm here.
 - else:
-    DRIVER: My brother's in there. Kid in the grey hoodie.
+    DRIVER: My brother's in there. Grey hoodie, nineteen. He's with me.
 }
 She had her licence out already, held up at eye level, not a photo, the card. Twenty-two. #prop: driver_card
-VAPE: we're just here to get her dad bro. two minutes
+VAPE: we're just here to get her DAD bro. two minutes. in and out
 DRIVER: Shut up, Kyle.
 // HUTCH: The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
 -> sister_opts
@@ -369,14 +369,14 @@ DRIVER: Shut up, Kyle.
     -> sister_opts
 * ["Get who?"]
     ~ pass(1)
-    DRIVER: Our dad. Big guy. At the pool table, I'd bet my life.
+    DRIVER: Our dad. Big guy. He'll be at the pool table, he's always at the pool table.
     FATHER: The big one with the left hand.
     ~ knows += bigman_dad
     -> sister_opts
 * ["What's it about?"]
     ~ pass(2)
     She looked at him like she was deciding how much he was owed.
-    DRIVER: Our mom's in the hospital in town. Since this morning. He's not answering his phone.
+    DRIVER: Our mom's in the hospital in town. Since this morning. He's not answering his phone. He's not answering anybody.
     DRIVER: He doesn't answer when he's here.
     // HUTCH: Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
     ~ knows += kid_why
@@ -399,8 +399,8 @@ DRIVER: Shut up, Kyle.
 * ["ID for him too."]
     ~ pass(1)
     ~ knows += vape_no_id
-    VAPE: bro
-    VAPE: it's in my other pants
+    VAPE: bro come on
+    VAPE: it's in my other pants my guy
     FATHER: It's always in the other pants.
     -> sister_opts
 // He told the big man he'd say he wasn't here (pool.ink). This is where he finds out what that costs.
@@ -446,9 +446,9 @@ FATHER: You lied for a drunk to his daughter. He'll thank you for it. Remember t
 { promised_bigman:
     ~ promise_kept = -1
 }
-VAPE: are you serious
+VAPE: are you SERIOUS right now
 DRIVER: Kyle. Truck.
-He went. He took his time about it and the vape with him. #sfx: clicker
+He went. He took his time about it and the vape with him.
 She went in past the doorman. She didn't look at the pool table right away. She looked at the floor first, like someone getting ready to lift something heavy.
 { fam ? hoodie_refused:
     -> sister_brother
@@ -458,7 +458,7 @@ She went in past the doorman. She didn't look at the pool table right away. She 
 // Her brother, still out in the truck with the photo of his licence.
 = sister_brother
 She came back to the door a minute later.
-DRIVER: Can my brother come in. He's nineteen. You saw the picture.
+DRIVER: Can my brother come in, please. He's nineteen. You saw the picture.
 * ["Get him."]
     ~ fam += hoodie_admitted
     ~ move(kid_at, s_jukebox)
@@ -469,7 +469,7 @@ DRIVER: Can my brother come in. He's nineteen. You saw the picture.
         ~ scans += scan_card
         ~ knows += kid_legal
     - else:
-        She waved at the truck. The kid came across the lot. He clicked him in, and this time the kid looked at him for almost a whole second. #sfx: clicker
+        She waved at the truck. The kid came across the lot. He let him in, and this time the kid looked at him for almost a whole second.
         ~ incident += inc_no_id
         ~ rep(rep_staff, -1)
         MANUAL: For the record: an hour ago he was refused for want of a card. He still has no card.
@@ -487,7 +487,7 @@ DRIVER: Can my brother come in. He's nineteen. You saw the picture.
     ~ rep(rep_kids, 1)
     ~ rep(rep_staff, 1)
     HOODIE: told you
-    He hadn't told him anything. He went and stood by the jukebox. #sfx: clicker
+    He hadn't told him anything. He went and stood by the jukebox.
     -> hub
 * ["Just you."]
     ~ fam += kid_kept_out
@@ -517,12 +517,12 @@ DRIVER: Can my brother come in. He's nineteen. You saw the picture.
     - else:
         She waved at the truck. The kid came across the lot.
     }
-    The three of them went in past him, the sister first. #sfx: clicker
+    The three of them went in past him, the sister first.
 - else:
     ~ count_in += 2
-    The two of them went in past him. #sfx: clicker
+    The two of them went in past him.
 }
-VAPE: appreciate you bro
+VAPE: appreciate you big dog
 He said it on his way to the bar, not the pool table.
 { knows ? vape_no_id:
     ~ rep(rep_staff, -1)
@@ -543,11 +543,11 @@ FATHER: You let the weather in.
 { promised_bigman:
     ~ promise_kept = -1
 }
-DRIVER: You'd do that?
-VAPE: bro he's gonna do it wrong
+DRIVER: You'd do that? Okay. Thank you.
+VAPE: bro he's gonna do it WRONG. he doesn't even know what he looks like
 DRIVER: Kyle.
 { fam ? hoodie_admitted:
-    DRIVER: Tell my brother to come out too. He's useless in there. He won't even talk to him.
+    DRIVER: Tell my brother to come out too, please. He's no use in there. He won't even talk to him.
 }
 She waited in the vestibule, dripping, with her keys. The boyfriend went back to the truck.
 FATHER: Now it's your errand. You carry it right or you carry it wrong, but you're carrying it.
@@ -562,7 +562,7 @@ FATHER: Now it's your errand. You carry it right or you carry it wrong, but you'
 ~ move(vape_at, s_truck)
 ~ rep(rep_kids, -2)
 ~ incident += inc_kid_refused
-DRIVER: Right.
+DRIVER: Okay. Thank you.
 { kid_terms == 3:
     DRIVER: You told him he could stay if I came in.
     DRIVER: So which is it.
@@ -570,7 +570,7 @@ DRIVER: Right.
     ~ rep(rep_kids, -1)
 }
 She didn't argue. She looked past him into the room for as long as she could, then turned around.
-VAPE: this guy
+VAPE: unreal. this guy
 They went back across the lot. The truck's engine was still running. It kept running.
 { indoors(kid_at):
     Her brother was still inside.
@@ -584,7 +584,7 @@ They went back across the lot. The truck's engine was still running. It kept run
 ~ here = door
 ~ arrivals += hivis_done
 A man in a hi-vis vest over a hoodie came in from the lot with a two-four of beer under one arm, the box going soft in the rain. Mill dust in the creases of his hands. #portrait: hivis
-HI-VIS: Evening.
+HI-VIS: How's she goin'.
 He was steady on his feet. Mostly. He had the careful, deliberate walk of someone who knows exactly how many he's had.
 - (hv)
 * [Count his drinks. #check: father 6]
@@ -607,13 +607,13 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
     -> hv
 * ["Where are you coming from?"]
     ~ pass(2)
-    HI-VIS: Up the stairs, eventually. I'm in room eleven. Crew's on the mill contract.
-    HI-VIS: Last contract, sounds like. Nobody's saying it but that's what it sounds like.
+    HI-VIS: Up the stairs, eventually. Room eleven. Crew's on the mill contract.
+    HI-VIS: Last one, sounds like. Nobody's saying it. You can tell when nobody's saying it.
     ~ knows += hivis_room
     ~ knows += hivis_upstairs
     ~ knows += mill_closing
     He shifted the case of beer.
-    HI-VIS: Went to the store for the boys. Thought I'd have one down here first where it's warm.
+    HI-VIS: Beer run for the boys. Figured I'd have one down here first, where it's warm.
     -> hv
 * (no_beer) ["You can't bring that in."]
     ~ pass(1)
@@ -629,7 +629,7 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
     ~ room_count++
     ~ incident += inc_hivis
     ~ pass(1)
-    He went past with the case still under his arm and put it on the floor by a stool at the bar. The bartender looked at the case, then at the doorman. #sfx: clicker
+    He went past with the case still under his arm and put it on the floor by a stool at the bar. The bartender looked at the case, then at the doorman.
     { no_beer:
         ~ rep(rep_staff, -2)
         MANUAL: You told him he could not bring it in. Then he brought it in. She heard both.
@@ -643,8 +643,8 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
     ~ count_in++
     ~ room_count++
     ~ pass(1)
-    HI-VIS: Fair.
-    He set the case down by the stool. The doorman pushed it behind the door with his foot. #sfx: clicker
+    HI-VIS: Fair enough.
+    He set the case down by the stool. The doorman pushed it behind the door with his foot.
     ~ rep(rep_staff, 1)
     -> hub
 + {knows ? hivis_upstairs} ["Take it up to your room. You can come down after."]
@@ -680,7 +680,7 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
 ~ here = door
 ~ arrivals += banned_done
 A man in a good wool coat came in, closing a golf umbrella. Shaved that evening. Shoes that had never walked on gravel before tonight. #portrait: goodshoes
-GOOD SHOES: Evening. Filthy out there.
+GOOD SHOES: Good evening. Filthy out there, isn't it.
 He had his licence ready before he was asked, and he smiled like they'd met. #prop: goodshoes_card
 { knows ? banned_face:
     He had met him. In the binder. Page three, a photocopied driver's licence and the bartender's handwriting underneath: NO. NOT EVER.
@@ -732,7 +732,7 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
     -> gs
 * (asked_before) ["Been here before?"]
     ~ pass(1)
-    GOOD SHOES: Years ago. Place hasn't changed. That's the charm.
+    GOOD SHOES: Years ago, friend. It hasn't changed a bit, which I suppose is the charm.
     -> gs
 * {asked_before && knows ? eighty_six} [Look at him again, harder. #check: manual 8 1]
     ~ pass(1)
@@ -769,18 +769,18 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
 = known
 FATHER: There it is.
 { knows ? ardagh && knows !? banned_face:
-    GOOD SHOES: I can see somebody's been talking about me.
+    GOOD SHOES: I can see somebody's been talking about me. That's all right. People talk.
 - else:
-    GOOD SHOES: I can see you've got a book with pictures in it.
+    GOOD SHOES: I can see you've got a book with pictures in it, friend.
 }
 He smiled.
-GOOD SHOES: That's old. Talk to the owner. We've spoken. I'm allowed back. I'll be putting a couple hundred over that bar tonight, and I'm not trouble to anyone.
+GOOD SHOES: That's old, friend. I completely understand, but the owner and I have spoken. I'm allowed back. I'll put a couple of hundred over that bar tonight, and I'm no trouble to anyone.
 // HUTCH: What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
 - (gk)
 * ["What did you do?"]
     ~ pass(1)
     ~ knows += banned_story
-    GOOD SHOES: Something I'm not proud of. A long time ago. I've paid for it, believe me.
+    GOOD SHOES: Something I'm not proud of, a long time ago, and I've paid for it. Believe me.
     WRONGMAN: He'd paid for it. They always had.
     -> gk
 * ["I'll call the owner."]
@@ -804,8 +804,8 @@ GOOD SHOES: That's old. Talk to the owner. We've spoken. I'm allowed back. I'll 
     ~ rep(rep_staff, -3)
     ~ rep(rep_owner, 1)
     ~ pass(1)
-    GOOD SHOES: That's all I ask.
-    He went to the bar. The bartender served him, because it was her job, and she didn't say one word while she did it. #sfx: clicker
+    GOOD SHOES: That's all I ask. Thank you, friend.
+    He went to the bar. The bartender served him, because it was her job, and she didn't say one word while she did it.
     She didn't look at the doorman for the rest of the night.
     FATHER: One. You said one. He heard you, and so did she.
     -> hub
@@ -824,7 +824,7 @@ GOOD SHOES: That's old. Talk to the owner. We've spoken. I'm allowed back. I'll 
     ~ rep(rep_staff, -2)
 }
 ~ rep(rep_owner, 1)
-He went to the bar and put a fifty on it. #sfx: clicker
+He went to the bar and put a fifty on it.
 The bartender looked at the fifty and then at the man and then, over his shoulder, at the doorman. She served him. It was her job. She didn't say anything while she did it.
 { knows !? banned_face && knows !? ardagh:
     WRONGMAN: That's how it starts in the story. You don't know. That's the whole point of the story.
@@ -849,7 +849,7 @@ The bartender didn't look up. After a while she brought him a glass of water he 
 The bartender came around the end of the bar, which she didn't do, and stood in front of him.
 BARTENDER: There's a man at my bar who is not allowed at my bar.
 She didn't point. She didn't have to. A good wool coat, a golf umbrella hooked on the rail, a fifty on the bar that she hadn't touched.
-BARTENDER: Page three. I'm not serving him and I'm not asking him. That's yours.
+BARTENDER: Page three. I'm not serving him and I'm not asking him. That's your job, Door.
 ~ knows += banned_face
 ~ knows += eighty_six
 FATHER: You weren't on the door. This is what not being on the door costs.
@@ -858,7 +858,7 @@ FATHER: You weren't on the door. This is what not being on the door costs.
     ~ pass(5)
     { passed:
         He stood beside the stool, close, and said it low, so nobody else had to hear. Coat, umbrella, the door, now. The man looked at him for a long second and did the arithmetic.
-        GOOD SHOES: Fine.
+        GOOD SHOES: Of course. I completely understand.
         He left the fifty on the bar. The bartender put it in the tip jar without looking at it.
         ~ rep(rep_staff, 2)
     - else:
@@ -889,13 +889,13 @@ FATHER: You weren't on the door. This is what not being on the door costs.
 * ["He says the owner lifted it."]
     ~ pass(1)
     ~ knows += binder_hers
-    BARTENDER: The owner didn't write it. I did.
+    BARTENDER: Junior didn't write it. I did.
     -> bi
 * [Leave him. It's not worth the scene.]
     ~ pass(1)
     ~ rep(rep_staff, -4)
     ~ arrivals += banned_in
-    BARTENDER: Right.
+    BARTENDER: Yep.
     She went back behind the bar. She served the man's next drink herself, slowly, and for the rest of the night she didn't look at the doorman at all.
     -> hub
 
@@ -972,7 +972,7 @@ Table 28 had heard her. Table 28 heard everything that came through the door, an
     ~ knows += dennis
     ~ rep(rep_t28, 2)
     ~ pass(1)
-    RAINCOAT: His truck's in your lot.
+    RAINCOAT: His truck's in your lot. Same spot as always.
     RAINCOAT: Tell him the dog's been sick on the bed. He'll know what that means.
     She went. At table 28, the one in the big glasses raised his drink an inch toward the doorman, not looking at him.
     FATHER: You lied for a drunk to his wife. Remember that you did that.
@@ -986,7 +986,7 @@ Table 28 had heard her. Table 28 heard everything that came through the door, an
     He walked over to table 28. Five faces turned up at him.
     TABLE28: Traitor!
     But they laughed, and the one in the big glasses put his coat on, slowly, finishing his drink with it half on.
-    GLASSES: She'll have her keys out.
+    GLASSES: She'll have her keys out. Thirty years, she's had her keys out.
     He went. Table 28 went on talking over the place where he'd been sitting before the door had shut behind him, the way water closes.
     ~ rep(rep_t28, -1)
     -> hub
@@ -998,6 +998,6 @@ Table 28 had heard her. Table 28 heard everything that came through the door, an
     ~ pass(2)
     She walked straight across the carpet to table 28 without taking off her raincoat and stood behind the one in the big glasses until he stood up.
     Nobody at table 28 said anything until the door had shut behind them both. Then all of them at once.
-    TABLE28: That's on you, new guy.
+    TABLE28: That's on you, new kid! That's on you!
     ~ rep(rep_t28, -2)
     -> hub

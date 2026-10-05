@@ -101,16 +101,16 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
 ~ pass(8)
 ~ pull_table++
 Away from the table the man looked smaller, and older, and more like one man.
-CARDIGAN: Don't tell them I'm out here. They think I'm in the can.
+CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washroom.
 // HUTCH: The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
 - (cg)
 * ["How long have you been coming here?"]
     ~ knows += t28_nine
-    CARDIGAN: Since the mill was three shifts. There were nine of us at that table once. Nine. You couldn't get a chair.
+    CARDIGAN: Since the mill was three shifts. There were nine of us at that table, once. You couldn't get a chair.
     CARDIGAN: Now there's five. Four, some days.
     -> cg
 * (four) ["What happened to the other four?"]
-    CARDIGAN: What happens. Two dead. One in the home in town who doesn't know anybody. One went to Alberta to be near his grandkids, and we never heard from him again, not once. Like he'd died, except he hadn't.
+    CARDIGAN: What always happens. Two of them died. One is in the home in town and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not once. As if he'd died, except he hadn't.
     CARDIGAN: The table closed up the gap. It always does.
     He looked at the end of his cigarette.
     CARDIGAN: My daughter wants me in Calgary.
@@ -121,26 +121,26 @@ CARDIGAN: Don't tell them I'm out here. They think I'm in the can.
     FATHER: He's asking you. He doesn't know he's asking you.
     * * ["Go."]
         ~ cardigan_go = 1
-        CARDIGAN: Easy for you to say.
+        CARDIGAN: It's easy for you to say, I suppose.
         He said it without any heat. He put the cigarette out on the rail and put the butt in his pocket, not in the can.
     * * ["Stay."]
         ~ cardigan_go = -1
-        CARDIGAN: Yeah.
-        CARDIGAN: Yeah. That's what they'd say.
+        CARDIGAN: Yes.
+        CARDIGAN: Yes. That's what they would say.
     * * ["I don't know either."]
         ~ cardigan_go = 2
         CARDIGAN: No. Nobody does.
     - - -> cg
 + [Leave him to his smoke.]
     ~ cardigan_secret = true
-    CARDIGAN: Not a word to them.
+    CARDIGAN: Not a word to them, please.
     -> d_opts
 
 = vape_back
 ~ pass(2)
 The boyfriend had come up the deck steps in the rain and was rattling the door he'd have walked straight through an hour ago, if the coaster had still been in it. He'd come round the building from the lot. When he saw the doorman through the glass he tried to look like he'd been out here smoking the whole time.
-VAPE: bro i was just out here
-VAPE: i've been out here the whole time
+VAPE: bro. i was just out here
+VAPE: i've been out here the WHOLE time my guy
 FIGHTER: The ones you put out the front come in the back. Every time.
 * ["Go sit in the truck."]
     { in_truck(sister_at):
@@ -148,8 +148,8 @@ FIGHTER: The ones you put out the front come in the back. Every time.
         He went anyway, round the side of the building, with his hood up. A while later the pickup's back door opened, and shut.
         ~ move(vape_at, s_truck)
     - else:
-        VAPE: it's locked
-        VAPE: she locked it
+        VAPE: it's LOCKED
+        VAPE: she locked it bro. she locked me out
         He went anyway, round the side of the building, with his hood up, and stood by the locked pickup in the rain.
     }
 * [Walk him round to the lot. #check: fighter 6 {vape_mod()}]
@@ -160,14 +160,14 @@ FIGHTER: The ones you put out the front come in the back. Every time.
         The boyfriend pulled his arm away and swung, wild, and missed, and went down the deck steps on his own. He lay in the gravel for a second, and then got up and went round to the lot holding his wrist. #sfx: hit
         ~ incident += inc_hurt
     }
-// In past the stool he wasn't on: one more who didn't come past the clicker, the same as if he'd let himself in.
+// In past the stool he wasn't on: one more who didn't come past him at the door, the same as if he'd let himself in.
 * [Let him back in.]
     ~ fam -= vape_ejected
     ~ move(vape_at, s_bar)
     ~ uncounted++
     ~ vape_backs++
     ~ heat(2)
-    VAPE: appreciate you
+    VAPE: appreciate you chief
     He went straight to the bar.
     FATHER: You put him out and let him back in. Now he knows what your out is worth.
 - -> d_opts
@@ -195,7 +195,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ knows += truck
     #portrait: driver
     She didn't wait for him to start.
-    DRIVER: We're not here to drink. Our dad's at the pool table. Our mom's in the hospital since this morning and he won't answer his phone.
+    DRIVER: We're not here to drink. Our dad's at the pool table. Our mom's in the hospital in town, since this morning, and he won't answer his phone.
     DRIVER: You wouldn't let my brother in. So.
     // HUTCH: The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
     -> dk
@@ -206,7 +206,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ kids_out()
     ~ rep(rep_kids, -2)
     He walked them to the front door, the three of them, and none of them argued. The sister went last. At the door she stopped.
-    DRIVER: Our mom's in the hospital. He doesn't know. That's all this is.
+    DRIVER: Our mom's in the hospital in town. Since this morning. He doesn't know. That's all this is.
     ~ knows += kid_why
     ~ knows += bigman_dad
     * * ["Then I'll tell him."]
@@ -217,11 +217,11 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     * * ["Wait in the truck."]
         ~ fam += told_wait
         ~ rep(rep_kids, -1)
-        DRIVER: We've been waiting in the truck.
+        DRIVER: We've been waiting in the truck. Since eight.
     - - They went back across the lot. The pickup didn't leave.
     -> hub
-// Clicking them in now puts them on the clicker and off the list of the ones who got past him.
-* (counted) ["You came in the back. Fine. Now you're counted."]
+// Letting them in now, in the middle of the room, takes them off the list of the ones who got past him.
+* (counted) ["You came in the back. Fine. You're in now, on me."]
     ~ pass(3)
     ~ fam += sister_met
     ~ fam += sister_admitted
@@ -229,7 +229,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ count_in += kids_in
     ~ uncounted -= kids_in
     ~ rep(rep_kids, 2)
-    He clicked the clicker three times, standing there in the middle of the room, and the kid in the hoodie looked at him for almost a whole second. #sfx: clicker
+    He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him for almost a whole second.
     MANUAL: For the record, one of them has no identification.
     FIGHTER: Watch the boyfriend.
     -> hub
@@ -270,7 +270,7 @@ DRIVER: What.
 - (lt)
 * {knows !? kid_why} ["What do you need to tell him?"]
     ~ pass(2)
-    DRIVER: Our mom's in the hospital. Since this morning. He's not answering.
+    DRIVER: Our mom's in the hospital in town. Since this morning. He's not answering his phone.
     DRIVER: He never answers when he's in there.
     ~ knows += kid_why
     ~ knows += bigman_dad
@@ -280,7 +280,7 @@ DRIVER: What.
     ~ fam += sister_fetched
     # task: fetch :: Tell the big man at the pool table his family's waiting in the lot.
     DRIVER: He won't come.
-    DRIVER: But okay.
+    DRIVER: But okay. Thank you.
     -> lt
 * ["Come in. Just you. Bring him out."]
     ~ pass(2)
@@ -292,7 +292,7 @@ DRIVER: What.
     { promised_bigman:
         ~ promise_kept = -1
     }
-    She turned the engine off. It was the first time it had been off all night. #sfx: clicker
+    She turned the engine off. It was the first time it had been off all night.
     { fam ? sister_refused:
         -> you_said_no
     }
@@ -321,7 +321,7 @@ DRIVER: You said no.
     ~ rep(rep_kids, 1)
 * ["I'm saying yes now."]
     ~ owned_it--
-    DRIVER: Okay. Whatever.
+    DRIVER: Okay. Good for you.
 - -> goes_in
 
 = goes_in

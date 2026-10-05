@@ -47,7 +47,6 @@ const LEXICON := [
 	["\\bkegs?\\b|lines|office|mirror|bucket|\\bbait\\b", "a:kegs"],
 	["\\btape\\b|the date|nineteen", "a:tape"],
 	["scanner|\\bscan", "a:scanner"],
-	["clicker|click|the count|count (him|her|them)", "clicker"],
 	["\\btill\\b|binder|86|eighty-six|page three|the faces", "a:till"],
 	["bartender|pour me|another\\.|a drink|tab\\b", "fig:bartender"],
 	["incident|the book|write it|the log|leave it out", "a:ledge"],
@@ -183,8 +182,6 @@ func _where(key: String) -> Array:
 			if main.view.place == "keg":
 				return [pub.anchors.get("keg_hole", Vector3.ZERO), 0.25]
 			return [pub.anchors.get("t28_wall", Vector3.ZERO), 0.3]
-		"clicker":
-			return [pub.anchors.get("ledge", Vector3(1.3, 1.06, 9.72)) + Vector3(0.25, 0.0, 0.04), 0.12]
 		"door_post":
 			return [Vector3(1.7, 1.05, 9.2), 0.45]
 	return []

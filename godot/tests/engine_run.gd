@@ -1,6 +1,6 @@
 extends SceneTree
 # Plays whole nights through the Godot engine (engine/game.gd) with a seeded player who also
-# fidgets with the clicker, handles things, puts a hand on choices and saves and reloads mid-night,
+# handles things, puts a hand on choices and saves and reloads mid-night,
 # and writes a canonical transcript for tools/engine_diff.mjs to compare with the browser build's.
 #   godot --headless --path godot -s res://tests/engine_run.gd -- --from 1 --to 20 --out /tmp/eng
 
@@ -46,8 +46,6 @@ func _init() -> void:
 			if vis.is_empty():
 				lines.append("STUCK")
 				break
-			if g.clicker_in_hand() and rnd() % 9 == 0:
-				lines.append("K " + Canon.of(g.toy("clicker", "click")))
 			var handled: Array = []
 			for c in res.choices:
 				if c.get("toy") != null and c.get("unlisted", false) and is_same(g.toy_choice(c.toy.id, c.toy.what), c):

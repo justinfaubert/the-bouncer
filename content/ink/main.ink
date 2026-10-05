@@ -41,16 +41,14 @@ VAR crit = 0                // 1 on double six, -1 on double one
 VAR cash = 40               // dollars in his pocket. He came with forty.
 VAR drinks = 0              // drinks in him tonight
 VAR hurt = 0                // 0 fine, 1 knocked about, 2 hurt, 3 badly hurt
-VAR count_in = 0            // the clicker: everyone he clicked in
-VAR fidget = 0              // clicks on the clicker that weren't anybody (the player, playing with it: toys.ink)
-VAR zeroed = 0              // what the clicker said when the knob on its side was last turned back to nothing
+VAR count_in = 0            // everyone he let in past the stool
 
 // ------------------------------------------------------------------ the doors
 
 VAR door_away = 0           // minutes the main door has gone unwatched
 VAR walk_ins = 0            // people who drifted in while he was away from the door
 VAR walk_ins_seen = 0       // how many of them he's seen the signs of, back at the door
-VAR uncounted = 0           // people inside who never passed his clicker
+VAR uncounted = 0           // people inside who never came past him at the front door
 VAR room_count = 13         // how many are actually in the building's bar
 VAR deck_door = true        // propped open with a folded coaster
 VAR kitchen_door = true     // propped by the cook for air
@@ -186,7 +184,7 @@ VAR found_why = ()          // what the search at close turned up, toward why th
 LIST claim = said_up_island, said_city_door, said_city_unnamed, said_city_line, said_around, said_father, said_left_bad_owner, said_left_something, said_left_long_story, said_nothing, said_no_kids, said_maybe_kids, said_asked_back, said_father_stopped, said_helped_others, said_didnt_help, said_father_dead, said_father_doors, said_not_like_him, said_trying_not
 VAR claims = ()
 VAR father_named = false
-VAR owned_it = 0            // owning a mistake out loud (+) or getting past it without (-): "I was wrong", "I was playing with it"
+VAR owned_it = 0            // owning a mistake out loud (+) or getting past it without (-): "I was wrong"
 
 // ------------------------------------------------------------------ voices trying to get in
 
@@ -202,7 +200,7 @@ VAR secret_kept = 0         // at close table 28 asked where the one in the card
 // ------------------------------------------------------------------ the end of the night
 
 VAR owner_lie = false       // he told the owner the rats were handled
-VAR owner_count = 0         // what he told the owner when he asked how it was tonight: 1 the clicker's number, 0 quiet, -1 busy (it wasn't)
+VAR owner_count = 0         // what he told the owner when he asked how it was tonight: 1 the door's number, 0 quiet, -1 busy (it wasn't)
 VAR police_called = false    // the bartender called it in after the fight
 VAR verdict = 0             // what the bartender tells the owner: 2 he'll do, 1 he showed up, -1 what she saw
 LIST cleared = cl_pool, cl_banned, cl_hivis, cl_res, cl_t28

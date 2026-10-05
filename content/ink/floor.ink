@@ -245,19 +245,15 @@
     ~ did_heads = true
     ~ pass(3)
     ~ last_count = clock
-    // what the clicker makes it: idle clicks on it count as people (toys.ink)
-    ~ temp says = room_count - uncounted + fidget - zeroed
+    // what it should be: the thirteen, and everyone he let in, less everyone he saw go
+    ~ temp says = room_count - uncounted
     He counted from the door clockwise, the way the Father had taught him, and didn't count anyone twice. He got {num(room_count)}.
     {
     - says < room_count:
-        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said {num(says)}. {room_count - says == 1:One more in the room than had come past him.|{Num(room_count - says)} more in the room than had come past him.}
+        The thirteen who'd been here when he came on, and the ones he'd let in, less the ones he'd seen go, made {num(says)}. {room_count - says == 1:One more in the room than had come past him.|{Num(room_count - says)} more in the room than had come past him.}
         FATHER: That's how you find out what the room thinks of your door.
-    - says > room_count:
-        // (Claude's draft)
-        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said {num(says)}. {says - room_count == 1:One more than was in the room.|{Num(says - room_count)} more than were in the room.}
-        FATHER: Every click is somebody. So who did you click?
     - else:
-        The clicker, plus the thirteen who'd been here when he came on, less the ones he'd seen go, said the same. It matched.
+        The thirteen who'd been here when he came on, and the ones he'd let in, less the ones he'd seen go: the same. Everybody in the room had come past him.
         MANUAL: Occupancy is within the licensed maximum. Occupancy is far within the licensed maximum. It's Wednesday.
     }
     -> opts
@@ -391,13 +387,13 @@ He walked the doors.
 ~ rep(rep_cook, -1)
 { kitchen_door_shut == 1:
     He went through the kitchen and took the milk crate out of the back door. It shut.
-    COOK: Are you serious.
+    COOK: Hey. Hey! That door is my air, Security.
     The cook was sweating through his shirt. The fryer ticked.
-    COOK: It's a hundred and ten in here.
+    COOK: It's a hundred and ten on the line. A hundred and ten! It stays open or I cook.
     FATHER: He'll open it again.
 - else:
     He took the milk crate out of the back door again, and it shut again.
-    COOK: Every time I turn around.
+    COOK: Every time I turn around! Every goddamn time!
     The cook didn't look up from the fryer. He didn't need to.
 }
 ->->

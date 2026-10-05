@@ -13,8 +13,8 @@ class_name Sound
 extends Node
 
 # the Ink's names for things, to the files that stand in for them
-const INK := {"clicker": "click", "scanner_ok": "beep_ok", "scanner_bad": "beep_bad", "door": "thump", "phone": "ring",
-	"hit": "thud", "balls": "clack", "dice_shake": "rattle", "die_tick": "tick", "die_land": "tock", "knob": "ratchet",
+const INK := {"scanner_ok": "beep_ok", "scanner_bad": "beep_bad", "door": "thump", "phone": "ring",
+	"hit": "thud", "balls": "clack", "dice_shake": "rattle", "die_tick": "tick", "die_land": "tock",
 	"glass": "glass", "scratch": "scratch", "till": "till", "bell": "bell"}
 const LAYERS := ["rain_glass", "rain_out", "rain_roof", "room_tone", "talk_a", "talk_b", "shout", "juke", "pool",
 	"fryer", "fan", "tube", "cellar", "rats", "sea"]

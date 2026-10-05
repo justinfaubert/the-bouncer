@@ -34,10 +34,9 @@ drunk, and fullscreen.
 | Look at what a choice is about | rest the pointer on it: the choice lights up, and E or a click does it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
 | Something in his hands | drag to turn it, E to look closer, Q and R to go through it, Esc to put it down |
-| The clicker (once she's handed it over) | C clicks it, hold Z to turn the knob back to nothing |
 | His notes, the floor sketch | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |
-| On a pad | either stick looks round; the d-pad goes through the choices and A makes the lit one (with none lit, A goes on and throws the dice); B is Esc, Y is E, X the clicker, Back his notes, the left shoulder the sketch |
+| On a pad | either stick looks round; the d-pad goes through the choices and A makes the lit one (with none lit, A goes on and throws the dice); B is Esc, Y is E, Back his notes, the left shoulder the sketch |
 
 ### Where things are kept
 
@@ -48,25 +47,29 @@ Saves and settings: `~/.local/share/The Bouncer/` on Linux, `%APPDATA%\The Bounc
 Every sound is a placeholder made in code (`tools/sounds.py`) until Hutch records the real ones.
 To swap one, put a file with the same name, as `.wav`, `.ogg` or `.mp3`, in a folder called
 `audio` next to the game (or in `audio` inside the saves folder). A file there wins over the
-placeholder. More takes of the same sound go in as `click_2`, `click_3` and so on, and the game
+placeholder. More takes of the same sound go in as `card_2`, `card_3` and so on, and the game
 picks among them. The names are the files in `audio/`: the room's layers are the `amb_` ones
 (rain on the glass, the room's talk in two layers, the jukebox through the wall, the fryer, the
-cellar), and the rest are things (the clicker, the scanner's beeps, the door, the dice, the pen).
+cellar), and the rest are things (the scanner's beeps, the door, the dice, the pen).
 
 ## What's in here
 
 - `game/`: what's on the screen. `main.gd` runs a night: the Ink's lines down the column
-  (`column.gd`), choices, checks and the dice (`dice.gd`, thrown by hand), things in his hands
-  (`props.gd`: the licences, the kid's phone, the binder, the clicker), the voices marking up the
-  room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), his notes and the floor
-  sketch, the title and pause and settings (`menus.gd`), saves (`store.gd`), sound (`sound.gd`).
-  `view.gd` is his eyes: the posts, walking between them, and the press that prints what he sees.
+  (`column.gd`), choices, checks and the dice (`dice.gd`, thrown by hand; `dice_sim.gd` works out
+  how two cubes fall, off the surface, its walls, the glasses on it and each other), things in his
+  hands (`props.gd`: the licences, with a hologram in the laminate, the kid's phone, the binder),
+  the voices marking up the room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), his
+  notes and the floor sketch, the title and pause and settings (`menus.gd`), saves (`store.gd`),
+  sound (`sound.gd`). `view.gd` is his eyes: the posts, walking between them, and the press that
+  prints what he sees.
 - `world/`: the Sovereign in 3D, built in code (`pub.gd`), the posts he stands at (`posts.gd`),
   and the people, staged by the clock and the story (`stage.gd`, to the spec in
   `docs/STAGING.md`). The room changes between glances: anyone who comes or goes does it while
   he isn't looking.
 - `look/`: the shaders. `press.gdshader` is the print: three inks on cream stock, picked by the
   colour of the light (`press/separation.png`, made by `sketches/door-look/tools/press.py`).
+  `column.gdshader` is the text column, one even ink so the words read clean (the paper's grain
+  stays in the room's print), and `licence.gdshader` is a licence's face, laminate and hologram.
 - `models/`: the props and the people, made in code (`sketches/door-look/tools/`), loaded
   straight from their `.glb` files: one model for each pose, with where their heads, hands, phones
   and cards are in a `.json` beside it, and his own hands (`his_*`), seen from his eyes.
@@ -84,8 +87,8 @@ say `keep`), and the game reads them itself, so there's nothing for the editor t
 
 ## Checking it
 
-Whole nights, played headless by a random player who also handles what he's given, clicks the
-clicker and saves and reloads now and then; it fails on any script error:
+Whole nights, played headless by a random player who also handles what he's given, throws the
+dice, and saves and reloads now and then; it fails on any script error:
 
 ```
 godot --headless --path godot -s res://tests/smoke.gd -- --seed 7 --steps 400
@@ -112,7 +115,7 @@ godot --headless --path godot -s res://tests/engine_run.gd -- --from 1 --to 40 -
 node tools/engine_diff.mjs --from 1 --to 40 --godot /tmp/eng       # the whole engine
 ```
 
-On 28 September 2026 both came out identical for 40 nights of 40 (7,265 choices).
+On 5 October 2026 both came out identical for 40 nights of 40 (6,911 choices).
 
 ## Exporting
 

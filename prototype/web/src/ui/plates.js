@@ -957,7 +957,7 @@
 
   // The front door from his stool: the door and its wired glass with the lot through it (the rain,
   // the pickup at the edge of the lot with its lights on, the sign's red), the jelly-jar lamp over
-  // it, the ledge with the scanner and a glass of water, the clicker on the stool, the smokes
+  // it, the ledge with the scanner and a glass of water, his stool, the smokes
   // machine, the jacket the last doorman walked out and left on the hook, the mat soaked through.
   PLACES.door = function (j, look, rnd) {
     const k = j.k, rd = j.r;
@@ -1121,17 +1121,10 @@
     for (let i = 1; i < 12; i++) { const t = i / 12, x0 = -0.72 + t * 1.44, x1 = -0.8 + t * 1.6; k.line(X(x0, DW - 0.05), Y(0, DW - 0.05), X(x1, 2.55), Y(0, 2.55), 0.6, house ? 0.3 : 0.2, 'erase'); }
     if (!dark) k.light(lx, Y(0, 3.0), 40, 0.35, 6);
 
-    // his stool in the corner of his eye, the clicker left on the seat
+    // his stool in the corner of his eye
     const st = { x: X(-1.3, 2.2), yf: Y(0, 2.2), s: S(2.2) };
     stool(k, st.x, st.yf, st.s, 1);
     if (!dark) k.stroke(ell(st.x, st.yf - 0.72 * st.s, 0.19 * st.s * 0.96, 0.19 * st.s * 0.24, true), 1.2, 0.8, 'erase');
-    const cx = st.x + 4, cy = st.yf - 0.72 * st.s - 4;
-    k.oval(cx, cy, 7, 5.5, house ? 0.3 : 0.45, 'set');
-    k.oval(cx - 1.5, cy - 1.5, 3.5, 2.5, 0.1, 'set');
-    k.rect(cx - 4, cy - 1, 7, 3.5, 1, 'set');
-    for (let i = 0; i < 4; i++) k.rect(cx - 3.4 + i * 1.7, cy - 0.4, 1.1, 2.2, 0.15, 'set');
-    k.stroke('M' + (cx + 5) + ' ' + (cy + 3) + ' a4 4 0 1 0 5 -5', 1, 1);
-    k.oval(cx + 3, cy - 6.5, 1.4, 1.4, 0.7, 'set');
 
     // the room behind him, its light on the right edge of things
     if (!dark) k.light(W + 30, 110, 120, house ? 0.1 : 0.22, 130);

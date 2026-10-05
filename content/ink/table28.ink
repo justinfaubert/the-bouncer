@@ -21,11 +21,11 @@
 = first
 {dennis_gone():Four|Five} faces turned up at him at once, like a jury.
 // HUTCH: Table 28 is yours. What do they actually talk about on a Wednesday at eight? What's the first thing they say to a new doorman? Give each of the five one quirk from life (changed enough).
-TABLE28: Here he is.
-TABLE28: Look at the size of him.
-TEAM_JACKET: They're getting bigger. The last one was a big lad too. Didn't help him.
+TABLE28: Here he is!
+TABLE28: Look at the size of him!
+TEAM_JACKET: They're getting bigger, the doormen. The last one was a big lad too, and a lot of good it did him.
 HEARING_AID: Him.
-TABLE28: Where'd they find you?
+TABLE28: Where'd they dig you up?
 -> where_from
 
 = where_from
@@ -33,7 +33,7 @@ TABLE28: Where'd they find you?
     ~ claims += said_up_island
     TABLE28: Up island!
     They said it like it explained a great deal, none of it good.
-    SCRATCH: Everyone's from up island. I'm from up island.
+    SCRATCH: Everybody's from up island, kid. I'd have bet on it.
     ~ rep(rep_t28, 1)
 * ["I worked a door in the city. Ten years."]
     ~ claims += said_city_door
@@ -46,7 +46,7 @@ TABLE28: Where'd they find you?
     * * ["The kind with a line outside."]
         ~ claims += said_city_line
         TABLE28: Oooh.
-        CARDIGAN: Ten years is a long time to stand outside.
+        CARDIGAN: Ten years is a long time to stand outside a building.
         FATHER: They'll hold you to that, you know. Ten years. Somebody here knows somebody in the city.
     - - ~ rep(rep_t28, 1)
 * ["Around."]
@@ -60,9 +60,9 @@ TABLE28: Where'd they find you?
     FATHER: Don't.
     TABLE28: Ah.
     It changed them, a little. Something went round the table.
-    CARDIGAN: Here?
+    CARDIGAN: Here? On the island, I mean.
     * * ["Up island. A long time ago."]
-        CARDIGAN: What was his name?
+        CARDIGAN: What was his name? If you don't mind my asking.
         * * * [Tell them.]
             ~ father_named = true
             // HUTCH: The father's name is open. When you pick it, this is where it's said out loud for the first time.
@@ -71,12 +71,12 @@ TABLE28: Where'd they find you?
             FATHER: Now it's out.
             ~ rep(rep_t28, 2)
         * * * ["Doesn't matter."]
-            CARDIGAN: It always matters.
+            CARDIGAN: I think it always matters. To somebody.
             ~ rep(rep_t28, 1)
     * * ["All over."]
-        TABLE28: A travelling man.
+        TABLE28: A travelling man!
         ~ rep(rep_t28, 1)
-- TEAM_JACKET: Well. Sit down, then. Nobody stands at this table.
+- TEAM_JACKET: Well, sit down, then, big fella. Nobody stands at this table.
 -> offer
 
 = offer
@@ -86,7 +86,7 @@ TABLE28: Where'd they find you?
 * ["I'm working."]
     TABLE28: He's working!
     They thought that was very funny.
-    TEAM_JACKET: The last one was working too.
+    TEAM_JACKET: The last one was working too, son. Look where it got him.
     ~ rep(rep_t28, -1)
     FATHER: Good. Stay standing. Once you sit at a table like that you're furniture.
     -> standing
@@ -114,7 +114,7 @@ FIGHTER: It's a drink. Drink it. They'll trust you or they won't.
     ~ nursed = true
     ~ rat_favour++
     He held it and didn't drink it. They noticed. They noticed everything; they'd had forty years of practice at a table in a window.
-    SCRATCH: He's savouring it.
+    SCRATCH: He's savouring it. Let him. It's bad luck to rush the first one.
     { knows ? endbar_seen:
         Down at the end of the bar the old man was holding his own glass the same way, full, not drinking it, and for a second he seemed to be looking at the doorman's.
     }
@@ -135,11 +135,11 @@ The price of diesel. The mill, which was on its last contract, everyone knew, no
     ~ pass(4)
     ~ knows += doorman_stories
     // HUTCH: The rumour system in miniature: every version of the last doorman in circulation. Keep them or replace them with the kind of stories your regulars actually tell.
-    TEAM_JACKET: Owner shorted his pay. Two weeks running. He walked out on a Friday with the float in his pocket.
-    SCRATCH: He saw the big rat. In the keg room. Came up the stairs white as a sheet and never went back down.
+    TEAM_JACKET: Owner shorted him two weeks running. Walked out on a Friday with the float in his pocket. I was sitting right here.
+    SCRATCH: He saw the big rat, down in the keg room. Came up white as a sheet. You don't come back from a sign like that.
     HEARING_AID: Woman.
     TABLE28: A woman!
-    CARDIGAN: He let somebody in he shouldn't have. That's all. It happens to all of them eventually.
+    CARDIGAN: I think he let somebody in that he shouldn't have. That's all it was. It happens to all of them, sooner or later.
     WRONGMAN: Now that's a story.
     FATHER: They're all true. That's how a place like this works. Every story's true and none of them happened.
     -> topics
@@ -149,15 +149,15 @@ The price of diesel. The mill, which was on its last contract, everyone knew, no
     ~ pass(2)
     ~ rats_heard += h_walter
     ~ rep(rep_t28, 1)
-    SCRATCH: Walter? Longer than you.
+    SCRATCH: Walter? Longer than you, kid. Longer than any rat's got a right to.
     TEAM_JACKET: Longer than the owner.
     TABLE28: We were here first. Then Walter. Then everybody else.
     -> topics
 * {pull_table >= 2} [Stay for another. #hand: drink]
     -> another
 + [Get up.]
-    TEAM_JACKET: Don't be a stranger.
-    TABLE28: He'll be back.
+    TEAM_JACKET: Don't be a stranger, son.
+    TABLE28: He'll be back! They always come back!
     ~ pass(1)
     -> hub
 
@@ -178,7 +178,7 @@ FIGHTER: One boot.
 * [Leave Walter alone.]
     ~ rats_heard += h_leave_walter
     ~ rep(rep_t28, 1)
-    TABLE28: Good man.
+    TABLE28: Hear, hear!
     Walter finished his fry and went into the wall behind the table, through a hole in the baseboard the size of a fist that he'd plainly been using for years.
     ~ knows += keg_hole
 * ["The owner wants them gone."]
@@ -186,7 +186,7 @@ FIGHTER: One boot.
     TABLE28: The owner!
     TEAM_JACKET: The owner's never met Walter.
     SCRATCH: The owner's never met anybody. He's in town.
-    CARDIGAN: They were here before him, you know. The rats. Before the hotel, probably. It was a cannery, this, before the hotel. Fish guts in the tide under the floor. You don't get rid of rats in a building like this. You come to an arrangement.
+    CARDIGAN: They were here before him, you know. The rats. Before the hotel, I'd think. This was a cannery once, built out over the water, and the tide went in and out under the floor. You don't get rid of rats in a building like this. You come to an arrangement with them.
     WRONGMAN: An arrangement.
     ~ knows += keg_hole
     -> w
@@ -236,7 +236,7 @@ FIGHTER: One boot.
 { pull_table >= 3 && at_t28.another <= 2:
     For a moment he could hear what they'd say before they said it.
 }
-TEAM_JACKET: {shuffle:He's all right, this one.|You're all right.|He'll do.}
+TEAM_JACKET: {shuffle:He's all right, this one!|You're all right, son. You're all right.|Atta boy.}
 { knows !? dennis:
     The bartender came over with a round nobody had ordered and said "Dennis, you're driving?" to the one in the big glasses, who said "Never," and everyone laughed.
     ~ knows += dennis
@@ -253,10 +253,10 @@ FATHER: That's not a tip. That's a leash.
 * [Keep it.]
     ~ tip(50)
     ~ rep(rep_t28, 1)
-    TABLE28: Good man.
+    TABLE28: Hear, hear!
 * [Give it back.]
     ~ rep(rep_t28, -1)
-    TEAM_JACKET: Suit yourself.
+    TEAM_JACKET: Your loss, big fella.
     He took it back without any offence at all. It went into the next round.
 * [Put it in the bartender's jar on the way past.]
     ~ rep(rep_staff, 1)
@@ -301,7 +301,7 @@ TEAM_JACKET: Son, I've been cut off by better than you. I've been cut off by a j
 Behind the bar, the bartender had put down her rag.
 BARTENDER: Not them.
 She said it to the doorman, quietly, across the room, and went back to the rag.
-BARTENDER: Owner's rule. Table 28 doesn't get cut off. They paid for half this carpet.
+BARTENDER: Junior's rule, Door. Table 28 don't get cut off. They paid for half this carpet.
 ~ rep(rep_t28, -2)
 ~ rep(rep_owner, -1)
 MANUAL: The rule is still the rule.
@@ -314,7 +314,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     {stopping:
     - They made room for him before he got there.
     - Somebody hooked a chair out for him with a boot.
-    - TABLE28: {shuffle:There he is.|Sit down, you're blocking the TV.}
+    - TABLE28: {shuffle:There he is!|Sit down, you're blocking the hockey!}
     }
 - else:
     TABLE28: {shuffle:He's back!|The doorman!|Big fella!}
@@ -341,7 +341,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
         SCRATCH: Went straight back in the wall.
         FATHER: You know why.
     - else:
-        SCRATCH: {shuffle:He's in the wall. He'll be out when the fries come.|Having a lie-down.|Busy.}
+        SCRATCH: {shuffle:He's in the wall. He'll be out when the fries come, you can bet on it.|Having a lie-down.|Busy. Counting his winnings.}
     }
     -> again_loop
 + {fries == 1 && walter_alive() && knows ? t28_rat} [Put the basket of fries under the table for Walter.]
@@ -351,7 +351,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     ~ rep(rep_t28, 2)
     He put the basket down on the carpet under the table, by the hole in the baseboard, without saying anything about it.
     The one who scratched lottery tickets looked at him, and then looked at the table, and didn't say anything either. Table 28 had never had a doorman who fed Walter.
-    TABLE28: Good man.
+    TABLE28: Look at that. Look at that.
     -> again_loop
 + ["How's everybody doing?"]
     ~ pass(2)
@@ -374,7 +374,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     - fam ? pool_fight:
         TABLE28: Better than the pool table!
     - cardigan_go == 1:
-        CARDIGAN: Thinking.
+        CARDIGAN: I've been thinking, that's all.
         The others looked at him. He didn't say what about.
     - pull_table >= 3:
         TABLE28: Same as you!

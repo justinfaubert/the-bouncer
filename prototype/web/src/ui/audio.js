@@ -461,7 +461,6 @@
 
   // Sound-effect stand-ins: fn(audio, startTime)
   const SFX = {
-    click(a, t) { a.burst(t, 0.012, 3000, 2, 0.3); a.tone(t, 1800, 0.02, 0.08, 'square'); },
     beep_ok(a, t) { a.tone(t, 1450, 0.11, 0.12, 'sine'); },
     beep_bad(a, t) { a.tone(t, 330, 0.18, 0.1, 'square'); a.tone(t + 0.24, 330, 0.18, 0.1, 'square'); },
     bell(a, t) {
@@ -542,20 +541,6 @@
     },
     tear(a, t, v) {
       for (let i = 0; i < 11; i++) a.burst(t + i * 0.017 + Math.random() * 0.007, 0.03, 1100 + i * 240 + Math.random() * 300, 1.3, (0.08 + i * 0.01) * v);
-    },
-    // one notch of the knob on the clicker's side
-    ratchet(a, t, v) {
-      a.burst(t, 0.006, 4200 + Math.random() * 900, 6, 0.09 * v);
-      a.tone(t, 2600, 0.01, 0.018 * v, 'square');
-    },
-    // the clicker's four wheels snapping back to nothing
-    zero(a, t, v) {
-      for (let i = 0; i < 4; i++) {
-        const s = t + i * 0.034 + Math.random() * 0.006;
-        a.burst(s, 0.01, 3700 - i * 280, 4, 0.14 * v);
-        a.tone(s, 1500 - i * 130, 0.02, 0.045 * v, 'square');
-      }
-      a.burst(t + 0.15, 0.03, 900, 1, 0.16 * v, null, 'lowpass');
     },
     // a plastic card turned over in the fingers
     card(a, t, v) {

@@ -1,7 +1,7 @@
 extends SceneTree
 # Pictures from a night played by a seeded random player: whoever comes to the door, the first
-# time each of them is there; the things he's handed, in his hands and held up (E); the clicker in
-# his hand at the door; and the room from the floor as it fills. Needs a display (xvfb-run):
+# time each of them is there; the things he's handed, in his hands and held up (E); and the room
+# from the floor as it fills. Needs a display (xvfb-run):
 #   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 \
 #     --path godot -s res://tests/shots_night.gd -- --out /tmp/night --seed 5 --max 12
 
@@ -84,10 +84,6 @@ func _run() -> void:
 			main.props.put_down()
 			await _frames(5)
 			continue
-		if main.props.left != null and main.props.left.visible and not seen.has("clicker"):
-			seen["clicker"] = true
-			await _frames(30)
-			await _grab("clicker")
 		var clock := int(main.game.status().clock)
 		for mark in [1320, 1440]:
 			if clock >= mark and not seen.has("floor_%d" % mark):

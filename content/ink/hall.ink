@@ -85,7 +85,7 @@
 = vape_line
 The stall with no door. The boyfriend, the one with the vape, with his phone flat on the lid of the toilet tank and a rolled-up bill in his hand. He looked up. He didn't stop.
 VAPE: bro
-VAPE: bro it's not even mine
+VAPE: my guy it's not even MINE. i'm holding it for somebody
 ~ incident += inc_drugs
 FIGHTER: He's the one who'll swing. Now he'll swing harder.
 MANUAL: The licensee must not permit the use of illicit drugs on the premises. Remove the person. Record the incident.
@@ -111,14 +111,14 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ heat(1)
     ~ rep(rep_kids, 1)
     He held his hand out. The boyfriend looked at it for a long time and then put the little bag in it, and the doorman dropped it in the bowl and flushed, and they both watched it go.
-    VAPE: that was sixty bucks
-    VAPE: that was sixty bucks, bro
+    VAPE: that was SIXTY bucks
+    VAPE: bro. that was sixty bucks. you owe me sixty bucks
     FATHER: Now he's broke and angry instead of high and angry. That's your call. It's not a good one or a bad one. It's just yours.
 * ["Not in here. Not tonight." Walk away.]
     ~ pass(1)
     ~ heat(2)
     ~ rep(rep_kids, 1)
-    VAPE: yeah yeah
+    VAPE: yeah yeah yeah. ok chief
     He was still doing it when the door swung shut.
     FATHER: You just left a lit match in the room.
 * [Say nothing and walk out.]
@@ -145,11 +145,11 @@ He knocked and pushed the door open a hand's width and said "Door staff," to the
 -> h_opts
 
 = sister_sink
-DRIVER: Just a second.
+DRIVER: One second, please.
 She was at the sink with the cold tap running over her wrists. She didn't turn round. She looked at him in the mirror.
 DRIVER: He saw me. He looked right at me, and went back to his shot.
 { knows !? kid_why:
-    DRIVER: Our mom's in the hospital. Since this morning. They don't know what it is yet. He's her husband and he doesn't know. Or he knows, and he's playing pool.
+    DRIVER: Our mom's in the hospital in town. Since this morning. They don't know what it is yet. He's her husband, and he doesn't know. Or he knows, and he's playing pool.
     ~ knows += kid_why
     ~ knows += bigman_dad
 }
@@ -161,7 +161,7 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
     # task: fetch :: Tell the big man at the pool table about his wife.
 * ["Give him a minute."]
     ~ heat(1)
-    DRIVER: He's had all day.
+    DRIVER: He's had since six this morning.
     She turned the tap off, and went back out to the rail, and stood closer to the pool table than she had been.
 * ["Go home. He'll come or he won't."]
     DRIVER: That's what my mom says.
@@ -401,7 +401,7 @@ He said it too quietly, and then he said it again, loud enough. The buddy stoppe
     -> kid_leave
 }
 The big man looked at the table.
-BIGMAN: I'll come by after.
+BIGMAN: I'll come by after, bud.
 The kid stood there. Then he reached over and took the cue out of his father's hands, and laid it down across the balls.
 { pull_kid >= 3:
     HOODIE: now
@@ -435,7 +435,7 @@ FATHER: That's what I'd have done. Picked the cue back up.
 ~ room_count--
 ~ rep(rep_kids, 2)
 The pickup pulled out onto the highway toward town. #sfx: door
-BUDDY: He left his money.
+BUDDY: He left it. He left his money.
 Four twenties under the rail. The buddy looked at them for a while, then took them to the bar and put them in the tip jar, all four, and left too.
 ~ room_count--
 FATHER: He went. I wouldn't have.
@@ -467,25 +467,25 @@ It was more than his father had said about it in the whole of his life.
 = night_clerk
 ~ pass(4)
 He went through the hotel door. On the other side was the front desk, a counter with a bell on it and a key board with most of the keys still on their hooks, and the night clerk on a stool behind it with his chin on his fist, {hotel_door:watching the bar's TV through the gap where the door had been propped|looking at the shut door the way you'd look at a TV somebody had switched off}. #portrait: terry
-TERRY: Something wrong?
+TERRY: Oh, hey. Something wrong? What's the score?
 * ["Residents come down that way. I can't count them." #check: father 7]
     { passed:
-        TERRY: They're only going to the bar.
-        TERRY: Yeah. All right. I'll get the game on my phone.
+        TERRY: Oh, they're only going to the bar, pal.
+        TERRY: Sure, sure. You bet. I'll get the game on my phone, eh. It runs a minute behind, but.
         ~ terry_asked = true
     - else:
-        TERRY: They live here. That's what the door's for.
+        TERRY: Oh, no no. They live here, pal. That's what the door's for.
         {hotel_door:He went back to the hockey|He went back to looking at the door}. He hadn't been rude about it. He just wasn't going to.
     }
 * ["She says you prop it for the TV."]
-    TERRY: She told you that.
+    TERRY: Oh. She told you that.
     He looked past the doorman down the hall toward the bar, for a while.
-    TERRY: Fine. Door stays shut. Tell her thanks.
+    TERRY: Sure. Door stays shut, then. You tell her thanks from me.
     ~ terry_asked = true
     ~ rep(rep_staff, -1)
     FATHER: She told you not to tell him she told you. You told him.
 * (never_mind) [Never mind.]
-    TERRY: Okay.
+    TERRY: Okay, pal. You know where I am.
 - { terry_asked:
     ~ hotel_door = false
     ~ hotel_shut_at = clock
@@ -501,9 +501,9 @@ TERRY: Something wrong?
 The hotel door opened and HI-VIS came through it in his sock feet, without the vest, with a can of his own beer in his hand, the way a man comes down to his own kitchen.
 HI-VIS: Oh. It's you.
 HI-VIS: You said I could come down after. It's after.
-* ["Leave the can and go round the front. I'll count you in."]
+* ["Leave the can and go round the front. I'll let you in."]
     HI-VIS: Round the front. In my socks. In the rain.
-    He looked at the can, and at the doorman, and went back up the stairs. Five minutes later he was at the front door in his boots with no can, and the doorman clicked him in. #sfx: clicker
+    He looked at the can, and at the doorman, and went back up the stairs. Five minutes later he was at the front door in his boots with no can, and the doorman let him in.
     ~ arrivals += hivis_in
     ~ count_in++
     ~ room_count++

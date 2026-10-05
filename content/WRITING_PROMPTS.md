@@ -51,10 +51,9 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/closing.ink
 
 24. **last_call** (`content/ink/closing.ink:241`): Last call at the Sov. What really happens in a room like this when the bell goes?
-25. **still_in** (`content/ink/closing.ink:926`): The count is off the other way: the clicker says somebody's still in the building. Have you had a close like that? Where do you look, and what does the bartender say when you own up (or don't)?
-26. **incident_log** (`content/ink/closing.ink:985`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-27. **after_hours** (`content/ink/closing.ink:1072`): The song she puts on for the count. Yours to pick, or to write.
-28. **after_hours** (`content/ink/closing.ink:1109`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-29. **keg_parley** (`content/ink/closing.ink:1283`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-30. **go_upstairs** (`content/ink/closing.ink:1578`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+25. **incident_log** (`content/ink/closing.ink:914`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+26. **after_hours** (`content/ink/closing.ink:1001`): The song she puts on for the count. Yours to pick, or to write.
+27. **after_hours** (`content/ink/closing.ink:1038`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+28. **keg_parley** (`content/ink/closing.ink:1212`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+29. **go_upstairs** (`content/ink/closing.ink:1507`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 

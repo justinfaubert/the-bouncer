@@ -7,13 +7,13 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 
 | Line | Where | Choice | Changes |
 |---|---|---|---|
-| 44 | prologue.before_eight | "Where do you want me?" | to where_want |
-| 47 | prologue.before_eight | Count the room. | to count_first |
-| 49 | prologue.before_eight | Take the stool by the door. | to the_truck; here, knows:coaster, knows:kitchen_gap, knows:hotel_gap |
-| 67 | prologue.where_want | "What happened to the last doorman?" | knows:old_doorman; (asked_last) is read |
-| 73 | prologue.where_want | "Anyone I should know about?" | (asked_anyone) is read |
-| 78 | prologue.where_want | "Okay." | to before_eight |
-| 80 | prologue.where_want | Leave her to the limes. | to before_eight |
+| 42 | prologue.before_eight | "Where do you want me?" | to where_want |
+| 45 | prologue.before_eight | Count the room. | to count_first |
+| 47 | prologue.before_eight | Take the stool by the door. | to the_truck; here, knows:coaster, knows:kitchen_gap, knows:hotel_gap |
+| 65 | prologue.where_want | "What happened to the last doorman?" | knows:old_doorman; (asked_last) is read |
+| 71 | prologue.where_want | "Anyone I should know about?" | (asked_anyone) is read |
+| 76 | prologue.where_want | "Okay." | to before_eight |
+| 78 | prologue.where_want | Leave her to the limes. | to before_eight |
 
 ## door.ink
 
@@ -116,15 +116,15 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 69 | moves | The deck | to walk, at_deck |
 | 71 | moves | The pickup in the lot | to walk, at_lot |
 | 244 | count_body | Heads. | last_count |
-| 264 | count_body | Faces. | last_count, knows:endbar_seen |
-| 278 | count_body | The doors. | to doors |
-| 283 | count_body | Hands. | check fighter 7; last_count, knows:pool_lefty, knows:vape_read, knows:vape_misread:- |
-| 304 | count_body | Glasses. | check manual 7; last_count, knows:pool_hustle; (count_glasses) is read |
-| 318 | count_body | That's enough counting. | a way out: the clock |
-| 351 | doors | Pull the coaster out of the deck door. | deck_door, rep_t28 |
-| 358 | doors | Shut the kitchen door. | to kitchen_door_shut |
-| 362 | doors | Kick the wedge out from under the hotel door. | hotel_door, hotel_shut_at |
-| 371 | doors | Leave them. | doors_left:left_deck, doors_left:left_kitchen, doors_left:left_hotel |
+| 260 | count_body | Faces. | last_count, knows:endbar_seen |
+| 274 | count_body | The doors. | to doors |
+| 279 | count_body | Hands. | check fighter 7; last_count, knows:pool_lefty, knows:vape_read, knows:vape_misread:- |
+| 300 | count_body | Glasses. | check manual 7; last_count, knows:pool_hustle; (count_glasses) is read |
+| 314 | count_body | That's enough counting. | a way out: the clock |
+| 347 | doors | Pull the coaster out of the deck door. | deck_door, rep_t28 |
+| 354 | doors | Shut the kitchen door. | to kitchen_door_shut |
+| 358 | doors | Kick the wedge out from under the hotel door. | hotel_door, hotel_shut_at |
+| 367 | doors | Leave them. | doors_left:left_deck, doors_left:left_kitchen, doors_left:left_hotel |
 
 ## table28.ink
 
@@ -230,17 +230,17 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 197 | ev_card | Lend her twenty. | cash; (lent) is read |
 | 203 | ev_card | "Can she run a tab till it's back up?" | rep_staff |
 | 207 | ev_card | Stay out of it. | slippers_upstairs |
-| 233 | ev_owner | Give him the number on the clicker. | owner_count, rep_owner |
-| 243 | ev_owner | "Quiet." | owner_count |
-| 246 | ev_owner | "Busy." | owner_count, rep_owner, rep_staff |
-| 255 | ev_owner | "Poison's down." | rep_owner; (told_poison) is read |
-| 258 | ev_owner | "Traps are set." | rep_owner |
-| 261 | ev_owner | "I've killed {rats_killed == 1:one/a couple}." | task |
-| 265 | ev_owner | "It's handled." | owner_lie, rep_owner |
-| 270 | ev_owner | "Not yet." | rep_owner |
-| 291 | ev_owner.turned_away | "The book says not ever." | rep_owner, rep_staff |
-| 298 | ev_owner.turned_away | "She wrote it. Not you." | rep_owner, rep_staff |
-| 306 | ev_owner.turned_away | "I'll let him in next time." | rep_owner, rep_staff |
+| 234 | ev_owner | Give him the door's number. | owner_count, rep_owner |
+| 242 | ev_owner | "Quiet." | owner_count |
+| 245 | ev_owner | "Busy." | owner_count, rep_owner, rep_staff |
+| 254 | ev_owner | "Poison's down." | rep_owner; (told_poison) is read |
+| 257 | ev_owner | "Traps are set." | rep_owner |
+| 260 | ev_owner | "I've killed {rats_killed == 1:one/a couple}." | task |
+| 264 | ev_owner | "It's handled." | owner_lie, rep_owner |
+| 269 | ev_owner | "Not yet." | rep_owner |
+| 290 | ev_owner.turned_away | "The book says not ever." | rep_owner, rep_staff |
+| 297 | ev_owner.turned_away | "She wrote it. Not you." | rep_owner, rep_staff |
+| 305 | ev_owner.turned_away | "I'll let him in next time." | rep_owner, rep_staff |
 
 ## rats.ink
 
@@ -357,7 +357,7 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 471 | at_hall.night_clerk | "Residents come down that way. I can't count them." | check father 7; terry_asked |
 | 480 | at_hall.night_clerk | "She says you prop it for the TV." | terry_asked, rep_staff |
 | 487 | at_hall.night_clerk | Never mind. | (never_mind) is read |
-| 504 | at_hall.hivis_stairs | "Leave the can and go round the front. I'll count you in." | arrivals:hivis_in, count_in, rep_staff |
+| 504 | at_hall.hivis_stairs | "Leave the can and go round the front. I'll let you in." | arrivals:hivis_in, count_in, rep_staff |
 | 512 | at_hall.hivis_stairs | "Fine. Leave the can." | arrivals:hivis_hotel |
 | 517 | at_hall.hivis_stairs | "Back upstairs. Not tonight." | rep_owner |
 
@@ -383,7 +383,7 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 202 | ev_deck_kids | Put all three of them out. | more choices; fam:sister_met, fam:kids_waiting, rep_kids, knows:kid_why, knows:bigman_dad |
 | 212 | ev_deck_kids | "Then I'll tell him." | fam:sister_fetched, task |
 | 217 | ev_deck_kids | "Wait in the truck." | fam:told_wait, rep_kids |
-| 224 | ev_deck_kids | "You came in the back. Fine. Now you're counted." | fam:sister_met, fam:sister_admitted, fam:hoodie_admitted, count_in, rep_kids; (counted) is read |
+| 224 | ev_deck_kids | "You came in the back. Fine. You're in now, on me." | fam:sister_met, fam:sister_admitted, fam:hoodie_admitted, count_in, rep_kids; (counted) is read |
 | 236 | ev_deck_kids | Leave them. Watch. | fam:sister_met, fam:sister_admitted, fam:hoodie_admitted |
 | 244 | ev_deck_kids | "I'll tell him for you." | fam:sister_admitted, fam:hoodie_admitted, fam:sister_fetched, task |
 | 271 | at_lot | "What do you need to tell him?" | knows:kid_why, knows:bigman_dad |
@@ -430,57 +430,48 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 720 | close_t28 | "Now. All of you." | rep_t28, rep_staff |
 | 736 | close_t28.secret | Say nothing. | secret_kept |
 | 740 | close_t28.secret | "He was out on the deck with me." | secret_kept, rep_t28 |
-| 845 | search | The deck door. | found_why:why_deck, deck_door |
-| 869 | search | The hotel door. | found_why:why_hotel, hotel_door |
-| 885 | search | The kitchen door. | kitchen_door |
-| 890 | search | The front door, while he was away from it. | found_why:why_front |
-| 904 | search | The single washroom. | found_why:why_sleeper |
-| 911 | search | That's enough. Write the log. | to incident_log; rep_staff |
-| 928 | still_in | The washrooms. | (by_wash) is read |
-| 932 | still_in | Under the tables. | (by_tables) is read |
-| 936 | still_in | The hotel stairs. | (by_stairs) is read |
-| 940 | still_in | The keg room. | (by_kegs) is read |
-| 947 | still_in | Tell her. | to own_up |
-| 949 | still_in | That's enough. Write the log. | to incident_log; owned_it, rep_staff |
-| 959 | still_in.own_up | "I was playing with it." | owned_it, rep_staff |
-| 964 | still_in.own_up | "It must have stuck." | owned_it, cocoon |
-| 970 | still_in.own_up | Say nothing. | owned_it, rep_staff |
-| 1003 | incident_log.log_next | Write it down the way it happened. | logged, cocoon, rep_staff |
-| 1012 | incident_log.log_next | Write it so it reads better. | shaded, cocoon, rep_staff |
-| 1021 | incident_log.log_next | Leave it out. | left_out, cocoon, rep_staff |
-| 1077 | after_hours | Drink it. | last_glass, drinks, incident:inc_drinking |
-| 1081 | after_hours | Leave it standing. | last_glass |
-| 1087 | after_hours | Push it back. | last_glass |
-| 1098 | after_hours.water | Drink the water. | (drank_water) is read |
-| 1101 | after_hours.water | Ask for a rye. | rep_staff |
-| 1110 | after_hours.door_story | "The owner shorted me." | claims:said_left_bad_owner |
-| 1113 | after_hours.door_story | "Something happened." | claims:said_left_something |
-| 1116 | after_hours.door_story | "Long story." | claims:said_left_long_story |
-| 1119 | after_hours.door_story | Say nothing. | claims:said_nothing |
-| 1236 | after_hours.last_doorman | "Table 28 told me about the last doorman. Which one's true?" | knows:lost_jacket |
-| 1246 | after_hours.last_doorman | Don't ask. | (didnt_ask) is read |
-| 1262 | after_hours.choose | Go up to bed. | to go_upstairs |
-| 1264 | after_hours.choose | Wait till she's gone. Then go down to the keg room. | to keg_parley |
-| 1339 | keg_parley.terms | "Who are you?" | knows:endbar_dock |
-| 1345 | keg_parley.terms | "What do they want?" | (want) is read |
-| 1349 | keg_parley.terms | "What do I get?" | (what_get) is read |
-| 1353 | keg_parley.terms | "What have they heard?" | to overheard |
-| 1355 | keg_parley.terms | "I saw it. In the wall." | (saw_it) is read |
-| 1359 | keg_parley.terms | "Done. Those terms." | to deal |
-| 1362 | keg_parley.terms | "The step, and no poison. Not the kitchen door." | check wrongman 8; to bargain |
-| 1364 | keg_parley.terms | "No. They're going." | to refuse |
-| 1366 | keg_parley.terms | Tell him you'll burn them out. | to threaten |
-| 1368 | keg_parley.terms | "I'll think about it." | to think, after_parley, latch, go_upstairs; parley, rats, task, terms_door |
-| 1520 | keg_parley.latch | Put the back door on the latch, the way he said. | terms_kept, kitchen_door |
-| 1525 | keg_parley.latch | Leave it. Go up. | terms_kept |
-| 1549 | go_upstairs.landing | Get him up the rest of the way to eleven. | hivis_landing |
-| 1555 | go_upstairs.landing | Step over him. | (stepped_over) is read |
-| 1627 | voices_at_night | Let THE TABLE in. | to let_voice_in |
-| 1629 | voices_at_night | Let THE KID in. | to let_voice_in |
-| 1631 | voices_at_night | Sleep. | to ledger |
-| 1714 | let_voice_in | Put THE FIGHTER out. | psyche |
-| 1716 | let_voice_in | Put THE MANUAL out. | psyche |
-| 1718 | let_voice_in | Put THE WRONG MAN out. | psyche |
-| 1720 | let_voice_in | Put THE TABLE out. | psyche |
-| 1722 | let_voice_in | Put THE FATHER out. | psyche |
-| 1725 | let_voice_in | Nobody. Keep the room as it is. | to voices_at_night.vs |
+| 829 | search | The deck door. | found_why:why_deck, deck_door |
+| 853 | search | The hotel door. | found_why:why_hotel, hotel_door |
+| 869 | search | The kitchen door. | kitchen_door |
+| 874 | search | The front door, while he was away from it. | found_why:why_front |
+| 888 | search | The single washroom. | found_why:why_sleeper |
+| 895 | search | That's enough. Write the log. | to incident_log; rep_staff |
+| 932 | incident_log.log_next | Write it down the way it happened. | logged, cocoon, rep_staff |
+| 941 | incident_log.log_next | Write it so it reads better. | shaded, cocoon, rep_staff |
+| 950 | incident_log.log_next | Leave it out. | left_out, cocoon, rep_staff |
+| 1006 | after_hours | Drink it. | last_glass, drinks, incident:inc_drinking |
+| 1010 | after_hours | Leave it standing. | last_glass |
+| 1016 | after_hours | Push it back. | last_glass |
+| 1027 | after_hours.water | Drink the water. | (drank_water) is read |
+| 1030 | after_hours.water | Ask for a rye. | rep_staff |
+| 1039 | after_hours.door_story | "The owner shorted me." | claims:said_left_bad_owner |
+| 1042 | after_hours.door_story | "Something happened." | claims:said_left_something |
+| 1045 | after_hours.door_story | "Long story." | claims:said_left_long_story |
+| 1048 | after_hours.door_story | Say nothing. | claims:said_nothing |
+| 1165 | after_hours.last_doorman | "Table 28 told me about the last doorman. Which one's true?" | knows:lost_jacket |
+| 1175 | after_hours.last_doorman | Don't ask. | (didnt_ask) is read |
+| 1191 | after_hours.choose | Go up to bed. | to go_upstairs |
+| 1193 | after_hours.choose | Wait till she's gone. Then go down to the keg room. | to keg_parley |
+| 1268 | keg_parley.terms | "Who are you?" | knows:endbar_dock |
+| 1274 | keg_parley.terms | "What do they want?" | (want) is read |
+| 1278 | keg_parley.terms | "What do I get?" | (what_get) is read |
+| 1282 | keg_parley.terms | "What have they heard?" | to overheard |
+| 1284 | keg_parley.terms | "I saw it. In the wall." | (saw_it) is read |
+| 1288 | keg_parley.terms | "Done. Those terms." | to deal |
+| 1291 | keg_parley.terms | "The step, and no poison. Not the kitchen door." | check wrongman 8; to bargain |
+| 1293 | keg_parley.terms | "No. They're going." | to refuse |
+| 1295 | keg_parley.terms | Tell him you'll burn them out. | to threaten |
+| 1297 | keg_parley.terms | "I'll think about it." | to think, after_parley, latch, go_upstairs; parley, rats, task, terms_door |
+| 1449 | keg_parley.latch | Put the back door on the latch, the way he said. | terms_kept, kitchen_door |
+| 1454 | keg_parley.latch | Leave it. Go up. | terms_kept |
+| 1478 | go_upstairs.landing | Get him up the rest of the way to eleven. | hivis_landing |
+| 1484 | go_upstairs.landing | Step over him. | (stepped_over) is read |
+| 1556 | voices_at_night | Let THE TABLE in. | to let_voice_in |
+| 1558 | voices_at_night | Let THE KID in. | to let_voice_in |
+| 1560 | voices_at_night | Sleep. | to ledger |
+| 1643 | let_voice_in | Put THE FIGHTER out. | psyche |
+| 1645 | let_voice_in | Put THE MANUAL out. | psyche |
+| 1647 | let_voice_in | Put THE WRONG MAN out. | psyche |
+| 1649 | let_voice_in | Put THE TABLE out. | psyche |
+| 1651 | let_voice_in | Put THE FATHER out. | psyche |
+| 1654 | let_voice_in | Nobody. Keep the room as it is. | to voices_at_night.vs |

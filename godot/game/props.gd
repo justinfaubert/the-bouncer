@@ -2,15 +2,14 @@
 # in the Ink hands one over with #prop:). They come up into his view, printed clean, and the player
 # handles them with their own hands:
 #
-#   a licence   click it and it turns over; the pointer over it tips it to the light (the laminate
-#               catches the lamp); E holds it up beside the face of whoever handed it over, in the
-#               room, for the player to compare the two.
+#   a licence   click it and it turns over; the pointer over it tips it to the light, and the
+#               hologram under the laminate runs through its colours as it does (a real one's foil
+#               moves; a printed one sits there); E holds it up beside the face of whoever handed it
+#               over, in the room, for the player to compare the two.
 #   the phone   the kid holds it up with a photo of his licence on it. E, or a click on it, takes it;
 #               then R (or a drag across it) swipes to the next photo, and E brings it closer.
 #   the binder  the 86 binder from under the till: Q and R leaf through the sleeves. Staying on a
 #               page is looking at it; getting to the back is having been through them all.
-#   the clicker in his left hand at the door: C clicks it (the count goes on with nobody coming in);
-#               holding Z turns the knob that sets it back to nothing.
 #
 # Every handling goes to the game (main.toy, Game.toy): if a choice on offer is waiting for it,
 # that choice is made; otherwise a voice may say something. A thing stays in his hands while the
@@ -20,9 +19,8 @@
 # The pictures on them (the licence's face and fields, the phone's photos, the binder's sleeves) are
 # made once, in a darkroom of small viewports, before the night starts.
 #
-# His own hands are in view with them (models/people/his_*.glb): the right one holds the licence or
-# the phone, and turns and tips with it; the left one has the clicker, up at the door with the count
-# in its window, and brought up anywhere else when it's clicked.
+# His own hand is in view with them (models/people/his_*.glb): the right one holds the licence or
+# the phone, and turns and tips with it.
 class_name Props
 extends Node
 
@@ -30,8 +28,8 @@ const PEOPLE := "res://models/people/"
 const CARD := Vector2(0.0856, 0.054)
 const TILT := 16.0
 const TILT_SEEN := 40.0
+const SWEET := Vector2(-8.0, -6.0)          # the tip of a card (degrees, as held.tilt) that meets the lamp
 const DWELL := 3.0
-const KNOB := 0.95
 const MONTHS := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 # the licence's photo: whose face, as a model
 const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card"}
@@ -42,22 +40,14 @@ var tex := {}                    # the darkroom's pictures, by name
 var jobs: Array = []
 var developing := false
 var held = null                  # what's in his hands: a Dictionary, or null
-# his own hands: which holds what, and the left one's clicker
+# his own hand: which holds what
 const HAND_FOR := {"card": ["his_right_card", "card"], "phone": ["his_right_phone", "phone"]}
-const LEFT_UP := Vector3(-0.2, -0.285, -0.42)
-const LEFT_DOWN := Vector3(-0.24, -0.66, -0.34)
-var left: Node3D                 # the left hand, with the clicker
-var left_count: Label3D          # the count in the clicker's window
-var _left_up := 0.0              # how long it stays up away from the door after a click
-var _left_dip := 0.0
-var _count_in := 0.0             # till the count in the window is read again
 # a card or a phone that's in his hands isn't in theirs: which figure holds each, and its parts
 const ON_FIGURE := {"driver_card": ["driver", ["card", "card_body"]], "goodshoes_card": ["goodshoes", ["card", "card_body"]],
 	"hoodie_phone": ["hoodie", ["phone", "phone_screen"]]}
 var _figs_in := 0.0
+var _holo_face_shader: Shader
 var hint: Label
-var _zero_at := -1.0
-var _notch := 0.0
 var t := 0.0
 
 
@@ -89,6 +79,7 @@ func setup(m) -> void:
 		if pr is Dictionary and pr.get("kind") == "card":
 			_job("card_%s_front" % id, _card_face.bind(pr, true))
 			_job("card_%s_back" % id, _card_face.bind(pr, false))
+			_job("card_%s_holo" % id, _card_holo.bind(pr))
 	_job("photo_table", _photo_table)
 	_job("photo_pool", _photo_pool)
 	if P.has("binder"):
@@ -327,6 +318,96 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 	return sv
 
 
+# A licence's hologram, as a picture the shader reads (look/licence.gdshader): red is how much
+# foil, green which way its grating runs, blue where its colours start. A field of small waves
+# over the whole card, faint; the seal, stronger, over the corner of the photo, so the photo can't
+# be swapped without breaking it; the face again, in the foil, by the printed ghost; and the
+# birthday along a wave at the foot in print too small to read without tipping it to the light.
+func _card_holo(pr: Dictionary) -> SubViewport:
+	var sv := _viewport(Vector2i(856, 540), true)
+	sv.transparent_bg = true
+	var c := _page(sv)
+	var foil := func(amount: float, grating: float, start: float, a := 1.0) -> Color:
+		return Color(amount, grating, start, a)
+	# the waves
+	for row in 17:
+		var ln := Line2D.new()
+		ln.width = 3.5
+		ln.default_color = foil.call(0.55, 0.12 + 0.05 * (row % 3), row * 0.07)
+		var y0 := 18.0 + row * 31.0
+		for x in range(-10, 870, 10):
+			ln.add_point(Vector2(x, y0 + sin(x * 0.045 + row * 1.3) * 7.0))
+		c.add_child(ln)
+	# the seal: rings, and inside them the sun coming up out of three waves
+	var seal := Vector2(262, 372)
+	for k in 4:
+		var ring := Line2D.new()
+		ring.width = 5.0 if k == 0 else 2.8
+		ring.default_color = foil.call(0.95, 0.42 + 0.06 * k, 0.2 * k)
+		ring.closed = true
+		var rr := 82.0 - k * 9.0
+		for i in 64:
+			var a := TAU * i / 64.0
+			ring.add_point(seal + Vector2(cos(a), sin(a)) * rr)
+		c.add_child(ring)
+	var sun := Line2D.new()
+	sun.width = 4.5
+	sun.default_color = foil.call(1.0, 0.7, 0.55)
+	for i in 33:
+		var a := PI + PI * i / 32.0
+		sun.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 26.0)
+	c.add_child(sun)
+	for i in 9:
+		var ray := Line2D.new()
+		ray.width = 3.2
+		ray.default_color = foil.call(0.9, 0.75, 0.6)
+		var a := PI + PI * (i + 0.5) / 9.0
+		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 33.0)
+		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 50.0)
+		c.add_child(ray)
+	for w in 3:
+		var wave := Line2D.new()
+		wave.width = 3.8
+		wave.default_color = foil.call(1.0, 0.25 + 0.1 * w, 0.9 + 0.1 * w)
+		for i in 25:
+			var x := -46.0 + i * 92.0 / 24.0
+			wave.add_point(seal + Vector2(x, 20.0 + w * 12.0 + sin(i * 0.9 + w) * 4.0))
+		c.add_child(wave)
+	# the face, in the foil, over the printed ghost
+	var face := "face_" + str(pr.get("face", ""))
+	if tex.has(face):
+		var tr := _pic(c, face, Rect2(700, 330, 112, 140))
+		tr.material = _holo_face_material()
+	# the birthday, small, along a wave at the foot
+	var born := str(pr.get("born", ""))
+	var p := born.split("-")
+	var day := ("%d %s %s" % [int(p[2]), MONTHS[clampi(int(p[1]) - 1, 0, 11)], p[0]]) if p.size() >= 3 else born
+	var x := 30.0
+	var i := 0
+	while x < 830.0:
+		var l := _text(c, day, Vector2(x, 508.0 + sin(x * 0.012) * 5.0), "mono", 13, foil.call(0.85, 0.2, 0.33 + 0.04 * i), 1)
+		l.rotation = cos(x * 0.012) * 0.06
+		x += 128.0
+		i += 1
+	return sv
+
+
+# The face in the foil: its shadows (the eyes, the hair, the line of the jaw) are where the foil
+# is, at a grating of their own; the pale backdrop of the licensing office drops out.
+func _holo_face_material() -> ShaderMaterial:
+	if _holo_face_shader == null:
+		_holo_face_shader = Shader.new()
+		_holo_face_shader.code = "shader_type canvas_item;\n" \
+			+ "void fragment() {\n" \
+			+ "	vec4 c = texture(TEXTURE, UV);\n" \
+			+ "	float d = 1.0 - dot(c.rgb, vec3(0.3, 0.59, 0.11));\n" \
+			+ "	COLOR = vec4(smoothstep(0.3, 0.8, d) * 0.95, 0.62, 0.45, c.a * smoothstep(0.22, 0.4, d));\n" \
+			+ "}\n"
+	var m := ShaderMaterial.new()
+	m.shader = _holo_face_shader
+	return m
+
+
 # The kid's first photo: the licence on the kitchen table at home, under the light over it,
 # taken from where he stood.
 func _photo_table() -> SubViewport:
@@ -477,6 +558,19 @@ func _surface(front: Texture2D) -> ShaderMaterial:
 	return m
 
 
+# The face of a licence: the card, the laminate and its hologram (look/licence.gdshader). A real
+# one's hologram is foil, and moves; holo: printed in props.yaml is ink, and sits there; none, none.
+func _licence_face(id: String, pr: Dictionary) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://look/licence.gdshader")
+	m.set_shader_parameter("face_tex", tex.get("card_%s_front" % id))
+	m.set_shader_parameter("holo_tex", tex.get("card_%s_holo" % id))
+	var kind := str(pr.get("holo", "foil"))
+	m.set_shader_parameter("foil", 0.0 if kind == "none" else 1.0)
+	m.set_shader_parameter("printed", kind == "printed")
+	return m
+
+
 func _quad(size: Vector2, m: Material, parent: Node3D) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var q := QuadMesh.new()
@@ -528,8 +622,9 @@ func offer(it: Dictionary, live: bool) -> void:
 		"card":
 			var body := Node3D.new()
 			node.add_child(body)
-			var f := _quad(CARD, _surface(tex.get("card_%s_front" % id)), body)
+			var f := _quad(CARD, _licence_face(id, pr), body)
 			f.position.z = 0.0004
+			held.face = f
 			var b := _quad(CARD, _surface(tex.get("card_%s_back" % id)), body)
 			b.rotation.y = PI
 			b.position.z = -0.0004
@@ -610,55 +705,6 @@ func _figure_props() -> void:
 			var c := (f.node as Node).find_child(n, true, false)
 			if c is Node3D:
 				(c as Node3D).visible = not mine
-
-
-# The left hand and the clicker in it, made once; the count goes in its window.
-func _left_hand() -> void:
-	if left != null or not FileAccess.file_exists(PEOPLE + "his_left_clicker.glb"):
-		return
-	left = Node3D.new()
-	main.view.hands.add_child(left)
-	var hand: Node3D = main.pub.model(PEOPLE + "his_left_clicker.glb", Vector3.ZERO, left)
-	_no_shadows(hand)
-	var a := _anchors("his_left_clicker")
-	left_count = Label3D.new()
-	left_count.font = Look.font("mono")
-	left_count.font_size = 48
-	left_count.pixel_size = 0.00011
-	left_count.outline_size = 0
-	left_count.modulate = Color(0.06, 0.06, 0.07)
-	left_count.text = "0000"
-	left_count.double_sided = false
-	var z := _v3(a.get("clicker_facing", [0, 0, 1])).normalized()
-	var x := Vector3.UP.cross(z).normalized()
-	var y := z.cross(x)
-	left_count.transform = Transform3D(Basis(x, y, z), _v3(a.get("clicker_window", [0, 0, 0])) + z * 0.0012)
-	hand.add_child(left_count)
-	left.position = LEFT_DOWN
-	left.visible = false
-
-
-func _left_hand_step(dt: float) -> void:
-	if left == null:
-		if main.in_game and main.game.story != null and main.game.clicker_in_hand():
-			_left_hand()
-		return
-	var st: bool = main.in_game and main.game.story != null and main.game.clicker_in_hand() and not main.menus.is_open() \
-		and not main.view.walking
-	_left_up = maxf(_left_up - dt, 0.0)
-	var up: bool = st and (main.view.place == "door" or _left_up > 0.0) and not (holding() and held.kind == "binder")
-	var want := LEFT_UP if up else LEFT_DOWN
-	_left_dip = maxf(_left_dip - dt * 5.0, 0.0)
-	want += Vector3(0, -0.012, 0.004) * _left_dip
-	left.position = left.position.lerp(want, 1.0 - exp(-dt * (9.0 if up else 6.0)))
-	left.visible = st and left.position.y > LEFT_DOWN.y + 0.02
-	_count_in -= dt
-	if left.visible and _count_in <= 0.0:
-		_count_in = 0.25
-		var n: int = clampi(int(main.game.status().count), 0, 9999)
-		var txt := "%04d" % n
-		if left_count.text != txt:
-			left_count.text = txt
 
 
 func _phone_photo() -> void:
@@ -763,7 +809,6 @@ func _let_go(quick: bool) -> void:
 
 func drop_all() -> void:
 	_let_go(true)
-	_zero_at = -1.0
 
 
 # Esc: down for a moment, out of his eyes. E brings it back up while it's still his to handle.
@@ -823,7 +868,7 @@ func _hint() -> void:
 	var s := ""
 	match str(held.kind):
 		"card":
-			s = "Click it to turn it over   ·   E  hold it up by %s face   ·   Esc  down" % whose
+			s = "Move over it to tip it to the light   ·   Click  turn it over   ·   E  up by %s face   ·   Esc  down" % whose
 		"phone":
 			s = "E  take the phone" if held.node == null else "R  or drag across it: the next photo   ·   E  closer   ·   Esc  down"
 		"binder":
@@ -910,23 +955,6 @@ func _next(d: int) -> void:
 			main.audio.sfx("page")
 
 
-# ---------------------------------------------------------------- the clicker
-
-func clicker_key(zero: bool) -> void:
-	if not main.in_game or not main.game.clicker_in_hand():
-		return
-	if zero:
-		if _zero_at < 0.0:
-			_zero_at = t
-			_notch = 0.0
-			_left_up = 4.0
-		return
-	_left_up = 4.0
-	_left_dip = 1.0
-	if main.toy("clicker", "click") != "":
-		main.audio.sfx("clicker")
-
-
 # ---------------------------------------------------------------- the pointer on what he's holding
 
 func _on_sheet_input(e: InputEvent) -> void:
@@ -958,6 +986,21 @@ func _on_sheet_input(e: InputEvent) -> void:
 			_next(1)
 
 
+# The lamp a licence's foil catches (look/licence.gdshader), kept where the card meets it at the
+# same small tip of the wrist however he's holding it: SWEET, up and in toward the middle of his
+# view. At rest the foil is half awake; the pointer over the card wakes it.
+func _aim_lamp() -> void:
+	if not held.has("face"):
+		return
+	# what he's holding sits on view.hands, which rides on the camera: its transform is already in
+	# his eye's space, the space the shader's lamp is in
+	var tr: Transform3D = (held.node as Node3D).transform
+	var n := (tr.basis * Basis.from_euler(Vector3(deg_to_rad(SWEET.x), deg_to_rad(SWEET.y), 0.0))).z.normalized()
+	var v := (-tr.origin).normalized()
+	var m: ShaderMaterial = (held.face as MeshInstance3D).material_override
+	m.set_shader_parameter("lamp", (n * (2.0 * n.dot(v)) - v).normalized())
+
+
 func _screen_of_held() -> Vector2:
 	if held == null or held.node == null:
 		return Vector2(-1, -1)
@@ -975,25 +1018,10 @@ func _near_held(p: Vector2) -> bool:
 
 func _process(dt: float) -> void:
 	t += dt
-	_left_hand_step(dt)
 	_figs_in -= dt
 	if _figs_in <= 0.0:
 		_figs_in = 0.1
 		_figure_props()
-	# the clicker's knob, held all the way round
-	if _zero_at >= 0.0:
-		if not Input.is_physical_key_pressed(KEY_Z):
-			_zero_at = -1.0
-			main.audio.sfx("knob", 0.5, 1.2)
-		else:
-			_notch -= dt
-			if _notch <= 0.0:
-				_notch = 0.075
-				main.audio.sfx("knob", 0.6)
-			if t - _zero_at >= KNOB:
-				_zero_at = -1.0
-				if main.toy("clicker", "zero") != "":
-					main.audio.sfx("zero")
 	if held == null or held.node == null:
 		return
 	# the card tipped to the light
@@ -1001,10 +1029,16 @@ func _process(dt: float) -> void:
 		var body: Node3D = held.body
 		var base_y := PI if held.flipped else 0.0
 		var want := Vector3(deg_to_rad(held.tilt.x), base_y + deg_to_rad(held.tilt.y), 0.0)
+		# a hand isn't a clamp: it breathes, and with drink in him it wanders, and the foil with it
+		var calm := deg_to_rad(0.35)
+		if bool(main.settings.get("skin", true)):
+			calm += deg_to_rad(1.2) * clampf(float(main.view.drinks) / 8.0, 0.0, 1.0)
+		want += Vector3(sin(t * 1.3) * calm, sin(t * 0.9 + 1.7) * calm, 0.0)
 		body.rotation.x = lerpf(body.rotation.x, want.x, 1.0 - exp(-dt * 10.0))
 		if absf(wrapf(body.rotation.y - base_y, -PI, PI)) < 0.5:
 			body.rotation.y = lerpf(body.rotation.y, want.y, 1.0 - exp(-dt * 10.0))
 		held.tilt = held.tilt.lerp(Vector2.ZERO, 1.0 - exp(-dt * 0.8))
+		_aim_lamp()
 	# the binder: staying on a page is looking at it; the back of it is having been through them all
 	if held.kind == "binder" and not held.away:
 		held.stay += dt

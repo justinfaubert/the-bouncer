@@ -168,21 +168,35 @@ func _show(w: Dictionary, mode: String) -> void:
 	var v := Look.voice(st)
 	var c := Look.voice_color(st)
 	var size: int = main.column.size_px
+	var col: Column = main.column
+	var width := minf(col.size.x - 90.0, 520.0)
 	tip = PanelContainer.new()
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(Look.NIGHT, 0.94)
-	sb.border_color = Color(c, 0.55)
-	sb.border_width_left = 3
+	sb.bg_color = Color(Look.NIGHT.lightened(0.05), 0.97)
+	sb.border_color = Color(c, 0.7)
 	sb.set_content_margin_all(12)
-	sb.content_margin_left = 14
+	# the voice's rule on the side nearest what it's talking about: by a choice, that's the column
+	if mode == "row":
+		sb.border_width_right = 3
+		sb.content_margin_right = 16
+	else:
+		sb.border_width_left = 3
+		sb.content_margin_left = 16
+	sb.shadow_color = Color(0, 0, 0, 0.45)
+	sb.shadow_size = 10
+	sb.shadow_offset = Vector2(3, 5)
 	tip.add_theme_stylebox_override("panel", sb)
 	tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tip.set_meta("mode", mode)
+	# the width first: a paragraph that fits its height to its words works the height out at the
+	# width it has when it goes in, and at no width at all that's a letter a line, a box two
+	# thousand pixels tall that never gives the height back
 	var r := RichTextLabel.new()
 	r.fit_content = true
 	r.scroll_active = false
 	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.custom_minimum_size = Vector2(width, 0)
 	r.push_font(UiBits.spaced("ui_b", 2), int(size * 0.66))
 	r.push_color(c)
 	r.add_text(str(w.label) + "   ")
@@ -196,30 +210,45 @@ func _show(w: Dictionary, mode: String) -> void:
 	r.pop()
 	tip.add_child(r)
 	tip.top_level = true
-	main.root.add_child(tip)
-	var col: Column = main.column
-	var width := minf(col.size.x - 90.0, 520.0)
-	r.custom_minimum_size = Vector2(width, 0)
-	match mode:
-		"row":
-			var row: Control = col.row_for_index(on_i)
-			if row != null:
-				tip.global_position = Vector2(col.global_position.x + col.size.x - width - 60.0, row.global_position.y + row.size.y - 4.0)
-		"room":
-			var p := on_at + Vector2(24, 18)
-			var sheet_w: float = main.view.sheet.size.x
-			p.x = clampf(p.x, 20.0, sheet_w - width - 50.0)
-			tip.global_position = p
-		"lead":
-			tip.global_position = Vector2(col.global_position.x + 30.0, col.choices_box.global_position.y - 90.0)
-		_:
-			tip.global_position = Vector2(col.global_position.x + 30.0, col.size.y - 190.0)
 	tip.modulate.a = 0.0
+	main.root.add_child(tip)
+	tip.reset_size()
+	_place_tip(tip, mode, width)
 	tip_tw = tip.create_tween()
 	tip_tw.tween_property(tip, "modulate:a", 1.0, 0.25)
 	tip_until = now + (14.0 if mode == "lead" else (7.0 if mode == "float" else 30.0))
 	main.audio.sfx("whisper")
 	main.notes.lean(str(w.speaker))
+	# the words are laid out a frame late: fit the box to them then, and place it again
+	var t := tip
+	await get_tree().process_frame
+	if is_instance_valid(t) and t == tip:
+		t.reset_size()
+		_place_tip(t, mode, width)
+
+
+# Where the words go: beside the choice the hand is on, out over the room, so the other choices
+# stay in sight; by the thing in the room; or over the choices.
+func _place_tip(t: PanelContainer, mode: String, width: float) -> void:
+	var col: Column = main.column
+	var screen_h: float = main.root.size.y
+	var h := t.size.y
+	match mode:
+		"row":
+			var row: Control = col.row_for_index(on_i)
+			if row != null:
+				var y := row.global_position.y + row.size.y * 0.5 - h * 0.5
+				t.global_position = Vector2(col.global_position.x - t.size.x - 22.0, clampf(y, 16.0, maxf(16.0, screen_h - h - 16.0)))
+		"room":
+			var p := on_at + Vector2(24, 18)
+			var sheet_w: float = main.view.sheet.size.x
+			p.x = clampf(p.x, 20.0, sheet_w - width - 50.0)
+			p.y = clampf(p.y, 16.0, maxf(16.0, screen_h - h - 16.0))
+			t.global_position = p
+		"lead":
+			t.global_position = Vector2(col.global_position.x + 30.0, clampf(col.choices_box.global_position.y - h - 14.0, 16.0, maxf(16.0, screen_h - h - 16.0)))
+		_:
+			t.global_position = Vector2(col.global_position.x + 30.0, maxf(16.0, screen_h - h - 60.0))
 
 
 func hide_tip(quick: bool) -> void:

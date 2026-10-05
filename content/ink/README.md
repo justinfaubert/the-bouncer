@@ -22,7 +22,7 @@ node tools/audit.mjs            does every choice change something the night rea
 | `pool.ink` | The big man, his buddy, the fight, telling him about the hospital. |
 | `bar.ink` | The bartender, the binder, the card machine, the owner's call. |
 | `rats.ink` | The kitchen, the keg room, the knot in the wall, bait and traps, the rat on the carpet. |
-| `toys.ink` | What the player's hands do between choices: the clicker's idle clicks and its knob, `toy_<thing>(what)`. |
+| `toys.ink` | What the player's hands do between choices, when handling a thing isn't one of the choices on offer: `toy_<thing>(what)`. None are written for Wednesday. |
 | `hall.ink` | The washrooms, the payphone, the kid in the single washroom. |
 | `deck.ink` | The deck, the one in the cardigan, the pickup in the lot. |
 | `closing.ink` | Last call, clearing the room, the count, the incident log, after hours, the parley, upstairs, the voices at night, the ledger. |
@@ -31,10 +31,12 @@ node tools/audit.mjs            does every choice change something the night rea
 
 ```
 He took the stool inside the front door.            narration
-BARTENDER: Clicker.                                 a character (id from content/data/characters.yaml)
+BARTENDER: You'll be the door, then. Hang on.      a character (id from content/data/characters.yaml)
 FATHER: A picture of a card isn't a card.           a voice in his head (id from content/data/voices.yaml)
 NARRATOR: He'd stand out there most nights.         the teller, years later
 ```
+
+Every character talks their own way, set down in `bible/10_VOICES.md`: cover the name, and the line should still say whose it is.
 
 A voice only speaks if it's in the room (seated). Its lines are dropped otherwise, so write them freely: a player who bounced THE MANUAL out never hears it. Tag a line `#always` to make a voice speak even when it isn't seated (the voices knocking at night do this).
 
@@ -48,14 +50,14 @@ On a choice (inside the brackets):
 | `#loc: pool` | Where this takes him. Lights up that spot on the floor sketch and fires the `visit:pool` bark event. |
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 | `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
-| `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`; `clicker click` and `clicker zero` are the clicker in his fist. |
+| `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`. |
 | `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo). Give it words anyway, for the director and the bots. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 
 | Tag | Meaning |
 |---|---|
-| `#sfx: clicker` `#music: jukebox_late` `#amb: rain_lot` `#portrait: cook` | Sound and art slots from `content/data/assets.yaml`. `none` stops music or ambience. Until a portrait has art, the face is drawn from the character's `look:` in `content/data/characters.yaml`. |
+| `#sfx: door` `#music: jukebox_late` `#amb: rain_lot` `#portrait: cook` | Sound and art slots from `content/data/assets.yaml`. `none` stops music or ambience. Until a portrait has art, the face is drawn from the character's `look:` in `content/data/characters.yaml`. |
 | `#screen: log` / `#screen: none` | Switches the page to a special screen (the incident log, the ledger) and back. |
 | `#plate: lot` | A printed picture of a place he isn't in, as it is right now. The ledger opens on the hotel from the lot after close, his window the one lit. |
 | `#class: row` | On the ledger: a line written `What: how much` prints as a till-tape row with dots between. `#class: sub` is a small line under the row above it, `#class: head` the top of the tape, `#class: total` the bartender's word (the printer stops before it), and `#class: end` the stamp at the bottom. |
@@ -82,7 +84,7 @@ In director mode (key D in the game) Hutch rewrites, cuts and adds lines, reword
 - **Time.** Every choice that takes time calls `~ pass(minutes)`. `pass()` also runs the world: walk-ins while the door is empty, table 28's rounds, the pool table heating up, the kids trying the deck, people arriving at a door nobody's watching. So whatever he doesn't attend to happens without him.
 - **Events.** Things that happen at a time (the card machine at 8:15, the owner's call at midnight) wait in `ev_ready()` in `sim.ink`. Every location starts with `{ due(): -> hub }`, and the hub runs `-> events ->` before anything else, so an event interrupts wherever he is and the floor gets a line saying he's back (`back_line()`).
 - **Last call** is at 1:30 (`LAST_CALL`). `due()` includes it, so every loop returns to the hub, which goes to `last_call`.
-- **Counting.** `count_in` is the clicker. `uncounted` is everyone who got in some other way. `room_count` is who's actually in the room. Anyone who comes in or leaves has to move these, or the count at close won't add up.
+- **Counting.** `count_in` is everyone he let in past the stool. `uncounted` is everyone who got in some other way. `room_count` is who's actually in the room. Anyone who comes in or leaves has to move these, or the count at close won't add up.
 - **Numbers in narration** are written out: `{num(room_count)}`, or `{Num(x)}` at the start of a sentence. The incident log and the ledger can use digits.
 - **The word on him.** Moving one of the `rep_` numbers (`rep_t28`, `rep_kids`, `rep_staff`, `rep_owner`, `rep_cook`) puts that group's word on him under the line where it happened, from `content/rules/word.yaml`. `last_word("t28")` gives back what they're saying about him by now (`""` if they haven't said anything), for the ledger.
 - **The hidden measure.** `cocoon` goes up when he writes the log to read better than what happened, and never shows on screen.

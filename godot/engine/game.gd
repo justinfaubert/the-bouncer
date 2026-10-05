@@ -363,8 +363,6 @@ func status() -> Dictionary:
 		"day": BUtil.js_int(get_var("day")),
 		"cash": BUtil.js_int(get_var("cash")),
 		"drinks": BUtil.js_int(get_var("drinks")),
-		"count": BUtil.js_int(get_var("count_in")) + BUtil.js_int(get_var("fidget")) - BUtil.js_int(get_var("zeroed")),
-		"clicker": clicker_in_hand(),
 		"hurt": BUtil.js_int(get_var("hurt")),
 		"here": (str(h[0]) if not h.is_empty() and BUtil.js_truthy(h[0]) else "") if h is Array else (BUtil.js_str(h) if BUtil.js_truthy(h) else ""),
 		"tension": psyche.tension(),
@@ -541,8 +539,8 @@ func _resisted(choice: Dictionary, looked: Array):
 
 # ---------------------------------------------------------------- toys
 #
-# Things the player can handle between choices (content/ink/toys.ink): the clicker in his fist, a
-# card at the door, the binder under the till. If a choice on offer is tagged for it, that choice
+# Things the player can handle between choices (content/ink/toys.ink): a card at the door, the
+# kid's phone, the binder under the till. If a choice on offer is tagged for it, that choice
 # is made; if not, the Ink's toy_<id>(what) runs, if there is one. Either way a voice may answer.
 # Returns {items, choices, ended, chose}, or {} when nothing can happen.
 
@@ -554,8 +552,6 @@ func toy(id: String, what: String = "") -> Dictionary:
 		var res := choose_choice(via, [])
 		res["chose"] = true
 		return res
-	if id == "clicker" and not clicker_in_hand():
-		return {}
 	var items: Array = []
 	var fn := "toy_" + id
 	var ran := false
@@ -602,13 +598,6 @@ func toy_moves(id: String) -> Array:
 		if c.get("toy") != null and c.toy.id == id and is_same(toy_choice(id, c.toy.what), c):
 			out.append(c.toy.what)
 	return out
-
-
-# the bartender hands him the clicker as he walks in
-func clicker_in_hand() -> bool:
-	if story == null:
-		return false
-	return story.state().visit_count_at_path_string("prologue.inside") > 0
 
 
 func _toy_rng(key: String) -> BRng:
@@ -1055,10 +1044,7 @@ func _finish(items: Array) -> Dictionary:
 					break
 			if any_leans:
 				_teach("hand", items, items.size())
-	# the clicker, once it's in his hand (not after the night's over)
 	var over: bool = not story.can_continue() and choices.is_empty()
-	if not over and not taught.has("clicker") and clicker_in_hand():
-		_teach("clicker", items, items.size())
 	if over:
 		ended = true
 	for it in items:

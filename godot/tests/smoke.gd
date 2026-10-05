@@ -61,12 +61,10 @@ func _run() -> void:
 		if list.is_empty():
 			await _frames(5)
 			continue
-		# now and then, handle what's in his hands, or click the clicker
+		# now and then, handle what's in his hands
 		if rnd() % 7 == 0 and main.props.holding():
 			main.props.key(KEY_E)
 			await _frames(2)
-		if rnd() % 11 == 0 and main.game.clicker_in_hand():
-			main.props.clicker_key(false)
 		var pick := rnd() % list.size()
 		var st: Dictionary = main.game.status()
 		log_lines.append("%s %s  %s" % [st.clockText, st.here, str(list[pick].text).substr(0, 70)])
