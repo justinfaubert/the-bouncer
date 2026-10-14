@@ -95,6 +95,12 @@ Update this file at the end of every session: add a session entry, move items be
 - All seven were found in the running game first. The empty blocks were a voice's note beside a choice, laid out about 2,100 pixels tall; the receipt was squeezing its amounts down the right margin a letter a line.
 - What it built is under PROPOSED, "Proposed with the professional pass (2026-10-05)", except the clicker coming out, which is Hutch's call (DECIDED). Who talks how is `10_VOICES.md`.
 
+### 2026-10-14 (Wednesday), the skeleton
+
+- Hutch, after studying favourite RPGs and essays on game design and ludonarrative: "I want to take it in an expanded direction and incorporate some of the satisfying aspects of playing an rpg. I'd like to design the skeletal structure of my ideal game by examining the meta." Seventeen rough ideas, quoted in full at the end of `11_SKELETON.md`: choices that matter, with siding with the Rat King paramount; an inventory of things that act on the world; stats (Str, Con, Dex, Int, Wis, Cha, and Intuition as a nod to Inland Empire); a busier door, with the people and their licences generated; a fighting system not copied from other games; objects with life; things to spend money on, clothes among them; freer exploration in first person; drink that matters more; the antithesis of open-world bloat; mature themes and moral stakes; deaths from decisions and rolls; mini games, one of them shooting; the end hinted all the way through; more eccentrics; physics where it fits. "These are rough ideas that need to be polished and tightened to avoid overcomplicating a good thing."
+- Claude's answer is `11_SKELETON.md`. Its rule: every system is the job, so the seventeen fold into eight systems grown from what Wednesday already plays, with the rats as the spine. What it proposes is below, "Proposed with the skeleton (2026-10-14)", and the calls it needs from Hutch are open questions 8, 13 and 16 to 19. Design only: nothing in the build changed.
+- Also in Hutch's note: the licence's hologram doesn't show in the build, only a gleam with no detail (a bug, for The game's future form); and the bouncer's hand reads as wood grain, which Hutch likes. Half accident: the press cuts people in strokes that wrap round their form (`godot/look/surface.gdshader`), and on his hand, nearest the eye, the strokes are at their biggest.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -250,6 +256,26 @@ Proposed with the professional pass (2026-10-05), from Hutch's notes on the 4 Oc
   - Terry asks the score before anything else and calls everyone *pal*. HI-VIS's greeting is the island's working one, *How's she goin'.*
   - The kids' word on him is lowercase, the way it'll be typed.
 
+Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built, for Hutch to say yes or no to:
+
+- **Every system is the job.** Hutch's seventeen ideas fold into eight systems (the rats, his body, his head, the door, the room, his pockets, the word, the month), and nothing goes in that the job doesn't explain. Against bloat: one building, deep; everything written and owned; nothing respawns or repeats; time is the price; no markers, no grinding, and no experience points, crafting, skill trees or fast travel.
+- **The rats as the spine.** Day 1 sets him on terms, war or neglect, and he can change course once, at a price. Terms bring quiet, what the walls hear, favours, the building's other ways and the warning; but fed rats breed, the old man's asks grow, and using what they hear makes him a rat by the kids' code. War costs Walter, the dead in the walls, the old man and the warning, and ends with the knot opened in front of table 28.
+- **Seven stats:** Strength, Constitution, Dexterity, Intelligence, Wisdom, Charisma and Intuition, each 1 to 5, an ordinary man a 2. They're set by his answers in the job interview on the test shift, move about eight times a game, for reasons and both ways, and are kept on a page of his notes with the old numbers struck through. A check is two dice, the stat, the seated voice that taught it, what he's wearing and the state he's in. This replaces "There are no skill levels" above; the voices stay, as his teachers. Intuition is the dial between the plain reading of the game and the strange one.
+- **Consequence at four scales:** lines; strands (a person's story across the month); hinges (the rats, whom the door serves, how he drinks, a file with the law, what he's claimed about his past); and crossings (scenes that only exist where two strands meet). Thursday's paper, the island's weekly, on days 2, 9, 16 and 23.
+- **His pockets are the inventory,** with his room and the lost-and-found box. Confiscation is the loot. Every item has an owner, heat, a use and a worth.
+- **About forty objects in the Sov,** each with a reason it's there, states that stay, two uses or more, a read from each voice, and consequences. Every problem has three ways through or more. Physics where his hands meet things, and no ragdolls.
+- **The town, generated once a game:** about four hundred people, with families, work, addresses, debts, grudges and a secret each. The door sees the cast (about twenty), the returning (a deck of about forty small stories, of which a game meets about fifteen) and the passing (one night, one reason, one true detail, one tie). Licences come from the town, and the commonest fake is an older sibling's real one. A Friday comes in waves with reasons, and any nineteen-year-old could be the province's test (the Minors as Agents Program).
+- **The fight:** the read, hands on, the seconds and the witnesses. Each second freezes as a print he can look round for a breath, then he does one thing with what his hands are doing; if the breath runs out, he freezes. The witnesses, the phones and the camera over the bar decide what it was, and the outcome runs from nothing to his security licence. The camera's footage is the only time the player sees him from outside. The walk, to try.
+- **Drink on three clocks:** tonight (up to blackouts, after which other people tell him what he did), the morning after, and the month (tolerance, dependence, the shakes; stopping cold can kill him). Three ways to hold a glass: drink it, refuse it, or hold it all night like the old man.
+- **Money and the strip:** wages, tips, bribes, bets and sales in; rent, his tab, food, clothes, gear, rounds, fines and repairs out. Six places on the highway (the Sov's beer and wine store, the Esso, the hospital auxiliary's thrift store, the pawn shop, the hardware store, the diner), and the rod and gun club a ride away. Every piece of clothing changes a stat and how each group reads him. After the end, cash falls, and batteries, coats and people rise.
+- **Walking the Sov:** on foot in first person, through the whole building from the cannery's pilings to the roof, with the posts kept as where the job is done from. The clock moves when he moves. Keys, trust, the rats and force open it, and the town is a napkin the bartender draws. This would change part of the DECIDED form above ("not a free walk"), which only Hutch can do (question 16).
+- **Deaths:** his are rare, marked and earned, and send him back to that morning with the night lost (the one save after every choice stays). Theirs are permanent, go in Thursday's paper, and haunt.
+- **Five games in the bar:** pool, darts, the range, arm wrestling and crib. Each is short, rare, played for something, changed by his body, and played as a conversation, and after the first time it can be left to his stats. The range is table 28's Sunday at the rod and gun club (it's deer season), or the cook's pellet gun in a war on the rats.
+- **Six eccentrics and the old man,** each with an idea to argue with, a face of what's coming, and a voice to leave: the Living Man (THE PAMPHLET), the Lightkeeper (THE LOG), the Gold Man (THE NEWSLETTER), the Faller and the Treesitter, the Preacher (THE TRACT) and the Esso kid (THE BLOCK).
+- **The event, Claude's pick** (question 8): the Big One, during his shift on day 29, the last Wednesday, and the quiet after it, with no power, phones, network, ferry or word from the mainland. The last night turns the job inside out: getting people out instead of keeping them out, and table 28 won't leave their table. How the rats leave depends on his course, and only terms bring a warning. There are tells on every layer from day 1, and he sees as many as his Intuition lets him. The public date is the mill's last shift, Friday 27 November (day 24), announced in day 9's paper. The other candidates: the quiet alone, and a modern myth.
+- **The people cut at the scale the strokes have on his hand,** so they read as carved wood. For the build to try.
+- **Build first:** M2 with the new bones, in seven steps, before anything widens.
+
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
@@ -270,12 +296,16 @@ Proposed with the professional pass (2026-10-05), from Hutch's notes on the 4 Oc
 
 ### Soon
 
-8. What is the event, and what is the public date?
+8. What is the event, and what is the public date? Three candidates in `11_SKELETON.md` (the Big One, Claude's pick; the quiet alone; a modern myth), and the mill's last shift for the public date. Put to Hutch on a card, 14 October.
 9. Does the narrator frame stay?
-10. Is the relational psyche the core system?
+10. Is the relational psyche the core system? `11_SKELETON.md` keeps it, with the seven stats under it.
 11. Art: Hutch isn't a visual artist (2026-09-27). Open: is there a local painter or printmaker, and a budget, or do the faces carved in code carry it (the look test)?
 12. Which way does the game go on AI disclosure?
-13. Violence: Hutch describes how it actually goes.
+13. Violence: Hutch describes how it actually goes. `11_SKELETON.md` has a frame to hang it on ("Hands on: the fight") and asks for a fight at Hutch's door, start to finish.
+16. Walking the Sov (`11_SKELETON.md`): does the DECIDED "not a free walk" change, with the posts kept as where the job is done from?
+17. The stats: Hutch's seven names as they are, or some in the job's own words (Gut for Intuition, say)?
+18. His deaths: back to that morning, or something harder? And on the last night, does his death stay a death, an ending the teller tells like the others?
+19. Hutch's material for the skeleton (short lines are plenty): what a doorman wears and carries, what gets taken off people and where it goes; drinking on shift; where table 28 really is on Sundays; the games in the bar.
 
 ### Later
 
