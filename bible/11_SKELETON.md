@@ -394,7 +394,7 @@ What it does:
 
 ## The people's look
 
-Hutch likes his hand, which looks like wood grain. Honestly, it's half accident. The press cuts people in strokes that wrap round their form, the way a lino cutter follows a figure (`godot/look/surface.gdshader`, the cut for people). His hands are the nearest thing to his eyes, so the strokes are at their biggest there, and they bend round the knuckles and the back of the hand like growth rings round a knot. Nobody planned for it to read as carved wood. It's the clearest the style has ever looked, though, and it's the way to cut everyone: people cut at the scale the strokes have on his hand, so faces and bodies read as carved wood, the whittled figures the look test was reaching for. That's for the build to try. The game's future form owns the build, and has been told to keep the hand as it is.
+Hutch likes his hand, which looks like wood grain. Honestly, it's half accident. The press cuts people in strokes that wrap round their form, the way a lino cutter follows a figure (`godot/look/surface.gdshader`, the cut for people). His hands are the nearest thing to his eyes, so the strokes are at their biggest there, and they bend round the knuckles and the back of the hand like growth rings round a knot. Nobody planned for it to read as carved wood. It's the clearest the style has ever looked, though, and it's the way to cut everyone: people cut at the scale the strokes have on his hand, so faces and bodies read as carved wood, the whittled figures the look test was reaching for. That's for the build to try, in The game's future form, which owns the build. Until then the hand stays as it is.
 
 ## What to build first
 
