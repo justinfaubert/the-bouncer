@@ -110,6 +110,13 @@ Update this file at the end of every session: add a session entry, move items be
 - The story didn't change, and a night saved before isn't called older now just because the build was made on a later day: both builds compare the story's own hash, not the date it was built.
 - His hand shares the people's skin cut with every face (`godot/world/pub.gd`, "skin"), so a note there says to give the hand a material of its own before the faces' cut changes.
 
+### 2026-10-14 (Wednesday evening), Hutch's answers to the skeleton
+
+- Hutch, on `11_SKELETON.md`: "this is fantastic. All of it. wonbderfully astute and creative." With it came the five calls the skeleton asked for, decisions on its particulars, how the door really goes, and twelve stories from Hutch's own doors and bars. All of it is in the new `12_FROM_THE_DOOR.md`, word for word, with notes on where each piece goes in the game.
+- What Hutch decided is under DECIDED, dated 2026-10-14. It closes open questions 8, 10, 13, 16, 17 and 19, and parts of 3, 5, 12 and 18. `11_SKELETON.md` is rewritten around it: the opening in Gary Van Dusen's office, through his eyes; stats from 1 to 10 with Gut Brain, and training; handling and temptations; Paige, and a cast drawn with their flaws; the town on fixed streets; the fight from Hutch's own account; looking and going; deaths by context; Farkle; the eccentrics' fair shake and the talk at the bar; the Big One with the sky in it; replaying it; and the game knowing who made it. What Claude drafted to fill it in is under PROPOSED, "Proposed with Hutch's answers (2026-10-14, evening)".
+- Real people in Hutch's stories become composites in the game: Hutch's friend Jim is the old soldier, renamed, and the food supplier and the motorcycle club are fictional.
+- The build fixes in the message went to The game's future form: the jukebox can't be clicked; dice thrown on the floor sometimes clip through it, so a tray with walls wherever the throw lands; and the camera turns his head for him when he arrives somewhere, when the player wants to look left and right at the details. The free look went over that night; walking where he looks waits for M2. Hutch also confirmed the hologram: "Hologram is fixed and looks great."
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -139,8 +146,24 @@ Update this file at the end of every session: add a session entry, move items be
 - The rats: their numbers double if he ignores them. Throughout the game he has chances to parley with the Rat King, until the colony gets too huge or until he decides to exterminate them, which costs in other ways. (2026-09-26)
 - The Rat King is both: a real rat king (rats with knotted tails) in the wall behind table 28, and a man who seems to speak for it. (2026-09-26)
 - The bouncer drinks, and must immerse himself in the culture and the excess to understand what he's doing. (2026-09-26)
-- The game is seen through his eyes: first person from his posts (the stool at the door, the bar, table 28 and the rest), not from above as in Disco and not a free walk. Hutch's pick on the form, 2026-09-27 (`08_FUTURE_FORM.md`).
+- The game is seen through his eyes: first person from his posts (the stool at the door, the bar, table 28 and the rest), not from above as in Disco and not a free walk. Hutch's pick on the form, 2026-09-27 (`08_FUTURE_FORM.md`). Loosened 2026-10-14: "not a free walk, but not a limited walk either" (below).
 - No clicker. Hutch, 2026-10-05: "the clicker mechanic is unnecessarily tedious and really shouldn't be a thing." Nobody hands him one and there's nothing to click. The door still counts (`count_in`, everyone he lets in past the stool), and the ones who got in some other way (`uncounted`) still come back to him at close.
+- The skeleton is the game's direction. Hutch, 2026-10-14, on `11_SKELETON.md`: "this is fantastic. All of it. wonbderfully astute and creative." Its particulars stay PROPOSED except where Hutch decided them. What Hutch decided that evening (word for word in `12_FROM_THE_DOOR.md`):
+  - The rats are also a metaphor, "not a cheap one, about humanity, ignorance, disconnection from nature, the cost of civilization and how the death of a civilization."
+  - The game opens with a job interview with the boss, Gary Van Dusen, "who is never around in the bar itself, only rarely", and "the game should open up as a POV of the boss". His office isn't in the Sovereign's building. The game can end right there if the player goes out of their way to be a dick: "it should be hard not to get hired but not impossible."
+  - Stats: the classic six, and "Gut brain" for Intuition, running from 1 to 10. They move as the skeleton has it, and there are opportunities to train on purpose, at a cost.
+  - The lost-and-found box: "excellent plan." Handling matters: the player looks at a thing in his hand and chooses what to do with it and what to think about it. The items' moral consequences are good, and there are more temptations, like pouring himself a beer when the bartender isn't looking, or asking her and implicating her.
+  - The head bartender is Paige: "Beautiful, fierce but sweet, no mary sue character...very flawed and full of negative idiosyncrasies like everyone else, but overall a solid individual." Every person is drawn that way: "not everyone is good, not everyone is evil..some push to the extremes though."
+  - Every object he can see is reachable (the jukebox wasn't).
+  - The town is generated once a game, on predetermined streets: detailed, "a real living little town, nothing fluffed off." About four hundred people may be just right. Not every peripheral story happens in every game, for replayability. The province's minors test stays: it happened to Hutch behind the bar.
+  - Fights: several ways to deal with an altercation, each visually interesting and informative; the fight in seconds, each second a choice; and he can build a rapport, or an enmity, with at least one police officer.
+  - The strip: each place feels distinct, and the places he can visit are important events, or events that show the game's reality.
+  - Target shooting is less rare, or there's a simpler version out back with a BB gun. Farkle instead of crib, to deepen the dice.
+  - The eccentrics: every view gets the fairest shake, "even more so than Disco Elysium", with what's half-baked in it and what's legitimate, and no strawmen. The freeman on the land is in. A Buddhist and a Nietzschean argue about the denial of life as nihilism, emptiness, and redeeming existence regardless of eternity, and both are wrong, or half-right. The Esso kid, or a more on-the-nose character, wonders about a future AI in orthogonal time compelling humanity to build it, and perhaps doing something else as well. That an AI is building the game is acknowledged in it somehow, even if only at the end.
+  - The event is the Big One, fixed in every game, with the doorman's role turned inside out on the last night. What it does to him and everyone depends on the player's choices, "or lack of choice or attention". The modern myth is part of it: patrons argue about HAARP, cloud seeding and government alien psyops in fragments, never explained in full, and the object in the sky makes the quake's timing suspect: "there is supposed to be an earthquake, but perhaps something forced natures hand."
+  - "Rats leave a sinking ship" is a joke about a smaller event (a burst pipe, a licence suspension) that really points at what's coming. And the end keeps this: "the young lose the world they lived in and the old get back the one they remember, but both are experiencing something new."
+  - Looking and going: the player looks left and right at the details, and the camera shouldn't turn his head for him; "not a free walk, but not a limited walk either." This changes "not a free walk" above, as far as those words go.
+  - His deaths depend on the death: where and when he starts again is context-aware, sometimes back in time and sometimes "a hallucination(or was it?) that starts you on the next day instead of the previous".
 
 ### PROPOSED (waiting on Hutch)
 
@@ -166,7 +189,7 @@ Proposed with the Wednesday draft (2026-09-26):
 
 - One save slot, written after every choice, so there's no going back to try again. This replaces "saved automatically at dawn" above. A copy can go to the player's Claude account if they turn it on.
 - The room on day 1: THE FATHER, THE FIGHTER, THE MANUAL and THE WRONG MAN seated, one seat empty. THE TABLE and THE KID can be earned on the night.
-- Checks are two dice, moved by how reliable the voice's source is, how much he's had and whether he's hurt. There are no skill levels. The louder the room in his head, the wider the result swings, both ways. Voices also make passing remarks on drinks, the hour and where he goes (`content/rules/barks.yaml`).
+- Checks are two dice, moved by how reliable the voice's source is, how much he's had and whether he's hurt. There are no skill levels (superseded 2026-10-14: the seven stats are DECIDED). The louder the room in his head, the wider the result swings, both ways. Voices also make passing remarks on drinks, the hour and where he goes (`content/rules/barks.yaml`).
 - The head bartender is a woman in the draft.
 - Walter is table 28's rat. Poison is an anticoagulant: if he takes the bait on Wednesday he dies over days, not hours, and it lands on day 3.
 - At close he writes the incident log: the way it happened, so it reads better, or left out. The bartender reads it, and knows what she saw.
@@ -265,7 +288,7 @@ Proposed with the professional pass (2026-10-05), from Hutch's notes on the 4 Oc
   - Terry asks the score before anything else and calls everyone *pal*. HI-VIS's greeting is the island's working one, *How's she goin'.*
   - The kids' word on him is lowercase, the way it'll be typed.
 
-Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built, for Hutch to say yes or no to:
+Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built. Hutch approved the skeleton as the direction that evening; where a DECIDED entry of 2026-10-14 or the next block differs from these (the stats, the interview, Farkle for crib, the range, walking, deaths, the event), those win. The rest stands as proposed:
 
 - **Every system is the job.** Hutch's seventeen ideas fold into eight systems (the rats, his body, his head, the door, the room, his pockets, the word, the month), and nothing goes in that the job doesn't explain. Against bloat: one building, deep; everything written and owned; nothing respawns or repeats; time is the price; no markers, no grinding, and no experience points, crafting, skill trees or fast travel.
 - **The rats as the spine.** Day 1 sets him on terms, war or neglect, and he can change course once, at a price. Terms bring quiet, what the walls hear, favours, the building's other ways and the warning; but fed rats breed, the old man's asks grow, and using what they hear makes him a rat by the kids' code. War costs Walter, the dead in the walls, the old man and the warning, and ends with the knot opened in front of table 28.
@@ -285,6 +308,28 @@ Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built, for Hut
 - **The people cut at the scale the strokes have on his hand,** so they read as carved wood. For the build to try.
 - **Build first:** M2 with the new bones, in seven steps, before anything widens.
 
+Proposed with Hutch's answers (2026-10-14, evening), in `11_SKELETON.md`. Claude's drafts to fill in what Hutch decided; not built:
+
+- **Through Gary's eyes.** The camera is Gary's for the interview and the player answers as the bouncer, so the first look at him is across a desk, and Gary checks his licence the way Hutch does at a door. The office is a converted house on the old main street, with a box of SECURITY shirts in the corner and the bookkeeper at the other desk. Not getting the job takes lying and getting caught twice, insults, threats or walking out, and the teller ends it: "I didn't get the job. That's it. That's the story."
+- **The check:** two dice, the stat, the seated voice (0 to 2 as built, 3 once he's trained for it), what he's wearing, less drink and hurt, against 10, 12, 14, 16 or 18. An ordinary man is a 4, and he starts between 2 and 7. Short names STR, CON, DEX, INT, WIS, CHA, GUT. What he eats and drinks reaches Gut Brain. Passive reads at WIS 6 and GUT 8. A new voice, THE CIRCLE (aikido), lends to DEX and WIS; THE KID lends to CHA with the young.
+- **Training,** none of it more than once a week, each session a scene with people in it and a cost in money, time, sleep or his body: aikido at the community hall on Tuesdays (taught by a retired dental hygienist), the Krav Maga gym in the strip mall (the rugby boys train there), hauling the delivery, the BB gun and the gun club, the library, the winter dip, a Monday sitting group, and sitting up with the old man.
+- **Handling:** he keeps one voice's read of a thing, it goes in his notes, and the voice whose reads he keeps speaks more often.
+- **Temptations,** each with what it gives, what it costs and who knows: the beer he pours himself, the beer he asks Paige for, Gary's shots, a joint on the deck, a line in the office downstairs, door money, the club's gift, the lost-and-found box and the till, what the rats hear, a loaded die, and someone at close.
+- **The town's streets:** the highway strip, the old main street, the harbour, the hill, the flats and out the highway, the same every game, with the four hundred generated on them (the Sov's orbit) and the town moving on out of sight. Sikh families since the mill's early days (Paldi, 1917), and the room's reaction as the test after the side door. A First Nation beside the town is Hutch's call.
+- **The fight from Hutch's account:** presence first (stand tall, the hand on the shoulder, irreverence, getting serious, taking away the audience); his stance at the bottom of the view (arms folded is the sucker punch's opening); the seconds, with the choices drawn on the frozen print in their teacher's ink: the circle, the blow and the choke (each second held is a choice); fights broken up one pair at a time; allies who get hurt; the constable, posted from Ontario and lost on Island Time; and he's seen from outside twice, through Gary's eyes and on the bar's camera. The frames print as a strip in his notes.
+- **Island Time:** three clocks (the island late, the bar fast, the phones on the mainland's time), and after the end the power comes back islanded and every clock on the island runs slow.
+- **The sinking ship:** the rats gone from the keg room on day 16, the pipe bursting on day 17 because the ground had started to move, and Paige's joke; or the suspension notice, if a minor was served on day 11.
+- **What he wears:** long hair and a mala by default, tied and worn or not each night; Gary's SECURITY shirt as the mainland mistake.
+- **The strip's events,** and the places events take him: Gary's office, the detachment, the hospital, the gun club, the golf course, the community hall, the mill gate, the beach.
+- **Deaths by context:** the keg stairs rewind to that morning ("No. That's not how it went."); the knife wakes him in hospital the next afternoon; the one punch is told back to him by others; the cold wakes him on the beach under the old man's coat; withdrawal skips two days; the last night stays a death. Gut Brain frames whether it was real.
+- **Games:** pool, darts, Farkle with the house dice from the tray (the pawn shop's loaded die throws his checks too), poker after close in the office downstairs, the range (the BB gun out back and the gun club with the vets), arm wrestling, and the Saturday meat draw for minor hockey, whose meat feeds the hill on day 30.
+- **The people:** Paige's flaws (keeps score, overserves the ones she loves, lies to Gary for her people, can't stand being thanked, cruel when tired and makes it up with fries); Gary (fifties, inherited the Sov, the beer store and two rentals, feeds the staff shots, trades leniency for sex, keeps the old man's tab, cries at the mill's last shift); the bookkeeper (skims, keeps the Sov afloat, and writes his first cheque short); the old soldier (a peacekeeper in the Balkans); the cooks and the prime rib; two weekend servers; table 28 alone on Sundays.
+- **The eccentrics' fair shake:** the Living Man (for him, Hume on tacit consent, legal personhood and money made as debt; against him, *Meads v. Meads*); the Faller as the Nietzschean and the Treesitter as the Buddhist; the Esso kid's machine that reaches back and wants every story, the same shape as the knot; the Gold Man as the bar's psyops man; and the old man a boy in the 1946 quake. The talk at the bar in fragments, each a real thing with a leap on the end.
+- **Was it helped?** The plain reading (the slow slip from day 16, the odds up for two weeks) and the strange one (the spiral on day 22, truly a rocket, which with Gut Brain high turned the way the knot is tied). The brawl in the lot on the mill's wake, day 24.
+- **The game knows who made it:** at the very end the teller's listener turns out to be a machine, the kind the Esso kid rated answers for. Hutch writes the words.
+- **Replaying it:** what's fixed and what changes; knowing the end is worth only as much as the trust he's built; and the teller's first line changes on a second game.
+- **Build first,** revised: Gary's office, looking and going, his hand, the town, one fight Hutch's way, Thursday by day, Friday.
+
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
@@ -298,23 +343,21 @@ Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built, for Hut
 
 1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
 2. **The bar.** Drafted in `06_THE_HOTEL.md`; waiting on Hutch's cuts and the name.
-3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED). Open: how he got this job, why he left the last one, what people call him.
+3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED); he gets this job in Gary Van Dusen's interview (DECIDED, 2026-10-14). Open: why he left the last one, what people call him, and whether he has a name the player hears (Paige would say it once he's lasted a week).
 4. **The voices on day 1.** Who are the first five in the room?
-5. **The head bartender.** A lifer (DECIDED). Open: who, exactly.
+5. **The head bartender.** A lifer, and she's Paige (DECIDED). Open: her age (the draft has her in her fifties) and her worst habit.
 6. **The rats.** Structure DECIDED (doubling, recurring parley with the Rat King, extermination at a cost). The Rat King is both the knot and a man (DECIDED). Open: who the man is; the first parley.
 
 ### Soon
 
-8. What is the event, and what is the public date? Three candidates in `11_SKELETON.md` (the Big One, Claude's pick; the quiet alone; a modern myth), and the mill's last shift for the public date. Put to Hutch on a card, 14 October.
-9. Does the narrator frame stay?
-10. Is the relational psyche the core system? `11_SKELETON.md` keeps it, with the seven stats under it.
+9. Does the narrator frame stay? (The skeleton keeps it: the end's acknowledgement of who made the game hangs on it.)
 11. Art: Hutch isn't a visual artist (2026-09-27). Open: is there a local painter or printmaker, and a budget, or do the faces carved in code carry it (the look test)?
-12. Which way does the game go on AI disclosure?
-13. Violence: Hutch describes how it actually goes. `11_SKELETON.md` has a frame to hang it on ("Hands on: the fight") and asks for a fight at Hutch's door, start to finish.
-16. Walking the Sov (`11_SKELETON.md`): does the DECIDED "not a free walk" change, with the posts kept as where the job is done from?
-17. The stats: Hutch's seven names as they are, or some in the job's own words (Gut for Intuition, say)?
-18. His deaths: back to that morning, or something harder? And on the last night, does his death stay a death, an ending the teller tells like the others?
-19. Hutch's material for the skeleton (short lines are plenty): what a doorman wears and carries, what gets taken off people and where it goes; drinking on shift; where table 28 really is on Sundays; the games in the bar.
+12. AI disclosure: the game itself acknowledges that an AI built it (DECIDED, 2026-10-14), and the draft puts it at the very end. Open: what the store page says, and whether any AI images ship.
+18. His death on the last night: does it stay a death, an ending the teller tells like the others? (The draft says yes. The rest of his deaths are DECIDED, 2026-10-14.)
+20. Gary's office: where it is in town, and what's in it (the draft: a converted house on the old main street).
+21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed).
+22. Music on Saturdays: a band, and a dance floor?
+23. A First Nation beside the town: in the game or not, and how. Hutch's call, and people from a Nation should have a say in it.
 
 ### Later
 

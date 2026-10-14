@@ -24,7 +24,8 @@ Made by **Hutch** (showrunner with final cut, music, sound, voice) and **Claude*
 | `bible/08_FUTURE_FORM.md` | The game past the prototype: Godot, the view through his eyes, the print made real, who makes the pictures, and the path |
 | `bible/09_REVIEW.md` | The honest review before the Godot polish pass (28 September 2026): what works, what doesn't, what to invent, and what the pass builds; marked-up frames in `bible/review/` |
 | `bible/10_VOICES.md` | How each person in the Sov talks (5 October 2026): rhythm, words, what they do with a question, what they never say |
-| `bible/11_SKELETON.md` | The skeleton (14 October 2026): the game as an RPG, Hutch's seventeen ideas folded into eight systems that are all the job, and the end |
+| `bible/11_SKELETON.md` | The skeleton (14 October 2026, rewritten with Hutch's answers that evening): the game as an RPG, Hutch's seventeen ideas folded into eight systems that are all the job, and the end |
+| `bible/12_FROM_THE_DOOR.md` | Hutch's firsthand material from the door and the bar, word for word, and where each piece goes in the game (from 14 October 2026) |
 | `tools/psyche_census.py` | Generates the 34 psyche states and checks the math (zip only) |
 | `data/psyche_states.json` | Its output (zip only) |
 
@@ -52,7 +53,7 @@ Nothing moves from PROPOSED to DECIDED without Hutch's explicit OK.
 - The brief, the premise, the thirty-day frame and the Wednesday rats prologue are DECIDED.
 - The systems, the narrator, the engine and the art direction are PROPOSED and waiting on Hutch.
 - Wednesday is written in Ink (`content/ink/`) and plays in the browser (`prototype/web/`, published as a private artifact), with director mode for editing it while playing. The folder is a git repo. (Updated 2026-09-26.)
-- The skeleton of the game as an RPG (stats, the town at the door, the fight, drink on three clocks, walking the Sov, the end) is PROPOSED in `11_SKELETON.md`. (Added 2026-10-14.)
+- The skeleton of the game as an RPG is the direction (DECIDED, 14 October: "this is fantastic. All of it."). Hutch's calls are in it: the opening in Gary Van Dusen's office, seven stats from 1 to 10 with Gut Brain, the fight in seconds, looking and going, deaths by context, and the Big One with the sky in it. The rest of `11_SKELETON.md` is Claude's draft, PROPOSED. Hutch's stories from the door are in `12_FROM_THE_DOOR.md`. (Updated 2026-10-14.)
 
 ## Next steps (linked session)
 
