@@ -154,10 +154,13 @@
   }
 
   // A night saved by an earlier build was played under a story that has changed since. It loads and
-  // plays on, but whatever the new story added starts partway through the night, so it says so.
+  // plays on, but whatever the new story added starts partway through the night, so it says so. A
+  // build is the day it was made and its story's hash (tools/build.mjs): only the hash says the
+  // story changed, so the same story built again another day isn't older.
+  function storyOf(build) { return String(build || '').replace(/^\d{4}-\d{2}-\d{2}-/, ''); }
   function olderStory(save) {
-    const now = (C.meta && C.meta.build) || '';
-    return !!(save && !save.ended && save.build && now && save.build !== now);
+    const now = storyOf(C.meta && C.meta.build);
+    return !!(save && !save.ended && save.build && now && storyOf(save.build) !== now);
   }
 
   async function bestSave() {

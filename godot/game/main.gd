@@ -227,14 +227,20 @@ func start_new(in_slot: int) -> void:
 
 
 # A night saved by an earlier build was played under a story that has changed since. It loads and
-# plays on, but whatever the new story added starts partway through the night, so it says so.
+# plays on, but whatever the new story added starts partway through the night, so it says so. A
+# build is the day it was made and its story's hash (tools/build.mjs): only the hash says the story
+# changed, so the same story built again another day isn't older.
 func older_story(save) -> bool:
 	if save == null or save.get("ended", false):
 		return false
 	var meta = game.content.get("meta", {})
-	var now := str(meta.get("build", "")) if meta is Dictionary else ""
-	var then := str(save.get("build", ""))
+	var now := _story_of(str(meta.get("build", "")) if meta is Dictionary else "")
+	var then := _story_of(str(save.get("build", "")))
 	return now != "" and then != "" and then != now
+
+
+static func _story_of(build: String) -> String:
+	return RegEx.create_from_string("^\\d{4}-\\d{2}-\\d{2}-").sub(build, "")
 
 
 func resume(in_slot: int) -> void:

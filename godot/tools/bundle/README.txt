@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, the test shift. The Godot build of 5 October 2026.
+Wednesday, the test shift. The Godot build of 14 October 2026.
 
 
 PLAY IT
@@ -52,6 +52,21 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE 5 OCTOBER
+
+- The hologram shows. It only gleamed, as you said: its lines came out about a pixel and a half
+  wide on the screen, and a sheen over the whole card washed out what was left. Now the foil is
+  drawn bold and only the foil lights. Pick up a licence and tip it toward the lamp: the waves
+  ripple down the card in colour, the seal over the corner of the photo lights ring by ring with
+  a light running round it as the card turns, the face comes back in the foil, and the birthday
+  runs along the bottom in tiny print. Away from the lamp it's a pale outline in the laminate. A
+  fake's hologram is printed ink and sits still however you tip it.
+- The cards print CLASS 5 and 183 cm, not CLASS 5.0 and 183.0 cm.
+- The browser build's licences have the same hologram.
+- His hand is as it was. The grain is the print's strokes running round his fingers, and it stays.
+- The story hasn't changed, so a night you're partway through carries on where you left it.
 
 
 WHAT'S NEW SINCE 4 OCTOBER

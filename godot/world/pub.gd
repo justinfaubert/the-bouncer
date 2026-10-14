@@ -158,7 +158,10 @@ const SCREENS := {"phone_screen": "phone_screen"}
 # so are the red hair, the rose cardigan and the tie. The women from upstairs drink white wine.
 const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36"),
 	"hair_red": Color("5a4028"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c")}
-# how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight]
+# how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight].
+# His own hand (models/people/his_right_*.glb) is "skin" too, and Hutch likes it as it prints, the
+# strokes running round the fingers like wood grain (14 October): if the faces want a different
+# cut, give the hand a material of its own rather than changing it.
 const CUTS := {
 	"skin": [4, Vector3.UP, 4.5, 0.7], "eye": [3, Vector3.UP, 5.0, 0.0], "iris": [3, Vector3.UP, 5.0, 0.0], "hair": [4, Vector3.UP, 3.5, 0.5],
 	"hoodie": [4, Vector3.UP, 5.5, 0.8], "jeans": [2, Vector3.UP, 5.5, 0.7], "cord": [3, Vector3.UP, 5.0, 0.0],

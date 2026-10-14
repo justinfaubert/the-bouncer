@@ -229,6 +229,14 @@ static func hand_date(iso: String) -> String:
 	return "%s %d/%s" % [MONTHS[clampi(int(p[1]) - 1, 0, 11)], int(p[2]), p[0].substr(2)]
 
 
+# What a card prints for a field. A number in the yaml comes through the build's JSON as a float,
+# and a licence says CLASS 5 and 183 cm, not CLASS 5.0 and 183.0 cm.
+static func _field(v) -> String:
+	if v is float and is_equal_approx(v, roundf(v)):
+		return str(int(roundf(v)))
+	return str(v)
+
+
 # A driver's licence, front or back, a hundred pixels to the centimetre.
 func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 	var sv := _viewport(Vector2i(856, 540), true)
@@ -248,7 +256,7 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 	if front:
 		_rect(c, Rect2(0, 0, 856, 74), Color("2d4868"))
 		_text(c, "DRIVER'S LICENCE", Vector2(34, 12), "ui_b", 40, Color("eef2f4"), 3)
-		_text(c, "CLASS " + str(pr.get("class", "")), Vector2(640, 16), "ui_b", 34, Color("eef2f4"), 2)
+		_text(c, "CLASS " + _field(pr.get("class", "")), Vector2(640, 16), "ui_b", 34, Color("eef2f4"), 2)
 		var face := "face_" + str(pr.get("face", ""))
 		_rect(c, Rect2(32, 98, 238, 300), Color("bfc6cb"))
 		if tex.has(face):
@@ -260,7 +268,7 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 		_rect(c, Rect2(x, 198, 330, 12), Color(ink, 0.35), 5)
 		_rect(c, Rect2(x, 220, 250, 12), Color(ink, 0.3), 5)
 		var cells := [["DOB", str(pr.get("born", ""))], ["EXP", str(pr.get("expires", ""))], ["ISS", str(pr.get("issued", ""))],
-			["SEX", str(pr.get("sex", ""))], ["HGT", "%s cm" % str(pr.get("height", ""))], ["WGT", "%s kg" % str(pr.get("weight", ""))],
+			["SEX", str(pr.get("sex", ""))], ["HGT", "%s cm" % _field(pr.get("height", ""))], ["WGT", "%s kg" % _field(pr.get("weight", ""))],
 			["EYES", str(pr.get("eyes", ""))], ["HAIR", str(pr.get("hair", ""))]]
 		for i in cells.size():
 			var cx := x + (i % 2) * 262.0
@@ -306,7 +314,7 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 					_rect(c, Rect2(xx, by + y * 16.0, w2, 16.0), ink)
 				xx += w2
 				on = not on
-		var cls := str(pr.get("class", ""))
+		var cls := _field(pr.get("class", ""))
 		var line1 := ("CLASS %s  ·  NEW DRIVER  ·  DISPLAY N" % cls.trim_suffix("N")) if cls.ends_with("N") else "CLASS " + cls
 		_text(c, line1, Vector2(60, 310), "mono", 26, ink)
 		_text(c, "RESTRICTIONS: NONE  ·  ENDORSEMENTS: NONE", Vector2(60, 352), "mono", 22, Color(ink, 0.7))
@@ -319,59 +327,69 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 
 
 # A licence's hologram, as a picture the shader reads (look/licence.gdshader): red is how much
-# foil, green which way its grating runs, blue where its colours start. A field of small waves
-# over the whole card, faint; the seal, stronger, over the corner of the photo, so the photo can't
-# be swapped without breaking it; the face again, in the foil, by the printed ghost; and the
-# birthday along a wave at the foot in print too small to read without tipping it to the light.
+# foil, green which way its grating runs (a turn: the tip it answers to), blue where in that tip it
+# catches. A field of waves over the whole card, each row catching a little after the one above;
+# the seal over the corner of the photo, so the photo can't be swapped without breaking it, its
+# rings and the sun's rays ruled out from its middle, so a light runs round them as the card turns
+# and the rings come up one after another; the face again, in the foil, by the printed ghost; and
+# the birthday along a wave at the foot, in print too small to read. Drawn bold: a card in his hand
+# is a few hundred pixels across, and a hairline in the foil is no line at all.
 func _card_holo(pr: Dictionary) -> SubViewport:
 	var sv := _viewport(Vector2i(856, 540), true)
 	sv.transparent_bg = true
 	var c := _page(sv)
 	var foil := func(amount: float, grating: float, start: float, a := 1.0) -> Color:
 		return Color(amount, grating, start, a)
+	# ruled out from a middle: a line round it whose grating turns with it, g0 where the line
+	# starts to g1 where it ends (a turn the other way round from the picture's angles: its y runs
+	# down, the card's up)
+	var radial := func(ln: Line2D, amount: float, g0: float, g1: float, start: float) -> void:
+		var g := Gradient.new()
+		g.set_color(0, foil.call(amount, g0, start))
+		g.set_color(1, foil.call(amount, g1, start))
+		ln.gradient = g
 	# the waves
-	for row in 17:
+	for row in 12:
 		var ln := Line2D.new()
-		ln.width = 3.5
-		ln.default_color = foil.call(0.55, 0.12 + 0.05 * (row % 3), row * 0.07)
-		var y0 := 18.0 + row * 31.0
-		for x in range(-10, 870, 10):
-			ln.add_point(Vector2(x, y0 + sin(x * 0.045 + row * 1.3) * 7.0))
+		ln.width = 6.0
+		ln.default_color = foil.call(0.55, 0.25 + 0.04 * (row % 2), fposmod(row * 0.083, 1.0))
+		var y0 := 22.0 + row * 45.0
+		for x in range(-12, 872, 8):
+			ln.add_point(Vector2(x, y0 + sin(x * 0.038 + row * 1.1) * 9.0))
 		c.add_child(ln)
 	# the seal: rings, and inside them the sun coming up out of three waves
 	var seal := Vector2(262, 372)
 	for k in 4:
 		var ring := Line2D.new()
-		ring.width = 5.0 if k == 0 else 2.8
-		ring.default_color = foil.call(0.95, 0.42 + 0.06 * k, 0.2 * k)
-		ring.closed = true
-		var rr := 82.0 - k * 9.0
-		for i in 64:
-			var a := TAU * i / 64.0
+		ring.width = 8.0 if k == 0 else 5.5
+		var rr := 94.0 - k * 13.0
+		for i in 97:
+			var a := TAU * i / 96.0
 			ring.add_point(seal + Vector2(cos(a), sin(a)) * rr)
+		radial.call(ring, 1.0 if k == 0 else 0.9, 1.0, 0.0, 0.25 * k)
 		c.add_child(ring)
 	var sun := Line2D.new()
-	sun.width = 4.5
-	sun.default_color = foil.call(1.0, 0.7, 0.55)
+	sun.width = 6.0
 	for i in 33:
 		var a := PI + PI * i / 32.0
-		sun.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 26.0)
+		sun.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 28.0)
+	radial.call(sun, 1.0, 0.5, 0.0, 0.55)
 	c.add_child(sun)
 	for i in 9:
 		var ray := Line2D.new()
-		ray.width = 3.2
-		ray.default_color = foil.call(0.9, 0.75, 0.6)
+		ray.width = 5.0
 		var a := PI + PI * (i + 0.5) / 9.0
-		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 33.0)
-		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 50.0)
+		ray.default_color = foil.call(0.95, fposmod(-a / TAU, 1.0), 0.6 + 0.04 * i)
+		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 36.0)
+		ray.add_point(seal + Vector2(0, 8) + Vector2(cos(a), sin(a)) * 56.0)
 		c.add_child(ray)
 	for w in 3:
 		var wave := Line2D.new()
-		wave.width = 3.8
-		wave.default_color = foil.call(1.0, 0.25 + 0.1 * w, 0.9 + 0.1 * w)
+		wave.width = 5.5
+		wave.default_color = foil.call(1.0, 0.0, 0.1 + 0.25 * w)
 		for i in 25:
-			var x := -46.0 + i * 92.0 / 24.0
-			wave.add_point(seal + Vector2(x, 20.0 + w * 12.0 + sin(i * 0.9 + w) * 4.0))
+			var x := -50.0 + i * 100.0 / 24.0
+			wave.add_point(seal + Vector2(x, 22.0 + w * 14.0 + sin(i * 0.9 + w) * 5.0))
 		c.add_child(wave)
 	# the face, in the foil, over the printed ghost
 	var face := "face_" + str(pr.get("face", ""))
@@ -385,9 +403,9 @@ func _card_holo(pr: Dictionary) -> SubViewport:
 	var x := 30.0
 	var i := 0
 	while x < 830.0:
-		var l := _text(c, day, Vector2(x, 508.0 + sin(x * 0.012) * 5.0), "mono", 13, foil.call(0.85, 0.2, 0.33 + 0.04 * i), 1)
+		var l := _text(c, day, Vector2(x, 506.0 + sin(x * 0.012) * 5.0), "mono", 15, foil.call(0.85, 0.2, 0.33 + 0.04 * i), 1)
 		l.rotation = cos(x * 0.012) * 0.06
-		x += 128.0
+		x += 138.0
 		i += 1
 	return sv
 

@@ -1255,18 +1255,34 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
 .lic-sig { position: absolute; right: .9em; bottom: .35em; width: 36%; height: 2.1em; color: #1D1C19; opacity: .85; }
 .lic-ghost { position: absolute; right: 1.1em; top: 3.2em; width: 10%; aspect-ratio: 4 / 5; opacity: .2; filter: grayscale(1) contrast(1.4); mix-blend-mode: multiply; }
 .lic-x { display: block; height: .62em; margin: .18em 0; background: rgba(20, 19, 17, .55); border-radius: 1px; }
-/* the hologram: waves you only see when the light's across it, and the light itself */
-.lic-holo {
-  position: absolute; inset: 0; pointer-events: none;
-  opacity: calc(.12 + var(--holo, 0) * .8); mix-blend-mode: overlay;
-  background:
-    linear-gradient(112deg, transparent calc(var(--gx, 50%) - 30%), rgba(255, 255, 255, .8) calc(var(--gx, 50%) - 8%), rgba(179, 38, 30, .5) var(--gx, 50%), rgba(150, 205, 215, .55) calc(var(--gx, 50%) + 9%), transparent calc(var(--gx, 50%) + 30%)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1'%3E%3Cpath d='M0 9q3.5-4 7 0t7 0 7 0 7 0M0 16q3.5-4 7 0t7 0 7 0 7 0'/%3E%3Ccircle cx='14' cy='24' r='2.2'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 100% 100%, 2.4em 2.4em;
-  -webkit-mask-image: radial-gradient(circle at 34% 64%, #000 0 26%, transparent 48%);
-  mask-image: radial-gradient(circle at 34% 64%, #000 0 26%, transparent 48%);
+/* the hologram under the laminate (src/ui/props.js draws its parts as masks): only the foil's lines
+   light, in colours that slide as the card tips. --hw is how awake the foil is (the card toward the
+   lamp), --hk* where each part is in its own catch, --hang which way the tip runs (the light runs
+   round the seal with it), --hs and --hm how far the colours have slid. Away from the lamp it's a
+   pale outline in the laminate. */
+.lic-holo { position: absolute; inset: 0; pointer-events: none; }
+.lh { position: absolute; inset: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.lh-out { background: #FBFCFD; opacity: calc(.38 * (1 - var(--hw, 0)) + .1); }
+.lic-tiny .lh-out { opacity: .2; }
+.lh-waves {
+  background: repeating-linear-gradient(180deg, #E0413A 0, #EDB62E 6%, #4DB25A 12%, #2FA9C9 18%, #7B6BE0 24%, #D257B8 30%, #E0413A 36%);
+  background-size: 100% 300%; background-position: 0 var(--hs, 50%);
+  opacity: calc(var(--hw, 0) * var(--hkw, 1) * .85);
 }
-.lic-glare { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .45), transparent 42%); mix-blend-mode: soft-light; opacity: calc(.25 + var(--holo, 0) * .75); }
+.lh-ring, .lh-sun {
+  background: conic-gradient(from var(--hang, 0deg) at 30.6% 68.9%, #E0413A, #EDB62E, #4DB25A, #2FA9C9, #7B6BE0, #D257B8, #E0413A, #EDB62E, #4DB25A, #2FA9C9, #7B6BE0, #D257B8, #E0413A);
+}
+.lh-r0 { opacity: calc(var(--hw, 0) * var(--hk0, 1)); }
+.lh-r1 { opacity: calc(var(--hw, 0) * var(--hk1, 1) * .92); }
+.lh-r2 { opacity: calc(var(--hw, 0) * var(--hk2, 1) * .92); }
+.lh-r3 { opacity: calc(var(--hw, 0) * var(--hk3, 1) * .92); }
+.lh-sun { opacity: calc(var(--hw, 0) * var(--hks, 1)); }
+.lh-micro {
+  background: repeating-linear-gradient(90deg, #E0413A 0, #EDB62E 8%, #4DB25A 16%, #2FA9C9 24%, #7B6BE0 32%, #D257B8 40%, #E0413A 48%);
+  background-size: 300% 100%; background-position: var(--hm, 50%) 0;
+  opacity: calc(var(--hw, 0) * var(--hkm, 1) * .85);
+}
+.lic-glare { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .4), transparent 42%); mix-blend-mode: soft-light; opacity: calc(.15 + var(--hw, 0) * .35); }
 .lic-damp {
   position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
   background:

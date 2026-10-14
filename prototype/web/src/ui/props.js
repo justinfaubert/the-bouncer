@@ -27,6 +27,10 @@
   const LAST_MS = 700;            // at the last sleeve, a moment before he's been through them all
   const TILT = 16;                // degrees, at most
   const TILT_SEEN = 40;           // degrees of tipping, all told, before he's looked at the hologram
+  // the lamp the hologram catches, up and to the left of the card: the foil's wide awake at this
+  // tip (degrees, as --rx and --ry), and sleeps a tip of the wrist (WAKE, in radians) either side
+  const SWEET = [8, -6];
+  const WAKE = 0.2;
   const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
   function h(tag, cls, text) {
@@ -122,6 +126,70 @@
       return svg(W, rows * 3, '<g fill="currentColor">' + out + '</g>', 'lic-bar');
     }
 
+    // The hologram under the laminate, the same foil as the Godot build's (godot/look/licence.gdshader):
+    // a field of waves; the seal over the corner of the photo, its rings and the sun coming up out of
+    // three waves; and the birthday along the foot in print too small to read. Each part is a layer
+    // masked to its own lines, so only the foil lights, never the card between them, and pose() in
+    // buildCard lights each part at its own point in the tip. Away from the lamp it's a pale outline
+    // in the laminate, and that outline is all a photo of a licence keeps (on the phone); a
+    // photocopy keeps none of it (the binder).
+    const SEAL = [262, 372];                 // on the card's 856 by 540
+    function holoMask(inner) {
+      return 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 856 540" preserveAspectRatio="none">' + inner + '</svg>') + '")';
+    }
+    function holoParts(d) {
+      const g = ' fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"';
+      const line = function (pts, w) { return '<path d="M ' + pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L ') + '"' + g + ' stroke-width="' + w + '"/>'; };
+      let waves = '';
+      for (let row = 0; row < 12; row++) {
+        const pts = [], y0 = 22 + row * 45;
+        for (let x = -12; x <= 872; x += 8) pts.push([x, y0 + Math.sin(x * 0.038 + row * 1.1) * 9]);
+        waves += line(pts, 6);
+      }
+      const cx = SEAL[0], cy = SEAL[1];
+      const rings = [0, 1, 2, 3].map(function (k) { return '<circle cx="' + cx + '" cy="' + cy + '" r="' + (94 - k * 13) + '"' + g + ' stroke-width="' + (k ? 5.5 : 8) + '"/>'; });
+      const arc = [];
+      for (let i = 0; i <= 32; i++) { const a = Math.PI + Math.PI * i / 32; arc.push([cx + Math.cos(a) * 28, cy + 8 + Math.sin(a) * 28]); }
+      let sun = line(arc, 6);
+      for (let i = 0; i < 9; i++) {
+        const a = Math.PI + Math.PI * (i + 0.5) / 9;
+        sun += line([[cx + Math.cos(a) * 36, cy + 8 + Math.sin(a) * 36], [cx + Math.cos(a) * 56, cy + 8 + Math.sin(a) * 56]], 5);
+      }
+      for (let w = 0; w < 3; w++) {
+        const pts = [];
+        for (let i = 0; i <= 24; i++) pts.push([cx - 50 + i * 100 / 24, cy + 22 + w * 14 + Math.sin(i * 0.9 + w) * 5]);
+        sun += line(pts, 5.5);
+      }
+      const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(String(d.born || ''));
+      const day = m ? (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1] : '';
+      let micro = '';
+      for (let x = 30; x < 830 && day; x += 138) {
+        const y = 520 + Math.sin(x * 0.012) * 5;
+        micro += '<text x="' + x + '" y="' + y.toFixed(1) + '" transform="rotate(' + (Math.cos(x * 0.012) * 3.4).toFixed(2) + ' ' + x + ' ' + y.toFixed(1) + ')" font-family="monospace" font-size="15" letter-spacing="1" fill="#fff">' + day + '</text>';
+      }
+      return { waves: waves, rings: rings, sun: sun, micro: micro };
+    }
+    function holoEl(d, mode) {
+      const el = h('div', 'lic-holo');
+      if (mode === 'copy') return el;           // a photocopier doesn't see foil
+      const parts = holoParts(d);
+      const layer = function (cls, inner) {
+        const l = h('div', 'lh ' + cls);
+        const url = holoMask(inner);
+        l.style.webkitMaskImage = url;
+        l.style.maskImage = url;
+        el.append(l);
+      };
+      layer('lh-out', parts.waves + parts.rings.join('') + parts.sun + parts.micro);
+      if (mode === 'hand') {
+        layer('lh-waves', parts.waves);
+        parts.rings.forEach(function (r, k) { layer('lh-ring lh-r' + k, r); });
+        layer('lh-sun', parts.sun);
+        layer('lh-micro', parts.micro);
+      }
+      return el;
+    }
+
     // A licence. mode: 'hand' (his hands), 'tiny' (in a photo on a phone), 'copy' (photocopied into
     // the binder). A card with no name (d.blank) is somebody's photocopied licence gone too dark to
     // read anything but the face.
@@ -152,7 +220,7 @@
       }
       const ghost = h('div', 'lic-ghost');
       if (mode === 'hand') ghost.append(idPhoto(d.face, d.look));
-      front.append(band, photo, f, ghost, h('div', 'lic-holo'), h('div', 'lic-glare'));
+      front.append(band, photo, f, ghost, holoEl(d, mode), h('div', 'lic-glare'));
       if (d.wear === 'wet') front.append(h('div', 'lic-damp'));
       inner.append(front);
       if (mode === 'hand') {
@@ -226,12 +294,26 @@
 
       function pose(x, y) {
         rx = clamp(x, -TILT, TILT); ry = clamp(y, -TILT, TILT);
-        card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-        card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
-        // the light across it, and how much of the hologram it catches
-        card.style.setProperty('--gx', (50 + ry * 3).toFixed(1) + '%');
-        card.style.setProperty('--gy', (50 - rx * 3).toFixed(1) + '%');
-        card.style.setProperty('--holo', clamp((Math.abs(rx) + Math.abs(ry)) / (TILT * 1.1), 0, 1).toFixed(3));
+        const st = card.style;
+        st.setProperty('--rx', rx.toFixed(2) + 'deg');
+        st.setProperty('--ry', ry.toFixed(2) + 'deg');
+        // the light across it
+        st.setProperty('--gx', (50 + ry * 3).toFixed(1) + '%');
+        st.setProperty('--gy', (50 - rx * 3).toFixed(1) + '%');
+        // the foil: awake as the card comes round to the lamp, give or take a tip of the wrist;
+        // each part catches at its own point in the tip, so the rings come up one after another,
+        // the colours slide down the waves, and the light runs round the seal as the tip turns
+        const dx = (ry - SWEET[1]) * Math.PI / 180, dy = (rx - SWEET[0]) * Math.PI / 180;
+        const wake = Math.exp(-(dx * dx + dy * dy) / (WAKE * WAKE)), far = Math.hypot(dx, dy);
+        const kin = function (along, at) { return 0.35 + 0.65 * (0.5 + 0.5 * Math.cos(2 * Math.PI * (along * 2.4 - at))); };
+        st.setProperty('--hw', wake.toFixed(3));
+        st.setProperty('--hang', (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(1) + 'deg');
+        st.setProperty('--hs', (50 + dy * 300).toFixed(1) + '%');
+        st.setProperty('--hm', (50 + dx * 300).toFixed(1) + '%');
+        st.setProperty('--hkw', kin(dy, 0.4).toFixed(3));
+        for (let k = 0; k < 4; k++) st.setProperty('--hk' + k, kin(far, 0.25 * k).toFixed(3));
+        st.setProperty('--hks', kin(far, 0.55).toFixed(3));
+        st.setProperty('--hkm', kin(dx, 0.33).toFixed(3));
       }
       function tip(x, y) {
         if (api.reduced()) return;
