@@ -529,6 +529,35 @@
   speaker: fighter
   text: Him, you don't walk out quietly.
 
+# Things in the building he looks at (content/ink/things.ink, content/data/things.yaml): a voice
+# on what he's looking at, once a night, when it's in the room.
+#   toy:<thing>:look
+
+- id: look_dartboard
+  on: toy:dartboard:look
+  speaker: father
+  text: Darts are fine till somebody's drinking. Then they're three knives and a reason.
+
+- id: look_cues
+  on: toy:cues:look
+  speaker: fighter
+  text: A cue's a stick. Watch who picks one up by the thin end.
+
+- id: look_bottles
+  on: toy:bottles:look
+  speaker: wrongman
+  text: In the story the doorman watched the whole room in the mirror behind the bar, and never once looked at himself in it.
+
+- id: look_tape
+  on: toy:tape:look
+  speaker: manual
+  text: Staff are advised to work out the date at the start of each shift. Arithmetic at the door is a leading cause of error.
+
+- id: look_id_sign
+  on: toy:id_sign:look
+  speaker: father
+  text: Every door's got its exceptions. They're just not on the sign.
+
 # ---------------------------------------------------------------- the hand
 #
 # The voices and the player. While the player has a hand on a choice (the pointer resting on it, a

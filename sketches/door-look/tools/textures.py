@@ -573,7 +573,137 @@ def jukebox(w=512, h=368):
     save(np.asarray(im, dtype=np.float32) / 255.0, 'jukebox')
 
 
+# ------------------------------------------------------------------------------------ the payphone
+
+def hand(name):
+    """One of the build's handwriting fonts (godot/fonts/*.woff2), as a TTF PIL can read."""
+    import tempfile
+    from fontTools.ttLib import TTFont
+    out = os.path.join(tempfile.gettempdir(), name + '.ttf')
+    if not os.path.exists(out):
+        f = TTFont(os.path.join(HERE, '..', '..', '..', 'godot', 'fonts', name + '.woff2'))
+        f.flavor = None
+        f.save(out)
+    return out
+
+
+def phone_wall(w=960, h=800):
+    """The wall round the dead payphone at the end of the back hall, 1.2 m wide and 1.0 high, 800
+    px to the metre, the phone in the middle of it: ink only, and see-through between, so the
+    plaster shows. Forty years of it (content/ink/hall.ink): phone numbers with names and without,
+    a cab company's, TRUCK FOR SALE, a heart with two sets of initials and a third scratched in
+    and scratched out again, and high up, where you'd have to reach, in faded marker, the meeting
+    at the church hall. Thickest where a hand rests while the other holds the receiver. Every
+    number that can be read is a 555-01 one, the numbers kept for made-up phone books.
+    RGBA."""
+    r = np.random.default_rng(1986)
+    a = np.zeros((h, w, 4), np.float32)
+    hand4, hand3 = hand('kalam-400'), hand('kalam-300')
+    phone = (384, 272, 576, 608)                      # where the phone covers it, in px
+    taken = [phone]                                   # what can still be read, and the phone
+
+    def put(mask, colour, x, y, deg, weight=1.0, keep=False):
+        """lay a mask of ink on the wall, its middle at x, y, turned deg"""
+        m = mask.rotate(deg, resample=Image.BICUBIC, expand=True)
+        x0, y0 = int(x - m.width / 2), int(y - m.height / 2)
+        full = Image.new('L', (w, h), 0)
+        full.paste(m, (x0, y0))
+        t = np.asarray(full, np.float32) / 255.0 * weight
+        a[..., :3] = mix(a[..., :3], hexc(colour), np.where(t > a[..., 3], 1.0, t))
+        a[..., 3] = np.maximum(a[..., 3], t)
+        if keep:
+            taken.append((x0 + 6, y0 + 6, x0 + m.width - 6, y0 + m.height - 6))
+
+    def free(x, y, mw, mh, pad=8):
+        if x - mw / 2 < 10 or x + mw / 2 > w - 10 or y - mh / 2 < 10 or y + mh / 2 > h - 10:
+            return False                                # it thins out before the edge, it doesn't stop at one
+        return all(x + mw / 2 + pad < b[0] or x - mw / 2 - pad > b[2] or y + mh / 2 + pad < b[1] or y - mh / 2 - pad > b[3] for b in taken)
+
+    def words(text, face, size, stroke=0):
+        f = ImageFont.truetype(face, size)
+        box = f.getbbox(text, stroke_width=stroke)
+        m = Image.new('L', (box[2] - box[0] + 12, box[3] - box[1] + 12), 0)
+        ImageDraw.Draw(m).text((6 - box[0], 6 - box[1]), text, font=f, fill=255, stroke_width=stroke, stroke_fill=255)
+        return m
+
+    def gone():
+        """a line of writing nobody can read any more: made-up syllables, mostly"""
+        out = []
+        for k in range(r.integers(1, 4)):
+            if r.random() < 0.15:
+                out.append('555-01%02d' % r.integers(0, 100))
+            else:
+                out.append(''.join(r.choice(list('bdklmnprstv')) + r.choice(list('aeiou')) for _ in range(r.integers(1, 4))))
+        return ' '.join(out)
+
+    # the things that can still be read, first, so the rest goes round them
+    put(words('TUESDAYS 7 PM.  UNITED CHURCH HALL.', hand4, 30, 1), '#7c776d', 470, 52, -1.5, keep=True)
+    put(words('YOU ARE NOT THE ONLY ONE.', hand4, 30, 1), '#7c776d', 455, 96, -1.5, keep=True)
+    put(words('TRUCK FOR SALE', hand4, 38, 1), '#201d1b', 748, 178, 3, keep=True)
+    put(words('555-0172  obo', hand4, 30, 1), '#201d1b', 738, 224, 3, keep=True)
+    put(words('CAB  555-0118', hand4, 30, 1), '#23315f', 190, 222, -6, keep=True)
+    put(words('24 HRS', hand3, 22), '#23315f', 150, 258, -6, keep=True)
+    for text, ink, face, size, x, y, deg in [
+            ('SHELLY 555-0164', '#201d1b', hand4, 25, 200, 318, -4),
+            ('Rick 555-0131', '#6b665d', hand3, 28, 185, 432, 7),
+            ('Tina  555-0157', '#23315f', hand4, 27, 760, 470, -3),
+            ('Mom', '#23315f', hand3, 26, 690, 600, 11)]:
+        put(words(text, face, size), ink, x, y, deg, keep=True)
+    # the heart, two sets of initials in it, and the third scratched in beside them and out again
+    hm = Image.new('L', (200, 180), 0)
+    d = ImageDraw.Draw(hm)
+    t = np.linspace(0, 2 * np.pi, 120)
+    hx = 16 * np.sin(t) ** 3
+    hy = -(13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t))
+    d.line([(100 + 5.6 * u, 86 + 5.6 * v) for u, v in zip(hx, hy)] + [(100, 86 - 5.6 * 5)], fill=255, width=4, joint='curve')
+    ink_in = words('K.T. + R.B.', hand4, 24)
+    hm.paste(255, (100 - ink_in.width // 2, 70 - ink_in.height // 2), ink_in)
+    put(hm, '#201d1b', 700, 352, -5, keep=True)
+    sc = Image.new('L', (60, 44), 0)
+    d = ImageDraw.Draw(sc)
+    for stroke in [[(6, 8), (6, 30), (2, 36)], [(14, 36), (16, 36)],                 # a key's J,
+                   [(24, 36), (26, 8), (36, 24), (46, 8), (50, 36)], [(54, 36), (56, 36)]]:   # and M
+        d.line(stroke, fill=255, width=1)
+    put(sc, '#5d5850', 838, 352, 4, keep=True)
+    out = Image.new('L', (70, 52), 0)
+    d = ImageDraw.Draw(out)
+    for k in range(17):                                 # and gone over and over with the key
+        d.line([(r.uniform(0, 8) + k * 3.6, r.uniform(2, 10)), (r.uniform(0, 8) + k * 3.6 + r.uniform(-5, 5), r.uniform(42, 50))], fill=255, width=1)
+    put(out, '#55504a', 838, 352, 4)
+
+    # numbers without names, at all angles, some crossed out with whatever was to hand
+    for k in range(10):
+        ink, face = [('#23315f', hand3), ('#6b665d', hand3), ('#201d1b', hand4)][k % 3]
+        m = words('555-01%02d' % r.integers(0, 100), face, int(r.uniform(22, 29)))
+        if k % 4 == 1:
+            ImageDraw.Draw(m).line([(4, m.height * 0.55), (m.width - 4, m.height * 0.45)], fill=255, width=3)
+        for tries in range(60):
+            x, y = r.uniform(70, w - 70), float(np.clip(r.normal(440, 150), 150, h - 60))
+            if free(x, y, m.width + 10, m.height + 10):
+                put(m, ink, x, y, r.normal(0, 9), keep=True)
+                break
+
+    # and under all of it, the years: writing gone faint, thickest at the height of a hand
+    for k in range(170):
+        m = words(gone(), hand3, int(r.uniform(12, 17)))
+        for tries in range(12):
+            x, y = r.normal(480, 250), r.normal(430, 160)
+            # fewer the further from the phone, and none right at the edge
+            edge = min(x, w - x, y, h - y) / 90.0
+            if r.random() < min(1.0, edge) and free(x, y, m.width * 0.8, m.height * 0.6, pad=0):
+                put(m, ['#aaa498', '#9ea2a8', '#b1ab9f'][k % 3], x, y, r.normal(0, 6), r.uniform(0.8, 1.0))
+                break
+
+    a[..., 3] = np.where(a[..., 3] > 0.5, 1.0, a[..., 3])
+    save(a, 'phone_wall')
+
+
 if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:                               # just the ones named: python3 tools/textures.py phone_wall
+        for name in sys.argv[1:]:
+            globals()[name]()
+        sys.exit(0)
     carpet()
     wood()
     top()
@@ -588,3 +718,4 @@ if __name__ == '__main__':
     wear()
     tape()
     jukebox()
+    phone_wall()

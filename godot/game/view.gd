@@ -9,7 +9,12 @@
 #
 # His head turns with a drag across the room, or the arrow keys; the wheel narrows his eyes on
 # something far off. Where the pointer rests is where his attention is (game/main.gd asks what's
-# there). He walks between places along the ways in world/posts.gd, through the doors.
+# there). He walks between places along the ways in world/posts.gd, through the doors, looking
+# where he's going (unless the player looks somewhere else on the way), and when he gets there he's
+# still looking the way he was. Nothing turns his head for him but what would turn a man's: someone
+# coming into it (the Ink's #portrait), the dice going down (and back after, unless the player's
+# looked away), and sitting down, which turns him to what the seat faces. Never while the player's
+# turning it.
 #
 # His body is in the print (the review's "the print is his body"): drink slips the plates and
 # sways the view, nerves coarsen the cut and bring the red up in the dark, hurt thickens red at the
@@ -55,6 +60,9 @@ var _dragged := 0.0
 var pointer := Vector2(-1, -1)    # the pointer over the world's picture, in its pixels; -1 off it
 var t := 0.0
 var keys_turn := Vector2.ZERO
+var turned_t := -INF              # when the player last turned his head themselves
+var _walk_t0 := 0.0               # when he set off
+var _look_after = null            # a look asked for on the way (someone there), taken when he's there
 
 # his body, set by main.gd from the night: drinks, nerves (0..4), hurt (0..3), the clock
 var drinks := 0
@@ -187,6 +195,7 @@ func jump_to(where: String) -> void:
 	if _walk != null and _walk.is_valid():
 		_walk.kill()
 	walking = false
+	_look_after = null
 	place = where
 	_framed = frame
 	var p := Posts.post(where, frame)
@@ -204,24 +213,23 @@ func jump_to(where: String) -> void:
 # goes blank for a moment. Instant: just be there.
 func walk_to(where: String, instant := false) -> void:
 	if where == place and frame == _framed and not walking:
-		look_at_point(Posts.post(where, frame).look, 0.6)
 		return
 	if instant or where == "":
 		jump_to(where)
 		arrived.emit(where)
 		return
+	if where != place or frame != _framed:
+		_look_after = null
 	var from := place
 	var from_frame := _framed
-	var steps := Posts.way(from, where)
-	# seen from somewhere of its own (the front desk), he goes back to the place's post first
+	var steps := Posts.way(from, where, from_frame, frame)
 	var from_node: String = Posts.post(from, from_frame).node
-	if from_node != Posts.post(from).node and not steps.is_empty():
-		steps.push_front([Posts.post(from).node, "walk"])
 	place = where
 	_framed = frame
 	if _walk != null and _walk.is_valid():
 		_walk.kill()
 	walking = true
+	_walk_t0 = t
 	_walk = create_tween()
 	var p := Posts.post(where, frame)
 	if steps.is_empty():
@@ -238,14 +246,11 @@ func walk_to(where: String, instant := false) -> void:
 		if node == p.node:
 			target = p.at
 		if how == "cut":
+			# down the ladder, up the stairs: the page goes blank, and he comes out of it facing
+			# the way he went in
 			_walk.tween_property(self, "flash", 1.0, 0.25)
 			_walk.tween_callback(func():
 				eye_pos = target
-				var a0 := Posts.aim(target, p.look)
-				yaw = a0.x
-				pitch = a0.y
-				want_yaw = yaw
-				want_pitch = pitch
 				pub.shadows_near(target))
 			_walk.tween_interval(0.15)
 			_walk.tween_property(self, "flash", 0.0, 0.45)
@@ -254,11 +259,13 @@ func walk_to(where: String, instant := false) -> void:
 			var door: String = Posts.DOORS_ON.get(last_node + "|" + node, "")
 			if door != "":
 				_walk.tween_callback(func(): pub.swing_door(door, true))
+			# looking where he's going, unless the player's looked somewhere on the way
 			var a1 := Posts.aim(at, Vector3(target.x, at.y - 0.15, target.z))
 			var tgt := target
 			_walk.tween_callback(func():
-				want_yaw = _near_angle(yaw, a1.x)
-				want_pitch = a1.y)
+				if turned_t <= _walk_t0:
+					want_yaw = _near_angle(yaw, a1.x)
+					want_pitch = a1.y)
 			_walk.tween_method(func(v: Vector3): eye_pos = v, at, tgt, dur).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 			if door != "":
 				_walk.tween_callback(func(): pub.swing_door(door, false))
@@ -266,9 +273,14 @@ func walk_to(where: String, instant := false) -> void:
 		last_node = node
 	_walk.tween_callback(func():
 		walking = false
-		var a2 := Posts.aim(eye_pos, p.look)
-		want_yaw = _near_angle(yaw, a2.x)
-		want_pitch = a2.y
+		# there: still looking the way he was, unless someone there's turned his head on the way, or
+		# he's sat down, which turns him to what the seat faces
+		var to = _look_after
+		_look_after = null
+		if to == null and p.get("seat", false):
+			to = p.look
+		if to != null:
+			look_at_point(to)
 		pub.shadows_near(eye_pos)
 		arrived.emit(where))
 
@@ -277,8 +289,14 @@ func _near_angle(from: float, to: float) -> float:
 	return from + wrapf(to - from, -PI, PI)
 
 
-# turn his head to look at something (it eases there)
+# turn his head to look at something (it eases there): not while the player's turning it, and on
+# the way somewhere, once he's there
 func look_at_point(p: Vector3, _how_fast := 1.0) -> void:
+	if walking:
+		_look_after = p
+		return
+	if turning():
+		return
 	var a := Posts.aim(eye_pos, p)
 	want_yaw = _near_angle(yaw, a.x)
 	want_pitch = clampf(a.y, PITCH_MIN, PITCH_MAX)
@@ -299,6 +317,7 @@ func _on_sheet_input(e: InputEvent) -> void:
 			var k := 0.0042 * float(settings.get("look_speed", 1.0)) * zoom
 			_dragged += e.relative.length()
 			if _dragged > 6.0:
+				turned_t = t
 				want_yaw -= e.relative.x * k
 				want_pitch = clampf(want_pitch - e.relative.y * k * (-1.0 if settings.get("invert", false) else 1.0), PITCH_MIN, PITCH_MAX)
 	elif e is InputEventMouseButton:
@@ -324,6 +343,11 @@ func dragging() -> bool:
 	return _drag and _dragged > 6.0
 
 
+# the player's turning his head right now: a drag, or the keys or a stick held
+func turning() -> bool:
+	return dragging() or keys_turn != Vector2.ZERO
+
+
 # the ray from his eyes through the pointer (or the middle of his view), in the world
 func ray(from_pointer := true) -> Array:
 	var p := pointer if from_pointer and pointer.x >= 0.0 else Vector2(eye.size) / 2.0
@@ -344,6 +368,7 @@ func _process(dt: float) -> void:
 	t += dt
 	# the arrow keys, and the keys by them
 	if keys_turn != Vector2.ZERO:
+		turned_t = t
 		want_yaw -= keys_turn.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom
 		want_pitch = clampf(want_pitch + keys_turn.y * dt * 1.2 * zoom, PITCH_MIN, PITCH_MAX)
 	var k := 1.0 - exp(-dt * LOOK_EASE)

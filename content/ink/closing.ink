@@ -999,6 +999,9 @@ She turned the book round and read it.
 # music: after_hours
 The chairs went up on the tables. The bartender put one song on the jukebox, the same one, he'd find out, every night, and counted the till with a rye at her elbow. #sfx: till
 // HUTCH: The song she puts on for the count. Yours to pick, or to write.
+{ knows ? juke_top:
+    It was the one at the top of the jukebox's list, the one he'd never seen anybody choose.
+}
 { drinks >= 3:
     -> water
 }

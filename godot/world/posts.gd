@@ -50,6 +50,10 @@ const NODES := {
 	"hotel": Vector3(15.5, 0, -0.62),
 	"desk": Vector3(16.85, 0, -0.5),
 	"upstairs": Vector3(14.1, 3.4, 7.1),
+	"juke_way": Vector3(12.0, 0, 2.2),
+	"juke": Vector3(14.1, 0, 1.6),
+	"phone_way": Vector3(13.6, 0, -0.65),
+	"phone": Vector3(13.9, 0, -1.65),
 }
 
 # [a, b, how]: "walk", or "cut" (a ladder, a flight of stairs: the page goes blank between)
@@ -60,7 +64,9 @@ const WAYS := [
 	["backway", "hall", "walk"], ["hall", "hotel", "walk"], ["bar", "swing", "walk"], ["pool", "swing", "walk"],
 	["swing", "kitchen", "walk"], ["swing", "barend", "walk"], ["barend", "trap", "walk"], ["trap", "keg", "cut"],
 	["floor", "deck_in", "walk"], ["t28", "deck_in", "walk"], ["deck_in", "deck_out", "walk"], ["deck_out", "deck", "walk"],
-	["hotel", "upstairs", "cut"], ["bar", "door", "walk"],
+	["hotel", "upstairs", "cut"], ["bar", "door", "walk"], ["hotel", "desk", "walk"],
+	["backway", "juke_way", "walk"], ["juke_way", "juke", "walk"],
+	["hall", "phone_way", "walk"], ["phone_way", "phone", "walk"], ["phone_way", "hotel", "walk"],
 ]
 
 # the doors he goes through on a way, and which way they swing
@@ -76,9 +82,13 @@ const DOORS_ON := {
 # A place seen more than one way. The lot: the whole building from across the gravel when he
 # arrives; the pickup's driver's window, the glass fogged; the step under the light over the door
 # at the end, the big man at his truck by the beer store. The back hall: through the hotel door to
-# the front desk, while he talks to the night clerk.
+# the front desk, while he talks to the night clerk; round the corner at the end of it, the dead
+# payphone and the wall of numbers round it. The pool table: the jukebox past it, on the back wall,
+# round behind whoever's standing at it.
 const FRAMES := {
 	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62), "node": "desk"},
+	"hall:phone": {"at": Vector3(13.9, STAND, -1.65), "look": Vector3(13.86, 1.45, -2.64), "node": "phone"},
+	"pool:juke": {"at": Vector3(14.1, STAND, 1.6), "look": Vector3(13.2, 1.5, 0.27), "node": "juke"},
 	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
 	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99), "node": "lot"},
 	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4), "node": "lot"},
@@ -91,11 +101,11 @@ static func post(place: String, frame := "") -> Dictionary:
 	return POSTS.get(place, POSTS["door"])
 
 
-# The way from one place to another: a list of [node, how] from the first node after `from`'s
-# to `to`'s, by the fewest steps.
-static func way(from: String, to: String) -> Array:
-	var a: String = post(from).node
-	var b: String = post(to).node
+# The way from one place to another (each as it's seen: the front desk, the jukebox): a list of
+# [node, how] from the first node after `from`'s to `to`'s, by the fewest steps.
+static func way(from: String, to: String, from_frame := "", to_frame := "") -> Array:
+	var a: String = post(from, from_frame).node
+	var b: String = post(to, to_frame).node
 	if a == b:
 		return []
 	var prev := {a: ""}

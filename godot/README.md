@@ -31,7 +31,7 @@ drunk, and fullscreen.
 | Choose | click a choice, or its number |
 | Go on, where the night stops to let a moment land | Space or Enter |
 | Look round | drag across the room, or the arrow keys (or W A S D); the wheel narrows his eyes |
-| Look at what a choice is about | rest the pointer on it: the choice lights up, and E or a click does it |
+| Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
 | Something in his hands | drag to turn it, E to look closer, Q and R to go through it, Esc to put it down |
 | His notes, the floor sketch | Tab, M |
@@ -94,6 +94,20 @@ dice, and saves and reloads now and then; it fails on any script error:
 godot --headless --path godot -s res://tests/smoke.gd -- --seed 7 --steps 400
 ```
 
+The room against what's on offer, and the dice against the room, headless:
+
+```
+godot --headless --path godot -s res://tests/reach.gd -- --seeds 1-12 --steps 400 [--all]
+godot --headless --path godot -s res://tests/looks.gd        # what each thing he can look at says
+godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
+godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
+godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
+```
+
+`reach.gd` checks every choice's pin, and every thing he can look at, from every post with a line
+of sight; on 15 October 2026 it found none wrong over twelve nights. `tray_spots.gd` prints the table
+of tray spots for `game/dice.gd`: run it again when the room changes.
+
 Pictures of the title and every post (needs a display; `xvfb-run` works):
 
 ```
@@ -101,7 +115,9 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolu
   --path godot -s res://tests/shots.gd -- --out /tmp/shots --posts lot,door,floor,bar,t28,lot:pickup
 ```
 
-An exported build takes `--grab /tmp/title.png` to save a picture of its title and quit.
+`tests/shots_reach.gd` takes pictures of his eyes on things, the jukebox and the payphone seen
+from where he stands at them, and the dice thrown at each post. An exported build takes
+`--grab /tmp/title.png` to save a picture of its title and quit.
 `tests/pad.gd` plays the start of a night on a pad (the d-pad, A, B and a stick), headless.
 
 Against the browser build: both of these play whole nights with a seeded player and compare every

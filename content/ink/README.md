@@ -23,6 +23,7 @@ node tools/audit.mjs            does every choice change something the night rea
 | `bar.ink` | The bartender, the binder, the card machine, the owner's call. |
 | `rats.ink` | The kitchen, the keg room, the knot in the wall, bait and traps, the rat on the carpet. |
 | `toys.ink` | What the player's hands do between choices, when handling a thing isn't one of the choices on offer: `toy_<thing>(what)`. None are written for Wednesday. |
+| `things.ink` | What he sees when he looks at a thing in the building that nothing on offer is about (the dartboard, the tape by the door, the sign on the roof): `toy_<thing>("look")`. The things, and where they are, are in `content/data/things.yaml`. |
 | `hall.ink` | The washrooms, the payphone, the kid in the single washroom. |
 | `deck.ink` | The deck, the one in the cardigan, the pickup in the lot. |
 | `closing.ink` | Last call, clearing the room, the count, the incident log, after hours, the parley, upstairs, the voices at night, the ledger. |

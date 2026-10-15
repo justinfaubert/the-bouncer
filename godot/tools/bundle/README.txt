@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, the test shift. The Godot build of 14 October 2026.
+Wednesday, the test shift. The Godot build of 15 October 2026.
 
 
 PLAY IT
@@ -40,7 +40,8 @@ HANDS ON
     Go on             Space or Enter, where the night stops to let a moment land
     Look round        drag across the room, or the arrows (or W A S D); the wheel narrows his eyes
     Look at a thing   rest the pointer on what a choice is about and the choice lights up;
-                      E or a click makes it
+                      E or a click makes it. Rest it on anything else whose name comes up,
+                      fainter, and E or a click looks at it
     Throw the dice    hold Space or the mouse button to shake, let go to throw
     In his hands      drag to turn it, E to look closer, Q and R to go through it,
                       Esc to put it down
@@ -52,6 +53,43 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE 14 OCTOBER
+
+- The jukebox. It couldn't be clicked: nothing on offer was about it, so nothing in the room was
+  pinned to it. Now "The jukebox" is somewhere to go from the pool table and from across the room,
+  and he walks over and stands at it. There's a scene there: the list it keeps of what's been
+  played most in the building, getting it turned down a notch from the till (with it down he hears
+  the pool table start before it starts), and standing at it like you're picking a song, watching
+  the room in the dark of the screen. The top of that list comes back at close.
+- Every choice that's about something in the room is pinned to it, and each one has been checked
+  from every post, over twelve nights, for a clear line from his eyes. From the back hall the room
+  is only what's through its doorway; from the deck the lot is what's past the corner of the
+  building; the trapdoor is marked over the bar, where you'd look for it. A choice that takes him
+  somewhere he can't see from here is pinned to the door, the opening or the ladder he'd go by.
+- The rest of the building answers too. About thirty things nothing on offer is about, from the
+  dartboard and the tape on the door frame to the pilings in the keg room and the sign on the
+  roof: rest the pointer on one and its name comes up; click, and the column says what he sees,
+  and now and then a voice answers it. The clock doesn't move for a look. The lines are Claude's
+  drafts; two of them (the back bar, the taps) ask you what's really up there.
+- The payphone at the end of the back hall: he walks round to it and reads the wall, where before
+  he read it round a corner. Up close it's a payphone now, its card, its keys, the handset on its
+  steel cord, and the wall round it has forty years of ink on it: what the scene names (the truck
+  for sale, the heart and the initials scratched out, the meeting at the church hall up high) and
+  the numbers under it, gone faint.
+- The dice on the ground. Where there's nothing in front of him to throw onto (the floor, the hall,
+  the keg room, the deck, the lot, his room), a tray goes down a step away first, a server's round
+  one, cork inside a black rim, and they're thrown into it and stay in it. On the ledge by the
+  door, the bar, the tables and the felt they go down where they always did. Ground only, as you
+  picked.
+- His head stays where you leave it. He walks looking where he's going, unless you look somewhere
+  else on the way, and gets there still looking the way he was: the place no longer turns him to a
+  view of its own. Nothing turns his head for him but what would turn a man's: someone coming into
+  it, the dice going down (his eyes go to them, and back where you had them after), and sitting
+  down. Look away at any time and nothing pulls you back.
+- The story has changed (the jukebox, the looks), so a night you're partway through goes on from
+  the floor.
 
 
 WHAT'S NEW SINCE 5 OCTOBER

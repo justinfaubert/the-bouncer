@@ -19,6 +19,7 @@ INCLUDE hall.ink
 INCLUDE deck.ink
 INCLUDE closing.ink
 INCLUDE toys.ink
+INCLUDE things.ink
 
 -> prologue
 
@@ -68,6 +69,7 @@ VAR pool_mins = 0
 VAR t28_rounds = 3          // they've been here since two
 VAR last_count = 0          // the clock when he last counted the room
 VAR last_room_line = 0      // the clock when the floor last got a line about the room
+VAR juke_low = false        // the bartender turned the jukebox down a notch when he asked (pool.ink)
 
 // ------------------------------------------------------------------ standing, by code
 // Each group judges him by its own code (bible/02_SYSTEMS.md). -5 .. +5. Nobody sees these.
@@ -80,7 +82,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 

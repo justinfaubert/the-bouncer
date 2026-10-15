@@ -1,14 +1,18 @@
 # The dice, in the room. A check is two dice, and the night takes its time with them: they wait in
 # his fist until the player picks them up (hold the mouse on the room, or space, to shake them; let
-# go to throw), they go down on whatever's in front of him (the ledge by the door, the bar, table 28,
-# the felt, the kitchen's steel, the floor at his feet) and knock about on it the way dice do: off
-# the wall behind the ledge, the cushions, the glasses on table 28, each other (game/dice_sim.gd
-# works each throw out before it's shown). The first stops and the column says what the second
-# needs; the second rolls on, and when it matters, the last time it stands up on an edge the night
-# slows down to watch it come down. Then the stamp. His eyes narrow on them while they're down, and
-# his heart is up. A tap, space or enter while they're rolling skips to the stamp. How long they're
-# shaken changes nothing: the dice were decided when the choice was made
-# (prototype/web/src/ui/roll.js).
+# go to throw), they go down on whatever's in front of him (the ledge by the door, the bar, table
+# 28, the felt, the kitchen's steel) and knock about on it the way dice do: off the wall behind the
+# ledge, the cushions, the glasses on table 28, each other (game/dice_sim.gd works each throw out
+# before it's shown). Where there's nothing in front of him to throw onto (out on the floor, the
+# hall, the keg room, the deck, the lot, his room), a tray goes down on the floor a step away, a
+# server's round one, cork inside a black rim, and they're thrown into that. The first stops and the
+# column says what the second needs; the second rolls on, and when it matters, the last time it
+# stands up on an edge the night slows down to watch it come down. Then the stamp. His eyes go to
+# them and narrow on them while they're down, and his heart is up; but the player can look away
+# whenever they like (a drag, the arrow keys), and then his eyes are theirs, and nothing turns them
+# back. If they haven't, his eyes go back where the player had them once it's over. A tap, space or
+# enter while they're rolling skips to the stamp. How long they're shaken changes nothing: the dice
+# were decided when the choice was made (prototype/web/src/ui/roll.js).
 class_name Dice
 extends Node
 
@@ -24,7 +28,7 @@ const NORMAL := {1: Vector3.UP, 6: Vector3.DOWN, 2: Vector3.RIGHT, 5: Vector3.LE
 # Where they go down, from each post: the top of something in front of him (where they should end
 # up), what it's made of, the stretch of it they can run on (a box, x0 x1 z0 z1, or a round top, its
 # middle and radius), the walls round it [a point, the way it faces, how high it stands (0 all the
-# way), bounce], the pockets they'd drop down, what's lying on it (the balls; the arms of whoever's
+# way), bounce, and how high what's behind a low one stands: the rail behind a cushion], the pockets they'd drop down, what's lying on it (the balls; the arms of whoever's
 # on the stools either side of him), what hangs over it (so the throw goes in low, under it), and
 # how far off the middle they can end up. Anywhere else, the floor at his feet.
 const SPOTS := {
@@ -34,20 +38,58 @@ const SPOTS := {
 		"lying": [[Vector2(2.2, 5.0), 0.2], [Vector2(2.2, 5.85), 0.2]]},
 	"t28": {"at": Vector3(9.27, 0.78, 7.62), "of": "wood", "round": [Vector2(9.4, 8.1), 0.83],
 		"lying": [[Vector2(8.77, 7.94), 0.2], [Vector2(9.85, 7.63), 0.2]]},
-	"pool": {"at": Vector3(8.82, 0.8, 4.22), "of": "felt", "box": [8.4475, 10.3525, 3.4225, 4.3775],
-		"walls": [[Vector3(8.4475, 0, 0), Vector3(1, 0, 0), 0.042, 0.6], [Vector3(10.3525, 0, 0), Vector3(-1, 0, 0), 0.042, 0.6],
-			[Vector3(0, 0, 3.4225), Vector3(0, 0, 1), 0.042, 0.6], [Vector3(0, 0, 4.3775), Vector3(0, 0, -1), 0.042, 0.6]],
+	# the cushions where their noses are, a hair inside, so a die that hits one hits the nose
+	"pool": {"at": Vector3(8.82, 0.8, 4.22), "of": "felt", "box": [8.4505, 10.3495, 3.4255, 4.3745],
+		"walls": [[Vector3(8.4505, 0, 0), Vector3(1, 0, 0), 0.042, 0.6, 0.07], [Vector3(10.3495, 0, 0), Vector3(-1, 0, 0), 0.042, 0.6, 0.07],
+			[Vector3(0, 0, 3.4255), Vector3(0, 0, 1), 0.042, 0.6, 0.07], [Vector3(0, 0, 4.3745), Vector3(0, 0, -1), 0.042, 0.6, 0.07]],
 		"holes": [[Vector2(8.422, 3.397), 0.075], [Vector2(10.378, 3.397), 0.075], [Vector2(8.422, 4.403), 0.075],
 			[Vector2(10.378, 4.403), 0.075], [Vector2(9.4, 3.383), 0.07], [Vector2(9.4, 4.417), 0.07]],
 		"lying": [[Vector2(8.78, 3.62), 0.0286], [Vector2(8.95, 3.96), 0.0286], [Vector2(9.98, 3.52), 0.0286],
-			[Vector2(9.61, 4.2), 0.0286], [Vector2(8.52, 4.06), 0.0286], [Vector2(10.17, 4.14), 0.0286], [Vector2(9.45, 3.78), 0.0286]]},
+			[Vector2(9.61, 4.2), 0.0286], [Vector2(8.52, 4.06), 0.0286], [Vector2(10.17, 4.14), 0.0286], [Vector2(9.45, 3.78), 0.0286]],
+		"margin": 0.12, "reach": 0.36},
 	"kitchen": {"at": Vector3(2.55, 0.94, -2.16), "of": "steel", "box": [1.83, 2.85, -2.52, -1.93],
 		"over": [[Vector3(1.98, 1.36, -2.17), Vector3(2.92, 1.44, -1.91)]], "low": true, "reach": 0.4},
+}
+# The tray: the cork out to the inside of the rim, how high the rim stands off the cork, and the
+# cork off the floor. It goes down a step from him the way he's most nearly looking, at one of the
+# places round each post where it lies flat with nothing over it, nothing between his hand and it,
+# and nobody's spot under it (tests/tray_spots.gd works them out from the room as it's drawn: run
+# it again when the room changes). Somewhere this doesn't know, a step in front of him.
+const TRAY_R := 0.19
+const TRAY_RIM := 0.026
+const TRAY_BED := 0.009
+const TRAYS := {
+	"floor": [Vector3(7.0, 0.0, 5.9), Vector3(6.6, 0.0, 6.01), Vector3(6.31, 0.0, 6.3), Vector3(6.2, 0.0, 6.7),
+		Vector3(6.31, 0.0, 7.1), Vector3(6.6, 0.0, 7.39), Vector3(7.0, 0.0, 7.5), Vector3(7.4, 0.0, 7.39),
+		Vector3(7.69, 0.0, 6.3), Vector3(7.4, 0.0, 6.01)],
+	"hall": [Vector3(6.74, 0.0, -0.93), Vector3(6.5, 0.0, -0.6), Vector3(6.61, 0.0, -0.2),
+		Vector3(8.1, 0.0, -0.6), Vector3(7.86, 0.0, -0.93)],
+	"keg": [Vector3(3.42, -2.5, 3.55), Vector3(2.73, -2.5, 3.95), Vector3(2.62, -2.5, 4.35),
+		Vector3(4.11, -2.5, 3.95)],
+	"deck": [Vector3(16.7, 0.0, 8.7), Vector3(16.81, 0.0, 9.1), Vector3(17.1, 0.0, 9.39),
+		Vector3(17.5, 0.0, 9.5), Vector3(17.88, 0.0, 9.35), Vector3(18.11, 0.0, 9.05), Vector3(18.11, 0.0, 8.35),
+		Vector3(17.9, 0.0, 8.01)],
+	"lot": [Vector3(8.0, 0.0, 22.2), Vector3(7.6, 0.0, 22.31), Vector3(7.31, 0.0, 22.6),
+		Vector3(7.2, 0.0, 23.0), Vector3(7.31, 0.0, 23.4), Vector3(7.6, 0.0, 23.69), Vector3(8.0, 0.0, 23.8),
+		Vector3(8.4, 0.0, 23.69), Vector3(8.69, 0.0, 23.4), Vector3(8.8, 0.0, 23.0), Vector3(8.69, 0.0, 22.6),
+		Vector3(8.4, 0.0, 22.31)],
+	"upstairs": [Vector3(13.7, 3.4, 7.79), Vector3(14.1, 3.4, 7.9), Vector3(14.5, 3.4, 7.79),
+		Vector3(14.66, 3.4, 7.42), Vector3(14.66, 3.4, 6.78)],
+	"hall:clerk": [Vector3(16.85, 0.0, -1.3), Vector3(16.45, 0.0, -1.19), Vector3(16.48, 0.0, 0.15),
+		Vector3(16.85, 0.0, 0.3), Vector3(17.25, 0.0, 0.19)],
+	"lot:pickup": [Vector3(7.77, 0.0, 16.48), Vector3(7.48, 0.0, 16.77), Vector3(7.37, 0.0, 17.17),
+		Vector3(7.48, 0.0, 17.57), Vector3(7.77, 0.0, 17.86), Vector3(8.17, 0.0, 17.97),
+		Vector3(8.57, 0.0, 17.86), Vector3(8.86, 0.0, 17.57)],
+	"lot:truck": [Vector3(2.97, 0.12, 10.44), Vector3(2.61, 0.12, 10.6), Vector3(2.5, 0.12, 11.0),
+		Vector3(4.1, 0.12, 11.0), Vector3(3.99, 0.12, 10.6)],
+	"pool:juke": [Vector3(14.1, 0.0, 0.8), Vector3(13.7, 0.0, 0.91), Vector3(13.36, 0.0, 2.03),
+		Vector3(13.7, 0.0, 2.29), Vector3(14.1, 0.0, 2.4), Vector3(14.5, 0.0, 2.29), Vector3(14.79, 0.0, 2.0),
+		Vector3(14.9, 0.0, 1.6), Vector3(14.79, 0.0, 1.2), Vector3(14.5, 0.0, 0.91)],
 }
 # what a surface is made of: bounce, grip, how fast it takes the spin out of a die; and how a die
 # sounds on it (loudness, pitch)
 const STUFF := {"wood": [0.42, 0.38, 2.5, 1.0, 1.0], "felt": [0.2, 0.65, 6.0, 0.45, 0.78],
-	"steel": [0.45, 0.3, 1.8, 1.0, 1.32], "carpet": [0.12, 0.85, 8.0, 0.35, 0.72]}
+	"steel": [0.45, 0.3, 1.8, 1.0, 1.32], "carpet": [0.12, 0.85, 8.0, 0.35, 0.72], "cork": [0.22, 0.6, 4.5, 0.7, 0.86]}
 const TRIES := 14
 # how many milliseconds a frame go on working the throw out: while it's in his fist, while he
 # shakes it, and once it's let go and the throw still isn't worked out
@@ -76,7 +118,10 @@ var rest_mid := Vector3.ZERO
 var shake_t := 0.0
 var rattle_t := 0.0
 var said := false
-var _look_back := Vector2.ZERO
+var tray: Node3D
+var _look_back := Vector2.ZERO  # where the player had him looking when they left his hand
+var _thrown_t := 0.0            # when they did, on the view's clock
+var _tapped := -1               # the frame a tap skipped them in (the same tap isn't a click on the room)
 var _rng := RandomNumberGenerator.new()
 
 
@@ -84,6 +129,7 @@ func setup(m) -> void:
 	main = m
 	for k in 2:
 		dice.append(_die())
+	tray = _tray()
 	main.view.sheet.gui_input.connect(_on_sheet_input)
 
 
@@ -166,6 +212,72 @@ static func _face_tex(v: int) -> ImageTexture:
 	return tx
 
 
+# The tray, turned like a bowl on a lathe from its outline (out from the middle, then down the
+# outside): the cork, and the rim round it, its inside straight up, a rolled lip and the outside
+# drawn in a little to the foot.
+func _tray() -> Node3D:
+	var n := Node3D.new()
+	n.name = "tray"
+	n.visible = false
+	main.pub.add_child(n)
+	var r := TRAY_R
+	var y0 := TRAY_BED
+	var top := TRAY_BED + TRAY_RIM
+	var cork: ShaderMaterial = main.pub.mat(Color("9c7a52"), 0.95, 0.0, 1, Vector3(1, 0, 0.3), 5.0, 0.5)
+	var rim: ShaderMaterial = main.pub.mat(Color("1f1e22"), 0.45, 0.0, 2, Vector3.UP, 5.0, 1.0)
+	n.add_child(_lathe([Vector2(0.0, y0), Vector2(r, y0)], cork))
+	n.add_child(_lathe([Vector2(r, y0), Vector2(r, top - 0.004), Vector2(r + 0.002, top - 0.001), Vector2(r + 0.006, top),
+		Vector2(r + 0.010, top - 0.001), Vector2(r + 0.0125, top - 0.004), Vector2(r + 0.013, top - 0.008),
+		Vector2(r + 0.008, 0.002), Vector2(r + 0.004, 0.0), Vector2(0.0, 0.0)], rim))
+	return n
+
+
+# a ring of faces from each step of an outline (radius, height), its normals out of the outline's
+# left as it's walked
+static func _lathe(outline: Array, m: Material, seg := 56) -> MeshInstance3D:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in outline.size() - 1:
+		var a: Vector2 = outline[i]
+		var b: Vector2 = outline[i + 1]
+		var along := (b - a).normalized()
+		var side := Vector2(-along.y, along.x)
+		for k in seg:
+			var t0 := TAU * k / seg
+			var t1 := TAU * (k + 1) / seg
+			var c0 := Vector3(cos(t0), 0, sin(t0))
+			var c1 := Vector3(cos(t1), 0, sin(t1))
+			var q := [c0 * a.x + Vector3(0, a.y, 0), c1 * a.x + Vector3(0, a.y, 0), c1 * b.x + Vector3(0, b.y, 0), c0 * b.x + Vector3(0, b.y, 0)]
+			var nq := [c0 * side.x + Vector3(0, side.y, 0), c1 * side.x + Vector3(0, side.y, 0), c1 * side.x + Vector3(0, side.y, 0), c0 * side.x + Vector3(0, side.y, 0)]
+			for tri in [[0, 1, 2], [0, 2, 3]]:
+				var p0: Vector3 = q[tri[0]]
+				var p1: Vector3 = q[tri[1]]
+				var p2: Vector3 = q[tri[2]]
+				if (p1 - p0).cross(p2 - p0).length_squared() < 1e-14:
+					continue
+				var face := (nq[tri[0]] as Vector3) + (nq[tri[1]] as Vector3) + (nq[tri[2]] as Vector3)
+				# the front of a face is the side its corners go round clockwise
+				var order: Array = tri if (p1 - p0).cross(p2 - p0).dot(face) < 0.0 else [tri[0], tri[2], tri[1]]
+				for j in order:
+					st.set_normal(nq[j])
+					st.set_uv(Vector2(q[j].x, q[j].z))
+					st.add_vertex(q[j])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = m
+	return mi
+
+
+# down it goes where they're to be thrown, set down from a hand's breadth up
+func _set_tray(at: Vector3) -> void:
+	tray.visible = true
+	tray.position = at + Vector3(0, 0.035, 0)
+	tray.rotation.y = _rng.randf_range(0.0, TAU)
+	var tw := tray.create_tween()
+	tw.tween_property(tray, "position", at, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func(): main.audio.sfx("die_land", 0.4, 0.5))
+
+
 # ---------------------------------------------------------------- the throw
 
 func play(it: Dictionary, c: CheckCard, _p: float, done: Callable) -> void:
@@ -182,9 +294,11 @@ func play(it: Dictionary, c: CheckCard, _p: float, done: Callable) -> void:
 	main.view.heart = 1.25 + 0.12 * mini(int(it.roll.get("tension", 0)), 4)
 	# start working the throw out now, while they're still in his hand
 	var cam: Camera3D = main.view.cam
-	spot = spot_for(main.view.place, main.view.eye_pos, -cam.global_transform.basis.z)
+	spot = spot_for(main.view.place, main.view.eye_pos, -cam.global_transform.basis.z, main.view.frame)
 	if main.view.place == "t28":
-		spot.glasses = _t28_glasses(spot.at.y)
+		spot.glasses = _t28_glasses()
+	if spot.has("tray"):
+		_set_tray(spot.tray)
 	var plan_rng := RandomNumberGenerator.new()
 	plan_rng.seed = _rng.randi()
 	planner = Planner.new(spot, main.view.eye_pos, plan_rng, need.n > 0 and need.n < 6 and not quick)
@@ -200,7 +314,7 @@ func play(it: Dictionary, c: CheckCard, _p: float, done: Callable) -> void:
 
 
 func wants_click() -> bool:
-	return state in ["hand", "shake", "wind", "let_go", "roll"]
+	return state in ["hand", "shake", "wind", "let_go", "roll"] or _tapped == Engine.get_process_frames()
 
 
 func mouse(pressed: bool) -> void:
@@ -225,8 +339,11 @@ func key(pressed: bool) -> bool:
 
 func _on_sheet_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
-		if state in ["wind", "let_go", "roll"] and e.pressed:
-			finish()
+		if state in ["wind", "let_go", "roll"]:
+			# a tap skips to the stamp; a drag is the player looking round
+			if not e.pressed and main.view.was_click():
+				_tapped = Engine.get_process_frames()
+				finish()
 			main.view.sheet.accept_event()
 			return
 		mouse(e.pressed)
@@ -294,6 +411,11 @@ func _throw(plan: Dictionary) -> void:
 			pitch = 1.35
 		elif what == "wall":
 			pitch *= 0.9
+		elif what == "rim":
+			# the tray's rim: a hollow knock off the plastic
+			name = "die_tick"
+			gain = loud * 0.75
+			pitch = 1.2
 		beats.append([float(h2[0]), func(): main.audio.sfx(name, gain, pitch)])
 	var still1: float = sim.rest_t[order[0]]
 	var still2: float = sim.rest_t[order[1]]
@@ -304,15 +426,18 @@ func _throw(plan: Dictionary) -> void:
 	beats.sort_custom(func(a, b): return a[0] < b[0])
 	for d in dice:
 		(d as Node3D).visible = false
-	# his eyes go to where they'll lie, and narrow on it
+	# his eyes go to where they'll lie, and narrow on it, unless the player's turning his head
+	# just then
 	var p0: Vector3 = sim.pos[0]
 	var p1: Vector3 = sim.pos[1]
 	rest_mid = (p0 + p1) / 2.0
 	_look_back = Vector2(main.view.want_yaw, main.view.want_pitch)
-	main.view.look_at_point(rest_mid + Vector3(0, 0.01, 0))
-	var dist: float = main.view.eye_pos.distance_to(rest_mid)
-	var half := maxf(0.12, p0.distance_to(p1) / 2.0 + 0.075)
-	main.view.focus_fov = clampf(rad_to_deg(2.0 * atan(half / maxf(dist, 0.3))), 12.0, 45.0)
+	_thrown_t = main.view.t
+	if not main.view.turning():
+		main.view.look_at_point(rest_mid + Vector3(0, 0.01, 0))
+		var dist: float = main.view.eye_pos.distance_to(rest_mid)
+		var half := maxf(0.12, p0.distance_to(p1) / 2.0 + 0.075)
+		main.view.focus_fov = clampf(rad_to_deg(2.0 * atan(half / maxf(dist, 0.3))), 12.0, 45.0)
 	t = 0.0
 	ts = 0.0
 	state = "roll"
@@ -351,19 +476,39 @@ static func _turns() -> void:
 			TURNS.append(Basis(x, y, (x as Vector3).cross(y)))
 
 
-# where they go down from here (SPOTS), or the floor at his feet
-static func spot_for(place: String, eye: Vector3, fwd: Vector3) -> Dictionary:
-	if SPOTS.has(place):
-		return (SPOTS[place] as Dictionary).duplicate(true)
+# where they go down from here (SPOTS), or into the tray on the floor (TRAYS), the one most nearly
+# the way he's looking
+static func spot_for(place: String, eye: Vector3, fwd: Vector3, frame := "") -> Dictionary:
+	# seen from somewhere of its own (the jukebox, not the felt), it's that spot's floor
+	var key := place + ":" + frame if TRAYS.has(place + ":" + frame) else place
+	if SPOTS.has(key):
+		return (SPOTS[key] as Dictionary).duplicate(true)
 	fwd.y = 0.0
 	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
-	var feet := eye + fwd * 0.8
-	feet.y = eye.y - Posts.STAND
-	return {"at": feet, "of": "carpet", "round": [Vector2(feet.x, feet.z), 0.6]}
+	var c := Vector3.ZERO
+	if TRAYS.has(key) and not (TRAYS[key] as Array).is_empty():
+		var best := -INF
+		for p in TRAYS[key]:
+			var way := Vector3(p.x - eye.x, 0.0, p.z - eye.z).normalized()
+			if way.dot(fwd) > best:
+				best = way.dot(fwd)
+				c = p
+	else:
+		c = eye + fwd * 0.8
+		c.y = eye.y - (Posts.SIT_DOOR if Posts.post(place, frame).get("seat", false) else Posts.STAND)
+	return tray_spot(c)
+
+
+# the tray lying at c, on the floor, and the throw into it: from his hand down close over it, a
+# gentle one that lands them short of the middle
+static func tray_spot(c: Vector3) -> Dictionary:
+	var mid := Vector2(c.x, c.z)
+	return {"at": c + Vector3(0, TRAY_BED, 0), "of": "cork", "tray": c, "round": [mid, TRAY_R],
+		"rims": [[mid, TRAY_R, TRAY_RIM, 0.3]], "reach": TRAY_R, "hand": [0.3, 0.3], "short": [0.02, 0.08]}
 
 
 # table 28's glasses, as they stand tonight
-func _t28_glasses(top: float) -> Array:
+func _t28_glasses() -> Array:
 	var out: Array = []
 	var g = main.pub.dyn.get("t28_glasses")
 	if g == null:
@@ -371,7 +516,8 @@ func _t28_glasses(top: float) -> Array:
 	for c in (g as Node).get_children():
 		if c is Node3D:
 			var p: Vector3 = (c as Node3D).global_position
-			out.append([Vector2(p.x, p.z), 0.037, top + 0.15])
+			# a pint: 34 mm round at the foot, 42 at the rim (world/pub.gd pint)
+			out.append([Vector2(p.x, p.z), 0.034, p.y + 0.075, 0.042])
 	return out
 
 
@@ -411,10 +557,11 @@ class Planner:
 		_toward = _toward / flat if flat > 0.01 else Vector3.FORWARD
 		_side = _toward.cross(Vector3.UP).normalized()
 		# his hand goes out over what he's throwing at, short of where they're meant to end up, a
-		# hand's height off it (in low, under anything hanging over it)
+		# hand's height off it (in low, under anything hanging over it; down close over the tray)
 		var low: bool = sp.get("low", false)
-		_hand = _at - _toward * minf(flat - 0.25, 0.3 if low else 0.42) + _side * 0.04
-		_hand.y = _at.y + (0.13 if low else clampf(eye.y - _at.y - 0.45, 0.2, 0.5))
+		var reach_out: float = sp.hand[0] if sp.has("hand") else (0.3 if low else 0.42)
+		_hand = _at - _toward * minf(flat - 0.25, reach_out) + _side * 0.04
+		_hand.y = _at.y + (float(sp.hand[1]) if sp.has("hand") else (0.13 if low else clampf(eye.y - _at.y - 0.45, 0.2, 0.5)))
 		_stuff = Dice.STUFF.get(str(sp.get("of", "wood")), Dice.STUFF.wood)
 
 	func work(ms: float) -> void:
@@ -424,7 +571,8 @@ class Planner:
 				done = true
 				return
 			if _cur == null:
-				if tries >= Dice.TRIES:
+				# while none has come right, a few more goes
+				if tries >= Dice.TRIES * (1 if not _best.is_empty() else 2):
 					done = true
 					return
 				_cur = _next()
@@ -437,8 +585,8 @@ class Planner:
 	func result() -> Dictionary:
 		if not _best.is_empty():
 			return _best
-		# nothing landed where it should: the last that finished at all will have to do, and
-		# failing that, the dice simply lying there
+		# nothing landed where it should: the first that went nowhere it couldn't (only too far
+		# off, or too far apart) will have to do, and failing that, the dice simply lying there
 		var s: DiceSim = _fallback if _fallback != null else Dice._lying(sp, _rng)
 		return {"sim": s, "order": [0, 1] if float(s.rest_t[0]) <= float(s.rest_t[1]) else [1, 0], "apex": {}}
 
@@ -450,7 +598,9 @@ class Planner:
 		s.drag = _stuff[2]
 		s.walls = sp.get("walls", [])
 		s.glasses = sp.get("glasses", [])
-		var land := _at + _aim - _toward * _rng.randf_range(0.06, 0.13) + _side * _rng.randf_range(-0.035, 0.035)
+		s.rims = sp.get("rims", [])
+		var short: Array = sp.get("short", [0.06, 0.13])
+		var land := _within(_at + _aim - _toward * _rng.randf_range(short[0], short[1]) + _side * _rng.randf_range(-0.035, 0.035))
 		var from: Array = []
 		var v0: Array = []
 		var r0: Array = []
@@ -475,16 +625,35 @@ class Planner:
 		s.throw(from, v0, r0, w0, after)
 		return s
 
+	# however far off the last ones went, never aim them to come down on the edge of it: over the
+	# rail, or on the tray's rim
+	func _within(p: Vector3) -> Vector3:
+		var m: float = sp.get("margin", 0.07)
+		if sp.has("box"):
+			var b: Array = sp.box
+			p.x = clampf(p.x, float(b[0]) + m, float(b[1]) - m)
+			p.z = clampf(p.z, float(b[2]) + m, float(b[3]) - m)
+		elif sp.has("round"):
+			var c: Vector2 = sp.round[0]
+			var d := Vector2(p.x, p.z) - c
+			var most := float(sp.round[1]) - m
+			if d.length() > most:
+				d = d.normalized() * most
+				p.x = c.x + d.x
+				p.z = c.y + d.y
+		return p
+
 	func _judge(s: DiceSim) -> void:
 		if not s.ok:
 			return
-		if _fallback == null:
+		var clean := Dice._clean(s, sp)
+		if _fallback == null and clean:
 			_fallback = s
 		# where it ended against where it was meant to: the next throw aims off by that much
 		var mid: Vector3 = ((s.pos[0] as Vector3) + (s.pos[1] as Vector3)) / 2.0
 		var miss := Vector3(_at.x - mid.x, 0.0, _at.z - mid.z)
 		_aim = (_aim + miss * 0.5).limit_length(0.35)
-		if not Dice._fits(s, sp):
+		if not clean or not Dice._near(s, sp):
 			return
 		var o := [0, 1] if float(s.rest_t[0]) <= float(s.rest_t[1]) else [1, 0]
 		var gap: float = float(s.rest_t[o[1]]) - float(s.rest_t[o[0]])
@@ -504,7 +673,11 @@ class Planner:
 
 # both dice still on the stretch they were thrown at, nowhere they couldn't be on the way
 static func _fits(s: DiceSim, sp: Dictionary) -> bool:
-	var y0: float = s.floor_y
+	return _near(s, sp) and _clean(s, sp)
+
+
+# lying near where they were meant to, and near each other
+static func _near(s: DiceSim, sp: Dictionary) -> bool:
 	var at: Vector3 = sp.at
 	var p0: Vector3 = s.pos[0]
 	var p1: Vector3 = s.pos[1]
@@ -514,6 +687,13 @@ static func _fits(s: DiceSim, sp: Dictionary) -> bool:
 		var p: Vector3 = s.pos[k]
 		if Vector2(p.x - at.x, p.z - at.z).length() > float(sp.get("reach", 0.28)):
 			return false
+	return true
+
+
+# nowhere they couldn't be on the way, and where he can read them at the end
+static func _clean(s: DiceSim, sp: Dictionary) -> bool:
+	var y0: float = s.floor_y
+	for k in 2:
 		var fr: Array = s.frames[k]
 		for i in range(0, fr.size(), 2):
 			var q: Vector3 = fr[i][0]
@@ -528,6 +708,27 @@ static func _fits(s: DiceSim, sp: Dictionary) -> bool:
 				var lr := float(l[1])
 				if q.y < y0 + minf(2.0 * lr, 0.12) + DiceSim.H and Vector2(q.x, q.z).distance_to(l[0]) < lr + DiceSim.H * 1.8:
 					return false
+			# nor down onto the top of a glass
+			for g in sp.get("glasses", []):
+				var gr: float = float(g[3]) if (g as Array).size() > 3 else float(g[1])
+				if Vector2(q.x, q.z).distance_to(g[0]) < gr + DiceSim.H \
+						and DiceSim.lowest(q, Basis(fr[i][1] as Quaternion)) < float(g[2]) + 0.002:
+					return false
+			# nor over a low wall into what's behind it: the top of a cushion, rising to the rail
+			for w in sp.get("walls", []):
+				if (w as Array).size() > 4 and (q - (w[0] as Vector3)).dot(w[1]) < DiceSim.NEAR:
+					var turn := Basis(fr[i][1] as Quaternion)
+					for c in DiceSim.CORNERS:
+						var pc: Vector3 = q + turn * c
+						var back: float = -(pc - (w[0] as Vector3)).dot(w[1])
+						if back > 0.001 and pc.y < y0 + lerpf(float(w[2]), float(w[4]), clampf(back / 0.05, 0.0, 1.0)):
+							return false
+			# the tray's rim is solid from outside too: nothing comes in through it, only over it
+			for rim in sp.get("rims", []):
+				var dr := Vector2(q.x, q.z).distance_to(rim[0])
+				if dr > float(rim[1]) and dr < float(rim[1]) + 0.016 + DiceSim.NEAR \
+						and DiceSim.lowest(q, Basis(fr[i][1] as Quaternion)) < y0 + float(rim[2]) + 0.004:
+					return false
 			if q.y > y0 + DiceSim.S * 1.2:
 				continue
 			# down on it: on it, and not over a pocket
@@ -536,8 +737,12 @@ static func _fits(s: DiceSim, sp: Dictionary) -> bool:
 				var m := DiceSim.H * 0.8
 				if q.x < float(b[0]) + m or q.x > float(b[1]) - m or q.z < float(b[2]) + m or q.z > float(b[3]) - m:
 					return false
-			if sp.has("round"):
+			if sp.has("round") and not sp.has("rims"):
 				if Vector2(q.x, q.z).distance_to(sp.round[0]) > float(sp.round[1]) - DiceSim.H * 1.3:
+					return false
+			# down outside the tray: gone over the rim
+			for rim in sp.get("rims", []):
+				if Vector2(q.x, q.z).distance_to(rim[0]) > float(rim[1]):
 					return false
 			for h in sp.get("holes", []):
 				if Vector2(q.x, q.z).distance_to(h[0]) < float(h[1]):
@@ -555,6 +760,20 @@ static func _fits(s: DiceSim, sp: Dictionary) -> bool:
 				if a < 0.0 and b > 0.0:
 					var y: float = eye.y + (top.y - eye.y) * (a / (a - b))
 					if float(w[2]) <= 0.0 or y < y0 + float(w[2]) + 0.004:
+						return false
+			# nor down against the near side of the tray, under the rim from where he is
+			for rim in sp.get("rims", []):
+				var mid: Vector2 = rim[0]
+				var e2 := Vector2(eye.x, eye.z) - mid
+				var dv := Vector2(top.x, top.z) - mid - e2
+				var qa := dv.dot(dv)
+				var qb := 2.0 * e2.dot(dv)
+				var qc := e2.dot(e2) - float(rim[1]) * float(rim[1])
+				var disc := qb * qb - 4.0 * qa * qc
+				if qa > 0.000001 and qc > 0.0 and disc >= 0.0:
+					# where the line from his eye to the face that's up comes in over the rim
+					var u := (-qb - sqrt(disc)) / (2.0 * qa)
+					if u > 0.0 and u < 1.0 and eye.y + (top.y - eye.y) * u < y0 + float(rim[2]) + 0.004:
 						return false
 	return true
 
@@ -656,7 +875,11 @@ func _process(dt: float) -> void:
 			return
 	for k in 2:
 		_pose_die(k)
-	# his eyes follow them a little, on the way to where they'll lie
+	# his eyes follow them a little, on the way to where they'll lie, till the player looks away:
+	# then they're the player's, and they widen again
+	if _looked_away():
+		main.view.focus_fov = 0.0
+		return
 	var now := Vector3.ZERO
 	var out := 0
 	for d in dice:
@@ -668,6 +891,11 @@ func _process(dt: float) -> void:
 
 # The throw's clock against the night's: the same, except round the second die's last stand on an
 # edge, when it runs slow, slower the higher it stood and the more rides on it.
+# has the player turned his head since they left his hand?
+func _looked_away() -> bool:
+	return main.view.turned_t > _thrown_t
+
+
 func _pace(at: float) -> float:
 	if apex.is_empty():
 		return 1.0
@@ -716,12 +944,14 @@ func _done() -> void:
 func _restore() -> void:
 	main.view.heart = 0.0
 	main.view.focus_fov = 0.0
+	# and back where the player had him looking, if they haven't looked anywhere since
 	var back := _look_back
+	var since := _thrown_t
 	get_tree().create_timer(0.9).timeout.connect(func():
-		if state in ["", "done"] and back != Vector2.ZERO:
+		if state in ["", "done"] and back != Vector2.ZERO and main.view.turned_t <= since:
 			main.view.want_yaw = back.x
 			main.view.want_pitch = back.y)
-	for d in dice:
+	for d in dice + [tray]:
 		var node: Node3D = d
 		var tw := node.create_tween()
 		tw.tween_interval(2.5)
@@ -760,7 +990,7 @@ func cancel() -> void:
 	state = ""
 	planner = null
 	beats.clear()
-	for d in dice:
+	for d in dice + [tray]:
 		(d as Node3D).visible = false
 	main.view.heart = 0.0
 	main.view.focus_fov = 0.0

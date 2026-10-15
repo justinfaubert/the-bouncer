@@ -159,7 +159,11 @@ func _frame_for(where: String) -> String:
 	if game.story == null:
 		return ""
 	if where == "hall":
-		return "clerk" if _choices_from("at_hall.night_clerk") else ""
+		if _choices_from("at_hall.night_clerk"):
+			return "clerk"
+		return "phone" if _choices_from("at_hall.payphone") else ""
+	if where == "pool":
+		return "juke" if _choices_from("at_jukebox") or _choices_from("at_pool.kid_jukebox") else ""
 	if where != "lot":
 		return ""
 	var v: Dictionary = game.vars()
@@ -391,12 +395,13 @@ func after(res: Dictionary, live: bool) -> void:
 	else:
 		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
 	refresh_status()
-	# a scene in the hall that's seen from the front desk: through the door to it, and back
-	if view.place == "hall" and not res.get("ended", false):
-		var f := _frame_for("hall")
+	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox): over to it,
+	# and back
+	if view.place in ["hall", "pool"] and not res.get("ended", false):
+		var f := _frame_for(view.place)
 		if f != view.frame:
 			view.frame = f
-			view.walk_to("hall", not live)
+			view.walk_to(view.place, not live)
 	stage.sync(game, false)
 	spots.refresh()
 	hand.attach(read_chars)

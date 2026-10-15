@@ -1,0 +1,57 @@
+# Things in the building he can look at when nothing on offer is about them: every object he can
+# see, he can reach (bible/11_SKELETON.md). In the Godot build, his eyes on one bring up its name,
+# and a click (or E) calls toy_<id>("look") in the Ink (content/ink/things.ink), which says what
+# he sees. A voice can answer it (toy:<id>:look in content/rules/barks.yaml). The clock doesn't
+# move. When a choice on offer is pinned to the same spot (godot/game/hotspots.gd), the choice
+# is what he gets there instead.
+#
+#   name: the words by it when his eyes are on it
+#   at:   where it is in the Godot build's room: a:<anchor> (godot/world/pub.gd), or p:x,y,z
+#   from: where he can look at it from, when that's narrower than anywhere he can see it: the
+#         places he can be (floor, door, bar, t28, pool, hall, kitchen, keg, deck, lot, upstairs),
+#         and room for any of the first five. The room's things are for looking at in the room, not
+#         through the window from out in the lot.
+#
+# Which of them he can see from where is worked out from the building (the part he's in, and the
+# openings into the others); godot/tests/reach.gd checks each from every post with a line of sight.
+# Claude's drafts, all of it.
+
+# ---------------------------------------------------------------- the room
+jukebox: {name: The jukebox., at: a:jukebox, from: [room, hall]}
+dartboard: {name: The dartboard., at: a:dartboard, from: [room, hall]}
+tv: {name: The hockey., at: a:tv, from: [room, hall]}
+tv_news: {name: The news., at: a:tv_news, from: [room, hall]}
+cues: {name: The cue rack., at: a:cue_rack, from: [room, hall]}
+pool_table: {name: The pool table., at: a:pool_table, from: [room, hall]}
+t28: {name: Table 28., at: a:t28, from: [room]}
+window: {name: The window., at: "p:10.2,1.65,10.1", from: [room, lot]}
+bottles: {name: The back bar., at: a:bottles, from: [room, hall]}
+taps: {name: The taps., at: a:taps, from: [room, hall]}
+lotto: {name: The lottery screen., at: a:lotto, from: [room, hall]}
+
+# ---------------------------------------------------------------- by the door
+tape: {name: The tape on the frame., at: a:tape}
+id_sign: {name: The sign by the door., at: a:id_sign}
+scanner: {name: The scanner., at: a:scanner}
+book: {name: The incident book., at: a:ledge}
+
+# ---------------------------------------------------------------- the back hall, the kitchen, the keg room
+hotel_door: {name: The hotel door., at: a:hotel_door}
+pass: {name: The pass., at: a:pass}
+fryer: {name: The fryer., at: a:fryer}
+radio: {name: The radio., at: a:radio}
+walk_in: {name: The walk-in., at: a:walk_in}
+compressor: {name: The compressor., at: a:compressor}
+gas: {name: The gas., at: a:gas}
+pilings: {name: The pilings., at: a:pilings}
+
+# ---------------------------------------------------------------- outside
+rail: {name: The rail., at: a:deck_rail}
+butt_can: {name: The can., at: a:deck_can}
+roof_sign: {name: The sign on the roof., at: a:roof_sign, from: [lot]}
+store: {name: The beer store., at: a:store, from: [lot]}
+work_truck: {name: The work truck., at: a:work_truck, from: [lot]}
+his_window: {name: His window., at: a:his_window, from: [lot]}
+
+# ---------------------------------------------------------------- his room
+up_window: {name: The window., at: a:up_window}

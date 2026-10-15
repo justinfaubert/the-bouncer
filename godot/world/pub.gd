@@ -581,7 +581,8 @@ func _vestibule() -> void:
 	box(Vector3(1.85, 1.0, 0.45), Vector3(1.275, 0.5, 9.78), M.wood)
 	box(Vector3(1.95, 0.05, 0.55), Vector3(1.275, 1.025, 9.75), M.top)
 	for i in 11:
-		var b := cyl(0.012, 0.012, 0.002, Vector3(rng.randf_range(0.4, 2.15), 1.051, rng.randf_range(9.55, 9.96)), M.burn, null, 8)
+		# burnt into it, not lying on it: a die that comes down on one covers it
+		var b := cyl(0.012, 0.012, 0.0004, Vector3(rng.randf_range(0.4, 2.15), 1.0502, rng.randf_range(9.55, 9.96)), M.burn, null, 8)
 		b.scale = Vector3(rng.randf_range(1.0, 2.6), 1, 1)
 	# masking tape on the wall beside the door, with the night's sum on it in marker: born on this
 	# date or before, you're nineteen tonight
@@ -613,6 +614,7 @@ func _vestibule() -> void:
 	stool(Vector3(EYE_DOOR.x, 0, EYE_DOOR.z), 0.78)
 	box(Vector3(1.8, 0.012, 1.0), Vector3((DOOR_W + DOOR_E) / 2.0, 0.006, 9.45), M.dark)
 	anchors["tape"] = Vector3(2.157, 1.4, 9.99)
+	anchors["id_sign"] = Vector3(4.52, 1.6, 9.72)
 	anchors["ledge"] = Vector3(1.3, 1.06, 9.72)
 	anchors["main_door"] = Vector3(3.2, 1.2, 10.1)
 	anchors["scanner"] = Vector3(1.92, 1.1, 9.72)
@@ -708,10 +710,16 @@ func _bar() -> void:
 		z2 += 0.85
 	# the binder and the incident book under the till
 	box(Vector3(0.28, 0.06, 0.34), Vector3(1.55, 0.92, 7.3), M.black)
-	anchors["till"] = Vector3(1.75, 1.3, 7.3)
-	anchors["bar_top"] = Vector3(2.1, 1.12, 5.8)
+	# where he looks for things, from the room: the till's face (the lotto screen's beside it), the
+	# bar top's edge (its middle's behind the till from the door), and the air over the trapdoor (the
+	# trapdoor's behind the bar, under the taps, and nobody sees it from out here)
+	anchors["till"] = Vector3(1.93, 1.27, 7.3)
+	anchors["bar_top"] = Vector3(2.25, 1.13, 5.8)
 	anchors["cooler"] = Vector3(0.63, 1.2, 0.7)
 	anchors["trapdoor"] = Vector3(1.05, 0.1, 1.9)
+	anchors["trap_over"] = Vector3(1.05, 1.75, 1.9)
+	anchors["lotto"] = Vector3(2.04, 1.36, 6.7)
+	anchors["taps"] = Vector3(1.68, 1.5, 2.55)
 	anchors["bottles"] = Vector3(0.2, 1.7, 4.4)
 
 
@@ -815,8 +823,9 @@ func _floor_things() -> void:
 	anchors["tv"] = Vector3(9.4, 2.45, 0.1)
 	anchors["tv_news"] = Vector3(15.9, 2.35, 4.0)
 	anchors["dartboard"] = Vector3(15.9, 1.73, 2.3)
+	anchors["cue_rack"] = Vector3(11.6, 1.4, 0.06)
 	anchors["t28_under"] = T28 + Vector3(0.3, 0.1, 0.9)
-	anchors["t28_wall"] = Vector3(9.4, 0.3, 9.95)
+	anchors["t28_wall"] = Vector3(9.4, 0.7, 9.95)        # under the sill: seen over the table from its stools
 
 
 # Table 28's glasses: a round's worth for each round they've ordered since the last clear, up to what
@@ -867,11 +876,41 @@ func _back_strip() -> void:
 		box(Vector3(0.06, 0.06, 0.06), Vector3(w[0] + 0.35, 2.4, (BACK + HALL_Z) / 2.0), M.tube)
 	for x in [6.4, 8.64, 10.88, 13.12]:
 		wall(Vector2(x, BACK), Vector2(x, HALL_Z), y, M.tile, [], 0.0, 0.1)
-	# the payphone, dead, and forty years of numbers round it
+	# the payphone, dead, and forty years of numbers round it: a steel box with the card that says
+	# how to use it behind its scratched window, the coin slot, twelve keys, the coin return; the
+	# handset on its hook down the left side, on a steel cord into the bottom of the box
+	var pz := BACK + 0.14                                                              # its face
 	box(Vector3(0.24, 0.42, 0.14), Vector3(13.86, 1.45, BACK + 0.07), M.steel)
-	box(Vector3(0.06, 0.2, 0.08), Vector3(13.72, 1.5, BACK + 0.16), M.black)       # the handset
-	var scrawl := mat(Color("a8a295"), 0.9, 0.0, 0, Vector3(0.2, 1, 0), 3.0, 0.6)
-	box(Vector3(1.2, 1.0, 0.01), Vector3(13.86, 1.5, BACK + 0.005), scrawl)
+	box(Vector3(0.15, 0.065, 0.003), Vector3(13.85, 1.6, pz + 0.0015), M.paper)          # the card
+	for k in 4:
+		var lw: float = [0.11, 0.09, 0.115, 0.06][k]
+		box(Vector3(lw, 0.004, 0.001), Vector3(13.787 + lw / 2.0, 1.618 - k * 0.012, pz + 0.0035), M.dark)
+	box(Vector3(0.008, 0.032, 0.004), Vector3(13.955, 1.6, pz + 0.002), M.black)        # the slot
+	box(Vector3(0.11, 0.125, 0.004), Vector3(13.86, 1.435, pz + 0.002), M.black)
+	for row in 4:
+		for col in 3:
+			box(Vector3(0.026, 0.02, 0.008), Vector3(13.826 + col * 0.034, 1.475 - row * 0.027, pz + 0.006), M.porcelain)
+	box(Vector3(0.055, 0.04, 0.03), Vector3(13.92, 1.285, pz + 0.015), M.steel)         # the coin return
+	box(Vector3(0.042, 0.022, 0.004), Vector3(13.92, 1.28, pz + 0.031), M.black)
+	box(Vector3(0.02, 0.035, 0.05), Vector3(13.735, 1.655, pz - 0.02), M.steel)         # the hook
+	box(Vector3(0.04, 0.16, 0.045), Vector3(13.712, 1.5, pz + 0.025), M.black)          # the handset
+	box(Vector3(0.056, 0.05, 0.062), Vector3(13.712, 1.6, pz + 0.03), M.black)
+	box(Vector3(0.056, 0.05, 0.062), Vector3(13.712, 1.4, pz + 0.03), M.black)
+	cyl(0.006, 0.006, 0.14, Vector3(13.712, 1.305, pz + 0.025), M.steel, null, 8)       # the cord
+	var cord := cyl(0.006, 0.006, 0.07, Vector3(13.745, 1.235, pz + 0.025), M.steel, null, 8)
+	cord.rotation.z = PI / 2.0
+	# the ink on the wall round it (sketches/door-look/tools/textures.py phone_wall), only the ink:
+	# the plaster shows between
+	var ink := MeshInstance3D.new()
+	var iq := QuadMesh.new()
+	iq.size = Vector2(1.2, 1.0)
+	ink.mesh = iq
+	ink.position = Vector3(13.86, 1.5, BACK + 0.003)
+	var im := mat(Color(1, 1, 1), 0.9, 0.0, 3, Vector3.UP, 7.0, 0.0)
+	im.set_shader_parameter("albedo_tex", tex("res://textures/phone_wall.png"))
+	im.set_shader_parameter("alpha_scissor", 0.5)
+	ink.material_override = im
+	add_child(ink)
 	# the hotel door at the end of the hall: to the front desk and the stairs up
 	wall(Vector2(16.1, BACK), Vector2(16.1, 0), y, M.plain, [[1.6, 2.48, 0.0, 2.05]])
 	var hd := Node3D.new()
@@ -929,6 +968,9 @@ func _back_strip() -> void:
 	box(Vector3(0.05, 2.02, 0.86), Vector3(0, 1.01, 0.43), M.steel, 0.0, kd)
 	dyn.kitchen_door = kd
 	anchors["fryer"] = Vector3(0.45, 1.0, BACK + 0.45)
+	anchors["pass"] = Vector3(2.45, 1.25, BACK + 0.6)
+	anchors["radio"] = Vector3(2.55, 2.06, BACK + 0.15)
+	anchors["walk_in"] = Vector3(4.0, 1.2, BACK + 0.1)
 	anchors["kitchen_back"] = Vector3(-0.1, 1.2, BACK + 1.1)
 	anchors["payphone"] = Vector3(13.86, 1.5, BACK + 0.1)
 	anchors["hotel_door"] = Vector3(16.05, 1.2, BACK + 2.04)
@@ -1102,6 +1144,9 @@ func _keg_room() -> void:
 	# the black stumps of old pilings
 	for k in 9:
 		var sp := Vector3(rng.randf_range(0.4, 4.4), 0.0, rng.randf_range(-2.3, -0.4))
+		# none of them between where he stands down here and the rats' way in, at the far wall
+		if absf(sp.x - 2.95) < 0.4:
+			sp.x += 0.8 if sp.x > 2.95 else -0.8
 		var sh := rng.randf_range(0.2, 0.7)
 		cyl(rng.randf_range(0.11, 0.17), rng.randf_range(0.14, 0.2), sh, Vector3(sp.x, y0 + sh / 2.0, sp.z), M.burn, null, 9)
 	box(Vector3(0.3, 0.22, 0.12), Vector3(2.9, y0 + 0.11, -2.52), M.black)             # their way in and out
@@ -1109,6 +1154,9 @@ func _keg_room() -> void:
 	cyl(0.004, 0.004, 0.4, Vector3(2.9, y0 + h - 0.2, 2.6), M.frame, null, 6)
 	ball(0.05, Vector3(2.9, y0 + h - 0.42, 2.6), M.bulb)
 	anchors["keg_hole"] = Vector3(2.9, y0 + 0.15, -2.45)
+	anchors["compressor"] = Vector3(4.4, y0 + 0.5, 4.7)
+	anchors["gas"] = Vector3(0.25, y0 + 1.0, 4.55)
+	anchors["pilings"] = Vector3(2.2, y0 + 0.4, -1.4)
 	anchors["kegs"] = Vector3(3.4, y0 + 0.6, 2.4)
 	anchors["keg_ladder"] = Vector3(1.05, y0 + 1.2, 2.0)
 
@@ -1162,13 +1210,14 @@ func _deck() -> void:
 		box(Vector3(0.44, 0.4, 0.04), Vector3(0, 0.64, -0.2), M.porcelain, 0.0, c)
 		for s in [Vector2(-0.19, -0.18), Vector2(0.19, -0.18), Vector2(-0.19, 0.18), Vector2(0.19, 0.18)]:
 			box(Vector3(0.03, 0.42, 0.03), Vector3(s.x, 0.21, s.y), M.porcelain, 0.0, c)
-	cyl(0.08, 0.08, 0.18, Vector3(17.9, 0.09, 8.9), M.steel, null, 12)
+	# the coffee can for the butts, in the front corner by the rail
+	cyl(0.08, 0.08, 0.18, Vector3(18.1, 0.09, 9.6), M.steel, null, 12)
 	# the building's outside wall, siding
 	wall(Vector2(16.25, 3.6), Vector2(16.25, 10.4), 3.4, M.siding, [[2.9, 4.1, 0.0, 2.3]], 0.0, 0.05)
 	# a bulb over the door in a cage
 	ball(0.05, Vector3(16.4, 2.5, 7.1), M.bulb)
 	anchors["deck_rail"] = Vector3(18.3, 1.0, 7.1)
-	anchors["deck_can"] = Vector3(17.9, 0.2, 8.9)
+	anchors["deck_can"] = Vector3(18.1, 0.2, 9.6)
 
 
 # ---------------------------------------------------------------- outside
@@ -1247,6 +1296,7 @@ func _facade() -> void:
 	# its light: the roof's edge and the top floor, gone by the second
 	var glow_l := omni(Vector3(8.0, 10.9, z + 1.6), Color("ff3a28"), 1.3, 5.5, false, "roof_sign")
 	glow_l.omni_attenuation = 1.3
+	anchors["roof_sign"] = Vector3(8.0, 11.0, z + 0.35)
 	box(Vector3(17.6, 0.3, 1.2), Vector3(8.0, 9.9, z - 0.4), M.dark)
 	var wins: Array = []
 	for row in [4.5, 7.8]:
@@ -1312,7 +1362,8 @@ func _store() -> void:
 	_repaint(wt, Color("b9b6ad"))
 	box(Vector3(1.7, 0.45, 0.5), Vector3(0, 1.2, 1.3), mat(Color("8f9396"), 0.4, 0.7, 2), 0.0, wt)
 	dyn.work_truck = wt
-	anchors["work_truck"] = wt.to_global(Vector3(0, 1.2, 0))
+	# the cab, over the roof of the car parked by it
+	anchors["work_truck"] = wt.to_global(Vector3(0, 1.6, -1.0))
 	anchors["store"] = Vector3((x0 + x1) / 2.0, 1.5, ZF + 0.2)
 
 

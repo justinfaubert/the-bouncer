@@ -58,6 +58,8 @@
     -> walk(from, -> at_t28, 2)
 + {from != pool} [The pool table #loc: pool #class: move]
     -> walk(from, -> at_pool, 2)
++ {from != pool && sees_juke(from)} [The jukebox #loc: pool #class: move]
+    -> walk(from, -> at_jukebox, 2)
 + {from != bar} [The bar #loc: bar #class: move]
     -> walk(from, -> at_bar, 2)
 + {from != hall} [The back hall #loc: hall #class: move]
@@ -76,6 +78,10 @@
 ~ pass(m + stairs(from))
 { due(): -> hub }
 -> to
+
+// where the jukebox is in sight from, across the room
+=== function sees_juke(from)
+~ return from == door || from == floor || from == bar || from == t28
 
 === function stairs(from)
 { from == keg:
@@ -134,7 +140,11 @@
     }
 }
 { pool_heat >= 5 && fam !? pool_fight && not fam_done:
-    Voices at the pool table, over the music. Not words yet.
+    { juke_low:
+        Voices at the pool table. With the jukebox down, he could nearly make out the words.
+    - else:
+        Voices at the pool table, over the music. Not words yet.
+    }
 }
 {
 - kid_locked_in():

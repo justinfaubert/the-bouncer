@@ -1,7 +1,7 @@
 # The dice, worked out before anyone sees them (game/dice.gd plays them back): two cubes out of his
 # hand onto a surface, off it, off whatever walls it has (the front wall behind the ledge, the
-# cushions on the pool table), off the glasses standing on it and off each other, until both lie
-# still. Plain rigid bodies, not the physics engine: a cube's corners against the surface and the
+# cushions on the pool table, the rim of the tray), off the glasses standing on it and off each
+# other, until both lie still. Plain rigid bodies, not the physics engine: a cube's corners against the surface and the
 # walls; its corners, the middles of its edges and the middles of its faces against the other die
 # and the glasses; impulses for the bounce and the friction. So the same throw comes down the same
 # way every time, here and in the browser.
@@ -33,8 +33,12 @@ var drag := 2.0                       # how fast it takes the spin out of a die 
 # walls: [a point on it, the way it faces (into the play), how high it stands off the surface (0 all
 # the way up), bounce]
 var walls: Array = []
-# glasses standing on it: [Vector2 where (x, z), radius, height of the rim]
+# glasses standing on it: [Vector2 where (x, z), radius, height of the rim, and if it's wider at
+# the rim than the foot, its radius there]
 var glasses: Array = []
+# a round wall they're inside (the tray's rim): [Vector2 its middle (x, z), radius to its inside,
+# how high it stands off the surface, bounce]
+var rims: Array = []
 
 # the two dice
 var pos: Array = [Vector3.ZERO, Vector3.ZERO]
@@ -50,7 +54,7 @@ var _n := 0
 
 # what came of it
 var frames: Array = [[], []]          # per die, FPS a second: [position, Quaternion]
-var hits: Array = []                  # [time, die, "floor" "wall" "die" "glass", speed]
+var hits: Array = []                  # [time, die, "floor" "wall" "rim" "die" "glass", speed]
 var rest_t: Array = [-1.0, -1.0]      # when each one lay still
 var t := 0.0
 var done := false
@@ -227,15 +231,29 @@ func _contacts() -> void:
 					continue
 				if (p2 - wp).dot(wn) < SLOP:
 					_add(k, -1, p2, wn, w[3], 0.3, "wall")
+		for rim in rims:
+			var rc: Vector2 = rim[0]
+			var rr: float = rim[1]
+			# only from inside, and only while it's down in it: one that's clear over the top can
+			# go, and one that's gone is out of it; one that's in it, none of it goes over the lip
+			var dc := Vector2(p0.x, p0.z).distance_to(rc)
+			if dc < rr - NEAR or dc > rr or lowest(p0, r) > floor_y + float(rim[2]):
+				continue
+			for c4 in CORNERS:
+				var p5: Vector3 = p0 + r * c4
+				var q5 := Vector2(p5.x, p5.z) - rc
+				var d5 := q5.length()
+				if d5 > rr - SLOP:
+					_add(k, -1, p5, Vector3(-q5.x / d5, 0.0, -q5.y / d5), rim[3], 0.3, "rim")
 		for g in glasses:
 			var gc: Vector2 = g[0]
-			var gr: float = g[1]
-			if Vector2(p0.x, p0.z).distance_to(gc) > gr + NEAR or p0.y - NEAR > float(g[2]):
+			if Vector2(p0.x, p0.z).distance_to(gc) > _glass_r(g, INF) + NEAR or p0.y - NEAR > float(g[2]):
 				continue
 			for c2 in POINTS:
 				var p3: Vector3 = p0 + r * c2
 				if p3.y > float(g[2]):
 					continue
+				var gr := _glass_r(g, p3.y)
 				var q := Vector2(p3.x, p3.z) - gc
 				var d := q.length()
 				if d < gr + SLOP and d > 0.0001:
@@ -330,6 +348,15 @@ func _solve(i: int) -> void:
 	_push(i, jt - jt0)
 
 
+# how wide a glass is at a height (INF: its widest)
+func _glass_r(g: Array, y: float) -> float:
+	if g.size() < 4:
+		return float(g[1])
+	if y == INF:
+		return maxf(float(g[1]), float(g[3]))
+	return lerpf(float(g[1]), float(g[3]), clampf((y - floor_y) / maxf(float(g[2]) - floor_y, 0.001), 0.0, 1.0))
+
+
 # a knock loud enough to hear: one per die per moment, the hardest of the corners that made it
 func _heard(i: int, speed: float) -> void:
 	var a := _ca[i]
@@ -343,8 +370,32 @@ func _heard(i: int, speed: float) -> void:
 	hits.append([t, a, _cw[i], speed])
 
 
-# Out of whatever they've sunk into: up off the surface, off the walls, out of the glasses, apart.
+# Out of whatever they've sunk into: apart, then up off the surface, off the walls and the rim, out
+# of the glasses (last, so pushing one die off the other never leaves it in the table).
 func _push_out() -> void:
+	if held[1] <= 0.0 and (pos[0] as Vector3).distance_to(pos[1]) < NEAR * 2.0:
+		var deepest := 0.0
+		var n := Vector3.ZERO
+		for a in 2:
+			var b := 1 - a
+			var inv: Basis = (rot[b] as Basis).transposed()
+			for c3 in POINTS:
+				var q3: Vector3 = inv * (pos[a] + rot[a] * c3 - pos[b])
+				var pen := _inside(q3)
+				if pen.x - SLOP > deepest:
+					deepest = pen.x - SLOP
+					var nl := Vector3.ZERO
+					nl[int(pen.y)] = signf(q3[int(pen.y)])
+					n = rot[b] * nl * (1.0 if a == 0 else -1.0)
+		if deepest > 0.0:
+			# n pushes die 0 away from die 1
+			if asleep[1]:
+				pos[0] += n * deepest
+			elif asleep[0]:
+				pos[1] -= n * deepest
+			else:
+				pos[0] += n * deepest * 0.5
+				pos[1] -= n * deepest * 0.5
 	for k in 2:
 		if asleep[k]:
 			continue
@@ -370,10 +421,25 @@ func _push_out() -> void:
 				most = minf(most, (p - wp).dot(wn))
 			if most < 0.0:
 				p0 += wn * -most
+		for rim in rims:
+			var rc: Vector2 = rim[0]
+			var rr: float = rim[1]
+			var dc := Vector2(p0.x, p0.z).distance_to(rc)
+			if dc < rr - NEAR or dc > rr or lowest(p0, r) > floor_y + float(rim[2]):
+				continue
+			var over := 0.0
+			var back := Vector3.ZERO
+			for c4 in CORNERS:
+				var p5: Vector3 = p0 + r * c4
+				var q5 := Vector2(p5.x, p5.z) - rc
+				var d5 := q5.length()
+				if d5 - rr > over:
+					over = d5 - rr
+					back = Vector3(-q5.x / d5, 0.0, -q5.y / d5)
+			p0 += back * over
 		for g in glasses:
 			var gc: Vector2 = g[0]
-			var gr: float = g[1]
-			if Vector2(p0.x, p0.z).distance_to(gc) > gr + NEAR:
+			if Vector2(p0.x, p0.z).distance_to(gc) > _glass_r(g, INF) + NEAR:
 				continue
 			var most2 := 0.0
 			var out := Vector3.ZERO
@@ -381,6 +447,7 @@ func _push_out() -> void:
 				var p2: Vector3 = p0 + r * c2
 				if p2.y > float(g[2]):
 					continue
+				var gr := _glass_r(g, p2.y)
 				var q := Vector2(p2.x, p2.z) - gc
 				var d := q.length()
 				if d < gr and gr - d > most2 and d > 0.0001:
@@ -388,29 +455,6 @@ func _push_out() -> void:
 					out = Vector3(q.x / d, 0.0, q.y / d)
 			p0 += out * most2
 		pos[k] = p0
-	if held[1] <= 0.0 and (pos[0] as Vector3).distance_to(pos[1]) < NEAR * 2.0:
-		var deepest := 0.0
-		var n := Vector3.ZERO
-		for a in 2:
-			var b := 1 - a
-			var inv: Basis = (rot[b] as Basis).transposed()
-			for c3 in POINTS:
-				var q3: Vector3 = inv * (pos[a] + rot[a] * c3 - pos[b])
-				var pen := _inside(q3)
-				if pen.x - SLOP > deepest:
-					deepest = pen.x - SLOP
-					var nl := Vector3.ZERO
-					nl[int(pen.y)] = signf(q3[int(pen.y)])
-					n = rot[b] * nl * (1.0 if a == 0 else -1.0)
-		if deepest > 0.0:
-			# n pushes die 0 away from die 1
-			if asleep[1]:
-				pos[0] += n * deepest
-			elif asleep[0]:
-				pos[1] -= n * deepest
-			else:
-				pos[0] += n * deepest * 0.5
-				pos[1] -= n * deepest * 0.5
 
 
 # ---------------------------------------------------------------- lying still

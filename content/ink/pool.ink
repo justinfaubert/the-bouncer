@@ -80,8 +80,10 @@
     -> talk
 + {cash >= 20 && at_pool.play == 0 && not fam_done} [Put twenty on the next game.]
     -> play
-+ {kid_at == s_jukebox && fam !? kid_opened && fam !? kid_found && at_pool.kid_jukebox == 0 && not fam_done} [The kid by the jukebox.]
++ {kid_at_juke()} [The kid by the jukebox.]
     -> kid_jukebox
++ {not kid_at_juke()} [The jukebox #class: move]
+    -> at_jukebox
 
 = watch
 ~ pass(10)
@@ -93,7 +95,8 @@ He leaned on the pillar by the dartboard and watched a game and a half.
 The big man missed the shots he needed and made the ones that didn't matter. Every time he missed, his left hand went flat on the rail and stayed there a second too long. When the buddy won, the big man paid him from the bills under the rail, and neither of them looked at the money.
 ~ knows += pool_lefty
 FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #mark: pool.lefthand
-* [Read the game. #check: father 8]
+// easier if he's seen the big man play when nobody was watching (the jukebox, below)
+* [Read the game. #check: father 8 {pool_seen_mod()}]
     { passed:
         ~ knows += pool_hustle
         FATHER: He's not losing. He's paying. That's a debt, going across the rail twenty at a time, so neither of them has to say what it's for.
@@ -670,3 +673,93 @@ BARTENDER: Door. Do I call it or not?
 - She took the doorman's name and spelled it back to him, and went out to the car, and sat in it for a long time with the dome light on, writing. Then she went.
 WRONGMAN: In the story the police came too. Forty minutes after. Everybody had gone home by then.
 ->->
+
+
+// ------------------------------------------------------------------ the jukebox
+
+// The jukebox on the back wall past the pool table: a screen in a box that takes a card or a bill
+// and plays anything. It keeps a list of what's played most here, which is the room, if you read
+// it; the bartender turns it up and down from the till; and a man standing at it isn't watching
+// anything, which is why the kid stands there.
+=== at_jukebox ===
+~ here = pool
+{ due(): -> hub }
+{ kid_at_juke(): -> at_pool.kid_jukebox }
+~ pass(1)
+{ at_jukebox == 1:
+    The jukebox was a screen in a box built to look like the kind with records in it, lit pink round the edges. It took a card, or a bill fed in flat, and it could play anything anybody had ever recorded.
+    // HUTCH: What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+    On a Wednesday at the Sov it played about forty songs, and table 28 had paid for most of them.
+- else:
+    {shuffle:
+    - The jukebox cycled through its screens: albums, then the ad for the jukebox, then albums.
+    - Up next on the jukebox: table 28's, table 28's, and one somebody had paid extra to put at the front.
+    - The jukebox between songs, the screen asking for a card.
+    }
+}
+{ kid_at == s_jukebox && not fam_done:
+    The kid in the hoodie was a step off with his hood up, not choosing anything.
+}
+-> j_opts
+
+= j_opts
+{ due(): -> hub }
+<- moves(pool)
++ [The pool table #class: move]
+    -> at_pool
+* [See what's played most here.]
+    -> most_played
+* [Get it turned down a notch.]
+    -> turn_down
+* [Stand at it like you're picking a song.]
+    -> stand_at
+
+// The bartender's song is the one at the top, and she plays it at close (closing.ink).
+= most_played
+~ pass(2)
+~ knows += juke_top
+He went through to the list it kept of what had been played most in the building. It went back years. It was table 28's list, songs older than he was, the same ones over and over, the way a table orders the same round.
+At the top, by a long way, was one he'd never once seen anybody choose.
+// HUTCH: The song at the top. It's the one the bartender puts on at close, every night.
+WRONGMAN: Somebody plays that when there's nobody here to see them play it. In the story, that's the one you want to know about.
+-> j_opts
+
+// With it down he hears the pool table start before it starts (floor.ink).
+= turn_down
+~ pass(1)
+He caught the bartender's eye across the room and turned a hand down, flat, twice.
+{ rep_staff >= 0:
+    She picked the remote up off the till without looking at it, and the room came down a notch. The balls on the felt again, and table 28 a bit more than anyone needed.
+    ~ juke_low = true
+    ~ heat(-1)
+    FIGHTER: Good. Loud's for them. You want to hear it start.
+- else:
+    She looked at his hand, and at him, and went back to the till. The jukebox stayed where it was.
+    FATHER: You haven't earned that across a room yet.
+}
+-> j_opts
+
+// What they do at the pool table when nobody's watching, in the dark of the screen; it helps him
+// read the game (above).
+= stand_at
+~ pass(5)
+He stood at the jukebox with his back half to the room and went through albums he didn't want, and when the screen went dark between them he watched the room in it.
+{ pool_still():
+    In the dark glass the big man ran three balls clean, one after the other, the way you can't by accident. Then he missed an easy one, as if he'd remembered something.
+    ~ knows += pool_seen
+- else:
+    In the dark glass, small, the room behind him: table 28, the bar, the door, and him in the middle of it with his back to all of it.
+    FIGHTER: Don't stand like that for long.
+}
+-> j_opts
+
+// The kid by the jukebox, before he's gone off down the hall: going over to the jukebox is going
+// over to him.
+=== function kid_at_juke()
+~ return kid_at == s_jukebox && fam !? kid_opened && fam !? kid_found && at_pool.kid_jukebox == 0 && not fam_done
+
+=== function pool_seen_mod()
+{ knows ? pool_seen:
+    ~ return 1
+}
+~ return 0

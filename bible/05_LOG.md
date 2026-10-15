@@ -117,6 +117,17 @@ Update this file at the end of every session: add a session entry, move items be
 - Real people in Hutch's stories become composites in the game: Hutch's friend Jim is the old soldier, renamed, and the food supplier and the motorcycle club are fictional.
 - The build fixes in the message went to The game's future form: the jukebox can't be clicked; dice thrown on the floor sometimes clip through it, and Hutch suggested a tray; and the camera turns his head for him when he arrives somewhere, when the player wants to look left and right at the details. The free look went over that night; walking where he looks waits for M2. Hutch also confirmed the hologram: "Hologram is fixed and looks great."
 
+### 2026-10-15 (Thursday), the jukebox, the dice on the floor, and his head
+
+- Hutch's build notes from the evening before: "As it stands its not really possible to click on the jukebox, I don't know if that was overlooked or a result of the fixed camera. we should remedy that and make sure each is accessible." "The dice work well on the shelf by the door, but sometimes clip when thrown on the ground. perhaps there should be a tray with bounds regardless of where the throw happens. All throws should be organic and I think they already are." And: "as I play the game and click on location, I find myself looking left to right at little details, this is what players will do. but as we have it, the camera auto orients itself to the players pov...not a free walk, but not a limited walk either."
+- Hutch picked the tray on a card: only where the dice would hit the ground (DECIDED below).
+- Found: the jukebox couldn't be clicked because nothing on offer was about it, so nothing in the room was pinned to it. And a choice with no place of its own in the Ink was being taken for a move and pinned to a way out (the note for the incident book, to the keg ladder). The pins were redone, and `godot/tests/reach.gd` now plays seeded nights and checks every pin from every post with a line of sight, against a solid copy of the room as it's drawn: over twelve nights, none wrong.
+- Every object he can see is reachable (DECIDED 2026-10-14): where nothing on offer is about a thing in the building, it's there to look at. About thirty of them are in `content/data/things.yaml`, each with a line or two in `content/ink/things.ink` and some with a voice: Claude's drafts, with two prompts for Hutch (the back bar, the taps). `godot/tests/looks.gd` reads them all.
+- How the camera follows the 14 October decision on looking is under PROPOSED. Walking where he looks still waits for M2.
+- The butt can on the deck moved to the front corner by the rail, where he can look down at it, and the tray's spots on the deck were worked out again round it.
+- The payphone, seen up close for the first time, was two plain boxes on a patch of grey. It has its card, its keys, its coin return and its handset on a steel cord now, and the wall round it carries what the payphone scene names (the truck for sale, the heart and the initials scratched out, the meeting at the church hall up high) over forty years of numbers gone faint, drawn in code like the room's other surfaces (`phone_wall` in `sketches/door-look/tools/textures.py`). Every number that can be read on it is a 555-01 one, the range kept for made-up numbers.
+- The story changed (the jukebox scene, the looks), so a night saved before goes on from the floor.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -164,6 +175,7 @@ Update this file at the end of every session: add a session entry, move items be
   - "Rats leave a sinking ship" is a joke about a smaller event (a burst pipe, a licence suspension) that really points at what's coming. And the end keeps this: "the young lose the world they lived in and the old get back the one they remember, but both are experiencing something new."
   - Looking and going: the player looks left and right at the details, and the camera shouldn't turn his head for him; "not a free walk, but not a limited walk either." This changes "not a free walk" above, as far as those words go.
   - His deaths depend on the death: where and when he starts again is context-aware, sometimes back in time and sometimes "a hallucination(or was it?) that starts you on the next day instead of the previous".
+- The dice tray goes down only where the dice would hit the ground. Off the ledge by the door, the bar, table 28, the felt and the kitchen's steel they land as they always have. Hutch's pick on a card, 2026-10-14 ("Ground only").
 
 ### PROPOSED (waiting on Hutch)
 
@@ -329,6 +341,15 @@ Proposed with Hutch's answers (2026-10-14, evening), in `11_SKELETON.md`. Claude
 - **The game knows who made it:** at the very end the teller's listener turns out to be a machine, the kind the Esso kid rated answers for. Hutch writes the words.
 - **Replaying it:** what's fixed and what changes; knowing the end is worth only as much as the trust he's built; and the teller's first line changes on a second game.
 - **Build first,** revised: Gary's office, looking and going, his hand, the town, one fight Hutch's way, Thursday by day, Friday.
+
+Proposed with the jukebox, the tray and the free look (2026-10-15), from Hutch's build notes of the 14th. Built:
+
+- **The jukebox** is somewhere to go from the pool table and from across the room (the door, the floor, the bar, table 28), and the scene is seen from where he stands at it. Three things to do there: read the list it keeps of what's been played most in the building (at the top, by a long way, one he's never seen anybody choose: the song the bartender puts on at close, a `// HUTCH:` prompt); get it turned down a notch from the till, if he's earned that across a room with her, and then he hears the pool table start before it starts; and stand at it like he's picking a song, watching the room in the dark of the screen, where the big man plays three balls clean when he thinks nobody's watching (which makes the game easier to read).
+- **Pinned by their words:** a choice about something in the room is pinned to it, found from the words the Ink uses for it; a choice that takes him somewhere he can't see from here is pinned to the door, the opening or the ladder he'd go by. What he can see is the part of the building he's in and what's through the openings into the others: from the back hall, only what's through its doorway; from the deck, only the lot past the corner of the building; from his room, what's through his window.
+- **Looks:** rest on a thing and its name comes up, fainter than a choice; click, or E, and the column says what he sees. The clock doesn't move and nothing changes. The room's things are looked at from inside it, not through the window from the lot, and the window has a line from each side.
+- **His head:** he walks looking where he's going, unless the player looks somewhere else on the way, and gets there still looking the way he was. Nothing turns his head for him but what would turn a man's: someone coming into it (a portrait in the Ink), the dice going down (his eyes go to them and narrow, and back where the player had them after), and sitting down, which turns him to what the seat faces. Never while the player's turning it, and once the player has looked away from the dice, nothing pulls them back.
+- **The tray:** a server's round tray, cork inside a black rim, set down a step from him the way he's most nearly looking, at a spot worked out from the room where it lies flat with nothing over it and nobody's spot under it (`godot/tests/tray_spots.gd`), and the throw into it a gentle one from low over it.
+- **The payphone** at the end of the back hall is somewhere he walks round to, and reads the numbers on the wall from. The wall shows what the scene's draft says is written there; when Hutch answers the payphone prompt, it gets drawn again from that.
 
 ### REJECTED
 
