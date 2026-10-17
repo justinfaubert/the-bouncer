@@ -3029,8 +3029,8 @@
       k.stroke(tape, 0.5, 0.6);
       for (let i = 1; i < 5; i++) k.line(tx - tw * 0.6, ty - i * (ty - tt) / 5.2, tx + tw * (0.5 - (i % 3) * 0.3), ty - i * (ty - tt) / 5.2, 0.5, 0.6); }
 
-    // ---- the brass lamp at his end of the desk, his mother's: the turned column catching the
-    // light, the shade lit through, its pool on the desk and its glow up the wall
+    // ---- the brass lamp at his end of the desk: the turned column catching the light, the shade
+    // lit through, its pool on the desk and its glow up the wall
     { const LX = -0.92, LD = 1.15, s = S(LD), x = X(LX, LD), yb = Y(DT, LD), y1 = Y(1.0, LD), y0 = Y(1.25, LD), rb = 0.155 * s, rt = 0.1 * s;
       k.light(x, y0 + 4, 70, t(0.3, 0.55), 52);
       // the base, stepped, and the column up out of it, an urn and a neck
@@ -3051,6 +3051,301 @@
       k.oval(x, y0 - 0.012 * s, 0.01 * s, 0.012 * s, 0.85, 'set'); }
 
     vignette(k, t(0.36, 0.42));
+    edge(k);
+  };
+
+  // Out on the old main street at twenty to five, the light going and a drizzle in it: from the
+  // sidewalk near the top, looking down the hill to the highway and the harbour. The asphalt wet,
+  // the lamps and the lit windows lying in it, the power poles down the far side and the lines
+  // between them. Over there, from the top: the old bank with its columns (a cafe now), two shops,
+  // the library, brick, its big window lit, and the Legion, a long low hall with a field gun on a
+  // plinth on the grass in front, and over its roof the white wooden steeple of the church across
+  // the highway. On this side old houses going down the hill, a window lit in the nearest. Out
+  // past the highway the government wharf on its pilings, a light at the end of it and a man in a
+  // flat cap at the rail, a few fish boats tied up, then the strait, grey, and the far shore lost
+  // in the cloud. After six (look.night) it's dark and the lights are all there is.
+  PLACES.street = function (j, look, rnd) {
+    const k = j.k;
+    const night = !!look.night;
+    const t = function (dusk, late) { return night ? late : dusk; };
+    const cam = camera(300, 60, 760, 1.65), hz = cam.hz;
+    // u metres down the street from him, v across it toward the far side, h up from where he
+    // stands. The street runs off a little to the right of where he's looking and falls G to the
+    // metre to the highway at UH; past it at UF the sea's four metres down, the tide in
+    const sn = Math.sin(0.3), cs = Math.cos(0.3), G = 0.11, UH = 94, UF = 106, HW = -G * UH, SEA = HW - 4.2, WH = HW - 1.2;
+    const VN = -4, VC0 = 0.6, VC1 = 20.6, VF = 24;
+    const gnd = function (u) { return -G * Math.min(u, UH); };
+    const dOf = function (u, v) { return u * cs + v * sn; };
+    const P = function (u, v, h) { const D = dOf(u, v); return [cam.x(u * sn - v * cs, D), cam.y(h, D)]; };
+    const S = function (u, v) { return cam.s(dOf(u, v)); };
+    const q = function (pts, tone, mode) { k.poly(pts, tone, mode || 'set'); };
+    const seg = function (a, b, w, tone, mode) { k.line(a[0], a[1], b[0], b[1], w, tone, mode); };
+    // a patch on a face along the street (at v), or on one across it (at u)
+    const onV = function (v, ua, ub, ha, hb, tone, mode) { q([P(ua, v, hb), P(ub, v, hb), P(ub, v, ha), P(ua, v, ha)], tone, mode); };
+    const onU = function (u, va, vb, ha, hb, tone, mode) { q([P(u, va, hb), P(u, vb, hb), P(u, vb, ha), P(u, va, ha)], tone, mode); };
+    // a building on the hill, u0 to u1 down the street and v0 (its face on the street) to v1 back,
+    // its top at h: the face, the end that looks up the hill, and the roof once it's below him
+    const block = function (u0, u1, v0, v1, h, tFace, tEnd, tRoof) {
+      if (h < cam.eye) q([P(u0, v0, h), P(u1, v0, h), P(u1, v1, h), P(u0, v1, h)], tRoof);
+      q([P(u0, v0, h), P(u0, v1, h), P(u0, v1, gnd(u0)), P(u0, v0, gnd(u0))], tEnd);
+      q([P(u0, v0, h), P(u1, v0, h), P(u1, v0, gnd(u1)), P(u0, v0, gnd(u0))], tFace);
+      seg(P(u0, v0, h), P(u1, v0, h), 0.7, t(0.4, 0.2), 'erase');
+    };
+    // where a light lies in the wet: a broken streak down the road toward him from under it
+    const wet = [];
+    const shine = function (u, v, h, w, a) { const m = P(u, v, 2 * gnd(u) - h); wet.push([m[0], m[1], w, a]); };
+
+    // ---- the sky: low cloud, and the last of the light in under it over the strait
+    k.rect(0, 0, W, hz + 1, k.lin(0, 0, 0, hz, [[0, t(0.8, 0.97)], [0.5, t(0.66, 0.95)], [1, t(0.38, 0.88)]]), 'set');
+    for (let i = 0; i < 9; i++) k.glow(rnd() * W, 4 + rnd() * (hz - 26), 60 + rnd() * 90, t(0.16, 0.05), 5 + rnd() * 5);
+    k.light(W * 0.62, hz - 2, 300, t(0.3, 0.05), 11);
+    // the far shore, low across the strait, most of it lost in the cloud
+    { let d = 'M0 ' + (hz + 0.5);
+      for (let x = 0; x <= W; x += 12) d += ' L' + x + ' ' + (hz - 2 - 3.5 * Math.abs(Math.sin(x * 0.012 + 1.3)) - 2 * Math.sin(x * 0.041) - rnd());
+      k.path(d + ' L' + W + ' ' + (hz + 0.5) + ' Z', t(0.72, 0.94), 'set');
+      for (let i = 0; i < 5; i++) k.light(rnd() * W, hz - 5, 50 + rnd() * 70, t(0.32, 0.08), 6); }
+    // ---- the strait, grey, the swell catching what light there is
+    k.rect(0, hz, W, H - hz, k.lin(0, hz, 0, hz + 90, [[0, t(0.52, 0.9)], [1, t(0.6, 0.93)]]), 'set');
+    for (let i = 0; i < 170; i++) { const y = hz + 1 + Math.pow(rnd(), 1.5) * 85, x = rnd() * W, l = 3 + rnd() * 12 * (y - hz + 6) / 40; k.line(x, y, x + l, y, 0.6, t(0.34, 0.16) * (0.4 + rnd() * 0.6), 'erase'); }
+
+    // ---- the church across the highway: white board, only its steeple over the Legion's roof;
+    // the tower, the belfry with its louvres dark, the spire and a cross
+    { const cu = 112, cv = 38, b = HW, tw = 1.15, s = S(cu, cv);
+      onU(cu, cv - tw, cv + tw, b, b + 10.5, t(0.16, 0.7));
+      onV(cv - tw, cu, cu + 2 * tw, b, b + 10.5, t(0.38, 0.84));
+      onU(cu, cv - tw - 0.15, cv + tw + 0.15, b + 10.4, b + 10.8, t(0.3, 0.78));
+      onU(cu, cv - tw + 0.4, cv + tw - 0.4, b + 11.1, b + 12.4, t(0.86, 0.95));
+      onU(cu, cv - tw, cv - tw + 0.4, b + 10.8, b + 12.8, t(0.16, 0.7)); onU(cu, cv + tw - 0.4, cv + tw, b + 10.8, b + 12.8, t(0.16, 0.7));
+      onV(cv - tw, cu, cu + 2 * tw, b + 10.8, b + 12.8, t(0.4, 0.86));
+      onV(cv - tw, cu + 0.4, cu + 2 * tw - 0.4, b + 11.1, b + 12.4, t(0.9, 0.96));
+      const ap = P(cu + tw, cv, b + 20.4);
+      q([P(cu, cv - tw - 0.1, b + 12.8), ap, P(cu, cv + tw + 0.1, b + 12.8)], t(0.14, 0.7));
+      q([P(cu, cv - tw - 0.1, b + 12.8), ap, P(cu + 2 * tw, cv - tw - 0.1, b + 12.8)], t(0.38, 0.84));
+      seg(ap, P(cu + tw, cv, b + 21.6), Math.max(0.6, 0.12 * s), 0.92);
+      seg(P(cu + tw, cv - 0.35, b + 21.1), P(cu + tw, cv + 0.35, b + 21.1), Math.max(0.6, 0.1 * s), 0.92); }
+
+    // ---- the boats tied up along the wharf head, their wheelhouses and masts over it, and one
+    // lying off the end of it
+    const WU0 = 152, WU1 = 158, WV0 = -26, WV1 = 18;
+    for (const b of [[163, 14, 11], [166, -1, 13], [165, -15, 10]]) {
+      const ub = b[0], v0 = b[1], L = b[2], s = S(ub, v0), wl = SEA + 0.2, dk = SEA + 1.7;
+      q([P(ub, v0, wl), P(ub, v0 + L, wl), P(ub, v0 + L + 0.8, dk + 0.5), P(ub, v0 - 0.3, dk)], t(0.84, 0.95));
+      const c0 = v0 + L * 0.5, c1 = v0 + L * 0.82;
+      q([P(ub, c0, dk), P(ub, c0, dk + 3), P(ub, c1 - 0.5, dk + 3.1), P(ub, c1, dk + 2.2), P(ub, c1, dk)], t(0.66, 0.92));
+      for (let w = c0 + 0.3; w < c1 - 0.8; w += 0.9) onU(ub, w, w + 0.55, dk + 1.9, dk + 2.6, night && w < c0 + 0.5 ? 0.04 : t(0.3, 0.86));
+      const m0 = P(ub, c0 - 0.7, dk), m1 = P(ub, c0 - 0.7, dk + 9.5);
+      seg(m0, m1, Math.max(0.6, 0.14 * s), 0.92);
+      seg(P(ub, c0 - 0.7, dk + 5), P(ub, v0 + 0.6, dk + 1.6), 0.6, 0.85);
+      seg(m1, P(ub, v0 + L, dk + 0.5), 0.4, 0.65);
+      seg(m1, P(ub, v0 - 0.2, dk + 0.1), 0.4, 0.65);
+      if (night) k.light(m1[0], m1[1], 3, 0.9);
+    }
+    // ---- the wharf: the head side-on on its pilings and the approach out to it, the rails, the
+    // light on its post at the end, and him at the far rail by it in his flat cap, looking out
+    for (let v = WV0; v <= WV1; v += 2.4) seg(P(WU0, v, WH), P(WU0, v, SEA), Math.max(0.7, 0.32 * S(WU0, v)), t(0.86, 0.95));
+    for (let v = WV0; v < WV1 - 2; v += 4.8) { seg(P(WU0, v, WH - 0.6), P(WU0, v + 4.8, SEA + 1.2), 0.5, t(0.7, 0.9)); seg(P(WU0, v + 4.8, WH - 0.6), P(WU0, v, SEA + 1.2), 0.5, t(0.7, 0.9)); }
+    q([P(WU0, WV0, WH), P(WU0, WV1, WH), P(WU1, WV1, WH), P(WU1, WV0, WH)], t(0.5, 0.86));
+    const lp = P(WU0 + 0.5, WV1 - 0.6, WH), lt = P(WU0 + 0.5, WV1 - 0.6, WH + 4.6);
+    k.light(lt[0], lt[1] + 2, t(26, 18), t(0.8, 0.85), t(22, 15));
+    { const pl = P(WU0 + 3, 16, WH); k.light(pl[0], pl[1], 12, t(0.7, 0.9), 3); }
+    { const f = P(WU1 - 1.4, 15.8, WH), fs = S(WU1 - 1.4, 15.8);
+      PR.figure(k, { x: f[0], y: f[1], h: 1.76 * fs, pose: 'stand', back: true, hat: 'flatcap', top: 'coat', tone: 1, rim: 0, lit: 0 }); }
+    for (let v = WV0; v <= WV1; v += 2) seg(P(WU1, v, WH), P(WU1, v, WH + 1.1), 0.5, 0.8);
+    seg(P(WU1, WV0, WH + 1.1), P(WU1, WV1, WH + 1.1), 0.6, 0.85);
+    onU(WU0, WV0, WV1, WH - 0.5, WH, t(0.9, 0.96));
+    for (let v = WV0; v <= WV1; v += 2) seg(P(WU0, v, WH), P(WU0, v, WH + 1.1), 0.6, 0.92);
+    seg(P(WU0, WV0, WH + 1.1), P(WU0, WV1, WH + 1.1), 0.8, 0.94);
+    for (let u = UF + 3; u < WU0; u += 4) seg(P(u, 2.2, WH), P(u, 2.2, SEA), 0.7, 0.9);
+    q([P(UF, 2, WH), P(UF, 6, WH), P(WU0, 6, WH), P(WU0, 2, WH)], t(0.5, 0.88));
+    seg(lp, lt, 0.9, 0.95);
+    k.rect(lt[0] - 1.8, lt[1] - 2.4, 3.6, 1.3, 0.9, 'set');
+    k.oval(lt[0], lt[1], 1.4, 1.3, 0, 'set');
+    for (let y = P(WU0 + 2, WV1, SEA)[1] + 1; y < P(UF + 8, WV1, SEA)[1]; y += 1.3) k.line(lt[0] - 1 - rnd() * 2.5, y, lt[0] + 1 + rnd() * 2.5, y, 0.6, t(0.55, 0.8) * rnd(), 'erase');
+
+    // ---- the highway along the shore, wet, the guardrail on the sea side, a car going by
+    q([P(UH, -60, HW), P(UH, 70, HW), P(UF, 70, HW), P(UF, -60, HW)], t(0.64, 0.9));
+    for (let v = -40; v < 70; v += 7) seg(P(UH + 6, v, HW), P(UH + 6, v + 3, HW), 0.6, t(0.35, 0.3), 'erase');
+    for (let v = -40; v < 70; v += 2.5) seg(P(UF, v, HW), P(UF, v, HW + 0.7), 0.6, 0.9);
+    seg(P(UF, -60, HW + 0.7), P(UF, 70, HW + 0.7), 0.9, t(0.3, 0.55), 'erase');
+    { const cu = UH + 8.5, cv = 12, c = P(cu, cv, HW), s = S(cu, cv);
+      onU(cu, cv - 2.2, cv + 2.2, HW + 0.3, HW + 1, 1); onU(cu, cv - 1.3, cv + 1.2, HW + 1, HW + 1.5, 1);
+      const hl = P(cu, cv - 2.2, HW + 0.65);
+      k.light(hl[0] - 3 * s, hl[1] + 0.2 * s, 5 * s, t(0.55, 0.9), 0.9 * s);
+      k.oval(hl[0], hl[1], 0.25 * s, 0.18 * s, 0, 'set');
+      wet.push([hl[0] - 1.5 * s, c[1] + 1, 2.2, t(0.35, 0.6)]); }
+
+    // ---- the street: wet asphalt, the gutters, the line down the middle, the sidewalks
+    const U0 = 6;
+    q([P(U0, VC0, gnd(U0)), P(U0, VC1, gnd(U0)), P(UH, VC1, HW), P(UH, VC0, HW)], k.lin(0, P(UH, 10, HW)[1], 0, H, [[0, t(0.5, 0.84)], [1, t(0.82, 0.96)]]));
+    q([P(U0, VC1, gnd(U0)), P(U0, VF, gnd(U0)), P(UH, VF, HW), P(UH, VC1, HW)], t(0.68, 0.9));
+    q([P(U0, VN, gnd(U0)), P(U0, VC0, gnd(U0)), P(UH, VC0, HW), P(UH, VN, HW)], t(0.62, 0.9));
+    for (const v of [VC0, VC1]) seg(P(U0, v, gnd(U0)), P(UH, v, HW), 1, t(0.45, 0.3), 'erase');
+    for (let u = 9; u < UH - 3; u += 8) seg(P(u, 10.6, gnd(u)), P(u + 3.5, 10.6, gnd(u + 3.5)), Math.max(0.6, 0.12 * S(u, 10.6)), t(0.4, 0.35), 'erase');
+    // the water lying along the gutters, holding the sky
+    for (const p of [[16, 19.7, 4, 0.4], [27, 19.8, 3, 0.4], [24, 1.3, 3, 0.25]]) {
+      const a = P(p[0] - p[2], p[1], gnd(p[0] - p[2])), b = P(p[0] + p[2], p[1], gnd(p[0] + p[2])), c = P(p[0], p[1] - p[3], gnd(p[0])), d = P(p[0], p[1] + p[3], gnd(p[0]));
+      q([a, c, b, d], t(0.3, 0.1), 'erase');
+    }
+
+    // ---- the Legion: a long low hall, white board, its floor level and the ground falling away
+    // under the far end; a row of small windows lit, the door under its porch; on the grass in
+    // front the field gun on its plinth, its barrel to the street
+    { const L0 = 70, L1 = 92, LV = 26, LB = 40, fl = gnd(L0) + 0.3, top = fl + 3.6, rg = top + 1.5, mv = (LV + LB) / 2;
+      q([P(L0, LV - 0.5, top - 0.15), P(L1 + 0.5, LV - 0.5, top - 0.15), P(L1 + 0.5, mv, rg), P(L0, mv, rg)], t(0.76, 0.93));
+      q([P(L0, LV, gnd(L0)), P(L0, LV, top), P(L0, mv, rg), P(L0, LB, top), P(L0, LB, gnd(L0))], t(0.5, 0.86));
+      q([P(L0, LV, top), P(L1, LV, top), P(L1, LV, fl), P(L0, LV, fl)], t(0.42, 0.84));
+      q([P(L0, LV, fl), P(L1, LV, fl), P(L1, LV, gnd(L1)), P(L0, LV, gnd(L0))], t(0.74, 0.93));
+      for (let h = fl + 0.45; h < top; h += 0.45) seg(P(L0, LV, h), P(L1, LV, h), 0.45, t(0.16, 0.1));
+      seg(P(L0, LV, top), P(L1, LV, top), 1, 0.9);
+      for (let u = L0 + 4.5; u < L1 - 1.5; u += 2.4) onV(LV, u, u + 1.1, fl + 1.1, fl + 2.3, t(0.06, 0.04));
+      onV(LV, L0 + 1.4, L0 + 2.6, fl, fl + 2.3, t(0.7, 0.88));
+      q([P(L0 + 0.9, LV, fl + 2.6), P(L0 + 3.1, LV, fl + 2.6), P(L0 + 3.1, LV - 1.4, fl + 2.4), P(L0 + 0.9, LV - 1.4, fl + 2.4)], t(0.84, 0.94));
+      shine(L0 + 2, LV, fl + 2.6, 1.2, t(0.25, 0.5));
+      for (let u = L0 + 6; u < L1 - 2; u += 4.8) shine(u, LV, fl + 1.7, 1, t(0.2, 0.4));
+      // the grass, and the gun
+      q([P(L0, VF, gnd(L0)), P(L1, VF, gnd(L1)), P(L1, LV, gnd(L1)), P(L0, LV, gnd(L0))], t(0.72, 0.92));
+      const gu = 81, gv = 24.9, gb = gnd(gu), pt = gb + 0.9, s = S(gu, gv);
+      onU(gu - 0.6, gv - 1.1, gv + 1.1, gb, pt, t(0.4, 0.85));
+      onV(gv - 1.1, gu - 0.6, gu + 0.6, gb, pt, t(0.56, 0.9));
+      q([P(gu - 0.6, gv - 1.1, pt), P(gu + 0.6, gv - 1.1, pt), P(gu + 0.6, gv + 1.1, pt), P(gu - 0.6, gv + 1.1, pt)], t(0.28, 0.8));
+      const ax = P(gu - 0.1, gv + 0.1, pt + 0.65);
+      seg(ax, P(gu - 0.1, gv + 1.9, pt + 0.05), 0.24 * s, 1);
+      seg(P(gu - 0.1, gv - 0.1, pt + 0.8), P(gu - 0.1, gv - 2.6, pt + 1.3), 0.24 * s, 1);
+      seg(P(gu - 0.1, gv - 2.5, pt + 1.28), P(gu - 0.1, gv - 2.75, pt + 1.33), 0.3 * s, 1);
+      onV(gv - 0.25, gu - 0.75, gu + 0.55, pt + 0.5, pt + 1.6, 1);
+      for (const du of [-0.75, 0.55]) {
+        const w = P(gu + du, gv + 0.1, pt + 0.65), r = 0.62 * S(gu + du, gv);
+        k.oval(w[0], w[1], r, r, 1, 'set');
+        if (du < 0) { k.oval(w[0], w[1], r * 0.72, r * 0.72, t(0.45, 0.85), 'set'); k.oval(w[0], w[1], r * 0.2, r * 0.2, 1, 'set'); for (let a = 0; a < 8; a++) k.line(w[0], w[1], w[0] + Math.cos(a * 0.785) * r * 0.75, w[1] + Math.sin(a * 0.785) * r * 0.75, 0.5, 1); }
+      }
+    }
+
+    // ---- the library: brick, one high storey, a stone band along the top, the big window lit
+    { const L0 = 56, L1 = 68, fl = gnd(L0), top = fl + 6.2;
+      block(L0, L1, VF, VF + 16, top, t(0.74, 0.92), t(0.8, 0.93), t(0.66, 0.9));
+      for (let h = fl + 0.4; h < top - 0.7; h += 0.42) seg(P(L0, VF, h), P(L1, VF, h), 0.45, t(0.26, 0.12), 'erase');
+      onV(VF, L0, L1, top - 0.7, top, t(0.46, 0.84));
+      onV(VF, L0, L1, fl, fl + 0.6, t(0.54, 0.86));
+      const wa = 59.2, wb = 62.6, w0 = fl + 1.1, w1 = fl + 4.1, arch = [], rim = [];
+      for (let i = 0; i <= 10; i++) {
+        const a = Math.PI * i / 10, mu = (wa + wb) / 2, hw = (wb - wa) / 2;
+        arch.push(P(mu - Math.cos(a) * hw, VF, w1 + Math.sin(a) * 0.9));
+        rim.push(P(mu - Math.cos(a) * (hw + 0.3), VF, w1 + Math.sin(a) * 1.2));
+      }
+      q([P(wa - 0.3, VF, w0 - 0.3)].concat(rim).concat([P(wb + 0.3, VF, w0 - 0.3)]), t(0.44, 0.82));
+      q([P(wa, VF, w0)].concat(arch).concat([P(wb, VF, w0)]), t(0.05, 0.02));
+      for (const u of [wa + 1.13, wa + 2.27]) seg(P(u, VF, w0), P(u, VF, w1 + 0.85), 0.6, 0.7);
+      seg(P(wa, VF, w1), P(wb, VF, w1), 0.6, 0.7);
+      onV(VF, 64.6, 66.4, fl + 1.1, fl + 4.1, t(0.86, 0.93));
+      onV(VF, 66.8, 67.8, fl, fl + 2.6, t(0.6, 0.86));
+      const lw = P((wa + wb) / 2, VF - 1, fl + 2.5);
+      k.light(lw[0], lw[1], 10, t(0.25, 0.4), 14);
+      shine((wa + wb) / 2, VF, fl + 2.6, 2.2, t(0.42, 0.6)); }
+
+    // ---- two shops, two storeys: the windows lit at the street, an awning, a few lit upstairs
+    for (const sh of [[48, 54, 6.8, 0.64, false], [42, 48, 7.4, 0.72, true]]) {
+      const u0 = sh[0], u1 = sh[1], fl = gnd(u0), top = fl + sh[2];
+      block(u0, u1, VF, VF + 16, top, t(sh[3], 0.9), t(sh[3] + 0.06, 0.92), t(0.6, 0.9));
+      onV(VF, u0, u1, top - 0.55, top, t(0.84, 0.94));
+      onV(VF, u0, u1, fl + 2.9, fl + 3.6, t(0.84, 0.94));
+      onV(VF, u0 + 0.5, u1 - 1.7, fl + 0.5, fl + 2.8, t(0.07, 0.03));
+      for (let u = u0 + 1.6; u < u1 - 1.8; u += 1.2) seg(P(u, VF, fl + 0.5), P(u, VF, fl + 2.8), 0.6, 0.6);
+      onV(VF, u1 - 1.5, u1 - 0.5, fl, fl + 2.5, t(0.5, 0.86));
+      for (let u = u0 + 0.8; u < u1 - 1; u += 1.9) onV(VF, u, u + 1, fl + 4.3, fl + 5.9, rnd() < 0.4 ? t(0.12, 0.05) : t(0.88, 0.95));
+      if (sh[4]) q([P(u0 + 0.3, VF, fl + 3.3), P(u1 - 0.3, VF, fl + 3.3), P(u1 - 0.3, VF - 1.7, fl + 2.6), P(u0 + 0.3, VF - 1.7, fl + 2.6)], t(0.9, 0.96));
+      else { const a = P(u0 + 1, VF, fl + 3.6), b = P(u0 + 1, VF - 1.4, fl + 3.6); seg(a, b, 0.6, 0.9); onU(u0 + 1, VF - 1.3, VF - 0.2, fl + 2.7, fl + 3.5, t(0.3, 0.75)); }
+      shine((u0 + u1) / 2 - 0.6, VF, fl + 1.6, 3, t(0.42, 0.6));
+    }
+
+    // ---- the old bank at the top: stone, the columns and the beam on them, the cornice; a cafe
+    // in it now, its glass lit low in the dark behind the columns. Its floor's level, so the
+    // ground falls away under its far end and the stone base shows
+    { const B0 = 26, B1 = 42, fl = gnd(B0) + 0.4, top = gnd(B0) + 8.6, cv = VF - 0.9;
+      block(B0, B1, VF, VF + 16, top, t(0.56, 0.88), t(0.62, 0.9), 0.8);
+      q([P(B0, VF, fl), P(B1, VF, fl), P(B1, VF, gnd(B1)), P(B0, VF, gnd(B0))], t(0.74, 0.92));
+      onV(VF, B0 + 0.6, B1 - 0.6, fl, fl + 5.8, t(0.88, 0.96));
+      onV(VF, B0 + 1, B1 - 1, fl + 0.4, fl + 2.6, t(0.1, 0.04));
+      for (let u = B0 + 2.2; u < B1 - 1; u += 1.2) seg(P(u, VF, fl + 0.4), P(u, VF, fl + 2.6), 0.5, 0.6);
+      for (let u = B0 + 4; u < B1 - 1; u += 3.6) shine(u, VF, fl + 1.8, 3, t(0.35, 0.5));
+      onV(VF, B0, B1, fl + 5.8, fl + 6.8, t(0.36, 0.8));
+      onV(VF, B0, B1, fl + 6.8, fl + 7.3, t(0.3, 0.78));
+      seg(P(B0, VF, fl + 6.8), P(B1, VF, fl + 6.8), 1, 0.85);
+      seg(P(B0, VF, fl + 5.8), P(B1, VF, fl + 5.8), 0.7, 0.8);
+      q([P(B0, cv, fl), P(B1, cv, fl), P(B1, VF, fl), P(B0, VF, fl)], t(0.36, 0.8));
+      for (let i = 0; i <= 4; i++) {
+        const u = B0 + 1.6 + i * 3.6, s = S(u, cv), c0 = P(u, cv, fl), c1 = P(u, cv, fl + 5.8), r = 0.36 * s;
+        k.rect(c1[0] - r, c1[1], 2 * r, c0[1] - c1[1], t(0.3, 0.74), 'set');
+        k.rect(c1[0] - r, c1[1], 0.7 * r, c0[1] - c1[1], t(0.52, 0.86), 'set');
+        k.line(c1[0] + 0.45 * r, c1[1], c1[0] + 0.45 * r, c0[1], Math.max(0.5, 0.1 * s), t(0.3, 0.15), 'erase');
+        k.rect(c1[0] - 1.3 * r, c1[1], 2.6 * r, 0.3 * s, t(0.28, 0.76), 'set');
+        k.rect(c0[0] - 1.25 * r, c0[1] - 0.3 * s, 2.5 * r, 0.3 * s, t(0.32, 0.78), 'set');
+      }
+    }
+
+    // ---- this side, down the hill: a shop at the bottom, two old houses with their gables to the
+    // street, and the nearest house at the edge of things, its porch roof and its windows lit
+    { const NB = VN - 14;
+      for (const hs of [[78, 88, 4.6, 0, 0.74], [62, 75, 4.4, 2.6, 0.68], [45, 59, 4.8, 2.8, 0.74]]) {
+        const u0 = hs[0], u1 = hs[1], fl = gnd(u0), eave = fl + hs[2], rg = eave + hs[3], mu = (u0 + u1) / 2;
+        block(u0, u1, VN, NB, eave, t(hs[4], 0.92), t(hs[4] + 0.06, 0.93), t(0.72, 0.92));
+        if (hs[3]) {
+          q([P(u0, VN, eave), P(mu, VN, rg), P(u1, VN, eave)], t(hs[4] - 0.04, 0.92));
+          q([P(u0 - 0.3, VN, eave - 0.1), P(mu, VN, rg + 0.2), P(mu, NB, rg + 0.2), P(u0 - 0.3, NB, eave - 0.1)], t(0.84, 0.95));
+          seg(P(u0 - 0.3, VN, eave - 0.1), P(mu, VN, rg + 0.2), 0.8, t(0.35, 0.2), 'erase');
+          onV(VN, mu - 0.7, mu + 0.7, eave + 0.3, eave + 1.6, rnd() < 0.5 ? t(0.1, 0.04) : t(0.88, 0.95));
+        }
+        for (let u = u0 + 1; u < u1 - 1.2; u += 2.6) onV(VN, u, u + 1.2, fl + 1, fl + 2.6, t(0.14, 0.05));
+        shine(mu, VN, fl + 1.8, 3, t(0.3, 0.5));
+      }
+      block(12, 43, VN, VN - 10, gnd(12) + 4.6, t(0.78, 0.93), t(0.82, 0.94), 0.8);
+      for (const u of [22, 30, 37]) { onV(VN, u, u + 2.2, gnd(14) + 0.9, gnd(14) + 2.7, t(0.08, 0.03)); seg(P(u + 1.1, VN, gnd(14) + 0.9), P(u + 1.1, VN, gnd(14) + 2.7), 0.8, 0.7); }
+      q([P(12, VN, gnd(12) + 3.3), P(43, VN, gnd(12) + 3.3), P(43, VN + 1.4, gnd(12) + 3), P(12, VN + 1.4, gnd(12) + 3)], t(0.9, 0.96));
+      shine(30, VN, gnd(14) + 1.7, 5, t(0.4, 0.6)); }
+
+    // the wet: every light down the road toward him, broken by the drizzle on it
+    k.clip(function (c) { const a = P(U0, VN, gnd(U0)), b = P(U0, VF, gnd(U0)), cc = P(UF, VF, HW), d = P(UF, VN, HW); c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); c.lineTo(cc[0], cc[1]); c.lineTo(d[0], d[1]); c.closePath(); });
+    for (const w of wet) {
+      const len = Math.min(H - w[1], 20 + (w[1] - hz) * 0.5);
+      for (let y = w[1] - len * 0.5; y < w[1] + len; y += 1.1 + rnd() * 0.9) {
+        const f = 1 - Math.abs(y - w[1]) / len, hw = w[2] * (0.4 + rnd() * 0.6) * (0.6 + 0.4 * f);
+        k.line(w[0] - hw, y, w[0] + hw, y, 0.6, w[3] * f, 'erase');
+      }
+    }
+    k.done();
+
+    // ---- the power poles down the far side, a lamp on an arm off each over the street, and the
+    // lines down the hill between them and away along the highway
+    { const poles = [34, 62, 88], pv = 21.6, ph = 10, wires = [-1.2, 0, 1.2];
+      for (const u of poles) {
+        const s = S(u, pv), b = gnd(u), p0 = P(u, pv, b), p1 = P(u, pv, b + ph + 0.4);
+        seg(p0, p1, Math.max(0.9, 0.3 * s), 0.95);
+        seg(P(u, pv - 1.5, b + ph), P(u, pv + 1.5, b + ph), Math.max(0.7, 0.14 * s), 0.95);
+        const a0 = P(u, pv, b + 7.4), a1 = P(u, pv - 2.4, b + 7.6);
+        k.stroke('M' + a0[0] + ' ' + a0[1] + ' Q' + a0[0] + ' ' + (a1[1] - 0.2 * s) + ' ' + a1[0] + ' ' + a1[1], Math.max(0.6, 0.1 * s), 0.92);
+        const r = P(u, pv - 2.4, b);
+        cone(k, a1[0] - 0.25 * s, a1[0] + 0.25 * s, a1[1] + 0.15 * s, r[0] - 2.2 * s, r[0] + 2.2 * s, r[1], t(0.12, 0.2), 0.3);
+        k.light(a1[0], a1[1] + 0.4 * s, 1.6 * s, t(0.5, 0.7), 1.2 * s);
+        k.oval(a1[0], a1[1] + 0.12 * s, 0.32 * s, 0.12 * s, 0, 'set');
+        k.light(r[0], r[1], 3 * s, t(0.2, 0.45), 0.8 * s);
+        shine(u, pv - 2.4, b + 7.5, Math.max(1.5, 0.3 * s), t(0.5, 0.8));
+      }
+      for (const w of wires) {
+        let d = 'M' + P(4, pv + w, gnd(4) + ph - 0.6)[0] + ' ' + P(4, pv + w, gnd(4) + ph - 0.6)[1];
+        let pu = 4;
+        for (const u of poles) {
+          const m = (pu + u) / 2, e = P(u, pv + w, gnd(u) + ph), c = P(m, pv + w, (gnd(pu) + gnd(u)) / 2 + ph - 1.3);
+          d += ' Q' + c[0] + ' ' + c[1] + ' ' + e[0] + ' ' + e[1];
+          pu = u;
+        }
+        const e = P(UH + 1, pv + w - 44, HW + ph - 0.4), c = P(UH, pv + w - 18, HW + ph - 1.6);
+        k.stroke(d + ' Q' + c[0] + ' ' + c[1] + ' ' + e[0] + ' ' + e[1], 0.55, 0.9);
+      }
+      const a = P(62, pv - 1.2, gnd(62) + ph), b = P(52, VN, gnd(52) + 5.5), c = P(57, 8, gnd(57) + ph - 1.8);
+      k.stroke('M' + a[0] + ' ' + a[1] + ' Q' + c[0] + ' ' + c[1] + ' ' + b[0] + ' ' + b[1], 0.5, 0.85); }
+
+    // the drizzle, seen against the dark
+    k.rain(rnd, 380, 0, 0, W, H, { tone: t(0.3, 0.4), len: 7, w: 0.5, slant: 0.12 });
+    vignette(k, t(0.34, 0.46));
     edge(k);
   };
 
@@ -3757,7 +4052,7 @@
   const CAPTIONS = {
     lot: 'The Sovereign Hotel', floor: 'The room', door: 'The front door', bar: 'The bar', t28: 'Table 28',
     pool: 'The pool table', hall: 'The back hall', kitchen: 'The kitchen', keg: 'The keg room', deck: 'The deck', upstairs: 'The room upstairs',
-    office: 'Van Dusen Holdings'
+    office: 'Van Dusen Holdings', street: 'The main street'
   };
 
   // What each plate shows of the night, in steps, from Game._plateState. Plates with the same look
@@ -3774,7 +4069,9 @@
     deck: function (st) { return { open: st.deck !== false }; },
     hall: function (st) { return { open: st.hotel !== false }; },
     // the office goes from the grey of the afternoon to the lamp as the day goes out of the window
-    office: function (st) { return (st.clock || 0) >= 990 ? { dusk: true } : {}; }
+    office: function (st) { return (st.clock || 0) >= 990 ? { dusk: true } : {}; },
+    // the street's in the last of the light till six, then it's the lamps
+    street: function (st) { return (st.clock || 0) >= 1080 ? { night: true } : {}; }
   };
   // places whose light changes when the house lights come up and after close
   const LIT = { floor: 1, bar: 1, t28: 1, pool: 1, door: 1 };
