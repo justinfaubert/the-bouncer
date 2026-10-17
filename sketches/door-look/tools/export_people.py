@@ -40,9 +40,12 @@ COLOURS = {
     'uniform': '#1d2330', 'uniform_trim': '#121620',
     # the night clerk's lanyard and key card, and his shirt: a blue flannel, not the big man's red
     'lanyard': '#2b3446', 'badge': '#e2ddd0', 'flannel_b': '#4a5768',
+    # the doorman: the old scars on his knuckles, his mala's dark wooden beads and its tassel
+    'scar': '#dbbfab', 'mala': '#3a2a1f', 'tassel': '#2a2421',
 }
 ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 'glasses': 0.3, 'reflective': 0.4, 'cue': 0.4,
-         'glass': 0.05, 'beer': 0.2, 'wine': 0.2, 'cola': 0.2, 'chrome': 0.25, 'vape': 0.35, 'card': 0.4, 'clicker_window': 0.3}
+         'glass': 0.05, 'beer': 0.2, 'wine': 0.2, 'cola': 0.2, 'chrome': 0.25, 'vape': 0.35, 'card': 0.4, 'clicker_window': 0.3,
+         'mala': 0.4}
 METAL = {'chrome': 1.0, 'buckle': 0.8, 'zip': 0.7, 'vape': 0.6}
 
 KID = dict(age='young', build='slight', hat='hood', top='hoodie', face=['earbuds'], hair='messy',
@@ -51,6 +54,13 @@ GOODSHOES = dict(hair='parted', top='suit', mood='smile', shoe_mat='dress_shoe',
 DRIVER = dict(sex='f', age='young', hair='ponytail', top='jacket')
 VAPE = dict(age='young', hair='messy', top='hoodie')
 HIVIS = dict(hat='cap', top='hivis', face=['stubble'])
+# the doorman: 1.93 m, broad and heavy through the chest and shoulders, some belly but solid; late
+# thirties, stubble, his long dark hair down and wet from the rain; a mala of dark wooden beads over
+# an ironed charcoal t-shirt, a dark canvas work jacket open over it, dark jeans, work boots, and
+# scarred knuckles
+HIM = dict(build='big', size=1.005, bulk=0.93, belly=0.022, face=['stubble'], hair='long_wet', hair_mat='hair_dark', top='tshirt',
+           top_mat='sweatshirt', creased=True, over='jacket', extra=['mala'], bottoms='jeans', shoes='boots',
+           knuckles='scarred', head_drop=0.45)
 
 # who, in what pose, how finely (metres per voxel for the body)
 PEOPLE = {
@@ -124,9 +134,17 @@ PEOPLE = {
     # the bar's TV down the back hall through the gap he props the door open for
     'terry': (dict(build='slight', hair='thin', face=['glasses'], top='flannel', top_mat='flannel_b', trim_mat='flannel_b',
                    extra=['lanyard'], bottoms='slacks'), 'chin', dict(head_tilt=0.08), 0.008),
+    # --- the first milestone of the RPG
+    # the doorman himself, seen once, through Gary's eyes across his desk: in the wooden armchair, the
+    # chair's arms 0.66 high and 0.6 apart, leaning back, his forearms on them; then standing in the
+    # office doorway; and his licence photo, with the hair short
+    'him_desk': (HIM, 'armchair', dict(lean=0.18, head_tilt=0.1), 0.008),
+    'him_stand': (HIM, 'stand', dict(head_tilt=0.06), 0.008),
+    'him_card': (dict(HIM, hair='cropped', over=None, extra=[], head_drop=0.3), 'stand', dict(), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
-NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry'}
+NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
+        'him_desk', 'him_stand', 'him_card'}
 
 
 def make(name, look, pose, kw, step, near):
@@ -219,7 +237,7 @@ def anchors(B, p):
             a['glass'] = g(pr['at'])
         else:
             a[k] = g(pr['at'])
-    for k in ('door', 'bar', 'counter'):
+    for k in ('door', 'bar', 'counter', 'seat', 'armrest_left', 'armrest_right', 'desk_edge'):
         if hasattr(p, k):
             a[k] = g(getattr(p, k))
     return a
@@ -463,8 +481,50 @@ def clicker(pr):
     return _place([body, btn, knob, win], pr['at'], pr['R'])
 
 
+def _balls(name, mat, centres, r, segments=8, rings=6):
+    """Beads: a low sphere r across at each centre, all one mesh."""
+    import bpy
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=segments, ring_count=rings, radius=1.0)
+    one = bpy.context.active_object
+    v0 = np.array([v.co[:] for v in one.data.vertices])
+    f0 = [list(f.vertices) for f in one.data.polygons]
+    bpy.data.objects.remove(one, do_unlink=True)
+    verts, faces = [], []
+    for k, c in enumerate(centres):
+        verts += (v0 * r + np.asarray(c, dtype=float)).tolist()
+        faces += [[i + k * len(v0) for i in f] for f in f0]
+    me = bpy.data.meshes.new(name)
+    me.from_pydata(verts, [], faces)
+    me.update()
+    o = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(o)
+    me.materials.append(material(mat))
+    me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
+    return o
+
+
+def mala(pr):
+    """A mala: its wooden beads strung round, the guru bead where the two strands meet, and under it
+    the tassel, bound at its neck."""
+    import bpy
+    beads = _balls('mala', 'mala', pr['beads'], pr['r'])
+    guru = _balls('mala_guru', 'mala', [pr['at']], pr['guru_r'], segments=10, rings=7)
+    top, bot = (np.asarray(x, dtype=float) for x in pr['tassel'])
+    n = float(np.linalg.norm(top - bot))
+    tassel = _lathe('mala_tassel', 'tassel', [(0.0058, 0.0), (0.0062, 0.004), (0.0048, n * 0.55), (0.0032, n - 0.012),
+                                             (0.0038, n - 0.011), (0.0038, n - 0.005), (0.0016, n - 0.004), (0.0012, n)], segs=12)
+    tassel.rotation_euler = (-np.pi / 2, 0, 0)
+    for o in bpy.context.selected_objects:
+        o.select_set(False)
+    bpy.context.view_layer.objects.active = tassel
+    tassel.select_set(True)
+    bpy.ops.object.transform_apply(rotation=True)
+    _place([tassel], bot, pr['R'])
+    return [beads, guru, tassel]
+
+
 PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'lanyard': lanyard, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
-         'case': case}
+         'case': case, 'mala': mala}
 
 
 def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), focus=None):

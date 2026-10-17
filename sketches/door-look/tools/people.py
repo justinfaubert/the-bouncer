@@ -61,6 +61,8 @@ class Build:
             self.size *= look['size']
         if 'bulk' in look:
             self.bulk *= look['bulk']
+        if 'belly' in look:
+            self.belly = look['belly']
         s = self.size
         self.upper_arm, self.forearm = 0.30 * s, 0.265 * s
         self.thigh, self.shin = 0.445 * s, 0.415 * s
@@ -458,6 +460,44 @@ def pose_sit_drink(B, seat=0.76, table=1.08, kind='pint', i=1, **kw):
     return pose_sit(B, seat=seat, table=table, hold=(kind, i), **kw)
 
 
+def _armrest(x, y0, y1, top):
+    """A wooden chair's arm along y at x, its top at `top`: for a forearm to lie on and a hand to
+    hang over the end of."""
+    return S.box(V(x, (y0 + y1) / 2, top - 0.02), V(0.028, (y1 - y0) / 2, 0.02), 0.012)
+
+
+def pose_armchair(B, seat=0.46, arm=0.66, arm_x=0.3, lean=0.2, knees=0.19, feet=0.5, desk=0.55, desk_top=0.76, **kw):
+    """In a wooden armchair across a desk, leaning back a little: the feet flat on the floor out in
+    front, the knees apart, each forearm along an arm of the chair (its top `arm` high, `arm_x` out
+    from the middle) and the hands loose over their ends. The desk's near edge is `desk` in front of
+    his knees, its top `desk_top` high."""
+    s = B.size
+    p = _base(B, (0, -0.02, seat + 0.1 * s), lean=lean, **kw)
+    _legs(B, p, [(-knees - 0.01, feet, 0.075), (knees, feet - 0.03, 0.075)],
+          [(-0.4, 1, 0.6), (0.4, 1, 0.6)], [(-0.18, 1, -0.05), (0.18, 1, -0.05)])
+    hands, poles, palms, rests = [], [], [], []
+    for i in range(2):
+        sx = -1.0 if i == 0 else 1.0
+        sh = p.sh[i]
+        # the elbow on the arm where the upper arm hangs to it, the forearm on along it and in a little
+        ez = arm + 0.036 * B.bulk ** 0.75
+        dx, dz = sx * arm_x - sh[0], sh[2] - ez
+        dy = np.sqrt(max(B.upper_arm ** 2 * 0.998 - dx * dx - dz * dz, 0.0))
+        elbow = V(sx * arm_x, sh[1] + dy, ez)
+        along = norm(V(-sx * 0.1, 1.0, -0.03))
+        wrist = elbow + along * B.forearm
+        hands.append(tuple(wrist))
+        poles.append(elbow + (elbow - (sh + wrist) / 2) * 2.0)
+        palms.append((sx * 0.15, 0.0, -1.0))
+        rests.append(_armrest(sx * arm_x, elbow[1] - 0.2, wrist[1] + 0.035, arm))
+    _arms(B, p, hands, poles, palms)
+    p.grip = [dict(grip='relaxed', on=rests[i]) for i in range(2)]
+    p.seat = V(0, 0.0, seat)
+    p.armrest_left, p.armrest_right = V(-arm_x, p.wrist[0][1], arm), V(arm_x, p.wrist[1][1], arm)
+    p.desk_edge = V(0, max(p.knee[0][1], p.knee[1][1]) + 0.06 + desk, desk_top)     # from the fronts of his knees
+    return p
+
+
 # ---------------------------------------------------------------------------------------- hands in poses
 
 def set_hands(B, p):
@@ -800,7 +840,10 @@ def body_parts(B, p, look):
             # and opening toward its end
             mid = sh + (el - sh) * 0.45
             sleeve = S.cone(sh + (el - sh) * 0.14, mid, 0.0479 * ab + ul * 0.8 + 0.004, 0.0454 * ab + ul * 0.9 + 0.009)
-            add(shirt if top != 'tshirt' else 'tshirt', sleeve, order=2)
+            if look.get('creased'):
+                sleeve = crease(sleeve, sh, el, R @ V(sx, 0, 0.6))
+            # (a t-shirt of a colour of its own, top_mat, has its sleeves in it too)
+            add(shirt if top != 'tshirt' else look.get('top_mat', 'tshirt'), sleeve, order=2)
         if fore_mat == 'skin':
             # a bare forearm, flattening to the wrist the hand comes out of
             if hd is not None:
@@ -823,6 +866,8 @@ def body_parts(B, p, look):
             add(shirt, S.torus(el + d * 0.02, 0.045 * b, 0.016, S.frame(np.cross(d, V(0, 0, 1)) if abs(d[2]) < 0.9 else V(1, 0, 0), np.cross(d, np.cross(d, V(0, 0, 1))) if abs(d[2]) < 0.9 else V(0, 1, 0))), order=2)
         if hd is not None:
             add('skin', hd.sdf(nails=look.get('nails', False)), order=1, group=grp)
+            if look.get('knuckles') == 'scarred':
+                add('scar', knuckle_scars(hd), order=2, group=grp)
     # legs
     for i in range(2):
         hp, kn, an = p.hip[i], p.knee[i], p.ankle[i]
@@ -987,6 +1032,14 @@ def body_parts(B, p, look):
         side = norm(np.cross(V(0, 0, 1), out))
         straps = [(p.neck + R @ V(sx * (neck_r + 0.006), 0.006, -0.018), tip + V(sx * 0.005, 0, 0.01)) for sx in (-1, 1)]
         p.props = list(getattr(p, 'props', [])) + [dict(kind='lanyard', at=tip, straps=straps, R=S.frame(side, V(0, 0, 1)))]
+    if 'mala' in look.get('extra', ()):
+        # under the jacket, if there's one: on the shirt and its neck, round his neck
+        on = S.union(body, S.torus(p.neck + R @ V(0, 0.014, -0.002), neck_r + 0.004, 0.0055, Rn),
+                     S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.025, -0.07), neck_r, 0.05))
+        p.props = list(getattr(p, 'props', [])) + [mala(p, on, neck_r)]
+    if look.get('over') == 'jacket':
+        # what long hair lies on (head_parts)
+        p.outer = over_jacket(B, p, look, body, add)
     return parts
 
 
@@ -1002,6 +1055,231 @@ def _surf(f, o, d, far=0.3):
         else:
             hi = m
     return d * lo
+
+
+def crease(f, a, b, out):
+    """A sleeve ironed flat: its section drawn to an edge along the side `out` (from the arm's axis
+    a..b), the crease pressed down it."""
+    a, b = V(*a), V(*b)
+    ax = norm(b - a)
+    o = norm(V(*out) - ax * float(np.dot(V(*out), ax)))
+    def g(P):
+        q = P - a
+        r = q - (q @ ax)[:, None] * ax[None, :]
+        c = (r @ o) / np.maximum(np.linalg.norm(r, axis=1), 1e-6)
+        return f(P) - 0.004 * np.clip(c, 0.0, 1.0) ** 12
+    return g
+
+
+def knuckle_scars(h):
+    """Old scars over the knuckles of a hand that's hit things: pale marks across the backs of the
+    first two and a nick on the third, laid on the skin."""
+    k = h.k
+    on = h.sdf()
+    marks = []
+    for i, (dx, l, w) in enumerate(((0.0, 0.009, 0.0026), (0.002, 0.007, 0.0022), (-0.001, 0.004, 0.002))):
+        kn = FINGERS[i][0]
+        c = h.w(V(kn[0] + dx, kn[1] - 0.002, kn[2] - 0.009))
+        R = S.frame(h.dirw((1.0, 0.25, 0.0)), h.dirw((-0.25, 1.0, 0.0)))
+        marks.append(S.ellipsoid(c, V(l, w, 0.01) * k, R))
+    return _panel(on, S.union(*marks), 0.0007)
+
+
+def _grad(f, X, h=0.0005):
+    """Which way f rises at each point (not normalised)."""
+    e = np.eye(3, dtype=np.float32) * h
+    return np.stack([(f(X + e[i]) - f(X - e[i])) / (2 * h) for i in range(3)], axis=1)
+
+
+def drape(f, X, rest, clear, weight, closed=True, pinned=(), iters=700, grip=0.4, passes=8, settle=0):
+    """Beads on a string let fall onto f and left to settle: X (N x 3) where they start, rest[i] the
+    string from bead i to the next, clear how far each bead's middle keeps off f, weight how hard
+    gravity pulls each. They keep their spacing and stay out of f, and where they touch it they
+    slide only reluctantly (grip: how much of their speed they keep); the pinned ones stay put, and
+    no bead gets further from one than the string between them. Then `settle` more rounds without
+    gravity draw the string back to its length where it's still stretched."""
+    X = np.asarray(X, dtype=np.float32).copy()
+    Xp = X.copy()
+    N = len(X)
+    free = np.ones(N, dtype=np.float32)
+    free[list(pinned)] = 0.0
+    fall = V(0, 0, -0.00025) * np.asarray(weight, dtype=np.float32)[:, None] * free[:, None]
+    rest = np.asarray(rest, dtype=np.float32)
+    # the nearest pinned bead each way along the string from each bead, and the string between
+    tied = []
+    for step in ((1, -1) if closed else (1, -1)):
+        to, far = np.zeros(N, dtype=int), np.full(N, np.inf, dtype=np.float32)
+        for i in range(N):
+            d, j = 0.0, i
+            for _ in range(N):
+                if free[j] == 0.0:
+                    to[i], far[i] = j, d
+                    break
+                if not closed and (j + step < 0 or j + step >= N):
+                    break
+                d += float(rest[j] if step > 0 else rest[(j - 1) % N])
+                j = (j + step) % N
+        if np.isfinite(far).any():
+            tied.append((to, np.where(np.isfinite(far), far, 1e9).astype(np.float32)))
+    for it in range(iters + settle):
+        if it < iters:
+            keep = np.where(f(X) < clear + 0.0015, grip, 0.88).astype(np.float32)
+            Xn = X + (X - Xp) * (keep * free)[:, None] + fall
+            Xp, X = X, Xn
+        for _ in range(passes):
+            nxt = np.roll(X, -1, axis=0)
+            d = nxt - X
+            L = np.linalg.norm(d, axis=1)
+            c = ((L - rest) / np.maximum(L, 1e-9))[:, None] * d
+            if not closed:
+                c[-1] = 0.0
+            # each end of a link moves half of its stretch, or all of it when the other is pinned
+            wa = free / np.maximum(free + np.roll(free, -1), 1e-9)
+            wb = free / np.maximum(free + np.roll(free, 1), 1e-9)
+            X = X + 0.9 * (c * wa[:, None] - np.roll(c, 1, axis=0) * wb[:, None])
+            for to, far in tied:
+                d = X - X[to]
+                L = np.linalg.norm(d, axis=1)
+                X = X - (d * (np.maximum(L - far, 0.0) / np.maximum(L, 1e-9))[:, None]) * free[:, None]
+            dist = f(X)
+            near = (dist < clear) & (free > 0)
+            if near.any():
+                n = _grad(f, X[near])
+                n = n / np.maximum(np.linalg.norm(n, axis=1), 1e-9)[:, None]
+                X[near] = X[near] + n * (clear - dist[near])[:, None]
+        if it >= iters:
+            Xp = X.copy()
+    return X
+
+
+def _drop(f, c, up, clear, far=0.12):
+    """From above c, down along -up onto f, to where a bead's middle stops clear of it."""
+    x = c + up * far
+    for _ in range(int(far * 2 / 0.002)):
+        if float(f(x[None, :])[0]) < clear:
+            break
+        x = x - up * 0.002
+    lo, hi = 0.0, 0.002
+    for _ in range(16):
+        m = (lo + hi) / 2
+        if float(f((x + up * m)[None, :])[0]) < clear:
+            lo = m
+        else:
+            hi = m
+    return x + up * hi
+
+
+def mala(p, on, neck_r, n=108, r=0.0045):
+    """A mala round the neck, on the shirt (on: the shirt and its neck): n wooden beads r across and
+    the guru bead. Round the back of the neck it lies where the neck meets the shoulders, and stays
+    there (the collar and the hair hold it); from either side of the neck the two strands are let
+    fall onto the chest and left to settle, meeting at the guru bead at the breastbone; under it the
+    tassel. Too small to sculpt at the body's grain: export_people.py makes the beads, from their
+    centres here."""
+    R = p.R
+    up = R @ V(0, 0, 1)
+    rg = r * 1.4
+    gap = 2 * r * 1.02
+    clear = r + 0.0012
+    tie = rg + r + 0.0004
+    # round the back: each point let down onto the shoulders close in to the neck, the beads spaced
+    # out along it from the middle
+    rb = neck_r + clear + 0.002
+    arc = np.array([_drop(on, p.neck + R @ V(rb * np.sin(a), -rb * np.cos(a), 0.0), up, clear)
+                    for a in np.linspace(-np.pi / 2, np.pi / 2, 91)], dtype=np.float32)
+    sa = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(arc, axis=0), axis=1))])
+    pos = sa[-1] / 2 + (np.arange(1, n + 1) - (n + 1) / 2) * gap
+    back = np.flatnonzero((pos >= 0) & (pos <= sa[-1]))
+    X = np.zeros((n + 1, 3), dtype=np.float32)
+    X[back + 1] = np.stack([np.interp(pos[back], sa, arc[:, j]) for j in range(3)], axis=1)
+    # the strands: from the ends of the back down to the guru bead on the breastbone, laid straight
+    # and out of the shirt to start with
+    k0, k1 = back[0] + 1, back[-1] + 1
+    length = (k0 - 1) * gap + tie
+    A = [X[k0], X[k1]]
+    mid = (A[0] + A[1]) / 2
+    G = None
+    for z in np.linspace(-0.1, -0.4, 61):
+        g = p.neck + R @ V(0, 0, z)
+        g = g + R @ V(0, 1, 0) * float(np.linalg.norm(_surf(on, g, R @ V(0, 1, 0)))) + R @ V(0, clear, 0)
+        if np.linalg.norm(g - A[0]) > length * 0.95:
+            break
+        G = g
+    X[0] = G
+    for j in range(1, k0):
+        X[j] = G + (A[0] - G) * (j * gap + tie - gap) / length
+    for j in range(k1 + 1, n + 1):
+        X[j] = G + (A[1] - G) * ((n + 1 - j) * gap + tie - gap) / length
+    for j in list(range(0, k0)) + list(range(k1 + 1, n + 1)):
+        d = float(on(X[j][None, :])[0])
+        if d < clear:
+            X[j] = X[j] + R @ V(0, 1, 0) * (clear - d + 0.002)
+    rest = [tie] + [gap] * (n - 1) + [tie]
+    X = drape(on, X, rest, clear, [4.0] + [1.0] * n, pinned=back + 1, settle=200)
+    guru, beads = X[0], list(X[1:])
+    # the tassel: a short chain of its own hanging from the guru bead
+    T0 = np.array([guru + V(0, 0, -(rg + 0.004 + 0.016 * j)) for j in range(5)], dtype=np.float32)
+    T = drape(on, T0, [0.016] * 5, 0.0062, [1.0] * 5, closed=False, pinned=(0,), iters=300)
+    top, bot = T[0], T[-1]
+    return dict(kind='mala', at=guru, beads=beads, r=r, guru_r=rg, tassel=(top, bot),
+                R=S.frame(R @ V(1, 0, 0), norm(top - bot)))
+
+
+def _front(R, o, x0, x1, z0, z1):
+    """The front of the trunk (frame R about o) between x0..x1 across and z0..z1 up: a pocket, a flap."""
+    return _loc(lambda q: np.maximum.reduce([np.abs(q[:, 0] - (x0 + x1) / 2) - (x1 - x0) / 2,
+                                             np.abs(q[:, 2] - (z0 + z1) / 2) - (z1 - z0) / 2, -q[:, 1]]), o, R)
+
+
+def over_jacket(B, p, look, body, add):
+    """A work jacket of canvas worn open over the shirt (body: the shirt's shape): standing off it,
+    hanging open down the front from the collar to the hem, so the shirt shows down the middle; a
+    collar turned down round the neck, sleeves to the wrist, a patch pocket on each side of the
+    chest, and the buttons down its right front. Returns its outside, for long hair to lie on."""
+    mat = look.get('over_mat', 'doorman_jacket')
+    s, b = B.size, B.bulk
+    ab = b ** 0.75
+    R = p.R
+    up = R @ V(0, 0, 1)
+    hands = getattr(p, 'hands', [None, None])
+    jb = S.offset(body, 0.017)
+    # open down the front: a little at the collar, falling wider toward the hem round his belly
+    w = lambda z: 0.06 + 0.1 * np.clip((-z - 0.08) / 0.42, 0.0, 1.0)
+    opening = _loc(lambda q: np.maximum(np.abs(q[:, 0]) - w(q[:, 2]), 0.03 - q[:, 1]), p.neck, R)
+    hem = S.halfspace(p.pelvis + R @ V(0, 0, -0.17 * s), -up)
+    jacket = S.carve(S.intersect(jb, hem, 0.006), opening, 0.003)
+    add(mat, jacket)
+    # the collar, turned down, open where the front is
+    neck_r = 0.056 * b ** 0.5
+    col = S.torus(p.neck + R @ V(0, 0.004, -0.018), neck_r + 0.03, 0.019, R @ S.rot(0, -0.32, 0))
+    add(mat, S.carve(col, opening, 0.003), order=1)
+    # the sleeves, the creases in the crook of the arm and bunched above the cuff
+    for i in range(2):
+        sh, el, wr = p.sh[i], p.elbow[i], p.wrist[i]
+        d = norm(wr - el)
+        sx = -1.0 if i == 0 else 1.0
+        grp = ('hand_l' if i == 0 else 'hand_r') if hands[i] is not None else None
+        jl = 0.019
+        upper = S.blend(0.03, S.sphere(sh + R @ V(sx * 0.008, 0, -0.012), 0.047 * ab + jl + 0.006),
+                        S.cone(sh, el, 0.049 * ab + jl, 0.041 * ab + jl + 0.002))
+        upper = rings(upper, el, -(el - sh), 0.0018, 0.024, 0.0, 0.08)
+        fore = rings(S.cone(el, wr - d * 0.03, 0.041 * ab + jl + 0.002, 0.031 * ab + jl * 0.8), el, d, 0.0022, 0.026, 0.12, 0.25)
+        add(mat, S.blend(0.02, upper, fore))
+        r0, r1 = 0.032 * b + jl * 0.75, 0.03 * b + jl * 0.65
+        cuff = S.cone(wr - d * 0.06, wr - d * 0.006, r0, r1)
+        rin = r1 - 0.004
+        add(mat, S.carve(cuff, S.capsule(wr - d * (0.016 - rin), wr + d * 0.05, rin), 0.0015), order=1, group=grp)
+    # a patch pocket on each side of the chest, and its flap
+    for sx in (-1, 1):
+        x = sx * 0.145 * b ** 0.5
+        add(mat, _panel(jacket, _front(R, p.chest, x - 0.048, x + 0.048, -0.075, 0.05), 0.004), order=1)
+        add(mat, _panel(jacket, _front(R, p.chest, x - 0.051, x + 0.051, 0.022, 0.058), 0.007), order=2)
+    # the buttons down his right front, a little in from its edge, all undone
+    for k in range(5):
+        z = -0.1 - k * 0.1
+        c0 = p.neck + R @ V(float(w(np.array([z]))[0]) + 0.016, 0.0, z)
+        add('button', S.sphere(c0 + _surf(jacket, c0, R @ V(0, 1, 0)), 0.0065), order=3)
+    return S.union(jacket, col)
 
 
 # ---------------------------------------------------------------------------------------- hands
@@ -1378,6 +1656,12 @@ def head_parts(B, p, look):
             bob = S.carve(bob, S.offset(skull, 0.001), 0.0)
             add(hair_mat, bob, order=1)
             add(hair_mat, S.intersect(S.offset(skull, 0.013 * s), S.box(at(0, 0.07, 0.055), V(0.06, 0.03, 0.02) * s, 0.0, R @ S.rot(0, -0.3, 0))), order=1)
+        elif hair == 'cropped':
+            # clipped short all over, close to the skull
+            h = S.intersect(S.offset(skull, 0.0055 * s), S.carve(S.box(at(0, -0.01, 0.04), V(0.1, 0.12, 0.08) * s, 0.0, R), face_hole, 0.01))
+            add(hair_mat, S.intersect(h, S.halfspace(at(0, 0.0, -0.032), dirn(0, 0.45, -1)), 0.004), order=1)
+        elif hair == 'long_wet':
+            add(hair_mat, long_wet_hair(p, s, skull, at, dirn), order=1)
     elif hat == 'cap':
         crown = S.intersect(S.offset(skull, 0.012 * s), over(0.021, 0.36), 0.002)
         add('cap', crown, order=1)
@@ -1431,6 +1715,82 @@ def head_parts(B, p, look):
     if hat is None and hair == 'bald':
         pass
     return parts
+
+
+def _lock(sup, pts, w, t):
+    """A lock of wet hair lying on sup through pts (each let onto sup's surface): a flat ribbon w[j]
+    wide and t thick at each, its width along the surface."""
+    lay, nrm = [], []
+    for c in pts:
+        c = V(*c)
+        for _ in range(6):
+            g = _grad(sup, c[None, :])[0]
+            g = g / max(float(np.linalg.norm(g)), 1e-9)
+            c = c - g * (float(sup(c[None, :])[0]) - t * 0.7)
+        lay.append(c)
+        nrm.append(g)
+    segs = []
+    for j in range(len(lay) - 1):
+        d = norm(lay[j + 1] - lay[j])
+        side = np.cross(d, nrm[j] + nrm[j + 1])
+        segs.append(S.econe(lay[j], lay[j + 1], (w[j], t), (w[j + 1], t * (0.75 if j == len(lay) - 2 else 1.0)), side))
+    return S.blend(0.008, *segs)
+
+
+def long_wet_hair(p, s, skull, at, dirn):
+    """Long hair, loose and wet from the rain: pushed back off the face and lying flat to the head
+    in the lines the fingers left, tucked behind the ears, then down over the collar to past the shoulders
+    (on p.outer, what he's wearing, if body_parts left it) in the clumps wet hair falls into, its
+    ends uneven. Locks of it hang down behind each ear, and two have come forward over his left
+    shoulder onto his chest."""
+    Rt = p.R
+    R = p.Rh
+    nk = lambda x, y, z: p.neck + Rt @ V(x, y, z)
+    # the hairline: across the top of the brow and down in front of each ear to a short sideburn
+    hole = S.blend(0.02 * s, S.ellipsoid(at(0, 0.1, -0.008), V(0.068, 0.06, 0.062) * s, R),
+                   *[S.ellipsoid(at(sx * 0.06, 0.05, -0.065), V(0.03, 0.06, 0.042) * s, R) for sx in (-1, 1)])
+    scalp = S.intersect(S.offset(skull, 0.0065 * s), S.carve(S.box(at(0, -0.01, 0.03), V(0.1, 0.12, 0.09) * s, 0.0, R), hole, 0.01))
+    for sx in (-1, 1):
+        # tucked behind the ears, close round them
+        ear = S.ellipsoid(at(sx * 0.077, -0.004, -0.008), V(0.016, 0.024, 0.033) * s, R @ S.rot(-sx * 0.25, 0, 0))
+        scalp = S.carve(scalp, ear, 0.004)
+    # combed back by his fingers: shallow furrows running back over the head, smoothing out at the
+    # hairline
+    ax, sc = R @ V(1, 0, 0), scalp
+    scalp = lambda P: sc(P) + 0.0011 * np.sin((P @ ax) * (2 * np.pi / 0.013)) * np.clip(hole(P) / 0.015, 0.0, 1.0)
+    # what it hangs over: the back of the head, bridged to the back of the neck, and the collar and
+    # shoulders under it
+    sup = S.blend(0.04, S.offset(skull, 0.005 * s), S.capsule(at(0, -0.05, -0.05), nk(0, -0.05, -0.04), 0.047 * s))
+    outer = getattr(p, 'outer', None)
+    if outer is not None:
+        sup = S.blend(0.03, sup, outer)
+    def region(q):
+        # behind the ears, as wide as the head and then the shoulders it falls over, its ends uneven
+        x, y, z = q[:, 0], q[:, 1], q[:, 2]
+        wide = 0.085 + 0.05 * np.clip(-z / 0.1, 0.0, 1.0)
+        ends = -0.19 - 0.025 * np.sin(x * 47.0) - 0.014 * np.sin(x * 113.0 + 1.0)
+        # and over the tops of the shoulders, beside the neck, where it shows from the front
+        fore = -0.012 + 0.03 * np.clip(z / 0.15, 0.0, 1.0) + 0.04 * np.clip((np.abs(x) - 0.07) / 0.03, 0.0, 1.0) * (z > -0.06)
+        return np.maximum.reduce([np.abs(x) - wide, ends - z, y - fore])
+    fall = S.intersect(S.offset(sup, 0.012), _loc(region, p.neck, Rt), 0.008)
+    behind = S.halfspace(at(0, 0.004, 0), dirn(0, 1, 0))
+    fall = S.intersect(fall, behind, 0.01)
+    # wet, it goes into clumps: grooves down it
+    fall = S.ripple(fall, 0.0022, 2 * np.pi / 0.021, Rt @ V(1, 0.0, 0.0))
+    locks = []
+    for sx in (-1, 1):
+        # down behind the ear and the jaw onto the collar, and over the back of the shoulder
+        locks.append(_lock(sup, [at(sx * 0.068, -0.045, 0.0), nk(sx * 0.085, -0.045, 0.1), nk(sx * 0.11, -0.04, 0.02),
+                                 nk(sx * 0.13, -0.065, -0.07), nk(sx * 0.13, -0.08, -0.15 - 0.02 * sx)],
+                           [0.02, 0.019, 0.019, 0.016, 0.009], 0.0055))
+    # come forward over his left shoulder onto his chest, side by side, and over his right a shorter one
+    for dx, dz, w in ((0.0, 0.0, 0.016), (0.026, 0.03, 0.013), (-0.024, -0.01, 0.012)):
+        locks.append(_lock(sup, [at(-0.07, -0.025 - dx * 0.4, -0.01), nk(-0.09 - dx * 0.5, -0.012, 0.085), nk(-0.112 - dx, 0.035, 0.005),
+                                 nk(-0.118 - dx, 0.09, -0.07 + dz), nk(-0.112 - dx, 0.11, -0.16 + dz * 1.5)],
+                           [w, w, w * 0.95, w * 0.75, w * 0.35], 0.005))
+    locks.append(_lock(sup, [at(0.07, -0.03, -0.01), nk(0.092, -0.014, 0.085), nk(0.118, 0.03, 0.01), nk(0.124, 0.075, -0.05)],
+                       [0.015, 0.015, 0.013, 0.006], 0.005))
+    return S.blend(0.01, scalp, fall, *locks)
 
 
 # ---------------------------------------------------------------------------------------- things they hold
@@ -1512,6 +1872,7 @@ POSES = {
     'sit': pose_sit, 'cue': pose_cue, 'bar': pose_bar, 'reach': pose_reach, 'counter': pose_counter,
     'card': pose_card, 'close': pose_close, 'pint': pose_pint, 'door': pose_door, 'bar_lean': pose_bar_lean,
     'carry': pose_carry, 'sit_drink': pose_sit_drink, 'chin': pose_chin,
+    'armchair': pose_armchair,
 }
 
 
@@ -1554,7 +1915,8 @@ def mesh_person(look, pose='stand', step=0.012, head_step=None, hand_step=None, 
     if head_step is None:
         return [("body", *S.mesh_islands(body + head, lo, hi, step))]
     out = [("body", *S.mesh_islands(body, lo, hi, step))]
-    hlo, hhi = p.head + V(-0.2, -0.2, -0.3), p.head + V(0.2, 0.2, 0.2)
+    # (long hair hangs below the head's box: `head_drop` takes it down to the ends)
+    hlo, hhi = p.head + V(-0.2, -0.2, -look.get('head_drop', 0.3)), p.head + V(0.2, 0.2, 0.2)
     clip = S.box((hlo + hhi) / 2, (hhi - hlo) / 2 - head_step * 1.5)
     head = [Part(q.name, S.intersect(q.f, clip), order=q.order) for q in head]
     out.append(("head", *S.mesh_islands(head, hlo, hhi, head_step)))
