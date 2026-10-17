@@ -177,7 +177,7 @@ func _run() -> void:
 		_new_set()
 		var M: Dictionary = main.pub.M
 		_room(3.0)
-		# the office wall he's standing in the doorway of, the hall dark behind him
+		# the office wall he's standing in the doorway of, the hall behind him lit from along it
 		main.pub.tiled(Vector3(2.0, 2.9, 0.15), Vector3(-1.5, 1.45, 0.12), M.wall, 2.0, set_node)
 		main.pub.tiled(Vector3(2.0, 2.9, 0.15), Vector3(1.5, 1.45, 0.12), M.wall, 2.0, set_node)
 		_box(Vector3(1.0, 0.75, 0.15), Vector3(0, 2.525, 0.12), M.wall)
@@ -188,9 +188,10 @@ func _run() -> void:
 		var head := _anchor("him_stand", "head", Vector3(0, 1.8, 0))
 		_light(Vector3(0.3, 2.6, -1.6), Color("f3ead8"), 1.0, 6.0)
 		_light(Vector3(1.2, 1.1, -2.6), Look.LAMP, 0.6, 3.0)
+		_light(Vector3(-0.8, 2.5, 1.6), Color("f3ead8"), 0.8, 4.0)
 		await _look(Vector3(0.2, 1.17, -3.3), head + Vector3(0, -0.45, 0))
 		await _grab("door_from_desk")
-		await _look(Vector3(-0.9, 1.6, -1.7), head + Vector3(0, -0.1, 0), 34.0)
+		await _look(Vector3(-0.45, 1.5, -1.6), head + Vector3(0, -0.15, 0), 34.0)
 		await _grab("door_close")
 	if _want("card") and _has("him_card"):
 		_new_set()
