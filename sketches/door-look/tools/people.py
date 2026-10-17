@@ -1657,8 +1657,12 @@ def head_parts(B, p, look):
             add(hair_mat, bob, order=1)
             add(hair_mat, S.intersect(S.offset(skull, 0.013 * s), S.box(at(0, 0.07, 0.055), V(0.06, 0.03, 0.02) * s, 0.0, R @ S.rot(0, -0.3, 0))), order=1)
         elif hair == 'cropped':
-            # clipped short all over, close to the skull
-            h = S.intersect(S.offset(skull, 0.0055 * s), S.carve(S.box(at(0, -0.01, 0.04), V(0.1, 0.12, 0.08) * s, 0.0, R), face_hole, 0.01))
+            # clipped short, close to the head (over the forehead's full corners too): shortest at
+            # the sides and back, a little longer on top, the sideburns ending halfway down the ear
+            up = R[:, 2]
+            crop = lambda P: brain(P) - (0.0035 + 0.0045 * np.clip(((P - H) @ up / s - 0.02) / 0.07, 0.0, 1.0)) * s
+            h = S.intersect(crop, S.carve(S.box(at(0, -0.01, 0.05), V(0.1, 0.12, 0.09) * s, 0.0, R), face_hole, 0.01))
+            h = S.carve(h, S.box(at(0, 0.08, -0.058), V(0.1, 0.08, 0.05) * s, 0.0, R), 0.004)
             add(hair_mat, S.intersect(h, S.halfspace(at(0, 0.0, -0.032), dirn(0, 0.45, -1)), 0.004), order=1)
         elif hair == 'long_wet':
             add(hair_mat, long_wet_hair(p, s, skull, at, dirn), order=1)
