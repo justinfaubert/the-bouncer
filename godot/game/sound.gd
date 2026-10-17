@@ -17,7 +17,7 @@ const INK := {"scanner_ok": "beep_ok", "scanner_bad": "beep_bad", "door": "thump
 	"hit": "thud", "balls": "clack", "dice_shake": "rattle", "die_tick": "tick", "die_land": "tock",
 	"glass": "glass", "scratch": "scratch", "till": "till", "bell": "bell"}
 const LAYERS := ["rain_glass", "rain_out", "rain_roof", "room_tone", "talk_a", "talk_b", "shout", "juke", "pool",
-	"fryer", "fan", "tube", "cellar", "rats", "sea"]
+	"fryer", "fan", "tube", "cellar", "rats", "sea", "keys", "canopy", "traffic"]
 # how loud each small sound sits under the rest
 const LEVEL := {"click": 0.8, "choose": 0.35, "click_ui": 0.35, "steps": 0.45, "whisper": 0.5, "page": 0.5, "pen": 0.55,
 	"printer": 0.5, "heart": 0.8, "tick": 0.55, "tock": 0.8, "rattle": 0.7, "gust": 0.6, "swipe": 0.45, "card": 0.6, "lift": 0.5}
@@ -255,6 +255,25 @@ func _mix() -> void:
 			t.rain_glass = 0.45
 			t.rain_roof = 0.3
 			room_part = 0.1
+		# before the shift: Gary's office, the rain at its window and the bookkeeper's one finger;
+		# the old main street and the highway in the wet; the Esso's canopy; the seawall, with the
+		# Sov across the highway
+		"office":
+			t.rain_glass = 0.5
+			t.keys = 0.75
+		"street":
+			t.rain_out = 0.6
+			t.traffic = 0.45
+			t.sea = 0.2
+		"esso":
+			t.canopy = 0.8
+			t.traffic = 0.7
+			t.rain_out = 0.3
+		"seawall":
+			t.rain_out = 0.75
+			t.sea = 0.6
+			t.traffic = 0.5
+			room_part = 0.06
 	if ink_amb == "rain_lot":
 		t.rain_out = maxf(t.rain_out, 0.8)
 	if ink_amb == "deck":

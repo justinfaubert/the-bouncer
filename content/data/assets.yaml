@@ -56,6 +56,22 @@ ambience:
     file: audio/amb/empty_bar.ogg
     synth: room_empty
     note: After close. Just the coolers.
+  office:
+    file: audio/amb/office.ogg
+    synth: office
+    note: Gary's office at four in the afternoon. Rain on the front window, the oil radiator ticking, the bookkeeper's keys at the other desk, a car going by on the wet street.
+  street:
+    file: audio/amb/street.ogg
+    synth: rain_open
+    note: The old main street at dusk. Drizzle, gutters running, the highway down the hill, a gull.
+  esso:
+    file: audio/amb/esso.ogg
+    synth: canopy
+    note: Under the Esso's canopy. The lights' hum, the highway going by close, a pump clicking off, the door's chime.
+  seawall:
+    file: audio/amb/seawall.ogg
+    synth: rain_open
+    note: On the seawall across from the Sov. The water against the wall behind him, trucks on the highway, the rain coming back.
 
 sfx:
   scanner_ok: { synth: beep_ok, note: ID scanner, good read. }
@@ -95,3 +111,6 @@ portraits:
   endbar: { file: art/portraits/endbar.png }
   constable: { file: art/portraits/constable.png }
   terry: { file: art/portraits/terry.png }
+  bookkeeper: { file: art/portraits/bookkeeper.png }
+  essokid: { file: art/portraits/essokid.png }
+  him: { file: art/portraits/him.png }

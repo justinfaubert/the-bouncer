@@ -37,6 +37,9 @@ const VOICES := {
 	"wrongman": {"color": Color("a5c2a6"), "font": "cormorant", "size": 1.14},
 	"table": {"color": Color("dac45f"), "font": "archivo", "size": 0.9},
 	"kid": {"color": Color("80d1db"), "font": "work", "size": 1.0, "lower": true},
+	# Gary's, in the office only: the adding machine's purple ribbon, and his father's photograph
+	"till": {"color": Color("b7a6e0"), "font": "receipt", "size": 0.92},
+	"senior": {"color": Color("cdb797"), "font": "display_r", "size": 1.08, "upper": true},
 }
 
 const FONT_FILES := {
@@ -63,12 +66,14 @@ const PLACE := {
 	"door": "On the door", "floor": "On the floor", "t28": "At table 28", "pool": "By the pool table",
 	"bar": "At the bar", "hall": "In the back hall", "kitchen": "In the kitchen", "keg": "In the keg room",
 	"deck": "Out on the deck", "lot": "Out in the lot", "upstairs": "Upstairs",
+	"office": "In Gary's office", "street": "The old main street", "esso": "At the Esso", "seawall": "On the seawall",
 }
 # what a place is called in a caption, and on the ways out
 const CAPTION := {
 	"door": "The door", "floor": "The floor", "t28": "Table 28", "pool": "The pool table", "bar": "The bar",
 	"hall": "The back hall", "kitchen": "The kitchen", "keg": "The keg room", "deck": "The deck",
 	"lot": "The lot", "upstairs": "Upstairs",
+	"office": "Van Dusen Holdings", "street": "The old main street", "esso": "The Esso", "seawall": "The seawall",
 }
 const DAY_NAMES := {1: "Wednesday", 2: "Thursday", 3: "Friday"}
 const HURT_WORDS := ["", "Knocked about", "Hurt", "Badly hurt"]
@@ -95,6 +100,12 @@ static func load_fonts() -> void:
 		f.hinting = TextServer.HINTING_LIGHT
 		f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
 		fonts[k] = f
+	# the display face is a variable font, and comes up at its thinnest: Senior talks at a weight
+	# that can be read at the column's size
+	var v := FontVariation.new()
+	v.base_font = fonts["display"]
+	v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): 420}
+	fonts["display_r"] = v
 
 
 static func font(k: String) -> Font:
@@ -108,6 +119,15 @@ static func voice(style: String) -> Dictionary:
 
 static func voice_color(style: String) -> Color:
 	return voice(style).color
+
+
+# a voice's words as it says them: the kid in lower case, Senior in capitals
+static func voice_text(v: Dictionary, text: String) -> String:
+	if v.get("lower", false):
+		return text.to_lower()
+	if v.get("upper", false):
+		return text.to_upper()
+	return text
 
 
 # the light of the night by the shift clock

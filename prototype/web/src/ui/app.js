@@ -19,7 +19,8 @@
   const PLACE = {
     door: 'On the door', floor: 'On the floor', t28: 'At table 28', pool: 'By the pool table', bar: 'At the bar',
     hall: 'In the back hall', kitchen: 'In the kitchen', keg: 'In the keg room', deck: 'Out on the deck',
-    lot: 'Out in the lot', upstairs: 'Upstairs'
+    lot: 'Out in the lot', upstairs: 'Upstairs',
+    office: "In Gary's office", street: 'The old main street', esso: 'At the Esso', seawall: 'On the seawall'
   };
   const DEFAULTS = {
     size: 'm', reveal: 'lines', odds: 'words', dice: 'full', prompts: true, plates: true,
@@ -101,6 +102,7 @@
     applySettings();
 
     $('#map').innerHTML = V.mapSVG();
+    $('#town').innerHTML = V.townSVG();
     $('#build-id').textContent = 'Build ' + ((C.meta && C.meta.build) || 'dev');
     wire();
     renderTitle();
@@ -189,7 +191,7 @@
       }
       menu.append(button('Start Wednesday over', 'btn', function () { confirmTitleRestart(); }));
     } else {
-      menu.append(button('Start the shift', 'btn primary', function () { unlockAudio(); startNew(); }));
+      menu.append(button('Start Wednesday', 'btn primary', function () { unlockAudio(); startNew(); }));
     }
     menu.append(button('How it plays', 'btn', function () { openHelp(); }));
     menu.append(button('Settings', 'btn', function () { openSettings(); }));
@@ -643,6 +645,31 @@
     return p;
   }
 
+  // His seven stats, printed once where the camera becomes his (#stats, content/ink/walk.ink), out
+  // of ten, with the scale beside them.
+  function statsNode(it) {
+    const box = document.createElement('div');
+    box.className = 'him-card';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'Him');
+    let rows = '';
+    for (const k of B.Checks.STAT_ORDER) {
+      const v = (it.stats && it.stats[k]) | 0;
+      let pips = '';
+      for (let i = 1; i <= 10; i++) pips += '<i' + (i <= v ? ' class="on"' : '') + '></i>';
+      rows += '<dt>' + esc(B.Checks.STATS[k].label) + '</dt><dd class="hc-pips" aria-hidden="true">' + pips + '</dd><dd class="hc-n">' + v + '</dd>';
+    }
+    box.innerHTML = '<div class="hc-h">Him</div><dl class="hc-rows">' + rows + '</dl><p class="hc-foot">Out of 10. An ordinary man is a 4.</p>';
+    return box;
+  }
+
+  // one of them moving, where it moved
+  function statMoveNode(it) {
+    const p = asideNode('<b>' + esc(it.label) + '</b> <s>' + (it.from | 0) + '</s> ' + (it.to | 0));
+    p.classList.add('stat-move', (it.to | 0) > (it.from | 0) ? 'up' : 'down');
+    return p;
+  }
+
   function psycheText(it) {
     if (it.op === 'seat') return '<b>' + esc(voiceLabel(it.voice)) + '</b> has a seat in his head now.';
     if (it.op === 'unseat') return '<b>' + esc(voiceLabel(it.voice)) + '</b> is out of his head.';
@@ -660,6 +687,7 @@
     let label = id, look = null;
     for (const k in C.characters) if (C.characters[k].portrait === id) { label = C.characters[k].label || k; look = C.characters[k].look || null; break; }
     if (look && lean) look = Object.assign({}, look, { lean: lean });
+    look = onGround(look);
     const slot = (C.assets.portraits || {})[id] || {};
     const fig = document.createElement('figure');
     fig.className = 'portrait';
@@ -694,7 +722,16 @@
     if (!c || !c.look || !app.settings.plates || !B.Plates) return null;
     const pid = c.portrait || charId;
     const lean = app.game.story ? app.game._lean(pid) : null;
-    return B.Plates.portrait(pid, lean ? Object.assign({}, c.look, { lean: lean }) : c.look);
+    return B.Plates.portrait(pid, onGround(lean ? Object.assign({}, c.look, { lean: lean }) : c.look));
+  }
+
+  // Away from the Sov a face prints against where he meets them, without the sign's red behind it
+  // (src/ui/plates.js, paintGround). At the Sov it's the bar.
+  const GROUNDS = { office: 'office', esso: 'canopy', street: 'dusk', seawall: 'dusk' };
+  function onGround(look) {
+    if (!look || look.ground || !app.game || !app.game.story) return look;
+    const ground = GROUNDS[app.game.status().here];
+    return ground ? Object.assign({}, look, { ground: ground }) : look;
   }
 
   // The night's first pictures go through the press while the title is up: the lot, the room, the
@@ -819,6 +856,8 @@
           case 'task':
             add(asideNode((it.op === 'add' ? '<b>Noted.</b> ' : '<b>Done.</b> ') + esc(it.text)));
             break;
+          case 'stats': add(statsNode(it)); break;
+          case 'stat': add(statMoveNode(it)); break;
           case 'psyche': {
             const t = psycheText(it);
             if (t) add(asideNode(t));
@@ -969,6 +1008,8 @@
       else if (st.here === 'lot') want = 'rain_lot';
       else if (st.here === 'keg') want = 'keg_room';
       else if (st.here === 'upstairs') want = null;
+      // before the shift: each has its own (content/data/assets.yaml)
+      else if (st.here === 'office' || st.here === 'street' || st.here === 'esso' || st.here === 'seawall') want = st.here;
       else if (st.clock >= CLOSE_TIME) want = 'empty_bar';
       else want = 'bar';
     }
@@ -1012,7 +1053,9 @@
         const ck = document.createElement('span');
         ck.className = 'ck';
         const odds = app.settings.odds === 'numbers' ? Math.round(c.check.odds * 100) + '%' : c.check.oddsWord;
-        ck.innerHTML = '[' + esc(c.check.label) + ' &middot; ' + esc(c.check.word) + ' ' + c.check.target + '] <span class="odds">' + esc(odds) + '</span>';
+        // the stat he brings to it, as it stands
+        const sp = (c.check.mods || []).filter(function (m) { return m.stat; })[0];
+        ck.innerHTML = '[' + esc(c.check.label) + (sp ? ' &middot; ' + esc(sp.label) + ' ' + sp.value : '') + ' &middot; ' + esc(c.check.word) + ' ' + c.check.target + '] <span class="odds">' + esc(odds) + '</span>';
         ck.title = (c.check.mods || []).map(function (m) { return (m.value > 0 ? '+' : '') + m.value + ' ' + m.label; }).join(', ');
         body.append(ck);
       }
@@ -1097,12 +1140,15 @@
   function statusHTML(st) {
     const cp = B.util.clockParts(st.clock);
     const day = DAY_NAMES[st.day] || ('Day ' + st.day);
-    return '<div class="st-day">' + esc(day) + ', the test shift</div>' +
+    const part = st.here === 'office' ? 'the interview' : st.clock < 1180 ? 'before the shift' : 'the test shift';
+    return '<div class="st-day">' + esc(day) + ', ' + part + '</div>' +
       '<div class="st-clock">' + cp.text + '<small>' + cp.ampm + '</small></div>' +
       '<div class="st-where">' + esc(PLACE[st.here] || '') + '</div>' +
       '<div class="st-row">' +
         '<span class="st-item"><span class="st-k">Pocket</span><span class="st-v">$' + st.cash + '</span></span>' +
-        '<span class="st-item"><span class="st-k">Drinks</span><span class="st-v">' + V.tallyHTML(st.drinks) + '</span></span>' +
+        '<span class="st-item"><span class="st-k">Drinks</span><span class="st-v">' + V.tallyHTML(st.drinks) +
+          // what his size is holding off (src/core/checks.js, felt): only the ones that show count
+          (st.felt != null && st.felt < st.drinks ? ' <span class="st-felt">feels like ' + (st.felt || 'none') + '</span>' : '') + '</span></span>' +
         (st.hurt ? '<span class="st-item st-hurt"><span class="st-k">Hurt</span><span class="st-v">' + esc(HURT_WORDS[st.hurt] || 'Hurt') + '</span></span>' : '') +
       '</div>';
   }
@@ -1120,7 +1166,19 @@
     // his skin shows what's happened once it's on the page, not while the dice are still out
     if (app.skin && !app.pending) app.skin.update(st, g.turn);
 
-    // the map: every choice that goes somewhere lights its spot
+    // the map: every choice that goes somewhere lights its spot. On the way to the Sov it's the
+    // town instead, and only shows where he is.
+    const town = V.inTown(st.here);
+    if (app.townShown !== town) {
+      app.townShown = town;
+      $('#map').hidden = town;
+      $('#town').hidden = !town;
+      $('#h-floor').textContent = town ? 'The town' : 'The floor';
+      $('#map-hint').textContent = town ? "The Sov's floor comes up once he's inside." : 'Tap a lit spot to go there.';
+      const tab = document.querySelector('.tabbar [data-sec="sec-floor"]');
+      if (tab) tab.textContent = town ? 'Town' : 'Floor';
+    }
+    if (town) V.updateTown($('#town'), st.here);
     const open = {};
     g.choices.filter(function (c) { return !c.hidden; }).forEach(function (c, i) { if (c.loc && !(c.loc in open)) open[c.loc] = i; });
     app.mapOpen = open;
@@ -1129,6 +1187,22 @@
     // the room in his head
     $('#head').innerHTML = V.psycheSVG(g.psyche, C.voices) + V.tensionHTML(st.tension);
     if (app.voiceOpen) showVoice(app.voiceOpen);
+
+    // his stats, once the interview's set them, in his hand: each old number struck through
+    // (bible/11_SKELETON.md, Him: seven stats)
+    const him = $('#him-notes');
+    if (him) {
+      him.hidden = !st.statsSet;
+      if (st.statsSet) {
+        const hist = {};
+        for (const ch of g.statLog) (hist[ch.stat] = hist[ch.stat] || [ch.from]).push(ch.to);
+        him.innerHTML = B.Checks.STAT_ORDER.map(function (k) {
+          const h = hist[k] || [st.stats[k]];
+          return '<span class="hn-k">' + esc(B.Checks.STATS[k].label) + '</span><span class="hn-v">' +
+            h.slice(0, -1).map(function (v) { return '<s>' + v + '</s> '; }).join('') + h[h.length - 1] + '</span>';
+        }).join('');
+      }
+    }
 
     // notes
     const notes = $('#notes');
@@ -1156,7 +1230,7 @@
     app.voiceOpen = id;
     const g = app.game;
     const st = g.status();
-    const mods = B.Checks.modifiers(def, { drinks: st.drinks, hurt: st.hurt }, 0);
+    const mods = B.Checks.modifiers(def, g._ctx(st.drinks), 0);
     const modText = mods.parts.length ? mods.parts.map(function (m) { return (m.value > 0 ? '+' : '') + m.value + ' ' + m.label; }).join(', ') : 'nothing either way';
     const others = g.psyche.seated.filter(function (v) { return v !== id; });
     const allies = others.filter(function (v) { return g.psyche.getRel(id, v) > 0; }).map(voiceLabel);
@@ -1531,6 +1605,8 @@
   function nightText() {
     const g = app.game;
     const out = ['THE BOUNCER. Wednesday, the test shift.', 'Build ' + ((C.meta && C.meta.build) || 'dev'), ''];
+    const st = g.status();
+    if (st.statsSet) out.splice(2, 0, 'Him: ' + B.Checks.STAT_ORDER.map(function (k) { return B.Checks.STATS[k].label + ' ' + st.stats[k]; }).join(', ') + '.');
     for (const s of g.path) {
       out.push(B.util.fmtClock(s.c).padStart(8) + '  ' + s.x + (s.k ? '  [' + voiceLabel(s.k.v) + ': ' + s.k.n + ' against ' + s.k.of + ', ' + (s.k.ok ? 'passed' : 'failed') + ']' : ''));
     }

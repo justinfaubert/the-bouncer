@@ -152,7 +152,7 @@ FIGHTER: The ones you put out the front come in the back. Every time.
         VAPE: she locked it bro. she locked me out
         He went anyway, round the side of the building, with his hood up, and stood by the locked pickup in the rain.
     }
-* [Walk him round to the lot. #check: fighter 6 {vape_mod()}]
+* [Walk him round to the lot. #check: fighter 10 {vape_mod()}]
     { passed:
         He took him by the arm and walked him round the side of the building to the pickup, and stood there until he'd got in the back, and then stood there a minute longer.
         ~ move(vape_at, s_truck)

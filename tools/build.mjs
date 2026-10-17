@@ -89,7 +89,7 @@ function yaml(file, fallback) {
 
 function scanInk(files) {
   const speakers = new Map();   // LABEL -> [loc]
-  const checks = [];            // {voice, loc}
+  const checks = [];            // {voice, stat, loc}
   const fx = [];                // {type, id, loc}
   const prompts = [];           // {text, loc, knot, kind}
   const words = { total: 0, byFile: {} };
@@ -114,7 +114,7 @@ function scanInk(files) {
       if (hutch) prompts.push({ kind: 'comment', text: hutch[1].trim(), loc, knot });
       const code = line.replace(/\/\/.*$/, '');
       for (const m of code.matchAll(/#\s*prompt:\s*([^#]+)/g)) prompts.push({ kind: 'tag', text: m[1].trim(), loc, knot });
-      for (const m of code.matchAll(/#\s*check:\s*([a-z_]+)/gi)) checks.push({ voice: m[1].toLowerCase(), loc });
+      for (const m of code.matchAll(/#\s*check:\s*([a-z_]+)(?::([a-z_]*))?/gi)) checks.push({ voice: m[1].toLowerCase(), stat: m[2] === undefined ? null : m[2].toLowerCase(), loc });
       for (const m of code.matchAll(/#\s*mark:\s*([^#]+)/gi)) markRefs.push({ spec: m[1].trim(), loc });
       for (const m of code.matchAll(/#\s*prop:\s*([^#\s\]]*)/gi)) propRefs.push({ id: m[1], loc });
       for (const m of code.matchAll(/#\s*toy:\s*([^#\]]*)/gi)) { const w = m[1].trim().split(/\s+/); toyRefs.push({ id: w[0] || '', what: w[1] || '', loc }); }
@@ -173,7 +173,20 @@ for (const [label, locs] of scan.speakers) {
   if (label.length <= 2) continue;
   warn(`speaker ${label} is not in voices.yaml or characters.yaml (${locs[0]}${locs.length > 1 ? ' and ' + (locs.length - 1) + ' more' : ''}); it will show as plain narration`);
 }
-for (const c of scan.checks) if (!voiceIds.has(c.voice)) err(`check by unknown voice "${c.voice}" at ${c.loc}`);
+// His seven stats (prototype/web/src/core/checks.js): a check rolls on the one it names after the
+// voice ("#check: father:cha 12"), or on the voice's first.
+const STAT_KEYS = ['str', 'con', 'dex', 'int', 'wis', 'cha', 'gut'];
+for (const [id, v] of Object.entries(voices || {})) {
+  if (!v || v.whose) continue;
+  const st = v.stats;
+  if (!Array.isArray(st) || !st.length) err(`voices.yaml: ${id} lends no stats (stats: [...])`);
+  else for (const k of st) if (!STAT_KEYS.includes(k)) err(`voices.yaml: ${id} lends to "${k}", which isn't one of his seven (${STAT_KEYS.join(' ')})`);
+}
+for (const c of scan.checks) {
+  if (!voiceIds.has(c.voice)) err(`check by unknown voice "${c.voice}" at ${c.loc}`);
+  else if (voices[c.voice].whose) err(`check by ${c.voice} at ${c.loc}, whose voice is ${voices[c.voice].whose}'s, not his`);
+  if (c.stat !== null && !STAT_KEYS.includes(c.stat)) err(`check at ${c.loc} rolls on "${c.stat}", which isn't one of his seven (${STAT_KEYS.join(' ')})`);
+}
 const assetIndex = { sfx: assets.sfx || {}, music: assets.music || {}, amb: assets.ambience || {}, portrait: assets.portraits || {} };
 for (const f of scan.fx) if (f.id !== 'none' && (!assetIndex[f.type] || !assetIndex[f.type][f.id])) warn(`${f.type} "${f.id}" is not in assets.yaml (${f.loc})`);
 // Which slots have their file yet. The game uses a file only when it's marked present, so a
@@ -191,7 +204,7 @@ let inkGlobals = [];
 if (story) {
   const g = new inkjs.Story(story);
   inkGlobals = Array.from(g.variablesState._globalVariables.keys());
-  for (const need of ['clock', 'cash', 'drinks', 'count_in', 'hurt', 'here', 'passed', 'crit', 'day']) {
+  for (const need of ['clock', 'cash', 'drinks', 'count_in', 'hurt', 'here', 'passed', 'crit', 'day', 'ate', 'stats_set', 'stat_str', 'stat_con', 'stat_dex', 'stat_int', 'stat_wis', 'stat_cha', 'stat_gut']) {
     if (!inkGlobals.includes(need)) err(`the engine reads VAR ${need}, but the Ink doesn't declare it`);
   }
 }
@@ -237,7 +250,11 @@ if (props && props.tonight && isNaN(Date.parse(props.tonight))) err(`props.yaml:
 for (const [id, pr] of propThings) {
   if (!pr || !PROP_KINDS[pr.kind]) { err(`props.yaml: ${id} needs a kind (${Object.keys(PROP_KINDS).join(', ')})`); continue; }
   if (pr.kind === 'card') {
-    for (const k of ['surname', 'given', 'born', 'class']) if (!pr[k]) err(`props.yaml: ${id} (a card) has no ${k}`);
+    // a driver's licence carries a name, a birthday and a class; a security worker's licence (type:
+    // security) a role and an expiry, and the name is never printed (it's Hutch's)
+    const need = pr.type === 'security' ? ['role', 'expires', 'number'] : ['surname', 'given', 'born', 'class'];
+    for (const k of need) if (!pr[k]) err(`props.yaml: ${id} (a card) has no ${k}`);
+    if (pr.type && pr.type !== 'security') err(`props.yaml: ${id} has type "${pr.type}"; a card is a driver's licence, or type: security`);
     if (pr.born && isNaN(Date.parse(pr.born))) err(`props.yaml: ${id} born "${pr.born}" isn't a date`);
     if (pr.face && !charIds.has(pr.face)) err(`props.yaml: ${id} shows the face of "${pr.face}", who isn't in characters.yaml`);
   }

@@ -160,8 +160,9 @@
         for (let i = 0; i <= 24; i++) pts.push([cx - 50 + i * 100 / 24, cy + 22 + w * 14 + Math.sin(i * 0.9 + w) * 5]);
         sun += line(pts, 5.5);
       }
+      // the birthday, small, along a wave at the foot (a licence with no birthday on it: its number)
       const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(String(d.born || ''));
-      const day = m ? (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1] : '';
+      const day = m ? (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1] : String(d.number || '');
       let micro = '';
       for (let x = 30; x < 830 && day; x += 138) {
         const y = 520 + Math.sin(x * 0.012) * 5;
@@ -192,19 +193,31 @@
 
     // A licence. mode: 'hand' (his hands), 'tiny' (in a photo on a phone), 'copy' (photocopied into
     // the binder). A card with no name (d.blank) is somebody's photocopied licence gone too dark to
-    // read anything but the face.
+    // read anything but the face. A security worker licence (type: security) is his own, the one
+    // Gary holds up in the office: its role, a number and the dates, and his name as worn bars,
+    // because his name is Hutch's to give.
     function cardEl(d, mode, face) {
-      const card = h('div', 'lic lic-' + mode);
+      const sec = d.type === 'security';
+      const card = h('div', 'lic lic-' + mode + (sec ? ' lic-sec' : ''));
       if (d.wear) card.classList.add('lic-' + d.wear);
       const inner = h('div', 'lic-in');
       const front = h('div', 'lic-side lic-front');
       const band = h('div', 'lic-band');
-      band.append(h('span', 'lic-title', "DRIVER'S LICENCE"), h('span', 'lic-cls', d.blank ? '' : 'CLASS ' + d['class']));
+      band.append(h('span', 'lic-title', sec ? d.role || 'SECURITY WORKER' : "DRIVER'S LICENCE"), h('span', 'lic-cls', d.blank || sec ? '' : 'CLASS ' + d['class']));
       const photo = h('div', 'lic-photo');
       photo.append(face || idPhoto(d.face, d.look));
       const f = h('div', 'lic-fields');
       if (d.blank) {
         for (const w of [62, 48, 70, 40, 56, 66, 34]) { const bar = h('i', 'lic-x'); bar.style.width = w + '%'; f.append(bar); }
+      } else if (sec) {
+        for (const w of [80, 60]) { const bar = h('i', 'lic-x lic-name'); bar.style.width = w + '%'; f.append(bar); }
+        const dl = h('dl', 'lic-dl lic-dl1');
+        for (const kv of [['LIC', d.number], ['ISS', d.issued], ['EXP', d.expires]]) {
+          const cell = h('div');
+          cell.append(h('dt', null, kv[0]), h('dd', null, kv[1]));
+          dl.append(cell);
+        }
+        f.append(dl, h('div', 'lic-seal'));
       } else {
         f.append(h('div', 'lic-sur', d.surname), h('div', 'lic-given', d.given));
         const addr = h('div', 'lic-addr');          // worn past reading, like every address on every licence
@@ -223,7 +236,14 @@
       front.append(band, photo, f, ghost, holoEl(d, mode), h('div', 'lic-glare'));
       if (d.wear === 'wet') front.append(h('div', 'lic-damp'));
       inner.append(front);
-      if (mode === 'hand') {
+      if (mode === 'hand' && sec) {
+        const back = h('div', 'lic-side lic-back');
+        back.append(barcode(d.number),
+          h('div', 'lic-bl', 'CARRY THIS LICENCE WHILE WORKING AND SHOW IT ON REQUEST.'),
+          h('div', 'lic-bl dim', 'NOT TRANSFERABLE.'),
+          h('div', 'lic-edge', String(d.number || '').replace(/ /g, '') + '  ' + (d.issued || '').replace(/-/g, '')));
+        inner.append(back);
+      } else if (mode === 'hand') {
         const back = h('div', 'lic-side lic-back');
         const cls = String(d['class'] || '');
         back.append(barcode(d.number || d.surname),
@@ -283,12 +303,16 @@
 
     // ---------------------------------------------------------------- a licence in his hands
 
+    function cardName(pr) {
+      return pr.type === 'security' ? 'Security worker licence, ' + pr.number : "Driver's licence, " + pr.surname + ', ' + pr.given;
+    }
+
     function buildCard(s, pr, item) {
       const fig = s.el, card = cardEl(pr, 'hand');
       const whose = pr.sex === 'F' ? 'her' : 'his';
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', "Driver's licence, " + pr.surname + ', ' + pr.given + '. Turn it over.');
+      card.setAttribute('aria-label', cardName(pr) + '. Turn it over.');
       const thing = h('div', 'prop-thing');
       thing.append(card);
       const lift = h('button', 'prop-act', 'Hold it up by ' + whose + ' face');
@@ -336,7 +360,7 @@
         clearTimeout(card._turnT);
         card._turnT = setTimeout(function () { card.classList.remove('turning'); }, 560);
         card.classList.toggle('flipped', flipped);
-        card.setAttribute('aria-label', "Driver's licence, " + pr.surname + ', ' + pr.given + (flipped ? '. The back. Turn it over.' : '. Turn it over.'));
+        card.setAttribute('aria-label', cardName(pr) + (flipped ? '. The back. Turn it over.' : '. Turn it over.'));
         sfx('card');
         buzz(5);
         play(s.id, 'flip');

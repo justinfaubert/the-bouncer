@@ -8,6 +8,8 @@
 // Every `// HUTCH:` comment is a writing prompt; they're collected in content/WRITING_PROMPTS.md.
 
 INCLUDE sim.ink
+INCLUDE office.ink
+INCLUDE walk.ink
 INCLUDE prologue.ink
 INCLUDE door.ink
 INCLUDE floor.ink
@@ -21,18 +23,19 @@ INCLUDE closing.ink
 INCLUDE toys.ink
 INCLUDE things.ink
 
--> prologue
+-> interview
 
 
 // ------------------------------------------------------------------ time and place
 
 VAR day = 1
-VAR clock = 1180            // minutes since the midnight before the shift: 1180 is 7:40 pm
+VAR clock = 1180            // minutes since the midnight before the shift: 1180 is 7:40 pm, 960 is 4 pm in Gary's office
 CONST OPEN_TIME = 1180
 CONST LAST_CALL = 1530      // 1:30 am
 CONST CLOSE_TIME = 1560     // 2:00 am
 
-LIST where = floor, door, bar, t28, pool, hall, kitchen, keg, deck, lot, upstairs
+// office, street, esso and seawall are the afternoon's: Gary's office and the walk to the Sov
+LIST where = floor, door, bar, t28, pool, hall, kitchen, keg, deck, lot, upstairs, office, street, esso, seawall
 VAR here = floor
 
 // ------------------------------------------------------------------ read by the engine
@@ -41,8 +44,48 @@ VAR passed = false          // the last check: set by the engine when a check ch
 VAR crit = 0                // 1 on double six, -1 on double one
 VAR cash = 40               // dollars in his pocket. He came with forty.
 VAR drinks = 0              // drinks in him tonight
+VAR drinks_before = 0       // of those, the ones he had before the shift: Gary's two ryes at four (prologue.ink)
 VAR hurt = 0                // 0 fine, 1 knocked about, 2 hurt, 3 badly hurt
 VAR count_in = 0            // everyone he let in past the stool
+
+// ------------------------------------------------------------------ who he is: his stats
+// Seven, 1 to 10 (DECIDED: the classic six and Gut Brain). What he says in Gary's office sets them
+// (office.ink); a game that starts without the office gets these, an ordinary big man. The engine
+// adds the stat a check names to the dice (prototype/web/src/core/checks.js).
+
+VAR stat_str = 5            // Strength
+VAR stat_con = 5            // Constitution
+VAR stat_dex = 4            // Dexterity
+VAR stat_int = 4            // Intelligence
+VAR stat_wis = 4            // Wisdom
+VAR stat_cha = 4            // Charisma
+VAR stat_gut = 4            // Gut Brain (DECIDED: Intuition, a nod to Inland Empire)
+VAR stats_set = false       // the interview's set them: from here what moves them shows struck through in his notes
+VAR ate = 0                 // before the shift: 1 he ate at the Esso, -1 he didn't eat (the engine: the body's checks, -1)
+
+// ------------------------------------------------------------------ Gary's office, and the walk
+
+VAR sat_how = 0             // 1 sat down, 2 looked round the room first, 3 moved the chair to see the door
+VAR licence_how = 0         // 1 handed it to Gary, 2 put it on the desk for him to reach for
+VAR lies_caught = 0         // claims Gary and the bookkeeper didn't believe: never been in a fight, doesn't drink
+VAR rude = 0                // times he was rude to Gary or the bookkeeper: twice and it's over
+VAR threat = 0              // "Want to find out?": 1 then he was kidding, 2 he meant it
+VAR gary_rye = 0            // the rye from the bottom drawer: 1 drank it, 2 held it, 3 pushed it back, 4 drank two
+VAR scenario = 0            // one of table 28's had enough: 1 water, 2 whatever they want, 3 how's he getting home, 4 put him out
+VAR call_did = 0            // while Gary was on the phone: 1 waited, 2 the photo, 3 talked to the bookkeeper, 4 read the desk, 5 the washroom, 6 got up and sat back down
+VAR rent_called = false     // he heard six become six-fifty, and said so
+VAR asked_pay = false       // he asked when he gets paid
+VAR shirt = 0               // Gary's SECURITY shirt: 1 took it, 2 "I've got my own"
+VAR shirt_on = false        // he's wearing it
+VAR pay_how = 0             // the bookkeeper's form: 1 filled it in, 2 asked for cash, 3 read it first
+// What he claimed in the office. Gary tells the bartender all of it on the phone at quarter past
+// five (walk.ink), and she holds him to it at close (closing.ink, door_story).
+LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry
+VAR told_gary = ()
+VAR wharf_how = 0           // the old man on the wharf: 1 word gets around, 2 who's asking, 3 looked at the water with him
+VAR rated = 0               // the Esso kid's two answers, which sounds more like a person: 1 the left, 2 the right, 3 neither
+VAR from_room = false       // he spent the hours before the shift in room twelve, over the deck
+VAR terry_signed = 0        // the hotel's key book: 1 he signed for twelve, -1 he didn't
 
 // ------------------------------------------------------------------ the doors
 
@@ -82,7 +125,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 

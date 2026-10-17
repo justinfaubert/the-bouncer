@@ -285,7 +285,7 @@
 
 === function drink()
 ~ drinks++
-{ here != upstairs && clock < CLOSE_TIME && drinks >= 2:
+{ here != upstairs && clock < CLOSE_TIME && drinks - drinks_before >= 2:
     ~ incident += inc_drinking
 }
 

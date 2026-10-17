@@ -303,7 +303,7 @@
     ~ pass(6)
     -> doors ->
     -> opts
-* [Hands. #check: fighter 7]
+* [Hands. #check: fighter:wis 11]
     ~ pass(4)
     ~ last_count = clock
     { passed:
@@ -324,7 +324,7 @@
         He didn't see anything. That was either good news or the Fighter was drunk on a memory.
     }
     -> opts
-* (count_glasses) [Glasses. #check: manual 7]
+* (count_glasses) [Glasses. #check: manual 11]
     ~ pass(4)
     ~ last_count = clock
     { passed:

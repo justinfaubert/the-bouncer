@@ -8,7 +8,9 @@ extends RefCounted
 # The Ink's conventions (the full list is in content/ink/README.md):
 #   FATHER: text          a line spoken by the voice or character with that id
 #   NARRATOR: text        the teller, years later
-#   #check: father 8 {n}  on a choice: a check lent by that voice, target 8, situational modifier n
+#   #check: father:wis 12 {n}  on a choice: a check lent by that voice, rolled on his Wisdom (or the
+#                         voice's first stat), target 12, situational modifier n
+#   #stats                on a line: his seven stats, shown under it (once the interview's set them)
 #   #loc: pool            on a choice: where it happens
 #   #room: -fighter +kid  on a choice: who it puts out of his head and lets in
 #   #hand: drink          on a choice: what it tempts him with, for the voices to lean in on
@@ -46,6 +48,7 @@ var night_log: Array = []
 var path: Array = []       # every choice made tonight: {t: turn, c: clock, x: text, k: check}
 var tasks: Dictionary = {}
 var check_history: Array = []
+var stat_log: Array = []   # his stats moving, once the interview's set them: {stat, from, to, clock, turn}
 var barks_used: Array = []
 var word_used: Array = []
 var said: Dictionary = {}  # group -> {up, down: {id, text}, last}: their word on him
@@ -185,7 +188,12 @@ func _init(c: Dictionary) -> void:
 		speakers[str(id).to_upper()] = {"id": id, "kind": "character", "def": char_defs[id]}
 	barks = Barks.new(c.get("barks", []))
 	word = Word.new(c.get("word", {}))
-	psyche = Psyche.new(voice_defs, c.get("psyche"))
+	# the room in his head holds his own voices; Gary's (whose: gary) speak only in Gary's office
+	var his := {}
+	for id in voice_defs:
+		if not BUtil.js_truthy(voice_defs[id].get("whose")):
+			his[id] = voice_defs[id]
+	psyche = Psyche.new(his, c.get("psyche"))
 	rng = BRng.new(1)
 	_gv = get_var
 	_reset()
@@ -196,6 +204,7 @@ func _reset() -> void:
 	path = []
 	tasks = {}
 	check_history = []
+	stat_log = []
 	barks_used = []
 	word_used = []
 	said = {}
@@ -282,6 +291,7 @@ func serialize() -> Dictionary:
 		"handUsed": hand_used.duplicate(),
 		"tasks": tasks.duplicate(true),
 		"checks": check_history.slice(-40),
+		"statLog": stat_log.duplicate(true),
 		"screen": screen,
 		"ended": ended,
 		"log": pack_log(night_log),
@@ -310,6 +320,7 @@ func load_save(save_in) -> Dictionary:
 	hand_used = (save.get("handUsed") if save.get("handUsed") is Array else []).duplicate()
 	tasks = save.get("tasks") if save.get("tasks") is Dictionary else {}
 	check_history = (save.get("checks") if save.get("checks") is Array else []).duplicate()
+	stat_log = (save.get("statLog") if save.get("statLog") is Array else []).duplicate()
 	turn = BUtil.js_int(save.get("turn"))
 	screen = save.get("screen") if BUtil.js_truthy(save.get("screen")) else null
 	ended = BUtil.js_truthy(save.get("ended"))
@@ -369,7 +380,21 @@ func status() -> Dictionary:
 		"here": (str(h[0]) if not h.is_empty() and BUtil.js_truthy(h[0]) else "") if h is Array else (BUtil.js_str(h) if BUtil.js_truthy(h) else ""),
 		"tension": psyche.tension(),
 		"seated": psyche.seated.duplicate(),
+		"stats": Checks.read_stats(_gv),
+		"statsSet": BUtil.js_truthy(get_var("stats_set")),
+		# the drinks that show (Checks.felt): what the print and his hands go by
+		"felt": Checks.felt(get_var("drinks"), Checks.read_stats(_gv), get_var("ate")),
 	}
+
+
+# what goes into a check besides the dice and the voice: drink, hurt, his stats, whether he ate
+func _ctx(drinks) -> Dictionary:
+	return {"drinks": BUtil.js_int(drinks), "hurt": BUtil.js_int(get_var("hurt")), "stats": Checks.read_stats(_gv), "ate": BUtil.js_int(get_var("ate"))}
+
+
+# In Gary's office the camera's Gary's: the voices in the doorman's head keep quiet there
+func _in_office() -> bool:
+	return here() == "office"
 
 
 func speaker(label: String):
@@ -430,9 +455,9 @@ func choose_choice(choice: Dictionary, looked: Array = []) -> Dictionary:
 	if choice.get("check") != null:
 		var c: Dictionary = choice.check
 		var def = voice_defs.get(c.voice, {})
-		var mods := Checks.modifiers(def, before.drinks, BUtil.js_int(get_var("hurt")), c.mod)
+		var mods := Checks.modifiers(def, _ctx(before.drinks), c.mod, str(c.get("stat", "")))
 		var r := Checks.roll(rng, c.target, mods.total, psyche.tension())
-		var rec := {"kind": "check", "voice": c.voice, "label": _label(c.voice), "target": c.target, "word": Checks.difficulty_word(c.target),
+		var rec := {"kind": "check", "voice": c.voice, "label": _label(c.voice), "stat": c.get("stat", ""), "statLabel": c.get("statLabel", ""), "target": c.target, "word": Checks.difficulty_word(c.target),
 			"mods": mods.parts, "roll": r, "success": r.success, "turn": turn, "clock": before.clock}
 		check_history.append(rec)
 		if check_history.size() > 200:
@@ -476,7 +501,7 @@ func whisper(visible_index: int):
 	if visible_index < 0 or visible_index >= shown.size():
 		return null
 	var c: Dictionary = shown[visible_index]
-	if c.get("hand") == null or c.hand.is_empty():
+	if c.get("hand") == null or c.hand.is_empty() or _in_office():
 		return null
 	var key := "c%d:%s" % [c.inkIndex, c.text]
 	if _hand.has(key):
@@ -493,6 +518,8 @@ func whisper(visible_index: int):
 
 
 func murmur(what: String):
+	if _in_office():
+		return null
 	var rule = barks.best("hand:" + what, _gv, psyche, hand_used, _hand_rng("m:" + what))
 	return _hand_line(rule, what) if rule != null else null
 
@@ -622,7 +649,8 @@ func _label(id) -> String:
 
 
 func _watch() -> Dictionary:
-	return {"drinks": BUtil.js_int(get_var("drinks")), "clock": BUtil.js_int(get_var("clock")), "tension": psyche.tension()}
+	return {"drinks": BUtil.js_int(get_var("drinks")), "clock": BUtil.js_int(get_var("clock")), "tension": psyche.tension(),
+		"statsSet": BUtil.js_truthy(get_var("stats_set")), "stats": Checks.read_stats(_gv), "here": here()}
 
 
 func _continue(items: Array, events: Array) -> void:
@@ -703,7 +731,7 @@ func _mark_of(spec):
 
 # The first time a part of the game comes up, THE MANUAL explains it, once. Only from the room.
 func _teach(what: String, items: Array, at: int) -> bool:
-	if taught.has(what):
+	if taught.has(what) or _in_office():
 		return false
 	var rule = barks.pick("teach:" + what, _gv, psyche, barks_used, rng)
 	if rule == null:
@@ -830,7 +858,9 @@ func _line(raw_text, tags: Array, items: Array, events: Array, from: String, las
 					item["label"] = str(d.label) if BUtil.js_truthy(d.get("label")) else (str(d.name) if BUtil.js_truthy(d.get("name")) else str(sp.id))
 					item["role"] = "voice" if sp.kind == "voice" else "dialogue"
 					item["text"] = m.get_string(2)
-					if sp.kind == "voice" and not psyche.is_seated(sp.id) and not BUtil.js_truthy(tagv.get("always")):
+					if BUtil.js_truthy(d.get("whose")):
+						item["whose"] = str(d.whose)
+					if sp.kind == "voice" and not BUtil.js_truthy(d.get("whose")) and not psyche.is_seated(sp.id) and not BUtil.js_truthy(tagv.get("always")):
 						suppressed += 1
 						item["suppressed"] = true
 		var kf := BUtil.knot_of(from)
@@ -860,6 +890,8 @@ func _line(raw_text, tags: Array, items: Array, events: Array, from: String, las
 
 	if BUtil.js_truthy(tagv.get("bark")):
 		events.append({"at": items.size(), "name": BUtil.js_str(tagv.bark)})
+	if BUtil.js_truthy(tagv.get("stats")):
+		items.append({"kind": "stats", "stats": Checks.read_stats(_gv), "turn": turn})
 	if BUtil.js_truthy(tagv.get("pause")):
 		items.append({"kind": "pause"})
 
@@ -874,22 +906,47 @@ func _after_batch(before: Dictionary, items: Array, events: Array) -> void:
 		events.append({"at": items.size(), "name": "tension_up" if after.tension > before.tension else "tension_down"})
 	# the first time the room in his head changes, and the first time someone's word on him comes up,
 	# THE MANUAL explains (it goes in ahead of the other voices)
+	# A batch can run on out of Gary's office into the street (office.ink into walk.ink): what came
+	# before the place changed was still Gary's telling, with none of the doorman's voices in it.
+	var office_to := -1
+	if before.here == "office":
+		office_to = items.size()
+		for i in items.size():
+			if items[i].get("kind") == "place" and str(items[i].get("here")) != "office":
+				office_to = i
+				break
 	if after.tension != before.tension:
 		_teach("tension", items, items.size())
 	if not taught.has("word"):
 		for i in range(items.size() - 1, -1, -1):
 			if items[i].get("kind") != "word" or not BUtil.js_truthy(items[i].get("text")):
 				continue
-			if _teach("word", items, i + 1):
+			if i >= office_to and _teach("word", items, i + 1):
 				for ev in events:
 					if ev.at > i + 1 and ev.at != AT_END:
 						ev.at += 1
 			break
 
+	# His stats moving, once the interview's set them: each change is kept, and shown where it happened.
+	if before.statsSet and after.statsSet:
+		for k in Checks.STAT_ORDER:
+			if after.stats[k] == before.stats[k]:
+				continue
+			var ch := {"stat": k, "from": before.stats[k], "to": after.stats[k], "clock": after.clock, "turn": turn}
+			stat_log.append(ch)
+			var it := {"kind": "stat", "label": Checks.STATS[k].label}
+			it.merge(ch)
+			items.append(it)
+
 	# Barks: at most one per event, inserted where the event happened (last first, so indexes hold).
-	# After each, another voice in the room may answer it.
+	# After each, another voice in the room may answer it. None in Gary's office.
 	var picked: Array = []
 	var used_this_batch := {}
+	if _in_office():
+		events.clear()
+	for k in range(events.size() - 1, -1, -1):
+		if int(events[k].at) <= office_to:
+			events.remove_at(k)
 	for ev in events:
 		var rule = barks.pick(ev.name, _gv, psyche, barks_used, rng)
 		if rule == null or used_this_batch.has(rule.speaker):
@@ -938,9 +995,10 @@ func _read_choices() -> Array:
 			var spec = Checks.parse_spec(tv.check)
 			if spec != null:
 				var def = voice_defs.get(spec.voice, {})
-				var mods := Checks.modifiers(def, BUtil.js_int(get_var("drinks")), BUtil.js_int(get_var("hurt")), spec.mod)
+				var stat := Checks.stat_of(def, spec.stat)
+				var mods := Checks.modifiers(def, _ctx(get_var("drinks")), spec.mod, stat)
 				var p := Checks.odds(spec.target, mods.total, psyche.tension())
-				ch["check"] = {"voice": spec.voice, "label": _label(spec.voice), "target": spec.target, "mod": spec.mod,
+				ch["check"] = {"voice": spec.voice, "label": _label(spec.voice), "stat": stat, "statLabel": Checks.STATS[stat].label if stat != "" else "", "target": spec.target, "mod": spec.mod,
 					"word": Checks.difficulty_word(spec.target), "odds": p, "oddsWord": Checks.odds_word(p), "mods": mods.parts}
 				if not psyche.is_seated(spec.voice):
 					ch["hidden"] = true

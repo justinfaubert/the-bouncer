@@ -163,7 +163,8 @@ func reset() -> void:
 
 func set_status(st: Dictionary) -> void:
 	var day: String = Look.DAY_NAMES.get(int(st.get("day", 1)), "Day %d" % int(st.get("day", 1)))
-	head_day.text = (day + ", the test shift").to_upper()
+	var part := "the interview" if str(st.get("here", "")) == "office" else ("before the shift" if int(st.clock) < 1180 else "the test shift")
+	head_day.text = (day + ", " + part).to_upper()
 	var cp := BUtil.clock_parts(int(st.clock))
 	head_clock.clear()
 	head_clock.push_font(Look.font("display"), 46)
@@ -180,9 +181,12 @@ func set_status(st: Dictionary) -> void:
 	head_clock.pop()
 	head_clock.pop()
 	head_row.clear()
-	var bits := [["POCKET", "$" + str(int(st.cash))], ["DRINKS", Look.tally(int(st.drinks))]]
+	# what his size is holding off (engine/checks.gd, felt): only the ones that show count
+	var felt := int(st.get("felt", st.drinks))
+	var held_off := ("feels like " + (str(felt) if felt > 0 else "none")) if felt < int(st.drinks) else ""
+	var bits := [["POCKET", "$" + str(int(st.cash)), ""], ["DRINKS", Look.tally(int(st.drinks)), held_off]]
 	if int(st.hurt) > 0:
-		bits.append(["HURT", Look.HURT_WORDS[clampi(int(st.hurt), 0, 3)]])
+		bits.append(["HURT", Look.HURT_WORDS[clampi(int(st.hurt), 0, 3)], ""])
 	for i in bits.size():
 		head_row.push_font(UiBits.spaced("ui_b", 2), 14)
 		head_row.push_color(Look.MUTED)
@@ -191,9 +195,19 @@ func set_status(st: Dictionary) -> void:
 		head_row.pop()
 		head_row.push_font(UiBits.spaced("ui_b", 1), 19)
 		head_row.push_color(Look.BAD if bits[i][0] == "HURT" else Look.INK_2)
-		head_row.add_text(bits[i][1] + ("        " if i < bits.size() - 1 else ""))
+		head_row.add_text(bits[i][1])
 		head_row.pop()
 		head_row.pop()
+		if bits[i][2] != "":
+			head_row.push_font(UiBits.spaced("ui", 1), 14)
+			head_row.push_color(Look.MUTED)
+			head_row.add_text("  " + bits[i][2])
+			head_row.pop()
+			head_row.pop()
+		if i < bits.size() - 1:
+			head_row.push_font(UiBits.spaced("ui_b", 1), 19)
+			head_row.add_text("        ")
+			head_row.pop()
 
 
 # ---------------------------------------------------------------- blocks
@@ -270,7 +284,7 @@ func add_line(it: Dictionary) -> Control:
 			var st := str(it.get("speaker", "father"))
 			var v := Look.voice(st)
 			r = UiBits.para([["ui_b", int(s * 0.74), v.color, str(it.get("label", "")) + "   "],
-				[v.font, int(s * float(v.size)), v.color, text.to_lower() if v.get("lower", false) else text]])
+				[v.font, int(s * float(v.size)), v.color, Look.voice_text(v, text)]])
 		"dialogue":
 			r = UiBits.para([["ui_b", int(s * 0.74), Look.INK_2, str(it.get("label", "")) + "   "], ["read", s, Look.INK, text]])
 		"teller":
@@ -354,7 +368,7 @@ func _log_line(it: Dictionary) -> Control:
 		var st := str(it.get("speaker", "father"))
 		var v := Look.voice(st)
 		var dark := Look.voice_color(st).darkened(0.55)
-		return UiBits.para([["ui_b", int(s * 0.72), dark, str(it.get("label", "")) + "   "], [v.font, int(s * float(v.size) * 0.95), dark, text.to_lower() if v.get("lower", false) else text]])
+		return UiBits.para([["ui_b", int(s * 0.72), dark, str(it.get("label", "")) + "   "], [v.font, int(s * float(v.size) * 0.95), dark, Look.voice_text(v, text)]])
 	if role == "dialogue":
 		return UiBits.para([["ui_b", int(s * 0.72), Color("4a4640"), str(it.get("label", "")) + "   "], ["read", int(s * 0.95), Look.RECEIPT_INK, text]])
 	return UiBits.para([["read", int(s * 0.95), Look.RECEIPT_INK, text]])
@@ -424,13 +438,69 @@ func add_word(it: Dictionary) -> Control:
 	return _add(h, _screen_of(it))
 
 
-# a small note in the margin: a task noted or done, a voice let in or put out
+# a small note in the margin: a task noted or done, a voice let in or put out, a stat moving.
+# parts: [text, bold] or [text, bold, struck through]
 func add_aside(parts: Array) -> Control:
 	var s := size_px
 	var bb: Array = []
 	for p in parts:
-		bb.append(["ui_b" if p[1] else "ui", int(s * 0.8), Look.INK_2 if p[1] else Look.MUTED, p[0]])
+		bb.append(["ui_b" if p[1] else "ui", int(s * 0.8), Look.INK_2 if p[1] else Look.MUTED, p[0], p.size() > 2 and bool(p[2])])
 	return _add(UiBits.para(bb))
+
+
+# His seven stats, printed once where the camera becomes his (#stats, content/ink/walk.ink), out
+# of ten, with the scale under them (prototype/web/src/ui/app.js, statsNode)
+func add_stats(it: Dictionary) -> Control:
+	var s := size_px
+	var stats: Dictionary = it.get("stats", {}) if it.get("stats") is Dictionary else {}
+	var p := PanelContainer.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0, 0, 0, 0)
+	sb.border_color = Color(Look.INK_2, 0.8)
+	sb.set_border_width_all(2)
+	sb.content_margin_left = 18
+	sb.content_margin_right = 18
+	sb.content_margin_top = 12
+	sb.content_margin_bottom = 12
+	p.add_theme_stylebox_override("panel", sb)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 8)
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.add_child(v)
+	v.add_child(UiBits.label("HIM", "display", int(s * 1.3), Look.INK, 5))
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 4)
+	grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	v.add_child(grid)
+	for k in Checks.STAT_ORDER:
+		var n := BUtil.js_int(stats.get(k, 0))
+		grid.add_child(UiBits.label(str(Checks.STATS[k].label), "ui", int(s * 0.86), Look.INK_2, 1))
+		var pips := Control.new()
+		pips.custom_minimum_size = Vector2(10 * 13, int(s * 0.86))
+		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pips.size_flags_vertical = Control.SIZE_FILL
+		pips.draw.connect(func():
+			for i in 10:
+				var c := Vector2(6 + i * 13, pips.size.y * 0.55)
+				if i < n:
+					pips.draw_circle(c, 4.5, Look.INK_2)
+				else:
+					pips.draw_arc(c, 4.0, 0, TAU, 20, Color(Look.MUTED, 0.8), 1.25, true))
+		grid.add_child(pips)
+		var num := UiBits.label(str(n), "ui_b", int(s * 0.9), Look.INK, 1)
+		num.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		grid.add_child(num)
+	v.add_child(UiBits.label("Out of 10. An ordinary man is a 4.", "ui", int(s * 0.72), Look.MUTED, 1))
+	var m := MarginContainer.new()
+	m.add_theme_constant_override("margin_top", 4)
+	m.add_theme_constant_override("margin_bottom", 10)
+	m.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	m.add_child(p)
+	return _add(m)
 
 
 # where he's walked into, and the time: a strip across the page

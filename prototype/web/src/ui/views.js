@@ -183,6 +183,78 @@
     }
   }
 
+  // ---------------------------------------------------------------- the town, on the way there
+
+  // Before the shift he's on foot (content/ink/walk.ink): Gary's at the top of the old main street,
+  // the street down to the highway and the wharf across it, the highway east along the water, the
+  // Esso on the left, the Sov at the far end with the seawall across from it. Nothing on it is a
+  // choice; it only shows where he is.
+  const TOWN = {
+    office:  { x: 98,  y: 34 },
+    street:  { x: 70,  y: 150 },
+    esso:    { x: 182, y: 142 },
+    seawall: { x: 300, y: 184 }
+  };
+
+  function inTown(here) { return Object.prototype.hasOwnProperty.call(TOWN, here); }
+
+  function townSVG() {
+    const p = [];
+    const lbl = function (x, y, t, anchor, size) {
+      p.push('<text x="' + x + '" y="' + y + '" class="lbl" text-anchor="' + (anchor || 'middle') + '" style="font-size:' + (size || 9) + 'px">' + esc(t) + '</text>');
+    };
+    p.push('<svg viewBox="0 0 360 244" role="img" aria-label="Sketch of the town between Gary\'s and the Sov">');
+    // the strait: the shore, a few waves, a boat or two off the wharf
+    p.push('<path d="M0 193 Q40 189 80 192 T160 191 T240 193 T360 191" class="thin"/>');
+    for (const w of [[22, 214], [118, 226], [150, 208], [212, 230], [250, 214], [332, 228]]) {
+      p.push('<path d="M' + w[0] + ' ' + w[1] + ' q5 -3 10 0 t10 0" class="dash"/>');
+    }
+    p.push('<path d="M46 206 q7 -4 14 0 q-7 4 -14 0z" class="thin"/>');
+    p.push('<path d="M84 216 q7 -4 14 0 q-7 4 -14 0z" class="thin"/>');
+    lbl(354, 240, 'the strait', 'end');
+    // the highway, east along the water; the old main street comes down into it
+    p.push('<line x1="0" y1="158" x2="60" y2="158" class="thin"/><line x1="80" y1="158" x2="360" y2="158" class="thin"/>');
+    p.push('<line x1="0" y1="176" x2="360" y2="176" class="thin"/>');
+    lbl(132, 170.5, 'Highway', 'middle', 8.5);
+    p.push('<line x1="60" y1="4" x2="60" y2="158" class="thin"/><line x1="80" y1="4" x2="80" y2="158" class="thin"/>');
+    p.push('<text x="70" y="96" class="lbl" text-anchor="middle" transform="rotate(-90 70 96)" style="font-size:8.5px">Old main street</text>');
+    // what's along it: the churches at either end, the library, the Legion, the bank, the shops
+    for (const b of [[42, 12, 13, 16], [42, 40, 13, 14], [40, 64, 15, 34], [42, 108, 13, 12], [86, 64, 14, 14], [86, 86, 14, 12], [86, 104, 14, 12], [86, 128, 14, 18]]) {
+      p.push('<rect x="' + b[0] + '" y="' + b[1] + '" width="' + b[2] + '" height="' + b[3] + '" class="thin"/>');
+    }
+    // Gary's, up the top, porch on the street
+    p.push('<rect x="86" y="18" width="26" height="26" class="fix"/>');
+    p.push('<line x1="83" y1="24" x2="83" y2="38" class="thin"/>');
+    lbl(118, 35, "Gary's", 'start');
+    // the government wharf, out on its pilings, a light at the end
+    p.push('<rect x="66" y="176" width="8" height="50" class="fix"/>');
+    p.push('<circle cx="70" cy="230" r="2.4" class="thin"/>');
+    lbl(80, 232, 'Wharf', 'start');
+    // the Esso, on the left going east: the store, the canopy over two islands of pumps
+    p.push('<rect x="164" y="98" width="36" height="16" class="fix"/>');
+    p.push('<rect x="160" y="120" width="44" height="30" class="dash"/>');
+    p.push('<rect x="170" y="128" width="5" height="12" class="thin"/><rect x="189" y="128" width="5" height="12" class="thin"/>');
+    lbl(182, 92, 'Esso');
+    // the Sov, trucks nose-in along the front; the seawall across the highway from it
+    p.push('<rect x="250" y="104" width="96" height="40" class="wall"/>');
+    p.push('<text x="298" y="130" class="big" text-anchor="middle">SOV</text>');
+    for (const tx of [262, 276, 290, 318]) p.push('<rect x="' + tx + '" y="147" width="7" height="9" class="thin"/>');
+    p.push('<line x1="236" y1="188" x2="356" y2="188" class="wall"/>');
+    lbl(300, 206, 'Seawall');
+    for (const id in TOWN) p.push('<circle class="spot-dot" cx="' + TOWN[id].x + '" cy="' + TOWN[id].y + '" r="2.4"/>');
+    p.push('<circle class="him" id="him-town" cx="-20" cy="-20" r="5.5"/>');
+    p.push('</svg>');
+    return p.join('');
+  }
+
+  function updateTown(root, here) {
+    const him = root.querySelector('#him-town');
+    const at = TOWN[here];
+    if (!him) return;
+    him.setAttribute('cx', at ? at.x : -20);
+    him.setAttribute('cy', at ? at.y : -20);
+  }
+
   // ---------------------------------------------------------------- the room in his head
 
   const SEAT_ANGLES = [-90, -18, 54, 126, 198];
@@ -272,6 +344,9 @@
     SPOTS: SPOTS,
     mapSVG: mapSVG,
     updateMap: updateMap,
+    inTown: inTown,
+    townSVG: townSVG,
+    updateTown: updateTown,
     psycheSVG: psycheSVG,
     tensionHTML: tensionHTML,
     TENSION_WORDS: TENSION_WORDS,

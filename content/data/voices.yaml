@@ -8,6 +8,8 @@
 #   label      how the voice is named on screen
 #   source     firsthand | text | retold | song
 #   from       where he got it (shown in the room panel)
+#   stats      which of his seven stats it lends to (str con dex int wis cha gut): a check with
+#              this voice rolls on the first unless its tag names another ("#check: father:cha 12")
 #   base       bonus to the checks this voice lends: how reliable its source is
 #   drink      check modifier by drinks in him tonight: [none, 1, 2, 3, 4 or more]
 #   physical   injuries count against its checks
@@ -22,6 +24,7 @@ father:
   label: THE FATHER
   source: firsthand
   from: Your father. He worked doors for thirty years and drank for twenty of them, then stopped drinking and kept everything else. He taught you the job. He's dead.
+  stats: [wis, cha]
   base: 1
   drink: [0, -1, -1, -2, -3]
   relations: { fighter: -1, manual: 1, wrongman: 1, table: -1, kid: -1 }
@@ -32,6 +35,7 @@ fighter:
   label: THE FIGHTER
   source: firsthand
   from: A man you trained with for years. He said the first one decides it, and he was usually right.
+  stats: [str, dex]
   base: 1
   drink: [0, 1, 1, 0, -1]
   physical: true
@@ -43,6 +47,7 @@ manual:
   label: THE MANUAL
   source: text
   from: The security licence course. A binder and a weekend in a hotel conference room.
+  stats: [int]
   base: 2
   drink: [0, 0, -1, -2, -3]
   relations: { wrongman: -1, table: -1, kid: -1 }
@@ -53,6 +58,7 @@ wrongman:
   label: THE WRONG MAN
   source: retold
   from: A story a drunk told you once at your old door, about a doorman who let the wrong man in. He said it happened to his brother. He'd heard it from somebody else.
+  stats: [gut]
   base: 0
   drink: [0, 1, 1, 2, 1]
   relations: { table: 1, kid: -1 }
@@ -63,6 +69,7 @@ table:
   label: THE TABLE
   source: firsthand
   from: Table 28. You drank with them long enough that they started talking in your head the way they talk at the table, all at once and sure of everything.
+  stats: [cha, con]
   base: 0
   drink: [-1, 0, 1, 2, 2]
   relations: {}
@@ -72,7 +79,28 @@ kid:
   label: THE KID
   source: firsthand
   from: The kid in the hoodie. He talked to you for ten minutes in the single washroom, which was more than he'd said to anyone all year.
+  stats: [cha, gut]
   base: 0
   drink: [0, 0, -1, -1, -2]
   relations: {}
   style: kid
+
+# Gary's, not his (PROPOSED; content/ink/office.ink). In the office the camera is Gary Van Dusen's
+# eyes, and his reads of the man across the desk come the way the doorman's voices will, later: a
+# lesson in reading people that the player doesn't know is one. They're only ever in that room and
+# never in the doorman's head: they don't sit in the room, don't argue, and lend no checks.
+#   whose   whose head the voice is in, when it isn't his
+
+till:
+  label: THE TILL
+  whose: gary
+  source: firsthand
+  from: Gary's. The money, counted in his head the way his father counted it into a till for forty years.
+  style: till
+
+senior:
+  label: SENIOR
+  whose: gary
+  source: firsthand
+  from: Gary's. His father, who bought the Sov in 1958, and is dead, and still tells him how to run it.
+  style: senior

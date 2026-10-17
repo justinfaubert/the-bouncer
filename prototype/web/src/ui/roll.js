@@ -10,7 +10,7 @@
 // shaken (opts.murmur('shake'), the hand:shake lines in barks.yaml).
 //
 // B.Roll.card(item, opts) -> { node, play(onDone), finish(), cancel(), inHand(), grip(), letGo() }
-//   item: the check item from the Game ({voice, label, target, word, mods, roll, success, turn})
+//   item: the check item from the Game ({voice, label, stat, statLabel, target, word, mods, roll, success, turn})
 //   opts: { voiceClass, odds (text for the head), audio, speed: 'full'|'quick', still: bool,
 //           hand: bool, murmur(what) -> {speaker, label, text} | null, styleOf(voice),
 //           pulse(what): 'hand' (waiting in the hand), 'throw', 'stamp', 'stop' (his heart, src/ui/skin.js) }
@@ -187,7 +187,7 @@
     let faces = '';
     for (let b = 1; b <= 6; b++) faces += '<span class="mf ' + (need.pass[b - 1] ? 'yes' : 'no') + '" data-f="' + b + '">' + miniSVG(b) + '</span>';
     node.innerHTML =
-      '<div class="rl-head"><span class="rl-who">' + esc(item.label || '') + '</span><span class="rl-target">' + esc(item.word) + ' ' + item.target + '</span>' +
+      '<div class="rl-head"><span class="rl-who">' + esc(item.label || '') + '</span>' + (item.statLabel ? '<span class="rl-stat">' + esc(item.statLabel) + '</span>' : '') + '<span class="rl-target">' + esc(item.word) + ' ' + item.target + '</span>' +
         (opts.odds ? '<span class="rl-odds">' + esc(opts.odds) + '</span>' : '') + '</div>' +
       '<div class="rl-body">' +
         '<div class="rl-mat" aria-hidden="true"><div class="rl-plane">' +

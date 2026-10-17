@@ -95,7 +95,7 @@ var turned_t := -INF              # when the player last turned his head themsel
 var _walk_t0 := 0.0               # when he set off
 var _look_after = null            # a look asked for on the way (someone there), taken when he's there: a point, or who (a Callable giving where their head is by then)
 
-# his body, set by main.gd from the night: drinks, nerves (0..4), hurt (0..3), the clock
+# his body, set by main.gd from the night: drinks (the ones that show), nerves (0..4), hurt (0..3), the clock
 var drinks := 0
 var tension := 0
 var hurt := 0

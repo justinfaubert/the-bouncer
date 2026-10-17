@@ -19,7 +19,13 @@ static func para(parts: Array, width_fill := true) -> RichTextLabel:
 	for p in parts:
 		r.push_font(Look.font(p[0]), int(p[1]))
 		r.push_color(p[2])
+		# a fifth element, true: struck through (an old number, kept)
+		var struck: bool = p.size() > 4 and bool(p[4])
+		if struck:
+			r.push_strikethrough()
 		r.add_text(str(p[3]))
+		if struck:
+			r.pop()
 		r.pop()
 		r.pop()
 	return r

@@ -88,6 +88,22 @@ goodshoes_card:
   hair: BRN
   number: "2207159"
 
+# ---------------------------------------------------------------- his own
+#
+# type: security draws a security worker's licence instead of a driver's (no real province's):
+# the title, a seal, the photo, an expiry, a number, and the name, which is under Gary's thumb in
+# the office and drawn as worn bars in the hand (his name is Hutch's).
+
+his_licence:
+  kind: card
+  type: security
+  face: him
+  look: {hair: buzz, top: tshirt}                        # cropped short, the way they do it in the army, or after something
+  role: SECURITY WORKER
+  issued: "2024-10-21"
+  expires: "2027-10-21"                                  # "Good till next October" (office.ink)
+  number: "SW 118340"
+
 # ---------------------------------------------------------------- the kid's phone
 #
 # photos, in order: card (a licence, photographed on something), or place (a plate of a place,

@@ -23,6 +23,13 @@
 // HUTCH: Table 28 is yours. What do they actually talk about on a Wednesday at eight? What's the first thing they say to a new doorman? Give each of the five one quirk from life (changed enough).
 TABLE28: Here he is!
 TABLE28: Look at the size of him!
+// Gary's shirt (office.ink): nobody on this island ever wore a shirt that said what he was.
+{ shirt_on:
+    TEAM_JACKET: It says SECURITY on him, boys. In case we were wondering what he was.
+    TABLE28: Security!
+    HEARING_AID: Security.
+    ~ rep(rep_t28, -1)
+}
 TEAM_JACKET: They're getting bigger, the doormen. The last one was a big lad too, and a lot of good it did him.
 HEARING_AID: Him.
 TABLE28: Where'd they dig you up?
@@ -190,7 +197,7 @@ FIGHTER: One boot.
     WRONGMAN: An arrangement.
     ~ knows += keg_hole
     -> w
-* [Put a boot on him. #check: fighter 8]
+* [Put a boot on him. #check: fighter:dex 12]
     ~ rats_heard += h_boot
     { passed:
         He was quick for a big man. It was quick for the rat, too.
@@ -273,7 +280,7 @@ HEARING_AID: Liked him.
 * ["Anything you need, you let me know."]
     TABLE28: Oh, we will.
     ~ rep(rep_t28, 1)
-* {count_body.count_glasses > 0} ["You're over the limit. All of you." #check: manual 6]
+* {count_body.count_glasses > 0} ["You're over the limit. All of you." #check: manual:cha 10]
     -> cut_off
 * ["What do you know about the rats?"]
     ~ rats_heard += h_no_rats

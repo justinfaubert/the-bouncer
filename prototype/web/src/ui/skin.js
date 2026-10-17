@@ -47,7 +47,8 @@
       if (!root) return;
       if (!st || !api.on()) { clear(); return; }
       const d = st.drinks | 0;
-      lvl = level(d);
+      // the print goes by the drinks that show; a drink going down jolts it either way
+      lvl = level(st.felt != null ? st.felt | 0 : d);
       if (last.drinks >= 0 && d > last.drinks) jolt();
       else if (!joltT) root.dataset.drunk = lvl;
       root.dataset.hurt = Math.min(2, st.hurt | 0);

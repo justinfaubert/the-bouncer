@@ -1,7 +1,8 @@
 # His notes (Tab): a page of his notebook held up over the room.
 #
 # The room in his head: who has a seat, how they get on (a line between two seats, solid where
-# they get on and broken where they're at odds), and how loud it is in there. What he's been asked
+# they get on and broken where they're at odds), and how loud it is in there. His seven stats,
+# once Gary's office has set them, with every old number struck through. What he's been asked
 # to do tonight, ticked off. The night so far, a line for each choice with the time on it. Click a
 # voice for where it comes from and what's for and against its dice tonight.
 class_name Notes
@@ -43,6 +44,8 @@ func setup(m) -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.material = sm
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# under what's drawn on the page: a child draws over its parent unless it's told to go behind
+	bg.show_behind_parent = true
 	page.add_child(bg)
 	add_child(page)
 	page.draw.connect(_draw_page)
@@ -206,9 +209,37 @@ func _draw_page() -> void:
 	else:
 		_para("read_i", 17, "Click a voice for where it comes from and what's for and against it tonight.", Vector2(40, yy + 10), sz.x * 0.42, PENCIL)
 
-	# what he's been asked to do
+	# him: his seven stats once the interview's set them, in his hand, each old number struck
+	# through (bible/11_SKELETON.md, Him: seven stats)
 	var x2 := sz.x * 0.5 + 40.0
-	_text("ui_b", 16, "NOTED", Vector2(x2, 110), RED)
+	var y_noted := 110.0
+	if bool(st.get("statsSet", false)):
+		_text("ui_b", 16, "HIM", Vector2(x2, 110), RED)
+		var hist := {}
+		for ch in g.stat_log:
+			var k0 := str(ch.stat)
+			if not hist.has(k0):
+				hist[k0] = [int(ch.from)]
+			hist[k0].append(int(ch.to))
+		var hf := Look.font("hand")
+		for i in Checks.STAT_ORDER.size():
+			var k: String = Checks.STAT_ORDER[i]
+			var at := Vector2(x2 + (0.0 if i < 4 else sz.x * 0.21), 146.0 + float(i % 4) * 30.0)
+			_text("hand", 22, str(Checks.STATS[k].label), at, INK_2)
+			var h: Array = hist.get(k, [int(st.stats.get(k, 0))])
+			var nx := at.x + sz.x * 0.13
+			for j in h.size():
+				var ns := str(h[j])
+				var w := hf.get_string_size(ns, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x
+				var last: bool = j == h.size() - 1
+				_text("hand", 22, ns, Vector2(nx, at.y), INK if last else PENCIL)
+				if not last:
+					page.draw_line(Vector2(nx - 3, at.y - 6), Vector2(nx + w + 3, at.y - 9), INK_2, 1.6, true)
+				nx += w + 12.0
+		y_noted = 146.0 + 3.0 * 30.0 + 50.0
+
+	# what he's been asked to do
+	_text("ui_b", 16, "NOTED", Vector2(x2, y_noted), RED)
 	var tasks: Array = []
 	for id in g.tasks:
 		var tk: Dictionary = g.tasks[id].duplicate()
@@ -218,7 +249,7 @@ func _draw_page() -> void:
 		if bool(a.get("done", false)) != bool(b.get("done", false)):
 			return not bool(a.get("done", false))
 		return int(a.get("turn", 0)) < int(b.get("turn", 0)))
-	var y2 := 150.0
+	var y2 := y_noted + 40.0
 	if tasks.is_empty():
 		_text("hand", 24, "Nothing yet.", Vector2(x2, y2), PENCIL)
 		y2 += 34
@@ -256,7 +287,7 @@ func _voice_info(id: String, at: Vector2, width: float) -> float:
 	var st: Dictionary = main.game.status()
 	_text("ui_b", 20, str(def.get("label", id)), at, vc)
 	var y := _para("read", 18, str(def.get("from", "")), at + Vector2(0, 30), width, INK_2)
-	var mods := Checks.modifiers(def, int(st.drinks), int(st.hurt), 0)
+	var mods := Checks.modifiers(def, main.game._ctx(int(st.drinks)), 0)
 	var parts: Array = []
 	for m in mods.get("parts", []):
 		parts.append(("+" if int(m.value) > 0 else "−") + str(absi(int(m.value))) + " " + str(m.label))

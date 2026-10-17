@@ -5,7 +5,9 @@
 // Conventions the Ink follows (full list in content/ink/README.md):
 //   FATHER: text          a line spoken by the voice or character with that id
 //   NARRATOR: text        the teller, years later
-//   #check: father 8 {n}  on a choice: a check lent by that voice, target 8, situational modifier n
+//   #check: father:wis 12 {n}  on a choice: a check lent by that voice, rolled on his Wisdom (or the
+//                         voice's first stat), target 12, situational modifier n
+//   #stats          on a line: his seven stats, shown under it (once the interview's set them)
 //   #loc: pool            on a choice: where it happens (lights up that spot on the floor sketch)
 //   #room: -fighter +kid  on a choice: who it puts out of his head and lets in (the page previews it)
 //   #hand: drink    on a choice: what it tempts him with, for the voices to lean in on (see whisper)
@@ -128,7 +130,10 @@
       for (const id in this.charDefs) this.speakers[id.toUpperCase()] = { id: id, kind: 'character', def: this.charDefs[id] };
       this.barks = new B.Barks(content.barks || []);
       this.word = new B.Word(content.word || {});
-      this.psyche = new B.Psyche(this.voiceDefs, content.psyche);
+      // the room in his head holds his own voices; Gary's (whose: gary) speak only in Gary's office
+      const his = {};
+      for (const id in this.voiceDefs) if (!this.voiceDefs[id].whose) his[id] = this.voiceDefs[id];
+      this.psyche = new B.Psyche(his, content.psyche);
       this.rng = new B.Rng(1);
       this.story = null;
       this.errors = [];
@@ -140,6 +145,7 @@
       this.path = [];         // every choice made tonight: {t: turn, c: clock, x: text, k: check}
       this.tasks = {};
       this.checkHistory = [];
+      this.statLog = [];      // his stats moving, once the interview's set them: {stat, from, to, clock, turn}
       this.barksUsed = [];
       this.wordUsed = [];
       this.said = {};         // group -> {up, down: {id, text}, last: 'up'|'down'}: their word on him
@@ -226,6 +232,7 @@
         handUsed: this.handUsed.slice(),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
+        statLog: this.statLog.slice(),
         screen: this.screen,
         ended: this.ended,
         log: packLog(this.log),
@@ -250,6 +257,7 @@
       this.handUsed = (save.handUsed || []).slice();
       this.tasks = save.tasks || {};
       this.checkHistory = (save.checks || []).slice();
+      this.statLog = (save.statLog || []).slice();
       this.turn = save.turn | 0;
       this.screen = save.screen || null;
       this.ended = !!save.ended;
@@ -300,9 +308,22 @@
         hurt: g('hurt') | 0,
         here: Array.isArray(here) ? (here[0] || '') : String(here || ''),
         tension: this.psyche.tension(),
-        seated: this.psyche.seated.slice()
+        seated: this.psyche.seated.slice(),
+        stats: B.Checks.readStats(g),
+        statsSet: !!g('stats_set'),
+        // the drinks that show (Checks.felt): what the print goes by
+        felt: B.Checks.felt(g('drinks'), B.Checks.readStats(g), g('ate'))
       };
     }
+
+    // what goes into a check besides the dice and the voice: drink, hurt, his stats, whether he ate
+    _ctx(drinks) {
+      const g = this.getVar.bind(this);
+      return { drinks: drinks | 0, hurt: g('hurt') | 0, stats: B.Checks.readStats(g), ate: g('ate') | 0 };
+    }
+
+    // In Gary's office the camera's Gary's: the voices in the doorman's head keep quiet there
+    _inOffice() { return this.here() === 'office'; }
 
     speaker(label) { return this.speakers[label] || null; }
 
@@ -345,9 +366,9 @@
       if (choice.check) {
         const c = choice.check;
         const def = this.voiceDefs[c.voice] || {};
-        const mods = B.Checks.modifiers(def, { drinks: before.drinks, hurt: this.getVar('hurt') | 0 }, c.mod);
+        const mods = B.Checks.modifiers(def, this._ctx(before.drinks), c.mod, c.stat);
         const r = B.Checks.roll(this.rng, c.target, mods.total, this.psyche.tension());
-        const rec = { kind: 'check', voice: c.voice, label: this._label(c.voice), target: c.target, word: B.Checks.difficultyWord(c.target), mods: mods.parts, roll: r, success: r.success, turn: this.turn, clock: before.clock };
+        const rec = { kind: 'check', voice: c.voice, label: this._label(c.voice), stat: c.stat, statLabel: c.statLabel, target: c.target, word: B.Checks.difficultyWord(c.target), mods: mods.parts, roll: r, success: r.success, turn: this.turn, clock: before.clock };
         this.checkHistory.push(rec);
         if (this.checkHistory.length > 200) this.checkHistory.shift();
         step.k = { v: c.voice, n: r.total, of: c.target, ok: r.success };
@@ -396,7 +417,7 @@
 
     whisper(visibleIndex) {
       const c = this.choices.filter(function (x) { return !x.hidden; })[visibleIndex];
-      if (!c || !c.hand || !c.hand.length) return null;
+      if (!c || !c.hand || !c.hand.length || this._inOffice()) return null;
       const key = 'c' + c.inkIndex + ':' + c.text;
       if (key in this._hand) return this._hand[key];
       const rng = this._handRng(key);
@@ -410,6 +431,7 @@
     }
 
     murmur(what) {
+      if (this._inOffice()) return null;
       const rule = this.barks.best('hand:' + what, this.getVar.bind(this), this.psyche, this.handUsed, this._handRng('m:' + what));
       return rule ? this._handLine(rule, what) : null;
     }
@@ -525,7 +547,8 @@
     }
 
     _watch() {
-      return { drinks: this.getVar('drinks') | 0, clock: this.getVar('clock') | 0, tension: this.psyche.tension() };
+      const g = this.getVar.bind(this);
+      return { drinks: g('drinks') | 0, clock: g('clock') | 0, tension: this.psyche.tension(), statsSet: !!g('stats_set'), stats: B.Checks.readStats(g), here: this.here() };
     }
 
     _continue(items, events) {
@@ -594,7 +617,7 @@
     // noise in his head changing, a group's word on him, a choice that changes who's in his head.
     // Only from the room: if the Manual's been put out, it waits until he's back.
     _teach(what, items, at) {
-      if (this.taught.indexOf(what) !== -1) return false;
+      if (this.taught.indexOf(what) !== -1 || this._inOffice()) return false;
       const rule = this.barks.pick('teach:' + what, this.getVar.bind(this), this.psyche, this.barksUsed, this.rng);
       if (!rule) return false;
       this.taught.push(what);
@@ -712,7 +735,8 @@
               item.label = sp.def.label || sp.def.name || sp.id;
               item.role = sp.kind === 'voice' ? 'voice' : 'dialogue';
               item.text = m[2];
-              if (sp.kind === 'voice' && !this.psyche.isSeated(sp.id) && !tagv.always) {
+              if (sp.def.whose) item.whose = String(sp.def.whose);
+              if (sp.kind === 'voice' && !sp.def.whose && !this.psyche.isSeated(sp.id) && !tagv.always) {
                 this.suppressed++;
                 item.suppressed = true;
               }
@@ -737,6 +761,7 @@
       }
 
       if (tagv.bark) events.push({ at: items.length, name: String(tagv.bark) });
+      if (tagv.stats) items.push({ kind: 'stats', stats: B.Checks.readStats(this.getVar.bind(this)), turn: this.turn });
       if (tagv.pause) items.push({ kind: 'pause' });
     }
 
@@ -747,19 +772,38 @@
       if (after.tension !== before.tension) events.push({ at: items.length, name: after.tension > before.tension ? 'tension_up' : 'tension_down' });
       // the first time the room in his head changes, and the first time someone's word on him comes
       // up, THE MANUAL explains (it goes in ahead of the other voices)
+      // A batch can run on out of Gary's office into the street (office.ink into walk.ink): what came
+      // before the place changed was still Gary's telling, with none of the doorman's voices in it.
+      let officeTo = -1;
+      if (before.here === 'office') {
+        officeTo = items.length;
+        for (let i = 0; i < items.length; i++) if (items[i].kind === 'place' && items[i].here !== 'office') { officeTo = i; break; }
+      }
       if (after.tension !== before.tension) this._teach('tension', items, items.length);
       if (this.taught.indexOf('word') === -1) {
         for (let i = items.length - 1; i >= 0; i--) {
           if (items[i].kind !== 'word' || !items[i].text) continue;
-          if (this._teach('word', items, i + 1)) for (const ev of events) if (ev.at > i + 1 && ev.at !== Infinity) ev.at++;
+          if (i >= officeTo && this._teach('word', items, i + 1)) for (const ev of events) if (ev.at > i + 1 && ev.at !== Infinity) ev.at++;
           break;
         }
       }
 
+      // His stats moving, once the interview's set them: each change is kept, and shown where it happened.
+      if (before.statsSet && after.statsSet) {
+        for (const k of B.Checks.STAT_ORDER) {
+          if (after.stats[k] === before.stats[k]) continue;
+          const ch = { stat: k, from: before.stats[k], to: after.stats[k], clock: after.clock, turn: this.turn };
+          this.statLog.push(ch);
+          items.push(Object.assign({ kind: 'stat', label: B.Checks.STATS[k].label }, ch));
+        }
+      }
+
       // Barks: at most one per event, inserted where the event happened (last first, so indexes hold).
-      // After each, another voice in the room may answer it.
+      // After each, another voice in the room may answer it. None in Gary's office.
       const getVar = this.getVar.bind(this);
       const picked = [];
+      if (this._inOffice()) events.length = 0;
+      for (let k = events.length - 1; k >= 0; k--) if (events[k].at <= officeTo) events.splice(k, 1);
       const usedThisBatch = new Set();
       const barkItem = (rule, answer) => this._barkItem(rule, answer);
       for (const ev of events) {
@@ -803,10 +847,11 @@
           const spec = B.Checks.parseSpec(tv.check);
           if (spec) {
             const def = this.voiceDefs[spec.voice] || {};
-            const mods = B.Checks.modifiers(def, { drinks: this.getVar('drinks') | 0, hurt: this.getVar('hurt') | 0 }, spec.mod);
+            const stat = B.Checks.statOf(def, spec.stat);
+            const mods = B.Checks.modifiers(def, this._ctx(this.getVar('drinks')), spec.mod, stat);
             const p = B.Checks.odds(spec.target, mods.total, this.psyche.tension());
             ch.check = {
-              voice: spec.voice, label: this._label(spec.voice), target: spec.target, mod: spec.mod,
+              voice: spec.voice, label: this._label(spec.voice), stat: stat, statLabel: stat ? B.Checks.STATS[stat].label : '', target: spec.target, mod: spec.mod,
               word: B.Checks.difficultyWord(spec.target), odds: p, oddsWord: B.Checks.oddsWord(p), mods: mods.parts
             };
             if (!this.psyche.isSeated(spec.voice)) ch.hidden = true;

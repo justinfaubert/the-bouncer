@@ -138,6 +138,10 @@ function writesOf(t) {
         const [v, to] = call[2].split(',').map((x) => x.trim());
         if (vars.has(v)) out.push(v);
         if (items.has(to)) out.push(items.get(to) + ':' + to);
+      } else if (fn === 'stat_up') {
+        // stat_up(ref s): a point on one of his stats, in Gary's office (office.ink)
+        const v = call[2].trim();
+        if (vars.has(v)) out.push(v);
       } else if (EFFECTS[fn]) out.push(...EFFECTS[fn]);
     }
   }
@@ -282,7 +286,7 @@ for (const ch of choices) {
   const w = [];
   const dv = [];
   const said = [];
-  let check = (ch.tags.match(/#check:\s*([a-z]+)\s+(\d+)/) || []);
+  let check = (ch.tags.match(/#check:\s*([a-z]+(?::[a-z]+)?)\s+(\d+)/) || []);
   for (const b of ch.body) {
     // stop at nested choices: they're their own entries
     if (/^\s*(?:[*+]\s*){2,}/.test(b.text) && ch.level === 1) break;

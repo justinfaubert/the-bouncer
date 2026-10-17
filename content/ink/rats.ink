@@ -55,7 +55,7 @@
 <- moves(kitchen)
 * ["The owner wants the rats dealt with."]
     -> cook_rats
-* [Look behind the walk-in. #check: manual 7]
+* [Look behind the walk-in. #check: manual 11]
     -> behind_walkin
 + {fries == 0} [Take the fries going soft under the heat lamp.]
     -> take_fries
@@ -206,10 +206,10 @@ The lid had been propped open with a brick.
 { due(): -> called_up }
 <- moves(keg)
 + [The office.]
-    -> office
+    -> keg_office
 * [Look around with the flashlight.]
     -> look
-* {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 8]
+* {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 12]
     -> crawl
 + {fries == 1} [Leave the fries on the third step.]
     -> leave_fries
@@ -223,10 +223,10 @@ The lid had been propped open with a brick.
 // Hutch, in director mode (27 Sept), on what's in a keg room the customers never see: rats, empties,
 // cases of clamato and tomato and the other juices for mix, napkins, straws, and an office where the
 // money's kept, the servers' due-backs, and somewhere to do cocaine. (Worked in by Claude.)
-= office
+= keg_office
 ~ pass(2)
 ~ knows += office_seen
-{ at_keg.office == 1:
+{ at_keg.keg_office == 1:
     The office was a plywood box with a desk in it, built into the corner by somebody with a weekend and a sheet of ply. A safe under the desk. A coffee can of pens. On the wall, the schedule, with his name on it for Wednesday and Friday in the bartender's writing, and a row of brown envelopes on bulldog clips, one for each server, DUE BACK across the top of every one.
     Stacked to the ceiling around it: cases of clamato, tomato juice, orange, the grapefruit nobody ordered; boxes of napkins and straws; the empties going back, sticky, in their cases.
     On the desk, a little square mirror, wiped. Not quite wiped. A dust of white in one corner of it, and a straw cut down to two inches lying beside it.
@@ -417,7 +417,7 @@ The Fighter didn't say anything. There was nothing in it to hit.
 - (kn)
 * [Put the light out and listen to the floor.]
     -> listen_t28
-* [Reach into the gap. #check: fighter 9]
+* [Reach into the gap. #check: fighter:dex 13]
     { passed:
         He got his hand into the gap and closed it on the cord of tails, and felt the whole ring pull against him at once, like a rope with a boat on the other end of it.
         He let go. He didn't know why. His hand decided before he did.
@@ -541,7 +541,7 @@ A rat. {knows ? t28_rat:Not Walter. A young one, thin, with a torn ear.|A young 
 {slippers_upstairs:The woman in slippers, the one who'd stayed with the bottle,|One of the women in slippers} lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it. Yet.
 FIGHTER: Now. While it's in the open.
 FATHER: Whatever you do, do it like it's nothing.
-* [Stamp on it. #check: fighter 7]
+* [Stamp on it. #check: fighter:dex 11]
     ~ pass(1)
     ~ here = floor
     { passed:
@@ -564,7 +564,7 @@ FATHER: Whatever you do, do it like it's nothing.
         It wasn't Walter. They didn't care. Every rat was Walter to table 28.
         ~ knows += t28_rat
     }
-* [Drop a pint glass over it. #check: fighter 8]
+* [Drop a pint glass over it. #check: fighter:dex 12]
     ~ pass(2)
     ~ here = floor
     { passed:
@@ -577,7 +577,7 @@ FATHER: Whatever you do, do it like it's nothing.
         The glass came down on the carpet a foot behind it and bounced. The rat went into the back hall and was gone.
         BARTENDER: Nice.
     }
-* [Tell the woman in slippers it's a mouse. #check: father 6]
+* [Tell the woman in slippers it's a mouse. #check: father:cha 10]
     ~ pass(1)
     ~ here = bar
     { passed:
@@ -659,7 +659,7 @@ MANUAL: Anticoagulant bait causes internal bleeding over several days. Affected 
     ~ knows += walter_name
 }
 The whole room was looking at it now. The woman in slippers had both hands over her mouth.
-* [Finish it quickly. #check: fighter 6]
+* [Finish it quickly. #check: fighter 10]
     ~ pass(1)
     ~ rats_killed++
     ~ incident += inc_rat

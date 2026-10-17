@@ -104,6 +104,12 @@ The passenger door of the pickup opened. A kid got out and came across the grave
 He stopped in front of the stool and held up his phone. On the screen was a photo of a driver's licence. #portrait: hoodie #prop: hoodie_phone
 HOODIE: yeah
 He had earbuds in. He didn't take them out.
+// Gary's shirt (office.ink, the_shirt; put on in the vestibule or in room twelve)
+{ shirt_on:
+    The kid's eyes went to the word on the shirt and stayed there.
+    HOODIE: nice shirt
+    ~ rep(rep_kids, -1)
+}
 FATHER: A picture of a card isn't a card.
 MANUAL: Acceptable identification is a valid government-issued card with a photograph, presented in person. When in doubt, two pieces. You're in doubt.
 WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #mark: door.door
@@ -133,7 +139,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
     ~ kid_ease--
     FATHER: Now you know something you weren't handed.
     -> read
-* [Look at him, not the phone. #check: father 8]
+* [Look at him, not the phone. #check: father 12]
     ~ pass(1)
     { passed:
         FATHER: Look at his eyes. Red, and too wide. He's on something, and he's been on it a while. You don't let that in on a Wednesday to see what it does.
@@ -146,7 +152,7 @@ WRONGMAN: Everybody in that story came in out of the rain. Every one of them. #m
     }
     // The kid isn't high. He's been awake for two days. The Father can't read the young (bible/02_SYSTEMS.md).
     -> read
-* [Look past him at the truck. #check: wrongman 8]
+* [Look past him at the truck. #check: wrongman 12]
     ~ pass(1)
     ~ knows += truck
     { passed:
@@ -401,7 +407,7 @@ DRIVER: Shut up, Kyle.
     It wasn't clear which of them the Father meant.
     -> sister_opts
 // What the Fighter makes of him counts for and against every hand put on him later (vape_mod() in sim.ink).
-* [Look at the boyfriend. #check: fighter 6]
+* [Look at the boyfriend. #check: fighter:wis 10]
     ~ pass(1)
     { passed:
         ~ knows += vape_read
@@ -605,9 +611,14 @@ They went back across the lot. The truck's engine was still running. It kept run
 ~ arrivals += hivis_done
 A man in a hi-vis vest over a hoodie came in from the lot with a two-four of beer under one arm, the box going soft in the rain. Mill dust in the creases of his hands. #portrait: hivis
 HI-VIS: How's she goin'.
+// From the seawall (walk.ink, watching): the mill pickup at twenty to six.
+{ knows ? sov_watched:
+    He was one of the three who'd got out of the mill pickup at twenty to six and gone in at the hotel's end of the building.
+    ~ knows += hivis_upstairs
+}
 He was steady on his feet. Mostly. He had the careful, deliberate walk of someone who knows exactly how many he's had.
 - (hv)
-* [Count his drinks. #check: father 6]
+* [Count his drinks. #check: father 10]
     ~ pass(1)
     { passed:
         FATHER: Four. Maybe five. Tired, not drunk. He'll be fine till someone makes him not fine.
@@ -616,7 +627,7 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
         The Father thought everyone was drunk. Most nights he'd been right.
     }
     -> hv
-* [Signs of intoxication. #check: manual 6]
+* [Signs of intoxication. #check: manual 10]
     ~ pass(1)
     { passed:
         MANUAL: Speech clear. Gait steady within reason. Eyes glassy. Odour of alcohol. Carrying alcohol, which may not be brought onto licensed premises. Refuse entry with the product, or require him to leave it.
@@ -702,6 +713,10 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
 A man in a good wool coat came in, closing a golf umbrella. Shaved that evening. Shoes that had never walked on gravel before tonight. #portrait: goodshoes
 GOOD SHOES: Good evening. Filthy out there, isn't it.
 He had his licence ready before he was asked, and he smiled like they'd met. #prop: goodshoes_card
+// From the seawall (walk.ink, watching): the dark car, twice round the lot before half past seven.
+{ knows ? coat_scouting:
+    Through the glass, the car he'd come in was parked under the light at the edge of the lot: dark, clean, the one that had gone round the lot twice before half past seven without stopping. He'd been round to see if there was anybody on the door yet.
+}
 { knows ? banned_face:
     He had met him. In the binder. Page three, a photocopied driver's licence and the bartender's handwriting underneath: NO. NOT EVER.
     -> known
@@ -718,7 +733,7 @@ He had his licence ready before he was asked, and he smiled like they'd met. #pr
 -> unknown
 
 = place
-* [Place the face. #check: manual 8]
+* [Place the face. #check: manual 12 {knows ? coat_scouting:2|0}]
     ~ pass(1)
     { passed:
         MANUAL: Binder. Page three. Photocopy of a licence. Barred.
@@ -754,7 +769,7 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
     ~ pass(1)
     GOOD SHOES: Years ago, friend. It hasn't changed a bit, which I suppose is the charm.
     -> gs
-* {asked_before && knows ? eighty_six} [Look at him again, harder. #check: manual 8 1]
+* {asked_before && knows ? eighty_six} [Look at him again, harder. #check: manual 12 1]
     ~ pass(1)
     { passed:
         Years ago, he'd said. The good haircut, gone grey in a photocopier.
@@ -882,7 +897,7 @@ BARTENDER: Page three. I'm not serving him and I'm not asking him. That's your j
 ~ knows += eighty_six
 FATHER: You weren't on the door. This is what not being on the door costs.
 - (bi)
-* [Walk him out quietly. #check: father 8]
+* [Walk him out quietly. #check: father:cha 12]
     ~ pass(5)
     ~ here = bar
     { passed:
@@ -901,7 +916,7 @@ FATHER: You weren't on the door. This is what not being on the door costs.
     ~ arrivals += banned_out
     ~ room_count--
     -> carry_on
-* [Put him out. #check: fighter 6]
+* [Put him out. #check: fighter 10]
     ~ pass(3)
     ~ here = bar
     { passed:
@@ -939,7 +954,7 @@ FATHER: You weren't on the door. This is what not being on the door costs.
 === ev_one_drink ===
 GOOD SHOES had finished the one drink. He'd made it last forty minutes, which was its own kind of argument. Now he lifted one finger to the bartender, pleasantly, and she looked down the bar at the doorman and didn't move. #look: goodshoes
 FATHER: One, you said.
-* [Walk him out. One was the deal. #check: father 7]
+* [Walk him out. One was the deal. #check: father:cha 11]
     ~ pass(3)
     ~ banned_held = 1
     ~ arrivals += banned_out
@@ -993,7 +1008,7 @@ TABLE28: No Dennis here! Never heard of him!
 Table 28 had heard her. Table 28 heard everything that came through the door, and they said it together, in one voice, and then they laughed.
 // HUTCH: The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 - (wf)
-* ["Which one's Dennis?" #check: manual 6]
+* ["Which one's Dennis?" #check: manual 10]
     ~ pass(1)
     { passed:
         MANUAL: You are not required to disclose the identity of any patron.

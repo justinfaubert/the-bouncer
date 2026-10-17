@@ -166,6 +166,21 @@ func _frame_for(where: String) -> String:
 		return "phone" if _choices_from("at_hall.payphone") else ""
 	if where == "pool":
 		return "juke" if _choices_from("at_jukebox") or _choices_from("at_pool.kid_jukebox") else ""
+	# Gary's office, through Gary's eyes (content/ink/office.ink): the man in the doorway until he
+	# sits; turned to the bookkeeper while she does the papers
+	if where == "office":
+		if _choices_from("interview.arrive"):
+			return "door"
+		return "bk" if _choices_from("interview.paperwork") else ""
+	# the walk (content/ink/walk.ink): the old man at the wharf's rail; the kid on the freezer, once
+	# he's talking to him
+	if where == "street":
+		return "wharf" if _choices_from("dusk.wharf") else ""
+	if where == "esso":
+		var kn: Array = game.vars().get("knows", [])
+		if _choices_from("dusk.kid_rater") or (_choices_from("dusk.esso_lot") and ("esso_sky" in kn or "esso_rater" in kn)):
+			return "kid"
+		return ""
 	if where == "t28":
 		# on a stool with them once he's sat down; on his feet at the end of the table otherwise
 		for k in ["at_t28.sit", "at_t28.stories", "at_t28.another", "at_t28.tip_offer", "at_t28.walter_intro"]:
@@ -404,8 +419,9 @@ func after(res: Dictionary, live: bool) -> void:
 		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
 	refresh_status()
 	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
-	# table 28): over to it, and back
-	if view.place in ["hall", "pool", "t28"] and not res.get("ended", false):
+	# table 28, the doorway of Gary's office, the wharf's rail, the kid on the freezer): over to it,
+	# and back
+	if view.place in ["hall", "pool", "t28", "office", "street", "esso"] and not res.get("ended", false):
 		var f := _frame_for(view.place)
 		if f != view.frame:
 			view.frame = f
@@ -425,7 +441,7 @@ func refresh_status() -> void:
 	if Look.PLACE.has(view.place):
 		shown.here = view.place
 	column.set_status(shown)
-	view.drinks = int(st.drinks)
+	view.drinks = int(st.get("felt", st.drinks))
 	view.tension = int(st.tension)
 	view.hurt = int(st.hurt)
 	view.clock = int(st.clock)
@@ -499,6 +515,13 @@ func render_items(items: Array, live: bool) -> Control:
 					return first
 			"task":
 				node = column.add_aside([["Noted. " if it.get("op") == "add" else "Done. ", true], [str(it.get("text", "")), false]])
+				if live:
+					audio.sfx("pen")
+			"stats":
+				node = column.add_stats(it)
+			"stat":
+				# one of his stats moving, where it moved: the old number struck through
+				node = column.add_aside([[str(it.get("label", "")) + " ", true], [str(int(it.get("from", 0))), false, true], [" " + str(int(it.get("to", 0))), true]])
 				if live:
 					audio.sfx("pen")
 			"psyche":
@@ -711,6 +734,12 @@ func _end_action(what: String) -> void:
 
 func _transcript() -> String:
 	var out: Array = ["THE BOUNCER. Wednesday, the test shift.", ""]
+	var st := game.status()
+	if bool(st.get("statsSet", false)):
+		var bits: Array = []
+		for k in Checks.STAT_ORDER:
+			bits.append(str(Checks.STATS[k].label) + " " + str(int(st.stats.get(k, 0))))
+		out.insert(1, "Him: " + ", ".join(bits) + ".")
 	for it in game.night_log:
 		match str(it.get("kind", "")):
 			"line":

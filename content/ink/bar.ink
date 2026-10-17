@@ -34,7 +34,7 @@
     -> how_long
 * {at_bar.how_long > 0} ["What do I call you?"]
     -> name
-+ [{drinks == 0:"Pour me one."|"Another."} #hand: drink]
++ [{drinks - drinks_before == 0:"Pour me one."|"Another."} #hand: drink]
     -> shift_drink
 + {knows ? endbar_seen && at_bar.endbar < 3} [Go and stand by the old man at the end of the bar.]
     -> endbar
@@ -46,7 +46,7 @@ She slid it along the bar to him without being asked twice. A two-inch binder, t
 // HUTCH: What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
 Page three was a man in his fifties with a good haircut, photographed off his driver's licence. Under it, not a date or a reason. Just: NO. NOT EVER. #prop: binder
 // Leafing through to the last sleeve makes the first choice; staying on page three makes the second.
-* [Fix the faces in his head. #check: manual 6 #toy: binder all]
+* [Fix the faces in his head. #check: manual 10 #toy: binder all]
     { passed:
         MANUAL: Memorise the barred list at the start of every shift. Page three. Page seven. Page eleven, the one with the tattoo on his neck.
         ~ knows += banned_face
@@ -113,20 +113,24 @@ BARTENDER: Last a week, Door. Then ask me.
 // HUTCH: Her name. Or keep it back until he's earned it.
 -> opts
 
+// Counted from the start of the shift: Gary's two at four o'clock aren't hers to count (prologue.ink).
 = shift_drink
 ~ pass(3)
 {
-- drinks == 0:
+- drinks - drinks_before == 0:
     She poured a rye and put it on the ledge, not the bar, where the customers couldn't see it. #sfx: glass
     BARTENDER: That's your one. On the ledge, not the bar, and you don't come back for two.
     ~ drink()
     FATHER: One.
-- drinks == 1:
+    { drinks_before:
+        FATHER: And Gary's, at four. Don't think I didn't count those.
+    }
+- drinks - drinks_before == 1:
     She poured it. She put it on the ledge. She didn't say anything this time, which was worse. #sfx: glass
     ~ drink()
     ~ rep(rep_staff, -1)
     FATHER: Two. Two is how it starts. One is a drink and two is a decision.
-- drinks == 2:
+- drinks - drinks_before == 2:
     She looked at him. Then she poured it, because she was a bartender and he was a grown man, and she'd seen nine doormen. #sfx: glass
     ~ drink()
     ~ rep(rep_staff, -1)
@@ -148,9 +152,19 @@ BARTENDER: Last a week, Door. Then ask me.
 ~ pass(5)
 {
 - at_bar.endbar == 1:
-    He went and stood by the old man at the end of the bar, near the trapdoor. Up close he was older than he'd looked, and cleaner, in a jacket that had been good fifty years ago. The glass in front of him was full to the brim. Nothing had been drunk out of it. #portrait: endbar
+    He went and stood by the old man at the end of the bar, near the trapdoor. Up close he was older than he'd looked{knows ? endbar_wharf: on the wharf}, and cleaner, in a jacket that had been good fifty years ago{knows ? endbar_wharf:, and dry}. The glass in front of him was full to the brim. Nothing had been drunk out of it. #portrait: endbar
     // HUTCH: The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
-    ENDBAR: You are the new door.
+    // On the wharf at dusk (walk.ink), he'd heard the Sov had a doorman before anyone told him.
+    {
+    - wharf_how == 1:
+        ENDBAR: Word gets around, you said, on the wharf. It does. Underneath.
+    - wharf_how == 2:
+        ENDBAR: You asked me on the wharf who was asking. It is the right question at a door. It is the wrong one on a wharf.
+    - wharf_how == 3:
+        ENDBAR: You looked at the water with me, on the wharf. Very few do. They look at their phones, or at me.
+    - else:
+        ENDBAR: You are the new door.
+    }
     ENDBAR: This was a cannery, before it was a hotel. Did no one tell you? The tide came in under the floor twice a day, right under where you are standing. Fish heads and salt.
     ENDBAR: They built the hotel on the pilings, and the pilings are still there. So is everything that lived in them.
     { nursed:

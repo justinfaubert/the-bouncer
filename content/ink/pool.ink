@@ -96,7 +96,7 @@ The big man missed the shots he needed and made the ones that didn't matter. Eve
 ~ knows += pool_lefty
 FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #mark: pool.lefthand
 // easier if he's seen the big man play when nobody was watching (the jukebox, below)
-* [Read the game. #check: father 8 {pool_seen_mod()}]
+* [Read the game. #check: father 12 {pool_seen_mod()}]
     { passed:
         ~ knows += pool_hustle
         FATHER: He's not losing. He's paying. That's a debt, going across the rail twenty at a time, so neither of them has to say what it's for.
@@ -143,7 +143,7 @@ BIGMAN: Lot of doors in this old place for one fella.
     BIGMAN: Me and him.
     FIGHTER: Now they're both looking at you. That's what saying it out loud costs.
     -> tk
-* [Ask how his night's going. #check: father 8 {asked_regular:1|0}]
+* [Ask how his night's going. #check: father:cha 12 {asked_regular:1|0}]
     { passed:
         He asked it the way the Father used to, like it didn't matter, and it got an answer.
         BIGMAN: Ah, it's been a week, bud. One of them weeks.
@@ -180,7 +180,7 @@ BIGMAN: Lot of doors in this old place for one fella.
 ~ pass(15)
 He put a twenty on the rail. The buddy looked relieved to sit one out.
 BIGMAN: Rack 'em, then. You any good?
-* [Play to win. #check: fighter 8]
+* [Play to win. #check: fighter:dex 12]
     { passed:
         He ran four balls, missed, and then the big man handed him the eight, deliberately, the way he'd been handing the buddy games all night.
         ~ tip(20)
@@ -255,7 +255,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
     He put the earbud back in and went down the back hall toward the bathrooms. The single washroom door shut and locked.
     ~ fam += kid_found
     ~ move(kid_at, s_single)
-* ["That your dad?" #check: wrongman 8 {kid_mod()}]
+* ["That your dad?" #check: wrongman 12 {kid_mod()}]
     { passed:
         WRONGMAN: Ask it like you already know. People answer what you already know.
         HOODIE: yeah. i mean yeah
@@ -278,12 +278,12 @@ FATHER: Not in front of his friend. Never tell a man anything in front of his fr
     The big man saw him coming and knew what he was coming with.
     BIGMAN: One thing, bud. I asked you one thing.
 }
-* [Tell him right here, at the table. #check: father 10 {bigman_mod()}]
+* [Tell him right here, at the table. #check: father:cha 14 {bigman_mod()}]
     ~ heat(2)
     -> told(true)
-* ["Got a second? Over here." #check: father 8 {bigman_mod()}]
+* ["Got a second? Over here." #check: father:cha 12 {bigman_mod()}]
     -> told(false)
-* ["Your daughter's {her_place()}." Just that. #check: father 7 {bigman_mod()}]
+* ["Your daughter's {her_place()}." Just that. #check: father:cha 11 {bigman_mod()}]
     -> told(false)
 
 = told(public)
@@ -442,7 +442,7 @@ BIGMAN: Who asked you.
 
 = fight
 FIGHTER: Now. Now, now, now.
-* [Get between them. #check: fighter 8 {knows ? pool_lefty:2|0}]
+* [Get between them. #check: fighter:dex 12 {knows ? pool_lefty:2|0}]
     ~ pass(2)
     ~ here = pool
     { passed:
@@ -456,7 +456,7 @@ FIGHTER: Now. Now, now, now.
         -> after_fight(true)
     }
 // What the Fighter made of the boyfriend at the door, and what was in the back seat, count here (vape_mod()).
-* {indoors(vape_at)} [Take the boyfriend out first. #check: fighter 6 {vape_mod()}]
+* {indoors(vape_at)} [Take the boyfriend out first. #check: fighter 10 {vape_mod()}]
     ~ pass(2)
     { passed:
         ~ here = door
@@ -475,7 +475,7 @@ FIGHTER: Now. Now, now, now.
         ~ incident += inc_hurt
         -> after_fight(true)
     }
-* ["Everybody stop." #check: father 10]
+* ["Everybody stop." #check: father:cha 14]
     ~ pass(1)
     { passed:
         He didn't shout it. He said it the way the Father used to say it, from the chest, so it went under the music and came up everywhere at once.
@@ -490,7 +490,7 @@ FIGHTER: Now. Now, now, now.
         ~ incident += inc_hurt
         -> after_fight(true)
     }
-* [Wait one more second to see who starts it. #check: wrongman 8]
+* [Wait one more second to see who starts it. #check: wrongman 12]
     ~ pass(1)
     { passed:
         WRONGMAN: The wrong man's never the one you're watching.
@@ -596,7 +596,7 @@ BARTENDER: Door. Do I call it or not?
     ~ family_gone()
     FATHER: Fair. Fair's not the same as right.
     -> carry_on
-* {fam !? dad_ejected} [Sit the big man down and get him a coffee. #check: father 8 {bigman_mod()}]
+* {fam !? dad_ejected} [Sit the big man down and get him a coffee. #check: father:cha 12 {bigman_mod()}]
     ~ pass(5)
     ~ here = pool
     { passed:

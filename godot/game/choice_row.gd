@@ -50,7 +50,13 @@ func setup(c: Dictionary, i: int, k: int, size: int, odds_numbers: bool, tension
 		var odds := ("%d%%" % roundi(float(ck.odds) * 100.0)) if odds_numbers else str(ck.oddsWord)
 		body.push_font(UiBits.spaced("ui_b", 1), int(size * 0.74))
 		body.push_color(vc)
-		body.add_text("[" + str(ck.label) + " · " + str(ck.word) + " " + str(ck.target) + "]")
+		# the stat he brings to it, as it stands
+		var stat_bit := ""
+		for m in ck.get("mods", []):
+			if str(m.get("stat", "")) != "":
+				stat_bit = " · " + str(m.label) + " " + str(int(m.value))
+				break
+		body.add_text("[" + str(ck.label) + stat_bit + " · " + str(ck.word) + " " + str(ck.target) + "]")
 		body.pop()
 		body.push_color(Color(vc, 0.72))
 		body.add_text("  " + odds + "   ")

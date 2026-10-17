@@ -65,6 +65,20 @@ On the phone, at dinner in town. Runs on the money code.
 - **Small-business talk:** *at the end of the day*, *moving forward*, *buddy*, *I don't need the how*. He says the inspector's date like a prayer.
 - **Half-talks to the table he's at** ("No, the halibut. Sorry. Go.").
 - **Opens with Hutch's "How is it tonight?"**, which means *how busy, how much*.
+- **In person,** in his office (`content/ink/office.ink`): the same man, warmer, and he laughs at his own jokes before you do ("Ha. Okay. Ha. Jesus."). He talks like he's selling the job he's offering ("Come in, come in. Gary. Grab a seat."), says *Good. Good man.* to the answers he likes and *That's not a thing.* to the ones he doesn't, and passes the hard parts to the bookkeeper.
+- *In the office:* "It's four o'clock somewhere. It's four o'clock here."
+
+### THE BOOKKEEPER
+Gary's father's, and then Gary's. Forty-one years in March, and before that the bank across the road.
+- **The fewest words in the game,** all of them polite and none of them warm. Numbers, procedure, and a fact dropped while looking at her screen ("Doug says a big fellow with hair closed the Legion last night.").
+- **Corrects Gary without looking up** ("Six hundred and fifty. A month. With the hydro.").
+- *Thank you so much.* means the opposite. *Mm-hm.* means she's written it down.
+- **Never:** small talk, his name, or an opinion she'd have to stand behind.
+
+### Gary's voices: THE TILL and SENIOR
+Heard only in Gary's office, in his head, the way the doorman's voices will be heard in his. They're Gary's, never the doorman's (`content/data/voices.yaml`, `whose: gary`).
+- **THE TILL,** in typewriter: what things cost and what they'll cost. Prices, counts and sums, and nothing else ("Eleven dollars a shirt. Forty-eight shirts."). It never says what it thinks of anyone except as money ("Long hair. That's a complaint a week.").
+- **SENIOR,** in tall capitals: Gary's father, who bought the Sov in 1958 and is dead. Short judgements of men, from a long time behind a bar, and of his son, whom he calls *Junior* ("YOUR MOTHER IRONED YOURS TILL YOU WERE THIRTY, JUNIOR."). His rules are the bar's rules ("That's my rule.") and he's usually right about people and wrong about everything else.
 
 ### TERRY
 The hotel's night clerk, on a stool behind the desk, watching the bar's TV through a propped door.
@@ -142,6 +156,14 @@ In the 86 binder. Polite, sober, well dressed. Says the owner lifted his ban.
 - **Polished and too reasonable.** Long, smooth, correct sentences, and *I completely understand*.
 - **Drops the owner's name the way other people show a card.** Calls the doorman *friend*.
 - **The menace is in the same calm voice,** never louder.
+
+## Up the highway
+
+### THE ESSO KID
+Twenty, on nights at the Esso, in a toque and the Esso's vest, on the ice freezer by the door with his phone. Physics between customers, and a gig rating a machine's answers.
+- **Talks like a kid,** *man*, *like*, *kind of*, and then says one exact thing about time or the sky ("Planes blink. Satellites move. It was there last night, same place, same time.").
+- **Asks you to decide things** and tells you after that there was nothing to decide ("They're both it, by the way. There's no person one.").
+- **Never** looks at you while the thing in the sky is there. Numbers come out precise and offhand ("Four cents an answer. I've done like eleven thousand.").
 
 ## Passing through
 

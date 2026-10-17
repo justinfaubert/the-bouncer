@@ -47,7 +47,7 @@ On a choice (inside the brackets):
 
 | Tag | Meaning |
 |---|---|
-| `#check: father 8` | A check lent by that voice, target 8 on 2d6 (7 Easy, 9 Medium, 11 Hard). Optional third number: a situational bonus or penalty. The engine rolls, then sets `passed` (and `crit`: 1 double six, -1 double one) before the choice's content runs. A check from a voice that isn't seated is hidden. |
+| `#check: father:cha 12` | A check lent by that voice and rolled on one of his seven stats (`str con dex int wis cha gut`): two dice plus the stat, against the target (11 Easy, 13 Medium, 15 Hard, 17 Very hard). Leave the stat out (`#check: father 12`) and it rolls on the voice's first (`stats` in `content/data/voices.yaml`). An ordinary man's stat is 4, so 12 is a coin toss for him with a voice's 1 behind it. Optional third number: a situational bonus or penalty. The engine rolls, then sets `passed` (and `crit`: 1 double six, -1 double one) before the choice's content runs. A check from a voice that isn't seated is hidden. |
 | `#loc: pool` | Where this takes him. Lights up that spot on the floor sketch and fires the `visit:pool` bark event. |
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 | `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
@@ -70,6 +70,7 @@ On a line (or on its own line, which attaches it to the next line of text):
 | `#prop: hoodie_phone` | A thing he's handed, drawn under the line for the player to handle (`content/data/props.yaml`, `prototype/web/src/ui/props.js`): a licence to turn over, tip to the light and hold up by a face; a phone to look at closer and swipe; the binder to leaf through. It stays in his hands while the choices it came with are on offer, or while a choice is waiting for it (`#toy:`). A second word says how it's shown: `#prop: hoodie_phone held`. |
 | `#mark: pool.lefthand` | On a voice's line: that voice marks the spot on the place's picture, in its own hand (`content/data/marks.yaml`). |
 | `#look: bartender` | What turns his head on that line: someone in the room (as the Godot build's stage knows them: `hoodie`, `vape`, `bigman`, `goodshoes`, `raincoat`, `bartender`) or a place (`bar`, `t28`, `pool`, `door`). The Godot build turns him to it if he can see it, unless the player's turning his head; nothing if he's standing there. The browser build ignores it. |
+| `#stats` | Prints his seven stats under the line, as they stand (once they're set: `stats_set`, in `office.ink`). After that, any change to one prints on its own, with the old number struck through. |
 
 ## Writing prompts
 

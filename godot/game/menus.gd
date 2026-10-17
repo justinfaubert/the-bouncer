@@ -150,7 +150,7 @@ func title() -> void:
 				main.store.clear(cur)
 				main.start_new(cur)))
 	else:
-		_button("Start the shift", true, func(): main.start_new(cur), 30)
+		_button("Start Wednesday", true, func(): main.start_new(cur), 30)
 	_button("Nights", false, func(): nights("title"))
 	_button("How it plays", false, func(): help("title"))
 	_button("Settings", false, func(): settings("title"))

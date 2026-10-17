@@ -111,15 +111,15 @@ DECIDED (14 October): the game opens with a job interview with the boss, Gary Va
 
 **Through Gary's eyes.** The draft reads "POV of the boss" this way: the camera is Gary's eyes, and the player answers as the bouncer. So the first look the player gets at the man they'll be is across a desk, through the eyes of a man sizing him up. It's the door turned round: Gary does to him what he'll do to everyone. He takes his licence, looks at it, looks at him, looks at it again, the way Hutch does at a door. The player sees what Gary sees: the size of him, his hands, the hair, the mala, what he wore to an interview, how he sits. After this he's seen only in reflections (PROPOSED with the form), and once more on the bar's camera if a fight's footage is pulled.
 
-**The office** (a draft for Hutch to correct): a converted house on the old main street, VAN DUSEN HOLDINGS on the door glass, two desks. On the wall, the Sov in 1958 with Gary's father in front of it. A box of black SECURITY shirts from a mainland supplier in the corner. At the other desk, the bookkeeper, with a mug that isn't coffee. Gary's phone rings during the interview, and he takes it.
+**The office** (a draft for Hutch to correct, and as built on 17 October): the front room of Gary's mother's house on the old main street, across the road from the bank that's been a cafe for eleven years. VAN DUSEN HOLDINGS in gold on the door glass, two desks, rain on the window since noon. On the wall, the Sov in 1958 with Gary's father in front of it, every letter of the sign lit. A box of black SECURITY shirts from a mainland supplier in the corner. At the other desk, the bookkeeper, who came over from the bank forty-one years ago, entering invoices with one finger. Gary's phone rings during the interview (Ron, about the prime rib), and he takes it.
 
-**The questions** are what anyone asks a new doorman: ever been in a fight, where did you work, why did you leave, do you drink, what would you do if. His answers set his stats, and his claims become facts people hold him to (`02_SYSTEMS.md`, the past). Claim the city door and the fights, and he starts strong and people expect it of him. Gary's own reads of him show the way the voices do, short: a lesson in reading people that the player doesn't know is one.
+**The questions** are what anyone asks a new doorman: ever been in a fight, where did you work, why did you leave, do you drink, what would you do if. His answers set his stats, and his claims become facts people hold him to (`02_SYSTEMS.md`, the past). Claim the city door and the fights, and he starts strong and people expect it of him. Gary's own reads of him show the way the voices do, short: a lesson in reading people that the player doesn't know is one. As built, Gary has two: THE TILL, which prices everything, and SENIOR, his dead father, who calls him Junior. Nothing is rolled in the office. He starts at 3 for Strength and Constitution and 2 for the rest, and each answer that says something about him puts a point on two of them, none past 7. Gary passes on what he claims, and the bartender greets him with it at 7:40.
 
-**Not getting the job** takes work. Gary needs a doorman tonight, because the last one left (the tape by the door is his arithmetic). Lie and get caught twice, insult Gary or the bookkeeper, threaten anybody, or walk out, and the teller says: "I didn't get the job. That's it. That's the story." The game ends there, a real ending and a short one.
+**Not getting the job** takes work. Gary needs a doorman tonight, because the last one left (the tape by the door is his arithmetic). Mean a threat, walk out, or be rude to both of them, and the teller says: "I didn't get the job. That's it. That's the story." The game ends there, a real ending and a short one. As built, lies Gary catches cost him with Gary but not the job.
 
-**On the way out** Gary hands him a SECURITY shirt from the box ("Wear this"), and the bookkeeper asks for his banking details. She'll write his first cheque short on Friday.
+**On the way out** Gary hands him a SECURITY shirt from the box, and the bookkeeper wants his numbers for the file. If he reads the form first, the small print takes twenty-four dollars off his first cheque, Friday's, for an eleven-dollar shirt. She'll write that cheque short anyway. Then he gets the key to room twelve.
 
-**The walk to the Sov** at dusk is the first time he's on the town's streets, and it teaches looking and going without saying so: the old main street, the highway, the Esso's lights, the Sov's sign.
+**The walk to the Sov** at dusk is the first time he's on the town's streets, and it teaches looking and going without saying so: the old main street, the highway, the Esso's lights, the Sov's sign. As built, he has three hours before he's due, and where he spends them is what he walks in knowing. He can see the old man from the end of the bar on the wharf, the Esso kid and the light over the strait, and the Sov's front from the seawall across the highway. Or he can go to his room, with the bartender on the deck under it, on the phone to Gary.
 
 ## Choices that matter: worldlines
 
@@ -191,11 +191,13 @@ DECIDED (14 October): the classic six and Gut Brain, Hutch's name for Intuition,
 | Charisma | CHA | Presence | Rapport in the twenty seconds at the door, talking a man down, a no that lands soft |
 | Gut Brain | GUT | His gut | The room turning before it turns, the building, the rats, what's coming |
 
-The gut has a nervous system of its own, which is why people call it a second brain. So in the game what he eats and drinks reaches Gut Brain directly: a meal steadies it, hunger sharpens it, and drink loosens it.
+The gut has a nervous system of its own, which is why people call it a second brain. So in the game what he eats and drinks reaches Gut Brain directly: a meal steadies it, hunger sharpens it, and drink loosens it. As built (17 October): if he walks past the Esso without eating, he's hungry all night, with Gut Brain one better and his body's checks (STR, CON, DEX) one worse.
 
-**A check** is two dice, plus the stat, plus whichever seated voice lends what it taught him (as built, 0 to 2 by how reliable its source is, and a voice he's trained for can reach 3), plus what he's wearing, less drink and hurt where they count. Against a target: 10 for routine, 12 for hard, 14 for very hard, 16 for heroic, 18 for nearly impossible. Double six always passes and double one always fails, as built, so nothing is ever certain. The tension in his head still widens the swing both ways, felt in the print rather than shown as a number, and every check's tag says where its number comes from.
+**Constitution holds his drink,** as built. At 5 or 6, one drink goes in without showing; at 7 or 8, two; at 9 or 10, three. At 1 or 2 they show early. A meal holds one more. Only the drinks that show reach his checks and the print, and the status line keeps both counts ("4 drinks (feels like 2)").
 
-**The scale.** An ordinary man is a 4. He starts between 2 and 7, set by the interview, and anything at 9 or 10 is rare and costs him. The odds, roughly: a 4 with a voice's 1 against a hard 12 passes 58 times in 100; a 9 with a voice's 2 against a heroic 16 passes five times in six; a 2 with no voice against a hard 12 passes one time in six. Stats from 1 to 10 against dice that swing from 2 to 12 mean who he is matters as much as luck.
+**A check** is two dice, plus the stat, plus whichever seated voice lends what it taught him (as built, 0 to 2 by how reliable its source is, and a voice he's trained for can reach 3), plus what he's wearing, less drink and hurt where they count. Against a target. As built (17 October), the night's targets went up by an ordinary man's 4, so a man like that has the odds he always had: up to 9 is trivial, 10 or 11 easy, 12 or 13 medium, 14 or 15 hard, 16 or 17 very hard, and above that near impossible. A check rolls on the first stat its voice lends to, unless the line names another. Double six always passes and double one always fails, as built, so nothing is ever certain. The tension in his head still widens the swing both ways, felt in the print rather than shown as a number, and every check's tag says where its number comes from.
+
+**The scale.** An ordinary man is a 4. He starts between 2 and 7, set by the interview, and anything at 9 or 10 is rare and costs him. The odds, roughly: a 4 with a voice's 1 against a medium 12 passes 58 times in 100; a 9 with a voice's 2 against a very hard 16 passes five times in six; a 2 with no voice against a medium 12 passes one time in six. Stats from 1 to 10 against dice that swing from 2 to 12 mean who he is matters as much as luck.
 
 **The voices that teach:**
 
@@ -304,7 +306,7 @@ DECIDED (14 October): the town is generated once a game, and detailed: "predeter
 
 **The streets are fixed.** Drawn by hand, the same in every game, so a player learns the town the way he does:
 
-- **The highway strip:** the Sov and its beer store, the Esso across the highway, the diner, and the strip mall (the hardware store, the pawn shop, the hospital auxiliary's thrift store, the gym, a nail salon, and an empty unit that's been FOR LEASE since the mill's notice).
+- **The highway strip:** the Sov and its beer store, the Esso a few minutes up the highway toward the old main street (as built: he passes it on the walk in), the diner, and the strip mall (the hardware store, the pawn shop, the hospital auxiliary's thrift store, the gym, a nail salon, and an empty unit that's been FOR LEASE since the mill's notice).
 - **The old main street,** down by the water and older than the highway: Gary's office in a converted house, the library, the community hall, the Legion, two churches, the old bank that's a café now.
 - **The harbour:** the government wharf, the ferry dock, the shut fish plant.
 - **The hill:** the hospital, the high school, the better houses, the water tower, and the road up, which matters on the last night.
@@ -410,7 +412,7 @@ DECIDED: money and skill-building in novel ways. PROPOSED in `02_SYSTEMS.md`: th
 **The strip** (DECIDED: each place distinct, and "the places that can be visited should be important events or events that contextualize the games reality"). Six places on the highway, in walking distance, each one a person, each a daylight visit, and each with its event:
 
 1. **The Sov's own beer and wine store,** through the door behind the bar. Where the minors test can come on day 11, and a till he could skim.
-2. **The Esso** across the highway: coffee, smokes, scratch tickets, batteries, and the Esso kid on nights. Its clock disagrees with the bar's and with the phones'. From its lot, on day 22, the spiral in the sky.
+2. **The Esso,** a few minutes up the highway on the way into town: coffee, smokes, scratch tickets, batteries, and the Esso kid on nights. Its clock disagrees with the bar's and with the phones'. From its lot, on day 22, the spiral in the sky.
 3. **The hospital auxiliary's thrift store,** for clothes. Its racks are the town's dead and divorced. When a man from town dies, his coat turns up there within the week, and the woman at the till knows whose it was.
 4. **The pawn shop:** buys and sells, no questions, mostly. Where confiscations become money, where the club's prospects sell what they shouldn't have, and where there's a loaded die in a dish of dice by the till.
 5. **The hardware store:** padlocks, a better flashlight, gloves, traps and bait (the war is bought here), duct tape, a door closer. The old men at the coffee machine were boys in the quake of 1946.
@@ -624,7 +626,7 @@ The licence hologram that only gleamed is fixed in both builds, and Hutch says i
 
 The first three days (M2 in `04_PRODUCTION.md`), with the new bones under them, before anything widens (depth before breadth):
 
-1. **Gary's office:** the interview through his eyes, the answers setting the stats, and the walk to the Sov at dusk.
+1. **Gary's office:** the interview through his eyes, the answers setting the stats, and the walk to the Sov at dusk (built 17 October).
 2. **Looking and going:** the free look first (built 15 October), and walking the way a man would, with the people who come and go walking too (built 17 October); then going where he looks, and the posts as places to settle.
 3. **His hand:** handling's two choices, his pockets, the lost-and-found box, and the first temptations (the beer, Gary's shot).
 4. **The town:** the streets and their first hundred people, licences drawn from them, and a Friday's waves at the door.
@@ -639,7 +641,7 @@ Then the rest of week one: the BB gun out back from the first night, the meat dr
 All five calls are made. What's still open is short, and only Hutch has it ("make up the rest" works):
 
 1. **Paige:** is she in her fifties, as the draft has her? And what's her worst habit?
-2. **Gary's office:** where is it in town, and what's in it?
+2. **Gary's office:** where is it in town, and what's in it? (The build uses the draft until you say: the front room of his mother's house on the old main street.)
 3. **Names:** what to call the old soldier in the game (not Jim), and whether the bouncer has a name the player hears (Paige would say it once he's lasted a week).
 4. **Music:** is there a band on Saturdays, and a dance floor? (Your story about the side door had one.)
 5. **A First Nation beside the town:** in the game or not, and how. That's yours to call, and people from a Nation should have a say in it.

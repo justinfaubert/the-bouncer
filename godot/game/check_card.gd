@@ -63,6 +63,8 @@ func setup(it: Dictionary, odds_text: String, size: int) -> void:
 	head.add_theme_constant_override("separation", 14)
 	add_child(head)
 	head.add_child(UiBits.label(str(it.label), "ui_b", int(size * 0.8), vc, 2))
+	if str(it.get("statLabel", "")) != "":
+		head.add_child(UiBits.label(str(it.statLabel).to_upper(), "ui", int(size * 0.8), vc, 2))
 	head.add_child(UiBits.label(str(it.word) + " " + str(it.target), "ui_b", int(size * 0.8), Look.INK_2, 1))
 	if odds_text != "":
 		head.add_child(UiBits.label(odds_text, "ui", int(size * 0.8), Color(vc, 0.8), 1))
@@ -165,7 +167,7 @@ func said(w: Dictionary, size: int) -> void:
 	var v := Look.voice(st)
 	voice_line.push_font(Look.font(v.font), int(size * 0.9 * v.size))
 	voice_line.push_color(c)
-	voice_line.add_text(str(w.text).to_lower() if v.get("lower", false) else str(w.text))
+	voice_line.add_text(Look.voice_text(v, str(w.text)))
 	voice_line.pop()
 	voice_line.pop()
 	voice_line.visible = true

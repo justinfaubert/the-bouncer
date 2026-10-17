@@ -4,7 +4,7 @@
 # window, the washrooms off the back hall, the deck on the water side, the lot and the pickup. His
 # own notes on it, faded by how long ago they were true: the last count, the pool table ringed when
 # it's heating up, table 28's rounds in a tally, the doors propped or shut. A lit place is
-# somewhere he can go now: click it, and he goes.
+# somewhere he can go now: click it, and he goes. Before he's been inside, the town instead.
 class_name Sketch
 extends Control
 
@@ -25,6 +25,11 @@ const SPOTS := {
 	"hall": {"x": 160, "y": 47, "lx": 176, "ly": 51, "anchor": "start", "label": "Washrooms"},
 	"deck": {"x": 330, "y": 186, "lx": 330, "ly": 226, "anchor": "middle", "label": "Deck"},
 	"lot": {"x": 262, "y": 264, "lx": 262, "ly": 284, "anchor": "middle", "label": "Lot"},
+}
+# Before the shift he's on foot (content/ink/walk.ink), and the sketch is the town between Gary's
+# and the Sov instead (the browser's townSVG): where he is, nothing to click
+const TOWN := {
+	"office": Vector2(98, 34), "street": Vector2(70, 150), "esso": Vector2(182, 142), "seawall": Vector2(300, 184),
 }
 
 var main
@@ -58,6 +63,8 @@ func setup(m) -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.material = sm
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# under what's drawn on the page: a child draws over its parent unless it's told to go behind
+	bg.show_behind_parent = true
 	page.add_child(bg)
 	add_child(page)
 	page.draw.connect(_draw_page)
@@ -115,6 +122,8 @@ func _on_input(e: InputEvent) -> void:
 
 
 func _spot_at(p: Vector2) -> String:
+	if TOWN.has(main.game.here()):
+		return ""
 	for id in SPOTS:
 		var s: Dictionary = SPOTS[id]
 		var r: float = s.get("r", 10) + 6
@@ -181,6 +190,9 @@ func _pen_ring(cx: float, cy: float, rx: float, ry: float, seed_n: int, c: Color
 
 func _draw_page() -> void:
 	var sz := page.size
+	if TOWN.has(main.game.here()):
+		_draw_town(sz)
+		return
 	k = minf((sz.x - 60.0) / 360.0, (sz.y - 80.0) / 312.0)
 	origin = Vector2((sz.x - 360.0 * k) / 2.0, 50.0 + (sz.y - 80.0 - 312.0 * k) / 2.0)
 	page.draw_string(Look.font("ui_b"), Vector2(30, 36), "THE FLOOR SKETCH, FROM HIS POCKET", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, RED)
@@ -250,6 +262,84 @@ func _draw_page() -> void:
 		page.draw_string(Look.font("read_i"), Vector2(30, sz.y - 22), "Nowhere to go from here just now.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, PENCIL)
 	else:
 		page.draw_string(Look.font("read_i"), Vector2(30, sz.y - 22), "A place in red is somewhere he can go now. Click it and he goes.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, PENCIL)
+
+
+# the old main street down to the highway, the wharf across it, the Esso on the left going east,
+# the Sov at the far end and the seawall across from it
+func _draw_town(sz: Vector2) -> void:
+	k = minf((sz.x - 60.0) / 360.0, (sz.y - 80.0) / 244.0)
+	origin = Vector2((sz.x - 360.0 * k) / 2.0, 50.0 + (sz.y - 80.0 - 244.0 * k) / 2.0)
+	page.draw_string(Look.font("ui_b"), Vector2(30, 36), "THE TOWN, ON THE WAY TO THE SOV", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, RED)
+	page.draw_string(Look.font("ui_b"), Vector2(sz.x - 30, 36), "M OR ESC TO PUT IT AWAY", HORIZONTAL_ALIGNMENT_RIGHT, -1, 13, PENCIL)
+	var thin := Color(PENCIL, 0.75)
+	var faint := Color(PENCIL, 0.45)
+	var fill := Color(PENCIL, 0.12)
+	# the strait: the shore, a few waves, two boats off the wharf
+	var shore := PackedVector2Array()
+	for q in [Vector2(0, 193), Vector2(40, 190), Vector2(80, 192), Vector2(120, 191.5), Vector2(160, 191), Vector2(200, 192.5), Vector2(240, 193), Vector2(300, 191.5), Vector2(360, 191)]:
+		shore.append(_to_px(q.x, q.y))
+	page.draw_polyline(shore, thin, 1.0 * k * 0.5, true)
+	for w in [Vector2(22, 214), Vector2(118, 226), Vector2(150, 208), Vector2(212, 230), Vector2(250, 214), Vector2(332, 228)]:
+		var wave := PackedVector2Array()
+		for i in 9:
+			wave.append(_to_px(w.x + i * 2.5, w.y - 1.5 * sin(i * PI / 4.0)))
+		page.draw_polyline(wave, faint, 1.0 * k * 0.5, true)
+	for bt in [Vector2(46, 206), Vector2(84, 216)]:
+		var hull := PackedVector2Array()
+		for i in 13:
+			var t := i / 12.0
+			hull.append(_to_px(bt.x + 14.0 * t, bt.y - 2.0 * sin(t * PI)))
+		for i in 13:
+			var t := 1.0 - i / 12.0
+			hull.append(_to_px(bt.x + 14.0 * t, bt.y + 2.0 * sin(t * PI)))
+		page.draw_polyline(hull, thin, 1.0 * k * 0.5, true)
+	_text(354, 240, "the strait", 9, PENCIL, "end")
+	# the highway along the water; the old main street comes down into it
+	_line(Vector2(0, 158), Vector2(60, 158), thin, 1.2)
+	_line(Vector2(80, 158), Vector2(360, 158), thin, 1.2)
+	_line(Vector2(0, 176), Vector2(360, 176), thin, 1.2)
+	_text(132, 170.5, "Highway", 8.5, PENCIL, "middle")
+	_line(Vector2(60, 4), Vector2(60, 158), thin, 1.2)
+	_line(Vector2(80, 4), Vector2(80, 158), thin, 1.2)
+	var f := Look.font("hand")
+	var px := int(8.5 * k)
+	var label := "Old main street"
+	var lw := f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	page.draw_set_transform(_to_px(73, 96), -PI / 2.0, Vector2.ONE)
+	page.draw_string(f, Vector2(-lw / 2.0, 0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, px, PENCIL)
+	page.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# what's along it: the churches at either end, the library, the Legion, the bank, the shops
+	for b in [[42, 12, 13, 16], [42, 40, 13, 14], [40, 64, 15, 34], [42, 108, 13, 12], [86, 64, 14, 14], [86, 86, 14, 12], [86, 104, 14, 12], [86, 128, 14, 18]]:
+		_rect(b[0], b[1], b[2], b[3], thin, 1.0)
+	# Gary's, up the top, its porch on the street
+	_rect(86, 18, 26, 26, INK, 1.4, fill)
+	_line(Vector2(83, 24), Vector2(83, 38), thin, 1.0)
+	_text(118, 35, "Gary's", 9, PENCIL)
+	# the government wharf on its pilings, the light at the end
+	_rect(66, 176, 8, 50, INK, 1.4, fill)
+	page.draw_arc(_to_px(70, 230), 2.4 * k, 0, TAU, 16, thin, 1.0 * k * 0.5, true)
+	_text(80, 232, "Wharf", 9, PENCIL)
+	# the Esso: the store, the canopy over two islands of pumps
+	_rect(164, 98, 36, 16, INK, 1.4, fill)
+	var cn := [Vector2(160, 120), Vector2(204, 120), Vector2(204, 150), Vector2(160, 150), Vector2(160, 120)]
+	for i in 4:
+		_dash(cn[i], cn[i + 1], thin, 1.0)
+	_rect(170, 128, 5, 12, thin, 1.0)
+	_rect(189, 128, 5, 12, thin, 1.0)
+	_text(182, 92, "Esso", 9, PENCIL, "middle")
+	# the Sov, the trucks nose-in along its front; the seawall across the highway
+	_rect(250, 104, 96, 40, INK, 3.0)
+	_text(298, 130, "SOV", 15, INK, "middle", "zilla_b")
+	for tx in [262, 276, 290, 318]:
+		_rect(tx, 147, 7, 9, thin, 1.0)
+	_line(Vector2(236, 188), Vector2(356, 188), INK, 3.0)
+	_text(300, 206, "Seawall", 9, PENCIL, "middle")
+	# where he is
+	for id in TOWN:
+		page.draw_circle(_to_px(TOWN[id].x, TOWN[id].y), 2.4 * k, Color(PENCIL, 0.45))
+	var me: Vector2 = TOWN[main.game.here()]
+	page.draw_circle(_to_px(me.x, me.y), 5.5 * k, INK)
+	page.draw_string(Look.font("read_i"), Vector2(30, sz.y - 22), "The Sov's floor comes up once he's inside.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, PENCIL)
 
 
 func _notes() -> void:

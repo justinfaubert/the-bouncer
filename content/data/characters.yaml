@@ -128,8 +128,23 @@ endbar:
   look: {hat: flatcap, age: old, face: [lined], top: jacket, mood: knowing}
   note: The man who seems to speak for the rats (DECIDED that such a man exists). Nobody saw him come in. Been coming in longer than the bartender.
 owner:
-  label: THE OWNER
-  note: On the phone. Runs on the money code.
+  label: GARY
+  note: Gary Van Dusen (DECIDED, Hutch, 14 October), the owner, "Junior" behind his back. The game opens in his office, through his eyes (office.ink); after that he's on the phone. Runs on the money code.
+bookkeeper:
+  label: THE BOOKKEEPER
+  portrait: bookkeeper
+  look: {sex: f, age: old, hair: short, face: [glasses], top: cardigan, mood: flat}
+  note: At the other desk in Gary's office (Hutch's story 12, bible/12_FROM_THE_DOOR.md). Did his father's books and then his, forty-one years in March; before that a teller at the bank across the road. Her name is Hutch's.
+essokid:
+  label: THE ESSO KID
+  portrait: essokid
+  look: {age: young, hat: beanie, top: hoodie, mood: knowing}
+  note: Twenty, on nights at the Esso down the highway (DECIDED, the future machine's eccentric; bible/11_SKELETON.md). Physics on his phone, and four cents an answer rating a machine's for a gig site. On the walk at dusk (walk.ink).
+him:
+  label: HIM
+  portrait: him
+  look: {build: big, hair: long, face: [stubble], top: jacket, extra: [mala]}
+  note: The doorman, seen once, across Gary's desk (office.ink). He never speaks with a label; his name is Hutch's.
 slippers:
   label: SLIPPERS
   note: A resident from upstairs who comes down in her slippers.

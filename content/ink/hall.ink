@@ -467,8 +467,16 @@ It was more than his father had said about it in the whole of his life.
 = night_clerk
 ~ pass(4)
 He went through the hotel door. On the other side was the front desk, a counter with a bell on it and a key board with most of the keys still on their hooks, and the night clerk on a stool behind it with his chin on his fist, {hotel_door:watching the bar's TV through the gap where the door had been propped|looking at the shut door the way you'd look at a TV somebody had switched off}. #portrait: terry
-TERRY: Oh, hey. Something wrong? What's the score?
-* ["Residents come down that way. I can't count them." #check: father 7]
+{
+- terry_signed == 1:
+    TERRY: Oh, hey, twelve. You signed. Something wrong? What's the score?
+- terry_signed == -1:
+    TERRY: Oh. Twelve. Something wrong? What's the score?
+- else:
+    TERRY: Oh, hey. Something wrong? What's the score?
+}
+// He signed Terry's key book at quarter past five (walk.ink): Terry likes people who sign.
+* ["Residents come down that way. I can't count them." #check: father:cha 11 {terry_signed == 1:2|{terry_signed == -1:-1|0}}]
     { passed:
         TERRY: Oh, they're only going to the bar, pal.
         TERRY: Sure, sure. You bet. I'll get the game on my phone, eh. It runs a minute behind, but.

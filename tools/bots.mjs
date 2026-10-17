@@ -6,7 +6,8 @@
 //   node tools/bots.mjs --trace 42          print one full run (seed 42) as a transcript
 //   node tools/bots.mjs --json out.json     also write the report as JSON
 //
-// It checks for: Ink errors and warnings, runs that end anywhere but the dawn ledger, runs
+// It checks for: Ink errors and warnings, runs that end anywhere but the dawn ledger (or Gary's
+// office, when the interview goes the way it can, on purpose), runs
 // that go round in circles without finishing, save and load (a save taken mid-run, loaded into
 // a fresh game, has to play out identically), knots and stitches no run ever reached, and
 // empty choices. Then it prints how the nights came out, so a writer can see what's common,
@@ -55,7 +56,19 @@ const content = JSON.parse(fs.readFileSync(contentFile, 'utf8'));
 const seenChoice = new Map();
 const choiceKey = (g, c) => (g.getVar('here') ? String(B.Game.inkValue(g.getVar('here'))) : '') + '|' + c.text;
 
+// What it takes to not get the job (office.ink): meaning a threat, walking out, being rude to both
+// of them. A player has to set out to; so the bots mostly don't, and one run in a few dozen does.
+// (Only the first step is held back: once he's started down one, a bot goes on as it likes.)
+const WALKS_OUT = /^("Want to find out\?"|Get up and go\.|"Must be nice\.)/;
+
 function pickIndex(g, visible, policy, rng) {
+  if (String(B.Game.inkValue(g.getVar('here'))) === 'office' && rng.next() < 0.93) {
+    const safe = visible.map((c, i) => [c, i]).filter(([c]) => !WALKS_OUT.test(c.text));
+    if (safe.length && safe.length < visible.length) {
+      const j = pickIndex(g, safe.map(([c]) => c), policy, rng);
+      return safe[j][1];
+    }
+  }
   if (policy === 'explore') {
     let best = Infinity;
     let pool = [];
@@ -131,7 +144,7 @@ function play(seed, policy, opts = {}) {
   if (!res.ended) problems.push({ kind: 'no-end', msg: `still going after ${STEP_CAP} choices`, where: where(g) });
   const story = g.story;
   const visited = (p) => { try { return story.state.VisitCountAtPathString(p) > 0; } catch (e) { return false; } };
-  if (res.ended && !visited('ledger')) problems.push({ kind: 'dead-end', msg: 'the story ended before the dawn ledger', where: where(g), last: g.log.slice(-4).map((l) => l.text) });
+  if (res.ended && !visited('ledger') && !visited('interview.not_hired')) problems.push({ kind: 'dead-end', msg: 'the story ended before the dawn ledger', where: where(g), last: g.log.slice(-4).map((l) => l.text) });
   for (const e of g.errors) problems.push({ kind: e.type === 1 ? 'ink-warning' : 'ink-error', msg: e.message, where: where(g) });
   if (saveTest && !saveTest.ok) problems.push({ kind: 'save-load', msg: saveTest.msg, where: saveTest.where });
   for (const w of words) if (w.endsWith('(nothing to say)')) problems.push({ kind: 'word', msg: 'the word on him ran out of lines: ' + w, where: where(g) });
@@ -202,6 +215,8 @@ function outcomeOf(v, g) {
   else if (has(fam, 'dad_stayed')) family = 'finished his game';
   const rats = (v.rats || [])[0] || '?';
   return {
+    hired: visits(g, 'interview.not_hired') ? 'no (Gary\'s office)' : 'yes',
+    'before the shift': has(v.knows, 'sov_watched') ? 'watched the Sov from the seawall' : (v.from_room ? 'room twelve' : (visits(g, 'interview.not_hired') ? 'never got there' : '?')),
     family,
     'family: pool fight': has(fam, 'pool_fight') ? 'yes' : 'no',
     'family: kids came in the back': has(fam, 'via_deck') ? 'yes' : 'no',

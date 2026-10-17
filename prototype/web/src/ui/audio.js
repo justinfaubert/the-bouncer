@@ -308,6 +308,41 @@
       const balls = a.every(6, 16, function (t) { for (let i = 0; i < 3; i++) a.burst(t + i * (0.05 + Math.random() * 0.08), 0.02, 2600, 3, 0.07, bus); });
       return stopper(a, [tone, talk, cooler], [clinks, balls, function () { try { lfo.stop(); } catch (e) {} }]);
     },
+    // Gary's office at four: the rain at the window since noon, the bookkeeper entering invoices
+    // with one finger, and the old house's boards now and then
+    office(a) {
+      const bus = a.bus.amb;
+      const pane = a.bed(a.noise(), 'bandpass', 700, 0.6, 0.06, bus);
+      const low = a.bed(a.brown(), 'lowpass', 220, 0.7, 0.1, bus);
+      const drops = a.every(0.15, 0.6, function (t) { a.burst(t, 0.02, 1200 + Math.random() * 900, 5, 0.01 + Math.random() * 0.012, bus); });
+      const keys = a.every(2.5, 7, function (t) {
+        const n = 2 + Math.floor(Math.random() * 6);
+        let d = 0;
+        for (let i = 0; i < n; i++) { a.burst(t + d, 0.012, 3400 + Math.random() * 600, 4, 0.03, bus); d += 0.28 + Math.random() * 0.45; }
+      });
+      const boards = a.every(14, 40, function (t) { a.tone(t, 90 + Math.random() * 60, 0.35, 0.02, 'triangle', bus, 50); });
+      return stopper(a, [pane, low], [drops, keys, boards]);
+    },
+    // the Esso at dusk: the canopy's lights buzzing, the wet highway and the log trucks on it, a pump
+    // beeping now and then
+    canopy(a) {
+      const bus = a.bus.amb;
+      const buzz = a.hum(120, 0.012, bus);
+      const buzz2 = a.hum(240, 0.005, bus);
+      const drizzle = a.bed(a.noise(), 'bandpass', 1100, 0.5, 0.04, bus);
+      const road = a.bed(a.brown(), 'lowpass', 240, 0.7, 0.06, bus);
+      const tires = a.bed(a.noise(), 'bandpass', 600, 0.7, 0, bus);
+      const past = a.every(4, 12, function (t) {
+        const big = Math.random() < 0.3;
+        const g = tires.gain.gain;
+        tires.filter.frequency.setValueAtTime(big ? 380 : 650 + Math.random() * 400, t);
+        g.cancelScheduledValues(t);
+        g.setTargetAtTime(big ? 0.12 : 0.06, t, big ? 0.9 : 0.5);
+        g.setTargetAtTime(0, t + (big ? 2.2 : 1.2), big ? 1.0 : 0.6);
+      });
+      const beeps = a.every(9, 25, function (t) { a.tone(t, 1850, 0.09, 0.02, 'square', bus); });
+      return stopper(a, [buzz, buzz2, drizzle, road, tires], [past, beeps]);
+    },
     drip(a) {
       const bus = a.bus.amb;
       const tone = a.bed(a.brown(), 'lowpass', 180, 0.7, 0.18, bus);

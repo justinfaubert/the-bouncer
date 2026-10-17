@@ -32,7 +32,7 @@ const SWEET := Vector2(-8.0, -6.0)          # the tip of a card (degrees, as hel
 const DWELL := 3.0
 const MONTHS := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 # the licence's photo: whose face, as a model
-const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card"}
+const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card", "him": "him_card"}
 
 var main
 var P := {}                      # content.props
@@ -44,6 +44,8 @@ var _waiting := {}               # held out before it can be in his hand: he's o
 const WAIT_MAX := 12.0           # seconds it waits for whoever's bringing it, if they never come into sight
 # his own hand: which holds what
 const HAND_FOR := {"card": ["his_right_card", "card"], "phone": ["his_right_phone", "phone"]}
+# in Gary's office the eyes are Gary's, and so are the hands (content/ink/office.ink)
+const GARY_HAND_FOR := {"card": ["gary_right_card", "card"], "phone": ["gary_right_phone", "phone"]}
 # a card or a phone that's in his hands isn't in theirs: which figure holds each, and its parts
 const ON_FIGURE := {"driver_card": ["driver", ["card", "card_body"]], "goodshoes_card": ["goodshoes", ["card", "card_body"]],
 	"hoodie_phone": ["hoodie", ["phone", "phone_screen"]]}
@@ -241,6 +243,8 @@ static func _field(v) -> String:
 
 # A driver's licence, front or back, a hundred pixels to the centimetre.
 func _card_face(pr: Dictionary, front: bool) -> SubViewport:
+	if str(pr.get("type", "")) == "security":
+		return _security_face(pr, front)
 	var sv := _viewport(Vector2i(856, 540), true)
 	var c := _page(sv)
 	var ink := Color("1d2430")
@@ -328,6 +332,77 @@ func _card_face(pr: Dictionary, front: bool) -> SubViewport:
 	return sv
 
 
+# His security worker licence (content/data/props.yaml), the one Gary holds up in the office: the
+# role across the top, the seal in the corner, the photo from before his hair grew, a number, the
+# dates. His name is printed where Gary's thumb is (the hand's card anchor covers it), and drawn
+# as worn bars, because his name is Hutch's to give.
+func _security_face(pr: Dictionary, front: bool) -> SubViewport:
+	var sv := _viewport(Vector2i(856, 540), true)
+	var c := _page(sv)
+	var ink := Color("1d2430")
+	_rect(c, Rect2(Vector2.ZERO, c.size), Color("dfe2dc"), 0)
+	var r := _rng(str(pr.get("number", "")) + ("f" if front else "b"))
+	# the guilloche: rings out from the seal, the pattern nobody reads
+	for i in 30:
+		var ln := Line2D.new()
+		ln.width = 1.2
+		ln.default_color = Color("c3cbc4")
+		var rr := 40.0 + i * 24.0
+		for k in 121:
+			var a := TAU * k / 120.0
+			ln.add_point(Vector2(760, 470) + Vector2(cos(a), sin(a)) * (rr + sin(a * 9.0 + i) * 5.0))
+		c.add_child(ln)
+	if front:
+		_rect(c, Rect2(0, 0, 856, 80), Color("2f3a33"))
+		_text(c, str(pr.get("role", "SECURITY WORKER")), Vector2(34, 14), "ui_b", 44, Color("eef0ea"), 4)
+		var face := "face_" + str(pr.get("face", ""))
+		_rect(c, Rect2(32, 104, 238, 300), Color("bfc6cb"))
+		if tex.has(face):
+			_pic(c, face, Rect2(32, 104, 238, 300))
+		# the name, under his thumb: surname, given names
+		_rect(c, Rect2(400, 158, 350, 30), Color(ink, 0.82), 6)
+		_rect(c, Rect2(400, 204, 260, 22), Color(ink, 0.62), 6)
+		var cells := [["LIC", str(pr.get("number", ""))], ["ISS", str(pr.get("issued", ""))], ["EXP", str(pr.get("expires", ""))]]
+		for i in cells.size():
+			var cy := 360.0 + i * 46.0
+			_text(c, cells[i][0], Vector2(300, cy + 8), "mono", 17, Color(ink, 0.7))
+			_text(c, cells[i][1], Vector2(360, cy), "ui_b", 30, ink, 1)
+		# the seal in the corner: rings, and a crown that's only a row of points
+		var seal := Vector2(760, 456)
+		for k in 3:
+			var ring := Line2D.new()
+			ring.width = 3.0 if k == 0 else 1.6
+			ring.default_color = Color(ink, 0.55)
+			var rr := 52.0 - k * 9.0
+			for i in 73:
+				var a := TAU * i / 72.0
+				ring.add_point(seal + Vector2(cos(a), sin(a)) * rr)
+			c.add_child(ring)
+		var crown := Line2D.new()
+		crown.width = 2.4
+		crown.default_color = Color(ink, 0.6)
+		for i in 9:
+			crown.add_point(seal + Vector2(-20 + i * 5.0, -2.0 - (10.0 if i % 2 == 0 else 0.0)))
+		c.add_child(crown)
+		_rect(c, Rect2(seal.x - 20, seal.y + 2, 40, 5), Color(ink, 0.6), 2)
+	else:
+		# the barcode, and what the card says about itself
+		var bx := 60.0
+		var xx := bx
+		var on := true
+		while xx < 520.0:
+			var w2 := float(r.randi_range(2, 7))
+			if on:
+				_rect(c, Rect2(xx, 70, w2, 110), ink)
+			xx += w2
+			on = not on
+		_text(c, "CARRY THIS LICENCE WHILE WORKING", Vector2(60, 240), "mono", 24, ink)
+		_text(c, "AND SHOW IT ON REQUEST.", Vector2(60, 274), "mono", 24, ink)
+		_text(c, "NOT TRANSFERABLE.", Vector2(60, 330), "mono", 22, Color(ink, 0.7))
+		_text(c, str(pr.get("number", "")).replace(" ", "") + "   " + str(pr.get("issued", "")).replace("-", ""), Vector2(60, 470), "mono", 20, Color(ink, 0.55))
+	return sv
+
+
 # A licence's hologram, as a picture the shader reads (look/licence.gdshader): red is how much
 # foil, green which way its grating runs (a turn: the tip it answers to), blue where in that tip it
 # catches. A field of waves over the whole card, each row catching a little after the one above;
@@ -398,10 +473,10 @@ func _card_holo(pr: Dictionary) -> SubViewport:
 	if tex.has(face):
 		var tr := _pic(c, face, Rect2(700, 330, 112, 140))
 		tr.material = _holo_face_material()
-	# the birthday, small, along a wave at the foot
+	# the birthday, small, along a wave at the foot (a licence with no birthday on it: its number)
 	var born := str(pr.get("born", ""))
 	var p := born.split("-")
-	var day := ("%d %s %s" % [int(p[2]), MONTHS[clampi(int(p[1]) - 1, 0, 11)], p[0]]) if p.size() >= 3 else born
+	var day := ("%d %s %s" % [int(p[2]), MONTHS[clampi(int(p[1]) - 1, 0, 11)], p[0]]) if p.size() >= 3 else str(pr.get("number", born))
 	var x := 30.0
 	var i := 0
 	while x < 830.0:
@@ -678,8 +753,9 @@ func offer(it: Dictionary, live: bool, now := false) -> void:
 			held.body = body3
 			_binder_page()
 			main.audio.sfx("page")
-	if HAND_FOR.has(kind) and held.has("body"):
-		_right_hand(held.body, HAND_FOR[kind][0], HAND_FOR[kind][1])
+	var hands: Dictionary = GARY_HAND_FOR if main.game.here() == "office" else HAND_FOR
+	if hands.has(kind) and held.has("body"):
+		_right_hand(held.body, hands[kind][0], hands[kind][1])
 	_pose(held.pose, true)
 	_hint()
 
@@ -867,6 +943,9 @@ func drop_all() -> void:
 func _brought(id: String) -> bool:
 	var who := _whose(id)
 	if who == "" or main.stage == null:
+		return true
+	# in Gary's office everything comes across the desk, from a man already sitting at it
+	if main.game.here() == "office":
 		return true
 	if main.stage.walkers.has(who):
 		return false

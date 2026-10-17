@@ -137,6 +137,14 @@ Update this file at the end of every session: add a session entry, move items be
 - His spot at the bar was in a drinker's back: a man on the next stool filled the view. There's a gap in the stools for it now, and `godot/tests/walks.gd` checks every place he stands against every place anybody else does. Three more were under someone (the pool table, standing at table 28, and the lot's step by the pickup) and were moved.
 - The story changed (the moves, the hand-backs, the looks), so a night saved before goes on from the floor.
 
+### 2026-10-17 (Saturday evening), Gary's office
+
+- The skeleton's first milestone is built in both builds. The game opens on Wednesday at four in Gary Van Dusen's office, through Gary's eyes (DECIDED, 14 October), and the doorman's answers set his seven stats. From the porch steps on, the camera is his, for the walk to the Sov at dusk. What it built is under PROPOSED, "Proposed with Gary's office (2026-10-17)".
+- The stats are in every check now. Each of the forty-five checks in the Ink names the stat it tests. Their targets went up by four, an ordinary man's 4, so a man like that has the odds the night always gave him.
+- Constitution had nothing to do. It holds his drink now, and a meal holds one more.
+- Open question 20 (where Gary's office is, and what's in it) stays open. The build follows the skeleton's draft until Hutch says otherwise.
+- The story changed (a new opening, and stats in every check), so a night saved before goes on from the floor.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -332,7 +340,7 @@ Proposed with the skeleton (2026-10-14), in `11_SKELETON.md`. Not built. Hutch a
 Proposed with Hutch's answers (2026-10-14, evening), in `11_SKELETON.md`. Claude's drafts to fill in what Hutch decided; not built:
 
 - **Through Gary's eyes.** The camera is Gary's for the interview and the player answers as the bouncer, so the first look at him is across a desk, and Gary checks his licence the way Hutch does at a door. The office is a converted house on the old main street, with a box of SECURITY shirts in the corner and the bookkeeper at the other desk. Not getting the job takes lying and getting caught twice, insults, threats or walking out, and the teller ends it: "I didn't get the job. That's it. That's the story."
-- **The check:** two dice, the stat, the seated voice (0 to 2 as built, 3 once he's trained for it), what he's wearing, less drink and hurt, against 10, 12, 14, 16 or 18. An ordinary man is a 4, and he starts between 2 and 7. Short names STR, CON, DEX, INT, WIS, CHA, GUT. What he eats and drinks reaches Gut Brain. Passive reads at WIS 6 and GUT 8. A new voice, THE CIRCLE (aikido), lends to DEX and WIS; THE KID lends to CHA with the young.
+- **The check:** two dice, the stat, the seated voice (0 to 2 as built, 3 once he's trained for it), what he's wearing, less drink and hurt, against 10, 12, 14, 16 or 18 (as built on 17 October, the night's own targets plus four: see "Proposed with Gary's office"). An ordinary man is a 4, and he starts between 2 and 7. Short names STR, CON, DEX, INT, WIS, CHA, GUT. What he eats and drinks reaches Gut Brain. Passive reads at WIS 6 and GUT 8. A new voice, THE CIRCLE (aikido), lends to DEX and WIS; THE KID lends to CHA with the young.
 - **Training,** none of it more than once a week, each session a scene with people in it and a cost in money, time, sleep or his body: aikido at the community hall on Tuesdays (taught by a retired dental hygienist), the Krav Maga gym in the strip mall (the rugby boys train there), hauling the delivery, the BB gun and the gun club, the library, the winter dip, a Monday sitting group, and sitting up with the old man.
 - **Handling:** he keeps one voice's read of a thing, it goes in his notes, and the voice whose reads he keeps speaks more often.
 - **Temptations,** each with what it gives, what it costs and who knows: the beer he pours himself, the beer he asks Paige for, Gary's shots, a joint on the deck, a line in the office downstairs, door money, the club's gift, the lost-and-found box and the till, what the rats hear, a loaded die, and someone at close.
@@ -373,6 +381,29 @@ Proposed with the walking (2026-10-17), from Hutch's notes of the 16th. Built:
 - **The bellies:** weight lets the front of the body out in one piece instead of adding a ball to it: from under the ribs in a long slope, most a hand below the navel, tucked back under to the belt, a little fuller round the sides, and over the belt unless the shirt's tucked in. The heavier people's shoulders round more than they widen and fall away from the neck, their arms thicken less than their trunks, and a T-shirt's sleeve stands a little off the arm.
 - **The kitchen crates** stand beside the walk-in now, not across the way through, and the deck door has a worn sill.
 
+Proposed with Gary's office (2026-10-17), the skeleton's first milestone. Built:
+
+- **The office:** Van Dusen Holdings, the front room of Gary's mother's house on the old main street, across the road from the bank that's been a cafe for eleven years. Gold letters on the door glass, two desks, rain on the window since noon. At the other desk sits the bookkeeper, who came from the bank forty-one years ago (her name is Hutch's to give). On the wall behind Gary is the Sov in 1958 with his father in front of it, every letter of the sign lit. In the corner is the box of SECURITY shirts.
+- **Through Gary's eyes:** the camera is Gary's and the player answers as the doorman. Gary does what a doorman does: takes the licence, looks at it, at him, and at it again. The teller hands Gary the opening ("Gary was there first, and Gary told it for years, so it starts with Gary").
+- **Gary's voices:** THE TILL, in typewriter, puts a price on everything ("Long hair. That's a complaint a week."). SENIOR, his dead father, who bought the Sov in 1958, talks in tall capitals and calls him Junior. They're Gary's, heard only in his office. They read the doorman the way the doorman's voices will read everyone else, so the player learns to read people before knowing it's a lesson.
+- **Ten turns:** how he sits, the licence, where he was before, why he left, fights, Gary's phone call about the prime rib and what he does while it goes on, the rye from the bottom drawer, the house rule about table 28's drunk, any questions, the rent ("Six, you said", if he's sharp enough to catch it at 650), the shirt, the form, and the key to room twelve.
+- **His answers set the stats.** He starts at 3 for Strength and Constitution and 2 for everything else. Each answer that says something about him puts a point on two stats, and none goes past 7. Nothing is rolled in the office. Where he ends up is mostly between 2 and 7, about thirty points in all. At the porch steps the stats print as a card ("Him"), and from then on his notes keep them, each old number struck through.
+- **What he claims, Gary passes on.** The bartender greets him with it ("Junior rang. Ten years on a door in the city, he says."), and holds him to it at close. Lies Gary catches cost him with Gary but don't lose him the job, because Gary needs a doorman tonight.
+- **Not hired** happens three ways, all of them on purpose: meaning the threat, walking out, or being rude to both of them. It's the shortest telling: "I didn't get the job. That's it. That's the story." NOT HIRED, and the game ends.
+- **The shirt** says SECURITY on the back in white letters a hand high, the mainland mistake. Read the form first and the small print takes twenty-four dollars off Friday's cheque for an eleven-dollar shirt. Two of Gary's ryes at four leave one still in him at 7:40.
+- **The walk at dusk,** 4:40 to 7:40, his camera from the porch steps:
+  - The old main street: the library, the Legion with a field gun out front aimed at the bank, BANK still cut in the stone over a cafe, the thrift store, a video store shut for years, and the two churches.
+  - Across the highway, the government wharf. The old man from the end of the bar stands at its rail at dusk and is at his place at 7:40, and nobody sees him go between.
+  - East along the highway with the water on his right. The Esso comes first, on the left, a few minutes short of the Sov, not across the highway from it as the skeleton had it. The kid in the toque is on the ice freezer. He shows him the light that hasn't moved over the mainland for two nights, and the gig where he rates a machine's answers at four cents each ("It's getting hard to tell.").
+  - The Sov's sign, with the second E dead. Then either the seawall, to watch the door from outside (the dark car that goes round the lot twice), or room twelve: Terry, the key board, and the bartender on the deck under his window, on the phone to Gary.
+- **Food:** a meal at the Esso holds off one drink. Walk past it without eating and he's hungry all night: his body's checks (Strength, Constitution, Dexterity) are one worse, and Gut Brain's one better.
+- **Checks:** each voice lends to particular stats. The Father lends to Wisdom and Charisma, the Fighter to Strength and Dexterity, the Manual to Intelligence, the Wrong Man to Gut Brain, the Table to Charisma and Constitution, and the Kid to Charisma and Gut Brain. A check rolls on the voice's first stat unless the line names another, and the forty-five in the Ink were each given the one they test (talking the hospital out of the daughter is the Father's Charisma, the cue taken clean the Fighter's Dexterity). A check is two dice, plus the stat, the voice, drink, hurt, hunger and the moment, against a target. The night's targets went up by four, so an ordinary man has the odds he always had. The words for them: up to 9 trivial, 10 or 11 easy, 12 or 13 medium, 14 or 15 hard, 16 or 17 very hard, and near impossible above that. Every choice with a check shows the stat and his number for it.
+- **Constitution holds drink.** At 5 or 6 one drink goes in without showing, at 7 or 8 two, and at 9 or 10 three. At 1 or 2 they show early. A meal holds one more. Only the drinks that show reach his checks and the print (the slip, the sway), and the status line says so: "4 drinks (feels like 2)".
+- **The town on paper:** while he walks, the browser's rail and Godot's pocket sketch (M) draw the town between Gary's and the Sov: the old main street, the wharf, the highway, the Esso, the Sov and the seawall. The Sov's floor takes over once he's inside.
+- **His security licence:** SECURITY WORKER on a dark green band, a licence number, issue and expiry dates, and a seal. His name is drawn as bars, because it's Hutch's to give.
+- **Sound:** rain on Gary's window and the bookkeeper's one-finger keys; the canopy's buzz, the pumps and the highway's tires at the Esso; the water and the road on the seawall.
+- **The title** says "Start Wednesday".
+
 ### REJECTED
 
 - Setting routes 1 and 2 (real history; an invented world built on a historical era), including Claude's Soviet-collapse pick. Hutch, 2026-09-26.
@@ -397,7 +428,7 @@ Proposed with the walking (2026-10-17), from Hutch's notes of the 16th. Built:
 11. Art: Hutch isn't a visual artist (2026-09-27). Open: is there a local painter or printmaker, and a budget, or do the faces carved in code carry it (the look test)?
 12. AI disclosure: the game itself acknowledges that an AI built it (DECIDED, 2026-10-14), and the draft puts it at the very end. Open: what the store page says, and whether any AI images ship.
 18. His death on the last night: does it stay a death, an ending the teller tells like the others? (The draft says yes. The rest of his deaths are DECIDED, 2026-10-14.)
-20. Gary's office: where it is in town, and what's in it (the draft: a converted house on the old main street).
+20. Gary's office: where it is in town, and what's in it (the draft, as built 17 October: the front room of his mother's house on the old main street).
 21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed).
 22. Music on Saturdays: a band, and a dance floor?
 23. A First Nation beside the town: in the game or not, and how. Hutch's call, and people from a Nation should have a say in it.

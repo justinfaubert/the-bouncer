@@ -205,7 +205,7 @@ func _show(w: Dictionary, mode: String) -> void:
 	r.push_font(Look.font(v.font), int(size * 0.92 * float(v.size)))
 	r.push_color(c)
 	var text := str(w.text)
-	r.add_text(text.to_lower() if v.get("lower", false) else text)
+	r.add_text(Look.voice_text(v, text))
 	r.pop()
 	r.pop()
 	tip.add_child(r)

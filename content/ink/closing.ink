@@ -171,7 +171,7 @@
         At close: the man from the pool table, drunk, in the lot. He left with his family, in their truck.
     }
 - x == inc_drinking:
-    Staff drinking on shift. {Num(drinks)} drinks. Him.
+    Staff drinking on shift. {Num(drinks - drinks_before)} drinks. Him.
 - x == inc_poison:
     Rat poison put down {poison_at ? t28:in the hole in the baseboard behind table 28|{poison_at ? kitchen:behind the walk-in in the kitchen|in the keg room}}.
 - x == inc_hurt:
@@ -339,7 +339,7 @@ BIGMAN: One more.
     The big man stood with his back to the front window, and the pickup's lights were in it.
 }
 // The errand, if it's still his to carry: the hospital if he knows, his daughter if he doesn't.
-* {fam !? dad_told && family_waiting() && (knows ? kid_why || fam ? sister_fetched)} [{knows ? kid_why:Tell him about the hospital. Now.|"Your daughter's {her_place()}. She's been waiting all night."} #check: father 7 {bigman_mod()}]
+* {fam !? dad_told && family_waiting() && (knows ? kid_why || fam ? sister_fetched)} [{knows ? kid_why:Tell him about the hospital. Now.|"Your daughter's {her_place()}. She's been waiting all night."} #check: father:cha 11 {bigman_mod()}]
     ~ fam += dad_told
     { passed:
         { knows ? kid_why:
@@ -358,7 +358,7 @@ BIGMAN: One more.
     ~ bigman_ease++
     BIGMAN: One more.
     The doorman said it again, the same way, as if it was the first time. The big man put the cue in the rack on the wall as if it weighed a lot.
-* [Take the cue out of his hands. #check: fighter 7]
+* [Take the cue out of his hands. #check: fighter:dex 11]
     { passed:
         He took it, gently, the way you'd take something off a table in someone else's house, and put it in the rack on the wall. The big man looked at his empty hands.
     - else:
@@ -426,7 +426,7 @@ He went to his own truck, a work truck with a toolbox across the bed, parked nos
     FATHER: There. I told you he would.
 }
 FATHER: I drove home drunk for twenty years. Nobody ever took my keys. I used to think that was respect.
-* [Take his keys. #check: father 8 {bigman_mod()}]
+* [Take his keys. #check: father:cha 12 {bigman_mod()}]
     { passed:
         He went across the gravel and stood in front of him and held out his hand. The big man looked at the hand for a long time. Then he put the keys in it.
         -> keys
@@ -451,7 +451,7 @@ FATHER: I drove home drunk for twenty years. Nobody ever took my keys. I used to
     He looked across the lot at the pickup in the rain.
     BIGMAN: Look at 'em. Better than me, I told you. They'll manage.
 }
-* [Take them anyway. #check: fighter 7]
+* [Take them anyway. #check: fighter 11]
     { passed:
         He took the big man's wrist and opened his hand and took the keys out of it, and the big man let him, the way a man lets you when he's glad somebody finally did.
         -> keys
@@ -543,7 +543,7 @@ BARTENDER: Nope. We're closed.
 She said it to the till.
 GOOD SHOES: With respect, I was talking to the doorman.
 - (cb)
-* ["You heard her." #check: father 7]
+* ["You heard her." #check: father:cha 11]
     { passed:
         He said it the way you'd tell someone the time. GOOD SHOES looked at him and did the arithmetic again, the same as at the door, and got the same answer.
         GOOD SHOES: Goodnight, then. Goodnight, all.
@@ -552,7 +552,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
         GOOD SHOES: I heard her, friend. I'm asking you.
         -> cb
     }
-* [Walk him out. #check: fighter 6]
+* [Walk him out. #check: fighter:dex 10]
     ~ here = door
     { passed:
         He took the coat off the stool and held it open for him, which is a thing a man can't refuse without looking like a fool, and walked him to the door in it. #sfx: door
@@ -700,7 +700,7 @@ Table 28 did not hurry for last call. Table 28 had never hurried for anything. T
     TEAM_JACKET: {clock - wife_at >= 50:An hour, though|Even so}. She'll have the chain on.
     # done: dog
     -> tt
-* ["Drink up, gentlemen." #check: father 7]
+* ["Drink up, gentlemen." #check: father:cha 11]
     { passed:
         He said it the way the Father used to say it, like a favour to them, and they drank up and stood and got their coats, in the order they always did, and went out together into the rain.
         ~ rep(rep_staff, 1)
@@ -1041,7 +1041,28 @@ BARTENDER: {Num(drinks)}. I counted too.
 
 = door_story
 BARTENDER: So. Why'd you leave your last door?
+// She's had what he told Gary, from Gary, on the phone at quarter past five (walk.ink, under_window).
+{ told_why():
+    BARTENDER: I've had what you told Junior. I'm asking you.
+}
 // HUTCH: Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+* (owned_up) {knows ? heard_phone} ["You had it from Gary, on the deck. I was up in twelve."]
+    ~ rep(rep_staff, 1)
+    She stopped counting.
+    BARTENDER: Twelve's over the deck. I forgot.
+    BARTENDER: Then you heard what I said about it. I'm not saying it twice.
+    // what he told Gary is what's true, then
+    {
+    - told_gary ? tg_shorted:
+        ~ claims += said_left_bad_owner
+    - told_gary ? tg_something:
+        ~ claims += said_left_something
+    - told_gary ? tg_long:
+        ~ claims += said_left_long_story
+    - told_gary ? tg_quiet:
+        ~ claims += said_nothing
+    }
+    She went back to the twenties.
 * ["The owner shorted me."]
     ~ claims += said_left_bad_owner
     BARTENDER: They all short you. You'll find out.
@@ -1054,8 +1075,17 @@ BARTENDER: So. Why'd you leave your last door?
 * [Say nothing.]
     ~ claims += said_nothing
     She looked at him over the rye, and went back to the count.
-// People compare notes (bible/02_SYSTEMS.md): what he told table 28, put next to what he just told her.
-- {
+// People compare notes (bible/02_SYSTEMS.md): what he told Gary in the office, and what he told
+// table 28, put next to what he just told her.
+- { not owned_up && told_why():
+    {
+    - (told_gary ? tg_shorted && claims ? said_left_bad_owner) || (told_gary ? tg_something && claims ? said_left_something) || (told_gary ? tg_long && claims ? said_left_long_story) || (told_gary ? tg_quiet && claims ? said_nothing):
+        BARTENDER: Same as you told Junior. Good.
+    - else:
+        BARTENDER: That's not what you told Junior. Pick one, Door.
+    }
+}
+{
 - claims ? said_city_line:
     BARTENDER: Table 28 says you did ten years on a door with a line outside it.
     BARTENDER: By Friday it'll be twenty, and you'll have put a hockey player through a window.
@@ -1071,6 +1101,36 @@ BARTENDER: So. Why'd you leave your last door?
 - else:
     BARTENDER: Table 28 don't know where you're from. You never went over.
     BARTENDER: That'll eat them alive by Friday.
+}
+// Where he told Gary he was from, against where he told table 28.
+~ temp gw = 0
+~ temp tw = 0
+{
+- told_gary ? tg_city:
+    ~ gw = 1
+- told_gary ? tg_up_island:
+    ~ gw = 2
+- told_gary ? tg_around:
+    ~ gw = 3
+- told_gary ? tg_father:
+    ~ gw = 4
+}
+{
+- claims ? said_city_door:
+    ~ tw = 1
+- claims ? said_up_island:
+    ~ tw = 2
+- claims ? said_around:
+    ~ tw = 3
+- claims ? said_father:
+    ~ tw = 4
+}
+{ gw > 0 && tw > 0:
+    { gw == tw:
+        BARTENDER: Same as you told Junior, at least.
+    - else:
+        BARTENDER: And Junior had it different again. Pick one before Friday, or they'll pick it for you.
+    }
 }
 {
 - claims ? said_left_something && (claims ? said_city_unnamed || claims ? said_city_line):
@@ -1294,7 +1354,7 @@ WRONGMAN: This is the story. This is the one they'll tell about you.
 + {want} ["Done. Those terms."]
     -> deal
 // Having seen the thing in the wall, he knows what he's bargaining with.
-* {want} ["The step, and no poison. Not the kitchen door." #check: wrongman 8 {saw_it:1|0}]
+* {want} ["The step, and no poison. Not the kitchen door." #check: wrongman 12 {saw_it:1|0}]
     -> bargain
 + ["No. They're going."]
     -> refuse
@@ -1508,9 +1568,21 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 { knows ? mill_closing:
     Somebody at the table said Christmas, and somebody else said they'd been saying Christmas for six years, and somebody dealt.
 }
-His room was at the end of the second floor, over the deck. It came with the job.
-A bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The rent came off his pay. The owner had mentioned that before he'd mentioned anything else.
+// He may have been up already, before the shift (walk.ink, twelve).
+{ from_room:
+    His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
+    { shirt == 1 && not shirt_on:
+        Gary's shirt was on the chair where he'd left it, folded, the word inside.
+    }
+- else:
+    His room was at the end of the second floor, over the deck. It came with the job.
+    A bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The rent came off his pay. The owner had mentioned that before he'd mentioned anything else.
+}
 // HUTCH: His room. What does a room that comes with a bar job look like, and what did he bring with him?
+// The light the kid at the Esso showed him at dusk (walk.ink, kid_sky).
+{ knows ? esso_sky:
+    Out the window, low over the strait where the cloud had torn again, was the light the kid at the Esso had shown him. It hadn't moved. He watched it until he was sure it hadn't, and for a while after that.
+}
 { rats == undecided:
     ~ rats = ignored
 }
@@ -1744,10 +1816,28 @@ The door: {count_in} in past the stool #class: row
 { ev_card.lent:
     Twenty more is in room nine. #class: sub
 }
+// Gary's office (office.ink): the room, the shirt, the form.
+{
+- rent_called:
+    The room: six hundred a month, the way Gary said it first. The bookkeeper wrote something down. #class: sub
+- interview.the_deal.let_go:
+    The room: six-fifty a month, with the hydro, off the top. He let it go. #class: sub
+- stats_set:
+    The room: six-fifty a month, with the hydro, off the top. #class: sub
+}
+{ knows ? form_uniform:
+    Twenty-four dollars off Friday's cheque, for the shirt. #class: sub
+}
+{ pay_how == 2:
+    He asked to be paid cash. The bookkeeper wrote that down too. #class: sub
+}
 { drinks == 0:
     Drinks: none #class: row
 - else:
     Drinks: {drinks} #class: row
+    { drinks_before:
+        One of them is Gary's two, at four o'clock. #class: sub
+    }
     { drinks >= 3:
         He'll feel them on Friday{after_hours.water.drank_water:, less for the pint of water}. #class: sub
     }
@@ -1919,6 +2009,9 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 { knows ? lost_jacket:
     The last doorman's jacket is in the lost-and-found. Nobody's been through the pockets.
 }
+{ knows ? esso_rater:
+    The kid at the Esso gets four cents an answer for saying which of a machine's sounds more like a person. {rated == 3:He said neither.|It's getting hard to tell, he says.} #class: sub
+}
 { owned_it > 0:
     He told somebody he was wrong. That isn't nothing.
 }
@@ -1956,6 +2049,39 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
     }
     { claims ? said_nothing:
         Nothing about why he left his last door. #class: sub
+    }
+}
+{ LIST_COUNT(told_gary) > 0:
+    WHAT HE TOLD GARY, WHICH GARY TOLD HER
+    { told_gary ? tg_city:
+        That he did ten years on a door in the city. #class: sub
+    }
+    { told_gary ? tg_up_island:
+        That he's from up island. #class: sub
+    }
+    { told_gary ? tg_around:
+        That he's from around. #class: sub
+    }
+    { told_gary ? tg_father:
+        That his father worked doors, and he worked them with him. #class: sub
+    }
+    { told_gary ? tg_shorted:
+        That his last owner shorted him. #class: sub
+    }
+    { told_gary ? tg_something:
+        That something happened. #class: sub
+    }
+    { told_gary ? tg_long:
+        That it's a long story. #class: sub
+    }
+    { told_gary ? tg_quiet:
+        Nothing, about why he left. #class: sub
+    }
+    { told_gary ? tg_never:
+        That he's never been in a fight. Nobody believed it. #class: sub
+    }
+    { told_gary ? tg_dry:
+        That he doesn't drink. Doug at the Legion says otherwise. #class: sub
     }
 }
 { seated("table") || seated("kid"):

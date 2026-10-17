@@ -7,6 +7,7 @@ starts at once: filtered noise bursts and plain tones, a few takes of each so a 
 and over isn't the same every time.
 
   python3 tools/sounds.py            (numpy and scipy)
+  python3 tools/sounds.py amb_keys   (only those files)
 """
 import os
 import numpy as np
@@ -349,6 +350,46 @@ def rats(x, secs):
         t += 2 + r() * 5
 
 
+def keys(x, secs):
+    """The bookkeeper entering invoices with one finger: a key at a time, then a stop to read."""
+    t = 0.6
+    while t < secs - 1.5:
+        for i in range(2 + int(r() * 6)):
+            burst(x, t, 0.012, 3400 + r() * 600, 4, 0.16)
+            burst(x, t + 0.004, 0.02, 900 + r() * 200, 2, 0.05)
+            t += 0.28 + r() * 0.45
+        t += 1.5 + r() * 4
+
+
+def canopy(x, secs):
+    """A gas station's canopy lights, buzzing, and a pump's screen beeping now and then."""
+    hum(x, 120, 0.012)
+    noise_bed(x, 'bandpass', 7000, 2, 0.002)
+    t = 2.0
+    while t < secs - 1:
+        tone(x, t, 1850, 0.09, 0.03, 'square')
+        t += 5 + r() * 7
+
+
+def traffic(x, secs):
+    """The highway in the wet: tires hissing past, and a log truck's roar now and then."""
+    n = len(x)
+    noise_bed(x, 'lowpass', 240, 0.7, 0.012)
+    t = 0.4
+    while t < secs - 1:
+        big = r() < 0.3
+        dur = 2.6 + r() * 1.6 if big else 1.4 + r() * 1.0
+        m = int(SR * dur)
+        i0 = int(SR * t)
+        k = min(m, n - i0)
+        if k > 0:
+            v = _filter(rng.standard_normal(m), 'bandpass', 700 + r() * 500 if not big else 380, 0.7)
+            v = v / (np.std(v) + 1e-9)
+            env = np.sin(np.linspace(0, np.pi, m)) ** 2
+            x[i0:i0 + k] += (v * env * (0.11 if big else 0.06))[:k]
+        t += dur * 0.6 + 1.5 + r() * 5
+
+
 LAYERS = {
     'rain_glass': (10, lambda x, s: rain(x, s, 1.0)),
     'rain_out': (10, lambda x, s: rain(x, s, 1.8)),
@@ -365,21 +406,29 @@ LAYERS = {
     'cellar': (10, lambda x, s: (hum(x, 60, 0.018), noise_bed(x, 'lowpass', 120, 0.7, 0.03), drips(x, s))),
     'rats': (12, lambda x, s: rats(x, s)),
     'sea': (12, lambda x, s: (noise_bed(x, 'lowpass', 300, 0.7, 0.04), x.__imul__(am(len(x), 0.12, 0.8, 1.0)))),
+    # before the shift (content/ink/office.ink, walk.ink)
+    'keys': (14, lambda x, s: keys(x, s)),
+    'canopy': (9, lambda x, s: canopy(x, s)),
+    'traffic': (16, lambda x, s: traffic(x, s)),
 }
 
 
-def main():
+def main(only=None):
+    """Everything, or only the files named (amb_keys ...): the rest are still made, in order, so
+    each file comes out the same either way, but only those are written."""
     os.makedirs(OUT, exist_ok=True)
+    put = (lambda name, x: write(name, x)) if not only else (lambda name, x: write(name, x) if name in only else None)
     for name, fn in SFX.items():
         takes = TAKES.get(name, 1)
         for k in range(takes):
             x = buf(SECONDS.get(name, 0.6))
             fn(x, 1.0)
-            write(name if k == 0 else f'{name}_{k + 1}', x)
+            put(name if k == 0 else f'{name}_{k + 1}', x)
     for name, (secs, fn) in LAYERS.items():
-        write('amb_' + name, loop(secs, fn))
-    print('wrote', len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))
+        put('amb_' + name, loop(secs, fn))
+    print('wrote', len(only) if only else len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    main(set(sys.argv[1:]) or None)
