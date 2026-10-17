@@ -2684,6 +2684,376 @@
     edge(k);
   };
 
+  // The front room of his late mother's house, VAN DUSEN HOLDINGS now, at four in the afternoon,
+  // from his chair behind the desk. The big oak desk across the bottom, its near edge and the brass
+  // lamp's pool on it: the adding machine, its tape up over the roll, a mug of pens, his phone face
+  // down. Across the desk the wooden armchair, empty. Behind it the front door, the name in gold
+  // leaf on its glass reading backwards from in here, the porch and the rain through it. On the
+  // left the front window, the blinds half up, the grey day, the old bank across the street that's
+  // a cafe now. On the right the bookkeeper's desk against the wall (the monitor, the ledger, her
+  // mug, her chair with her cardigan over the back of it), and in the corner by the door a carton
+  // open on another, a black T-shirt out of it and hung over the front, SECURITY across it in
+  // white. The wallpaper's painted over above the wainscot. Later on (look.dusk) the day goes out
+  // of the window and the lamp is the light.
+  PLACES.office = function (j, look, rnd) {
+    const k = j.k;
+    const dusk = !!look.dusk;
+    const t = function (day, late) { return dusk ? late : day; };
+    const cam = camera(318, 68, 270, 1.2);
+    const X = cam.x, Y = cam.y, S = cam.s;
+    const XL = -2.4, XR = 2, CH = 2.8, DN = 1.5, DB = 3.2, WN = 0.9, sb = S(DB);
+    const P = function (x, y, D) { return [X(x, D), Y(y, D)]; };
+    const quad = function (Xw, y0, y1, d0, d1) { return [P(Xw, y1, d0), P(Xw, y1, d1), P(Xw, y0, d1), P(Xw, y0, d0)]; };
+    const flat = function (Yh, x0, x1, d0, d1) { return [P(x0, Yh, d0), P(x1, Yh, d0), P(x1, Yh, d1), P(x0, Yh, d1)]; };
+    const face = function (D, x0, x1, y0, y1) { return [P(x0, y1, D), P(x1, y1, D), P(x1, y0, D), P(x0, y0, D)]; };
+    const seg = function (a, b, w, tone, mode) { k.line(a[0], a[1], b[0], b[1], w, tone, mode); };
+    const clipTo = function (pts) { k.clip(function (c) { c.moveTo(pts[0][0], pts[0][1]); for (const q of pts) c.lineTo(q[0], q[1]); c.closePath(); }); };
+    // a box standing in the room: its top, the face toward him, and the side toward the middle
+    const box = function (x0, x1, d0, d1, y0, y1, tTop, tFront, tSide) {
+      if (tSide != null) {
+        if (x1 < 0) k.poly(quad(x1, y0, y1, d0, d1), tSide, 'set');
+        else if (x0 > 0) k.poly(quad(x0, y0, y1, d0, d1), tSide, 'set');
+      }
+      if (tTop != null && y1 < cam.eye) k.poly(flat(y1, x0, x1, d0, d1), tTop, 'set');
+      if (tFront != null) k.poly(face(d0, x0, x1, y0, y1), tFront, 'set');
+    };
+    const byDepth = function (plane, at, d0, d1, fn) { return depthTone(k, cam, plane, at, d0, d1, fn); };
+
+    // ---- the room: the window's grey along the left wall and full on the right one; the front
+    // wall, the window's own, gets only what comes back off the room
+    k.rect(0, 0, W, H, t(0.56, 0.8), 'set');
+    k.poly(quad(XL, 0, CH, DN, DB), byDepth('x', XL, DN, DB, function (D) { return t(0.42 + 0.14 * clamp((D - 2.3) / 0.9, 0, 1), 0.8); }), 'set');
+    k.poly(quad(XR, 0, CH, DN, DB), byDepth('x', XR, DN, DB, function (D) { return t(0.28 + 0.26 * clamp((D - 1.8) / 1.4, 0, 1), 0.78); }), 'set');
+    k.poly(face(DB, XL, XR, 0, CH), t(0.56, 0.8), 'set');
+    if (!dusk) onWall(j, cam, XR, 2.2, 1.4, function (kk) { kk.light(0, 0, 80, 0.22, 50); });
+    // the paper under the paint: its trellis standing up through it, a flower in every diamond,
+    // and its seams
+    const walls = [
+      { pt: function (u, v) { return P(XL + u, v, DB); }, len: XR - XL },
+      { pt: function (u, v) { return P(XL, v, DB - u); }, len: DB - DN },
+      { pt: function (u, v) { return P(XR, v, DB - u); }, len: DB - DN }
+    ];
+    const sp = 0.24, hgt = CH - WN;
+    for (const w of walls) {
+      clipTo([w.pt(0, CH), w.pt(w.len, CH), w.pt(w.len, WN), w.pt(0, WN)]);
+      for (let u = -hgt; u < w.len; u += sp) { seg(w.pt(u, WN), w.pt(u + hgt, CH), 0.8, t(0.2, 0.14)); seg(w.pt(u + hgt, WN), w.pt(u, CH), 0.8, t(0.2, 0.14)); }
+      for (let b = 1; WN + b * sp / 2 < CH; b++) for (let u = (b % 2) ? 0 : sp / 2; u < w.len; u += sp) { const q = w.pt(u, WN + b * sp / 2); k.oval(q[0], q[1], 1.2, 1.2, t(0.4, 0.25), 'erase'); }
+      for (let u = 0.12; u < w.len; u += 0.53) { const a = w.pt(u, CH), b = w.pt(u, WN); seg(a, b, 0.6, 0.45); seg([a[0] + 0.8, a[1]], [b[0] + 0.8, b[1]], 0.5, t(0.3, 0.12), 'erase'); }
+      k.done();
+    }
+    // the wainscot round all three walls: its boards, the cap rail catching the light
+    for (const Xw of [XL, XR]) {
+      k.poly(quad(Xw, 0, WN, DN, DB), t(0.82, 0.92), 'set');
+      for (let D = DN + 0.05; D < DB; D += 0.1) seg(P(Xw, WN - 0.06, D), P(Xw, 0.12, D), 0.5, 0.5);
+      k.poly(quad(Xw, WN - 0.06, WN + 0.02, DN, DB), 0.95, 'set');
+      seg(P(Xw, WN + 0.02, DN), P(Xw, WN + 0.02, DB), 0.9, t(0.55, 0.25), 'erase');
+    }
+    k.poly(face(DB, XL, XR, 0, WN), t(0.82, 0.92), 'set');
+    for (let x = XL + 0.1; x < XR; x += 0.1) seg(P(x, WN - 0.06, DB), P(x, 0.12, DB), 0.5, 0.5);
+    k.poly(face(DB, XL, XR, WN - 0.06, WN + 0.02), 0.95, 'set');
+    seg(P(XL, WN + 0.02, DB), P(XR, WN + 0.02, DB), 0.9, t(0.5, 0.22), 'erase');
+
+    // ---- the front window: the grey day, the old bank across the street, the blinds half up
+    const WX0 = -2.1, WX1 = -0.76, WY0 = 0.86, WY1 = 2.3, BL = 1.62;
+    const gx0 = X(WX0, DB), gx1 = X(WX1, DB), gy0 = Y(WY1, DB), gy1 = Y(WY0, DB), gb = Y(BL, DB), cw = 0.1 * sb;
+    k.rect(gx0 - cw, gy0 - cw, gx1 - gx0 + 2 * cw, gy1 - gy0 + 2 * cw, t(0.36, 0.68), 'set');
+    k.clip(function (c) { c.rect(gx0, gy0, gx1 - gx0, gy1 - gy0); });
+    // out there: the sky low and wet; the bank, stone, its columns, the cafe's windows lit between
+    // them; the wet street; a car at the far curb
+    k.rect(gx0, gy0, gx1 - gx0, gy1 - gy0, k.lin(0, gy0, 0, gy1, [[0, t(0.04, 0.52)], [1, t(0.12, 0.62)]]), 'set');
+    { const DS = 30, gY = -0.45, B0 = -18.6, B1 = -8.2;
+      // next door on the right, clapboard, a shop lit along the bottom
+      k.poly(face(DS + 1, B1, -4, gY, 6.2), t(0.5, 0.8), 'set');
+      for (let y = gY + 0.3; y < 6.2; y += 0.3) seg(P(B1, y, DS + 1), P(-4, y, DS + 1), 0.4, 0.3);
+      { const a = P(-7.6, 2.6, DS + 1), b = P(-5, 0.4, DS + 1); k.rect(a[0], a[1], b[0] - a[0], b[1] - a[1], t(0.3, 0.1), 'set'); }
+      // the bank: its face, the beam over the columns, the pediment
+      k.poly(face(DS, B0, B1, gY, 4.9), t(0.4, 0.74), 'set');
+      k.poly(face(DS, B0 - 0.3, B1 + 0.3, 4, 4.9), t(0.22, 0.62), 'set');
+      seg(P(B0 - 0.3, 4.32, DS), P(B1 + 0.3, 4.32, DS), 0.6, 0.6);
+      seg(P(B0 - 0.3, 4, DS), P(B1 + 0.3, 4, DS), 0.9, 0.85);
+      k.poly([P(B0 + 1.8, 4.9, DS), P(B1 - 1.8, 4.9, DS), P((B0 + B1) / 2, 6.3, DS)], t(0.3, 0.66), 'set');
+      // the cafe's windows between the columns: dim in the day with a lamp in each, bright at dusk
+      for (let i = 0; i < 4; i++) {
+        const cx = B0 + 2.1 + i * 2.2, a = P(cx - 0.62, 3.3, DS), b = P(cx + 0.62, 0.9, DS);
+        k.rect(a[0], a[1], b[0] - a[0], b[1] - a[1], t(0.62, 0.06), 'set');
+        k.light((a[0] + b[0]) / 2, b[1] - 6, 6, t(0.6, 0.4), 8);
+        k.line(a[0], (a[1] + b[1]) / 2 - 2, b[0], (a[1] + b[1]) / 2 - 2, 0.6, 0.75);
+      }
+      for (let i = 0; i < 5; i++) {
+        const cx = B0 + 1 + i * 2.2, a = P(cx - 0.3, 4, DS), b = P(cx + 0.3, 0.4, DS);
+        k.rect(a[0], a[1], b[0] - a[0], b[1] - a[1], t(0.08, 0.5), 'set');
+        k.line(b[0] - 0.8, a[1], b[0] - 0.8, b[1], 1.2, t(0.42, 0.85));
+      }
+      // the steps up to it, and the street, wet, the windows lying in it
+      for (let y = gY; y < 0.4; y += 0.28) { const a = P(B0 - 0.4, y + 0.28, DS), b = P(B1 + 0.4, y, DS); k.rect(a[0], a[1], b[0] - a[0], b[1] - a[1], t(0.2, 0.64), 'set'); k.line(a[0], a[1] + 0.3, b[0], a[1] + 0.3, 0.6, t(0.6, 0.25), 'erase'); }
+      k.rect(gx0, Y(gY, DS), gx1 - gx0, gy1 - Y(gY, DS) + 1, t(0.44, 0.72), 'set');
+      for (let i = 0; i < 4; i++) { const x = X(B0 + 2.1 + i * 2.2, DS); for (let y = Y(gY, DS) + 1; y < gy1; y += 1.4 + rnd()) k.line(x - 1.2 - rnd(), y, x + 1.2 + rnd(), y, 0.5, t(0.3, 0.75) * (0.5 + rnd() * 0.5), 'erase'); }
+      // the car at the far curb, its roof and glass catching the sky
+      const c0 = X(-16.4, 27), c1 = X(-12.2, 27), cy = Y(-0.4, 27), cr = Y(1.4, 27), cl = c1 - c0, ch = cy - cr;
+      k.path('M' + c0 + ' ' + cy + ' L' + c0 + ' ' + (cy - ch * 0.5) + ' L' + (c0 + cl * 0.22) + ' ' + (cy - ch * 0.56) + ' L' + (c0 + cl * 0.33) + ' ' + cr + ' L' + (c0 + cl * 0.72) + ' ' + cr + ' L' + (c0 + cl * 0.83) + ' ' + (cy - ch * 0.56) + ' L' + c1 + ' ' + (cy - ch * 0.48) + ' L' + c1 + ' ' + cy + ' Z', t(0.86, 0.92), 'set');
+      k.rect(c0 + cl * 0.36, cr + 1, cl * 0.33, ch * 0.34, t(0.38, 0.7), 'set');
+      seg([c0 + cl * 0.33, cr + 0.4], [c0 + cl * 0.72, cr + 0.4], 0.8, t(0.65, 0.35), 'erase');
+      if (dusk) { const l = P(-7.8, 5.2, 28); k.line(l[0], l[1], l[0], Y(gY, 28), 0.8, 0.9); k.light(l[0], l[1] + 8, 22, 0.45, 28); k.oval(l[0], l[1], 1.6, 1, 0, 'set'); }
+      k.rain(rnd, 150, gx0, gy0, gx1 - gx0, gy1 - gy0, { tone: t(0.3, 0.25), len: 6, w: 0.5, ink: !dusk, slant: 0.05 }); }
+    // rain on the glass: drops, a few of them running
+    for (let i = 0; i < 60; i++) {
+      const x = gx0 + rnd() * (gx1 - gx0), y = gb + rnd() * (gy1 - gb), r = 0.4 + rnd() * rnd() * 1.1;
+      k.oval(x, y + r * 0.4, r, r * 1.1, 0.4);
+      k.oval(x - r * 0.3, y - r * 0.2, r * 0.45, r * 0.45, 0.8, 'erase');
+    }
+    for (let i = 0; i < 5; i++) { const x = gx0 + 3 + rnd() * (gx1 - gx0 - 6); let d = 'M' + x + ' ' + (gb + 2 + rnd() * 10), xx = x; for (let yy = gb + 4; yy < gy1; yy += 2.5) { xx += (rnd() - 0.5) * 0.8; d += ' L' + xx + ' ' + yy; } k.stroke(d, 0.6, 0.4); k.stroke(d, 0.3, 0.6, 'erase'); }
+    // the blinds, let down halfway: the slats tipped open on the street, the bottom rail, the tapes
+    for (let y = WY1; y > BL + 0.03; y -= 0.045) { const yy = Y(y, DB); k.rect(gx0, yy, gx1 - gx0, 0.031 * sb, t(0.3, 0.74), 'set'); k.line(gx0, yy + 0.3, gx1, yy + 0.3, 0.5, t(0.55, 0.2), 'erase'); }
+    k.rect(gx0, gb - 0.04 * sb, gx1 - gx0, 0.045 * sb, t(0.3, 0.7), 'set');
+    k.line(gx0, gb - 0.04 * sb + 0.4, gx1, gb - 0.04 * sb + 0.4, 0.7, t(0.7, 0.3), 'erase');
+    for (const x of [WX0 + 0.3, WX1 - 0.3]) k.line(X(x, DB), gy0, X(x, DB), gb, 0.6, 0.6);
+    k.done();
+    // the sash's sides, its bottom rail on the sill, the sill catching the light; the cord
+    k.rect(gx0, gy0, 0.045 * sb, gy1 - gy0, t(0.3, 0.66), 'set'); k.rect(gx1 - 0.045 * sb, gy0, 0.045 * sb, gy1 - gy0, t(0.3, 0.66), 'set');
+    k.rect(gx0, gy1 - 0.05 * sb, gx1 - gx0, 0.05 * sb, t(0.3, 0.66), 'set');
+    k.rect(gx0 - cw * 1.3, gy1 + cw * 0.3, gx1 - gx0 + cw * 2.6, 0.05 * sb, t(0.24, 0.6), 'set');
+    k.line(gx0 - cw * 1.3, gy1 + cw * 0.3 + 0.3, gx1 + cw * 1.3, gy1 + cw * 0.3 + 0.3, 1, t(0.9, 0.4), 'erase');
+    for (const x of [gx0 - 0.5, gx1 + 0.5]) k.line(x, gy0, x, gy1, 0.6, 0.6);
+    { const x = X(WX1 - 0.1, DB), y = Y(1.16, DB); k.line(x, gb, x, y, 0.5, 0.85); k.path('M' + (x - 1.1) + ' ' + y + ' L' + (x + 1.1) + ' ' + y + ' L' + (x + 0.7) + ' ' + (y + 3.6) + ' L' + (x - 0.7) + ' ' + (y + 3.6) + ' Z', 0.9, 'set'); }
+
+    // ---- the front door: painted, a glass in the top half, the porch and the rain through it,
+    // and the name on the glass in gold leaf the wrong way round from in here
+    const DX0 = -0.3, DX1 = 0.6, DH = 2.05;
+    k.poly(face(DB, DX0 - 0.1, DX1 + 0.1, 0, DH + 0.1), t(0.34, 0.66), 'set');
+    k.poly(face(DB, DX0, DX1, 0, DH), t(0.4, 0.7), 'set');
+    seg(P(DX1, DH, DB), P(DX1, 0, DB), 1.4, 0.75);
+    seg(P(DX0, DH, DB), P(DX0, 0, DB), 0.9, t(0.6, 0.3), 'erase');
+    // the two panels under the glass: lit along the top and the left, dark along the others
+    for (const p of [[DX0 + 0.1, DX0 + 0.42], [DX0 + 0.48, DX1 - 0.1]]) {
+      const q = face(DB, p[0], p[1], 0.14, 0.8);
+      k.poly(q, t(0.46, 0.74), 'set');
+      seg(q[0], q[1], 0.8, t(0.5, 0.2), 'erase'); seg(q[0], q[3], 0.8, t(0.5, 0.2), 'erase');
+      seg(q[1], q[2], 0.8, 0.6); seg(q[3], q[2], 0.8, 0.6);
+    }
+    const GX0 = DX0 + 0.12, GX1 = DX1 - 0.12, GY0 = 0.9, GY1 = 1.92;
+    const dg0 = X(GX0, DB), dg1 = X(GX1, DB), dgt = Y(GY1, DB), dgb = Y(GY0, DB);
+    k.clip(function (c) { c.rect(dg0, dgt, dg1 - dg0, dgb - dgt); });
+    // through it: a house across the street, the wet road, the porch rail and its post, the drips
+    // off the porch roof; at dusk the porch light on
+    k.rect(dg0, dgt, dg1 - dg0, dgb - dgt, t(0.14, 0.6), 'set');
+    { const DS = 24;
+      k.poly(face(DS, -1.4, 6, -0.45, 5.4), t(0.38, 0.76), 'set');
+      for (const wx of [-0.6, 1.2, 3]) { const a = P(wx, 4.4, DS); k.rect(a[0], a[1], 1 * S(DS), 1.2 * S(DS), t(0.62, 0.3), 'set'); const b = P(wx, 2.1, DS); k.rect(b[0], b[1], 1 * S(DS), 1.4 * S(DS), t(0.6, dusk ? 0.2 : 0.5), 'set'); }
+      k.rect(dg0, Y(-0.45, DS), dg1 - dg0, dgb - Y(-0.45, DS), t(0.42, 0.74), 'set');
+      seg([dg0, Y(-0.45, DS) + 0.4], [dg1, Y(-0.45, DS) + 0.4], 0.6, t(0.4, 0.3), 'erase'); }
+    { const DP = 4.5, s = S(DP);
+      for (let x = X(-0.28, DP); x < dg1; x += 0.13 * s) k.rect(x, Y(0.87, DP), 0.04 * s, dgb - Y(0.87, DP), t(0.3, 0.55), 'set');
+      k.rect(dg0, Y(0.94, DP), dg1 - dg0, 0.07 * s, t(0.26, 0.5), 'set');
+      seg([dg0, Y(0.87, DP)], [dg1, Y(0.87, DP)], 0.8, t(0.7, 0.85));
+      const px = X(0.36, DP); k.rect(px, dgt, 0.12 * s, Y(0.94, DP) - dgt, t(0.24, 0.5), 'set');
+      k.rect(px + 0.08 * s, dgt, 0.04 * s, Y(0.94, DP) - dgt, t(0.55, 0.75), 'set');
+      if (dusk) k.light(X(-0.05, DP), dgt + 6, 40, 0.75, 34); }
+    for (let x = dg0 + 1.5 + rnd() * 2; x < dg1; x += 2.5 + rnd() * 3) { let y = dgt; while (y < dgb) { const l = 2 + rnd() * 5; k.line(x, y, x, y + l, 0.5, t(0.5, 0.45), dusk ? 'erase' : 'ink'); y += l + 1 + rnd() * 3; } }
+    k.done();
+    // the name, gilded on the outside: from in here the backs of the letters, an arch and a line
+    // under it, all of it backwards
+    { const cx = (dg0 + dg1) / 2, top = dgt + 13, R = 52, da = 0.098, word = 'VAN DUSEN', n = word.length;
+      k.c.save(); k.c.translate(2 * cx, 0); k.c.scale(-1, 1);
+      for (let i = 0; i < n; i++) {
+        const a = (i - (n - 1) / 2) * da;
+        k.c.save(); k.c.translate(cx + Math.sin(a) * R, top + R - Math.cos(a) * R); k.c.rotate(a);
+        k.text(word[i], 0, 0, 10, 1);
+        k.c.restore();
+      }
+      k.text('HOLDINGS', cx, top + 10.5, 6.6, 1, { spacing: 0.6 });
+      k.line(cx - 15, top + 13, cx + 15, top + 13, 0.7, 1);
+      k.c.restore(); }
+    k.stroke('M' + dg0 + ' ' + dgt + ' L' + dg1 + ' ' + dgt + ' L' + dg1 + ' ' + dgb + ' L' + dg0 + ' ' + dgb + ' Z', 1.6, t(0.6, 0.8));
+    { const q = P(DX1 - 0.08, 0.98, DB); k.oval(q[0], q[1], 2, 2, 0.75, 'set'); k.oval(q[0] - 0.6, q[1] - 0.6, 0.8, 0.8, 0.8, 'erase'); }
+
+    // ---- in the corner by the door, a carton open on another, a black T-shirt out of it and hung
+    // over the front, SECURITY across it in white
+    box(0.86, 1.46, 2.72, 3.14, 0, 0.42, t(0.3, 0.62), t(0.46, 0.74), t(0.36, 0.66));
+    box(0.89, 1.43, 2.75, 3.11, 0.42, 0.8, null, t(0.44, 0.72), t(0.34, 0.64));
+    k.poly(flat(0.8, 0.89, 1.43, 2.75, 3.11), 0.92, 'set');
+    // the flaps standing up at the back and the sides
+    k.poly([P(0.89, 0.8, 3.11), P(1.43, 0.8, 3.11), P(1.45, 1.06, 3.16), P(0.87, 1.06, 3.16)], t(0.36, 0.66), 'set');
+    k.poly([P(0.89, 0.8, 2.75), P(0.89, 0.8, 3.11), P(0.72, 1.04, 3.09), P(0.72, 1.02, 2.77)], t(0.26, 0.6), 'set');
+    k.poly([P(1.43, 0.8, 2.75), P(1.43, 0.8, 3.11), P(1.6, 1.02, 3.09), P(1.6, 1.0, 2.77)], t(0.5, 0.74), 'set');
+    seg(P(0.89, 0.8, 2.75), P(0.72, 1.02, 2.77), 0.6, t(0.6, 0.3), 'erase');
+    { const D = 2.74, s = S(D), cx = X(1.16, D), yt = Y(0.81, D), w = 0.25 * s;
+      const shirt = 'M' + (cx - 0.075 * s) + ' ' + yt + ' Q' + cx + ' ' + (yt + 0.07 * s) + ' ' + (cx + 0.075 * s) + ' ' + yt +
+        ' L' + (cx + w) + ' ' + (yt + 0.02 * s) + ' L' + (cx + w + 0.06 * s) + ' ' + (yt + 0.15 * s) + ' L' + (cx + w - 0.01 * s) + ' ' + (yt + 0.18 * s) +
+        ' L' + (cx + w - 0.03 * s) + ' ' + (yt + 0.13 * s) + ' L' + (cx + w - 0.025 * s) + ' ' + (yt + 0.34 * s) + ' L' + (cx - w + 0.025 * s) + ' ' + (yt + 0.34 * s) +
+        ' L' + (cx - w + 0.03 * s) + ' ' + (yt + 0.13 * s) + ' L' + (cx - w + 0.01 * s) + ' ' + (yt + 0.18 * s) + ' L' + (cx - w - 0.06 * s) + ' ' + (yt + 0.15 * s) + ' L' + (cx - w) + ' ' + (yt + 0.02 * s) + ' Z';
+      k.path(shirt, 0.95, 'set');
+      k.stroke('M' + (cx - 0.075 * s) + ' ' + (yt + 0.6) + ' Q' + cx + ' ' + (yt + 0.07 * s + 0.6) + ' ' + (cx + 0.075 * s) + ' ' + (yt + 0.6), 0.8, t(0.45, 0.3), 'erase');
+      k.text('SECURITY', cx, yt + 0.16 * s, 0.075 * s, 1, { mode: 'erase', spacing: 0.3, max: 1.5 * w });
+      for (const f of [[-0.6, 0.2], [0.35, 0.24], [0.75, 0.28]]) k.line(cx + f[0] * w, yt + 0.22 * s, cx + f[0] * w + 1, yt + 0.33 * s, 0.5, t(0.35, 0.2), 'erase'); }
+
+    // ---- the armchair across the desk, wood, empty: the crest rail, the spindles, the arms
+    { const A0 = -0.26, A1 = 0.34, AD0 = 2.22, AD1 = 2.62, AS = 0.46, AA = 0.66, AB = 0.94, ink = t(0.92, 0.96), lit = t(0.55, 0.25);
+      for (const x of [A0 + 0.03, A1 - 0.03]) seg(P(x, AB, AD1), P(x, AS - 0.4, AD1), Math.max(1.4, 0.04 * S(AD1)), ink);
+      for (let i = 1; i < 7; i++) {
+        const x = A0 + 0.03 + (A1 - A0 - 0.06) * i / 7;
+        seg(P(x, AB - 0.04, AD1 - 0.01), P(x, AS, AD1 - 0.01), Math.max(0.9, 0.02 * S(AD1)), ink);
+        seg([X(x, AD1 - 0.01) - 0.5, Y(AB - 0.06, AD1)], [X(x, AD1 - 0.01) - 0.5, Y(AS + 0.04, AD1)], 0.4, lit * 0.5, 'erase');
+      }
+      const c0 = P(A0 - 0.04, AB, AD1), c1 = P(A1 + 0.04, AB, AD1), cm = P((A0 + A1) / 2, AB + 0.02, AD1 + 0.08), th = 0.075 * S(AD1);
+      k.path('M' + c0[0] + ' ' + c0[1] + ' Q' + cm[0] + ' ' + (cm[1] - 3) + ' ' + c1[0] + ' ' + c1[1] + ' L' + c1[0] + ' ' + (c1[1] + th) + ' Q' + cm[0] + ' ' + (cm[1] - 3 + th) + ' ' + c0[0] + ' ' + (c0[1] + th) + ' Z', ink, 'set');
+      k.stroke('M' + c0[0] + ' ' + (c0[1] + 0.5) + ' Q' + cm[0] + ' ' + (cm[1] - 2.5) + ' ' + (cm[0] + 6) + ' ' + (cm[1] - 2.7), 0.9, lit, 'erase');
+      // the arms out to the front, their posts down to the seat
+      for (const x of [A0, A1]) {
+        seg(P(x, AA, AD1 - 0.03), P(x, AA, AD0 + 0.02), Math.max(1.8, 0.05 * S(AD0)), ink);
+        seg(P(x, AA, AD0 + 0.06), P(x, AS - 0.4, AD0 + 0.06), Math.max(1.3, 0.035 * S(AD0)), ink);
+      }
+      seg([X(A0, AD1 - 0.03), Y(AA, AD1 - 0.03) - 0.6], [X(A0, AD0 + 0.02), Y(AA, AD0 + 0.02) - 0.6], 0.7, lit, 'erase');
+      seg([X(A1, AD1 - 0.03), Y(AA, AD1 - 0.03) - 0.6], [X(A1, AD0 + 0.02), Y(AA, AD0 + 0.02) - 0.6], 0.6, lit * 0.6, 'erase'); }
+
+    // ---- the bookkeeper's desk against the right wall: the monitor, the ledger open, her mug; her
+    // chair pulled out, her cardigan over the back of it
+    const BX0 = 1.32, BD0 = 1.1, BD1 = 2.45, BT = 0.74;
+    k.poly(quad(BX0, 0.04, BT - 0.03, BD0, BD1), t(0.66, 0.86), 'set');
+    { const q = quad(BX0, 0.12, BT - 0.1, BD0 + 0.12, BD1 - 0.08); k.stroke('M' + q[0][0] + ' ' + q[0][1] + ' L' + q[1][0] + ' ' + q[1][1] + ' L' + q[2][0] + ' ' + q[2][1], 0.7, 0.85); k.stroke('M' + q[2][0] + ' ' + q[2][1] + ' L' + q[3][0] + ' ' + q[3][1], 0.7, t(0.4, 0.2), 'erase'); }
+    k.poly(quad(BX0, BT - 0.03, BT, BD0, BD1), t(0.3, 0.62), 'set');
+    k.poly(flat(BT, BX0, XR, BD0, BD1), t(0.54, 0.78), 'set');
+    seg(P(BX0, BT, BD0), P(BX0, BT, BD1), 0.8, t(0.6, 0.3), 'erase');
+    // the monitor, side-on to him, her spreadsheet up on it
+    { const MX = 1.74, M0 = 1.78, M1 = 2.18, MY0 = 0.88, MY1 = 1.16;
+      if (dusk) { onWall(j, cam, XR, 2, 1.0, function (kk) { kk.light(0, 0, 70, 0.3, 50); }); k.light(X(1.6, 1.98), Y(BT, 1.98), 40, 0.3, 12); }
+      k.poly(flat(BT + 0.004, MX + 0.02, MX + 0.18, 1.9, 2.06), 0.9, 'set');
+      seg(P(MX + 0.08, BT, 1.98), P(MX + 0.08, MY0, 1.98), Math.max(1, 0.035 * S(1.98)), 0.92);
+      k.poly(quad(MX + 0.02, MY0 - 0.015, MY1 + 0.015, M0 - 0.015, M1 + 0.015), 0.96, 'set');
+      k.poly(quad(MX, MY0 - 0.015, MY1 + 0.015, M0 - 0.015, M1 + 0.015), 0.92, 'set');
+      const sq = quad(MX - 0.001, MY0, MY1, M0, M1);
+      k.poly(sq, t(0.12, 0.04), 'set');
+      for (let y = MY0 + 0.03; y < MY1 - 0.02; y += 0.022) seg(P(MX - 0.002, y, M0 + 0.015), P(MX - 0.002, y, M1 - 0.015), 0.4, 0.4);
+      for (const dd of [0.1, 0.2, 0.3]) seg(P(MX - 0.002, MY1 - 0.03, M0 + dd), P(MX - 0.002, MY0 + 0.015, M0 + dd), 0.4, 0.4);
+      k.poly(quad(MX - 0.002, MY1 - 0.035, MY1 - 0.012, M0 + 0.012, M1 - 0.012), 0.55, 'set'); }
+    // the ledger open in front of her place, ruled; her mug behind it
+    { const p = flat(BT + 0.005, 1.4, 1.7, 1.48, 1.76);
+      k.poly(p, t(0.06, 0.3), 'set');
+      for (let D = 1.5; D < 1.75; D += 0.024) seg(P(1.41, BT + 0.006, D), P(1.69, BT + 0.006, D), 0.4, 0.35);
+      for (const x of [1.47, 1.52, 1.62, 1.66]) seg(P(x, BT + 0.006, 1.49), P(x, BT + 0.006, 1.75), 0.4, 0.3);
+      seg(P(1.55, BT + 0.006, 1.48), P(1.55, BT + 0.006, 1.76), 1, 0.7);
+      const m = P(1.46, BT, 2.02), ms = S(2.02);
+      k.rect(m[0] - 0.04 * ms, m[1] - 0.095 * ms, 0.08 * ms, 0.095 * ms, k.lin(m[0] - 0.04 * ms, 0, m[0] + 0.04 * ms, 0, [[0, t(0.55, 0.7)], [1, 0.92]]), 'set');
+      k.oval(m[0], m[1] - 0.095 * ms, 0.04 * ms, 0.01 * ms, 0.85, 'set');
+      k.stroke('M' + (m[0] - 0.04 * ms) + ' ' + (m[1] - 0.075 * ms) + ' q ' + (-0.035 * ms) + ' ' + (0.02 * ms) + ' 0 ' + (0.055 * ms), Math.max(0.7, 0.012 * ms), t(0.6, 0.8)); }
+    // her chair, its back to the room, the cardigan hung over it by the shoulders: the knit, the
+    // button band, the sleeves down
+    { const CX = 1.0, C0 = 1.47, C1 = 1.81, top = 0.94, CM = (C0 + C1) / 2, s = S(CM);
+      for (const d of [C0 + 0.02, C1 - 0.02]) seg(P(CX, top, d), P(CX, 0.3, d), Math.max(1.2, 0.028 * S(d)), 0.94);
+      k.poly(quad(CX, top - 0.04, top, C0 - 0.02, C1 + 0.02), 0.94, 'set');
+      const cg = [P(CX - 0.035, top + 0.025, C0 + 0.02), P(CX - 0.035, top + 0.025, C1 - 0.02), P(CX - 0.045, 0.5, C1 - 0.03), P(CX - 0.045, 0.5, C0 + 0.03)];
+      k.poly(cg, t(0.3, 0.62), 'set');
+      clipTo(cg);
+      for (let d = C0; d < C1; d += 0.016) seg(P(CX - 0.035, top + 0.03, d), P(CX - 0.045, 0.5, d), 0.5, 0.35);
+      k.light(cg[1][0] + 3, cg[1][1] + 6, 16, t(0.25, 0.05));
+      k.done();
+      seg(cg[0], cg[1], 1, t(0.6, 0.25), 'erase');
+      // the V of the neck, the band down the front and its buttons
+      const nk = P(CX - 0.04, top - 0.11, CM);
+      k.poly([P(CX - 0.035, top + 0.025, CM - 0.06), P(CX - 0.035, top + 0.025, CM + 0.06), nk], 0.9, 'set');
+      seg(P(CX - 0.035, top + 0.025, CM - 0.06), nk, 1.4, t(0.1, 0.45)); seg(P(CX - 0.035, top + 0.025, CM + 0.06), nk, 1.4, t(0.1, 0.45));
+      seg(nk, P(CX - 0.045, 0.5, CM), 2.2, t(0.1, 0.45));
+      for (let y = top - 0.14; y > 0.55; y -= 0.07) { const q = P(CX - 0.045, y, CM); k.oval(q[0], q[1], 1, 1, 0.95, 'set'); }
+      // the sleeves down either side, the near one longer
+      for (const sl of [[C0 + 0.015, 0.46, 1], [C1 - 0.015, 0.6, -1]]) {
+        const a = P(CX - 0.04, top + 0.01, sl[0]), b = P(CX - 0.045, sl[1], sl[0] + sl[2] * 0.01);
+        k.line(a[0], a[1], b[0], b[1], 0.065 * s, t(0.44, 0.7));
+        k.line(a[0] + sl[2] * 0.033 * s, a[1] + 3, b[0] + sl[2] * 0.033 * s, b[1], 0.6, 0.6);
+      } }
+
+    // ---- his desk: oak, the window's sheen on the far side of it and the lamp's pool on this
+    // end, the near edge across the bottom
+    const DX = 0.95, DD0 = 0.82, DD1 = 1.55, DT = 0.76;
+    const top = flat(DT, -DX, DX, DD0, DD1);
+    k.poly(top, t(0.72, 0.84), 'set');
+    clipTo(top);
+    for (let D = DD0 + 0.01; D < DD1; D += 0.012 + rnd() * 0.024) { const y = Y(DT, D); k.line(0, y + (rnd() - 0.5) * 0.6, W, y + (rnd() - 0.5) * 0.6, 0.5, 0.14 + rnd() * 0.2, rnd() < 0.5 ? 'ink' : 'erase'); }
+    for (const D of [1.0, 1.28]) k.line(0, Y(DT, D), W, Y(DT, D), 0.5, 0.45);
+    k.light((gx0 + gx1) / 2, Y(DT, 1.4), 60, t(0.3, 0.06), 20);
+    k.light(X(-0.92, 1.15), Y(DT, 1.12), 200, t(0.55, 0.74), 52);
+    k.light(X(-0.92, 1.15), Y(DT, 1.1), 85, t(0.4, 0.55), 22);
+    k.done();
+    seg(top[3], top[2], 1, t(0.6, 0.4), 'erase');
+    k.rect(0, Y(DT, DD0), W, H - Y(DT, DD0), 0.97, 'set');
+    k.line(0, Y(DT, DD0) + 0.5, W, Y(DT, DD0) + 0.5, 1.2, t(0.5, 0.55), 'erase');
+    k.light(X(-0.92, 1.15), Y(DT, DD0) + 1, 100, t(0.4, 0.6), 3);
+
+    // his phone, face down, the camera's corner up
+    { const p = flat(DT + 0.008, 0.08, 0.155, 0.95, 1.1);
+      k.poly(p, 0.95, 'set');
+      seg([p[0][0], p[0][1] + 0.3], [p[1][0], p[1][1] + 0.3], 0.6, t(0.45, 0.3), 'erase');
+      seg([p[0][0] + 0.4, p[0][1]], [p[3][0] + 0.4, p[3][1]], 0.6, t(0.4, 0.25), 'erase');
+      const cq = flat(DT + 0.009, 0.09, 0.12, 1.06, 1.09); k.poly(cq, 0.7, 'set');
+      k.oval((cq[0][0] + cq[1][0]) / 2, (cq[0][1] + cq[2][1]) / 2, 1.5, 1, 0.95, 'set'); }
+    // the mug of pens
+    { const D = 1.42, m = P(-0.68, DT, D), s = S(D), r = 0.042 * s, h = 0.1 * s, x = m[0], y = m[1];
+      for (const p of [[-0.6, 0.13, -0.02], [-0.2, 0.15, 0.01], [0.3, 0.12, 0.03], [0.65, 0.14, 0.05], [0.05, 0.11, -0.04]]) {
+        const bx = x + p[0] * r, tx = bx + p[2] * s * 1.2, ty = y - h - p[1] * s;
+        k.line(bx, y - h + 1, tx, ty, Math.max(0.9, 0.009 * s), 0.92);
+        k.line(tx, ty, tx + (tx - bx) * 0.12, ty - 0.02 * s, Math.max(1.1, 0.012 * s), 0.95);
+      }
+      k.rect(x - r, y - h, 2 * r, h, k.lin(x - r, 0, x + r, 0, [[0, t(0.1, 0.25)], [0.6, t(0.28, 0.45)], [1, t(0.5, 0.6)]]), 'set');
+      k.oval(x, y - h, r, r * 0.25, 0.85, 'set');
+      k.stroke(ell(x, y - h, r, r * 0.25, true), 0.6, t(0.2, 0.4));
+      k.stroke('M' + (x + r) + ' ' + (y - h * 0.8) + ' q ' + (0.035 * s) + ' ' + (0.02 * s) + ' 0 ' + (0.06 * s), Math.max(0.8, 0.012 * s), t(0.35, 0.5)); }
+    // the adding machine in the lamp's light: beige, its keys dark on the slope, the head at the
+    // back with the roll up behind it, the tape up out of it; a length torn off lying in front
+    { const M0 = -0.46, M1 = -0.18, MD0 = 1.06, MD1 = 1.32, MH = 1.22, MX = (M0 + M1) / 2;
+      { const p = [P(-0.5, DT + 0.002, 0.97), P(-0.33, DT + 0.002, 0.95), P(-0.3, DT + 0.002, 0.995), P(-0.47, DT + 0.002, 1.015)];
+        k.poly(p, t(0.02, 0.1), 'set');
+        k.stroke('M' + p[1][0] + ' ' + p[1][1] + ' C' + (p[1][0] + 7) + ' ' + (p[1][1] - 9) + ' ' + (p[2][0] + 9) + ' ' + (p[2][1] + 1) + ' ' + p[2][0] + ' ' + p[2][1], 1.2, t(0.08, 0.2), 'erase');
+        for (let i = 1; i < 6; i++) { const u = i / 6, x = p[0][0] + (p[1][0] - p[0][0]) * u, y = p[0][1] + (p[1][1] - p[0][1]) * u; k.line(x + 0.5, y + 1.5, x + 2.5, y + 4.5, 0.5, 0.5); } }
+      box(M0, M1, MD0, MD1, DT, DT + 0.045, null, t(0.38, 0.56), t(0.26, 0.46));
+      const kt = [P(M0, DT + 0.045, MD0), P(M1, DT + 0.045, MD0), P(M1, DT + 0.1, MH), P(M0, DT + 0.1, MH)];
+      k.poly(kt, t(0.26, 0.46), 'set');
+      seg([kt[0][0], kt[0][1] + 0.3], [kt[1][0], kt[1][1] + 0.3], 0.8, 0.6, 'erase');
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+        const u = (c + 0.6) / 5.2, v = (r + 0.6) / 4.4, D = MD0 + 0.015 + v * (MH - MD0 - 0.03), q = P(M0 + 0.02 + u * (M1 - M0 - 0.04), DT + 0.045 + 0.055 * (D - MD0) / (MH - MD0), D);
+        k.oval(q[0], q[1] - 0.6, 0.014 * S(D), 0.009 * S(D), 0.95, 'set');
+        k.oval(q[0] - 0.3, q[1] - 1, 0.007 * S(D), 0.003 * S(D), 0.5, 'erase');
+      }
+      k.poly([P(M1 - 0.06, DT + 0.055, MD0 + 0.03), P(M1 - 0.02, DT + 0.055, MD0 + 0.03), P(M1 - 0.02, DT + 0.095, MH - 0.03), P(M1 - 0.06, DT + 0.095, MH - 0.03)], 0.95, 'set');
+      box(M0 + 0.015, M1 - 0.015, MH, MD1, DT + 0.045, DT + 0.13, t(0.5, 0.64), t(0.62, 0.74), t(0.5, 0.64));
+      // the roll on its arms, white, wider than the tape, its end toward him with the core in it
+      const rc = P(MX, DT + 0.2, MD1 - 0.02), rs = S(MD1), rw = 0.055 * rs, rr = 0.034 * rs;
+      for (const e of [-1, 1]) k.line(rc[0] + e * rw * 1.08, rc[1], rc[0] + e * rw * 1.08, Y(DT + 0.13, MD1 - 0.02), 0.9, 0.9);
+      k.rect(rc[0] - rw, rc[1] - rr, 2 * rw, 2 * rr, k.lin(0, rc[1] - rr, 0, rc[1] + rr, [[0, 0.04], [0.55, t(0.14, 0.3)], [1, t(0.45, 0.6)]]), 'set');
+      k.stroke('M' + (rc[0] - rw) + ' ' + (rc[1] - rr) + ' L' + (rc[0] + rw) + ' ' + (rc[1] - rr) + ' M' + (rc[0] - rw) + ' ' + (rc[1] + rr) + ' L' + (rc[0] + rw) + ' ' + (rc[1] + rr), 0.5, 0.6);
+      k.oval(rc[0] + rw, rc[1], rr * 0.4, rr, t(0.12, 0.3), 'set');
+      k.stroke(ell(rc[0] + rw, rc[1], rr * 0.4, rr), 0.5, 0.6);
+      k.oval(rc[0] + rw, rc[1], rr * 0.15, rr * 0.34, 0.9, 'set');
+      // the tape up out of the head in front of the roll, narrower, its end curled back over it
+      const tx = X(MX, MH + 0.01), ty = Y(DT + 0.13, MH + 0.01), tw = 0.026 * S(MH), tt = rc[1] - rr * 0.6;
+      const tape = 'M' + (tx - tw) + ' ' + ty + ' L' + (tx - tw) + ' ' + tt + ' Q' + tx + ' ' + (tt - 4.5) + ' ' + (tx + tw) + ' ' + tt + ' L' + (tx + tw) + ' ' + ty + ' Z';
+      k.path(tape, 0.02, 'set');
+      k.path('M' + (tx - tw) + ' ' + tt + ' Q' + tx + ' ' + (tt - 4.5) + ' ' + (tx + tw) + ' ' + tt + ' Q' + tx + ' ' + (tt - 1.5) + ' ' + (tx - tw) + ' ' + tt + ' Z', 0.45, 'set');
+      k.stroke(tape, 0.5, 0.6);
+      for (let i = 1; i < 5; i++) k.line(tx - tw * 0.6, ty - i * (ty - tt) / 5.2, tx + tw * (0.5 - (i % 3) * 0.3), ty - i * (ty - tt) / 5.2, 0.5, 0.6); }
+
+    // ---- the brass lamp at his end of the desk, his mother's: the turned column catching the
+    // light, the shade lit through, its pool on the desk and its glow up the wall
+    { const LX = -0.92, LD = 1.15, s = S(LD), x = X(LX, LD), yb = Y(DT, LD), y1 = Y(1.0, LD), y0 = Y(1.25, LD), rb = 0.155 * s, rt = 0.1 * s;
+      k.light(x, y0 + 4, 70, t(0.3, 0.55), 52);
+      // the base, stepped, and the column up out of it, an urn and a neck
+      k.oval(x, yb, 0.08 * s, 0.022 * s, 0.92, 'set');
+      const prof = [[0.075, 0], [0.07, 0.012], [0.045, 0.018], [0.04, 0.03], [0.016, 0.04], [0.012, 0.07], [0.034, 0.11], [0.04, 0.15], [0.028, 0.19], [0.01, 0.21], [0.01, 0.235], [0.018, 0.245], [0.008, 0.25]];
+      let d = 'M' + (x - prof[0][0] * s) + ' ' + yb;
+      for (const q of prof) d += ' L' + (x - q[0] * s) + ' ' + (yb - q[1] * s);
+      for (let i = prof.length - 1; i >= 0; i--) d += ' L' + (x + prof[i][0] * s) + ' ' + (yb - prof[i][1] * s);
+      k.path(d + ' Z', k.lin(x - 0.075 * s, 0, x + 0.075 * s, 0, [[0, t(0.75, 0.8)], [0.3, t(0.2, 0.15)], [0.45, t(0.5, 0.45)], [0.8, 0.88], [1, 0.95]]), 'set');
+      for (const q of [[0.045, 0.018], [0.016, 0.04], [0.04, 0.15], [0.01, 0.21]]) k.line(x - q[0] * s, yb - q[1] * s, x + q[0] * s, yb - q[1] * s, 0.6, 0.85);
+      // the shade, pleated, lit through, the trim at its edges
+      const shade = 'M' + (x - rt) + ' ' + y0 + ' Q' + x + ' ' + (y0 + 0.012 * s) + ' ' + (x + rt) + ' ' + y0 + ' L' + (x + rb) + ' ' + y1 + ' Q' + x + ' ' + (y1 + 0.04 * s) + ' ' + (x - rb) + ' ' + y1 + ' Z';
+      k.path(shade, k.lin(0, y0, 0, y1, [[0, t(0.34, 0.2)], [0.75, t(0.14, 0.04)], [1, t(0.06, 0)]]), 'set');
+      k.path(shade, k.lin(x - rb, 0, x + rb, 0, [[0, t(0.3, 0.25)], [0.25, 0], [0.7, 0.04], [1, t(0.4, 0.35)]]));
+      for (let i = 1; i < 14; i++) { const u = i / 14; k.line(x - rt + 2 * rt * u, y0 + 0.5, x - rb + 2 * rb * u, y1 + 0.03 * s * Math.sin(u * Math.PI) - 0.5, 0.45, 0.2); }
+      k.stroke('M' + (x - rb) + ' ' + y1 + ' Q' + x + ' ' + (y1 + 0.04 * s) + ' ' + (x + rb) + ' ' + y1, 1.4, 0.75);
+      k.stroke('M' + (x - rt) + ' ' + y0 + ' Q' + x + ' ' + (y0 + 0.012 * s) + ' ' + (x + rt) + ' ' + y0, 1.1, 0.7);
+      k.oval(x, y0 - 0.012 * s, 0.01 * s, 0.012 * s, 0.85, 'set'); }
+
+    vignette(k, t(0.36, 0.42));
+    edge(k);
+  };
+
   // ---------------------------------------------------------------- faces
   //
   // A face the way Papers, Please builds them: the same head every time and the parts that make it
@@ -3386,7 +3756,8 @@
 
   const CAPTIONS = {
     lot: 'The Sovereign Hotel', floor: 'The room', door: 'The front door', bar: 'The bar', t28: 'Table 28',
-    pool: 'The pool table', hall: 'The back hall', kitchen: 'The kitchen', keg: 'The keg room', deck: 'The deck', upstairs: 'The room upstairs'
+    pool: 'The pool table', hall: 'The back hall', kitchen: 'The kitchen', keg: 'The keg room', deck: 'The deck', upstairs: 'The room upstairs',
+    office: 'Van Dusen Holdings'
   };
 
   // What each plate shows of the night, in steps, from Game._plateState. Plates with the same look
@@ -3401,7 +3772,9 @@
     keg: function (st) { return { eyes: clamp(1 + Math.floor(Math.log2(Math.max(30, st.rats || 30) / 30)), 1, 6) }; },
     kitchen: function (st) { return { open: st.kitchen !== false, cook: st.clock == null || st.clock < 1380 }; },
     deck: function (st) { return { open: st.deck !== false }; },
-    hall: function (st) { return { open: st.hotel !== false }; }
+    hall: function (st) { return { open: st.hotel !== false }; },
+    // the office goes from the grey of the afternoon to the lamp as the day goes out of the window
+    office: function (st) { return (st.clock || 0) >= 990 ? { dusk: true } : {}; }
   };
   // places whose light changes when the house lights come up and after close
   const LIT = { floor: 1, bar: 1, t28: 1, pool: 1, door: 1 };
