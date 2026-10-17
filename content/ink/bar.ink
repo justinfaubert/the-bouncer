@@ -6,12 +6,12 @@
 ~ here = bar
 { due(): -> hub }
 { at_bar == 1:
-    He leaned on the bar at the service end, out of the way of the taps.
+    He leaned on the bar in the gap in the stools where staff stood, out of the way of the taps. #look: bartender
 - else:
     {shuffle:
-    - He went back to the service end of the bar.
-    - He leaned on the bar, out of the way of the taps.
-    - The service end of the bar. She was pulling a pint and didn't look up.
+    - He went back to the gap in the stools. #look: bartender
+    - He leaned on the bar, out of the way of the taps. #look: bartender
+    - The gap in the stools. She was pulling a pint and didn't look up. #look: bartender
     }
 }
 { rep_staff <= -3:
@@ -174,14 +174,19 @@ BARTENDER: Last a week, Door. Then ask me.
 
 // ------------------------------------------------------------------ 8:15 the card machine goes down
 
+// Heard from wherever he is; then he goes and stands by her, the way a doorman does when the money
+// stops, since that's where the arguing will be.
 === ev_card ===
 ~ ev_card_done = true
-~ here = bar
-The card machine beeped three times and its screen went blank. Then the one at the other end of the bar did it too. #sfx: till
+The card machine beeped three times and its screen went blank. Then the one at the other end of the bar did it too. #sfx: till #look: bartender
 BARTENDER: And there she goes.
 BARTENDER: Network's down, third time this week. Cash only, folks. Cash only.
 TABLE28: Cash is king!
 They'd never paid any other way. Table 28 thought cards were a fad.
+{ here != bar:
+    ~ here = bar
+    He went and stood in the gap in the stools, where the arguments would come. #look: bartender
+}
 The TV over the bar had cut to a panel of men in suits talking in front of a map. The sound was off. The banner under them said something about the capital that nobody in the bar read.
 // Hutch, in director mode (27 Sept), on what stops working first in a town like his: it's an island, so
 // it's the shipments from the mainland. When diesel's too dear for the trucks to make sense, things
@@ -211,17 +216,21 @@ SLIPPERS: I never have cash. My husband always carried the cash.
     The woman went back upstairs in her slippers. Her friend stayed with the bottle.
     WRONGMAN: Twenty dollars. In the story it was always about twenty dollars, once you got to the bottom of it.
 - ~ pass(3)
--> hub
+-> carry_on
 
 
 // ------------------------------------------------------------------ midnight: the owner calls
 
 === ev_owner ===
 ~ ev_owner_done = true
-~ here = bar
-The bar phone rang. It was the kind of phone with a cord. #sfx: phone
-The bartender answered, listened, said "He's fine," listened, and held it out across the bar.
-BARTENDER: It's Junior. For you.
+The bar phone rang. It was the kind of phone with a cord. #sfx: phone #look: bartender
+{ here == bar:
+    The bartender answered, listened, said "He's fine," listened, and held it out across the bar.
+- else:
+    The bartender answered, listened, said "He's fine," listened, and held it up where he could see it, the cord stretched across the bar.
+    ~ here = bar
+}
+BARTENDER: It's Junior. For you. #look: bartender
 // Hutch, in director mode (27 Sept): an owner who's never there asks "How is it tonight?", and means
 // how busy is it, how much money am I making. What the doorman tells him, the till tells him too in
 // the morning. (Worked in by Claude.)
@@ -301,7 +310,7 @@ OWNER: How is it tonight?
     ~ rep(rep_owner, -2)
     ~ rep(rep_staff, 2)
     The bartender took the phone. She listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the bar as if she'd never stopped.
-    -> hub
+    -> carry_on
 * ["I'll let him in next time."]
     OWNER: Good man.
     ~ rep(rep_owner, 1)
@@ -313,4 +322,4 @@ OWNER: How is it tonight?
 OWNER: Good. Good. Put her back on, my food's here.
 He handed the phone back. She listened, said "Yep," and "Yep," and hung up.
 ~ pass(4)
--> hub
+-> carry_on

@@ -242,6 +242,12 @@
       const id = item && item.prop;
       const pr = id && P[id];
       if (!pr || !pr.kind) return null;
+      // #prop: hoodie_card back: he gives it back; nothing new to draw, and the last one's spent
+      if (item.propHow === 'back') {
+        for (const s of shown) if (s.id === id) s.back = true;
+        refresh();
+        return null;
+      }
       const at = item.propAt || { turn: api.turn(), clock: 0 };
       const fig = h('figure', 'prop prop-' + pr.kind);
       fig.dataset.prop = id;
@@ -264,7 +270,7 @@
       for (const s of shown) last[s.id] = s;
       for (const s of shown) {
         let live = false;
-        if (last[s.id] === s) { try { live = s.turn === turn || api.waits(s.id).length > 0; } catch (e) { live = false; } }
+        if (last[s.id] === s && !s.back) { try { live = s.turn === turn || api.waits(s.id).length > 0; } catch (e) { live = false; } }
         if (live !== s.live) { s.live = live; s.el.classList.toggle('live', live); s.el.classList.toggle('spent', !live); s.setLive(live); }
         if (s.el.isConnected) s.placed = true;
       }

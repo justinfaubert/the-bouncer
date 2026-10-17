@@ -529,20 +529,21 @@ FATHER: Do the job that's in front of you. The rest comes to you.
 
 // ------------------------------------------------------------------ 9:30 the rat on the carpet
 
+// It comes out where he can see it, wherever he is in the room; he goes to it if he goes for it.
 === ev_rat ===
 ~ rat_scene = true
-~ here = floor
 { poison: -> sick }
 -> bold
 
 = bold
-Something came out from under the bar rail and crossed the carpet in three quick runs, stopping under the stools between runs, the way they do.
+Something came out from under the bar rail and crossed the carpet in three quick runs, stopping under the stools between runs, the way they do. #look: bar
 A rat. {knows ? t28_rat:Not Walter. A young one, thin, with a torn ear.|A young one, thin, with a torn ear.} Out in the light at half past nine, with the room half full.
 {slippers_upstairs:The woman in slippers, the one who'd stayed with the bottle,|One of the women in slippers} lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it. Yet.
 FIGHTER: Now. While it's in the open.
 FATHER: Whatever you do, do it like it's nothing.
 * [Stamp on it. #check: fighter 7]
     ~ pass(1)
+    ~ here = floor
     { passed:
         He was quicker than it was. It was over under his boot, with a sound he felt more than heard.
         ~ rats_killed++
@@ -565,6 +566,7 @@ FATHER: Whatever you do, do it like it's nothing.
     }
 * [Drop a pint glass over it. #check: fighter 8]
     ~ pass(2)
+    ~ here = floor
     { passed:
         He took an empty pint glass off the nearest table and brought it down over the rat mid-run, and then it was under the glass on the carpet, up on its back legs with its hands flat on the inside.
         MANUAL: Slide a coaster underneath.
@@ -577,6 +579,7 @@ FATHER: Whatever you do, do it like it's nothing.
     }
 * [Tell the woman in slippers it's a mouse. #check: father 6]
     ~ pass(1)
+    ~ here = bar
     { passed:
         He leaned on the bar beside her and said, low, that it was a mouse, that they came in out of the rain, that it was more scared of her. She put her feet back down, slowly.
         SLIPPERS: A mouse.
@@ -602,11 +605,12 @@ FATHER: Whatever you do, do it like it's nothing.
     ~ knows += t28_rat
     WRONGMAN: Every rat in the building knows that table.
     FIGHTER: You let it walk.
-- -> hub
+- -> carry_on
 
 = glass_rat
 * [Take it out the back and let it go in the alley.]
     ~ pass(4)
+    ~ here = kitchen
     He carried it through the kitchen and out the back door and lifted the glass in the alley. The rat sat on the coaster for a second, as if to show him it could, and then went up the alley toward the dumpster.
     { cook_here():
         COOK: You're kidding me. You're kidding me, right?
@@ -616,6 +620,7 @@ FATHER: Whatever you do, do it like it's nothing.
     ~ pass(3)
     ~ rats_killed++
     ~ go_to_war()
+    ~ here = kitchen
     He took it into the kitchen and put the glass mouth down in the mop bucket and held it there. It took longer than he expected. Everything like that does.
     { cook_here():
         ~ rep(rep_cook, 1)
@@ -626,17 +631,18 @@ FATHER: Whatever you do, do it like it's nothing.
     ~ pass(4)
     ~ rat_favour++
     ~ knows += keg_hole
+    ~ here = keg
     He went down through the trapdoor and set the glass on the dirt past the last keg and lifted it. The rat went into the dark toward the front of the building without hurrying.
     From the dark, for a second, a sound like a lot of hands being rubbed together. Then nothing. #sfx: scratch
     WRONGMAN: You gave one back. Somebody down there counts things like that.
-- -> hub
+- -> carry_on
 
 // If there's poison down, the rat that comes out is dying. Poisoned rats get thirsty and lose
 // their fear and come out into the light, which is the last thing the bartender wanted.
 = sick
 // Walter only comes out like this once the bait's had its days (Friday on). Tonight's is a stranger.
 ~ temp is_walter = day >= 3 && walter == 3
-A rat came out from under the bar rail and walked across the middle of the carpet, in the light.
+A rat came out from under the bar rail and walked across the middle of the carpet, in the light. #look: pool
 Rats don't do that. It was walking wrong, slow, its back end swinging, and it stopped in the open by the pool table and sat there as if it had forgotten where it was going.
 MANUAL: Anticoagulant bait causes internal bleeding over several days. Affected animals become lethargic, disoriented and thirsty, and may be seen in the open.
 { day < 3:
@@ -657,6 +663,7 @@ The whole room was looking at it now. The woman in slippers had both hands over 
     ~ pass(1)
     ~ rats_killed++
     ~ incident += inc_rat
+    ~ here = pool
     { passed:
         He did it with one boot, fast, and it was over before most of the room understood what it was looking at.
     - else:
@@ -674,14 +681,19 @@ The whole room was looking at it now. The woman in slippers had both hands over 
 * [Pick it up in a bar towel and carry it out.]
     ~ pass(4)
     ~ incident += inc_rat
+    ~ here = pool
     He knelt and put a bar towel over it and picked it up. It hardly weighed anything. It didn't fight him.
+    ~ here = kitchen
     He carried it out through the kitchen to the alley and put it down under the back stairs, out of the rain, and left it there.
     ~ rep(rep_staff, 1)
     FATHER: That's the least you owed it.
 * {is_walter} [Pick him up in a bar towel and give him to Scratch.]
     ~ pass(4)
     ~ incident += inc_rat
-    He knelt and put a bar towel over Walter and picked him up and carried him to table 28, and put him in the lap of the man who'd been feeding him fries for years.
+    ~ here = pool
+    He knelt and put a bar towel over Walter and picked him up.
+    ~ here = t28
+    He carried him to table 28, and put him in the lap of the man who'd been feeding him fries for years.
     The man held him. Nobody at the table said anything. After a while he took Walter out onto the deck, in the towel, and he didn't come back in for a long time.
     ~ rep(rep_t28, 1)
     WRONGMAN: In the story, the doorman carried the body out himself. He never forgot the weight. This one's lighter.
@@ -698,7 +710,7 @@ The whole room was looking at it now. The woman in slippers had both hands over 
     ~ walter = 0
     -> who_poison ->
 }
--> hub
+-> carry_on
 
 // A tunnel: the rat on the carpet (Friday on) and the bait found at close both come here.
 = who_poison
@@ -722,8 +734,8 @@ Nobody at the bar said anything. The bartender looked at the kitchen door, and t
 
 === ev_trap_t28 ===
 ~ trap_sprung = true
+From under table 28 came a snap like a knuckle cracking, loud enough to hear over the jukebox, and then a sound that was worse. #look: t28
 ~ here = t28
-From under table 28 came a snap like a knuckle cracking, loud enough to hear over the jukebox, and then a sound that was worse.
 The one who scratched lottery tickets was under the table before anyone else had moved. He came up with the trap in both hands, and Walter in it.
 ~ walter = 0
 ~ rats_killed++
@@ -745,4 +757,4 @@ He didn't need to ask. He was looking at the doorman.
     Nobody at table 28 said anything else to him for the rest of the night.
 - The one who fed him wrapped Walter in a bar towel, trap and all, and took him out onto the deck, and he was gone twenty minutes. When he came back he sat down and ordered a round, and nobody at the table mentioned it again.
 FATHER: They won't mention it. That's not the same as forgetting it.
--> hub
+-> carry_on

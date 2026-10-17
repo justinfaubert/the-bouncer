@@ -40,6 +40,8 @@ var tex := {}                    # the darkroom's pictures, by name
 var jobs: Array = []
 var developing := false
 var held = null                  # what's in his hands: a Dictionary, or null
+var _waiting := {}               # held out before it can be in his hand: he's on his way, or they are
+const WAIT_MAX := 12.0           # seconds it waits for whoever's bringing it, if they never come into sight
 # his own hand: which holds what
 const HAND_FOR := {"card": ["his_right_card", "card"], "phone": ["his_right_phone", "phone"]}
 # a card or a phone that's in his hands isn't in theirs: which figure holds each, and its parts
@@ -614,7 +616,7 @@ func _box(size: Vector3, pos: Vector3, m: Material, parent: Node3D) -> MeshInsta
 
 # A line hands something over. Live, it comes into his hands (or, the kid's phone, stays in the
 # kid's hand where he's holding it up); read back from a save, it's just in the story.
-func offer(it: Dictionary, live: bool) -> void:
+func offer(it: Dictionary, live: bool, now := false) -> void:
 	var spec := str(it.get("prop", "")).strip_edges().split(" ", false)
 	if spec.is_empty():
 		return
@@ -622,6 +624,17 @@ func offer(it: Dictionary, live: bool) -> void:
 	var state: String = spec[1] if spec.size() > 1 else ""
 	var pr = P.get(id)
 	if not (pr is Dictionary) or not live:
+		return
+	if state == "back":
+		# #prop: hoodie_card back: he gives it back, now, to whoever handed it over
+		_waiting = {}
+		if held != null and str(held.id) == id:
+			_let_go(false)
+		return
+	# held out from across the room: it's in his hand when he gets to it, not on the way; and held
+	# out by someone still coming (out of the pickup, across the lot), when they're in front of him
+	if not now and (main.view.walking or not _brought(id)):
+		_waiting = {"it": it, "turn": main.game.turn, "since": t}
 		return
 	var kind := str(pr.get("kind", ""))
 	if kind == "phone" and state != "held":
@@ -813,6 +826,7 @@ func _let_go(quick: bool) -> void:
 	if held == null:
 		return
 	var node = held.node
+	var id_was := str(held.id)
 	held = null
 	hint.visible = false
 	if node == null:
@@ -820,13 +834,60 @@ func _let_go(quick: bool) -> void:
 	if quick:
 		(node as Node3D).queue_free()
 		return
+	# handed back: out of his eyes toward whoever it's theirs, if they're there to take it, or down
+	var to := (node as Node3D).position + Vector3(0.05, -0.3, 0.1)
+	var who: String = _whose(id_was)
+	if who != "" and main.stage != null and main.stage.present(who):
+		var chest: Vector3 = main.stage.chest_of(who)
+		var cam: Camera3D = main.view.cam
+		var local := cam.global_transform.affine_inverse() * chest
+		if local.z < -0.2:
+			to = local.normalized() * 0.55 + Vector3(0, -0.08, 0)
 	var tw := (node as Node3D).create_tween()
-	tw.tween_property(node, "position", (node as Node3D).position + Vector3(0.05, -0.3, 0.1), 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tw.tween_property(node, "position", to, 0.45).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tw.tween_callback((node as Node3D).queue_free)
 
 
+# whose a thing is: the figure that handed it over
+func _whose(id: String) -> String:
+	if ON_FIGURE.has(id):
+		return ON_FIGURE[id][0]
+	var pr = P.get(id)
+	return str(pr.get("face", "")) if pr is Dictionary else ""
+
+
 func drop_all() -> void:
+	_waiting = {}
 	_let_go(true)
+
+
+# Whether whoever holds it out is there to: in front of him, not walking up or still in the pickup.
+# The stage puts people where the night has them after the lines are out, so a line that hands
+# something over comes before they've set off.
+func _brought(id: String) -> bool:
+	var who := _whose(id)
+	if who == "" or main.stage == null:
+		return true
+	if main.stage.walkers.has(who):
+		return false
+	var f = main.stage.figures.get(who)
+	if f == null or str(f.spot) == "":
+		return false
+	return str(main.stage.SPOTS[f.spot].get("in", "")) != "truck"
+
+
+# He's got where he was going, or they have (or it's waited long enough for someone who never came
+# into sight): what was held out to him, if it's still his to take. Every frame while something waits.
+func arrived() -> void:
+	if _waiting.is_empty() or main.view.walking:
+		return
+	var w := _waiting
+	var id := str(w.it.get("prop", "")).strip_edges().split(" ", false)[0]
+	if not _brought(id) and t - float(w.get("since", t)) < WAIT_MAX:
+		return
+	_waiting = {}
+	if int(w.turn) == main.game.turn or not main.game.toy_moves(id).is_empty():
+		offer(w.it, true, true)
 
 
 # Esc: down for a moment, out of his eyes. E brings it back up while it's still his to handle.
@@ -1036,6 +1097,8 @@ func _near_held(p: Vector2) -> bool:
 
 func _process(dt: float) -> void:
 	t += dt
+	if not _waiting.is_empty():
+		arrived()
 	_figs_in -= dt
 	if _figs_in <= 0.0:
 		_figs_in = 0.1

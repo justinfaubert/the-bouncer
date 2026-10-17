@@ -132,7 +132,9 @@ func _ready() -> void:
 	menus.setup(self)
 
 	view.sheet.gui_input.connect(_on_world_input)
-	view.arrived.connect(func(where): stage.arrived(where); spots.refresh())
+	view.arrived.connect(func(where): stage.arrived(where); spots.refresh(); props.arrived())
+	stage.walked.connect(func(_id): props.arrived())
+	view.people_at = stage.standing
 	stage.sync(game, true)
 	menus.title()
 	audio.ambience("rain_door")
@@ -164,6 +166,12 @@ func _frame_for(where: String) -> String:
 		return "phone" if _choices_from("at_hall.payphone") else ""
 	if where == "pool":
 		return "juke" if _choices_from("at_jukebox") or _choices_from("at_pool.kid_jukebox") else ""
+	if where == "t28":
+		# on a stool with them once he's sat down; on his feet at the end of the table otherwise
+		for k in ["at_t28.sit", "at_t28.stories", "at_t28.another", "at_t28.tip_offer", "at_t28.walter_intro"]:
+			if _choices_from(k):
+				return ""
+		return "stand"
 	if where != "lot":
 		return ""
 	var v: Dictionary = game.vars()
@@ -395,9 +403,9 @@ func after(res: Dictionary, live: bool) -> void:
 	else:
 		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
 	refresh_status()
-	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox): over to it,
-	# and back
-	if view.place in ["hall", "pool"] and not res.get("ended", false):
+	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
+	# table 28): over to it, and back
+	if view.place in ["hall", "pool", "t28"] and not res.get("ended", false):
 		var f := _frame_for(view.place)
 		if f != view.frame:
 			view.frame = f
@@ -444,6 +452,7 @@ func _tape_on() -> bool:
 func render_items(items: Array, live: bool) -> Control:
 	var first: Control = null
 	var i := 0
+	var walked := false     # a second place in the same stretch is a stop after the first, not instead of it
 	while i < items.size():
 		var it: Dictionary = items[i]
 		if live and printing == null and _is_tape(it) and _tape_on():
@@ -467,7 +476,8 @@ func render_items(items: Array, live: bool) -> Control:
 			"place":
 				node = column.add_place(it)
 				view.frame = _frame_for(str(it.here))
-				view.walk_to(str(it.here), not live)
+				view.walk_to(str(it.here), not live, walked)
+				walked = true
 				if live:
 					audio.sfx("steps")
 			"word":
@@ -578,6 +588,23 @@ func _fx(it: Dictionary) -> void:
 			audio.track(str(it.get("id", "")))
 		"amb":
 			audio.ink_ambience(str(it.get("id", "")), game.here())
+		"look":
+			_look(str(it.get("id", "")))
+
+
+# The Ink's #look: what turns his head (a sound across the room, someone pointing it out to him):
+# someone in the room, if he can see them, or a place in it. Not if the player's turning it, and not
+# somewhere he's standing.
+func _look(id: String) -> void:
+	if stage.present(id):
+		stage.glance(id)
+		return
+	if not Posts.POSTS.has(id):
+		return
+	var p: Vector3 = Posts.POSTS[id].at
+	if Vector2(p.x - view.eye_pos.x, p.z - view.eye_pos.z).length() < 1.0:
+		return
+	view.look_at_point(Vector3(p.x, 1.0, p.z))
 
 
 func _sync_sound() -> void:
@@ -748,6 +775,7 @@ func _key(e: InputEventKey) -> void:
 			rolling.finish()
 		else:
 			column.hurry()
+			view.hurry()
 		return
 	if not e.pressed or e.echo:
 		return

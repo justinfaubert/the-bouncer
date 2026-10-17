@@ -16,6 +16,7 @@ const EYE_DOOR := Vector3(1.7, 1.62, 8.85)       # his eyes, sitting on the stoo
 const TABLES := [Vector3(4.3, 0, 4.45), Vector3(13.1, 0, 4.9), Vector3(5.4, 0, 8.3), Vector3(13.4, 0, 8.2)]
 const T28 := Vector3(9.4, 0, 8.1)
 const POOL := Vector3(9.4, 0, 3.9)
+const SERVICE_Z := 5.0                         # the gap in the bar's stools, across from the bartender
 const DOOR_W := 2.3                            # the main door runs x 2.3..4.1
 const DOOR_E := 4.1
 const ZF := 10.1                               # the front wall
@@ -435,7 +436,7 @@ func spot(pos: Vector3, target: Vector3, c: Color, e: float, r: float, angle: fl
 
 
 # A door he's going through swings open ahead of him and falls to behind him.
-func swing_door(which: String, open: bool) -> void:
+func swing_door(which: String, open: bool, now := false) -> void:
 	var list: Array = []
 	match which:
 		"main":
@@ -448,12 +449,42 @@ func swing_door(which: String, open: bool) -> void:
 			list = [[dyn.hotel_door, -86.0]]
 	for pair in list:
 		var n: Node3D = pair[0]
+		_still(n)
+		# at once: whoever had it open isn't walking through it any more (a walk cut short)
+		if now:
+			n.rotation.y = deg_to_rad(pair[1]) if open else float(n.get_meta("rest", 0.0))
+			continue
 		var tw := n.create_tween()
+		n.set_meta("swinging", tw)
 		if open:
 			tw.tween_property(n, "rotation:y", deg_to_rad(pair[1]), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		else:
 			tw.tween_interval(0.5)
 			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 0.9).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# a door's swing stopped where it is, for the next one (or the prop) to take it from there
+func _still(n: Node3D) -> void:
+	if not n.has_meta("swinging"):
+		return
+	var tw = n.get_meta("swinging")
+	if tw is Tween and (tw as Tween).is_valid():
+		(tw as Tween).kill()
+	n.remove_meta("swinging")
+
+
+# The trapdoor behind the bar: lifted back on its hinge to go down the ladder, let down after. Now:
+# at once (the page is blank).
+func lift_trap(open: bool, now := false) -> void:
+	var n: Node3D = dyn.get("trapdoor")
+	if n == null:
+		return
+	var a := deg_to_rad(84.0) if open else 0.0
+	if now:
+		n.rotation.z = a
+		return
+	var tw := n.create_tween()
+	tw.tween_property(n, "rotation:z", a, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT if open else Tween.EASE_IN)
 
 
 # The doors the night props open or shuts: the deck door on its folded coaster, the kitchen's back
@@ -473,6 +504,7 @@ func prop_door(which: String, open: bool) -> void:
 			# all the way back against the wall: the night clerk props it to see down the hall
 			a = deg_to_rad(-88.0) if open else 0.0
 			dyn.hotel_wedge.visible = open
+	_still(n)
 	n.set_meta("rest", a)
 	n.rotation.y = a
 
@@ -535,6 +567,7 @@ func _room() -> void:
 	box(Vector3(0.07, 0.8, 0.6), Vector3(0, 1.5, 0.6), M.glass, 0.0, dk)
 	box(Vector3(0.1, 0.03, 0.14), Vector3(-0.07, 1.0, 1.04), M.frame, 0.0, dk)        # the push bar
 	dyn.deck_door = dk
+	box(Vector3(0.3, 0.1, 1.2), Vector3(16.13, -0.05, 7.1), M.wood)                  # the sill, worn
 	# the coaster folded in its latch
 	dyn.coaster = box(Vector3(0.012, 0.05, 0.03), Vector3(16.02, 1.02, 7.66), M.paper)
 	# the front wall: the main door at x 2.3..4.1, the front window at x 6.2..12.6
@@ -703,11 +736,18 @@ func _bar() -> void:
 	box(Vector3(0.9, 0.04, 1.0), Vector3(0.45, 0.02, 0.5), M.dark, 0.0, trap)
 	box(Vector3(0.05, 0.02, 0.2), Vector3(0.75, 0.05, 0.5), M.frame, 0.0, trap)    # the ring pull
 	dyn.trapdoor = trap
-	# the stools along the bar
+	# the stools along the bar, but for one gap across from the bartender, where people come to order
+	# and staff stand (he does, at the bar): two steel rails on the bar top either side of it, to
+	# keep it clear
 	var z2 := 1.6
 	while z2 < 7.4:
-		stool(Vector3(2.65, 0, z2), 0.76)
+		if absf(z2 - SERVICE_Z) > 0.1:
+			stool(Vector3(2.65, 0, z2), 0.76)
+		else:
+			rng.randf()        # the turn the stool would have had, so the rest of the room's as it was
 		z2 += 0.85
+	for rz in [SERVICE_Z - 0.44, SERVICE_Z + 0.44]:
+		box(Vector3(0.66, 0.026, 0.022), Vector3(1.95, 1.133, rz), M.steel)
 	# the binder and the incident book under the till
 	box(Vector3(0.28, 0.06, 0.34), Vector3(1.55, 0.92, 7.3), M.black)
 	# where he looks for things, from the room: the till's face (the lotto screen's beside it), the
@@ -961,7 +1001,7 @@ func _back_strip() -> void:
 	var mop := cyl(0.012, 0.012, 1.4, Vector3(0.4, 0.75, -0.45), M.wood, null, 6)
 	mop.rotation = Vector3(deg_to_rad(8.0), 0.0, deg_to_rad(-10.0))
 	for k in 3:
-		box(Vector3(0.55, 0.3, 0.4), Vector3(3.5 + rng.randf_range(-0.03, 0.03), 0.15 + k * 0.3, -0.45), M.dark)   # crates by the walk-in
+		box(Vector3(0.4, 0.3, 0.55), Vector3(4.47 + rng.randf_range(-0.03, 0.03), 0.15 + k * 0.3, -1.5), M.dark)   # crates by the walk-in
 	var kd := Node3D.new()
 	kd.position = Vector3(-0.1, 0, BACK + 0.66)
 	add_child(kd)

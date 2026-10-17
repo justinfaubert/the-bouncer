@@ -182,6 +182,8 @@
       });
       bind('learn', function (v) { return P.learn(String(v)); });
       bind('last_word', function (g) { return self._lastWord(String(g)); }, true);
+      // nothing, but not safe to look ahead past: the Ink's move after a scene's last line waits for it
+      bind('beat', function () { return true; });
       bind('bond', function (a, b, sign) {
         const before = P.getRel(String(a), String(b));
         const ok = P.setRel(String(a), String(b), sign);
@@ -660,7 +662,7 @@
 
       for (const t of parsed) {
         switch (t.key) {
-          case 'sfx': case 'music': case 'amb': case 'bg':
+          case 'sfx': case 'music': case 'amb': case 'bg': case 'look':
             items.push({ kind: 'fx', type: t.key, id: String(t.value) });
             break;
           case 'portrait':

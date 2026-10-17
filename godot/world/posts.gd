@@ -1,9 +1,10 @@
 # Where he stands (or sits) in each place the Ink knows, what he's looking at when he gets there,
-# and the ways between them on foot.
+# the doors he walks through and the ladder and the stairs off the ground floor.
 #
 # The Ink's places (content/ink/main.ink, LIST where): floor, door, bar, t28, pool, hall, kitchen,
-# keg, deck, lot, upstairs. He walks between the ones on the ground floor, through the doors as
-# they are; the keg room (down the ladder under the trapdoor) and his room upstairs are a cut.
+# keg, deck, lot, upstairs. He walks between the ones on the ground floor the way world/nav.gd finds
+# round things, through the doors; the keg room (down the ladder under the trapdoor) and his room
+# upstairs are a cut, from the top of the ladder or the foot of the stairs.
 class_name Posts
 extends RefCounted
 
@@ -11,71 +12,37 @@ const STAND := 1.76        # his eyes, standing: a big man, not a giant
 const SIT_DOOR := 1.62     # on the stool by the door
 const SIT_T28 := 1.28      # on a low stool at table 28
 
-# at: his eyes; look: what he's looking at when he gets there; node: where he stands on the ways
+# at: his eyes; look: what he's looking at when he gets there
 const POSTS := {
-	"door": {"at": Vector3(1.7, SIT_DOOR, 8.85), "look": Vector3(3.45, 1.25, 10.1), "node": "door", "seat": true},
-	"floor": {"at": Vector3(7.0, STAND, 6.7), "look": Vector3(9.8, 1.0, 3.6), "node": "floor"},
-	"bar": {"at": Vector3(2.95, STAND, 5.3), "look": Vector3(1.15, 1.45, 4.8), "node": "bar"},
-	"t28": {"at": Vector3(9.08, SIT_T28, 6.97), "look": Vector3(9.55, 0.95, 8.4), "node": "t28", "seat": true},
-	"pool": {"at": Vector3(7.85, STAND, 5.5), "look": Vector3(10.2, 0.9, 3.9), "node": "pool"},
-	"hall": {"at": Vector3(7.3, STAND, -0.6), "look": Vector3(15.2, 1.3, -0.62), "node": "hall"},
-	"kitchen": {"at": Vector3(3.7, STAND, -1.35), "look": Vector3(0.45, 1.05, -2.25), "node": "kitchen"},
-	"keg": {"at": Vector3(3.42, -2.5 + STAND, 4.35), "look": Vector3(3.42, -1.7, -1.5), "node": "keg"},
-	"deck": {"at": Vector3(17.5, STAND, 8.7), "look": Vector3(21.0, 0.6, 30.0), "node": "deck"},
-	"lot": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
-	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.1, 9.95), "node": "upstairs", "seat": true},
+	"door": {"at": Vector3(1.7, SIT_DOOR, 8.85), "look": Vector3(3.45, 1.25, 10.1), "seat": true},
+	"floor": {"at": Vector3(7.0, STAND, 6.7), "look": Vector3(9.8, 1.0, 3.6)},
+	# the bar: in the gap in its stools (Pub.SERVICE_Z), across from the bartender
+	"bar": {"at": Vector3(2.85, STAND, 5.0), "look": Vector3(1.15, 1.45, 4.8)},
+	"t28": {"at": Vector3(9.08, SIT_T28, 6.97), "look": Vector3(9.55, 0.95, 8.4), "seat": true},
+	"pool": {"at": Vector3(7.85, STAND, 5.5), "look": Vector3(10.2, 0.9, 3.9)},
+	"hall": {"at": Vector3(7.3, STAND, -0.6), "look": Vector3(15.2, 1.3, -0.62)},
+	"kitchen": {"at": Vector3(3.7, STAND, -1.35), "look": Vector3(0.45, 1.05, -2.25)},
+	"keg": {"at": Vector3(3.42, -2.5 + STAND, 4.35), "look": Vector3(3.42, -1.7, -1.5)},
+	"deck": {"at": Vector3(17.5, STAND, 8.7), "look": Vector3(21.0, 0.6, 30.0)},
+	"lot": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1)},
+	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.1, 9.95), "seat": true},
 }
 
-# the ways on foot: points on the floor (x, z, floor height)
-const NODES := {
-	"door": Vector3(1.7, 0, 8.85),
-	"vest": Vector3(3.2, 0, 9.15),
-	"out": Vector3(3.2, 0, 10.95),
-	"lot": Vector3(3.9, 0, 12.4),
-	"room": Vector3(5.6, 0, 7.5),
-	"floor": Vector3(7.0, 0, 6.7),
-	"bar": Vector3(2.95, 0, 5.3),
-	"t28": Vector3(9.08, 0, 6.97),
-	"pool": Vector3(7.85, 0, 5.5),
-	"backway": Vector3(6.5, 0, 0.9),
-	"hall": Vector3(7.3, 0, -0.6),
-	"swing": Vector3(3.25, 0, 0.55),
-	"kitchen": Vector3(3.7, 0, -1.35),
-	"barend": Vector3(1.95, 0, 0.45),
-	"trap": Vector3(1.05, 0, 1.75),
-	"keg": Vector3(3.42, -2.5, 4.35),
-	"deck_in": Vector3(15.3, 0, 7.1),
-	"deck_out": Vector3(16.75, 0, 7.1),
-	"deck": Vector3(16.95, 0, 6.2),
-	"hotel": Vector3(15.5, 0, -0.62),
-	"desk": Vector3(16.85, 0, -0.5),
-	"upstairs": Vector3(14.1, 3.4, 7.1),
-	"juke_way": Vector3(12.0, 0, 2.2),
-	"juke": Vector3(14.1, 0, 1.6),
-	"phone_way": Vector3(13.6, 0, -0.65),
-	"phone": Vector3(13.9, 0, -1.65),
+# The doorways he walks through: the middle of each on the floor, and the door in it that opens as
+# he comes to it (Pub.swing_door) and swings to behind him. A door the night's propped open (the
+# deck door on its coaster, the hotel door on its wedge) goes back to how it was propped.
+const DOORWAYS := {
+	"main": Vector3(3.2, 0, 10.1),
+	"swing": Vector3(3.25, 0, -0.1),
+	"deck": Vector3(16.1, 0, 7.1),
+	"hotel": Vector3(16.1, 0, -0.6),
 }
 
-# [a, b, how]: "walk", or "cut" (a ladder, a flight of stairs: the page goes blank between)
-const WAYS := [
-	["door", "vest", "walk"], ["vest", "out", "walk"], ["out", "lot", "walk"], ["vest", "room", "walk"],
-	["room", "floor", "walk"], ["room", "bar", "walk"], ["room", "t28", "walk"], ["floor", "t28", "walk"],
-	["floor", "pool", "walk"], ["floor", "bar", "walk"], ["pool", "backway", "walk"], ["floor", "backway", "walk"],
-	["backway", "hall", "walk"], ["hall", "hotel", "walk"], ["bar", "swing", "walk"], ["pool", "swing", "walk"],
-	["swing", "kitchen", "walk"], ["swing", "barend", "walk"], ["barend", "trap", "walk"], ["trap", "keg", "cut"],
-	["floor", "deck_in", "walk"], ["t28", "deck_in", "walk"], ["deck_in", "deck_out", "walk"], ["deck_out", "deck", "walk"],
-	["hotel", "upstairs", "cut"], ["bar", "door", "walk"], ["hotel", "desk", "walk"],
-	["backway", "juke_way", "walk"], ["juke_way", "juke", "walk"],
-	["hall", "phone_way", "walk"], ["phone_way", "phone", "walk"], ["phone_way", "hotel", "walk"],
-]
-
-# the doors he goes through on a way, and which way they swing
-const DOORS_ON := {
-	"vest|out": "main", "out|vest": "main",
-	"swing|kitchen": "swing", "kitchen|swing": "swing",
-	"deck_in|deck_out": "deck", "deck_out|deck_in": "deck",
-	"hall|hotel": "", "hotel|hall": "",
-	"hall|desk": "hotel", "desk|hall": "hotel", "hotel|desk": "hotel", "desk|hotel": "hotel",
+# Off the ground floor: where he stands to go down the ladder through the trapdoor behind the bar,
+# or up the hotel stairs from beside the front desk, on the floor, and what he looks at there.
+const FLIGHTS := {
+	"keg": {"from": Vector3(1.05, 0, 1.12), "look": Vector3(1.05, 0.0, 1.9)},
+	"upstairs": {"from": Vector3(16.75, 0, -1.35), "look": Vector3(17.6, 1.0, -2.2)},
 }
 
 
@@ -84,14 +51,16 @@ const DOORS_ON := {
 # at the end, the big man at his truck by the beer store. The back hall: through the hotel door to
 # the front desk, while he talks to the night clerk; round the corner at the end of it, the dead
 # payphone and the wall of numbers round it. The pool table: the jukebox past it, on the back wall,
-# round behind whoever's standing at it.
+# round behind whoever's standing at it. Table 28: standing at the end of it, behind the stool,
+# until he sits down with them.
 const FRAMES := {
-	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62), "node": "desk"},
-	"hall:phone": {"at": Vector3(13.9, STAND, -1.65), "look": Vector3(13.86, 1.45, -2.64), "node": "phone"},
-	"pool:juke": {"at": Vector3(14.1, STAND, 1.6), "look": Vector3(13.2, 1.5, 0.27), "node": "juke"},
-	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1), "node": "lot"},
-	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99), "node": "lot"},
-	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4), "node": "lot"},
+	"t28:stand": {"at": Vector3(9.05, STAND, 6.38), "look": Vector3(9.5, 1.0, 8.3)},
+	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62)},
+	"hall:phone": {"at": Vector3(13.9, STAND, -1.65), "look": Vector3(13.86, 1.45, -2.64)},
+	"pool:juke": {"at": Vector3(14.1, STAND, 1.6), "look": Vector3(13.2, 1.5, 0.27)},
+	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1)},
+	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99)},
+	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4)},
 }
 
 
@@ -101,37 +70,30 @@ static func post(place: String, frame := "") -> Dictionary:
 	return POSTS.get(place, POSTS["door"])
 
 
-# The way from one place to another (each as it's seen: the front desk, the jukebox): a list of
-# [node, how] from the first node after `from`'s to `to`'s, by the fewest steps.
-static func way(from: String, to: String, from_frame := "", to_frame := "") -> Array:
-	var a: String = post(from, from_frame).node
-	var b: String = post(to, to_frame).node
-	if a == b:
-		return []
-	var prev := {a: ""}
-	var how := {}
-	var q: Array = [a]
-	while not q.is_empty():
-		var n: String = q.pop_front()
-		if n == b:
-			break
-		for w in WAYS:
-			var other := ""
-			if w[0] == n:
-				other = w[1]
-			elif w[1] == n:
-				other = w[0]
-			if other != "" and not prev.has(other):
-				prev[other] = n
-				how[other] = w[2]
-				q.append(other)
-	if not prev.has(b):
-		return [[b, "cut"]]
+# The doorways on a way across the floor, and how far along it each is: [door, metres, 0] (the 0
+# for whoever's walking it to mark the door opened, then swung to).
+static func doors_on(path: PackedVector3Array) -> Array:
 	var out: Array = []
-	var n2 := b
-	while n2 != a:
-		out.push_front([n2, how[n2]])
-		n2 = prev[n2]
+	for which in DOORWAYS:
+		var c: Vector3 = DOORWAYS[which]
+		var best := INF
+		var best_s := 0.0
+		var s := 0.0
+		for i in range(1, path.size()):
+			var a := path[i - 1]
+			var b := path[i]
+			var seg := a.distance_to(b)
+			var k := 0.0
+			if seg > 0.0001:
+				k = clampf((c - a).dot(b - a) / (seg * seg), 0.0, 1.0)
+			var q := a.lerp(b, k)
+			var d := Vector2(q.x - c.x, q.z - c.z).length()
+			if d < best:
+				best = d
+				best_s = s + seg * k
+			s += seg
+		if best < 0.6:
+			out.append([which, best_s, 0])
 	return out
 
 

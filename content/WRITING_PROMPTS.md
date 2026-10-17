@@ -11,10 +11,10 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/door.ink
 
-3. **ev_sister** (`content/ink/door.ink:354`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-4. **ev_sister** (`content/ink/door.ink:381`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-5. **door_banned** (`content/ink/door.ink:778`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-6. **door_wife** (`content/ink/door.ink:958`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+3. **ev_sister** (`content/ink/door.ink:370`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+4. **ev_sister** (`content/ink/door.ink:397`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+5. **door_banned** (`content/ink/door.ink:803`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+6. **door_wife** (`content/ink/door.ink:994`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 
@@ -25,8 +25,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:691`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:723`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:705`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:737`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
@@ -56,11 +56,11 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/closing.ink
 
 26. **last_call** (`content/ink/closing.ink:241`): Last call at the Sov. What really happens in a room like this when the bell goes?
-27. **incident_log** (`content/ink/closing.ink:914`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-28. **after_hours** (`content/ink/closing.ink:1001`): The song she puts on for the count. Yours to pick, or to write.
-29. **after_hours** (`content/ink/closing.ink:1041`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-30. **keg_parley** (`content/ink/closing.ink:1215`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-31. **go_upstairs** (`content/ink/closing.ink:1510`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+27. **incident_log** (`content/ink/closing.ink:917`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+28. **after_hours** (`content/ink/closing.ink:1004`): The song she puts on for the count. Yours to pick, or to write.
+29. **after_hours** (`content/ink/closing.ink:1044`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+30. **keg_parley** (`content/ink/closing.ink:1218`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+31. **go_upstairs** (`content/ink/closing.ink:1513`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 
 ## content/ink/things.ink
 

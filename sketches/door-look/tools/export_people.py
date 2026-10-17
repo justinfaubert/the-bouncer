@@ -129,15 +129,12 @@ PEOPLE = {
 NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry'}
 
 
-def build(name, preview=False):
+def make(name, look, pose, kw, step, near):
+    """A person meshed into Blender (an empty scene each time): the parts' objects (body, head,
+    hands), the things they hold, the build and the pose, and how many faces each part came to."""
     import bpy
-    import json
-    look, pose, kw, step = PEOPLE[name]
-    near = name in NEAR
-    t0 = time.time()
     meshes = PP.mesh_person(look, pose, step=step, head_step=0.0028 if near else 0.005,
                             hand_step=0.0022 if near else 0.0045, **kw)
-    t1 = time.time()
     bpy.ops.wm.read_factory_settings(use_empty=True)
     # how many faces each part keeps: the people at the stool are seen at arm's length
     targets = {'body': 36000 if near else 12000, 'head': 32000 if near else 7000, 'hands': 16000 if near else 2400}
@@ -169,6 +166,16 @@ def build(name, preview=False):
     extras = []
     for pr in p.props:
         extras += PROPS[pr['kind']](pr)
+    return obs, extras, B, p, report
+
+
+def build(name, preview=False):
+    import bpy
+    import json
+    look, pose, kw, step = PEOPLE[name]
+    t0 = time.time()
+    obs, extras, B, p, report = make(name, look, pose, kw, step, name in NEAR)
+    t1 = time.time()
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + '.glb')
     for o in bpy.context.selected_objects:
@@ -179,7 +186,7 @@ def build(name, preview=False):
                               export_yup=True)
     nf = sum(len(o.data.polygons) for o in obs + extras)
     print(f'{name}: {", ".join(report)} faces ({nf} in all, {os.path.getsize(path) / 1e6:.2f} MB), '
-          f'sdf {t1 - t0:.1f}s, total {time.time() - t0:.1f}s')
+          f'made in {t1 - t0:.1f}s, total {time.time() - t0:.1f}s')
     with open(os.path.join(OUT, name + '.json'), 'w') as fh:
         json.dump(anchors(B, p), fh, indent=1)
     if preview:

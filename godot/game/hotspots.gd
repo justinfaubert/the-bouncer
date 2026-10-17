@@ -111,10 +111,11 @@ const OPENINGS := [
 ]
 # what's round a corner or behind something from where he stands (place, or place:frame), in a part
 # of the building he otherwise sees from there: the payphone at the end of the back hall, the tape
-# on the door frame from table 28 (the screen's in the way), the hotel door from the payphone, and
+# on the door frame from table 28 (the screen's in the way), the hockey on the back wall from the end
+# of table 28 standing (the pool table's light is in the way), the hotel door from the payphone, and
 # from the door out to the lot, his window along the front (the next one's frame is in the way) and
 # the sign on the roof (straight up)
-const HIDDEN := {"a:payphone": ["hall", "hall:clerk"], "a:tape": ["t28"], "a:hotel_door": ["hall:phone"],
+const HIDDEN := {"a:payphone": ["hall", "hall:clerk"], "a:tape": ["t28"], "a:tv": ["t28:stand"], "a:hotel_door": ["hall:phone"],
 	"a:his_window": ["lot:truck"], "a:roof_sign": ["lot:truck"]}
 # a choice that names one of the voices in his head is about him, not anything in the room
 static var _voice_name := RegEx.create_from_string("\\bTHE (FATHER|MANUAL|WRONG MAN|FIGHTER|TABLE|KID|CIRCLE)\\b")

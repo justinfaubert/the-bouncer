@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, the test shift. The Godot build of 15 October 2026.
+Wednesday, the test shift. The Godot build of 17 October 2026.
 
 
 PLAY IT
@@ -53,6 +53,56 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE 15 OCTOBER
+
+Your notes on the last build, and what came up fixing them:
+
+- The kid. Once you'd taken his phone and let him in, the doorman got up and walked off toward
+  the pool table with the phone still in his hand, and the kid was gone. Now he hands the phone
+  back (or the card, if the kid went and got it) and stays on his stool, and the kid walks in past
+  him to the jukebox. Turned away, the kid walks back across the lot and gets in the pickup, and
+  his sister walks up from it later with her card in her hand. When she comes back to the door to
+  ask about her brother, she's at the door; she used to ask it from the pool table.
+- Walking. He used to glide from post to post on rails, through the stools and whoever was in the
+  way. Now he walks the room the way a big man gets round a full bar: round the tables, the stools
+  and the people, through the doors (they open as he gets to them and swing to behind him), at a
+  walk in the room and a bit quicker across the building. Hold Space while he's walking and he
+  hurries. Down to the keg room he lifts the trapdoor back first, and the page still goes blank
+  for the ladder and the stairs.
+- He goes where the page sends him, when it does. Whenever something happened (the card machine,
+  the phone, a rat, a fight starting) he used to be moved to it before a word was said, and
+  between scenes he'd wander out onto the floor on his own. Now he stays where he is, his head
+  turns to what's happening if he can see it, and he goes on the line that sends him. Sent two
+  places at once (over to the bar to ask, then back to the door), he stops at the first, on his
+  feet, for a moment, and goes on.
+- When he gets to someone, his eyes are on them: the bartender when he leans on the bar or she
+  holds the phone out to him, Dennis's wife at table 28. Anywhere else he still gets there looking
+  the way you left him.
+- People walk. Ten of them do now: the kid, his sister, her boyfriend, GOOD SHOES, HI-VIS,
+  Dennis's wife, the constable, the big man, his buddy and Dennis. They come in from the lot,
+  walk to where they're going, and walk out to the pickup or off into the dark, instead of
+  appearing and vanishing. The bartender comes along behind the bar to wherever he's standing at
+  it. Everyone else still moves between one look and the next.
+- A licence held out to him from across the room is in his hand when he gets there, not on the
+  way, and one held out by someone still walking up to the door is in his hand when they get
+  there. A card or a phone he's handed back goes back.
+- The bellies. The heavy men had a ball stuck on the front of them. Now the weight is in the
+  body: it comes out from under the ribs in a long slope, sits lowest a hand below the navel and
+  tucks back under the belt, with no seam. Their shoulders slope from the neck instead of standing
+  out square, and their arms carry less of it than their middles.
+- Where he stands. At the bar he was standing on whoever was on the stool beside him, with the
+  back of a head filling the bottom of the picture. The bar has a gap in its stools now, across
+  from the bartender, where staff stand and people come to order, with a steel rail either side
+  of it on the bar top; he stands in it, and the dice roll between the rails. The boyfriend, at
+  the bar, stands at the till end, where you pay. At the pool table he was standing in the kid's
+  sister, and at the end of table 28 in whoever was watching the game; they've moved, and a check
+  now makes sure nobody's spot is ever under his feet. Going to table 28 he stands at the end of it
+  until he sits down with them.
+- The crates in the kitchen were in the doorway he walks through; they're stacked by the walk-in.
+- The story has changed (where he goes and when), so a night you're partway through goes on from
+  the floor.
 
 
 WHAT'S NEW SINCE 14 OCTOBER

@@ -436,16 +436,20 @@ FATHER: You know why.
 // RAINCOAT came in while nobody was on the door.
 === ev_wife_inside ===
 ~ arrivals += wife_in
-~ here = floor
 ~ knows += dennis
 ~ room_count--
-A woman in a long raincoat walked across the carpet from the front door, past the empty stool, straight to table 28, and stood behind the one in the big glasses without saying anything.
+A woman in a long raincoat walked across the carpet from the front door, past the empty stool, straight to table 28, and stood behind the one in the big glasses without saying anything. #look: raincoat
 Nobody had been on the door.
 * [Go over.]
     ~ pass(2)
     ~ wife_stopped = true
     ~ rep(rep_t28, -1)
-    He was halfway there when she looked at him.
+    { here == t28:
+        He moved, and she looked at him.
+    - else:
+        ~ here = floor
+        He was halfway there when she looked at him. #look: raincoat
+    }
     RAINCOAT: Don't.
     It wasn't rude. It was the voice of someone who'd done this before, in this room, before he was born.
     He stopped.
@@ -459,4 +463,4 @@ Nobody had been on the door.
 TABLE28: Where was the door?
 TEAM_JACKET: Nothing personal, son. But where was the door.
 ~ rep(rep_t28, -1)
--> hub
+-> carry_on

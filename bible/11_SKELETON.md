@@ -442,10 +442,10 @@ Clothes wear, get wet, tear, and take blood, which prints in the red ink and sta
 DECIDED (14 October), Hutch's call on the form: "as I play the game and click on location, I find myself looking left to right at little details, this is what players will do. but as we have it, the camera auto orients itself to the players pov...not a free walk, but not a limited walk either." This settles open question 16 and changes the DECIDED "not a free walk" (27 September) only as far as Hutch's words go.
 
 - **He looks where he likes, and the view stays where the player leaves it.** Nothing turns his head for him except what would turn a man's: a glass breaking, his name, a hand on his arm. (This part went to the build on 14 October.)
-- **He goes where he looks.** Point at any spot a man could stand and he walks there, at a man's pace, the way a man would go round the tables. No keys to steer by.
+- **He goes where he looks.** Point at any spot a man could stand and he walks there, at a man's pace, the way a man would go round the tables. No keys to steer by. (The walking went to the build on 17 October, round the tables and through the doors, between the places the Ink knows; pointing anywhere to go there comes next.)
 - **The posts are places to settle:** the stool, the end of the bar, the rail by the pool table. He sits or leans there, and the room comes to him. The numbered ways round go.
 - **The clock moves when he moves.** Walking and watching move it; talk moves it line by line; his notes stop it.
-- **A doorman doesn't run in a bar.** He can, and the room sees it: running means something's wrong, heads turn, and the word on him says he ran.
+- **A doorman doesn't run in a bar.** He can, and the room sees it: running means something's wrong, heads turn, and the word on him says he ran. (Space hurries him in the build of 17 October; the room doesn't see it yet.)
 - **The building goes down and up.** The bar, the hall, the kitchen, the deck, the lot and the front desk. Below: the keg room and the office downstairs, the old foundation and, past where the concrete gives out to dirt, the pilings of the cannery that stood here first, where the tide went in and out under the floor (`table28.ink`). Above: the stairs, two floors of rooms and the people in them, his own room, the roof.
 - **What opens it:** keys (Terry's board); trust (a resident who asks him in); the rats (with terms, the old man shows him the building's other ways: the crawlspace under the floor, the dumbwaiter shaft from the old dining room, the walk under the pilings to the alley, the gap behind the back bar where a room can be heard through the wall); and force (a door he breaks stays broken, and somebody pays for it).
 - **The town** is the strip, by day, on foot, and further when an event takes him. His map is a napkin Paige draws him on day 2 ("Esso. Thrift. Hardware. Don't go to the Legion."), and he adds to it.
@@ -625,7 +625,7 @@ The licence hologram that only gleamed is fixed in both builds, and Hutch says i
 The first three days (M2 in `04_PRODUCTION.md`), with the new bones under them, before anything widens (depth before breadth):
 
 1. **Gary's office:** the interview through his eyes, the answers setting the stats, and the walk to the Sov at dusk.
-2. **Looking and going:** the free look first (sent to the build on 14 October), then going where he looks, and the posts as places to settle.
+2. **Looking and going:** the free look first (built 15 October), and walking the way a man would, with the people who come and go walking too (built 17 October); then going where he looks, and the posts as places to settle.
 3. **His hand:** handling's two choices, his pockets, the lost-and-found box, and the first temptations (the beer, Gary's shot).
 4. **The town:** the streets and their first hundred people, licences drawn from them, and a Friday's waves at the door.
 5. **One fight, Hutch's way:** presence and the stance, the seconds drawn on the print, and the camera's footage after.

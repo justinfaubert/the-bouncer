@@ -90,9 +90,9 @@ def _base(B, pelvis, lean=0.0, twist=0.0, head_turn=0.0, head_tilt=0.0, head_rol
     Rh = S.rot(twist + head_turn, lean * 0.4 - head_tilt, head_roll)
     p.Rh = Rh
     p.head = p.neck + Rh @ V(0, 0.03 * s, 0.185 * s) + R @ V(0, 0.02 * hunch, -0.004 * hunch)
-    sh = B.shoulder * B.bulk ** 0.5
+    sh = B.shoulder * B.bulk ** 0.3            # weight rounds a man more than it widens his frame
     lift = R @ V(0, 0.022 * hunch, 0.016 * hunch)
-    p.sh = [p.neck + R @ V(-sh, -0.0, -0.035 * s) + lift, p.neck + R @ V(sh, -0.0, -0.035 * s) + lift]    # left, right
+    p.sh = [p.neck + R @ V(-sh, -0.0, -0.05 * s) + lift, p.neck + R @ V(sh, -0.0, -0.05 * s) + lift]    # left, right: the shoulders fall away from the neck
     p.grip = [None, None]           # how each hand sits (see set_hands)
     p.hip = [p.pelvis + R @ V(-0.09 * s * B.bulk ** 0.3, 0, -0.04 * s), p.pelvis + R @ V(0.09 * s * B.bulk ** 0.3, 0, -0.04 * s)]
     return p
@@ -688,12 +688,31 @@ HEM = {'tshirt': -0.06, 'sweater': -0.07, 'fleece': -0.08, 'hoodie': -0.09, 'jac
        'apron': 0.07, 'shirt': 0.07, 'workjacket': -0.08, 'coat': None, 'raincoat': None}
 
 
+def gut(f, p, belly, b, s, hangs=True):
+    """A belly let out of the front of the trunk f: pushed out from under the ribs in a long slope,
+    most a hand below the navel, and tucked back under to the belt in a short curve, filling out a
+    little round the sides; sitting, it settles a little. A smooth push on the surface rather than a
+    shape of its own, so it's one with the body: no seam, no ball."""
+    R = p.R
+    o = p.waist + R @ V(0, 0, -0.035 * s) - V(0, 0, belly * 0.25)
+    def g(P):
+        q = (P - o) @ R
+        z = q[:, 2]
+        fz = np.exp(-(z / np.where(z > 0, 0.2 * s, (0.125 if hangs else 0.085) * s)) ** 2)
+        fx = np.exp(-(q[:, 0] / (0.15 * b)) ** 2)
+        front = np.clip((q[:, 1] + 0.03) / 0.11, 0.0, 1.0)
+        front = front * front * (3.0 - 2.0 * front)
+        return f(P) - belly * fz * (fx * front + 0.12 * (1.0 - fx))
+    return g
+
+
 def body_parts(B, p, look):
     """The body in its clothes, as parts with materials. The hands, and the cuffs round them, are
     in the group 'hand', meshed finer."""
     top = look.get('top', 'tshirt')
     legs_mat = look.get('bottoms', 'jeans')
     s, b = B.size, B.bulk
+    ab = b ** 0.75                    # the arms: weight thickens them less than the trunk
     parts = []
     add = lambda name, f, order=0, group=None: parts.append(Part(name, f, order=order, group=group))
     loose = look.get('loose', LOOSE.get(top, 0.01))
@@ -703,14 +722,18 @@ def body_parts(B, p, look):
     # the trunk
     ch = B.chest
     chest_r = V(0.165 * b * ch + loose, 0.105 * b * ch + loose + (0.012 if B.f else 0.0), 0.15 * s)
-    belly = B.belly * b
+    belly = B.belly * b * 0.85
+    thin = min(belly, 0.0)            # the young and slight: a little in at the waist
     # the slope of the shoulders from the neck out, rather than a bar across
-    yoke = [S.cone(p.neck + R @ V(0, -0.014, -0.014), p.sh[i] + R @ V(0.02 * (1 if i == 0 else -1), -0.008, -0.004),
+    yoke = [S.cone(p.neck + R @ V(0, -0.014, -0.014), p.sh[i] + R @ V(0.02 * (1 if i == 0 else -1), -0.008, 0.004),
                    0.056 * b ** 0.7 + loose * 0.5, 0.05 * b ** 0.7 + loose * 0.85) for i in range(2)]
     body = S.blend(0.07,
         S.ellipsoid(p.pelvis + R @ V(0, -0.005, 0.02), V(0.16 * b + loose, 0.108 * b + loose, 0.12 * s), R),
-        S.ellipsoid(p.waist + R @ V(0, belly * 0.6, 0), V(0.148 * b + loose + belly * 0.4, 0.1 * b + loose + belly, 0.12 * s), R),
+        S.ellipsoid(p.waist + R @ V(0, thin * 0.6, 0), V(0.148 * b + loose + thin * 0.4 + max(belly, 0.0) * 0.3,
+                                                          0.1 * b + loose + thin, (0.12 + max(belly, 0.0) * 0.4) * s), R),
         S.ellipsoid(p.chest, chest_r, R), *yoke)
+    if belly > 0.0:
+        body = gut(body, p, belly, b, s, hangs=not (HEM.get(top, -0.07) or -0.07) > 0 or look.get('tucked') is False)
     if look.get('drape'):
         # a top too big for him: from the chest it falls straight to the hem instead of taking him in
         body = S.blend(0.05, body, S.ellipsoid(p.waist + R @ V(0, 0.004, 0.015 * s), V(chest_r[0] * 0.97, chest_r[1] * 1.02, 0.25 * s), R))
@@ -746,7 +769,8 @@ def body_parts(B, p, look):
         wb = S.intersect(S.offset(body, 0.004), S.intersect(S.halfspace(p.pelvis + R @ V(0, 0, hem * s + 0.001), R @ V(0, 0, 1)),
                                                              S.halfspace(p.pelvis + R @ V(0, 0, hem * s - 0.038), -(R @ V(0, 0, 1)))))
         add('belt' if top != 'apron' else legs_mat, wb, order=1)
-        add('buckle', S.box(p.pelvis + R @ V(0, 0.1 * b + 0.018 + belly, hem * s - 0.018), V(0.022, 0.006, 0.016), 0.003, R), order=2)
+        c0 = p.pelvis + R @ V(0, 0, hem * s - 0.018)
+        add('buckle', S.box(c0 + _surf(body, c0, R @ V(0, 1, 0)) + R @ V(0, 0.008, 0), V(0.022, 0.006, 0.016), 0.003, R), order=2)
     # the neck
     add('skin', S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.025, -0.07), 0.056 * b ** 0.5, 0.05))
     neck_r = 0.056 * b ** 0.5
@@ -765,23 +789,27 @@ def body_parts(B, p, look):
         if look.get('sleeves') == 'short':
             up_mat = 'skin'
         ul = loose if up_mat != 'skin' else 0.0
-        upper = S.blend(0.03, S.sphere(sh + R @ V(0, 0, -0.008), 0.05 * b + ul * 0.6), S.cone(sh, el, 0.049 * b + ul * 0.8, 0.041 * b + ul))
+        sx = -1.0 if i == 0 else 1.0
+        upper = S.blend(0.03, S.sphere(sh + R @ V(sx * 0.006, 0, -0.016), 0.047 * ab + ul * 0.6),
+                        S.cone(sh, el, 0.049 * ab + ul * 0.8, 0.041 * ab + ul))
         if up_mat != 'skin' and not bare:
             upper = rings(upper, el, -(el - sh), 0.0016, 0.022, 0.0, 0.07)       # creases in the crook of the arm
         add(up_mat, upper)
         if top == 'tshirt' or look.get('sleeves') == 'short':
+            # the sleeve from under the shoulder's round to halfway down, standing a little off the arm
+            # and opening toward its end
             mid = sh + (el - sh) * 0.45
-            sleeve = S.cone(sh, mid, 0.06 * b + 0.008, 0.052 * b + 0.01)
+            sleeve = S.cone(sh + (el - sh) * 0.14, mid, 0.0479 * ab + ul * 0.8 + 0.004, 0.0454 * ab + ul * 0.9 + 0.009)
             add(shirt if top != 'tshirt' else 'tshirt', sleeve, order=2)
         if fore_mat == 'skin':
             # a bare forearm, flattening to the wrist the hand comes out of
             if hd is not None:
                 k = hd.k
-                add('skin', S.econe(el, wr - d * 0.012, (0.041 * b, 0.039 * b), (0.0262 * k, 0.0172 * k), hd.M[:, 0]))
+                add('skin', S.econe(el, wr - d * 0.012, (0.041 * ab, 0.039 * ab), (0.0262 * k, 0.0172 * k), hd.M[:, 0]))
             else:
-                add('skin', S.cone(el, wr, 0.041 * b, 0.03 * b))
+                add('skin', S.cone(el, wr, 0.041 * ab, 0.03 * ab))
         else:
-            sl = S.cone(el, wr - d * 0.04, 0.041 * b + loose, 0.031 * b + loose * 0.75)
+            sl = S.cone(el, wr - d * 0.04, 0.041 * ab + loose, 0.031 * ab + loose * 0.75)
             if top in ('hoodie', 'sweater', 'fleece') or look.get('drape'):
                 sl = rings(sl, el, d, 0.0022, 0.024, 0.1, 0.24)             # bunched above the cuff
             add(fore_mat, sl)
@@ -859,7 +887,8 @@ def body_parts(B, p, look):
     if top == 'hoodie':
         hemz = p.pelvis + R @ V(0, 0, hem * s)
         add('hoodie', _panel(body, S.intersect(S.halfspace(hemz, -(R @ V(0, 0, 1))), S.halfspace(hemz + R @ V(0, 0, 0.05), R @ V(0, 0, 1))), 0.005), order=1)
-        pouch_c = p.waist + R @ V(0, 0.1 * b + loose + belly + 0.006, -0.035)
+        c0 = p.waist + R @ V(0, 0, -0.035)
+        pouch_c = c0 + _surf(body, c0, R @ V(0, 1, 0)) + R @ V(0, 0.006, 0)
         add('hoodie', S.box(pouch_c, V(0.1, 0.018, 0.075), 0.016, R), order=2)
         if look.get('hat') != 'hood':
             add('hoodie', S.ellipsoid(p.neck + R @ V(0, -0.075, -0.02), V(0.11, 0.05, 0.07), R), order=1)
@@ -912,7 +941,8 @@ def body_parts(B, p, look):
             add('raincoat', _panel(sk, flap, 0.005), order=1)
             add('raincoat', _panel(sk, S.halfspace(V(0, 0, skirt_lo[2] + 0.035), V(0, 0, -1)), 0.004), order=1)
             add('raincoat', _panel(body, _loc(lambda q: np.maximum(np.abs(q[:, 2]) - 0.022, -q[:, 1] - 0.05), p.waist, R), 0.006), order=2)
-            add('raincoat', S.box(p.waist + R @ V(0.03, 0.1 * b + loose + belly + 0.012, 0.0), V(0.022, 0.008, 0.02), 0.005, R), order=3)
+            c0 = p.waist + R @ V(0.03, 0, 0.0)
+            add('raincoat', S.box(c0 + _surf(body, c0, R @ V(0, 1, 0)) + R @ V(0, 0.012, 0), V(0.022, 0.008, 0.02), 0.005, R), order=3)
             for sx in (-1, 1):
                 for k in range(3):
                     add('button', S.sphere(p.chest + R @ V(sx * 0.05, 0, 0.06 - k * 0.09) + _surf(body, p.chest + R @ V(sx * 0.05, 0, 0.06 - k * 0.09), R @ V(0, 1, 0)), 0.008), order=3)

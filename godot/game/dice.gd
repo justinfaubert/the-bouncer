@@ -34,8 +34,9 @@ const NORMAL := {1: Vector3.UP, 6: Vector3.DOWN, 2: Vector3.RIGHT, 5: Vector3.LE
 const SPOTS := {
 	"door": {"at": Vector3(1.47, 1.05, 9.76), "of": "wood", "box": [1.24, 1.74, 9.5, 10.0],
 		"walls": [[Vector3(0, 0, 10.0), Vector3(0, 0, -1), 0.0, 0.35]]},
-	"bar": {"at": Vector3(2.02, 1.12, 5.42), "of": "wood", "box": [1.6, 2.33, 4.9, 5.95],
-		"lying": [[Vector2(2.2, 5.0), 0.2], [Vector2(2.2, 5.85), 0.2]]},
+	# between the steel rails either side of the gap in the stools
+	"bar": {"at": Vector3(2.02, 1.12, 5.0), "of": "wood", "box": [1.6, 2.33, 4.571, 5.429],
+		"walls": [[Vector3(0, 0, 4.571), Vector3(0, 0, 1), 0.026, 0.5, 0.026], [Vector3(0, 0, 5.429), Vector3(0, 0, -1), 0.026, 0.5, 0.026]]},
 	"t28": {"at": Vector3(9.27, 0.78, 7.62), "of": "wood", "round": [Vector2(9.4, 8.1), 0.83],
 		"lying": [[Vector2(8.77, 7.94), 0.2], [Vector2(9.85, 7.63), 0.2]]},
 	# the cushions where their noses are, a hair inside, so a die that hits one hits the nose
@@ -81,7 +82,7 @@ const TRAYS := {
 		Vector3(7.48, 0.0, 17.57), Vector3(7.77, 0.0, 17.86), Vector3(8.17, 0.0, 17.97),
 		Vector3(8.57, 0.0, 17.86), Vector3(8.86, 0.0, 17.57)],
 	"lot:truck": [Vector3(2.97, 0.12, 10.44), Vector3(2.61, 0.12, 10.6), Vector3(2.5, 0.12, 11.0),
-		Vector3(4.1, 0.12, 11.0), Vector3(3.99, 0.12, 10.6)],
+		Vector3(3.99, 0.12, 10.6)],
 	"pool:juke": [Vector3(14.1, 0.0, 0.8), Vector3(13.7, 0.0, 0.91), Vector3(13.36, 0.0, 2.03),
 		Vector3(13.7, 0.0, 2.29), Vector3(14.1, 0.0, 2.4), Vector3(14.5, 0.0, 2.29), Vector3(14.79, 0.0, 2.0),
 		Vector3(14.9, 0.0, 1.6), Vector3(14.79, 0.0, 1.2), Vector3(14.5, 0.0, 0.91)],

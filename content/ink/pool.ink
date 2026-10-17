@@ -363,10 +363,12 @@ BIGMAN: Tell 'em I'll come by after, eh. Tell 'em I'm coming.
 FATHER: He's not coming. I wasn't.
 {
 - sister_at == s_vestibule:
+    ~ here = door
     He went back to the door and told the young woman waiting in the vestibule that her father would come after.
     DRIVER: After what.
     She didn't wait for an answer. She went back to the truck.
 - in_truck(sister_at):
+    ~ here = lot
     He went out across the gravel to the pickup and told her through four inches of window that her father would come after.
     DRIVER: After what.
     The window went up.
@@ -385,7 +387,7 @@ The pickup pulled out onto the highway toward town. Its tail lights went along t
 # done: fetch
 ~ rep(rep_kids, 1)
 WRONGMAN: In the story, the doorman carried a message once, and the man said he'd come after, and he did come after. And that was worse.
--> hub
+-> carry_on
 
 = blew_up
 ~ pool_heat = 9
@@ -411,11 +413,12 @@ BIGMAN: Who asked you.
 
 // ------------------------------------------------------------------ when it goes
 
+// It starts in front of him, wherever he is in the room; what he does about it decides whether he
+// goes over.
 === ev_pool ===
-~ here = pool
 ~ fam += pool_fight
 ~ incident += inc_fight
-# sfx: balls
+# sfx: balls #look: bigman
 {
 - sister_at == s_rail:
     It started the way they start: afterward nobody could have told you how.
@@ -441,6 +444,7 @@ BIGMAN: Who asked you.
 FIGHTER: Now. Now, now, now.
 * [Get between them. #check: fighter 8 {knows ? pool_lefty:2|0}]
     ~ pass(2)
+    ~ here = pool
     { passed:
         He was between them before the second thing happened. He had the big man's left wrist before it came off the rail, and he held it, not hard, just so the big man knew whose it was.
         FIGHTER: That's it. That's all it takes if you're first.
@@ -455,6 +459,7 @@ FIGHTER: Now. Now, now, now.
 * {indoors(vape_at)} [Take the boyfriend out first. #check: fighter 6 {vape_mod()}]
     ~ pass(2)
     { passed:
+        ~ here = door
         He took the boyfriend by the back of the hoodie and the belt and walked him the length of the room and out the front door onto the gravel before the boyfriend's feet caught up with what was happening. #sfx: door
         ~ fam += vape_ejected
         ~ vape_out_at = clock
@@ -464,6 +469,7 @@ FIGHTER: Now. Now, now, now.
         FIGHTER: The one who's going to swing. Always the one who's going to swing.
         -> after_fight(false)
     - else:
+        ~ here = pool
         The boyfriend saw him coming and swung first, at the biggest thing in the room, which was the doorman. It glanced off his shoulder. The big man shoved the boyfriend into the jukebox. #sfx: hit
         ~ hurt++
         ~ incident += inc_hurt
@@ -478,6 +484,7 @@ FIGHTER: Now. Now, now, now.
         -> after_fight(false)
     - else:
         He said it. Nobody heard it. The jukebox was on the chorus.
+        ~ here = pool
         The big man shoved {indoors(vape_at):the boyfriend|the buddy} into the table and a cue went over and the doorman was in it now whether he liked it or not. #sfx: hit
         ~ hurt++
         ~ incident += inc_hurt
@@ -488,6 +495,7 @@ FIGHTER: Now. Now, now, now.
     { passed:
         WRONGMAN: The wrong man's never the one you're watching.
         It was the buddy. The buddy had a pool ball in his hand, down by his leg, where nobody was looking.
+        ~ here = pool
         He took it off him. Just took it, like taking keys off a drunk, and the buddy let him, and that was the end of it.
         -> after_fight(false)
     - else:
@@ -538,6 +546,7 @@ BARTENDER: Door. Do I call it or not?
     ~ fam += dad_ejected
     ~ fam_done = true
     ~ room_count--
+    ~ here = door
     He walked the big man to the door. The big man let him. At the door he stopped, and turned, and the doorman thought he was going to say something, and he didn't.
     {
     - kids_count() > 0:
@@ -553,13 +562,14 @@ BARTENDER: Door. Do I call it or not?
     The buddy took the twenties off the rail, all of them, and his jacket off the hook, and went out after him without a word to anybody.
     ~ room_count--
     ~ rep(rep_t28, 1)
-    -> hub
+    -> carry_on
 * {kids_count() > 0} [Put the kids out. All of them.]
     ~ pass(3)
     ~ temp she_was = indoors(sister_at)
     ~ fam += kids_waiting
     ~ kids_out()
     ~ rep(rep_kids, -3)
+    ~ here = door
     { she_was:
         He walked them out. The sister didn't fight it. At the door she looked at him the way you look at a wall you've walked into.
         DRIVER: We didn't hit anybody. He did.
@@ -567,7 +577,7 @@ BARTENDER: Door. Do I call it or not?
         He walked them out. Nobody fought it.
     }
     The pickup didn't leave. It sat at the edge of the lot with its engine running, waiting.
-    -> hub
+    -> carry_on
 * [Everybody who was in that, out.]
     ~ pass(4)
     ~ fam += dad_ejected
@@ -577,6 +587,7 @@ BARTENDER: Door. Do I call it or not?
     ~ room_count -= 2
     ~ rep(rep_t28, 1)
     ~ rep(rep_staff, 1)
+    ~ here = door
     { kids_count() > 0:
         He put them all out: the big man, the buddy, the kids. Out in the lot, the family stood around the pickup in the rain for a long time. Then they all got in it, the big man too, and it went.
     - else:
@@ -584,9 +595,10 @@ BARTENDER: Door. Do I call it or not?
     }
     ~ family_gone()
     FATHER: Fair. Fair's not the same as right.
-    -> hub
+    -> carry_on
 * {fam !? dad_ejected} [Sit the big man down and get him a coffee. #check: father 8 {bigman_mod()}]
     ~ pass(5)
+    ~ here = pool
     { passed:
         He sat him down at an empty table and the bartender, without being asked, brought a coffee. The big man held it with both hands. After a while he said "where are they," and the doorman told him, and he got up and went.
         ~ fam += dad_went
@@ -616,7 +628,7 @@ BARTENDER: Door. Do I call it or not?
             The pickup didn't leave.
         }
     }
-    -> hub
+    -> carry_on
 
 
 // ------------------------------------------------------------------ the constable, forty minutes after
@@ -626,16 +638,18 @@ BARTENDER: Door. Do I call it or not?
 // forty minutes runs past close and she knocks on the locked door.
 === ev_police ===
 ~ police_seen = true
-~ here = door
-~ door_away = 0
 { lock_up:
     Headlights came into the empty lot and stopped crooked across two spaces, and a constable got out and put her hat on in the rain, and knocked on the glass of the door he'd just locked. One car. It was always one car out here. #portrait: constable
+    ~ here = door
+    ~ door_away = 0
     He let her in.
     CONSTABLE: Okay. So. We had a call about a fight.
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands. There was nobody in it but the bartender and him, and the chairs up on the tables.
     CONSTABLE: Forty minutes. I know. I've got one car for the whole valley.
 - else:
-    Headlights came into the lot slowly and stopped crooked across two spaces, and a constable got out and put her hat on in the rain. One car. It was always one car out here. #portrait: constable
+    Headlights came into the lot slowly and stopped crooked across two spaces, and a constable got out and put her hat on in the rain. One car. It was always one car out here. #portrait: constable #look: door
+    ~ here = door
+    ~ door_away = 0
     CONSTABLE: Okay. So. We had a call about a fight.
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands.
     { pool_still():

@@ -224,8 +224,8 @@
 
 // ------------------------------------------------------------------ 1:30 last call
 
+// The bell's heard everywhere in the room: he hears it where he is.
 === last_call ===
-~ here = bar
 { clock < LAST_CALL:
     ~ clock = LAST_CALL
 }
@@ -273,7 +273,9 @@ Everybody who was going to leave started thinking about leaving. Table 28 ordere
 FATHER: Last call's easy. It's the half hour after it that's the job.
 -> clear
 
+// Between the ones he's clearing, he steps back out onto the floor, once the last thing's been said.
 === clear ===
+~ beat()
 ~ here = floor
 { clock >= CLOSE_TIME && not two_called:
     ~ two_called = true
@@ -551,6 +553,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
         -> cb
     }
 * [Walk him out. #check: fighter 6]
+    ~ here = door
     { passed:
         He took the coat off the stool and held it open for him, which is a thing a man can't refuse without looking like a fool, and walked him to the door in it. #sfx: door
     - else:

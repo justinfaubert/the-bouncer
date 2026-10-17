@@ -3,8 +3,11 @@
 # Who is where comes from the Ink's state (who's been let in, who's been put out, who's come down
 # from upstairs, the clock), worked out fresh after every batch in `_cast`. The room keeps to it the
 # way a room does: people move while he isn't looking. A change waits until the place it's in is
-# out of his sight (behind him, through a wall, off the edge of his eyes); if it can't wait (he's
-# staring at the kid while the kid walks up to the door) his eyes close for a blink and it's done.
+# out of his sight (behind him, through a wall, off the edge of his eyes). If he's looking, the ones
+# who can walk (STROLL) walk there, round the tables and whoever's in the way: the kid in past him
+# to the jukebox, or back across the lot to the pickup; whoever's going, out of the door and off
+# into the dark; whoever's coming, in from the lot. For anyone else, his eyes close for a blink and
+# it's done.
 # And the room lives between glances on its own: the bartender works along the bar, the buddy goes
 # round the table, Slippers drifts between the jukebox and the bar.
 #
@@ -12,6 +15,8 @@
 # where their heads and hands and phones are is written beside each model in a .json.
 class_name Stage
 extends Node3D
+
+signal walked(id: String)          # someone's got where they were walking to
 
 const PEOPLE := "res://models/people/"
 const BLINK_AFTER := 1.1           # seconds a change waits in his sight before he blinks
@@ -34,6 +39,17 @@ const WANDER := {
 }
 # who speaks for a speaker the Ink names that isn't one figure
 const SPEAKS_FOR := {"table28": "team_jacket", "kid": "hoodie", "sister": "driver", "wife": "raincoat", "rats": "endbar"}
+# The ones who can be seen walking (tools/export_walkers.py made each a walk, <id>_walk.glb), and how
+# fast each goes, metres a second: the kid not hurrying, Dennis's wife in no state to.
+const STROLL := {"hoodie": 1.0, "driver": 1.2, "vape": 1.25, "goodshoes": 1.3, "hivis": 1.25, "raincoat": 1.1,
+	"constable": 1.3, "bigman": 1.25, "glasses": 1.05, "buddy": 1.25}
+const WALKABLE := ["room", "vest", "lot", "hall", "deck"]       # the parts of the ground floor they walk in
+const OFF_INTO := Vector3(6.2, 0, 17.5)                         # out of the door and off across the lot, into the dark
+# where someone coming to the door comes from, out in the lot, nearest first: the first he can't see
+const COMES_FROM := [Vector3(4.6, 0, 13.4), Vector3(6.4, 0, 15.6), Vector3(2.6, 0, 16.4), Vector3(7.5, 0, 18.5)]
+# which post sees what a part of the building does, for what he can see on the way somewhere
+const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot",
+	"lobby": "hall", "keg": "keg", "upstairs": "upstairs"}
 
 var pub: Pub
 var content: Dictionary
@@ -48,6 +64,9 @@ var _check := 0.0
 var _blinking := false
 var _turned := {}                  # id -> the tween turning them toward him
 var _anchors := {}
+var walkers := {}                  # id -> the walk they're on (see _walk_off)
+var _nav: Nav
+var _v := {}                       # the night as of the last sync: where people go when they go
 
 
 func setup(p: Pub, c: Dictionary) -> void:
@@ -74,7 +93,8 @@ func _spots() -> void:
 	s["bar_back_far"] = {"pos": Vector3(1.15, 0, 2.6), "face": Vector3(6.0, 0, 2.2), "zone": "room"}
 	for i in 7:
 		var z := 1.6 + i * 0.85
-		s["bar_s%d" % i] = {"pos": Vector3(2.65, 0, z), "face": Vector3(0.0, 0, z), "zone": "room"}
+		if absf(z - Pub.SERVICE_Z) > 0.1:
+			s["bar_s%d" % i] = {"pos": Vector3(2.65, 0, z), "face": Vector3(0.0, 0, z), "zone": "room"}
 	s["bar_s6_stand"] = {"pos": Vector3(3.05, 0, 6.3), "face": Vector3(0.0, 0, 6.0), "zone": "room"}
 	# the pool table
 	s["pool_cue"] = {"pos": POOL + Vector3(1.8, 0, 1.0), "face": POOL, "zone": "room"}
@@ -82,7 +102,7 @@ func _spots() -> void:
 	s["pool_buddy"] = {"pos": POOL + Vector3(-1.0, 0, -1.35), "face": POOL, "zone": "room"}
 	s["pool_buddy_b"] = {"pos": POOL + Vector3(0.4, 0, 1.55), "face": POOL, "zone": "room"}
 	s["pool_buddy_c"] = {"pos": POOL + Vector3(2.0, 0, -0.6), "face": POOL, "zone": "room"}
-	s["pool_watch"] = {"pos": POOL + Vector3(-0.8, 0, 2.2), "face": POOL, "zone": "room"}
+	s["pool_watch"] = {"pos": POOL + Vector3(-1.05, 0, 2.5), "face": POOL, "zone": "room"}
 	# the other tables' stools: a, b, c, d as in Pub.TABLES
 	var names := ["a", "b", "c", "d"]
 	for ti in Pub.TABLES.size():
@@ -92,8 +112,9 @@ func _spots() -> void:
 			s["table_%s_%d" % [names[ti], j]] = {"pos": tb + offs[j], "face": tb, "zone": "room"}
 	s["juke"] = {"pos": Vector3(13.2, 0, 1.2), "face": Vector3(13.2, 0, 0.0), "zone": "room"}
 	s["juke_kid"] = {"pos": Vector3(12.7, 0, 1.15), "face": Vector3(13.2, 0, 0.0), "zone": "room"}
-	s["pool_rail"] = {"pos": POOL + Vector3(-1.2, 0, 1.45), "face": POOL, "zone": "room"}
-	s["bar_stand_v"] = {"pos": Vector3(2.95, 0, 4.55), "face": Vector3(0.0, 0, 4.4), "zone": "room"}
+	s["pool_rail"] = {"pos": POOL + Vector3(-0.3, 0, 1.5), "face": POOL, "zone": "room"}
+	# at the door end of the bar, by the till, where you pay: out of the gap, which is staff's
+	s["bar_stand_v"] = {"pos": Vector3(2.75, 0, 7.45), "face": Vector3(0.0, 0, 7.45), "zone": "room"}
 	# on their feet with a pint: behind the stools at the bar, and by the front window
 	s["stand_bar"] = {"pos": Vector3(3.15, 0, 2.9), "face": Vector3(0.0, 0, 3.1), "zone": "room"}
 	s["stand_window"] = {"pos": Vector3(11.7, 0, 9.35), "face": Vector3(9.4, 0, 8.1), "zone": "room"}
@@ -106,7 +127,7 @@ func _spots() -> void:
 	# the door: in front of his stool, and out on the gravel
 	# far enough back that the door's still behind them: about where anyone stops to be carded
 	s["door_front"] = {"pos": Vector3(3.0, 0, 9.76), "face": eye, "zone": "vest"}
-	s["door_step"] = {"pos": Vector3(3.3, 0, 11.0), "face": eye, "zone": "lot"}
+	s["door_step"] = {"pos": Vector3(4.2, 0, 11.4), "face": eye, "zone": "lot"}
 	s["lot_walk"] = {"pos": Vector3(5.3, 0, 13.4), "face": Vector3(3.2, 0, 10.1), "zone": "lot"}
 	s["lot_truck"] = {"pos": Vector3(7.7, 0, 14.4), "face": Vector3(3.2, 0, 10.1), "zone": "lot"}
 	# the big man at the back of his own truck by the beer store, on his way round to the door
@@ -241,9 +262,9 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 		"s_vestibule":
 			out.driver = ["vest_wait", "driver_door"]
 		"s_rail":
-			out.driver = ["pool_rail", "driver_rail"] if _exists("driver_rail") else ["bar_s4", "driver"]
+			out.driver = ["pool_rail", "driver_rail"] if _exists("driver_rail") else ["bar_s1", "driver"]
 		"s_bar":
-			out.driver = ["bar_s4", "driver"]
+			out.driver = ["bar_s1", "driver"]
 		"s_lot":
 			out.driver = ["lot_truck", "driver_door"]
 		"s_truck":
@@ -255,7 +276,7 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 		"s_door", "s_vestibule":
 			out.vape = ["vest_behind", "vape_door"]
 		"s_bar", "s_jukebox", "s_rail":
-			out.vape = ["bar_stand_v", "vape_bar"] if _exists("vape_bar") else ["bar_s4" if not out.has("driver") or out.driver[0] != "bar_s4" else "bar_s3", "vape"]
+			out.vape = ["bar_stand_v", "vape_bar"] if _exists("vape_bar") else ["bar_s1" if not out.has("driver") or out.driver[0] != "bar_s1" else "bar_s3", "vape"]
 		"s_lot":
 			out.vape = ["lot_walk" if not out.has("hoodie") or out.hoodie[0] != "lot_walk" else "door_step", "vape_door"]
 		"s_truck":
@@ -281,7 +302,7 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	var fillers := [["crew_b", "table"], ["patron_a", "table"], ["patron_e", "bar"], ["patron_c", "stand"],
 		["patron_b", "table"], ["patron_f", "table"], ["patron_d", "stand"], ["crew_a", "table"]]
 	var free := {"table": ["table_d_0", "table_c_1", "table_d_1", "table_c_0", "table_a_2", "table_d_2", "table_c_2"],
-		"bar": ["bar_s4", "bar_s1", "bar_s5"], "stand": ["pool_watch", "stand_bar", "stand_window"]}
+		"bar": ["bar_s1", "bar_s5"], "stand": ["pool_watch", "stand_bar", "stand_window"]}
 	var used := {}
 	for id in out:
 		used[out[id][0]] = true
@@ -371,9 +392,11 @@ func _exists(model: String) -> bool:
 func sync(game: Game, instant: bool) -> void:
 	if game.story == null:
 		want = _cast_default()
+		_v = {}
 	else:
 		want = _cast(game)
 		var v := game.vars()
+		_v = v
 		var rounds := int(BUtil.js_int(v.get("t28_rounds", 0)))
 		_thing("t28_glasses", Pub.T28 + Vector3(0, 0.8, 0), "room", func(): pub.set_t28_glasses(rounds, _has(v, "cleared", "cl_t28")), rounds)
 		var here_now := pickup_here
@@ -388,13 +411,18 @@ func sync(game: Game, instant: bool) -> void:
 	for id in figures.keys():
 		if not want.has(id):
 			want[id] = []
-	# the ones who drift stay where they've drifted to
+	# the ones who drift stay where they've drifted to; but with him at the bar, the bartender comes
+	# back across from him
+	var at_bar: bool = game.story != null and game.here() == "bar"
 	for id in WANDER:
 		var w: Array = want.get(id, [])
 		var f = figures.get(id)
+		if id == "bartender" and at_bar:
+			continue
 		if f != null and not w.is_empty() and w[0] in WANDER[id] and f.spot in WANDER[id] and f.model == w[1]:
 			want[id] = [f.spot, w[1]]
 	if instant:
+		_stop_walks()
 		for id in want:
 			_place(id)
 		for key in things:
@@ -446,8 +474,11 @@ func in_sight(pos: Vector3, zone: String) -> bool:
 		return false
 	var post := view.place
 	if view.walking:
-		return zone in ["room", "vest"] or zone in SEEN.get(post, [])
-	if not zone in SEEN.get(post, []):
+		# on the way: what the part of the building he's in can see, and where he's going can
+		var mine := Hotspots.zone_of(view.eye_pos)
+		if not (zone == mine or zone in SEEN.get(post, []) or zone in SEEN.get(ZONE_POST.get(mine, ""), [])):
+			return false
+	elif not zone in SEEN.get(post, []):
 		return false
 	var cam := view.cam
 	var half_v := deg_to_rad(cam.fov) / 2.0
@@ -483,11 +514,14 @@ func _seen_now(id: String) -> bool:
 func _settle(dt: float) -> void:
 	var blink_for: Array = []
 	for id in want.keys():
-		if not _moved(id):
+		if walkers.has(id) or not _moved(id):
 			waiting.erase(id)
 			continue
 		if not _seen_now(id):
 			_place(id)
+			waiting.erase(id)
+			continue
+		if _walk_off(id):
 			waiting.erase(id)
 			continue
 		waiting[id] = waiting.get(id, 0.0) + dt
@@ -522,6 +556,215 @@ func _blink(ids: Array) -> void:
 	tw.tween_interval(0.05)
 	tw.tween_property(view, "flash", 0.0, 0.22)
 	tw.tween_callback(func(): _blinking = false)
+
+
+# ---------------------------------------------------------------- walking
+
+# Someone the night has moved while he's looking, who can walk: off they go, from where they are
+# (out of the pickup, from beside its door; or, coming, from out in the lot where he can't see them)
+# to where they're wanted (or, going, to the pickup or out into the dark). False if they can't (no walk made for them, off the ground
+# floor, sitting, no way there), and his eyes close on it instead.
+func _walk_off(id: String) -> bool:
+	if id == "bartender":
+		return _behind_bar(id)
+	if not STROLL.has(id) or not _exists(id + "_walk") or view == null:
+		return false
+	var w: Array = want.get(id, [])
+	var f = figures.get(id)
+	var from := Vector3.INF
+	var out_of_truck := false
+	if f != null:
+		var node: Node3D = f.node
+		if f.spot != "" and SPOTS[f.spot].get("in", "") == "truck":
+			# out of the pickup: from beside its door
+			if w.is_empty() or not pickup_here:
+				return false
+			from = _truck_door(f.spot)
+			out_of_truck = true
+		elif node.get_parent() != self or f.spot == "" or not str(SPOTS[f.spot].zone) in WALKABLE:
+			return false
+		else:
+			from = node.global_position
+	elif w.is_empty():
+		return false
+	var to := Vector3.INF
+	if w.is_empty():
+		to = _goes_to(id)
+	else:
+		var s: Dictionary = SPOTS[w[0]]
+		if s.get("in", "") == "truck":
+			if f == null:
+				return false
+			to = _truck_door(w[0])
+		elif str(s.zone) in WALKABLE:
+			to = s.pos
+			if _seated(w[0]):
+				# up to the seat from behind it: the sitting down's in the blink of taking the pose
+				var away := Vector3(s.pos.x - s.face.x, 0.0, s.pos.z - s.face.z)
+				if away.length() > 0.01:
+					to = s.pos + away.normalized() * 0.32
+		else:
+			return false
+	if from == Vector3.INF:
+		from = _comes_from()
+	if _nav == null:
+		_nav = Nav.new(Nav.SLIGHT)
+	var others: Array = [view.eye_pos]
+	for o in figures:
+		if o != id and (figures[o].node as Node3D).get_parent() == self:
+			others.append((figures[o].node as Node3D).global_position)
+	var path := _nav.way(from, to, others)
+	if path.is_empty():
+		path = _nav.way(from, to)
+	if path.size() < 2:
+		return false
+	# the walking body in place of the standing one (or a new one, coming in)
+	if f == null:
+		var holder := Node3D.new()
+		holder.name = id
+		add_child(holder)
+		holder.position = Vector3(from.x, 0.0, from.z)
+		f = {"node": holder, "spot": w[0], "model": "", "anchors": {}, "phase": randf() * TAU, "rate": randf_range(0.18, 0.3), "base_yaw": 0.0}
+		figures[id] = f
+	var node2: Node3D = f.node
+	if out_of_truck:
+		node2.reparent(self, false)
+		node2.transform = Transform3D.IDENTITY
+		node2.position = Vector3(from.x, 0.0, from.z)
+	if _turned.has(id) and (_turned[id] as Tween).is_valid():
+		(_turned[id] as Tween).kill()
+	for c in node2.get_children():
+		c.queue_free()
+	var a0: Vector3 = Nav.at(path, minf(0.4, Nav.length_of(path)))[0] - path[0]
+	if Vector2(a0.x, a0.z).length() > 0.01:
+		node2.rotation = Vector3(0.0, atan2(-a0.x, -a0.z), 0.0)
+	var body := pub.model(PEOPLE + id + "_walk.glb", Vector3.ZERO, node2)
+	body.name = "walking"
+	f.anchors = anchors_of(id + "_walk")
+	f.model = id + "_walk"
+	var anim := body.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if anim != null and anim.has_animation("walk"):
+		anim.get_animation("walk").loop_mode = Animation.LOOP_LINEAR
+		anim.play("walk")
+		anim.seek(randf(), true)
+		anim.speed_scale = 0.0
+	walkers[id] = {"path": path, "len": Nav.length_of(path), "s": 0.0, "v": 0.0, "to": w.duplicate(),
+		"pace": float(STROLL[id]), "stride": maxf(0.3, float(f.anchors.get("stride", 1.0))), "anim": anim,
+		"doors": Posts.doors_on(path)}
+	return true
+
+
+# The bartender, along behind the bar from one end of it to the other: the bar's between her feet
+# and anyone who'd see them, so it's her as she stands, carried along at a walk.
+func _behind_bar(id: String) -> bool:
+	var w: Array = want.get(id, [])
+	var f = figures.get(id)
+	if f == null or w.is_empty() or f.model != w[1] or not (str(f.spot).begins_with("bar_back") and str(w[0]).begins_with("bar_back")):
+		return false
+	var node: Node3D = f.node
+	var to: Vector3 = SPOTS[w[0]].pos
+	var path := PackedVector3Array([Vector3(node.position.x, 0.0, node.position.z), Vector3(to.x, 0.0, to.z)])
+	if Nav.length_of(path) < 0.05:
+		return false
+	if _turned.has(id) and (_turned[id] as Tween).is_valid():
+		(_turned[id] as Tween).kill()
+	walkers[id] = {"path": path, "len": Nav.length_of(path), "s": 0.0, "v": 0.0, "to": w.duplicate(),
+		"pace": 1.1, "stride": 1.0, "anim": null, "doors": []}
+	return true
+
+
+# Along their way: a man's pace, slowing to stop; the doors on it opening as they come to them;
+# turning to face the way. There: standing where they were wanted as they're wanted (or, going, gone).
+func _walk_on(dt: float) -> void:
+	for id in walkers.keys():
+		var wk: Dictionary = walkers[id]
+		var f = figures.get(id)
+		if f == null:
+			walkers.erase(id)
+			continue
+		var node: Node3D = f.node
+		var left: float = wk.len - wk.s
+		var v := minf(float(wk.v) + 1.6 * dt, float(wk.pace))
+		v = minf(v, sqrt(2.0 * 1.2 * maxf(left, 0.0)) + 0.1)
+		wk.v = v
+		wk.s = minf(float(wk.s) + v * dt, float(wk.len))
+		var here: Vector3 = Nav.at(wk.path, wk.s)[0]
+		node.position = Vector3(here.x, 0.0, here.z)
+		var ahead: Vector3 = Nav.at(wk.path, minf(float(wk.s) + 0.6, float(wk.len)))[0] - here
+		if Vector2(ahead.x, ahead.z).length() > 0.05:
+			node.rotation.y = lerp_angle(node.rotation.y, atan2(-ahead.x, -ahead.z), 1.0 - exp(-dt * 7.0))
+		if wk.anim != null:
+			(wk.anim as AnimationPlayer).speed_scale = v / float(wk.stride)
+		for d in wk.doors:
+			if d[2] == 0 and wk.s >= float(d[1]) - 1.0:
+				pub.swing_door(d[0], true)
+				d[2] = 1
+			elif d[2] == 1 and wk.s >= float(d[1]) + 1.0:
+				pub.swing_door(d[0], false)
+				d[2] = 2
+		if wk.s >= float(wk.len) - 0.001:
+			_walked(id)
+
+
+func _walked(id: String) -> void:
+	var wk: Dictionary = walkers[id]
+	walkers.erase(id)
+	for d in wk.doors:
+		if d[2] == 1:
+			pub.swing_door(d[0], false)
+	var f = figures.get(id)
+	if f != null:
+		(f.node as Node3D).queue_free()
+		figures.erase(id)
+	# standing where the walk was for (if the night's moved them on since, that's the next walk)
+	if not (wk.to as Array).is_empty():
+		var now: Array = want.get(id, [])
+		want[id] = wk.to
+		_place(id)
+		want[id] = now
+	walked.emit(id)
+
+
+func _stop_walks() -> void:
+	for id in walkers.keys():
+		for d in walkers[id].doors:
+			if d[2] == 1:
+				pub.swing_door(d[0], false, true)
+		var f = figures.get(id)
+		if f != null:
+			(f.node as Node3D).queue_free()
+			figures.erase(id)
+	walkers.clear()
+
+
+func _seated(spot: String) -> bool:
+	return (spot.begins_with("t28_") and spot != "t28_stand" and spot != "t28_behind5") or (spot.begins_with("bar_s") and spot != "bar_s6_stand") \
+		or spot.begins_with("table_") or spot.begins_with("deck_chair")
+
+
+# where someone going goes: the three from the pickup back to it while it's there, everyone else out
+# of the door and off across the lot
+func _goes_to(id: String) -> Vector3:
+	var var_of := {"hoodie": "kid_at", "driver": "sister_at", "vape": "vape_at"}
+	if var_of.has(id) and pickup_here and _spot_of(_v, var_of[id]) == "s_truck":
+		return _truck_door("truck_wheel" if id == "driver" else "truck_back")
+	return OFF_INTO
+
+
+# beside the pickup's door for a seat in it: the driver's on the left, the back on the right
+func _truck_door(spot: String) -> Vector3:
+	var t: Node3D = pub.dyn.truck
+	var local := Vector3(-1.25, 0, -0.2) if spot == "truck_wheel" else Vector3(1.25, 0, 0.75)
+	var p := t.to_global(local)
+	return Vector3(p.x, 0.0, p.z)
+
+
+# where someone coming to the door comes from: out in the lot, the nearest place he can't see
+func _comes_from() -> Vector3:
+	for p in COMES_FROM:
+		if not in_sight(p + Vector3(0, 1.2, 0), "lot"):
+			return p
+	return COMES_FROM[COMES_FROM.size() - 1]
 
 
 # Put a figure where it's wanted, now.
@@ -632,10 +875,32 @@ func head_of(id: String) -> Vector3:
 	return (f.node as Node3D).to_global(Vector3(h[0], h[1], h[2]))
 
 
-func figure_zone(id: String) -> String:
+# Where the front of someone's chest is, in the world (for a thing handed back to them).
+func chest_of(id: String) -> Vector3:
 	var f = figures.get(SPEAKS_FOR.get(id, id))
 	if f == null:
+		return Vector3.INF
+	var c: Array = f.anchors.get("chest", [0, 1.25, -0.1])
+	return (f.node as Node3D).to_global(Vector3(c[0], c[1], c[2]))
+
+
+# Where the people are on the floor (not the two in the pickup), for him to walk round.
+func standing() -> Array:
+	var out: Array = []
+	for id in figures:
+		var n: Node3D = figures[id].node
+		if n.get_parent() == self:
+			out.append(n.global_position)
+	return out
+
+
+func figure_zone(id: String) -> String:
+	var key: String = SPEAKS_FOR.get(id, id)
+	var f = figures.get(key)
+	if f == null:
 		return ""
+	if walkers.has(key) or f.spot == "":
+		return Hotspots.zone_of((f.node as Node3D).global_position + Vector3(0, 1.2, 0))
 	return SPOTS[f.spot].zone
 
 
@@ -653,7 +918,7 @@ func arrived(_where: String) -> void:
 func speaking(speaker: String) -> void:
 	var id: String = SPEAKS_FOR.get(speaker, speaker)
 	var f = figures.get(id)
-	if f == null or view == null:
+	if f == null or view == null or walkers.has(id):
 		return
 	var node: Node3D = f.node
 	if node.get_parent() != self:
@@ -682,11 +947,13 @@ func glance(id: String) -> void:
 	if h == Vector3.INF:
 		return
 	if figure_zone(id) in SEEN.get(view.place, []):
-		view.look_at_point(h)
+		view.look_at_who(func(): return head_of(id) if present(id) else Vector3.INF)
 
 
 func _process(dt: float) -> void:
 	t += dt
+	if not walkers.is_empty():
+		_walk_on(dt)
 	_check -= dt
 	if _check <= 0.0 and view != null:
 		_check = 0.25
@@ -706,7 +973,9 @@ func _process(dt: float) -> void:
 # The ones who drift, drift, when he isn't looking.
 func _wander() -> void:
 	for id in WANDER:
-		if not figures.has(id) or not want.has(id) or want[id].is_empty():
+		if not figures.has(id) or not want.has(id) or want[id].is_empty() or walkers.has(id):
+			continue
+		if id == "bartender" and view.place == "bar":
 			continue
 		if t < float(wander_at.get(id, 0.0)):
 			continue

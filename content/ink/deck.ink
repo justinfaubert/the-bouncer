@@ -177,8 +177,7 @@ FIGHTER: The ones you put out the front come in the back. Every time.
 
 === ev_deck_kids ===
 ~ deck_kids_seen = true
-~ here = floor
-The kid in the hoodie was standing by the jukebox.
+The kid in the hoodie was standing by the jukebox. #look: hoodie
 The kid he'd turned away at the door with the photo of his ID. His sister was at the rail by the pool table with her car keys in her fist, and the boyfriend was at the bar trying to get served. None of them had come past the stool. Their sneakers had left dark prints on the carpet from the back of the room.
 { doors_left ? left_deck:
     FATHER: You walked the doors. You stood at that one and left the coaster in it.
@@ -193,6 +192,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ knows += kid_why
     ~ knows += bigman_dad
     ~ knows += truck
+    ~ here = pool
     #portrait: driver
     She didn't wait for him to start.
     DRIVER: We're not here to drink. Our dad's at the pool table. Our mom's in the hospital in town, since this morning, and he won't answer his phone.
@@ -205,6 +205,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ fam += kids_waiting
     ~ kids_out()
     ~ rep(rep_kids, -2)
+    ~ here = door
     He walked them to the front door, the three of them, and none of them argued. The sister went last. At the door she stopped.
     DRIVER: Our mom's in the hospital in town. Since this morning. He doesn't know. That's all this is.
     ~ knows += kid_why
@@ -219,7 +220,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
         ~ rep(rep_kids, -1)
         DRIVER: We've been waiting in the truck. Since eight.
     - - They went back across the lot. The pickup didn't leave.
-    -> hub
+    -> carry_on
 // Letting them in now, in the middle of the room, takes them off the list of the ones who got past him.
 * (counted) ["You came in the back. Fine. You're in now, on me."]
     ~ pass(3)
@@ -229,18 +230,20 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ count_in += kids_in
     ~ uncounted -= kids_in
     ~ rep(rep_kids, 2)
+    ~ here = floor
     He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him for almost a whole second.
     MANUAL: For the record, one of them has no identification.
     FIGHTER: Watch the boyfriend.
-    -> hub
+    -> carry_on
 * [Leave them. Watch.]
     ~ pass(1)
     ~ fam += sister_met
     ~ fam += sister_admitted
     ~ fam += hoodie_admitted
+    ~ here = floor
     He went back to where he could see the pool table and the jukebox and the bar all at once, and watched.
     FIGHTER: The boyfriend. It'll be the boyfriend.
-    -> hub
+    -> carry_on
 * {knows ? kid_why} ["I'll tell him for you."]
     ~ pass(1)
     ~ fam += sister_admitted
@@ -249,7 +252,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     # task: fetch :: Tell the big man at the pool table about his wife.
     DRIVER: He'll say he's coming after.
     DRIVER: He always says after.
-    -> hub
+    -> carry_on
 
 
 // ------------------------------------------------------------------ the pickup in the lot
@@ -334,11 +337,10 @@ She went in past him, into the room, and straight to the pool table.
 
 === ev_vape_back ===
 ~ vape_seen = true
-~ here = floor
 { vape_backs > 1:
-    The boyfriend was at the bar again. Again. Wet to the knees this time, and grinning, as if it had become a game between them and he was winning it.
+    The boyfriend was at the bar again. Again. Wet to the knees this time, and grinning, as if it had become a game between them and he was winning it. #look: vape
 - else:
-    The boyfriend was at the bar again, dripping, with his hood up, trying to get served. He hadn't come past the stool. There were wet sneaker prints on the carpet from the deck door.
+    The boyfriend was at the bar again, dripping, with his hood up, trying to get served. He hadn't come past the stool. There were wet sneaker prints on the carpet from the deck door. #look: vape
 }
 FIGHTER: The ones you put out the front come in the back. Every time.
 { doors_left ? left_deck:
@@ -354,7 +356,10 @@ FIGHTER: The ones you put out the front come in the back. Every time.
     ~ vape_seen = false
     ~ move(vape_at, s_lot)
     ~ deck_door = false
-    He walked him out the front again, the same way, the same length of the room, and this time the boyfriend didn't talk. Then he went to the deck door and pulled the folded coaster out of the latch and let it lock. #sfx: door
+    ~ here = door
+    He walked him out the front again, the same way, the same length of the room, and this time the boyfriend didn't talk.
+    ~ here = deck
+    Then he went to the deck door and pulled the folded coaster out of the latch and let it lock. #sfx: door
     ~ rep(rep_t28, -1)
     FATHER: Now they come past you or they don't come.
 * [Put him out again.]
@@ -364,6 +369,7 @@ FIGHTER: The ones you put out the front come in the back. Every time.
     ~ vape_returned = false
     ~ vape_seen = false
     ~ move(vape_at, s_lot)
+    ~ here = door
     { vape_backs > 1:
         He walked him out the front again. Neither of them said anything this time. On the gravel the boyfriend stood and looked at the deck, all the way round the side of the building, and then at the doorman, and went and sat on the step of the beer store instead. #sfx: door
     - else:
@@ -374,4 +380,4 @@ FIGHTER: The ones you put out the front come in the back. Every time.
     ~ heat(1)
     The bartender served him. She looked at the doorman while she did it.
     ~ rep(rep_staff, -1)
-- -> hub
+- -> carry_on

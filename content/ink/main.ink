@@ -224,6 +224,10 @@ EXTERNAL tension()              // 0 quiet ... 4 a riot
 EXTERNAL seats_free()
 // What a group is saying about him by now, from content/rules/word.yaml ("" if nothing yet).
 EXTERNAL last_word(group)
+// Nothing but a beat: what comes after it (a walk, mostly) comes after the line before it, not
+// under it. The engine runs it only once that line is out, so a move made after a scene's last
+// line starts when the line's been shown, not with it.
+EXTERNAL beat()
 
 // Fallbacks so the story also runs in Inky, where there's no engine.
 === function seated(voice)
@@ -242,3 +246,5 @@ EXTERNAL last_word(group)
 ~ return 1
 === function last_word(group)
 ~ return ""
+=== function beat()
+~ return true

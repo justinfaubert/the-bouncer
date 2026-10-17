@@ -118,7 +118,11 @@ func _run() -> void:
 	await _frames(2)
 	last = await _walk("hall", 0.4)
 	_ok("turned on the way to the hall, still looking there when he gets there", _off(v.want_yaw, last.x) < 0.001)
-	var way_on := Posts.aim(Vector3(6.5, Posts.STAND, 0.9), Vector3(7.3, Posts.STAND - 0.15, -0.6)).x
+	# the way he was going at the end: along the last of the way the room's floor plan finds
+	var w := Nav.new().way(Posts.post("bar").at, Posts.post("hall").at, main.stage.standing())
+	var end: Vector3 = w[w.size() - 1]
+	var near_end: Vector3 = Nav.at(w, maxf(0.0, Nav.length_of(w) - View.AHEAD))[0]
+	var way_on := Posts.aim(Vector3(near_end.x, Posts.STAND, near_end.z), Vector3(end.x, Posts.STAND - 0.15, end.z)).x
 	_ok("  the last stretch didn't turn him back to the way he was going", _off(v.want_yaw, way_on) > 0.2)
 	v.jump_to("bar")
 	await _frames(2)
@@ -130,6 +134,40 @@ func _run() -> void:
 	await _frames(2)
 	await _walk("door")
 	_ok("sits on his stool by the door and faces what it faces", _aim_off(Posts.post("door").look) < 0.01)
+
+	print("== what the page turns it to")
+	v.jump_to("door")
+	await _frames(2)
+	main._look("bartender")
+	await _wait(0.6)
+	_ok("something happening across the room (#look) turns his head to it", _aim_off(main.stage.head_of("bartender")) < 0.02,
+		"%.3f off" % _aim_off(main.stage.head_of("bartender")))
+	v.jump_to("door")
+	await _frames(2)
+	v.keys_turn = Vector2(1, 0)
+	await _frames(3)
+	var held: float = v.want_yaw
+	main._look("t28")
+	await _frames(3)
+	v.keys_turn = Vector2.ZERO
+	_ok("  not while the player's turning it", _off(v.want_yaw, held) < 0.2 and _aim_off(Posts.post("t28").at) > 0.3)
+	v.jump_to("bar")
+	await _frames(2)
+	var was: float = v.want_yaw
+	main._look("bar")
+	await _frames(3)
+	_ok("  and not to where he's standing", _off(v.want_yaw, was) < 0.001)
+	v.jump_to("door")
+	await _frames(2)
+	v.walk_to("bar")
+	await _frames(3)
+	main._look("bartender")
+	var t0 := Time.get_ticks_msec()
+	while v.walking and Time.get_ticks_msec() - t0 < 20000:
+		await process_frame
+	await _wait(0.6)
+	_ok("  on his way somewhere: when he gets there", _aim_off(main.stage.head_of("bartender")) < 0.02,
+		"%.3f off" % _aim_off(main.stage.head_of("bartender")))
 
 	print("== the dice")
 	v.jump_to("floor")

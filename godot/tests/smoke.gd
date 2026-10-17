@@ -8,6 +8,17 @@ var main
 var rs := 7
 var steps := 400
 var log_lines: Array = []
+var errors := Errors.new()
+
+
+# every script error on the way, counted: one's enough to fail the run
+class Errors extends Logger:
+	var count := 0
+
+	func _log_error(_function: String, _file: String, _line: int, _code: String, _rationale: String,
+			_editor_notify: bool, error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		if error_type == ERROR_TYPE_SCRIPT:
+			count += 1
 
 
 func rnd() -> int:
@@ -23,6 +34,7 @@ func _init() -> void:
 			"--seed": rs = int(args[i + 1]); i += 1
 			"--steps": steps = int(args[i + 1]); i += 1
 		i += 1
+	OS.add_logger(errors)
 	var scene: PackedScene = load("res://main.tscn")
 	main = scene.instantiate()
 	root.add_child(main)
@@ -88,4 +100,5 @@ func _run() -> void:
 	main.store.clear(3)
 	main.store.settings["slot"] = 1
 	main.store.save_settings()
-	quit()
+	print("%d script errors" % errors.count)
+	quit(1 if errors.count > 0 else 0)

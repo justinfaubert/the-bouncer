@@ -62,10 +62,13 @@ cellar), and the rest are things (the scanner's beeps, the door, the dice, the p
   notes and the floor sketch, the title and pause and settings (`menus.gd`), saves (`store.gd`),
   sound (`sound.gd`). `view.gd` is his eyes: the posts, walking between them, and the press that
   prints what he sees.
-- `world/`: the Sovereign in 3D, built in code (`pub.gd`), the posts he stands at (`posts.gd`),
-  and the people, staged by the clock and the story (`stage.gd`, to the spec in
-  `docs/STAGING.md`). The room changes between glances: anyone who comes or goes does it while
-  he isn't looking.
+- `world/`: the Sovereign in 3D, built in code (`pub.gd`), the posts he stands at and the doors
+  he goes through (`posts.gd`), the way across the ground floor round everything in it and
+  everyone (`nav.gd`, on the walk map `textures/walk_grid.png`), and the people, staged by the
+  clock and the story (`stage.gd`, to the spec in `docs/STAGING.md`). Ten of them walk in and out
+  (each has a `<id>_walk.glb`, a walk made by `sketches/door-look/tools/export_walkers.py`), the
+  bartender comes along behind the bar, and the rest change between glances, while he isn't
+  looking.
 - `look/`: the shaders. `press.gdshader` is the print: three inks on cream stock, picked by the
   colour of the light (`press/separation.png`, made by `sketches/door-look/tools/press.py`).
   `column.gdshader` is the text column, one even ink so the words read clean (the paper's grain
@@ -100,13 +103,18 @@ The room against what's on offer, and the dice against the room, headless:
 godot --headless --path godot -s res://tests/reach.gd -- --seeds 1-12 --steps 400 [--all]
 godot --headless --path godot -s res://tests/looks.gd        # what each thing he can look at says
 godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
+godot --headless --path godot -s res://tests/walks.gd        # every walk, from every post to every other
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
 godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
 ```
 
 `reach.gd` checks every choice's pin, and every thing he can look at, from every post with a line
-of sight; on 15 October 2026 it found none wrong over twelve nights. `tray_spots.gd` prints the table
-of tray spots for `game/dice.gd`: run it again when the room changes.
+of sight; on 17 October 2026 it found none wrong over twelve nights. `walks.gd` walks him from every
+post to every other (306 walks) and through two places at once, the way the page sends him, and
+fails a walk that goes through anything, goes faster than he walks, or gets to a door before it's
+open; it also fails a post with somebody's spot under it. `tray_spots.gd` prints the table of tray
+spots for `game/dice.gd`, and `walk_grid.gd` writes the walk map: run both again when the room
+changes.
 
 Pictures of the title and every post (needs a display; `xvfb-run` works):
 
@@ -131,7 +139,7 @@ godot --headless --path godot -s res://tests/engine_run.gd -- --from 1 --to 40 -
 node tools/engine_diff.mjs --from 1 --to 40 --godot /tmp/eng       # the whole engine
 ```
 
-On 5 October 2026 both came out identical for 40 nights of 40 (6,911 choices).
+On 17 October 2026 both came out identical for 40 nights of 40.
 
 ## Exporting
 

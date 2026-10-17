@@ -231,6 +231,8 @@ func _make_story():
 		return ok)
 	s.bind_external_function("learn", func(v): return psyche.learn(BUtil.js_str(v)))
 	s.bind_external_function("last_word", func(g): return _last_word(BUtil.js_str(g)), true)
+	# nothing, but not safe to look ahead past: the Ink's move after a scene's last line waits for it
+	s.bind_external_function("beat", func(): return true)
 	s.bind_external_function("bond", func(a, b, sign):
 		var sa := BUtil.js_str(a)
 		var sb := BUtil.js_str(b)
@@ -785,7 +787,7 @@ func _line(raw_text, tags: Array, items: Array, events: Array, from: String, las
 		tagv[t.key] = t.value
 	for t in parsed:
 		match t.key:
-			"sfx", "music", "amb", "bg":
+			"sfx", "music", "amb", "bg", "look":
 				items.append({"kind": "fx", "type": t.key, "id": BUtil.js_str(t.value)})
 			"portrait":
 				items.append({"kind": "fx", "type": t.key, "id": BUtil.js_str(t.value), "lean": _lean(BUtil.js_str(t.value))})

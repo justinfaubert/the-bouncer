@@ -3,12 +3,21 @@
 
 === hub ===
 ~ temp from = here
-~ here = floor
+// Whatever's about to happen (sim.ink) happens where he is, if he's in the room, and moves him if
+// it moves him. Otherwise, and from out the back, he goes out onto the floor: after the line
+// before, once it's been shown (beat()), not under it.
+{ not (due() && in_room(from)):
+    ~ beat()
+    ~ here = floor
+}
 { from != floor && due():
     { back_line(from, ev_ready()) }
 }
+- (choose)
 -> events ->
 { clock >= LAST_CALL: -> last_call }
+// on the door when it's over (or it happened on the door): back on it
+{ here == door: -> at_door }
 { room_line() }
 + [{door_label()} #loc: door]
     ~ pass(1)
@@ -79,6 +88,16 @@
 { due(): -> hub }
 -> to
 
+// On from where whatever just happened left him (the events in sim.ink, mostly): in the room, he
+// stays there, with the floor's choices (on the door, the door's); out the back, he comes back in
+// onto the floor.
+=== carry_on ===
+{ in_room(here): -> hub.choose }
+-> hub
+
+=== function in_room(p)
+~ return p == floor || p == door || p == bar || p == t28 || p == pool
+
 // where the jukebox is in sight from, across the room
 === function sees_juke(from)
 ~ return from == door || from == floor || from == bar || from == t28
@@ -89,9 +108,10 @@
 }
 ~ return 0
 
-// When something is about to happen on the floor, say he's back on it first.
-// From the door: the sister and the constable come to it, so there's nothing to leave; the ones
-// who walked in while he was away got past an empty stool; anything else, he turns round to.
+// When something is about to happen, from where he was. On the door: the sister and the constable
+// come to it, so there's nothing to say; the ones who walked in while he was away got past an empty
+// stool; anything else, he turns round to. Anywhere else in the room it happens in front of him.
+// Out the back, he comes back in for it, onto the floor.
 === function back_line(from, e)
 { from:
 - door:
@@ -103,9 +123,6 @@
     - else:
         He turned round on the stool.
     }
-- bar: He stepped away from the bar.
-- t28: He left table 28 to it.
-- pool: He left the pool table.
 - hall: He came back up the hall.
 - kitchen: He came out through the kitchen.
 - keg: He came up out of the keg room and let the trapdoor down.
