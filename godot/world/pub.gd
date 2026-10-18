@@ -33,6 +33,7 @@ var lights := {}           # named lights, for the clock and the posts
 var dyn := {}              # things that change with the night: doors, glasses, chairs up
 var lamps: Array = []      # the room's lamps, dimmed and brightened with the clock
 var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
+var town: Town             # the town round the Sov, Gary's office in it (world/town.gd): out only while he's away
 
 var SURFACE := preload("res://look/surface.gdshader")
 var GLASS := preload("res://look/glass.gdshader")
@@ -56,6 +57,52 @@ func build() -> void:
 	_rain()
 	_lights()
 	_lobby()
+	_town()
+
+
+# The town, built last with its own dice so nothing in the building moves, and put away: it's out
+# only while he's somewhere away from the Sov (away()), and its ground round the building at dusk.
+func _town() -> void:
+	town = Town.new()
+	town.name = "town"
+	add_child(town)
+	town.build_for(self)
+
+
+# Away from the Sov, or back (game/view.gd, as he gets somewhere): the town out or put away.
+func away(where: String, clock: int, frame := "") -> void:
+	if town != null:
+		town.show_for(where, clock, frame)
+
+
+const DEAD := Color(0.16, 0.1, 0.1)       # a neon letter with no light in it
+var _as_built := {}                      # the lights dusk() turns, as they were built: the night's
+
+# The Sov by the clock before the night has it (game/view.gd's daylight, with where he is): the
+# signs on the roof and over the door come on at half past four, the lot's sodium lamp at twenty to
+# five, warming up from nothing over a quarter of an hour, the far shore's lights as the sky goes.
+# From the night's own hour on, and before there's a clock at all, everything is as it was built,
+# exactly. And the town's own lights and how much of it is out (world/town.gd).
+func dusk(c: float, where: String) -> void:
+	if _as_built.is_empty():
+		_as_built = {"neon": M.neon.get_shader_parameter("emission_energy"), "sodium": M.sodium.get_shader_parameter("emission_energy"),
+			"far": M.far.get_shader_parameter("emission_energy"), "sign": (lights.sign as Light3D).light_energy,
+			"roof_sign": (lights.roof_sign as Light3D).light_energy, "sodium_l": (lights.sodium as Light3D).light_energy}
+	var night := c >= Town.NIGHT or c < 900.0
+	var lit := night or c >= 990.0
+	var warm := 1.0 if night else clampf((c - 1000.0) / 15.0, 0.0, 1.0)
+	var dark := 1.0 if night else clampf((c - 975.0) / 85.0, 0.0, 1.0)
+	M.neon.set_shader_parameter("emission_energy", _as_built.neon if lit else 0.0)
+	(lights.sign as Light3D).light_energy = _as_built.sign if lit else 0.0
+	(lights.roof_sign as Light3D).light_energy = _as_built.roof_sign if lit else 0.0
+	for l in dyn.get("neon", []):
+		(l as Label3D).modulate = (l as Label3D).get_meta("lit") if lit else DEAD
+	# a sodium lamp coming on glows a dull orange and takes its time to get to its colour
+	M.sodium.set_shader_parameter("emission_energy", _as_built.sodium if night else (_as_built.sodium * (0.2 + 0.8 * warm) if c >= 1000.0 else 0.0))
+	(lights.sodium as Light3D).light_energy = _as_built.sodium_l * warm * warm
+	M.far.set_shader_parameter("emission_energy", _as_built.far * dark)
+	if town != null:
+		town.by_clock(c, where)
 
 
 # ---------------------------------------------------------------- materials and shapes
@@ -1367,12 +1414,17 @@ func _neon(ch: String, at: Vector3, h: float, lit: bool) -> void:
 	l.font_size = 192
 	l.pixel_size = h / 150.0
 	l.outline_size = 0
-	l.modulate = Color("cc001a") if lit else Color(0.16, 0.1, 0.1)
+	l.modulate = Color("cc001a") if lit else DEAD
 	l.position = at
 	l.double_sided = false
 	l.shaded = false
 	l.no_depth_test = false
 	add_child(l)
+	# dark till half past four (dusk())
+	l.set_meta("lit", l.modulate)
+	if not dyn.has("neon"):
+		dyn.neon = []
+	dyn.neon.append(l)
 
 
 # The cold beer and wine store at the west end, its lights on; the big man's work truck nose-in by
