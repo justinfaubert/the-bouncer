@@ -165,6 +165,13 @@ func _text(x: float, y: float, s: String, size: float, c: Color, anchor := "star
 	page.draw_string(f, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, px, c)
 
 
+# top right, ending 30px in from the edge
+func _put_away(sz: Vector2) -> void:
+	var f := Look.font("ui_b")
+	var s := "M OR ESC TO PUT IT AWAY"
+	page.draw_string(f, Vector2(sz.x - 30.0 - f.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x, 36), s, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, PENCIL)
+
+
 func _fade(age: float) -> float:
 	return clampf(1.0 - age / 120.0, 0.38, 1.0)
 
@@ -196,7 +203,7 @@ func _draw_page() -> void:
 	k = minf((sz.x - 60.0) / 360.0, (sz.y - 80.0) / 312.0)
 	origin = Vector2((sz.x - 360.0 * k) / 2.0, 50.0 + (sz.y - 80.0 - 312.0 * k) / 2.0)
 	page.draw_string(Look.font("ui_b"), Vector2(30, 36), "THE FLOOR SKETCH, FROM HIS POCKET", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, RED)
-	page.draw_string(Look.font("ui_b"), Vector2(sz.x - 30, 36), "M OR ESC TO PUT IT AWAY", HORIZONTAL_ALIGNMENT_RIGHT, -1, 13, PENCIL)
+	_put_away(sz)
 	var thin := Color(PENCIL, 0.75)
 	# outside: the lot, the highway, the water
 	_rect(292, 254, 40, 18, INK, 1.4, Color(PENCIL, 0.12))
@@ -270,7 +277,7 @@ func _draw_town(sz: Vector2) -> void:
 	k = minf((sz.x - 60.0) / 360.0, (sz.y - 80.0) / 244.0)
 	origin = Vector2((sz.x - 360.0 * k) / 2.0, 50.0 + (sz.y - 80.0 - 244.0 * k) / 2.0)
 	page.draw_string(Look.font("ui_b"), Vector2(30, 36), "THE TOWN, ON THE WAY TO THE SOV", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, RED)
-	page.draw_string(Look.font("ui_b"), Vector2(sz.x - 30, 36), "M OR ESC TO PUT IT AWAY", HORIZONTAL_ALIGNMENT_RIGHT, -1, 13, PENCIL)
+	_put_away(sz)
 	var thin := Color(PENCIL, 0.75)
 	var faint := Color(PENCIL, 0.45)
 	var fill := Color(PENCIL, 0.12)

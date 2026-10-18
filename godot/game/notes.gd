@@ -111,7 +111,13 @@ func _on_page_input(e: InputEvent) -> void:
 
 
 func _text(font: String, size: int, s: String, at: Vector2, c: Color, align := HORIZONTAL_ALIGNMENT_LEFT, width := -1.0) -> void:
-	page.draw_string(Look.font(font), at, s, align, width, size, c)
+	var f := Look.font(font)
+	# draw_string only aligns inside a width; with none, `at` is where the line ends (or its middle)
+	if width < 0.0 and align != HORIZONTAL_ALIGNMENT_LEFT:
+		var w := f.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		at.x -= w if align == HORIZONTAL_ALIGNMENT_RIGHT else w / 2.0
+		align = HORIZONTAL_ALIGNMENT_LEFT
+	page.draw_string(f, at, s, align, width, size, c)
 
 
 func _para(font: String, size: int, s: String, at: Vector2, width: float, c: Color, line_h := 1.3) -> float:

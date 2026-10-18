@@ -34,7 +34,7 @@ drunk, and fullscreen.
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
 | Something in his hands | drag to turn it, E to look closer, Q and R to go through it, Esc to put it down |
-| His notes, the floor sketch | Tab, M |
+| His notes, the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |
 | On a pad | either stick looks round; the d-pad goes through the choices and A makes the lit one (with none lit, A goes on and throws the dice); B is Esc, Y is E, Back his notes, the left shoulder the sketch |
 
@@ -50,7 +50,8 @@ To swap one, put a file with the same name, as `.wav`, `.ogg` or `.mp3`, in a fo
 placeholder. More takes of the same sound go in as `card_2`, `card_3` and so on, and the game
 picks among them. The names are the files in `audio/`: the room's layers are the `amb_` ones
 (rain on the glass, the room's talk in two layers, the jukebox through the wall, the fryer, the
-cellar), and the rest are things (the scanner's beeps, the door, the dice, the pen).
+cellar, and before he gets there the bookkeeper's typing, the Esso's canopy and the highway), and
+the rest are things (the scanner's beeps, the door, the dice, the pen).
 
 ## What's in here
 
@@ -59,7 +60,7 @@ cellar), and the rest are things (the scanner's beeps, the door, the dice, the p
   how two cubes fall, off the surface, its walls, the glasses on it and each other), things in his
   hands (`props.gd`: the licences, with a hologram in the laminate, the kid's phone, the binder),
   the voices marking up the room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), his
-  notes and the floor sketch, the title and pause and settings (`menus.gd`), saves (`store.gd`),
+  notes and the sketch (`notes.gd`, `sketch.gd`), the title and pause and settings (`menus.gd`), saves (`store.gd`),
   sound (`sound.gd`). `view.gd` is his eyes: the posts, walking between them, and the press that
   prints what he sees.
 - `world/`: the Sovereign in 3D, built in code (`pub.gd`), the posts he stands at and the doors
