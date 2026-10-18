@@ -3949,8 +3949,33 @@
     });
     paintExtras(j, p, r, nb);
     if (p.flat) return;                           // an ID photo: the flash, not the neon
+    // away from the Sov the edge takes whatever light is there and none of it is red: the lamp's
+    // back off the wall in the office, the canopy straight down on the crown and the shoulders,
+    // what's left of the sky out on the street
+    if (p.ground === 'office') { silRim(j, 1.2, 0, 0, 0.3); return; }
+    if (p.ground === 'canopy') { overhead(j, p, nb); silRim(j, 0, 2.6, 0, 0.32); silRim(j, 0, 1.2, 0, 0.75); return; }
+    if (p.ground === 'dusk') { silRim(j, 1.4, 0.4, 0, 0.26); return; }
     silRim(j, 2.8, 0.5, 0.5, 0.42);
     silRim(j, 1.2, 0, 0.95, 0.8);
+  }
+  // under the canopy the light's straight down: the brow shades the eyes, the nose and the lip and
+  // the chin throw their shadows down, the top of the head takes it
+  function overhead(j, p, nb) {
+    const k = j.k, cx = p.cx, fx = p.fx, hw = p.hw, hh = p.hh;
+    tilted(j, p, function () {
+      withClip(j, headPath(p), function () {
+        for (const s of [-1, 1]) { const e = eyeAt(p, s); soft(k, e.x, p.yE - 1, e.w * 0.95, hh * 0.06, s < 0 ? 0.3 : 0.36); }
+        soft(k, fx + 0.6, p.yN + 3.4, p.nw * 1.5, 2.8, 0.4);
+        soft(k, fx, p.yM + p.lip * 1.6 + 3, p.mw * 0.9, 2.2, 0.3);
+        soft(k, cx, p.cy - 1, p.cw * 1.9, 3.4, 0.34);
+        soft(k, fx - hw * 0.1, p.yB - 4, hw * 0.55, hh * 0.05, 0.3, 0, true);
+        soft(k, fx - 0.4, (p.yE + p.yN) / 2, 1.6, hh * 0.08, 0.3, 0, true);
+      });
+    });
+    const ng = p.neck;
+    withClip(j, pth('M', cx - ng, p.yJ - 4, 'L', cx + ng, p.yJ - 4, 'L', cx + ng + 1.5, nb + 1, 'Q', cx, nb + 6, cx - ng - 1.5, nb + 1, 'Z'), function () {
+      soft(k, cx, p.cy + 2, ng * 1.3, hh * 0.09, 0.4);
+    });
   }
 
   function paintBody(j, p, r, nb) {
@@ -3958,7 +3983,9 @@
     const body = pth('M', cx - ng - 2, nb - 6, 'C', cx - ng - 12, nb - 1, cx - sw + 8, nb + 1, cx - sw, nb + 16, 'L', cx - sw - 8, FH + 2, 'L', cx + sw + 8, FH + 2, 'L', cx + sw, nb + 16,
       'C', cx + sw - 8, nb + 1, cx + ng + 12, nb - 1, cx + ng + 2, nb - 6, 'Z');
     sil(j, body);
-    const cloth = { hivis: 0.82, apron: 0.9, whites: 0.22, flannel: 0.72, suit: 0.93, coat: 0.86, jacket: 0.86, tshirt: 0.7, cardigan: 0.6, hoodie: 0.84 }[p.top] || 0.86;
+    let cloth = { hivis: 0.82, apron: 0.9, whites: 0.22, flannel: 0.72, suit: 0.93, coat: 0.86, jacket: 0.86, tshirt: 0.7, cardigan: 0.6, hoodie: 0.84 }[p.top] || 0.86;
+    if (p.extra.indexOf('vest') >= 0 && cloth > 0.7) cloth -= 0.26;   // so the vest shows over it
+    p.cloth = cloth;
     k.path(body, k.lin(cx - sw, 0, cx + sw, 0, [[0, cloth - 0.3], [0.3, cloth - 0.2], [0.58, cloth], [1, Math.min(1, cloth + 0.06)]]), 'set');
     // the neck, the jaw's shadow across it, the dark side
     const neck = pth('M', cx - ng, p.yJ - 4, 'L', cx + ng, p.yJ - 4, 'L', cx + ng + 1.5, nb + 1, 'Q', cx, nb + 6, cx - ng - 1.5, nb + 1, 'Z');
@@ -3967,6 +3994,7 @@
     k.path(pth('M', cx - ng - 1, p.cy - 10, 'Q', cx, p.cy + hh * 0.15, cx + ng + 1, p.cy - 10, 'L', cx + ng + 1, p.yJ - 4, 'L', cx - ng - 1, p.yJ - 4, 'Z'), 0.72);
     if (!p.fem && p.face.indexOf('beard') < 0) k.stroke(pth('M', cx - 1.5, p.cy + hh * 0.085, 'q', 1.6, 3, 1.2, 5.5), 0.9, 0.3);
     paintTop(j, p, r, body, nb);
+    if (p.extra.indexOf('mala') >= 0) paintMala(j, p, nb);
   }
 
   function paintEars(j, p) {
@@ -4040,7 +4068,7 @@
         for (let i = 0; i < 2; i++) k.stroke(pth('M', cx - hw * 0.45 + i * 2, p.ty + hh * (0.2 + i * 0.05), 'q', hw * 0.45 - i * 2, -1.2, hw * 0.9 - i * 4, 0), 0.7, 0.4);
       }
       // the neon's red on the far side of the face
-      if (!p.flat) rd.path(hd, rd.lin(cx - hw, 0, cx + hw, 0, [[0.72, 0], [0.9, 0.12], [1, 0.3]]));
+      if (!p.flat && !AWAY[p.ground]) rd.path(hd, rd.lin(cx - hw, 0, cx + hw, 0, [[0.72, 0], [0.9, 0.12], [1, 0.3]]));
     });
   }
 
@@ -4116,16 +4144,47 @@
         k.path(pth('M', cx + 13, nb - 6, 'L', cx + 4, nb + 36, 'L', cx + 18, nb + 9, 'Z'), 0.97, 'set');
         k.line(cx - 13, nb - 6, cx - 4, nb + 36, 0.7, 0.35, 'erase');
       } else if (tp === 'hoodie') {
+        // under a vest the vest goes on first, so the hood comes out over its collar
+        const vest = p.extra.indexOf('vest') >= 0;
+        if (vest) vestOver(j, p, nb);
         if (p.hat !== 'hood') {
           // the hood down, bunched behind the neck
-          k.path(pth('M', cx - 24, nb + 3, 'Q', cx, nb - 12, cx + 24, nb + 3, 'Q', cx, nb + 13, cx - 24, nb + 3, 'Z'), k.lin(cx - 24, 0, cx + 24, 0, [[0, 0.42], [1, 0.96]]), 'set');
+          k.path(pth('M', cx - 24, nb + 3, 'Q', cx, nb - 12, cx + 24, nb + 3, 'Q', cx, nb + 13, cx - 24, nb + 3, 'Z'), k.lin(cx - 24, 0, cx + 24, 0, [[0, p.cloth - 0.42], [1, Math.min(1, p.cloth + 0.12)]]), 'set');
           k.stroke(pth('M', cx - 24, nb + 3, 'Q', cx, nb + 13, cx + 24, nb + 3), 1.1, 0.95);
         }
-        // the strings, and the pocket across the front
-        k.line(cx - 5.5, nb + 6, cx - 7, nb + 34, 1.1, 0.12, 'set'); k.line(cx + 5.5, nb + 6, cx + 6.5, nb + 32, 1.1, 0.5, 'set');
-        k.oval(cx - 7, nb + 34.8, 1, 1.6, 0.18, 'set'); k.oval(cx + 6.5, nb + 32.8, 1, 1.6, 0.55, 'set');
-        k.stroke(pth('M', cx - 20, FH + 2, 'L', cx - 14, nb + 42, 'L', cx + 14, nb + 42, 'L', cx + 20, FH + 2), 0.8, 0.9);
-      } else if (tp === 'coat' || tp === 'jacket') {
+        // the strings, and the pocket across the front (under the vest, if there is one)
+        if (vest) {
+          k.line(cx - 4.5, nb + 6, cx - 5, nb + 21, 1.1, 0.12, 'set'); k.line(cx + 4.5, nb + 6, cx + 4.8, nb + 19, 1.1, 0.5, 'set');
+          k.oval(cx - 5, nb + 21.8, 1, 1.6, 0.18, 'set'); k.oval(cx + 4.8, nb + 19.8, 1, 1.6, 0.55, 'set');
+        } else {
+          k.line(cx - 5.5, nb + 6, cx - 7, nb + 34, 1.1, 0.12, 'set'); k.line(cx + 5.5, nb + 6, cx + 6.5, nb + 32, 1.1, 0.5, 'set');
+          k.oval(cx - 7, nb + 34.8, 1, 1.6, 0.18, 'set'); k.oval(cx + 6.5, nb + 32.8, 1, 1.6, 0.55, 'set');
+          k.stroke(pth('M', cx - 20, FH + 2, 'L', cx - 14, nb + 42, 'L', cx + 14, nb + 42, 'L', cx + 20, FH + 2), 0.8, 0.9);
+        }
+      } else if (tp === 'jacket') {
+        // a work jacket, open: the T-shirt down the middle and its neck, the jacket's shadow on
+        // it, the fronts hanging either side, the collar laid down round the neck, the seams
+        const o0 = ng + 3, o1 = ng * 0.62, sx = 23 + Math.max(0, sw - 58) * 0.5;
+        const tee = pth('M', cx - o0, nb - 7, 'L', cx - ng - 0.5, nb - 5, 'Q', cx, nb + 5.5, cx + ng + 0.5, nb - 5, 'L', cx + o0, nb - 7,
+          'L', cx + o1, FH + 2, 'L', cx - o1, FH + 2, 'Z');
+        k.path(tee, k.lin(cx - o0, 0, cx + o0, 0, [[0, 0.2], [0.5, 0.3], [1, 0.52]]), 'set');
+        k.stroke(pth('M', cx - ng - 0.5, nb - 5, 'Q', cx, nb + 5.5, cx + ng + 0.5, nb - 5), 1.6, 0.6);
+        k.path(pth('M', cx + o0, nb - 7, 'L', cx + o1, FH + 2, 'L', cx + o1 - 5, FH + 2, 'L', cx + o0 - 7, nb + 2, 'Z'), 0.36);
+        k.path(pth('M', cx - o0, nb - 7, 'L', cx - o1, FH + 2, 'L', cx - o1 + 2.5, FH + 2, 'L', cx - o0 + 3.5, nb + 1, 'Z'), 0.18);
+        for (const s of [-1, 1]) {
+          const lit = s < 0;
+          // the front's edge, a little of its facing turned to the light
+          k.line(cx + s * o0, nb - 4, cx + s * o1, FH + 2, 1.6, lit ? 0.5 : 0.98);
+          if (lit) k.line(cx - o0 - 1.3, nb - 2, cx - o1 - 1.3, FH + 2, 0.6, 0.85);
+          // the collar: up behind the neck, laid down round it, its point on the chest
+          const col = pth('M', cx + s * (ng + 0.5), nb - 12, 'L', cx + s * (ng + 9), nb - 9.5, 'Q', cx + s * (ng + 14), nb - 3, cx + s * (ng + 11), nb + 11,
+            'L', cx + s * (o0 + 0.6), nb + 1, 'L', cx + s * (ng + 0.5), nb - 6, 'Z');
+          k.path(col, lit ? 0.5 : 0.96, 'set');
+          k.stroke(col, 0.8, lit ? 0.92 : 0.36, lit ? 'ink' : 'erase');
+          // the sleeve's seam down from the shoulder
+          k.stroke(pth('M', cx + s * (sw - 9), nb + 14, 'Q', cx + s * (sx + 4), nb + 12, cx + s * sx, FH + 2), 0.8, lit ? 0.62 : 1);
+        }
+      } else if (tp === 'coat') {
         // a jacket: the collar up at the back, the zip, the seams
         k.path(pth('M', cx - ng - 4, nb - 12, 'L', cx - 20, nb + 5, 'L', cx - 4, nb + 3, 'Z'), 0.4, 'set');
         k.path(pth('M', cx + ng + 4, nb - 12, 'L', cx + 20, nb + 5, 'L', cx + 4, nb + 3, 'Z'), 0.97, 'set');
@@ -4143,9 +4202,50 @@
         k.stroke(pth('M', cx - ng - 1.5, nb - 5, 'Q', cx, nb + 6, cx + ng + 1.5, nb - 5), 1.8, 0.95);
         k.stroke(pth('M', cx - 34, nb + 12, 'q', 4, 10, 2, 30), 0.7, 0.4);
       }
+      if (tp !== 'hoodie' && p.extra.indexOf('vest') >= 0) vestOver(j, p, nb);
     });
     // the bar's light along the top of the near shoulder
     k.stroke(pth('M', cx - p.neck - 5, nb - 3, 'C', cx - 22, nb - 2, cx - sw + 8, nb + 2, cx - sw + 0.5, nb + 15), 1.6, 0.5, 'erase');
+  }
+  // a plain vest over whatever's under it, zipped up to the chest: the two fronts, the armholes
+  // with the sleeves coming through, the collar round the neck, the zip and its pull
+  function vestOver(j, p, nb) {
+    const k = j.k, cx = p.cx, sw = p.sw, ng = p.neck;
+    for (const s of [-1, 1]) {
+      const lit = s < 0, X = function (dx) { return cx + s * dx; };
+      const d = pth('M', X(ng + 3), nb - 8, 'Q', X(ng + 14), nb - 6, X(sw - 17), nb + 3, 'Q', X(sw - 27), nb + 16, X(sw - 28), nb + 34,
+        'L', X(sw - 25), FH + 2, 'L', X(0.4), FH + 2, 'L', X(0.4), nb + 21, 'Q', X(ng * 0.7), nb + 6, X(ng + 3), nb - 8, 'Z');
+      k.path(d, k.lin(cx - sw, 0, cx + sw, 0, [[0, 0.66], [0.4, 0.8], [0.6, 0.95], [1, 0.98]]), 'set');
+      k.stroke(pth('M', X(sw - 17), nb + 3, 'Q', X(sw - 27), nb + 16, X(sw - 28), nb + 34, 'L', X(sw - 25), FH + 2), 1.2, lit ? 0.92 : 0.5, lit ? 'ink' : 'erase');
+      k.stroke(pth('M', X(0.6), nb + 21, 'Q', X(ng * 0.7 + 0.3), nb + 6, X(ng + 3), nb - 8), 0.9, lit ? 0.85 : 0.45, lit ? 'ink' : 'erase');
+      // one seam across, where the panels meet
+      k.stroke(pth('M', X(1), nb + 33, 'Q', X(sw * 0.3), nb + 31, X(sw - 27.5), nb + 30), 0.6, lit ? 0.85 : 0.4, lit ? 'ink' : 'erase');
+    }
+    k.line(cx, nb + 21, cx, FH + 2, 0.9, 1);
+    k.rect(cx - 1.1, nb + 21, 2.2, 4.6, 0.3, 'set'); k.line(cx - 1.1, nb + 21, cx + 1.1, nb + 21, 0.6, 1);
+  }
+  // a mala round the neck: dark wooden beads down over the chest, the big one at the bottom and
+  // the tassel under it
+  function paintMala(j, p, nb) {
+    const k = j.k, cx = p.cx, ng = p.neck, bot = nb + 31, br = 1.45;
+    for (const s of [-1, 1]) {
+      const x0 = cx + s * (ng - 2.5), y0 = nb - 6, x1 = cx + s * (ng - 1.2), y1 = nb + 15, x2 = cx + s * 7.5, y2 = bot, x3 = cx + s * 1.2, y3 = bot;
+      const at = function (t) { const u = 1 - t; return [u * u * u * x0 + 3 * u * u * t * x1 + 3 * u * t * t * x2 + t * t * t * x3, u * u * u * y0 + 3 * u * u * t * y1 + 3 * u * t * t * y2 + t * t * t * y3]; };
+      let q = at(0), run = 2.9;
+      for (let i = 1; i <= 120; i++) {
+        const n = at(i / 120);
+        run += Math.hypot(n[0] - q[0], n[1] - q[1]); q = n;
+        if (run < 2.9) continue;
+        run = 0;
+        k.oval(n[0], n[1], br, br, 1);
+        k.oval(n[0] - 0.5, n[1] - 0.55, 0.5, 0.5, s < 0 ? 0.62 : 0.3, 'erase');
+      }
+    }
+    k.oval(cx, bot + 2.6, 2.1, 2.1, 1);
+    k.oval(cx - 0.7, bot + 1.9, 0.7, 0.7, 0.5, 'erase');
+    k.path(pth('M', cx - 1.1, bot + 4.4, 'L', cx + 1.1, bot + 4.4, 'L', cx + 2.6, bot + 14, 'L', cx - 2.6, bot + 14, 'Z'), 0.92, 'set');
+    k.line(cx - 1.3, bot + 6, cx + 1.3, bot + 6, 0.6, 0.5, 'erase');
+    for (let i = 0; i < 3; i++) k.line(cx - 1.4 + i * 1.4, bot + 7.5, cx - 2 + i * 2, bot + 13.6, 0.35, 0.4, 'erase');
   }
 
   function paintHair(j, p, r, layer) {
@@ -4173,7 +4273,10 @@
     };
     if (layer === 'back') {
       if (h === 'long') {
-        for (const s of [-1, 1]) { const d = pth('M', cx + s * (hw + 1), yT, 'Q', cx + s * hw * 1.35, p.cy, cx + s * hw * 1.2, p.cy + 26, 'L', cx + s * hw * 0.62, p.cy + 22, 'Q', cx + s * hw * 0.98, p.cy - 2, cx + s * hw * 0.9, yT + 5, 'Z'); sil(j, d); k.path(d, s < 0 ? ht - 0.2 : ht, 'set'); }
+        // loose: the weight of it behind the head and down behind the shoulders
+        const d = pth('M', cx - hw * 0.9, ty + 4, 'C', cx - hw * 1.3, yT, cx - hw * 1.5, p.cy - 6, cx - hw * 1.55, p.cy + 30,
+          'L', cx + hw * 1.55, p.cy + 30, 'C', cx + hw * 1.5, p.cy - 6, cx + hw * 1.3, yT, cx + hw * 0.9, ty + 4, 'Z');
+        sil(j, d); k.path(d, k.lin(cx - hw * 1.5, 0, cx + hw * 1.5, 0, [[0, ht - 0.14], [0.5, ht], [1, Math.min(1, ht + 0.04)]]), 'set');
       }
       if (h === 'ponytail') {
         const d = pth('M', cx + hw * 0.55, ty + 5, 'C', cx + hw * 1.5, ty - 2, cx + hw * 1.95, yT + 10, cx + hw * 1.5, p.cy + 24, 'Q', cx + hw * 1.3, p.cy + 30, cx + hw * 1.2, p.cy + 22,
@@ -4191,7 +4294,29 @@
       }
       return;
     }
-    if (h === 'short' || h === 'parted') {
+    if ((h === 'short' || h === 'parted') && p.fem) {
+      // hers, short: fuller than a man's, lifted off the forehead and back over the tops of the
+      // ears, nothing at the temples; an older woman's set in waves, a younger one's parted
+      const v = 6.5, hl = ty + hh * 0.12 + r() * 2, sd = p.yE - hh * 0.03;
+      const d = pth('M', cx - hw - 2.6, sd, 'C', cx - hw * 1.24, ty + hh * 0.06, cx - hw * 0.72, ty - v, cx, ty - v,
+        'C', cx + hw * 0.72, ty - v, cx + hw * 1.24, ty + hh * 0.06, cx + hw + 2.6, sd,
+        'Q', cx + hw * 0.99, yT + 3, cx + hw * 0.8, yT - 1.5, 'Q', cx + hw * 0.45, hl - 2.5, cx + hw * 0.05, hl,
+        'Q', cx - hw * 0.42, hl + 1.2, cx - hw * 0.8, yT - 1.5, 'Q', cx - hw * 0.99, yT + 3, cx - hw - 2.6, sd, 'Z');
+      mass(d, ht);
+      if (!p.old) {
+        strands(d, 16, cx - hw, cx + hw * 0.3, ty - v, 8, 0.3);
+        k.stroke(pth('M', cx - hw * 0.4, ty - v + 1, 'Q', cx - hw * 0.44, ty + 3, cx - hw * 0.34, hl - 1), 1, 0.45, 'erase');
+        k.stroke(pth('M', cx - hw * 0.32, hl - 1.5, 'Q', cx + hw * 0.3, ty + 3, cx + hw * 0.9, yT + 1), 1.4, Math.min(1, ht + 0.06));
+      } else withClip(j, d, function () {
+        // the waves: a dark trough and the light along the top of each, round from the front
+        for (let i = 0; i < 4; i++) {
+          const y = ty - v + 4 + i * 5.6, wd = hw * (0.72 + i * 0.1);
+          k.stroke(pth('M', cx - wd - 3, y + 7, 'Q', cx - wd * 0.6, y - 2, cx, y, 'Q', cx + wd * 0.6, y + 1, cx + wd + 3, y + 8), 1, 0.3);
+          k.stroke(pth('M', cx - wd - 3, y + 5.6, 'Q', cx - wd * 0.6, y - 3.4, cx - wd * 0.1, y - 1.6), 0.8, 0.32, 'erase');
+        }
+        strands(d, 10, cx - hw, cx + hw * 0.2, ty - v, 6, 0.28);
+      });
+    } else if (h === 'short' || h === 'parted') {
       const v = p.young ? 4.5 : 3.2, hl = ty + hh * (p.old ? 0.19 : 0.145) + r() * 2, d = cap(v, hl, p.old ? 5 : 2);
       mass(d, ht);
       strands(d, 18, cx - hw, cx + hw * 0.3, ty - v, 8, 0.32);
@@ -4225,7 +4350,30 @@
         k.stroke(pth('M', rx - wd * 0.3, ry + 1, 'Q', rx - wd * 0.2, ry + len * 0.6, rx + sw2 * 0.8, ry + len - 1), 0.5, 0.3, 'erase');
       }
       strands(d, 22, cx - hw - 2, cx + hw * 0.5, ty - 8, 10, 0.36);
-    } else if (h === 'long' || h === 'ponytail' || h === 'bun') {
+    } else if (h === 'long') {
+      // loose, parted in the middle, falling either side of the face over the ears, past the jaw,
+      // over the shoulders onto the chest; the light down the near side of it
+      const v = 3.6, pt = -hw * 0.1, jw = p.jw + p.jowl, ng = p.neck, nb = p.cy + hh * 0.17;
+      for (const s of [-1, 1]) {
+        const X = function (dx) { return cx + s * dx; };
+        const d = pth('M', cx + pt, ty - v + 0.6, 'C', cx + pt + s * hw * 0.62, ty - v - 0.6, X(hw * 1.12), ty + hh * 0.02, X(hw + 2.6), yT + 2,
+          'C', X(hw + 5.4), p.yE, X(hw + 3.6), p.yJ - 4, X(jw + 7), p.yJ + 4,
+          'C', X(ng + 13), nb - 8, X(ng + 20), nb - 2, X(ng + 21), nb + 7,
+          'L', X(ng + 21.5), nb + 21, 'L', X(ng + 18), nb + 26, 'L', X(ng + 15.5), nb + 21, 'L', X(ng + 12), nb + 27, 'L', X(ng + 9), nb + 20, 'L', X(ng + 6.5), nb + 23,
+          'C', X(ng + 5.5), nb + 8, X(ng + 4), nb - 2, X(jw + 1), p.yJ + 2,
+          'C', X(hw * 0.97), p.yE + hh * 0.1, X(hw * 0.93), yT + 7, X(hw * 0.62), ty + hh * 0.13,
+          'Q', cx + pt + s * hw * 0.22, ty + hh * 0.1, cx + pt + s * 0.6, ty + hh * 0.05, 'Z');
+        mass(d, ht);
+        withClip(j, d, function () {
+          for (let i = 0; i < 12; i++) {
+            const a = r(), x0 = X(hw * (0.15 + a * 0.5)), x1 = X(hw * (0.98 + a * 0.36)), x2 = X(ng + 6 + a * 15 + r() * 2);
+            k.stroke(pth('M', cx + pt + s * 1.2, ty - v + 1 + r() * 2, 'Q', x0, ty - 1, x1, yT + 4, 'C', X(hw * (1.06 + a * 0.3)), p.yE + 6, x2 + s * 3, nb - 6, x2, nb + 20), 0.5, s < 0 ? 0.28 : 0.1, 'erase');
+          }
+          if (s < 0) soft(k, X(hw * 1.04), p.yE - 2, 3.6, hh * 0.16, 0.18, 0, true);
+        });
+      }
+      k.line(cx + pt, ty - v + 1.2, cx + pt + 0.3, ty + hh * 0.06, 0.8, 0.5, 'erase');
+    } else if (h === 'ponytail' || h === 'bun') {
       // pulled back off the face: the parting, the tie, the strands the night's worked loose
       const d = cap(2.4, ty + hh * 0.11, 1.5, yT + 6);
       mass(d, ht);
@@ -4290,11 +4438,26 @@
       const brim = pth('M', cx - hw * 1.04, yT - 2, 'Q', cx, yT - 5, cx + hw * 1.04, yT - 2, 'Q', cx, yT + 3.6, cx - hw * 1.04, yT - 2, 'Z');
       sil(j, brim); k.path(brim, 0.96, 'set');
     } else if (h === 'beanie') {
-      const cr = pth('M', cx - hw - 1.6, yT + 1, 'C', cx - hw * 1.1, ty - 7, cx - hw * 0.5, ty - 10, cx, ty - 10, 'C', cx + hw * 0.5, ty - 10, cx + hw * 1.1, ty - 7, cx + hw + 1.6, yT + 1, 'Z');
+      // a toque, pulled down to the brows and over the tops of the ears: the crown in its rib
+      // gathered to the top, the cuff turned up round it and the fold's shadow along its edge
+      const cb = ty + hh * 0.3, cs = p.yE - hh * 0.05, ct = cb - 9, top = ty - 13;
+      withClip(j, hd, function () { k.rect(cx - hw, cb - 2, 2 * hw, 9, k.lin(0, cb - 2, 0, cb + 7, [[0, 0.5], [1, 0]])); });
+      const cr = pth('M', cx - hw - 2.4, ct + 3, 'C', cx - hw * 1.16, ty - 5, cx - hw * 0.62, top, cx + hw * 0.04, top,
+        'C', cx + hw * 0.68, top, cx + hw * 1.16, ty - 5, cx + hw + 2.4, ct + 3, 'Z');
       sil(j, cr);
-      k.path(cr, k.lin(cx - hw, 0, cx + hw, 0, [[0, 0.52], [1, 0.95]]), 'set');
-      k.rect(cx - hw - 1.6, yT - 6, 2 * hw + 3.2, 7, k.lin(cx - hw, 0, cx + hw, 0, [[0, 0.42], [1, 0.97]]), 'set');
-      for (let x = cx - hw; x < cx + hw; x += 2.4) k.line(x, yT - 6, x, yT + 1, 0.55, x < cx ? 0.8 : 0.3, x < cx ? 'ink' : 'erase');
+      k.path(cr, k.lin(cx - hw, 0, cx + hw, 0, [[0, 0.56], [0.42, 0.74], [1, 0.96]]), 'set');
+      withClip(j, cr, function () {
+        for (let i = -6; i <= 6; i++) k.stroke(pth('M', cx + i * hw * 0.19, ct + 4, 'Q', cx + i * hw * 0.15, ty + 2, cx + hw * 0.04 + i * 1.2, top + 1), 0.55, i < 0 ? 0.85 : 0.35, i < 0 ? 'ink' : 'erase');
+        soft(k, cx - hw * 0.4, ty - 2, hw * 0.5, hh * 0.07, 0.3, -0.2, true);
+      });
+      const cuff = pth('M', cx - hw - 2.7, ct + 1.5, 'Q', cx, ct - 3.5, cx + hw + 2.7, ct + 1.5, 'L', cx + hw + 2.4, cs, 'Q', cx, cb + 1.5, cx - hw - 2.4, cs, 'Z');
+      sil(j, cuff);
+      k.path(cuff, k.lin(cx - hw, 0, cx + hw, 0, [[0, 0.44], [0.45, 0.62], [1, 0.94]]), 'set');
+      withClip(j, cuff, function () {
+        for (let x = cx - hw - 2; x < cx + hw + 3; x += 2.2) k.line(x, ct - 4, x + (x - cx) * 0.04, cs + 1, 0.6, x < cx ? 0.8 : 0.3, x < cx ? 'ink' : 'erase');
+      });
+      k.stroke(pth('M', cx - hw - 2.7, ct + 1.5, 'Q', cx, ct - 3.5, cx + hw + 2.7, ct + 1.5), 1.3, 0.97);
+      k.stroke(pth('M', cx - hw - 2.4, cs, 'Q', cx, cb + 1.5, cx + hw + 2.4, cs), 0.8, 0.85);
     } else if (h === 'bandana') {
       const cr = pth('M', cx - hw - 1, yT, 'C', cx - hw * 1.06, ty + 2, cx - hw * 0.6, ty - 3, cx, ty - 3, 'C', cx + hw * 0.6, ty - 3, cx + hw * 1.06, ty + 2, cx + hw + 1, yT, 'Q', cx, ty + 9, cx - hw - 1, yT, 'Z');
       sil(j, cr);
@@ -4334,17 +4497,20 @@
     }
     if (f.indexOf('moustache') >= 0) k.path(pth('M', fx - p.mw - 2, p.yM + 1.4, 'Q', fx - p.mw * 0.6, p.yN + 1.4, fx, p.yN + 2.8, 'Q', fx + p.mw * 0.6, p.yN + 1.4, fx + p.mw + 2, p.yM + 1.4, 'Q', fx, p.yM - 1.4, fx - p.mw - 2, p.yM + 1.4, 'Z'), p.grey ? 0.62 : 0.92, 'set');
     if (f.indexOf('glasses') >= 0) {
+      // an older woman's are for reading: narrower, down the nose so she looks over them, on a chain
+      const rdr = p.fem && p.old, dy = rdr ? 4.2 : 0, hg = rdr ? 2.3 : 2.8, lw = rdr ? 0.95 : 1.2;
       for (const s of [-1, 1]) {
-        const e = eyeAt(p, s), gw = e.w + 5.6, gh = hh * 0.13, gx = e.x - gw / 2, gy = p.yE - gh * 0.52;
+        const e = eyeAt(p, s), gw = e.w + 2 * hg, gh = hh * (rdr ? 0.09 : 0.13), gx = e.x - gw / 2, gy = rdr ? p.yE + 0.3 : p.yE - gh * 0.52;
         k.rect(gx, gy, gw, gh, 0.08, 'erase');
         k.stroke(pth('M', gx, gy + 1.2, 'Q', gx, gy, gx + 1.2, gy, 'L', gx + gw - 1.2, gy, 'Q', gx + gw, gy, gx + gw, gy + 1.2, 'L', gx + gw - 0.3, gy + gh - 1.6, 'Q', gx + gw - 0.8, gy + gh, gx + gw - 2.4, gy + gh,
-          'L', gx + 2.4, gy + gh, 'Q', gx + 0.8, gy + gh, gx + 0.3, gy + gh - 1.6, 'Z'), 1.2, 0.97);
+          'L', gx + 2.4, gy + gh, 'Q', gx + 0.8, gy + gh, gx + 0.3, gy + gh - 1.6, 'Z'), lw, 0.97);
         k.line(gx + 2, gy + gh - 2, gx + 5.4, gy + 1.6, 0.8, s < 0 ? 0.75 : 0.4, 'erase');
         if (s > 0) rd.line(gx + gw - 0.4, gy + 1, gx + gw - 0.6, gy + gh - 1, 0.9, 0.85);
       }
       const eL = eyeAt(p, -1), eR = eyeAt(p, 1);
-      k.stroke(pth('M', eL.x + eL.w / 2 + 2.8, p.yE - 2.6, 'Q', fx, p.yE - 4.6, eR.x - eR.w / 2 - 2.8, p.yE - 2.6), 1.1, 0.97);
-      k.line(eL.x - eL.w / 2 - 2.8, p.yE - 2.8, cx - hw - 1.4, p.yE - 0.6, 1.1, 0.9); k.line(eR.x + eR.w / 2 + 2.8, p.yE - 2.8, cx + hw + 1.4, p.yE - 0.6, 1.1, 0.9);
+      k.stroke(pth('M', eL.x + eL.w / 2 + hg, p.yE - 2.6 + dy, 'Q', fx, p.yE - 4.6 + dy, eR.x - eR.w / 2 - hg, p.yE - 2.6 + dy), lw - 0.1, 0.97);
+      k.line(eL.x - eL.w / 2 - hg, p.yE - 2.8 + dy, cx - hw - 1.4, p.yE - 0.6 + dy * 0.5, lw - 0.1, 0.9); k.line(eR.x + eR.w / 2 + hg, p.yE - 2.8 + dy, cx + hw + 1.4, p.yE - 0.6 + dy * 0.5, lw - 0.1, 0.9);
+      if (rdr) for (const s of [-1, 1]) k.stroke(pth('M', cx + s * (hw + 1.4), p.yE - 0.6 + dy * 0.5, 'Q', cx + s * (hw * 1.02), p.cy + hh * 0.1, cx + s * (p.neck + 1.5), p.cy + hh * 0.17 - 3), 0.55, s < 0 ? 0.8 : 1);
     }
     if (f.indexOf('earbuds') >= 0) {
       // the white stem of one showing under the ear
@@ -4416,20 +4582,68 @@
   }
 
   // the room behind them: dark behind the lit side, the bar's lights out of focus and the sign's
-  // glow behind the dark side
-  function paintGround(j, r, plain) {
+  // glow behind the dark side. Met away from the Sov (look.ground) it's where they are, and none of
+  // the sign's red comes with them: 'office', Gary's front room at four, the lamp off to the side
+  // and the rain on the window behind; 'canopy', the gas station, hard white light straight down
+  // and the dark lot behind; 'dusk', out on the street or the wharf or the seawall, grey, one light.
+  // Every ground takes the same draws from r as the room, so the face that follows is the same face.
+  const AWAY = { office: 1, canopy: 1, dusk: 1 };
+  function paintGround(j, r, ground) {
     const k = j.k, rd = j.r;
-    if (plain) {
-      // the backdrop they stand you against for a licence: flat and pale, the same for everybody.
-      // It takes the same draws from r as the room would, so the face that follows is the same face.
+    if (ground === 'plain' || AWAY[ground]) for (let i = 0; i < 35; i++) r();
+    if (ground === 'plain') {
+      // the backdrop they stand you against for a licence: flat and pale, the same for everybody
       k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.14], [1, 0.24]]), 'set');
-      for (let i = 0; i < 35; i++) r();
       return;
     }
-    k.rect(0, 0, FW, FH, k.lin(0, 0, FW, 0, [[0, 0.93], [0.4, 0.87], [0.75, 0.72], [1, 0.64]]), 'set');
-    k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.06], [0.6, 0], [1, 0.12]]));
-    for (let i = 0; i < 7; i++) { const x = 70 + r() * 50, y = 6 + r() * 70, rr = 3 + r() * 6; k.light(x, y, rr, 0.1 + r() * 0.12); if (r() < 0.6) rd.glow(x, y, rr * 1.3, 0.35); }
-    rd.glow(FW + 4, 40, 70, 0.66);
+    const g = rng(seedOf('ground:' + ground));
+    if (ground === 'office') {
+      // the wall warm from the lamp on the left and going dark across; the window behind the far
+      // side, the grey of the afternoon in it, the rain running down it, the house across the road
+      k.rect(0, 0, FW, FH, k.lin(0, 0, FW, 0, [[0, 0.62], [0.4, 0.74], [1, 0.88]]), 'set');
+      k.light(-12, 98, 70, 0.4, 56);
+      const wx = 70, wy = 10, wb = 104;
+      k.rect(wx - 3, wy - 3, FW - wx + 6, wb - wy + 7, 0.9, 'set');
+      k.rect(wx, wy, FW - wx, wb - wy, k.lin(0, wy, 0, wb, [[0, 0.3], [0.7, 0.42], [1, 0.5]]), 'set');
+      k.path(pth('M', wx, 84, 'Q', wx + 14, 70, wx + 30, 76, 'L', wx + 32, 66, 'L', wx + 44, 72, 'L', FW, 70, 'L', FW, wb, 'L', wx, wb, 'Z'), 0.7, 'set');
+      k.rect(wx + 36, 78, 6, 7, 0.32, 'set');
+      for (let i = 0; i < 26; i++) {
+        const x = wx + 2 + g() * (FW - wx - 2), y = wy + g() * (wb - wy - 12), l = 5 + g() * 16;
+        k.stroke(pth('M', x, y, 'q', g() * 1.6 - 0.8, l * 0.5, g() * 2 - 1, l), 0.7, 0.4 + g() * 0.3, 'erase');
+        k.stroke(pth('M', x + 0.7, y + 1, 'q', 0, l * 0.5, 0.4, l), 0.45, 0.3);
+      }
+      k.rect(wx + 25, wy, 3, wb - wy, 0.9, 'set'); k.rect(wx, 55, FW - wx, 3, 0.9, 'set');
+      k.rect(wx - 5, wb + 2, FW - wx + 10, 4, 0.8, 'set'); k.line(wx - 5, wb + 2.4, FW, wb + 2.4, 0.7, 0.35, 'erase');
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.08], [0.6, 0], [1, 0.2]]));
+    } else if (ground === 'canopy') {
+      // the canopy's underside along the top, lit, a light let into it; under it the dark, the lot
+      // going off into the night, and the near edge of a column with the light down it
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.5], [0.16, 0.8], [0.5, 0.93], [1, 0.96]]), 'set');
+      k.rect(0, 0, FW, 13, 0.16, 'set');
+      k.rect(22, 3, 52, 5, 0.5, 'set'); k.rect(23.5, 4, 49, 3, 0, 'set');
+      k.light(48, 6, 46, 0.5, 14);
+      k.rect(0, 12.5, FW, 2.2, 0.62, 'set');
+      k.rect(FW - 13, 14, 13, FH, k.lin(0, 14, 0, FH, [[0, 0.3], [0.5, 0.62], [1, 0.84]]), 'set');
+      k.line(FW - 13, 14, FW - 13, FH, 0.8, 0.9);
+      for (let i = 0; i < 5; i++) k.light(4 + g() * 90, 70 + g() * 30, 1.6 + g() * 2, 0.5);
+    } else if (ground === 'dusk') {
+      // the sky grey and low, lighter down toward the water; the dark of the far side under it; one
+      // light, on a pole off to the right, just on
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.64], [0.58, 0.42], [0.66, 0.38], [1, 0.46]]), 'set');
+      for (let i = 0; i < 6; i++) k.glow(g() * FW, 8 + g() * 70, 20 + g() * 30, 0.1, 4 + g() * 4);
+      let d = 'M0 ' + 100;
+      for (let x = 0; x <= FW; x += 6) d += ' L' + x + ' ' + (98 - 4 * Math.sin(x * 0.05 + 1) - g() * 2);
+      k.path(d + ' L' + FW + ' ' + FH + ' L0 ' + FH + ' Z', 0.82, 'set');
+      k.line(111, 30, 111, 100, 1.2, 0.88);
+      k.line(111, 30, 104, 27, 1, 0.88);
+      k.light(103, 29, 12, 0.6, 10); k.light(103, 29, 3.2, 0.95);
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.06], [0.6, 0], [1, 0.14]]));
+    } else {
+      k.rect(0, 0, FW, FH, k.lin(0, 0, FW, 0, [[0, 0.93], [0.4, 0.87], [0.75, 0.72], [1, 0.64]]), 'set');
+      k.rect(0, 0, FW, FH, k.lin(0, 0, 0, FH, [[0, 0.06], [0.6, 0], [1, 0.12]]));
+      for (let i = 0; i < 7; i++) { const x = 70 + r() * 50, y = 6 + r() * 70, rr = 3 + r() * 6; k.light(x, y, rr, 0.1 + r() * 0.12); if (r() < 0.6) rd.glow(x, y, rr * 1.3, 0.35); }
+      rd.glow(FW + 4, 40, 70, 0.66);
+    }
   }
 
   function faceVignette(k) {
@@ -4438,16 +4652,22 @@
   }
 
   // look.ground 'plain' is an ID photo: the same person, against the pale backdrop, flat lit, no
-  // mood on their face and nothing in their hands (content/data/props.yaml)
+  // mood on their face and nothing in their hands (content/data/props.yaml). Away from the Sov
+  // the red plate is wiped at the end: whatever else they've got on, the sign's not in it.
   function paintFace(j, id, look) {
     const r = rng(seedOf('face:' + id));
-    const plain = !!(look && look.ground === 'plain');
-    paintGround(j, r, plain);
-    if (look && look.group) { paintTable(j, id, look, r); return; }
+    const ground = look && look.ground, plain = ground === 'plain';
+    paintGround(j, r, ground);
+    if (look && look.group) { paintTable(j, id, look, r); if (AWAY[ground]) noRed(j); return; }
     const p = planFace(id, plain ? Object.assign({}, look, { mood: 'flat', lean: null, extra: [] }) : look, r);
-    p.flat = plain;
+    p.flat = plain; p.ground = ground;
     paintBust(j, p, r);
+    if (AWAY[ground]) noRed(j);
     if (!plain) faceVignette(j.k);
+  }
+  function noRed(j) {
+    const c = j.r.c;
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, c.canvas.width, c.canvas.height); c.restore();
   }
 
   // table 28 as one: the five of them close in round the table, the glasses in front. Each one's
