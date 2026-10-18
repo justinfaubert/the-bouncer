@@ -42,6 +42,8 @@ COLOURS = {
     'lanyard': '#2b3446', 'badge': '#e2ddd0', 'flannel_b': '#4a5768',
     # the doorman: the old scars on his knuckles, his mala's dark wooden beads and its tassel
     'scar': '#dbbfab', 'mala': '#3a2a1f', 'tassel': '#2a2421',
+    # the bookkeeper's ledger: its cloth cover a dark green
+    'ledger': '#2e3a30',
 }
 ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 'glasses': 0.3, 'reflective': 0.4, 'cue': 0.4,
          'glass': 0.05, 'beer': 0.2, 'wine': 0.2, 'cola': 0.2, 'chrome': 0.25, 'vape': 0.35, 'card': 0.4, 'clicker_window': 0.3,
@@ -141,10 +143,16 @@ PEOPLE = {
     'him_desk': (HIM, 'armchair', dict(lean=0.18, head_tilt=0.1), 0.008),
     'him_stand': (HIM, 'stand', dict(head_tilt=0.06), 0.008),
     'him_card': (dict(HIM, hair='cropped', over=None, extra=[], head_drop=0.3), 'stand', dict(), 0.008),
+    # the bookkeeper, late sixties, a retired bank teller: at her desk in the office writing in the
+    # ledger, her chair turned out a little toward the room; reading glasses down her nose on a
+    # chain, short grey hair set, a blue-grey cardigan over a blouse, slacks, sensible shoes
+    'bookkeeper_desk': (dict(sex='f', age='old', bulk=0.94, belly=0.015, hair='set', hair_mat='hair_grey', face=['readers', 'lined'], top='cardigan',
+                             top_mat='cardigan_b', under='shirt_white', collar=True, extra=['chain'], bottoms='slacks', shoes='dress',
+                             shoe_mat='dress_shoe'), 'ledger', dict(), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
 NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
-        'him_desk', 'him_stand', 'him_card'}
+        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk'}
 
 
 def make(name, look, pose, kw, step, near):
@@ -237,7 +245,7 @@ def anchors(B, p):
             a['glass'] = g(pr['at'])
         else:
             a[k] = g(pr['at'])
-    for k in ('door', 'bar', 'counter', 'seat', 'armrest_left', 'armrest_right', 'desk_edge'):
+    for k in ('door', 'bar', 'counter', 'seat', 'armrest_left', 'armrest_right', 'desk_edge', 'seat_front', 'rail'):
         if hasattr(p, k):
             a[k] = g(getattr(p, k))
     return a
@@ -523,8 +531,44 @@ def mala(pr):
     return [beads, guru, tassel]
 
 
+def ledger(pr):
+    """An account book lying open on the desk: the two boards of its cover, the pages on each, and
+    the spine between them."""
+    w, d, t = PP.LEDGER['w'], PP.LEDGER['d'], PP.LEDGER['t']
+    obs = [_box('ledger_spine', 'ledger', (0.006, d / 2 + 0.006, 0.0035), at=(0, 0, 0.0035))]
+    for sx, side in ((-1, 'left'), (1, 'right')):
+        obs.append(_box(f'ledger_cover_{side}', 'ledger', (w / 2 + 0.006, d / 2 + 0.006, 0.0015), at=(sx * (w / 2 + 0.004), 0, 0.0015),
+                        bevel=0.001, segments=1))
+        obs.append(_box(f'ledger_pages_{side}', 'card', (w / 2, d / 2, t / 2 - 0.0015), at=(sx * (w / 2 + 0.004), 0, 0.003 + t / 2 - 0.0015),
+                        bevel=0.0025, segments=2))
+    return _place(obs, pr['at'], pr['R'])
+
+
+def pen(pr):
+    """A ballpoint pen in a writing hand: its point down on the page, its barrel back up through the
+    hand (along the prop's y)."""
+    import bpy
+    L, r = PP.PEN['L'], PP.PEN['r']
+    o = _lathe('pen', 'black', [(0.0003, 0.0), (0.0011, 0.0025), (r * 0.8, 0.016), (r, 0.024), (r, L - 0.012), (r * 0.85, L - 0.004),
+                                (r * 0.5, L)], segs=12)
+    # turned to lie along y, its point at -L/2 and its end at L/2
+    o.rotation_euler = (-np.pi / 2, 0, 0)
+    o.location = (0, -L / 2, 0)
+    for x in bpy.context.selected_objects:
+        x.select_set(False)
+    bpy.context.view_layer.objects.active = o
+    o.select_set(True)
+    bpy.ops.object.transform_apply(location=True, rotation=True)
+    return _place([o], pr['at'], pr['R'])
+
+
+def chain(pr):
+    """The fine chain of a pair of reading glasses: its links, from where they're settled."""
+    return [_balls('readers_chain', 'glasses', pr['links'], pr['r'], segments=6, rings=4)]
+
+
 PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'lanyard': lanyard, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
-         'case': case, 'mala': mala}
+         'case': case, 'mala': mala, 'ledger': ledger, 'pen': pen, 'chain': chain}
 
 
 def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), focus=None):

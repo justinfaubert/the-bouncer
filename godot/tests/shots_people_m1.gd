@@ -217,21 +217,28 @@ func _run() -> void:
 		var M: Dictionary = main.pub.M
 		_room(1.6)
 		var seat := _anchor("bookkeeper_desk", "seat", Vector3(0, 0.46, 0))
-		var edge := _anchor("bookkeeper_desk", "desk_edge", Vector3(0, 0.74, -0.45))
+		var front := _anchor("bookkeeper_desk", "seat_front", seat + Vector3(0, 0, -0.25))
+		var edge := _anchor("bookkeeper_desk", "desk_edge", Vector3(0, 0.74, -0.3))
 		# her desk square to the wall, her chair turned out from it a little toward the room
 		_box(Vector3(1.3, 0.035, 0.7), Vector3(0, edge.y - 0.0175, edge.z - 0.35), M.top)
 		for x in [-0.62, 0.62]:
 			_box(Vector3(0.035, edge.y - 0.035, 0.66), Vector3(x, (edge.y - 0.035) / 2.0, edge.z - 0.35), M.wood)
-		_box(Vector3(0.48, 0.06, 0.46), Vector3(seat.x, seat.y - 0.03, seat.z + 0.02), M.dark)
-		_box(Vector3(0.46, 0.5, 0.05), Vector3(seat.x, seat.y + 0.32, seat.z + 0.27), M.dark)
-		_box(Vector3(0.06, seat.y - 0.06, 0.06), Vector3(seat.x, (seat.y - 0.06) / 2.0, seat.z), M.steel)
+		var chair := Node3D.new()
+		set_node.add_child(chair)
+		chair.position = Vector3(seat.x, 0, seat.z)
+		chair.rotation.y = atan2(seat.x - front.x, seat.z - front.z)
+		main.pub.box(Vector3(0.48, 0.06, 0.46), Vector3(0, seat.y - 0.03, 0.02), M.dark, 0.0, chair)
+		main.pub.box(Vector3(0.46, 0.5, 0.05), Vector3(0, seat.y + 0.32, 0.27), M.dark, 0.0, chair)
+		main.pub.box(Vector3(0.06, seat.y - 0.06, 0.06), Vector3(0, (seat.y - 0.06) / 2.0, 0), M.steel, 0.0, chair)
 		_figure("bookkeeper_desk")
 		var head := _anchor("bookkeeper_desk", "head", Vector3(0, 1.2, 0))
 		_light(Vector3(-0.45, edge.y + 0.45, edge.z - 0.25), Look.LAMP, 1.0, 2.4)
-		_light(Vector3(0.6, 2.7, 0.8), Color("f3ead8"), 0.8, 6.0)
-		await _look(Vector3(1.7, 1.62, -1.9), head + Vector3(0, -0.25, 0))
+		_light(Vector3(0.9, 2.5, 0.2), Color("f3ead8"), 1.8, 6.0)
+		# from the room on her right, where she's turned to (not so wide that the town comes into
+		# view, its lamps crowding hers out); then at her side, over the ledger
+		await _look(Vector3(2.0, 1.62, 0.9), head + Vector3(0, -0.25, 0), 34.0)
 		await _grab("books_room")
-		await _look(Vector3(0.9, 1.5, -1.0), head + Vector3(0, -0.28, -0.1), 30.0)
+		await _look(Vector3(0.95, 1.45, -0.6), head + Vector3(0, -0.2, -0.08), 34.0)
 		await _grab("books_close")
 	if _want("kid") and _has("essokid_freezer"):
 		_new_set()
