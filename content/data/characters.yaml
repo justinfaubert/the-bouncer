@@ -9,16 +9,23 @@
 #   look      until there's art, the face is drawn from parts (src/ui/plates.js):
 #               build  slight | medium | big
 #               hair   short | buzz | long | bun | ponytail | bald | thin | messy | parted
-#               hat    hood | cap | beanie | flatcap | bandana
+#                      (long is loose past the shoulders; an old woman's short is set in waves)
+#               hat    hood | cap | beanie (a toque) | flatcap | bandana
 #               face   a list of: beard, stubble, moustache, glasses, earbuds, hearingaid, lined
+#                      (an old woman's glasses are for reading, down her nose, on a chain)
 #               top    hoodie | hivis | apron | whites | flannel | suit | coat | jacket | tshirt | cardigan
-#               extra  a list of: vape, keys, cigarette, phone, knife, lanyard
+#                      (a jacket is worn open over a T-shirt; a coat is zipped up)
+#               extra  a list of: vape, keys, cigarette, phone, knife, lanyard, mala (dark wooden
+#                      beads round the neck), vest (a plain one, over the top)
 #               sex    f (leave it out for a man)
 #               age    young | old
 #               mood   flat | tired | wary | hard | drunk | smile | knowing (how the night sits on them)
 #               warm   the mood they wear once he stands well with them (default smile)
 #               cold   the mood they wear once he's in their bad books (default hard)
 #               group  5 (a table's worth, drawn as one: each of the five from their own look below)
+#               ground what's behind them, set by the game from where he is, not here: office,
+#                      canopy (the Esso) or dusk (the street, the seawall); none of them has the
+#                      sign's red. Left out it's the bar; plain is an ID photo (props.yaml)
 #   standing  the group whose opinion of him shows on this face: t28 | kids | staff | cook
 #             (rep_<group> in main.ink; at 2 or more they look at him warm, at -2 or less cold)
 #   note      for writers; not shown in the game
