@@ -3672,6 +3672,131 @@
     edge(k);
   };
 
+  // The Sov from the seawall across the highway, sitting up on the wall with the strait at his back:
+  // the wet highway, the gravel lot with a few trucks nose-in along the front, the hotel's three
+  // storeys of old board painted a red gone to brick, SOVEREIGN on the roof in red neon with the
+  // second E dead and HOTEL under it, the beer and wine store lit at the end, the front window warm
+  // with the five of them at the round table in it. At ten past five the sky's not black yet and
+  // the sign's just on; by seven (look.night) it's dark, the lot's filling and the rain's back.
+  PLACES.seawall = function (j, look, rnd) {
+    const k = j.k, rd = j.r;
+    const night = !!look.night;
+    const t = function (dusk, late) { return night ? late : dusk; };
+    // his eye two metres over the road, up on the wall; the hotel's front 38 metres off, the lot
+    // from there to the highway at 22, the highway from there to the foot of the wall
+    const cam = camera(320, 137, 330, 2), hz = cam.hz, DS = 38, DL = 22;
+    const sc = cam.s(DS) / 12, base = cam.y(0, DS), ox = cam.x(1, DS) - 326 * sc, oy = base - 188 * sc;
+    const lx = function (x) { return ox + x * sc; }, yl = cam.y(0, DL);
+
+    // ---- the sky, low cloud over the hills, the last of the light still in it
+    k.rect(0, 0, W, hz + 1, k.lin(0, 0, 0, hz, [[0, t(0.86, 0.97)], [0.55, t(0.76, 0.94)], [1, t(0.6, 0.9)]]), 'set');
+    for (let i = 0; i < 10; i++) k.glow(rnd() * W, 4 + rnd() * 80, 60 + rnd() * 100, t(0.14, 0.05), 6 + rnd() * 6);
+    for (let i = 0; i < 6; i++) k.light(rnd() * W, 16 + rnd() * 70, 70 + rnd() * 90, t(0.16, 0.03), 7 + rnd() * 6);
+    for (let i = 0; i < 14; i++) { const y = 8 + rnd() * (hz - 50), x = rnd() * W, l = 40 + rnd() * 120; k.line(x, y, x + l, y + (rnd() - 0.5) * 3, 1 + rnd() * 2, t(0.1, 0.03), 'erase'); }
+    // the hills behind, and the trees either side of it, black against the cloud
+    k.path('M0 ' + (hz - 22) + ' C70 ' + (hz - 34) + ' 150 ' + (hz - 40) + ' 230 ' + (hz - 36) + ' C320 ' + (hz - 31) + ' 400 ' + (hz - 46) + ' 480 ' + (hz - 42) + ' C550 ' + (hz - 38) + ' 600 ' + (hz - 30) + ' 640 ' + (hz - 33) + ' L640 ' + (base + 1) + ' L0 ' + (base + 1) + ' Z', t(0.82, 0.93), 'set');
+    const fir = function (x, yb, h, tone) {
+      let d = 'M' + (x - h * 0.2) + ' ' + yb;
+      for (let i = 0; i <= 8; i++) { const f = i / 8, w = h * 0.22 * (1 - f) + 0.6; d += ' L' + (x - w) + ' ' + (yb - h * f) + ' L' + (x - w * 0.4) + ' ' + (yb - h * f - h * 0.05); }
+      d += ' L' + x + ' ' + (yb - h * 1.04);
+      for (let i = 8; i >= 0; i--) { const f = i / 8, w = h * 0.22 * (1 - f) + 0.6; d += ' L' + (x + w * 0.4) + ' ' + (yb - h * f - h * 0.05) + ' L' + (x + w) + ' ' + (yb - h * f); }
+      k.path(d + ' Z', tone, 'set');
+    };
+    for (let x = -6; x < lx(118); x += 9 + rnd() * 8) fir(x, base + 2, 40 + rnd() * 34, t(0.9, 0.97));
+    for (let x = lx(540); x < W + 10; x += 9 + rnd() * 8) fir(x, base + 2, 44 + rnd() * 38, t(0.9, 0.97));
+
+    // ---- the Sov: the lot plate's own front, set back across the lot at this distance
+    for (const p of [k, rd]) { p.c.save(); p.c.translate(ox, oy); p.c.scale(sc, sc); }
+    try {
+      sovFront(j, rnd, { night: night, sc: sc, smoker: night,
+        lit: night ? { '0,6': 'blind', '1,2': 'man', '1,7': 'tv', '0,1': 'lamp', '0,4': 'lamp' } : null });
+    } finally { k.c.restore(); rd.c.restore(); }
+
+    // ---- the lot: wet gravel, puddles holding the lights, the trucks nose-in along the front clear
+    // of the window and the door
+    k.rect(0, base, W, yl - base + 1, k.lin(0, base, 0, yl, [[0, t(0.7, 0.88)], [1, t(0.62, 0.84)]]), 'set');
+    for (let i = 0; i < 240; i++) k.oval(rnd() * W, base + 1 + rnd() * (yl - base), 0.4 + rnd() * 0.6, 0.25, 0.3 + rnd() * 0.4, 'erase');
+    k.light(lx(476), base + 3, 60, 0.3, 6);
+    k.light(lx(315), base + 3, 30, 0.3, 4);
+    for (const p of [[lx(250), base + 6, 34, 1.4], [lx(380), base + 9, 20, 1.2], [lx(470), base + 5, 16, 1]]) {
+      k.oval(p[0], p[1], p[2], p[3], 0.5, 'set');
+      k.clip(function (c) { c.ellipse(p[0], p[1], p[2], p[3], 0, 0, Math.PI * 2); });
+      k.rect(lx(140), p[1] - p[3], 148 * sc, p[3] * 2, 0.4, 'erase');
+      k.rect(lx(436), p[1] - p[3], 80 * sc, p[3] * 2, 0.45, 'erase');
+      k.done();
+    }
+    // a pickup from behind at this distance: the cab and the box black against the light off the
+    // front, the back window lit through the windshield, the wet on the roof
+    const truck = function (x, yb, s, w) {
+      k.oval(x, yb, 1.2 * s, 0.1 * s, 1, 'set');
+      k.path('M' + (x - 0.78 * s) + ' ' + (yb - 1.1 * s) + ' L' + (x - 0.66 * s) + ' ' + (yb - 1.8 * s) + ' Q' + (x - 0.62 * s) + ' ' + (yb - 1.88 * s) + ' ' + (x - 0.5 * s) + ' ' + (yb - 1.88 * s) +
+        ' L' + (x + 0.5 * s) + ' ' + (yb - 1.88 * s) + ' Q' + (x + 0.62 * s) + ' ' + (yb - 1.88 * s) + ' ' + (x + 0.66 * s) + ' ' + (yb - 1.8 * s) + ' L' + (x + 0.78 * s) + ' ' + (yb - 1.1 * s) + ' Z', 1, 'set');
+      k.rect(x - 1 * s, yb - 1.15 * s, 2 * s, 0.85 * s, 1, 'set');
+      k.rect(x - 1.03 * s, yb - 0.42 * s, 2.06 * s, 0.17 * s, 1, 'set');
+      k.rect(x - 0.95 * s, yb - 0.3 * s, 0.36 * s, 0.32 * s, 1, 'set'); k.rect(x + 0.59 * s, yb - 0.3 * s, 0.36 * s, 0.32 * s, 1, 'set');
+      k.poly([[x - 0.52 * s, yb - 1.76 * s], [x + 0.52 * s, yb - 1.76 * s], [x + 0.6 * s, yb - 1.36 * s], [x - 0.6 * s, yb - 1.36 * s]], w, 'set');
+      for (const hx of [-0.26, 0.26]) k.oval(x + hx * s, yb - 1.42 * s, 0.13 * s, 0.17 * s, 1, 'set');
+      for (const tx of [-0.98, 0.86]) k.rect(x + tx * s, yb - 1.08 * s, 0.12 * s, 0.32 * s, 0.55, 'set');
+      k.line(x - 0.5 * s, yb - 1.86 * s, x + 0.5 * s, yb - 1.86 * s, 0.6, 0.7, 'erase');
+      k.line(x - 0.98 * s, yb - 1.14 * s, x + 0.98 * s, yb - 1.14 * s, 0.5, 0.45, 'erase');
+    };
+    const DT = 33.5, yt = cam.y(0, DT), ts = cam.s(DT);
+    const trucks = night ? [[lx(48), 0.7], [lx(102), 0.5], [lx(372), 0.4], [lx(486), 0.45], [lx(556), 0.75]] : [[lx(98), 0.55], [lx(374), 0.42]];
+    for (const tr of trucks) truck(tr[0], yt, ts, tr[1]);
+
+    // ---- the highway, wet: the far edge, the line down the middle, and the lights lying in it in
+    // long broken streaks down toward him; the sign's at the bottom, too high up to land nearer
+    k.rect(0, yl, W, H - yl, k.lin(0, yl, 0, H, [[0, t(0.6, 0.84)], [1, t(0.72, 0.9)]]), 'set');
+    for (let i = 0; i < 300; i++) { const y = yl + 2 + Math.pow(rnd(), 0.7) * (H - yl), w = 0.4 + (y - yl) / 40; k.oval(rnd() * W, y, w, w * 0.4, 0.25 + rnd() * 0.3, 'erase'); }
+    k.line(0, yl + 0.8, W, yl + 0.8, 1, t(0.4, 0.35), 'erase');
+    const ym = cam.y(0, 13);
+    for (let x = -20; x < W; x += 46) k.line(x, ym, x + 22, ym, 1.4, t(0.42, 0.36), 'erase');
+    // a light at plate x, w wide, a strongest where its reflection lands (f, 0 at the far edge of
+    // the road to 1 at the bottom of the plate)
+    const streak = function (pen, x, w, a, f, mode, spread) {
+      for (let y = yl + 1.5; y < H; y += 1.5) {
+        const g = (y - yl) / (H - yl), m = a * Math.exp(-Math.pow((g - f) / (spread || 0.45), 2));
+        if (rnd() < 0.78) { const ww = w * (0.35 + rnd() * 0.65); pen.line(x - ww / 2 + (rnd() - 0.5) * 1.5, y, x + ww / 2 + (rnd() - 0.5) * 1.5, y, 0.9, m * (0.5 + rnd() * 0.5), mode); }
+      }
+    };
+    streak(k, lx(214), 140 * sc, 0.55, 0.15, 'erase'); streak(k, lx(315), 10 * sc, 0.7, 0.12, 'erase');
+    streak(k, lx(476), 80 * sc, 0.55, 0.15, 'erase');
+    for (const p of [[1, 0], [6, 0], [2, 1], [7, 1]].concat(night ? [[4, 0]] : [])) streak(k, lx(124 + 20 + p[0] * 43 + 10.5), 14 * sc, 0.3, 0.6 - p[1] * 0.1, 'erase');
+    for (let i = 0; i < 9; i++) {
+      if (i === 5) continue;
+      const x = lx(332 - 27 * 4 + i * 27);
+      for (let y = yl + (H - yl) * 0.4; y < H; ) {
+        const g = (y - yl) / (H - yl), l = 1.5 + rnd() * 3.5, xx = x + (rnd() - 0.5) * 2, w = 2.4 + rnd() * 1.6;
+        if (rnd() < 0.8) { k.rect(xx - w / 2, y, w, l, (g - 0.3) * t(0.6, 0.75), 'erase'); rd.rect(xx - w / 2, y, w, l, Math.min(1, (g - 0.25) * t(1.1, 1.3))); }
+        y += l + 0.8 + rnd() * 2.2;
+      }
+    }
+
+    // ---- the poles along the highway and the wires between, a lamp on the near one throwing its
+    // light down on the road and the lot's edge
+    for (const px of [44, 612]) {
+      const s = cam.s(DL - 1), b = cam.y(0, DL - 1), top = cam.y(11.5, DL - 1);
+      k.rect(px - 0.16 * s, top, 0.32 * s, b - top, 0.97, 'set');
+      k.rect(px - 1.1 * s, top + 0.5 * s, 2.2 * s, 0.16 * s, 0.97, 'set');
+      for (const ix of [-0.9, -0.3, 0.9]) k.rect(px + ix * s - 0.5, top + 0.2 * s, 1, 0.3 * s, 0.95, 'set');
+    }
+    { const s = cam.s(DL - 1), top = cam.y(11.5, DL - 1) + 0.25 * s;
+      let d = '';
+      for (const ix of [-0.9, -0.3, 0.9]) d += 'M' + (44 + ix * s) + ' ' + top + ' Q320 ' + (top + 20) + ' ' + (612 + ix * s) + ' ' + top + ' ';
+      k.stroke(d, 0.55, 0.92); }
+    { const s = cam.s(DL - 1), px = 44, ay = cam.y(8.2, DL - 1), hx = px + 2.4 * s;
+      k.stroke('M' + px + ' ' + (ay + 0.6 * s) + ' Q' + (px + 1.2 * s) + ' ' + (ay - 0.2 * s) + ' ' + hx + ' ' + ay, 0.12 * s, 0.97);
+      k.oval(hx, ay + 0.1 * s, 0.4 * s, 0.13 * s, 0.97, 'set');
+      k.oval(hx, ay + 0.2 * s, 0.32 * s, 0.07 * s, 0, 'set');
+      cone(k, hx - 0.35 * s, hx + 0.35 * s, ay + 0.22 * s, hx - 3.5 * s, hx + 4 * s, cam.y(0, DL - 1), t(0.05, 0.09), 0.5);
+      k.light(hx, cam.y(0, DL - 1) + 2, 5 * s, t(0.3, 0.45), 0.8 * s);
+      if (night) litRain(k, rnd, function (c) { c.moveTo(hx - 0.35 * s, ay + 0.22 * s); c.lineTo(hx + 0.35 * s, ay + 0.22 * s); c.lineTo(hx + 5 * s, cam.y(0, DL - 1)); c.lineTo(hx - 4.5 * s, cam.y(0, DL - 1)); c.closePath(); }, 50, hx - 5 * s, ay, 10 * s, 9 * s, 0.5, 9); }
+
+    if (night) k.rain(rnd, 380, 0, 0, W, H, { tone: 0.24, len: 9, w: 0.55 });
+    vignette(k, 0.4);
+    edge(k);
+  };
+
   // ---------------------------------------------------------------- faces
   //
   // A face the way Papers, Please builds them: the same head every time and the parts that make it
@@ -4375,7 +4500,7 @@
   const CAPTIONS = {
     lot: 'The Sovereign Hotel', floor: 'The room', door: 'The front door', bar: 'The bar', t28: 'Table 28',
     pool: 'The pool table', hall: 'The back hall', kitchen: 'The kitchen', keg: 'The keg room', deck: 'The deck', upstairs: 'The room upstairs',
-    office: 'Van Dusen Holdings', street: 'The main street', esso: 'The gas station'
+    office: 'Van Dusen Holdings', street: 'The main street', esso: 'The gas station', seawall: 'The seawall'
   };
 
   // What each plate shows of the night, in steps, from Game._plateState. Plates with the same look
@@ -4396,7 +4521,10 @@
     // the street's in the last of the light till six, then it's the lamps
     street: function (st) { return (st.clock || 0) >= 1080 ? { night: true } : {}; },
     // the gas station at the end of the dusk, then the canopy's light and the dark round it
-    esso: function (st) { return (st.clock || 0) >= 1080 ? { night: true } : {}; }
+    esso: function (st) { return (st.clock || 0) >= 1080 ? { night: true } : {}; },
+    // the Sov from across the highway: the dusk and the sign just on, then dark by seven and the
+    // lot filling
+    seawall: function (st) { return (st.clock || 0) >= 1140 ? { night: true } : {}; }
   };
   // places whose light changes when the house lights come up and after close
   const LIT = { floor: 1, bar: 1, t28: 1, pool: 1, door: 1 };
