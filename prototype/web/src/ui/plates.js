@@ -4720,7 +4720,7 @@
   const CAPTIONS = {
     lot: 'The Sovereign Hotel', floor: 'The room', door: 'The front door', bar: 'The bar', t28: 'Table 28',
     pool: 'The pool table', hall: 'The back hall', kitchen: 'The kitchen', keg: 'The keg room', deck: 'The deck', upstairs: 'The room upstairs',
-    office: 'Van Dusen Holdings', street: 'The main street', esso: 'The gas station', seawall: 'The seawall'
+    office: 'Van Dusen Holdings', street: 'The old main street', esso: 'The Esso', seawall: 'The seawall'
   };
 
   // What each plate shows of the night, in steps, from Game._plateState. Plates with the same look

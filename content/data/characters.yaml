@@ -145,7 +145,7 @@ bookkeeper:
 essokid:
   label: THE ESSO KID
   portrait: essokid
-  look: {age: young, hat: beanie, top: hoodie, mood: knowing}
+  look: {age: young, hat: beanie, top: hoodie, extra: [vest], mood: knowing}
   note: Twenty, on nights at the Esso down the highway (DECIDED, the future machine's eccentric; bible/11_SKELETON.md). Physics on his phone, and four cents an answer rating a machine's for a gig site. On the walk at dusk (walk.ink).
 him:
   label: HIM
