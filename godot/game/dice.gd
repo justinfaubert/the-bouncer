@@ -50,6 +50,9 @@ const SPOTS := {
 		"margin": 0.12, "reach": 0.36},
 	"kitchen": {"at": Vector3(2.55, 0.94, -2.16), "of": "steel", "box": [1.83, 2.85, -2.52, -1.93],
 		"over": [[Vector3(1.98, 1.36, -2.17), Vector3(2.92, 1.44, -1.91)]], "low": true, "reach": 0.4},
+	# Gary's desk, in front of him, between the adding machine and his phone (world/town.gd)
+	"office": {"at": Vector3(Town.OFFICE_X + 3.42, Town.OFFICE_Y + 0.76, Town.OFFICE_Z - 0.06), "of": "wood",
+		"box": [Town.OFFICE_X + 3.1, Town.OFFICE_X + 3.72, Town.OFFICE_Z - 0.24, Town.OFFICE_Z + 0.12], "reach": 0.4},
 }
 # The tray: the cork out to the inside of the rim, how high the rim stands off the cork, and the
 # cork off the floor. It goes down a step from him the way he's most nearly looking, at one of the
@@ -86,6 +89,8 @@ const TRAYS := {
 	"pool:juke": [Vector3(14.1, 0.0, 0.8), Vector3(13.7, 0.0, 0.91), Vector3(13.36, 0.0, 2.03),
 		Vector3(13.7, 0.0, 2.29), Vector3(14.1, 0.0, 2.4), Vector3(14.5, 0.0, 2.29), Vector3(14.79, 0.0, 2.0),
 		Vector3(14.9, 0.0, 1.6), Vector3(14.79, 0.0, 1.2), Vector3(14.5, 0.0, 0.91)],
+	# sitting on the seawall: on its top either side of him, or the shoulder at his feet
+	"seawall": [Vector3(7.35, 0.65, 35.9), Vector3(8.65, 0.65, 35.9), Vector3(8.0, 0.01, 34.95)],
 }
 # what a surface is made of: bounce, grip, how fast it takes the spin out of a die; and how a die
 # sounds on it (loudness, pitch)
