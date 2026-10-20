@@ -154,10 +154,14 @@ PEOPLE = {
     # a plain work vest, a toque, his head tipped back to look up at the sky
     'essokid_freezer': (dict(age='young', build='slight', size=1.03, shoulders=0.92, chest=0.9, hat='beanie', top='hoodie',
                              over='vest', bottoms='jeans'), 'perch', dict(), 0.008),
+    # the old man from the end of the bar, as he is there, out on the wharf at night: standing at
+    # the rail along its edge, the rail's top 1.0 high, both hands on it, looking out over the water
+    'endbar_wharf': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks'),
+                     'rail', dict(), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
 NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
-        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer'}
+        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer', 'endbar_wharf'}
 
 
 def make(name, look, pose, kw, step, near):

@@ -263,18 +263,20 @@ func _run() -> void:
 		_new_set()
 		var M: Dictionary = main.pub.M
 		main.pub.tiled(Vector3(8, 0.1, 4), Vector3(0, -0.05, 1.4), M.boards, 2.0, set_node)
-		var rail := _anchor("endbar_wharf", "rail", Vector3(0, 1.0, -0.4))
-		# the rail along the wharf's edge, the water dark below and away
-		_box(Vector3(6, 0.06, 0.08), Vector3(0, rail.y - 0.03, rail.z - 0.02), M.wood)
+		var rail := _anchor("endbar_wharf", "rail", Vector3(0, 1.0, -0.345))
+		# the rail along the wharf's edge (a timber laid flat on its posts, 9 cm across and 3.8 deep,
+		# as people.py's RAIL), the water dark below and away
+		_box(Vector3(6, 0.038, 0.09), Vector3(0, rail.y - 0.019, rail.z), M.wood)
 		for x in [-2.4, -1.2, 0.0, 1.2, 2.4]:
-			_box(Vector3(0.09, rail.y, 0.09), Vector3(x + 0.6, rail.y / 2.0, rail.z - 0.02), M.wood)
+			_box(Vector3(0.09, rail.y - 0.038, 0.09), Vector3(x + 0.6, (rail.y - 0.038) / 2.0, rail.z), M.wood)
 		_box(Vector3(40, 0.05, 40), Vector3(0, -1.4, rail.z - 20.1), M.black)
 		_figure("endbar_wharf")
 		var head := _anchor("endbar_wharf", "head", Vector3(0, 1.6, 0))
 		_light(Vector3(1.6, 4.0, 1.2), Look.LAMP, 1.6, 9.0)
-		await _look(Vector3(1.9, 1.6, 2.6), head + Vector3(0, -0.4, 0))
+		# coming down the wharf behind him; then a step from the rail beside him
+		await _look(Vector3(1.6, 1.8, 2.8), head + Vector3(0, -0.45, 0))
 		await _grab("wharf_behind")
-		await _look(Vector3(2.2, 1.45, -0.9), head + Vector3(0, -0.25, 0), 40.0)
+		await _look(Vector3(1.6, 1.8, 0.25), head + Vector3(0, -0.2, 0), 40.0)
 		await _grab("wharf_side")
 	if _want("hands"):
 		await _hands()

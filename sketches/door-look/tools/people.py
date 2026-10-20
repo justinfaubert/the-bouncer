@@ -552,6 +552,36 @@ def pose_perch(B, top=0.86, front=0.0, lean=0.05, hunch=0.25, head_tilt=-0.72, h
     return p
 
 
+RAIL = dict(d=0.09, t=0.038)      # a wharf's rail: a timber laid flat along the posts, 9 cm across and 3.8 deep
+
+
+def pose_rail(B, top=1.0, near=0.3, apart=0.2, lean=-0.1, hunch=0.25, head_tilt=0.06, **kw):
+    """Standing at the rail along a wharf's edge, looking out over the water, both hands on it: the
+    rail (see RAIL) runs along x, its top `top` high and its near edge `near` in front of him; his
+    hands `apart` from the middle, the heels of them on its near edge and the fingers over its far
+    one, his weight a little on them, his head a little down to the water. p.rail: the middle of
+    its top."""
+    s = B.size
+    p = _base(B, (0, 0.0, 0.962 * s), lean=lean, hunch=hunch, head_tilt=head_tilt, **kw)
+    _legs(B, p, [(-0.1 * s, 0.02, 0.075), (0.1 * s, -0.06, 0.075)],
+          [(-0.15, 1, 0.5), (0.15, 1, 0.5)], [(-0.2, 1, 0), (0.18, 1, 0)])
+    d, t = RAIL['d'], RAIL['t']
+    rail = S.box(V(0, near + d / 2, top - t / 2), V(1.0, d / 2, t / 2), 0.005)
+    hands, poles, palms, grips = [], [], [], []
+    for i, sx in enumerate((-1.0, 1.0)):
+        hands.append(V(sx * apart, near - 0.01, top + 0.021))
+        poles.append(p.sh[i] + V(sx * 0.6, -0.3, -0.2))
+        # palm down, rolled a little onto its outer edge; the fingers forward, a little in
+        palms.append((sx * 0.12, 0.0, -1.0))
+        # (the thumb along the top beside the first finger, not down into the rail)
+        grips.append(dict(grip='open', along=V(-sx * 0.12, 1.0, -0.04), palm=V(sx * 0.12, 0.0, -1.0), on=rail,
+                          thumb=(0.55, -0.14, 0.1, 0.0, 0.0)))
+    _arms(B, p, hands, poles, palms)
+    p.grip = grips
+    p.rail = V(0, near + d / 2, top)
+    return p
+
+
 # ---------------------------------------------------------------------------------------- hands in poses
 
 def set_hands(B, p):
@@ -2077,7 +2107,7 @@ POSES = {
     'sit': pose_sit, 'cue': pose_cue, 'bar': pose_bar, 'reach': pose_reach, 'counter': pose_counter,
     'card': pose_card, 'close': pose_close, 'pint': pose_pint, 'door': pose_door, 'bar_lean': pose_bar_lean,
     'carry': pose_carry, 'sit_drink': pose_sit_drink, 'chin': pose_chin,
-    'armchair': pose_armchair, 'ledger': pose_ledger, 'perch': pose_perch,
+    'armchair': pose_armchair, 'ledger': pose_ledger, 'perch': pose_perch, 'rail': pose_rail,
 }
 
 
