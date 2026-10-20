@@ -528,6 +528,30 @@ def pose_ledger(B, seat=0.46, desk=0.74, edge=0.3, turn=0.42, lean=-0.3, head_ti
     return p
 
 
+def pose_perch(B, top=0.86, front=0.0, lean=0.05, hunch=0.25, head_tilt=-0.72, head_turn=0.12, **kw):
+    """Sat up on the lid of a chest freezer, its top `top` high and its front edge `front` along y:
+    the thighs along the lid, the legs hanging down its front with the heels back against it, the
+    hands in the front pouch, the head tipped right back, looking up at the sky. p.seat: the lid
+    under him; p.seat_front: the middle of its front edge."""
+    s = B.size
+    p = _base(B, (0, front + 0.045 - B.thigh * 0.99, top + 0.1 * s), lean=lean, hunch=hunch, head_tilt=head_tilt,
+              head_turn=head_turn, **kw)
+    # the backs of the heels against the front, the shoes hanging level (see shoe)
+    ank = []
+    for i, sx in enumerate((-1, 1)):
+        knee_z = top + 0.055 * s
+        ay = front + 0.078 * s + 0.004
+        ank.append(V(p.hip[i][0] + sx * 0.012, ay, knee_z - np.sqrt(max(B.shin ** 2 - (ay - front - 0.045) ** 2, 0.0))))
+    _legs(B, p, ank, [(-0.2, 1, 0.5), (0.2, 1, 0.5)], [(-0.12, 1, 0), (0.15, 1, 0)])
+    pouch = p.waist + p.R @ V(0, 0.16 * B.bulk, -0.03)
+    _arms(B, p, [pouch + V(-0.06, -0.01, 0), pouch + V(0.06, -0.01, 0)],
+          [p.sh[0] + V(-0.6, -0.4, -0.3), p.sh[1] + V(0.6, -0.4, -0.3)], [(1, 0.3, 0), (-1, 0.3, 0)])
+    p.hands_in = [True, True]
+    p.seat = V(0, p.pelvis[1], top)
+    p.seat_front = V(0, front, top)
+    return p
+
+
 # ---------------------------------------------------------------------------------------- hands in poses
 
 def set_hands(B, p):
@@ -1153,6 +1177,8 @@ def body_parts(B, p, look):
     if look.get('over') == 'jacket':
         # what long hair lies on (head_parts)
         p.outer = over_jacket(B, p, look, body, add)
+    elif look.get('over') == 'vest':
+        p.outer = over_vest(B, p, look, body, add)
     return parts
 
 
@@ -1393,6 +1419,34 @@ def over_jacket(B, p, look, body, add):
         c0 = p.neck + R @ V(float(w(np.array([z]))[0]) + 0.016, 0.0, z)
         add('button', S.sphere(c0 + _surf(jacket, c0, R @ V(0, 1, 0)), 0.0065), order=3)
     return S.union(jacket, col)
+
+
+def over_vest(B, p, look, body, add):
+    """A plain work vest of padded canvas over the hoodie, unzipped: standing off it, open down the
+    front (wider below, so the pouch shows), its edges rounded over the padding, the armholes cut
+    deep for the hoodie's sleeves, its back under the fallen hood, its hem at the hips above the
+    hoodie's; a pocket low on each side. Returns its outside."""
+    mat = look.get('over_mat', 'workjacket')
+    s = B.size
+    R = p.R
+    up = R @ V(0, 0, 1)
+    vb = S.offset(body, 0.014)
+    w = lambda z: 0.04 + 0.075 * np.clip((-z - 0.12) / 0.3, 0.0, 1.0)
+    opening = _loc(lambda q: np.maximum(np.abs(q[:, 0]) - w(q[:, 2]), 0.03 - q[:, 1]), p.neck, R)
+    hem = S.halfspace(p.pelvis + R @ V(0, 0, -0.05 * s), -up)
+    vest = S.carve(S.intersect(vb, hem, 0.008), opening, 0.008)
+    # the neckline, and the hood lying over the back of it
+    vest = S.carve(vest, S.ellipsoid(p.neck + R @ V(0, 0.0, 0.025), V(0.075, 0.075, 0.06), R), 0.008)
+    vest = S.carve(vest, S.ellipsoid(p.neck + R @ V(0, -0.075, -0.02), V(0.116, 0.056, 0.076), R), 0.006)
+    for i, sx in enumerate((-1, 1)):
+        # the armhole: from the top of the shoulder well down the side
+        vest = S.carve(vest, S.ellipsoid(p.sh[i] + R @ V(sx * 0.03, 0.0, -0.085), V(0.07, 0.082, 0.11), R), 0.008)
+    add(mat, vest, order=1)
+    # a pocket low on each front
+    for sx in (-1, 1):
+        x = sx * 0.125 * B.bulk
+        add(mat, _panel(vest, _front(R, p.pelvis, x - 0.05, x + 0.05, 0.0, 0.11), 0.005), order=2)
+    return vest
 
 
 # ---------------------------------------------------------------------------------------- hands
@@ -2023,7 +2077,7 @@ POSES = {
     'sit': pose_sit, 'cue': pose_cue, 'bar': pose_bar, 'reach': pose_reach, 'counter': pose_counter,
     'card': pose_card, 'close': pose_close, 'pint': pose_pint, 'door': pose_door, 'bar_lean': pose_bar_lean,
     'carry': pose_carry, 'sit_drink': pose_sit_drink, 'chin': pose_chin,
-    'armchair': pose_armchair, 'ledger': pose_ledger,
+    'armchair': pose_armchair, 'ledger': pose_ledger, 'perch': pose_perch,
 }
 
 

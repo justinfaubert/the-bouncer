@@ -149,10 +149,15 @@ PEOPLE = {
     'bookkeeper_desk': (dict(sex='f', age='old', bulk=0.94, belly=0.015, hair='set', hair_mat='hair_grey', face=['readers', 'lined'], top='cardigan',
                              top_mat='cardigan_b', under='shirt_white', collar=True, extra=['chain'], bottoms='slacks', shoes='dress',
                              shoe_mat='dress_shoe'), 'ledger', dict(), 0.008),
+    # the kid at the gas station, nineteen or twenty and slight: sat up on the chest freezer out
+    # front, the lid 0.86 high, his heels against its front, hands in the pouch of his hoodie under
+    # a plain work vest, a toque, his head tipped back to look up at the sky
+    'essokid_freezer': (dict(age='young', build='slight', size=1.03, shoulders=0.92, chest=0.9, hat='beanie', top='hoodie',
+                             over='vest', bottoms='jeans'), 'perch', dict(), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
 NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
-        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk'}
+        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer'}
 
 
 def make(name, look, pose, kw, step, near):

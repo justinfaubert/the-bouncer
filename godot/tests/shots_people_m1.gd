@@ -245,17 +245,19 @@ func _run() -> void:
 		var M: Dictionary = main.pub.M
 		main.pub.tiled(Vector3(10, 0.1, 10), Vector3(0, -0.05, 0), M.gravel, 2.0, set_node)
 		main.pub.tiled(Vector3(10, 3.6, 0.2), Vector3(0, 1.8, 0.85), M.plain, 2.0, set_node)
-		var lid := _anchor("essokid_freezer", "seat", Vector3(0, 0.86, 0))
-		# the chest freezer against the wall, him on its lid
-		_box(Vector3(1.3, lid.y, 0.72), Vector3(lid.x, lid.y / 2.0, 0.4), M.steel)
+		var lid := _anchor("essokid_freezer", "seat", Vector3(0, 0.86, 0.4))
+		var front := _anchor("essokid_freezer", "seat_front", Vector3(lid.x, lid.y, 0.0))
+		# the chest freezer against the wall, him on its lid with his heels against its front
+		_box(Vector3(1.3, lid.y, 0.72), Vector3(lid.x, lid.y / 2.0, front.z + 0.36), M.steel)
 		_figure("essokid_freezer")
 		var head := _anchor("essokid_freezer", "head", Vector3(0, 1.6, 0))
-		# the light under the canopy out front, and the shop window's
-		_light(Vector3(0.8, 4.2, -3.5), Color("dfe8f2"), 1.8, 10.0)
+		# the canopy's lights out front, bright and high over him, and the shop window's
+		_light(Vector3(0.6, 3.6, -1.8), Color("e4ecf4"), 2.0, 8.0)
 		_light(Vector3(-1.8, 1.4, -0.4), Color("e9f0f4"), 0.5, 3.0, false)
-		await _look(Vector3(1.2, 1.65, -3.8), head + Vector3(0, -0.45, 0))
+		# from across the lot, then standing over him, his face turned up past us
+		await _look(Vector3(1.2, 1.8, -3.8), head + Vector3(0, -0.45, 0))
 		await _grab("kid_lot")
-		await _look(Vector3(0.6, 1.4, -1.5), head + Vector3(0, -0.1, 0), 34.0)
+		await _look(Vector3(0.5, 1.8, -1.3), head + Vector3(0, -0.12, 0), 34.0)
 		await _grab("kid_close")
 	if _want("wharf") and _has("endbar_wharf"):
 		_new_set()
