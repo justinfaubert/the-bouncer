@@ -69,7 +69,7 @@ const RAIN_AT := {
 	"office": [Vector3(OFFICE_X - 8.6, OFFICE_Y + 4.0, OFFICE_Z + 3.0), Vector3(5.6, 0.3, 7.0)],
 	"street": [Vector3(-197.0, STREET_EYE.y + 2.5, -69.0), Vector3(9.0, 0.3, 11.0)],
 	"esso": [Vector3(-131.0, 7.0, 27.0), Vector3(10.0, 0.3, 7.0)],
-	"esso:kid": [Vector3(-150.0, 6.0, 14.45), Vector3(8.0, 0.3, 1.0)],
+	"esso:kid": [Vector3(-148.5, 6.0, 13.9), Vector3(6.0, 0.3, 0.9)],
 	"seawall": [Vector3(8.0, 6.5, 30.5), Vector3(12.0, 0.3, 5.0)],
 	"street:wharf": [Vector3(-200.0, 7.5, 54.0), Vector3(8.0, 0.3, 9.0)],
 }
@@ -791,7 +791,7 @@ func _shore() -> void:
 			else:
 				_bx(Vector3(b - a, 0.9, 0.5), Vector3((a + b) / 2.0, 0.2, 35.9), M.dark)
 			x = x1
-	# its centre line on the Sov's spacing (the Sov's dashes are at -60, -54 ... 78)
+	# its centre line on the Sov's spacing (the Sov's dashes are every 6 m from -60 to 78)
 	var dx := -66.0
 	while dx > -340.0:
 		_bx(Vector3(2.5, 0.01, 0.12), Vector3(dx, 0.02, 31.6), M.wall)
@@ -1128,7 +1128,7 @@ func _library() -> void:
 	_bx(Vector3(2.3, 3.2, 0.12), Vector3(0, 1.6, 0.06), T.sandstone)
 	_bx(Vector3(1.5, 2.4, 0.06), Vector3(0, 1.2, 0.13), M.dark)
 	_bx(Vector3(0.03, 2.3, 0.07), Vector3(0, 1.2, 0.165), T.trim_dk)
-	_plate("library", 3.6, 0.39, Vector3(0, 3.55, 0.03), Basis.IDENTITY, T.pic)
+	_plate("library", 3.6, 0.39, Vector3(0, 3.55, 0.03), Basis.IDENTITY, T.carved)
 	var steps := 6
 	for k in steps:
 		var sy := -0.175 * (k + 1)
@@ -1337,7 +1337,7 @@ func _bank() -> void:
 		_cy(0.26, 0.29, 4.3, Vector3(cx, 2.5, 0.55), T.sandstone, 14)
 		_bx(Vector3(0.8, 0.3, 0.8), Vector3(cx, 4.8, 0.55), T.sandstone)
 	_bx(Vector3(4.4, 0.95, 1.0), Vector3(0, 5.42, 0.4), T.sandstone)
-	_plate("bank", 2.6, 0.56, Vector3(0, 5.42, 0.91), Basis.IDENTITY, T.pic)
+	_plate("bank", 3.3, 0.71, Vector3(0, 5.42, 0.91), Basis.IDENTITY, T.carved)
 	_bx(Vector3(4.9, 0.25, 1.2), Vector3(0, 6.0, 0.4), T.sandstone)
 	# the cornice, the windows upstairs
 	_bx(Vector3(len + 0.8, 0.5, 0.8), Vector3(0, 7.55, 0.1), T.sandstone)
@@ -2169,6 +2169,9 @@ func _plates_start() -> void:
 	T.pic.set_shader_parameter("albedo_tex", t)
 	T.pic_clean = mat(Color(1, 1, 1), 0.8, 0.0, 5, Vector3.UP, 7.0, 0.6)
 	T.pic_clean.set_shader_parameter("albedo_tex", t)
+	# words cut in stone, in the stone's own strokes, finer (the panel they're on is dressed smoother)
+	T.carved = mat(Color(1, 1, 1), 0.9, 0.0, 0, Vector3.UP, 3.5, 0.8)
+	T.carved.set_shader_parameter("albedo_tex", t)
 	# the gold leaf: not shiny (with nothing round it to reflect it'd go dark across the room), and
 	# a little light of its own for the shine it has
 	T.gilt = glass(Color(0.9, 0.72, 0.36), 1.0)
@@ -2177,7 +2180,7 @@ func _plates_start() -> void:
 	T.gilt.set_shader_parameter("roughness", 0.8)
 	T.gilt.set_shader_parameter("emission", Color(0.9, 0.72, 0.36))
 	T.gilt.set_shader_parameter("emission_energy", 0.6)
-	_pics = [T.pic, T.pic_clean, T.gilt]
+	_pics = [T.pic, T.pic_clean, T.carved, T.gilt]
 	# the old photograph's grain, and its corners gone dark
 	var n := FastNoiseLite.new()
 	n.seed = 1958
@@ -2756,9 +2759,11 @@ func _sign(c: Control, r: Rect2, t: String, f: String, bg: Color, ink: Color, tr
 	_say(c, f, t, Vector2(mid.x, mid.y + _cap(f, s) / 2.0), s, ink, false, track)
 
 
-# letters cut into sandstone: dark in the cut, the light catching its lower lip
+# Letters cut into sandstone: deep in shadow in the cut, the light catching its lower lip, on a
+# panel dressed a little smoother than the rest. In the stone's own strokes (T.carved) the cuts go
+# solid and the panel's strokes thin, so the word reads the way the stone does.
 func _carved(c: Control, r: Rect2, t: String, track: float) -> void:
-	c.draw_rect(r, Color("b9a57e"))
+	c.draw_rect(r, Color("cdbb96"))
 	var rr := RandomNumberGenerator.new()
 	rr.seed = int(r.position.y)
 	for k in 14:
@@ -2767,8 +2772,9 @@ func _carved(c: Control, r: Rect2, t: String, track: float) -> void:
 	while _cap("zilla_b", s) > r.size.y * 0.62 and s > 8:
 		s -= 2
 	var at := r.position + r.size / 2.0 + Vector2(0, _cap("zilla_b", s) / 2.0)
-	_say(c, "zilla_b", t, at + Vector2(0, 3), s, Color("dccca6"), false, track)
-	_say(c, "zilla_b", t, at, s, Color("5f5139"), false, track)
+	_say(c, "zilla_b", t, at + Vector2(0, 4), s, Color("eadfc2"), false, track)
+	for o in [Vector2(-1.5, 0), Vector2(1.5, 0), Vector2.ZERO]:
+		_say(c, "zilla_b", t, at + o, s, Color("1f1a12"), false, track)
 
 
 # the video store's sign, years in the sun: the blue letters gone pale and coming away

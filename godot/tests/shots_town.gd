@@ -3,11 +3,12 @@ extends SceneTree
 # hour: Gary's office at four, from his chair, and the doorway and the bookkeeper from it; the old
 # main street at twenty to five, and the old man at the wharf's rail; the Esso at five to five, and
 # the kid on its freezer; the seawall at ten past five and at ten past seven; his room at
-# twenty-five to six; his head turned from those posts to what's round them (the bank, the church,
-# the library, the Legion's gun, the Esso's store, his father's photo and the notice on Gary's desk);
-# and the lot at twenty to eight, come to across the highway from the seawall, and down from his
-# room and round the front, and once more from the door after (his head's his own again). Then the
-# cost of a frame at the street against the door. Needs a display (xvfb-run):
+# twenty-five to six; his head turned from those posts to what's round them (the bank, the white
+# church, the Esso's store, his father's photo and the notice on Gary's desk);
+# the street's buildings from across it, for looking the town over (nowhere he's put); and the lot
+# at twenty to eight, come to across the highway from the seawall, and down from his room and round
+# the front, and once more from the door after (his head's his own again). Then the cost of a frame
+# at the street against the door. Needs a display (xvfb-run):
 #   xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolution 1280x720 \
 #     --path godot -s res://tests/shots_town.gd -- --out /tmp/town [--only office,esso_kid]
 
@@ -32,12 +33,26 @@ const SHOTS := [
 const TURNS := [
 	["turn_bank", "street", 1000, "street_bank"],
 	["turn_church", "street", 1000, "street_church"],
-	["turn_library", "street", 1000, "street_library"],
-	["turn_legion", "street", 1000, "street_gun"],
 	["turn_store", "esso", 1015, "esso_window"],
 	["turn_photo", "office", 960, "office_photo"],
 	["turn_notice", "office", 960, "office_notice"],
 ]
+
+
+# For looking the street over, not anywhere he's put: across from each of its buildings, standing on
+# the far sidewalk at twenty to five. The name, where from, what at.
+func _near() -> Array:
+	var on := func(x: float, z: float) -> Vector3: return Vector3(x, Town.street_y(z) + Town.KERB + Posts.STAND, z)
+	var a: Dictionary = main.pub.anchors
+	return [
+		["near_legion", on.call(-207.3, 24.0), a.street_gun],
+		["near_library", on.call(-207.3, -20.5), a.street_library],
+		["near_white_church", on.call(-207.3, -50.0), a.street_church],
+		["near_gary", on.call(-207.3, -86.0), Vector3(Town.OFFICE_X, Town.OFFICE_Y + 1.2, Town.OFFICE_Z - 0.4)],
+		["near_shops", on.call(-192.7, 2.0), Vector3(-208.5, Town.street_y(8.0) + 3.0, 8.0)],
+		["near_stone_church", on.call(-192.7, -96.0), Vector3(-212.0, Town.street_y(-106.0) + 8.0, -106.0)],
+		["near_esso", Vector3(-150.0, Posts.STAND, 33.5), Vector3(-150.0, 2.5, 12.0)],
+	]
 
 
 func _init() -> void:
@@ -125,6 +140,18 @@ func _run() -> void:
 		v.want_pitch = a.y
 		await _frames(30)
 		await _grab("%s_%d" % [s[0], s[2]])
+	if _want("near"):
+		_at("street", "", 1000)
+		for s in _near():
+			var v: View = main.view
+			v.eye_pos = s[1]
+			var a := Posts.aim(v.eye_pos, s[2])
+			v.yaw = a.x
+			v.pitch = a.y
+			v.want_yaw = a.x
+			v.want_pitch = a.y
+			await _frames(20)
+			await _grab("%s_1000" % s[0])
 	# the lot at twenty to eight, from the town: across the highway from the seawall; down from his
 	# room and round the front; and then from the door, when the Sov's been seen
 	if _want("lot"):

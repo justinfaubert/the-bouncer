@@ -89,10 +89,10 @@ const FRAMES := {
 	# the bookkeeper at her desk against the wall
 	"office:door": {"at": Town.GARY, "look": Town.DOORWAY, "seat": true},
 	"office:bk": {"at": Town.GARY, "look": Town.BOOKKEEPER, "seat": true},
-	# from the head of the government wharf, the old man at its rail
-	"street:wharf": {"at": Vector3(-200.6, Town.WHARF_Y + STAND, 44.5), "look": Vector3(-198.1, Town.WHARF_Y + 1.45, 58.0)},
-	# by the pumps, the kid on the ice freezer by the store's door
-	"esso:kid": {"at": Vector3(-150.6, Town.APRON + STAND, 18.0), "look": Vector3(-147.3, Town.APRON + 1.6, 12.45)},
+	# out on the government wharf, a few steps behind the old man at its rail
+	"street:wharf": {"at": Vector3(-199.9, Town.WHARF_Y + STAND, 55.3), "look": Vector3(-198.1, Town.WHARF_Y + 1.45, 58.0)},
+	# out from under the canopy, the kid on the ice freezer by the store's door
+	"esso:kid": {"at": Vector3(-149.6, Town.APRON + STAND, 15.3), "look": Vector3(-147.3, Town.APRON + 1.6, 12.45)},
 }
 
 
