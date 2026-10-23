@@ -48,10 +48,35 @@ pilings: {name: The pilings., at: a:pilings}
 # ---------------------------------------------------------------- outside
 rail: {name: The rail., at: a:deck_rail}
 butt_can: {name: The can., at: a:deck_can}
-roof_sign: {name: The sign on the roof., at: a:roof_sign, from: [lot]}
-store: {name: The beer store., at: a:store, from: [lot]}
+roof_sign: {name: The sign on the roof., at: a:roof_sign, from: [lot, seawall]}
+store: {name: The beer store., at: a:store, from: [lot, seawall]}
 work_truck: {name: The work truck., at: a:work_truck, from: [lot]}
 his_window: {name: His window., at: a:his_window, from: [lot]}
 
 # ---------------------------------------------------------------- his room
 up_window: {name: The window., at: a:up_window}
+
+# ---------------------------------------------------------------- before the night: Gary's front room, through Gary's eyes
+office_photo: {name: The Sov in 1958., at: a:office_photo, from: [office]}
+office_licence: {name: The first licence., at: a:office_licence, from: [office]}
+office_notice: {name: The inspector's notice., at: a:office_notice, from: [office]}
+office_lamp: {name: The lamp., at: a:office_lamp, from: [office]}
+office_window: {name: The window., at: a:office_window, from: [office]}
+office_calendar: {name: The calendar., at: a:office_calendar, from: [office]}
+office_safe: {name: The safe., at: a:office_safe, from: [office]}
+office_shirts: {name: The box of shirts., at: a:office_shirts, from: [office]}
+bk_mug: {name: Her mug., at: a:bk_mug, from: [office]}
+
+# ---------------------------------------------------------------- before the night: the old main street, the Esso, the seawall
+street_library: {name: The library., at: a:street_library, from: [street]}
+street_legion: {name: The Legion., at: a:street_legion, from: [street]}
+street_gun: {name: The gun., at: a:street_gun, from: [street]}
+street_bank: {name: The bank., at: a:street_bank, from: [street]}
+street_church: {name: The church., at: a:street_church, from: [street]}
+street_wharf: {name: The wharf., at: a:street_wharf, from: [street]}
+street_pickup: {name: The pickup., at: a:street_pickup, from: [street]}
+esso_canopy: {name: The canopy., at: a:esso_canopy, from: [esso]}
+esso_prices: {name: The prices., at: a:esso_prices, from: [esso]}
+esso_window: {name: The store., at: a:esso_window, from: [esso]}
+esso_ice: {name: The ice freezer., at: a:esso_ice, from: [esso]}
+seawall_water: {name: The water., at: a:seawall_water, from: [seawall]}

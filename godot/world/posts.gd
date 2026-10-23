@@ -34,8 +34,9 @@ const POSTS := {
 	# on the sidewalk at the foot of Gary's porch, down the old main street to the highway and the
 	# harbour
 	"street": {"at": Town.STREET_EYE, "look": Vector3(-200.0, 1.2, 40.0)},
-	# under the Esso's canopy at its edge by the road, down the highway to the Sov's sign
-	"esso": {"at": Vector3(-150.0, Town.APRON + STAND, 25.0), "look": Vector3(8.0, 11.0, 10.5)},
+	# under the Esso's canopy at its edge by the road, across the pumps to the store and the kid on
+	# the ice freezer by its door (the Sov's sign is down the highway, a turn of his head away)
+	"esso": {"at": Vector3(-150.0, Town.APRON + STAND, 25.0), "look": Vector3(-147.8, Town.APRON + 1.5, 12.5)},
 	# sitting on the seawall across the highway from the Sov, its front and the sign on its roof
 	"seawall": {"at": Vector3(8.0, 1.37, 35.75), "look": Vector3(7.0, 5.6, 10.3), "seat": true},
 }

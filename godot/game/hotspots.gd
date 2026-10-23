@@ -28,12 +28,18 @@ extends Node
 # before the general); "a|b": a, or if that's not there or not in sight, b
 const LEXICON := [
 	["payphone|numbers on the wall|receiver", "a:payphone|a:hall_end"],
+	# before the night, in Gary's office and on the walk (world/town.gd)
+	["photo behind|1958", "a:office_photo"],
+	["gary's desk|upside down", "a:office_notice"],
+	["bookkeeper", "fig:bookkeeper"],
+	["wharf", "a:street_wharf"],
+	["the esso|something to eat", "a:esso_window"],
 	["\\bphone\\b|photo|screen|swipe", "fig:hoodie:phone"],
 	["good shoes", "fig:goodshoes"],
 	["licen[cs]e|\\bid\\b|\\bcard\\b|birthday", "at_door|door_post"],
 	["sister|kayla|at the wheel|the driver", "fig:driver|at_door"],
 	["boyfriend|vape", "fig:vape"],
-	["\\bkid\\b|hood|tyler", "fig:hoodie"],
+	["\\bkid\\b|hood|tyler", "fig:hoodie|fig:essokid"],
 	["truck|pickup|headlight", "a:truck"],
 	["raincoat|wife", "fig:raincoat"],
 	["glasses|dennis", "fig:glasses|a:t28"],

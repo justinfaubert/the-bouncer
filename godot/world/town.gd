@@ -2507,31 +2507,34 @@ func _father(c: Control) -> void:
 	_mr(c, -0.12, 1.72, 0.12, 1.755, _g(0.05))
 
 
-# The fire inspector's notice on his desk: an inspection on Wednesday, the word ringed in his pen.
+# The health inspector's notice on his desk, as the doorman reads it upside down (content/ink/office.ink,
+# "Read Gary's desk upside down"): a routine inspection on the 14th, the one the note on the Sov's till
+# means (prologue.ink), and PEST circled twice in his pen.
 func _letter(c: Control, r: Rect2) -> void:
 	c.draw_rect(r, Color("f3f0e7"))
 	var ink := Color("2a2a2e")
 	var mid := r.position.x + r.size.x / 2.0
 	var x := r.position.x + 52.0
 	var y := r.position.y + 70.0
-	_say(c, "receipt_b", "FIRE AND BUILDING SAFETY", Vector2(mid, y), 23, ink)
+	_say(c, "receipt_b", "ENVIRONMENTAL HEALTH", Vector2(mid, y), 23, ink)
 	y += 40.0
-	_say(c, "receipt_b", "NOTICE OF INSPECTION", Vector2(mid, y), 30, ink)
+	_say(c, "receipt_b", "NOTICE OF ROUTINE INSPECTION", Vector2(mid, y), 25, ink)
 	c.draw_line(Vector2(x, y + 16.0), Vector2(r.end.x - 52.0, y + 16.0), ink, 2.0)
 	y += 58.0
 	var lines := ["October 28, 2026", "", "To:  Van Dusen Holdings Ltd.", "Re:  Sovereign Hotel, Shore Road",
-		"     (beverage room and hotel)", "", "An inspector will attend the",
-		"premises on Wednesday, November 4,", "while they are open, to inspect the",
-		"exits, the posted occupant load,", "the fire separations and the alarm.", "",
-		"The posted occupant load is not to", "be exceeded at any time. Exits are", "to be kept clear and unlocked while",
-		"the premises are open.", "", "Failure to comply may result in an", "order to close the premises."]
+		"     (beverage room and kitchen)", "", "An inspector will attend the",
+		"premises on Saturday, November 14,", "while they are open, for a routine",
+		"inspection of the food premises.", "",
+		"PEST CONTROL: records of service are", "to be available on request. Any", "evidence of pests is to be reported.", "",
+		"Failure to comply may result in an", "order to close the premises."]
 	var font := _font("receipt")
 	for i in lines.size():
 		_say(c, "receipt", lines[i], Vector2(x, y), 19, ink, true)
-		if lines[i].begins_with("premises on Wednesday"):
-			var x0 := x + font.get_string_size("premises on ", HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x
-			var w := font.get_string_size("Wednesday", HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x
-			_ring(c, Vector2(x0 + w / 2.0, y - 6.0), w / 2.0 + 9.0, 15.0, Color("2b4c9e"), 2.4)
+		if lines[i].begins_with("PEST"):
+			# circled twice, the second time not quite on the first
+			var w := font.get_string_size("PEST", HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x
+			_ring(c, Vector2(x + w / 2.0, y - 6.0), w / 2.0 + 9.0, 15.0, Color("2b4c9e"), 2.4)
+			_ring(c, Vector2(x + w / 2.0 + 2.0, y - 5.0), w / 2.0 + 12.0, 17.0, Color("2b4c9e"), 2.0)
 		y += 25.0
 	# the signature, and who it is
 	y += 22.0

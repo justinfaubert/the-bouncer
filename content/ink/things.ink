@@ -229,3 +229,138 @@
 - The lot from up here: the puddles, the sign's red in them, the highway, and nobody on it.
 - The lot, and the sign's red in the puddles.
 }
+
+
+// ------------------------------------------------------------------ before the night: Gary's front room
+// The camera's Gary's in here (office.ink), so these are what Gary sees.
+
+=== function toy_office_photo(what)
+{stopping:
+- His father's picture of the Sov, August 1958, on the wall behind Gary's chair, where the man across the desk had to look at it and Gary didn't. Three storeys of new paint, every letter on the roof lit, and Senior in front of the door in his hat.
+- Senior, in front of the Sov, every letter lit.
+}
+
+=== function toy_office_licence(what)
+{stopping:
+- The first licence, framed by the door: beer by the glass, in the beverage room of the Sovereign Hotel, for the year 1958. Senior had framed the first one and filed every one after it.
+- The first licence, 1958.
+}
+
+=== function toy_office_notice(what)
+{stopping:
+- The notice from the health authority, square in front of Gary on the desk, where he'd see it every time he looked down, which was the idea. A routine inspection, Saturday the fourteenth, while they were open. Further down he'd circled PEST, and then circled it again.
+- The fourteenth. PEST, twice.
+}
+
+=== function toy_office_lamp(what)
+{stopping:
+- The brass lamp on the desk, with its pleated shade, on since lunch. In November on the island it was four in the afternoon from about eleven in the morning.
+- The lamp, on.
+}
+
+=== function toy_office_window(what)
+{stopping:
+- The front window, the blinds half up and the rain on the glass. Across the road, the bank that had been a cafe for eleven years, BANK still cut in the stone over the door and the cafe's lights on underneath it.
+- Rain, and the cafe across the road.
+}
+
+=== function toy_office_calendar(what)
+{stopping:
+- The calendar over the bookkeeper's desk: a fish boat at the dock, in better weather than this, and November under it.
+- November.
+}
+
+=== function toy_office_safe(what)
+{stopping:
+- The safe by the filing cabinet, black and older than Gary, still on Senior's combination, which was Gary's mother's birthday.
+- The safe.
+}
+
+=== function toy_office_shirts(what)
+{stopping:
+- The carton of shirts by the door, from a supplier on the mainland: black, SECURITY across the back of every one in white letters a hand high. Eleven dollars each, by the dozen.
+- The shirts, in their carton.
+}
+
+=== function toy_bk_mug(what)
+{stopping:
+- The bookkeeper's mug, from the bank across the road when it was a bank, its name washed nearly off. Tea, gone cold by the ledger.
+- Her mug, from the bank.
+}
+
+
+// ------------------------------------------------------------------ before the night: the old main street, the Esso, the seawall
+
+=== function toy_street_library(what)
+{stopping:
+- The library, the oldest stone on the street, PUBLIC LIBRARY over the door, and a lamp on in one of the tall windows for whoever came in next.
+- The library, one lamp on.
+}
+
+=== function toy_street_legion(what)
+{stopping:
+- The Legion, set back behind its lawn, long and low, its windows up high where nobody could see in and the bar behind them lit already.
+- The Legion, its bar lit.
+}
+
+=== function toy_street_gun(what)
+{stopping:
+- A field gun on a concrete plinth on the Legion's lawn, its barrel aimed across the road at the bank. Whoever set it there had either not thought about that, or had.
+- The gun, still aimed at the bank.
+}
+
+=== function toy_street_bank(what)
+// HUTCH: The old main street in a town like yours: what's on it that nobody from away would notice?
+{stopping:
+- BANK, cut in the stone over the columns, and under it a cafe for eleven years: a chalkboard on the sidewalk, SOUP TODAY, CLAM CHOWDER, PIE $4.50, COFFEE $2.25, and the lights on behind the glass doors{call_did == 3:, where the bookkeeper had been a teller}.
+- BANK, over the cafe.
+}
+
+=== function toy_street_church(what)
+{stopping:
+- The white church, wooden, its spire going up into the rain, and the board on its lawn: ST. ANDREW'S, SUNDAY SERVICE 10:30 AM, ALL WELCOME. The other church, the stone one further down, didn't say.
+- St. Andrew's. All welcome.
+}
+
+=== function toy_street_wharf(what)
+{stopping:
+- The government wharf, across the highway at the foot of the street: wet planks, crab traps stacked at its head, two fish boats tied up, and the light at the end with somebody standing under it, not fishing.
+- {knows ? endbar_wharf:The old man, still at the end of the wharf.|The wharf, and somebody under the light at the end.}
+}
+
+=== function toy_street_pickup(what)
+{stopping:
+- A pickup outside the cafe with its wipers stopped halfway up the glass, which meant whoever owned it had only meant to be a minute, about an hour ago.
+- The pickup, still waiting.
+}
+
+=== function toy_esso_canopy(what)
+{stopping:
+- The canopy, lit white from underneath, over two islands of pumps and nobody at them. Under it the rain stopped and the light didn't, so it was noon there and nowhere else.
+- The canopy, lit.
+}
+
+=== function toy_esso_prices(what)
+{stopping:
+- The price sign by the road, in plain digits a foot high: 179.9, 193.9, 188.9. They'd gone up twice since the summer and come down once, by a tenth of a cent.
+- 179.9.
+}
+
+=== function toy_esso_window(what)
+{stopping:
+- The store's window, full of signs: two for one, lotto, propane exchange, ice, a lost cat from August. Behind them the shelves, the till, and the clock over it that didn't agree with anything.
+- The store, lit.
+}
+
+=== function toy_esso_ice(what)
+{stopping:
+- The ice freezer by the door, ICE on its front, and the kid sitting on the lid with his heels against the C. It was November and raining and nobody was going to buy ice, which was probably why it was his.
+- The kid, on the ice.
+}
+
+=== function toy_seawall_water(what)
+{stopping:
+- The strait past the seawall, the tide high and the rain on it, and the far shore's lights laid along the top of the dark.{knows ? esso_sky: Over the mainland the kid's light, where it had been.} Every few minutes a log truck went by behind him and the wall shook a little.
+- The water, and the far shore.
+}
+

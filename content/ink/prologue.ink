@@ -13,7 +13,8 @@
 - from_room:
     The rain had come back across the strait with the last ferry. It hit the gravel lot hard enough to bounce.
 - else:
-    // HUTCH: These opening lines are the first thing anyone reads. Rewrite them in the voice of whoever turns out to be telling this story, years later, at a bar.
+    // The opening lines from Gary's office (office.ink, interview), for a night started here without it.
+    // Hutch's prompt for them is there, where they're read first now.
     NARRATOR: He started on a Wednesday. The Sov tried out doormen on Wednesdays, on a night slow enough that a mistake would only hurt a little.
     NARRATOR: Of the thirty days, it was the one nobody else remembered.
     The rain had come across the strait with the last ferry and hadn't let up. It hit the gravel lot hard enough to bounce.
