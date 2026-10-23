@@ -230,6 +230,12 @@ const CUTS := {
 	"card": [1, Vector3(0, 0, 1), 7.0, 1.0], "card_back": [1, Vector3(0, 0, 1), 7.0, 1.0], "cardboard": [2, Vector3.UP, 6.0, 1.0],
 	"uniform": [4, Vector3.UP, 5.0, 0.8], "uniform_trim": [4, Vector3.UP, 5.0, 0.8], "flannel_b": [4, Vector3.UP, 5.5, 0.8],
 	"badge": [1, Vector3(0, 0, 1), 7.0, 1.0], "lanyard": [3, Vector3.UP, 5.0, 0.0],
+	# the doorman's scar and his mala; the bookkeeper's ledger; Gary's own hand in his office, cut
+	# like the doorman's (the grain round the fingers), with its hairs, spots, cuff and ring
+	"scar": [4, Vector3.UP, 4.5, 0.7], "mala": [3, Vector3.UP, 5.0, 0.0], "tassel": [3, Vector3.UP, 5.0, 0.0],
+	"ledger": [2, Vector3.UP, 6.0, 1.0],
+	"skin_pale": [4, Vector3.UP, 4.5, 0.7], "age_spot": [4, Vector3.UP, 4.5, 0.7], "hand_hair": [4, Vector3.UP, 3.5, 0.5],
+	"oxford": [4, Vector3.UP, 5.5, 0.8], "gold": [3, Vector3.UP, 5.0, 0.0],
 }
 var from_model_cache := {}
 

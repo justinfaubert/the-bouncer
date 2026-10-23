@@ -71,8 +71,10 @@ The skeleton's first milestone: Gary's office, and the walk to the Sov at dusk.
   her desk writing in her ledger, the Sov in 1958 on the wall behind him beside the first
   licence, the box of shirts, rain on the window and the old bank across the street. From his
   chair Gary watches the doorman in the doorway, then across the desk, and turns to the
-  bookkeeper while she does the papers. The health inspector's notice on his desk is the one the
-  doorman reads upside down, with PEST circled twice.
+  bookkeeper while she does the papers. The licence is in Gary's own hand, older and paler than
+  the doorman's, with a signet ring and a blue cuff, his thumb over the name. The health
+  inspector's notice on his desk is the one the doorman reads upside down, with PEST circled
+  twice.
 - It's hard not to get hired, but not impossible: mean the threat, walk out, or be rude to both of
   them, and the game ends there. Lies Gary catches cost him with Gary, not the job.
 - His stats. Strength, Constitution, Dexterity, Intelligence, Wisdom, Charisma and Gut Brain, out
