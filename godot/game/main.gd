@@ -108,6 +108,7 @@ func _ready() -> void:
 		column.voice_styles[id] = str(content.voices[id].get("style", id))
 	column.chose.connect(choose)
 	column.hand_on.connect(func(i, on): hand.on_row(i, on))
+	column.pointed.connect(func(i, on): spots.point_out(i, on))
 	column.end_action.connect(_end_action)
 
 	spots = Hotspots.new()

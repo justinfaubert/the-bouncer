@@ -13,9 +13,11 @@
 # does. In the middle of something (a talk, a check, someone at the door), nothing on offer goes
 # anywhere, and he only looks over there.
 #
-# The ways round aren't in the column, only what he does where he is (game/column.gd): each one is
-# pinned to its place in the room (game/hotspots.gd), and the sketch (M) takes him anywhere lit on
-# it. With nothing under his eyes, E (Y on a pad) walks him to the floor he's looking at.
+# The ways round aren't numbered in the column with what he does where he is (game/column.gd):
+# each one is pinned to its place in the room (game/hotspots.gd), and named under GO WHERE HE LOOKS
+# by where it goes, so a player who hasn't found them in the room yet still can; a hand on a name
+# rings the place, if it's in front of him. The sketch (M) takes him anywhere lit on it. With
+# nothing under his eyes, E (Y on a pad) walks him to the floor he's looking at.
 #
 # While the pointer's on floor a click would take him to, a ring on it says where he'd end up, pale
 # on the dark of the carpet like chalk: the spot itself, or the place's own (the stool, the gap in

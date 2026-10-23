@@ -22,7 +22,8 @@
 + [{door_label()} #loc: door]
     ~ pass(1)
     -> at_door
-+ [{count_label()} #loc: floor]
+// not straight after a count: the room hasn't changed yet (count_body)
++ {clock - counted_at >= 10} [{count_label()} #loc: floor]
     -> count_room
 + [{t28_label()} #loc: t28]
     ~ pass(1)
@@ -67,7 +68,7 @@
     -> hub
 + {from != door} [{door_away >= 30:Back on the door|The door} #loc: door #class: move]
     -> walk(from, -> at_door, 2)
-+ [Count the room #class: move]
++ {clock - counted_at >= 10} [Count the room #class: move]
     -> walk(from, -> count_room, 1)
 + {from != t28} [Table 28 #loc: t28 #class: move]
     -> walk(from, -> at_t28, 2)
@@ -262,6 +263,8 @@
 
 // A tunnel, so the prologue can use it too. Heads, faces and the doors can be done again on every
 // count, because the room changes; the two checks can't, because a second look doesn't see more.
+// Once he's had enough, the floor doesn't offer to count again for ten minutes (counted_at), so
+// "Count the room." isn't the one thing left to do straight after one.
 === count_body ===
 ~ temp did_heads = false
 ~ temp did_faces = false
@@ -345,6 +348,7 @@
     }
     -> opts
 + [That's enough counting.]
+    ~ counted_at = clock
     ->->
 
 // Walking the doors. The loose rule: they're locked at night, mostly. The cook and the night clerk

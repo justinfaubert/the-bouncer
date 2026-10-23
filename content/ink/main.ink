@@ -115,6 +115,7 @@ VAR pool_heat = 1           // 0 calm ... 10 violence
 VAR pool_mins = 0
 VAR t28_rounds = 3          // they've been here since two
 VAR last_count = 0          // the clock when he last counted the room
+VAR counted_at = -60        // the clock when he last finished a count: the floor doesn't offer another till the room's had ten minutes to change
 VAR last_room_line = 0      // the clock when the floor last got a line about the room
 VAR juke_low = false        // the bartender turned the jukebox down a notch when he asked (pool.ink)
 

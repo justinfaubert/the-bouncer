@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The Godot build of 23 October 2026, the third that day.
+Wednesday, from the interview to close. The Godot build of 23 October 2026, the fourth that day.
 
 
 PLAY IT
@@ -39,8 +39,9 @@ HANDS ON
     Go somewhere      click the floor. In the bar he walks there, round the tables and whoever's
                       standing, and a pale ring on the floor shows where he'd end up. The floor
                       round a place (his stool, the bar, table 28, the pool table, the jukebox)
-                      takes him to it. E with nothing under his eyes walks him to the floor
-                      he's looking at; Space on the way hurries him
+                      takes him to it. Or click the place's name in the column, under GO WHERE
+                      HE LOOKS. E with nothing under his eyes walks him to the floor he's
+                      looking at; Space on the way hurries him
     Choose            click a choice, or press its number
     Go on             Space or Enter, where the night stops to let a moment land
     Look round        drag across the room, or the arrows (or W A S D); the wheel narrows his eyes
@@ -60,6 +61,21 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE THIRD BUILD OF 23 OCTOBER
+
+The fix for counting the room.
+
+- After a count, "That's enough counting." left only "Count the room." in the column, because
+  the ways round the room were all out in the room itself. Clicking it started the count over, so
+  it went round and round. Now the column names every place he can go, under GO WHERE HE LOOKS:
+  the door, table 28, the pool table, the bar, the back hall, the kitchen, the deck. Click a name
+  and he goes there, the same as clicking the place in the room. Rest the pointer on a name and
+  the place lights up in the room, with the night's words for it, if it's in front of him. The
+  names aren't numbered: the number keys are still for what he does where he is.
+- The floor doesn't offer to count the room again for ten minutes after a count. It hasn't
+  changed yet.
 
 
 WHAT'S NEW SINCE THE SECOND BUILD OF 23 OCTOBER

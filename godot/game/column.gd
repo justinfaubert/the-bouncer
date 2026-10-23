@@ -12,9 +12,16 @@ extends Control
 
 signal chose(index: int)
 signal hand_on(index: int, on: bool)
+signal pointed(index: int, on: bool)
 signal end_action(what: String)
 
 const TEXT_SIZES := {"s": 22, "m": 24, "l": 27}
+# the places the ways he goes by in the room go to, by name (content/ink/floor.ink, the hub)
+const PLACE_WORDS := {"door": "the door", "floor": "the floor", "t28": "table 28", "pool": "the pool table",
+	"bar": "the bar", "hall": "the back hall", "kitchen": "the kitchen", "keg": "the keg room",
+	"deck": "the deck", "lot": "the pickup", "upstairs": "upstairs"}
+# the night's words for a way that's pressing (floor.ink, door_label and pool_label): its name stands out
+static var _pressing := RegEx.create_from_string("^(Get back|Back on)|getting loud|been an hour")
 const PAD_L := 44.0
 const PAD_R := 40.0
 
@@ -595,8 +602,8 @@ func clear_choices() -> void:
 
 
 # list: the visible choices; the ways out of a place (#class: move) go in a row under the rest. hide:
-# the ways he goes by in the room instead (game/going.gd), which aren't here at all; where there
-# are any, a line under the rest says so.
+# the ways he goes by in the room instead (game/going.gd), which aren't numbered here; where there
+# are any, a line under the rest says so and names where they go.
 func show_choices(list: Array, tension_words: Array, hide: Array = []) -> void:
 	clear_choices()
 	var main_idx: Array = []
@@ -667,17 +674,47 @@ func show_choices(list: Array, tension_words: Array, hide: Array = []) -> void:
 		m.mouse_filter = Control.MOUSE_FILTER_PASS
 		m.add_child(flow)
 		choices_box.add_child(m)
+	# the ways he goes by in the room, named after it, without numbers: a click on one is the same as
+	# a click on the place, and a hand on one rings the place in the room, where he can see it
 	if not hide.is_empty():
+		var gflow := HFlowContainer.new()
+		gflow.add_theme_constant_override("h_separation", 10)
+		gflow.add_theme_constant_override("v_separation", 8)
+		gflow.mouse_filter = Control.MOUSE_FILTER_PASS
 		var go := UiBits.label(("OR GO" if not main_idx.is_empty() or not ways.is_empty() else "GO") + " WHERE HE LOOKS", "ui_b", 15, Look.MUTED, 3)
 		go.custom_minimum_size = Vector2(0, 34)
 		go.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		go.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		gflow.add_child(go)
+		for i in hide:
+			var c: Dictionary = list[i]
+			var chip := WayChip.new()
+			chip.setup({"text": place_word(c)}, i, 0, _pressing.search(str(c.get("text", ""))) != null)
+			chip.picked.connect(func(ix): chose.emit(ix))
+			chip.hand_on.connect(func(ix, on):
+				hand_on.emit(ix, on)
+				pointed.emit(ix, on))
+			gflow.add_child(chip)
+			rows.append(chip)
 		var gm := MarginContainer.new()
 		gm.add_theme_constant_override("margin_top", 10 if not main_idx.is_empty() or not ways.is_empty() else 0)
-		gm.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		gm.add_child(go)
+		gm.mouse_filter = Control.MOUSE_FILTER_PASS
+		gm.add_child(gflow)
 		choices_box.add_child(gm)
 	_fade_in_choices()
+
+
+# A way he goes by in the room, by the name of where it goes (the night's words for it come up
+# beside the place itself, game/hotspots.gd).
+static func place_word(c: Dictionary) -> String:
+	var text := str(c.get("text", ""))
+	var loc = c.get("loc")
+	var l := "" if loc == null else str(loc)
+	if l == "pool" and text.containsn("jukebox"):
+		return "the jukebox"
+	if PLACE_WORDS.has(l):
+		return PLACE_WORDS[l]
+	return text.trim_suffix(".")
 
 
 func show_end(stamped: bool) -> void:

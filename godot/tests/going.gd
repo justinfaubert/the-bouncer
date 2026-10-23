@@ -5,7 +5,8 @@ extends SceneTree
 # floor is) and watches him go. He must get where he was pointed, or as near as a man can stand,
 # and the night must go on from it the way it says: a minute for a walk across the room, nothing
 # for a step or two, a place's own choice for the floor round a place, and from a place, the way
-# back onto the floor. The ways he can go by aren't in the column. Hurrying across the room, the
+# back onto the floor. The ways he can go by aren't numbered in the column, only named, under GO
+# WHERE HE LOOKS. Hurrying across the room, the
 # room sees him run, and the bar has something to say about it. Off the floor's post, the dice tray
 # goes down by his feet. The clock on the page runs up to the night's, not all at once.
 #   godot --headless --path godot -s res://tests/going.gd -- --seed 3
@@ -263,19 +264,24 @@ func _run() -> void:
 	print("== the column")
 	var list: Array = main.game.visible_choices()
 	var hid: Array = main.going.hidden(list)
-	var shown: Array = []
+	var numbered: Array = []
+	var named := 0
 	for r in main.column.rows:
 		if r.index in hid:
-			shown.append(str(list[r.index].text))
+			if r.key != 0:
+				numbered.append(str(list[r.index].text))
+			else:
+				named += 1
 	var names: Array = []
 	for i in hid:
 		names.append(str(list[i].text))
 	print("  out of it: " + "; ".join(names))
-	_ok("the ways round the room are out of the column", hid.size() >= 4, "%d of %d" % [hid.size(), list.size()])
-	_ok("  none of them shown", shown.is_empty(), "; ".join(shown))
+	_ok("the ways round the room are out of the column's numbered choices", hid.size() >= 4, "%d of %d" % [hid.size(), list.size()])
+	_ok("  none of them numbered", numbered.is_empty(), "; ".join(numbered))
 	_ok("  and it says where they've gone", _has_label(main.column.choices_box, "WHERE HE LOOKS"))
+	_ok("  naming each of them there, to click", named == hid.size(), "%d of %d" % [named, hid.size()])
 	var keyed = main.column.row_for_key(1)
-	_ok("  the keys go to what's shown", keyed != null and not (keyed.index in hid))
+	_ok("  the keys go to what's numbered", keyed == null or not (keyed.index in hid))
 
 	print("== across the room")
 	var far: Vector3 = await _bare(3.2, 4.6)

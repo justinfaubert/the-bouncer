@@ -152,6 +152,7 @@ var cap_box: VBoxContainer
 var _t := 0.0
 var _on_caption := false
 var _res := {}
+var _pointed := -1               # the choice a hand's on in the column, by the name of its place
 
 
 func setup(m) -> void:
@@ -198,7 +199,17 @@ func refresh() -> void:
 
 func clear() -> void:
 	spots.clear()
+	_pointed = -1
 	_set_under(null)
+
+
+# A hand on a way's name in the column (game/column.gd, GO WHERE HE LOOKS): the place it goes to is
+# ringed in the room, with the night's words for it, while he can see it from here.
+func point_out(i: int, on: bool) -> void:
+	if on:
+		_pointed = i
+	elif _pointed == i:
+		_pointed = -1
 
 
 # where a choice happens (its #loc), or "" (the engine has null for none)
@@ -506,12 +517,17 @@ func _process(dt: float) -> void:
 		if w.is_empty():
 			continue
 		pinned[s.i] = w[2]
+		# with a hand on a way's name in the column, only where that goes, if it's in front of him
+		if _pointed >= 0:
+			if s.i == _pointed:
+				best = _candidate(w, _on_screen(w[0]), by_pointer)
+			continue
 		var c = _candidate(w, probe, by_pointer)
 		if c != null and (best == null or c.d < best.d):
 			best = c
 	# the things he can look at, where nothing on offer is
 	var taken: Array = pinned.values()
-	for id in things:
+	for id in ([] if _pointed >= 0 else things):
 		if str((things[id] as Dictionary).get("at", "")) in taken:
 			continue
 		var w := look_spot(id)
@@ -548,6 +564,12 @@ func _candidate(w: Array, probe: Vector2, by_pointer: bool):
 	if d >= rpx:
 		return null
 	return {"key": w[2], "at": at, "r": rpx, "p": p, "d": d, "look": ""}
+
+
+# where a point in the world is in the window, or off it
+func _on_screen(p: Vector3) -> Vector2:
+	var sc: Vector3 = main.view.on_screen(p)
+	return Vector2(sc.x, sc.y) if sc.z > 0.0 else Vector2(-1.0e6, -1.0e6)
 
 
 func _px(p: Vector3, r: float) -> float:

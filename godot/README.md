@@ -111,6 +111,7 @@ godot --headless --path godot -s res://tests/looks.gd        # what each thing h
 godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
 godot --headless --path godot -s res://tests/walks.gd        # every walk, from every post to every other
 godot --headless --path godot -s res://tests/going.gd -- --seed 3   # going where he looks, clicked
+godot --headless --path godot -s res://tests/column_player.gd -- --seed 3   # a night by the column alone
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
 godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
 ```
@@ -122,7 +123,11 @@ and through two places at once, the way the page sends him, and
 fails a walk that goes through anything, goes faster than he walks, or gets to a door before it's
 open; it also fails a post with somebody's spot under it. `going.gd` plays a night on to the floor
 and clicks it the way a player would: across the room, a step or two, E, a run, the floor round
-the bar, table 28 and the door, and back out from each. `tray_spots.gd` prints the table of tray
+the bar, table 28 and the door, and back out from each. `column_player.gd` plays a whole night
+using only the column (its numbered choices, the ways' chips, the places' names under GO WHERE HE
+LOOKS), and fails on a moment with nothing there to click, or on the column coming back the same
+at the same minute with nothing in the night changed: on 23 October it caught "Count the room."
+coming straight back after "That's enough counting.". `tray_spots.gd` prints the table of tray
 spots for `game/dice.gd`, and `walk_grid.gd` writes the walk map: run both again when the room
 changes.
 
