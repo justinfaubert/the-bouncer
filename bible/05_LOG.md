@@ -178,6 +178,7 @@ Update this file at the end of every session: add a session entry, move items be
 - Found by `tests/reach.gd`: the drawer's choices about the ferry tickets were pinned to Scratch at table 28, who buys lottery tickets, and isn't there after hours. The drawer's choices are pinned to the till now, where the drawer is, and taking a thing out says it's out of the drawer.
 - Who the woman with the ferry tickets was is a writing prompt for Hutch (`content/ink/drawer.ink`). The name on the boy's licence is a placeholder.
 - The story changed (the jacket, the drawer, the pour, the keys), so a night saved before goes on from the floor.
+- Delivered on 23 October (e6819df): `releases/The-Bouncer-2026-10-23c.zip` to play on Linux, the Godot web build at its link (version 10) and the browser build at its link (version 13).
 
 ## Decisions register
 
