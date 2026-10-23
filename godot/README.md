@@ -112,8 +112,9 @@ godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray ca
 ```
 
 `reach.gd` checks every choice's pin, and every thing he can look at, from every post with a line
-of sight; on 17 October 2026 it found none wrong over twelve nights. `walks.gd` walks him from every
-post to every other (306 walks) and through two places at once, the way the page sends him, and
+of sight, the town's before the night included; on 23 October 2026 it found none wrong over twelve
+nights. `walks.gd` walks him from every post to every other (702 walks, the town's cuts among them)
+and through two places at once, the way the page sends him, and
 fails a walk that goes through anything, goes faster than he walks, or gets to a door before it's
 open; it also fails a post with somebody's spot under it. `tray_spots.gd` prints the table of tray
 spots for `game/dice.gd`, and `walk_grid.gd` writes the walk map: run both again when the room
