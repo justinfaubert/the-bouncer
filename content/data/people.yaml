@@ -1,0 +1,427 @@
+# The town's people: what the generator makes them from, once a game, from the game's seed
+# (prototype/web/src/core/town.js, and its twin godot/engine/town.gd, which has to make the same
+# town from the same seed: tools/town_diff.mjs checks it). Their streets are content/data/town.yaml;
+# what they say and do at the door is content/rules/door.yaml.
+#
+# bible/11_SKELETON.md, "The people are generated on them": names, ages, faces from parts, families
+# (brothers, sisters, exes, kids), work, an address on a real street, how they drink, a debt, a
+# grudge, one secret. Everyone the door sees is one of them. This is the first hundred of the four
+# hundred: the adults nearest the Sov, and the teenagers who live with them.
+#
+# Everything here is Claude's draft. HUTCH: change anything, and say where it's wrong for the
+# island. Nobody from a First Nation is made here: whether a Nation is in the game, and how, is
+# Hutch's call (05_LOG.md, open question 23).
+
+adults: 100
+
+# ---------------------------------------------------------------- who they come from
+#
+# A household's background gives its surnames and, where it isn't the settler lists, its given
+# names. share: how many households in a hundred. Mixed couples happen (mixed: how often the
+# second adult comes from anywhere). looks: where it isn't the settler odds, hair and eyes (dark:
+# the hair_colour and eyes tables under looks, below).
+
+backgrounds:
+  settler:
+    share: 76
+    surnames: [Kowalski, Harris, McLeod, Fraser, Campbell, MacDonald, Robertson, Thompson, Anderson, Olsen, Hansen,
+      Lindgren, Nielsen, Pedersen, Van der Meer, De Vries, Bakker, Schultz, Becker, Wagner, Hoffman, Bondarenko,
+      Hrynyk, Kozak, Rossi, Moretti, Costa, Silva, Pereira, Tremblay, Gagnon, Bouchard, Pelletier, O'Brien, Kelly,
+      Murphy, Walsh, Doyle, Barrett, Sutherland, Gillis, Munro, Matheson, Stewart, Grant, Wallace, Hughes, Evans,
+      Price, Hamilton, Chambers, Fletcher, Turner, Baxter, Parsons, Dawson, Holloway, Pritchard, Whitfield, Crane,
+      Skidmore, Lund, Berg, Haugen, Svensen, Gustafson, Brandt, Kinney, Rideout, Pinder, Lusk, Tolley, Varga, Novak]
+  sikh:
+    share: 10
+    surnames: [Dhaliwal, Sandhu, Gill, Johal, Sidhu, Grewal, Bains, Dhillon, Mann, Sahota, Thind, Atwal, Mangat, Rai]
+    middle: {m: Singh, f: Kaur}
+    # a turban (and the full beard with it) on some of the men, out of ten; it stays on in a licence photo
+    looks: {hair_colour: dark, eyes: dark, turban: 5}
+    given:
+      m: {1936: [Gurdev, Harbans, Jaswant, Kartar], 1956: [Sukhdev, Amarjit, Kuldip, Baldev, Manjit], 1976: [Harjit, Jagdeep,
+          Rajinder, Gurpreet, Navdeep, Harpreet], 1996: [Arjun, Jasraj, Karan, Gurveer, Ravi, Jaskaran]}
+      f: {1936: [Surinder, Gurmeet, Kartar], 1956: [Paramjit, Harjinder, Kulwinder, Balbir], 1976: [Rajwinder, Manpreet,
+          Jaspreet, Navjot, Amandeep], 1996: [Harleen, Jasleen, Simran, Gurleen, Navneet, Rupinder]}
+  filipino:
+    share: 6
+    surnames: [Santos, Reyes, Cruz, Bautista, Garcia, Mendoza, Villanueva, Ramos, Aquino, Dela Cruz]
+    looks: {hair_colour: dark, eyes: dark}
+    given:
+      m: {1936: [Jose, Romeo, Ernesto], 1956: [Rodel, Arnel, Edwin, Romeo], 1976: [Jun, Mark, Jericho, Ronald], 1996: [Paolo,
+          Christian, Jericho, Miguel]}
+      f: {1936: [Maria, Rosario, Corazon], 1956: [Rowena, Marivic, Liza, Arlene], 1976: [Joy, Mylene, Grace, Kristine],
+          1996: [Angelica, Andrea, Bea, Nicole]}
+  chinese:
+    share: 5
+    surnames: [Lee, Wong, Chan, Mah, Lim, Louie, Quan, Jung]
+    looks: {hair_colour: dark, eyes: dark}
+  japanese:
+    share: 3
+    surnames: [Nakamura, Tanaka, Kanno, Okada]
+    looks: {hair_colour: dark, eyes: dark}
+
+# Given names by sex and the year they were born from (each list is good till the next year up),
+# for the settler lists and anyone whose background doesn't have its own.
+given:
+  m:
+    1936: [Gordon, Kenneth, Harold, Norman, Ernest, Stanley, Clifford, Lloyd, Wilfred, Albert, Victor, Raymond, Leonard, Roy, Arthur]
+    1946: [Bob, Bill, Ron, Wayne, Larry, Barry, Dale, Glen, Murray, Ross, Brian, Allan, Rod, Keith, Gerry, Lorne, Ted, Lyle]
+    1956: [Mike, Dave, Steve, Rick, Kevin, Greg, Randy, Darrell, Kelly, Brent, Gord, Rob, Mark, Tim, Dan, Paul, Russ]
+    1966: [Jason, Chris, Darren, Trevor, Shawn, Jeff, Troy, Corey, Dean, Todd, Scott, Brad, Curtis, Grant, Sean, Jamie, Craig]
+    1976: [Josh, Ryan, Adam, Derek, Jordan, Cody, Travis, Dustin, Justin, Matt, Nick, Aaron, Shane, Clint, Brett, Lance]
+    1986: [Brandon, Dylan, Jesse, Zach, Cole, Connor, Taylor, Austin, Kurtis, Brady, Mitch, Spencer, Colton, Riley, Devon, Garrett]
+    1996: [Ethan, Logan, Hunter, Carter, Liam, Noah, Owen, Mason, Jayden, Nolan, Brody, Kaden, Tanner, Jace, Easton, Gavin, Kieran]
+    2008: [Brayden, Jaxon, Lucas, Wyatt, Hudson, Cohen, Rhys, Theo, Declan, Bennett, Grayson, Ryder]
+  f:
+    1936: [Margaret, Dorothy, Joan, Marion, Shirley, Audrey, Doris, Irene, Evelyn, Gladys, Muriel, Phyllis, Betty, Jean, Eileen]
+    1946: [Linda, Barbara, Carol, Sharon, Judy, Brenda, Donna, Diane, Marilyn, Lorraine, Gail, Darlene, Bev, Wendy, Elaine, Sandra, Lynn]
+    1956: [Karen, Lisa, Debbie, Cindy, Laurie, Colleen, Kim, Tammy, Lori, Sheila, Rhonda, Patti, Joanne, Shelley, Dianne]
+    1966: [Michelle, Jennifer, Tracy, Shannon, Heather, Angela, Dawn, Tanya, Kelly, Christine, Trina, Stacey, Leanne, Tara, Krista, Corinne]
+    1976: [Amanda, Jessica, Ashley, Crystal, Stephanie, Melissa, Brandy, Erin, Lindsay, Amber, Candace, Jodi, Natalie, Kristen, Jolene, Robyn]
+    1986: [Brittany, Courtney, Chelsea, Megan, Kaitlyn, Jenna, Shelby, Danielle, Brianne, Kelsey, Alyssa, Cassidy, Jordyn, Kendra, Morgan]
+    1996: [Madison, Emma, Hannah, Olivia, Avery, Brooke, Jada, Sydney, Ella, Hailey, Rylee, Peyton, Kenna, Sierra, Macy, Talia, Jorja]
+    2008: [Ava, Chloe, Emily, Abby, Brooklyn, Kenzie, Maddie, Harper, Aubree, Zoe, Lily, Charlotte]
+
+# Second names for the cards (a licence prints the given names in full), by sex.
+middles:
+  m: [JAMES, JOHN, MICHAEL, DAVID, ROBERT, WILLIAM, THOMAS, PAUL, ALLAN, EDWARD, LEE, RAY, WAYNE, GORDON, DOUGLAS, ALEXANDER]
+  f: [ANNE, MARIE, LYNN, ELIZABETH, JEAN, LOUISE, DAWN, ROSE, GRACE, NICOLE, LEIGH, MAE, KATHLEEN, JOY, RENEE, CHRISTINE]
+
+# Names the cast already has, kept off the town so nobody's mistaken for them.
+not_names: [Gary, Paige, Dennis, Terry, Graham, Tyler, Kayla, Kyle, Walter, Doug, Jim, Moffat, Ardagh, Van Dusen]
+
+# ---------------------------------------------------------------- households
+#
+# Who lives together. adults: how many nineteen and over, ages: the oldest's range, gap: how far the
+# others' ages are from the oldest's, teens: how many fifteen to eighteen, kids_gap: how much older
+# than the eldest teen a parent is, homes: what they live in (town.yaml streets' homes), share: how
+# many in a hundred households.
+
+households:
+  - {id: single,       share: 22, adults: 1, ages: [22, 74], homes: [suite, flat, unit, house, trailer]}
+  - {id: couple,       share: 18, adults: 2, ages: [24, 82], gap: 6, homes: [house, unit, trailer, flat]}
+  - {id: family,       share: 16, adults: 2, ages: [36, 58], gap: 4, teens: [1, 2], kids_gap: [22, 36], homes: [house, house, trailer, suite]}
+  - {id: family_grown, share: 9,  adults: 3, ages: [44, 70], gap: 4, grown: [19, 30], teens: [0, 1], homes: [house]}
+  - {id: single_parent, share: 7, adults: 1, ages: [33, 54], teens: [1, 2], kids_gap: [20, 34], homes: [suite, trailer, unit, house]}
+  - {id: roommates,    share: 9,  adults: [2, 3], ages: [19, 31], gap: 5, homes: [suite, unit, house, flat]}
+  - {id: widowed,      share: 9,  adults: 1, ages: [66, 90], homes: [house, unit, trailer]}
+  - {id: by_the_week,  share: 6,  adults: 1, ages: [24, 66], homes: [motel, room]}
+  - {id: alone_old,    share: 4,  adults: 1, ages: [58, 80], homes: [trailer, house, room]}
+
+# Two in a couple are a man and a woman most of the time; same: how often they're two men or two
+# women, in a hundred couples. kept_name: how often the second keeps their own surname.
+couples: {same: 6, kept_name: 30}
+
+# ---------------------------------------------------------------- work
+#
+# place: town.yaml places. ages: who does it. m, f: the odds it's a man or a woman, out of ten.
+# share: how common, against the rest, among those of an age to do it. shifts: when they work (day,
+# swing: three to eleven, graveyard: eleven to seven). tops: what they'd come to the door in.
+# details: what he can read off them (below), group: who they drink with, by the bar's codes.
+
+works:
+  mill:        {name: at the mill, does: on the green chain at the mill, place: mill, ages: [19, 64], m: 9, f: 1, share: 13,
+                shifts: [day, swing, graveyard], tops: [workjacket, flannel, hivis, hoodie], details: [sawdust, earplugs, gate_pass, cedar], group: mill}
+  sawfiler:    {name: at the mill, does: filing saws at the mill, place: mill, ages: [30, 64], m: 10, f: 0, share: 2,
+                shifts: [day], tops: [flannel, workjacket], details: [filings, earplugs, gate_pass], group: mill}
+  mill_office: {name: at the mill, does: in the mill office, place: mill, ages: [24, 64], m: 3, f: 7, share: 3,
+                shifts: [day], tops: [sweater, fleece, cardigan, jacket], details: [gate_pass, layoff_list], group: mill}
+  logging:     {name: in the bush, does: falling for a contractor up island, place: null, ages: [21, 60], m: 9, f: 1, share: 5,
+                shifts: [day], tops: [workjacket, flannel, hivis], details: [bar_oil, cork_boots, pitch], group: mill}
+  log_truck:   {name: driving logs, does: driving a logging truck, place: null, ages: [26, 64], m: 9, f: 1, share: 3,
+                shifts: [day], tops: [flannel, fleece, workjacket], details: [diesel, logbook], group: mill}
+  ferry:       {name: on the ferry, does: a deckhand on the ferry, place: ferry_dock, ages: [21, 62], m: 7, f: 3, share: 4,
+                shifts: [day, swing], tops: [raincoat, fleece, workjacket], details: [ferry_jacket, salt_boots], group: harbour}
+  fishing:     {name: fishing, does: on a boat out of the government wharf, place: govt_wharf, ages: [20, 70], m: 9, f: 1, share: 3,
+                shifts: [day], tops: [raincoat, fleece, hoodie], details: [scales, salt_boots, rope_hands], group: harbour}
+  nurse:       {name: at the hospital, does: a nurse at the hospital, place: hospital, ages: [23, 64], m: 2, f: 8, share: 4,
+                shifts: [day, swing, graveyard], tops: [scrubs], details: [lanyard_turned, compression, pen_hand], group: hospital}
+  care_aide:   {name: at the care home, does: a care aide at the care home, place: care_home, ages: [20, 64], m: 2, f: 8, share: 4,
+                shifts: [day, swing, graveyard], tops: [scrubs, fleece], details: [lanyard_turned, gloves_powder, sanitizer], group: hospital}
+  porter:      {name: at the hospital, does: a porter at the hospital, place: hospital, ages: [20, 60], m: 7, f: 3, share: 1,
+                shifts: [day, swing, graveyard], tops: [scrubs, fleece], details: [lanyard_turned, sanitizer], group: hospital}
+  teacher:     {name: at the high school, does: teaching at the high school, place: school, ages: [24, 64], m: 4, f: 6, share: 3,
+                shifts: [day], tops: [sweater, cardigan, jacket, fleece], details: [red_pen, marking, lanyard_school], group: town}
+  esso:        {name: at the Esso, does: on the till at the Esso, place: esso, ages: [19, 66], m: 5, f: 5, share: 2,
+                shifts: [day, swing, graveyard], tops: [hoodie, fleece, jacket], details: [esso_vest, scratch_dust], group: strip}
+  diner:       {name: at the diner, does: cooking at the diner, place: diner, ages: [19, 66], m: 5, f: 5, share: 3,
+                shifts: [day], tops: [hoodie, tshirt, fleece], details: [fryer, burn_wrist, flour], group: strip}
+  shop:        {name: on the strip, does: working in the strip mall, place: hardware, ages: [19, 70], m: 4, f: 6, share: 4,
+                shifts: [day], tops: [fleece, sweater, jacket, hoodie], details: [price_gun, nails_done, name_tag], group: strip}
+  trades:      {name: in the trades, does: framing houses, place: null, ages: [19, 62], m: 9, f: 1, share: 6,
+                shifts: [day], tops: [workjacket, hoodie, flannel, hivis], details: [drywall, paint, sawdust_fine, tape_measure], group: trades}
+  mechanic:    {name: at the garage, does: a mechanic, place: null, ages: [19, 66], m: 9, f: 1, share: 2,
+                shifts: [day], tops: [workjacket, hoodie, flannel], details: [grease, knuckles], group: trades}
+  farm:        {name: farming, does: on the farm out the highway, place: null, ages: [19, 80], m: 6, f: 4, share: 2,
+                shifts: [day], tops: [workjacket, flannel, fleece], details: [manure, hay, early], group: out}
+  town_works:  {name: for the town, does: on the town's works crew, place: null, ages: [22, 64], m: 8, f: 2, share: 2,
+                shifts: [day], tops: [hivis, workjacket], details: [hivis_town, mud_cuffs], group: trades}
+  office_work: {name: in an office, does: at the credit union, place: cafe, ages: [22, 66], m: 4, f: 6, share: 3,
+                shifts: [day], tops: [jacket, sweater, coat, cardigan], details: [name_tag, office_shoes], group: town}
+  hairdresser: {name: doing hair, does: cutting hair, place: nails, ages: [20, 64], m: 2, f: 8, share: 1,
+                shifts: [day], tops: [jacket, sweater, tshirt], details: [hair_on_sleeve, nails_done], group: strip}
+  student:     {name: at school, does: doing a course online, place: null, ages: [19, 24], m: 5, f: 5, share: 2,
+                shifts: [], tops: [hoodie, jacket, tshirt], details: [laptop_bag, phone_cracked], group: kids}
+  out_of_work: {name: out of work, does: out of work since the fish plant, place: null, ages: [24, 62], m: 6, f: 4, share: 4,
+                shifts: [], tops: [hoodie, flannel, jacket, fleece], details: [job_paper, smoke_hands], group: strip}
+  retired:     {name: retired, does: retired, place: null, ages: [60, 99], m: 5, f: 5, share: 0,
+                shifts: [], tops: [cardigan, coat, fleece, flannel, jacket, sweater], details: [poppy, hearing, readers, keys_ring], group: town}
+
+# Retired from what (the old work shows in how they talk and what they wear). By share.
+retired_from: {mill: 9, ferry: 2, fishing: 2, nurse: 2, teacher: 2, fish_plant: 3, logging: 2, forces: 2, esso: 1, shop: 2, office_work: 1, care_aide: 1}
+
+# ---------------------------------------------------------------- what he can read off them
+#
+# One true detail each, what the door can see if it looks (see), and what it means (read). In the
+# narration, {his} is his or her or their; {he} and {him} likewise.
+
+details:
+  sawdust:        {see: "sawdust packed in the treads of {his} boots", read: "the mill, a shift on the green chain"}
+  earplugs:       {see: "a pair of orange foam earplugs on a cord round {his} neck", read: "the mill: the saws"}
+  gate_pass:      {see: "a mill gate pass on a lanyard, tucked into {his} collar", read: "the mill, and still working there"}
+  cedar:          {see: "the smell of cedar coming off {him}, sharp, like a pencil", read: "the mill: cedar on the saws today"}
+  filings:        {see: "steel filings glinting in the hair on the backs of {his} hands", read: "the saw shop at the mill"}
+  layoff_list:    {see: "a folded sheet in {his} jacket pocket with a list of names, half of them ticked", read: "the mill office, and the notice"}
+  bar_oil:        {see: "bar oil in the creases of {his} hands, the black that never washes out", read: "a chainsaw, every day"}
+  cork_boots:     {see: "caulk boots, the steel spikes on the soles, which {he} took off at the step and carried", read: "falling, up island"}
+  pitch:          {see: "pitch in {his} hair, a sticky clot of it over one ear", read: "in the bush today"}
+  diesel:         {see: "diesel on {his} cuffs, and the hunch of a man who's sat ten hours", read: "driving truck"}
+  logbook:        {see: "a driver's logbook sticking out of {his} back pocket", read: "driving logs, on the clock"}
+  ferry_jacket:   {see: "a ferry crew jacket under {his} coat, the stripes on the cuffs", read: "on the ferry, and just off it"}
+  salt_boots:     {see: "salt dried white in a tideline on {his} boots", read: "the wharf, or a deck"}
+  scales:         {see: "fish scales on {his} cuffs, catching the light like sequins", read: "fishing, today"}
+  rope_hands:     {see: "rope burn across both {his} palms", read: "a boat, hauling"}
+  lanyard_turned: {see: "a hospital ID on a lanyard, turned round backwards so the name doesn't show", read: "the hospital, and done with being found"}
+  compression:    {see: "compression socks, the medical kind, showing between {his} shoes and {his} jeans", read: "twelve hours on {his} feet on a ward"}
+  pen_hand:       {see: "two pens clipped inside {his} collar and a third behind {his} ear", read: "a nurse, still half on shift"}
+  gloves_powder:  {see: "the white of glove powder in the creases of {his} knuckles", read: "care work, gloves on and off all day"}
+  sanitizer:      {see: "the hospital smell of hand sanitizer coming off {him}", read: "the hospital or the care home"}
+  red_pen:        {see: "red ink on the side of {his} hand, the edge that drags across a page", read: "marking. A teacher"}
+  marking:        {see: "a canvas bag of exercise books under {his} arm", read: "a teacher, with marking {he} won't do tonight"}
+  lanyard_school: {see: "a school lanyard, the high school's, still round {his} neck", read: "the high school, and {he} forgot it was on"}
+  esso_vest:      {see: "the Esso's vest under {his} jacket, the logo showing at the zip", read: "the Esso, a shift just done"}
+  scratch_dust:   {see: "silver scratch-ticket dust under {his} thumbnail", read: "the lottery, or the till at the Esso"}
+  fryer:          {see: "the fryer on {him}, old oil, in {his} hair and {his} coat", read: "the diner's kitchen"}
+  burn_wrist:     {see: "a row of little burns up the inside of {his} wrist, the flat-top's", read: "a cook"}
+  flour:          {see: "flour in the seams of {his} jeans", read: "a kitchen, the morning shift"}
+  price_gun:      {see: "price stickers stuck to {his} sleeve, three of them, 4.99", read: "a shop on the strip"}
+  nails_done:     {see: "{his} nails done tonight, the polish still that wet kind of shine", read: "the salon, or a night out planned"}
+  name_tag:       {see: "a name tag still on {his} chest, which {he} hasn't noticed", read: "work, and straight here from it"}
+  drywall:        {see: "drywall dust in {his} eyebrows", read: "a house going up, or coming down"}
+  paint:          {see: "paint on the backs of {his} hands, eggshell white", read: "painting a house, {his} own or somebody's"}
+  sawdust_fine:   {see: "fine sawdust down the front of {his} hoodie, the kind a mitre saw throws", read: "framing, finishing, the trades"}
+  tape_measure:   {see: "a tape measure still clipped to {his} belt", read: "the trades, straight off a site"}
+  grease:         {see: "grease in the creases of {his} knuckles, scrubbed at and not gone", read: "a garage, engines"}
+  knuckles:       {see: "skinned knuckles, both hands, the kind a wrench gives you when it slips", read: "a mechanic"}
+  manure:         {see: "manure on {his} boots, scraped off and not all of it", read: "the farms out the highway"}
+  hay:            {see: "hay in the turn-ups of {his} jeans", read: "a barn, today"}
+  early:          {see: "the yawn of somebody who's been up since four", read: "a farm, or a bakery, or a baby"}
+  hivis_town:     {see: "the town's crew vest folded in {his} back pocket, the reflective strips showing", read: "the town's works crew"}
+  mud_cuffs:      {see: "clay to the knee, the grey clay that's under this whole town", read: "digging, a ditch or a line"}
+  office_shoes:   {see: "office shoes, soaked through, the wrong shoes for here", read: "a desk job, straight here from it"}
+  hair_on_sleeve: {see: "cut hair all over {his} sleeves, three or four colours of it", read: "a hairdresser, the end of a long day"}
+  laptop_bag:     {see: "a laptop bag {he} won't put down", read: "a student, or wants to look like one"}
+  phone_cracked:  {see: "a phone with the screen cracked into a star", read: "dropped it, and can't afford to fix it"}
+  job_paper:      {see: "a folded job-board printout in {his} shirt pocket, Alberta jobs circled", read: "out of work, and thinking about leaving"}
+  smoke_hands:    {see: "the yellow of a smoker's first two fingers", read: "a pack a day, more lately"}
+  poppy:          {see: "a poppy on {his} lapel, pinned through with a Legion pin", read: "the Legion, and November"}
+  hearing:        {see: "a hearing aid, the beige kind, whistling a little", read: "the mill, forty years ago, or the guns"}
+  readers:        {see: "reading glasses pushed up into {his} hair, forgotten", read: "nothing, except {he} reads"}
+  keys_ring:      {see: "a ring of keys the size of a fist, more doors than one person has", read: "the old work still: keys to a church, a hall, a boat"}
+  # the teenagers'
+  school_bag:     {see: "a gym bag with the high school's crest on it, the team's, and a name on the strap in marker", read: "the high school. Not long out of it, or not out of it yet"}
+  mom_calls:      {see: "{his} phone lighting up in {his} hand with MOM, and {him} turning it face down", read: "somebody at home who wants to know where {he} is"}
+  gum:            {see: "gum, chewed hard, over something on {his} breath", read: "a drink or two in the truck on the way"}
+  all_ages:       {see: "a paper wristband from an all-ages show, the kind they put on you when you can't drink", read: "under nineteen at the last place that checked"}
+  big_jacket:     {see: "a jacket that's somebody else's, the sleeves past {his} knuckles", read: "dressed older, in a brother's or a father's coat"}
+
+# What the teenagers have on them instead of a work's details.
+teen_details: [school_bag, mom_calls, gum, all_ages, big_jacket, phone_cracked, wet_through]
+
+# Details anyone can have, from what's going on in their life, in place of their work's.
+# life: share: how many in a hundred have one of these instead.
+life_details:
+  share: 22
+  list:
+    ring_line:     {see: "a pale line on {his} ring finger, and no ring on it", read: "married, or was, till lately", who: {ages: [26, 70]}}
+    hospital_band: {see: "a hospital bracelet still on {his} wrist", read: "the hospital, today. A patient, or the one sitting with one"}
+    ferry_stub:    {see: "a ferry stub tucked into the band of {his} hat", read: "off the boat from the mainland, tonight"}
+    tattoo_wrap:   {see: "plastic wrap taped over a new tattoo on {his} forearm, still weeping ink", read: "a new tattoo, today, and something to mark", who: {ages: [19, 50]}}
+    funeral:       {see: "a funeral programme folded in {his} coat pocket, a face on the front", read: "a funeral today"}
+    court:         {see: "a suit that doesn't fit, and a court appearance notice sticking out of the pocket", read: "court today, in town", who: {ages: [19, 60]}}
+    alberta_plate: {see: "an Alberta plate on the truck {he} just got out of", read: "working away, home for a few days", who: {ages: [22, 55], work: [logging, log_truck, trades, mechanic, out_of_work]}}
+    sober_coin:    {see: "a coin {he} keeps turning over in {his} fingers, a sobriety chip", read: "counting days, and here anyway", who: {drink: [dry]}}
+    baby_spit:     {see: "a white crust of baby spit on {his} shoulder", read: "a new baby at home, and a night off from it", who: {ages: [22, 42]}}
+    rental_skates: {see: "skate laces round {his} neck, rink tape on {his} thumb", read: "the arena, the beer league", who: {ages: [19, 55]}}
+    wet_through:   {see: "wet right through, like {he} walked the whole way", read: "no car, or no licence to drive one"}
+    lottery:       {see: "a sheaf of lottery tickets bulging in {his} breast pocket", read: "feeling lucky, or needing to", who: {ages: [30, 99]}}
+
+# ---------------------------------------------------------------- how they drink
+#
+# share: in a hundred adults. regular: how often they're at the Sov (never, rarely, weekends,
+# weekly, nightly), as odds. Drunk at the door: how drunk they get there by the late waves.
+
+drink:
+  none:   {share: 9,  regular: {never: 8, rarely: 2}}
+  dry:    {share: 5,  regular: {never: 5, rarely: 4, weekends: 1}}
+  light:  {share: 21, regular: {never: 4, rarely: 4, weekends: 2}}
+  social: {share: 31, regular: {never: 2, rarely: 3, weekends: 4, weekly: 1}}
+  steady: {share: 20, regular: {rarely: 2, weekends: 3, weekly: 3, nightly: 2}}
+  heavy:  {share: 10, regular: {rarely: 1, weekends: 3, weekly: 3, nightly: 3}}
+  binge:  {share: 4,  regular: {rarely: 3, weekends: 6, weekly: 1}}
+
+# ---------------------------------------------------------------- the rest of a life
+#
+# A debt, a grudge, a secret: some of the grown-ups have one of each, made out to someone else in the
+# town where it says {other} (their name), in the town's gossip voice, for the voices and the paper
+# later. The door doesn't say them; table 28 might. share: how many grown-ups in a hundred have one.
+# Each is somebody's once in a town unless times says more. who: only for someone like this (sex,
+# ages, drink, work, home, married), other: the one it's made out to has to be married (married), or
+# of an age with them (near).
+
+life: {debt: 45, grudge: 35, secret: 60}
+
+debts:
+  - {text: "owes {other} eleven hundred dollars for a truck that turned out to have a cracked block"}
+  - {text: "owes the pawn shop on a ring, and the ticket runs out on the fifteenth", times: 2}
+  - {text: "owes {other} for a hockey bet from the spring, and has been paying it off in rounds", other: near}
+  - {text: "owes the credit union three months on the trailer", who: {home: [trailer]}, times: 2}
+  - {text: "owes {other} a favour from a night in the lot that nobody's talked about since", other: near}
+  - {text: "owes {other} two hundred and forty dollars and a drill"}
+  - {text: "owes the payday place on the strip, and it's doubled", times: 3}
+  - {text: "owes {other} rent from when they shared a place", who: {ages: [19, 40]}, other: near}
+  - {text: "owes nobody a cent, and tells everybody", who: {ages: [45, 99]}, times: 2}
+  - {text: "owes {other} an apology from a wedding"}
+  - {text: "owes the hospital parking machine a hundred dollars in tickets"}
+  - {text: "owes {other} for the funeral flowers, which {other} paid for and never mentioned", who: {ages: [35, 99]}}
+  - {text: "owes {other} for a set of winter tires, and drives the long way round past {other}'s place"}
+  - {text: "owes {other} a month of babysitting, and knows it", who: {ages: [24, 50]}}
+  - {text: "owes the Esso forty dollars on a tab the night manager isn't supposed to run"}
+  - {text: "owes {other} the bail money from two winters ago", who: {ages: [21, 60]}}
+  - {text: "owes the dentist on First Avenue, and chews on the left", times: 2}
+  - {text: "owes {other} a truck, more or less: it's in {his} driveway and the papers are in {other}'s name"}
+  - {text: "owes the taxes on a lot out the highway that nobody will buy", who: {ages: [45, 99]}}
+  - {text: "owes the Sov's tab book sixty-two dollars, under a name that isn't {his}", who: {ages: [24, 70]}}
+  - {text: "owes {other} for a hockey bag and skates for {his} kid", who: {ages: [30, 52]}}
+  - {text: "owes {other} the truth about the accident on Mill Road", who: {ages: [25, 70]}}
+  - {text: "owes the hall committee the money from the raffle", who: {ages: [40, 99]}}
+  - {text: "owes {other} a hundred dollars from the meat draw, which {other} has stopped asking for"}
+
+grudges:
+  - {text: "hasn't spoken to {other} since a fence went up a foot on the wrong side of the line", who: {ages: [35, 99]}}
+  - {text: "won't drink in a room with {other}, since {other} got the foreman's job", who: {work: [mill, sawfiler, logging, log_truck]}}
+  - {text: "blames {other} for the dog"}
+  - {text: "has had it in for {other} since grade nine, and neither of them remembers why", other: near}
+  - {text: "thinks {other} called the police on the party", who: {ages: [19, 45]}}
+  - {text: "says {other} cheated at crib at the Legion, and won't play there since", who: {ages: [55, 99]}}
+  - {text: "can't forgive {other} for what was said at the mill meeting", who: {work: [mill, sawfiler, mill_office]}}
+  - {text: "watches {other} like a hawk, over money that went missing from the hall's kitty", who: {ages: [40, 99]}}
+  - {text: "is waiting for {other} to say it to {his} face", who: {ages: [19, 60]}}
+  - {text: "has a grudge against the whole of the hill, and {other} in particular"}
+  - {text: "won't sit on the same side of the hall as {other}, since the funeral", who: {ages: [40, 99]}}
+  - {text: "is sure {other} has been taking {his} spot in the mill lot on purpose, for eleven years", who: {work: [mill, sawfiler, mill_office]}}
+  - {text: "says {other} sold {him} a boat with rot in the transom"}
+  - {text: "hasn't forgiven {other} for the speech at the wedding"}
+  - {text: "is sure it was {other} who reported {his} suite to the town", who: {home: [suite]}}
+  - {text: "calls {other} \"that one\" and nothing else"}
+  - {text: "wants {other} off the volunteer fire department, and has told everyone but {other}", who: {ages: [25, 70]}}
+  - {text: "fell out with {other} over the minor hockey money", who: {ages: [30, 60]}, other: near}
+  - {text: "blames {other} for the mill, somehow", who: {ages: [30, 99]}}
+  - {text: "keeps a list in {his} head of everything {other} has borrowed and not brought back"}
+  - {text: "won't buy gas at the Esso while {other} is on the till"}
+  - {text: "thinks {other} is the one keying cars in the Sov's lot"}
+  - {text: "stopped going to the United church when {other} joined the choir", who: {ages: [40, 99]}}
+  - {text: "has been waiting since high school for {other} to admit it was {other} who drove", who: {ages: [22, 50]}, other: near}
+
+secrets:
+  - {text: "is seeing {other}, and both of them are married", who: {married: true, ages: [25, 65]}, other: married}
+  - {text: "took the mill's early-retirement package and hasn't told the family", who: {work: [mill, sawfiler, mill_office], ages: [52, 64]}}
+  - {text: "has been sober nine years at meetings and drinks alone in the truck", who: {drink: [dry, steady, heavy]}}
+  - {text: "is the one who wrote the letter to the paper about the mill", who: {ages: [30, 99]}}
+  - {text: "has a job lined up in Alberta and leaves at the end of the month", who: {ages: [22, 55]}, times: 2}
+  - {text: "is pregnant, and nobody knows, and is drinking soda water with lime so nobody does", who: {sex: f, ages: [21, 42]}}
+  - {text: "sold {other}'s mother's ring and told {other} it was lost"}
+  - {text: "failed the ferry's drug test and is on leave, and says it's the back", who: {work: [ferry]}}
+  - {text: "has a second phone", who: {ages: [22, 70]}, times: 2}
+  - {text: "is the reason {other} lost the job at the mill, and {other} doesn't know it", who: {work: [mill, sawfiler, mill_office]}}
+  - {text: "sits in the Catholic church's lot at night with the engine running, and goes home before anyone comes", who: {ages: [30, 99]}}
+  - {text: "is applying to the police", who: {ages: [21, 35]}}
+  - {text: "lent {other} the money for the lawyer"}
+  - {text: "has a brother in prison on the mainland and says he's working away"}
+  - {text: "can't read, much, and gets by", who: {ages: [30, 99]}}
+  - {text: "has been eating at the gurdwara's langar since the money ran out", times: 2}
+  - {text: "is the one who took the till float from the hall dance in June", who: {ages: [19, 40]}}
+  - {text: "has been driving to the casino on the mainland every second Sunday", who: {ages: [40, 99]}}
+  - {text: "has a gambling app on {his} phone, and it's winning, for now", who: {ages: [19, 50]}}
+  - {text: "is the one who called the health inspector on the diner"}
+  - {text: "can't swim, and works on a boat", who: {work: [fishing, ferry]}}
+  - {text: "was married before, on the mainland, and nobody here knows", who: {ages: [35, 99]}}
+  - {text: "is selling the house and hasn't told the kids", who: {ages: [55, 99], home: [house]}}
+  - {text: "goes to the Tuesday meetings in the United church hall, and parks round the back", times: 2}
+  - {text: "has a daughter in Calgary who doesn't call", who: {ages: [50, 99]}}
+  - {text: "saw the mill's notice on the photocopier a week before anybody, and said nothing", who: {work: [mill_office]}}
+  - {text: "wrote a song about {other} and played it at the open mic, and {other} was there", who: {ages: [19, 35]}, other: near}
+  - {text: "has a lot more money than {he} lets on, and drives the old truck to prove it", who: {ages: [45, 99]}}
+  - {text: "is losing the sight in one eye and still drives", who: {ages: [55, 99]}}
+  - {text: "met {other} at the casino on the mainland, and neither of them has said a word about it", who: {ages: [40, 99]}}
+
+# People the cast knows. who: the kind of person it falls to; the generator gives each to one
+# person in the town at most. text finishes a sentence about them.
+cast_ties:
+  - {cast: bigman, who: {work: [mill], sex: m, ages: [30, 60]}, text: "works the green chain with the big man at the pool table"}
+  - {cast: driver, who: {ages: [21, 24]}, text: "was in Kayla Moffat's year at the high school"}
+  - {cast: glasses, who: {ages: [26, 48]}, text: "is Dennis's nephew, from table 28"}
+  - {cast: bartender, who: {sex: f, ages: [48, 66]}, text: "worked the floor at the Sov with the bartender, years back"}
+  - {cast: terry, who: {ages: [40, 75]}, text: "is Terry the night clerk's cousin"}
+  - {cast: hivis, who: {work: [logging, log_truck]}, text: "is on the same contract as the man in hi-vis in room eleven"}
+  - {cast: cook, who: {work: [diner]}, text: "used to cook at the Sov, before the cook"}
+  - {cast: goodshoes, who: {ages: [40, 70]}, text: "won't say Graham Ardagh's name"}
+
+# ---------------------------------------------------------------- looks
+#
+# How a face is put together from parts (content/data/characters.yaml says what each part is; the
+# browser draws them, Godot fits a figure from its kit). By sex and age, as odds.
+
+looks:
+  build: {slight: 3, medium: 5, big: 2}
+  hair:
+    m:
+      young: {short: 5, messy: 3, buzz: 2, long: 1}
+      mid: {short: 6, buzz: 3, thin: 2, bald: 1, long: 1}
+      old: {thin: 4, bald: 4, short: 3}
+    f:
+      young: {long: 5, ponytail: 4, bun: 2, short: 1}
+      mid: {long: 3, ponytail: 3, short: 3, bun: 2}
+      old: {short: 6, bun: 2, long: 1}
+  hair_colour:
+    young: {hair_dark: 4, hair: 4, hair_blonde: 2, hair_red: 1}
+    mid: {hair_dark: 3, hair: 4, hair_blonde: 2, hair_red: 1, hair_grey: 2}
+    old: {hair_grey: 5, hair_white: 4, hair: 1}
+  hair_dark:
+    young: {hair_dark: 9, hair: 1}
+    mid: {hair_dark: 7, hair: 1, hair_grey: 2}
+    old: {hair_grey: 5, hair_white: 3, hair_dark: 2}
+  # a hat: the odds of one, out of ten, by what kind of work; then which
+  hat: {odds: 3, kinds: {cap: 5, beanie: 4, flatcap: 1}}
+  beard: {beard: 3, stubble: 4, moustache: 1, none: 6}
+  glasses: 2
+  # what the tops look like, and their colours (the materials Godot's figures take)
+  tops:
+    workjacket: {colours: [workjacket, coat, jacket]}
+    flannel: {colours: [flannel, flannel_b]}
+    hivis: {colours: [hivis]}
+    hoodie: {colours: [hoodie, sweatshirt, cardigan_b]}
+    fleece: {colours: [fleece, sweater]}
+    sweater: {colours: [sweater, cardigan, cardigan_c]}
+    cardigan: {colours: [cardigan, cardigan_b, cardigan_c]}
+    jacket: {colours: [jacket, denim, coat]}
+    raincoat: {colours: [raincoat, coat]}
+    tshirt: {colours: [tshirt, sweatshirt]}
+    coat: {colours: [coat, raincoat, suit]}
+    scrubs: {colours: [scrubs, scrubs_b]}
+
+# Height and weight on a licence, by sex and build: [lowest, highest].
+size:
+  m: {slight: [[168, 180], [58, 72]], medium: [[172, 186], [74, 92]], big: [[178, 196], [95, 130]]}
+  f: {slight: [[152, 166], [46, 58]], medium: [[158, 172], [58, 76]], big: [[162, 178], [78, 110]]}
+eyes: {BRN: 5, BLU: 3, GRN: 1, HAZ: 1}
+eyes_dark: {BRN: 9, HAZ: 1}

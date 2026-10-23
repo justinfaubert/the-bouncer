@@ -37,5 +37,12 @@
 
   function deepClone(o) { return o == null ? o : JSON.parse(JSON.stringify(o)); }
 
-  B.util = { clockParts: clockParts, fmtClock: fmtClock, clamp: clamp, escapeHtml: escapeHtml, parseTag: parseTag, deepClone: deepClone };
+  // FNV-1a, for seeding the hand's and the town's own random numbers (godot/engine/util.gd hash32)
+  function hash32(str) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+    return h >>> 0;
+  }
+
+  B.util = { clockParts: clockParts, fmtClock: fmtClock, clamp: clamp, escapeHtml: escapeHtml, parseTag: parseTag, deepClone: deepClone, hash32: hash32 };
 })(globalThis.Bouncer = globalThis.Bouncer || {});

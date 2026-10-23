@@ -116,11 +116,7 @@
   }
 
   // FNV-1a, for the hand's own random numbers (whisper)
-  function hash32(str) {
-    let h = 0x811c9dc5;
-    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
-    return h >>> 0;
-  }
+  const hash32 = B.util.hash32;
 
   class Game {
     // content: { story, voices, characters, barks, psyche, assets, meta }

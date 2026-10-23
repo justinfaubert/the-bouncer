@@ -1,0 +1,681 @@
+# The door, busier: who comes to it on a night, and what they say (bible/11_SKELETON.md, "The door,
+# busier: the town"). The people are the town's, made once a game (content/data/people.yaml,
+# prototype/web/src/core/folk.js); this is when they come, what the door calls them, and their words.
+#
+# Everything here is Claude's draft (PROPOSED). HUTCH: rewrite any line, and add the ones only a
+# doorman would know. The rules for who talks how are bible/10_VOICES.md: cover the name, and you
+# should still be able to tell a mill hand from a nurse from a kid with his brother's licence.
+
+# ---------------------------------------------------------------- nights
+#
+# day: the day of the month. come: out of a hundred, how many of each kind of regular (people.yaml,
+# drink.regular) come to the door that night. trickle: when the ones who don't come with a wave
+# come, as [the start of a forty-minute stretch, how many in ten]. tries: how many of the town's
+# teenagers try the door that night, at the least and the most; tries_at: when. waves: the reasons a
+# Friday comes in a body (bible/11_SKELETON.md, The waves): when each wave reaches the door.
+#
+# The clock is minutes from the midnight before: 1170 is 7:30 pm, 1440 midnight, 1530 last call.
+
+nights:
+  - day: 1          # Wednesday, the test shift: the regulars, and nearly nobody else
+    come: {nightly: 45, weekly: 10, weekends: 2, rarely: 2, never: 0}
+    trickle: [[1180, 3], [1220, 3], [1260, 2], [1300, 2], [1340, 2], [1380, 1], [1420, 1], [1460, 1]]
+    tries: [0, 1]
+    tries_at: [1290, 1450]
+  - day: 3          # Friday: everybody
+    come: {nightly: 90, weekly: 65, weekends: 85, rarely: 25, never: 3}
+    trickle: [[1170, 2], [1210, 4], [1250, 4], [1290, 3], [1330, 4], [1370, 4], [1410, 3], [1450, 2], [1490, 1]]
+    tries: [2, 4]
+    tries_at: [1290, 1480]
+    waves:
+      dinner: {at: [1170, 1205]}    # the prime rib: the old couples, before the room gets loud
+      arena: {at: [1305, 1325]}     # the beer league's late game lets out at the arena
+      swing: {at: [1412, 1432]}     # the mill's swing shift lets out at half eleven, and the hospital's evening shift
+      legion: {at: [1445, 1462]}    # the Legion shuts at midnight and sends its drinkers up the highway
+      ferry: {at: [1470, 1488]}     # the last boat's in and tied up
+
+# ---------------------------------------------------------------- what the door calls them
+#
+# A doorman tags people by what he sees until he knows their names (content/data/characters.yaml).
+# The first of these that fits and isn't taken tonight: a hat, the top (by its shape and colour,
+# "top:material", or by its shape), the face, the hair, then the rest of the top's. Nobody is tagged
+# by a turban. The cast's own tags (cast) are never used: tools/build.mjs fills them in from
+# characters.yaml.
+
+tags:
+  hat:
+    cap: [TRUCKER CAP, CAP]
+    beanie: [TOQUE, WOOL HAT]
+    flatcap: [FLAT CAP]
+  top:
+    workjacket: [CANVAS COAT, WORK COAT]
+    workjacket:jacket: [WORK JACKET, CANVAS JACKET]
+    workjacket:coat: [WAXED COAT, WORK COAT]
+    flannel: [FLANNEL, PLAID]
+    flannel:flannel_b: [BLUE PLAID, PLAID]
+    hivis: [SAFETY VEST, YELLOW VEST]
+    hoodie: [ZIP-UP, DARK HOOD]
+    hoodie:sweatshirt: [GREY HOOD, SWEATS]
+    hoodie:cardigan_b: [BLUE HOOD, ZIP-UP]
+    fleece: [FLEECE, QUARTER-ZIP]
+    fleece:sweater: [GREEN FLEECE, FLEECE]
+    sweater: [CABLE KNIT, WOOL SWEATER]
+    sweater:cardigan: [BROWN SWEATER, CREWNECK]
+    sweater:cardigan_c: [ROSE SWEATER, CREWNECK]
+    cardigan: [BROWN KNIT, BUTTONS]
+    cardigan:cardigan_b: [BLUE KNIT, BUTTONS]
+    cardigan:cardigan_c: [ROSE KNIT, BUTTONS]
+    jacket: [BOMBER, NAVY JACKET]
+    jacket:denim: [JEAN JACKET, DENIM]
+    jacket:coat: [SHORT COAT, BOMBER]
+    raincoat: [RAIN SHELL, SLICKER]
+    raincoat:coat: [LONG COAT, SLICKER]
+    tshirt: [T-SHIRT, SHORT SLEEVES]
+    tshirt:sweatshirt: [SWEATSHIRT, CREWNECK]
+    coat: [PARKA, BIG COAT]
+    coat:raincoat: [DUFFEL, TOGGLES]
+    coat:suit: [OVERCOAT, DARK COAT]
+    scrubs: [SCRUBS, SCRUB TOP]
+    scrubs:scrubs_b: [NAVY SCRUBS, SCRUBS]
+  face:
+    beard: [BEARD, BIG BEARD]
+    moustache: [MOUSTACHE]
+    glasses: [SPECS, FRAMES]
+  hair:
+    ponytail: [PONYTAIL]
+    bun: [TOP KNOT]
+    long: [LONG HAIR]
+    buzz: [BUZZ CUT]
+    bald: [BALD]
+    messy: [BEDHEAD]
+    thin: [COMB-OVER]
+
+# What they're wearing, the way the teller says it: by "top:material", or the top.
+wear:
+  workjacket: in a canvas work coat
+  workjacket:jacket: in a work jacket
+  workjacket:coat: in a waxed work coat
+  flannel: in a flannel shirt
+  flannel:flannel_b: in a blue plaid shirt
+  hivis: in a safety vest over {his} coat
+  hoodie: in a hoodie
+  hoodie:sweatshirt: in a grey hoodie
+  hoodie:cardigan_b: in a blue hoodie
+  fleece: in a fleece
+  fleece:sweater: in a green fleece
+  sweater: in a wool sweater
+  sweater:cardigan: in a brown sweater
+  sweater:cardigan_c: in an old rose sweater
+  cardigan: in a cardigan
+  cardigan:cardigan_b: in a blue cardigan
+  cardigan:cardigan_c: in a rose cardigan
+  jacket: in a bomber jacket
+  jacket:denim: in a jean jacket
+  jacket:coat: in a short coat
+  raincoat: in a rain shell
+  raincoat:coat: in a long raincoat
+  tshirt: in a T-shirt, in November
+  tshirt:sweatshirt: in a sweatshirt
+  coat: in a parka
+  coat:raincoat: in a duffel coat
+  coat:suit: in a dark overcoat
+  scrubs: in scrubs under {his} coat
+  scrubs:scrubs_b: in navy scrubs under {his} coat
+
+# A hat, after the top: "a man in a parka and a toque pulled down over his ears".
+hats:
+  cap: and a ball cap pulled down
+  beanie: and a toque pulled down over {his} ears
+  flatcap: and a flat cap
+
+# ---------------------------------------------------------------- what they say
+#
+# Each line is for one moment (on), said by whoever's at the front of the line unless it says
+# otherwise. The Ink asks for a moment (door_say in content/ink/line.ink) and gets the most particular
+# line that fits and hasn't been said this game (rank: points on top, to make a line win); once
+# they've all been said, the one said longest ago. A line marked free can be said again (the answers
+# to his questions, which are only the card read back). What a line can ask of who it's for:
+#
+#   reg       who they talk like: teen (under nineteen), kid (nineteen to twenty-five), work (the
+#             mill, the trades, the farms), hospital, harbour (the ferry, the boats), strip (the
+#             Esso, the diner, the shops, out of work), town (everybody else), old (retired)
+#   sex       m | f              ages      [lowest, highest]      teen      true | false
+#   drunk     at least this drunk: 1 a few in, 2 drunk, 3 hammered     sober     true | false
+#   wave      dinner | arena | swing | legion | ferry | trickle
+#   work, group, detail, retired, regular, cast     one of, from people.yaml
+#   known     he's dealt with them before     was: what he did then (in | refused | kept)
+#   rapport   he talked with them, last time
+#   fake      a teenager trying it        kind: the card they hand him (own | sib | lifted | printed | phone)
+#   partner   they're married, or living with someone
+#   noid      no card on them    expired, oop (from out of province), idcard (the province's ID, not a licence)
+#   hes       they had to think about the answer    wrong: the answer isn't what the card says
+#   slip      the real year came out first
+#   took      he's holding the card        asked: he's asked them something    caught: something on it stopped him
+#   scan      what the scanner said: ok | red | real | seen | expired | oop
+#   looked    the card held up by the face: match | eyes | height | older | young
+#   n         how many in the line behind them, [lowest, highest]     together: some of them came with them
+#   behind    they came with the one he's just dealt with
+#   waited    minutes they stood in the line, [lowest, highest]
+#   why       back (from the truck with the card) | card (come for the licence he kept)
+#
+# In the text, braces are filled in: {he} {him} {his} {He} {His}; {a_person} {A_person} {the_person}
+# {The_person} (a man, a woman, a kid, a girl, an old man...); {in_top} {with_hat}; {others} (who's
+# with them, still in the line); {prev} (the one before them, that they came with); {detail_see} {Detail_see} {detail_read} {Detail_read} (people.yaml, details); {does};
+# {tie} (people.yaml, cast_ties); {age} {Age}; {n} {N} (the line, in words); {waited}; {met_when}; and from the
+# card in his hand: {card_name} {card_given} {card_middle} {card_age} {card_year} {card_month}
+# {card_day} {card_sign} {card_postal} {card_eyes} {card_height} {card_expired}, and {eyes}, the eyes
+# in front of him. What they've just said: {said}, {middle}, {month} {day_ord}, {sign}, {year_long}
+# {year_short}, {postal_said}, {slip}. Whose card it really is: {owner_given} {owner_name}
+# {owner_when} {owner_sib} (brother or sister); and to the one come for it, {teen_sib}.
+# {x|lc} is x in lower case, for the kids, who type like they talk.
+
+lines:
+
+  # ---- coming up to the stool (the teller)
+
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came up out of the lot and stood in front of the stool."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} shook the rain off at the top of the steps."}
+  - {on: arrive, text: "Next was {a_person} {in_top}{with_hat}."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} stepped up and wiped {his} feet on the mat like it was somebody's house."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came in out of the rain with {his} collar up."}
+  - {on: arrive, text: "Then {a_person} {in_top}{with_hat}, keys still in {his} hand from the truck."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came up the steps with {his} phone still lit in {his} hand, finishing a text."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came out of a cab that didn't wait."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came up the steps, read the room through the glass behind him, and decided it would do."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} came across the gravel at a jog with {his} collar held shut."}
+  - {on: arrive, text: "{A_person} {in_top}{with_hat} stopped under the light over the door and counted {his} cash before {he} came the last step."}
+  - {on: arrive, n: [4, 99], text: "{A_person} {in_top}{with_hat} came up to the stool, with {n} more behind {him} in the rain."}
+  - {on: arrive, n: [6, 99], text: "The line moved up one. {A_person} {in_top}{with_hat}, wet, and not pleased about it."}
+  - {on: arrive, reg: old, text: "{A_person} {in_top}{with_hat} took the steps one at a time with a hand on the rail, not from drink."}
+  - {on: arrive, reg: work, text: "{A_person} {in_top}{with_hat} came up the steps with the day's work still in {his} walk."}
+  - {on: arrive, reg: hospital, text: "{A_person} {in_top}{with_hat} came up the steps like {his} feet were somebody else's."}
+  - {on: arrive, reg: kid, text: "{A_person} {in_top}{with_hat} came up the steps talking over {his} shoulder to somebody in a car."}
+  - {on: arrive, behind: true, rank: 4, text: "Then {the_person} {in_top}{with_hat}, who'd come up the steps with {prev}."}
+  - {on: arrive, behind: true, rank: 4, text: "{The_person} {in_top}{with_hat} who was with {prev} stepped up next."}
+  - {on: arrive, behind: true, rank: 4, text: "Next, {the_person} {in_top}{with_hat}, the other half of {prev}'s party."}
+  - {on: arrive, together: true, text: "{A_person} {in_top}{with_hat}, and with {him}, {others}."}
+  - {on: arrive, together: true, text: "They came up the steps together: {a_person} {in_top}{with_hat}, and {others}."}
+  - {on: arrive, together: true, text: "{A_person} {in_top}{with_hat} came up first, with {others} behind."}
+  - {on: arrive, together: true, n: [3, 99], text: "{A_person} {in_top}{with_hat} came up at the head of a little knot of them: {others}."}
+  - {on: arrive, drunk: 2, text: "{A_person} {in_top}{with_hat} came up the steps one at a time, a hand on the rail."}
+  - {on: arrive, drunk: 2, text: "{A_person} {in_top}{with_hat}, a few in already, and carrying them carefully."}
+  - {on: arrive, drunk: 3, text: "{A_person} {in_top}{with_hat} missed the top step, found it, and looked at it like it had moved."}
+  - {on: arrive, waited: [15, 999], text: "{A_person} {in_top}{with_hat} got to the front of the line {waited} after {he} got in it, and was wet through for it."}
+  - {on: arrive, waited: [20, 999], text: "{A_person} {in_top}{with_hat} had been in the rain {waited}, and let him know it with {his} face."}
+  - {on: arrive, wave: dinner, text: "{A_person} {in_top}{with_hat} came in for the prime rib, by the look of {him}: hair combed for it."}
+  - {on: arrive, wave: dinner, text: "{A_person} {in_top}{with_hat}, here for dinner, in {his} going-out shoes."}
+  - {on: arrive, wave: dinner, together: true, text: "{A_person} {in_top}{with_hat}, and {others}, arm in arm under one umbrella, here for the prime rib."}
+  - {on: arrive, wave: arena, text: "{A_person} {in_top}{with_hat} came up from the lot with a hockey bag still over {his} shoulder."}
+  - {on: arrive, wave: arena, text: "{A_person} {in_top}{with_hat}, hair still wet from the rink's showers."}
+  - {on: arrive, wave: arena, together: true, text: "The beer league came up the steps loud: {a_person} {in_top}{with_hat}, {others}."}
+  - {on: arrive, wave: swing, group: mill, text: "{A_person} {in_top}{with_hat}, straight off the swing shift, still walking like the floor was moving."}
+  - {on: arrive, wave: swing, group: mill, text: "{A_person} {in_top}{with_hat} came up with the mill still on {him}, the noise of it in {his} shoulders."}
+  - {on: arrive, wave: swing, group: mill, together: true, text: "Half the swing shift's green chain came up the steps in a body: {a_person} {in_top}{with_hat}, {others}."}
+  - {on: arrive, wave: swing, group: hospital, text: "{A_person} {in_top}{with_hat}, the hospital's evening shift, done, with the hill's cold still on {him}."}
+  - {on: arrive, wave: swing, group: hospital, together: true, text: "The evening shift came down the hill together: {a_person} {in_top}{with_hat}, {others}."}
+  - {on: arrive, wave: legion, text: "{A_person} {in_top}{with_hat} came up the highway from the Legion with the Legion's last call still in {him}."}
+  - {on: arrive, wave: legion, text: "{A_person} {in_top}{with_hat}, sent up the highway by the Legion closing, a poppy on {his} coat."}
+  - {on: arrive, wave: ferry, text: "{A_person} {in_top}{with_hat} came up from the ferry with the salt still on {him}."}
+  - {on: arrive, wave: ferry, text: "{A_person} {in_top}{with_hat}, off the last boat, with the look of somebody who'd been on the mainland all day."}
+  - {on: arrive, teen: true, text: "{A_person} {in_top}{with_hat} came up with {his} hands in {his} pockets, too casual by half."}
+  - {on: arrive, teen: true, text: "{A_person} {in_top}{with_hat} stopped a step short of the stool, like the stool might ask {him} something."}
+  - {on: arrive, teen: true, together: true, text: "{A_person} {in_top}{with_hat} came up close behind {others}, close enough to be part of them."}
+  - {on: arrive, known: true, text: "{A_person} {in_top}{with_hat} came up the steps. He'd seen {him} {met_when}."}
+  - {on: arrive, known: true, was: refused, text: "{A_person} {in_top}{with_hat} came up the steps: the one he'd turned away {met_when}. {He} remembered him too."}
+  - {on: arrive, why: back, text: "{The_person} {in_top} was back from the truck, wetter, with the card in {his} hand."}
+  - {on: arrive, why: back, text: "{The_person} {in_top} came back up the steps with {his} wallet out and open."}
+  - {on: arrive, why: card, text: "{A_person} {in_top}{with_hat} came up the steps fast and didn't stop to shake the rain off."}
+
+  # ---- the first thing they say
+
+  - {on: greet, text: "Evening."}
+  - {on: greet, text: "Hey."}
+  - {on: greet, text: "Hi."}
+  - {on: greet, text: "Evening. Wet one."}
+  - {on: greet, text: "Busy in there?"}
+  - {on: greet, reg: work, text: "Christ, it's wet."}
+  - {on: greet, reg: work, text: "Evening. Room for one more?"}
+  - {on: greet, reg: work, text: "Yep. Hi. Wet."}
+  - {on: greet, reg: hospital, text: "Hi. Is it loud in there? Tell me it's loud."}
+  - {on: greet, reg: harbour, text: "Hell of a night for it."}
+  - {on: greet, reg: harbour, text: "Evening. Tide's in. Everybody's in."}
+  - {on: greet, reg: strip, text: "Hi, sweetie. Hi. Is it busy?"}
+  - {on: greet, reg: strip, text: "Hey you. New guy. Hi."}
+  - {on: greet, reg: town, text: "Hello. Awful night."}
+  - {on: greet, reg: town, text: "Hi. Is it table service, or do we go up to the bar?"}
+  - {on: greet, reg: old, text: "Evening. Is it still Paige on the bar? Good."}
+  - {on: greet, reg: old, text: "You'll be the new one."}
+  - {on: greet, reg: kid, text: "hey hey"}
+  - {on: greet, reg: kid, text: "what's good"}
+  - {on: greet, reg: teen, text: "hey. busy tonight huh"}
+  - {on: greet, reg: work, text: "How's she goin'."}
+  - {on: greet, reg: work, text: "Pissing down."}
+  - {on: greet, reg: work, text: "You the new guy?"}
+  - {on: greet, reg: work, text: "Hey bud. Busy in there?"}
+  - {on: greet, reg: work, text: "Long week. Long, long week."}
+  - {on: greet, reg: hospital, text: "Hi. Don't ask me how my day was."}
+  - {on: greet, reg: hospital, text: "Twelve hours. Don't look at me."}
+  - {on: greet, reg: hospital, text: "Hi. Is the kitchen still open? I haven't eaten since six."}
+  - {on: greet, reg: hospital, text: "Hey. I'm not working. If anybody's bleeding in there, I'm not working."}
+  - {on: greet, reg: harbour, text: "Some weather."}
+  - {on: greet, reg: harbour, text: "She's blowing out there."}
+  - {on: greet, reg: harbour, text: "Wet enough for you?"}
+  - {on: greet, reg: harbour, text: "Evening. Glass is still dropping."}
+  - {on: greet, reg: strip, text: "Oh my god, finally, it's freezing."}
+  - {on: greet, reg: strip, text: "Hiya. You're new."}
+  - {on: greet, reg: strip, text: "Hey. Is Paige on?"}
+  - {on: greet, reg: strip, text: "Hey hey. Friday."}
+  - {on: greet, reg: town, text: "Good evening."}
+  - {on: greet, reg: town, text: "Hi there."}
+  - {on: greet, reg: town, text: "Hello. Busy tonight?"}
+  - {on: greet, reg: town, text: "Evening. We're just here for a quiet one."}
+  - {on: greet, reg: old, text: "Evening, son."}
+  - {on: greet, reg: old, text: "Well. You're a big one."}
+  - {on: greet, reg: old, text: "You're new. Where's the other fella? The one with the jacket."}
+  - {on: greet, reg: old, text: "Hello, hello."}
+  - {on: greet, reg: old, text: "It's coming down like the chuck's been turned over."}
+  - {on: greet, reg: kid, text: "yo"}
+  - {on: greet, reg: kid, text: "hey man"}
+  - {on: greet, reg: kid, text: "sup. busy in there?"}
+  - {on: greet, reg: kid, text: "oh hey. you're the new guy"}
+  - {on: greet, reg: kid, text: "is it dead in there or what"}
+  - {on: greet, reg: teen, text: "hey"}
+  - {on: greet, reg: teen, text: "hi"}
+  - {on: greet, reg: teen, text: "uh. hey"}
+  - {on: greet, reg: teen, text: "hey how's it going"}
+  - {on: greet, reg: teen, text: "sup"}
+  - {on: greet, drunk: 2, text: "Big man! Big man on the door!"}
+  - {on: greet, drunk: 2, text: "Hey. Hey. Evening. Hey."}
+  - {on: greet, drunk: 2, text: "Are we allowed in? We're allowed in."}
+  - {on: greet, drunk: 2, reg: work, text: "How's she goin', how's she goin'."}
+  - {on: greet, drunk: 2, reg: old, text: "Evening, evening, evening."}
+  - {on: greet, drunk: 2, reg: kid, text: "YOOO. big dog"}
+  - {on: greet, drunk: 3, text: "I'm fine. I'm fine. Is it fine?"}
+  - {on: greet, wave: arena, text: "We won. Don't ask by how much."}
+  - {on: greet, wave: arena, text: "Beer league. We lost. Beer."}
+  - {on: greet, wave: legion, text: "Legion's shut. You're the only light on."}
+  - {on: greet, wave: legion, text: "They've put us out up the road."}
+  - {on: greet, wave: swing, group: mill, text: "Eight hours on the chain. One beer."}
+  - {on: greet, wave: swing, text: "Just off. Don't make me stand here."}
+  - {on: greet, wave: swing, group: hospital, text: "Three admissions in the last hour. Three. I want a glass of something."}
+  - {on: greet, wave: ferry, text: "Tied her up. Finally."}
+  - {on: greet, wave: ferry, text: "Last boat's in. God help us all."}
+  - {on: greet, wave: dinner, text: "We're here for the prime rib. Is there any left?"}
+  - {on: greet, wave: dinner, text: "Evening. We always sit by the window, if it's free."}
+
+  # ---- someone he's dealt with before
+
+  - {on: known, text: "Back again."}
+  - {on: known, text: "You made it to Friday, then."}
+  - {on: known, reg: old, text: "Evening, son. Still here, then."}
+  - {on: known, reg: kid, text: "oh it's you again"}
+  - {on: known, reg: teen, text: "hey. it's me again"}
+  - {on: known, rapport: true, text: "Hey, it's you. How's the door treating you?"}
+  - {on: known, rapport: true, reg: work, text: "There he is. Still dry?"}
+  - {on: known, rapport: true, reg: old, text: "Evening, son. You've lasted. Good."}
+  - {on: known, rapport: true, reg: kid, text: "my guy. you remembered me right"}
+  - {on: known, was: refused, text: "Am I in tonight, or what?"}
+  - {on: known, was: refused, text: "You going to do that again?"}
+  - {on: known, was: refused, reg: old, text: "I've come back to give you another chance."}
+  - {on: known, was: refused, reg: teen, text: "i have it this time. i swear"}
+  - {on: known, was: refused, reg: kid, text: "ok. round two"}
+  - {on: known, was: kept, text: "You've still got my card."}
+  - {on: known, was: kept, reg: teen, text: "you kept my sister's card. she's so mad at me"}
+
+  # ---- the card, coming out (the teller)
+
+  - {on: card_out, text: "{He} had it out before {he} got to the stool."}
+  - {on: card_out, text: "{He} dug for it, found it behind a debit card, and handed it over."}
+  - {on: card_out, text: "{He} held it out between two fingers."}
+  - {on: card_out, text: "{He} took it out of the back of a phone case and handed it over, warm."}
+  - {on: card_out, text: "{He} handed it over and looked past him at the room while he read it."}
+  - {on: card_out, text: "{He} had it ready in a clear sleeve in {his} wallet, and slid it out with a thumb."}
+  - {on: card_out, text: "{He} handed over the whole wallet, open at the licence, and let him do the rest."}
+  - {on: card_out, text: "{He} held it out without being asked."}
+  - {on: card_out, text: "{He} fished it out of a back pocket, bent a little from being sat on."}
+  - {on: card_out, text: "{He} handed it over and put {his} hands back in {his} pockets out of the rain."}
+  - {on: card_out, text: "{He} gave it to him, and waited with the patience of somebody who'd been carded at worse doors."}
+  - {on: card_out, reg: old, text: "{He} held it out at arm's length, the way {he} read things."}
+  - {on: card_out, reg: hospital, text: "{He} handed it over with the hospital ID still in the same hand, and took that back."}
+  - {on: card_out, reg: strip, text: "{He} had it out of a phone wallet with a rhinestone on the corner, and handed it over with a little flourish."}
+  - {on: card_out, reg: kid, text: "{He} flicked it out of a phone case like {he}'d done it a thousand times. {He} had."}
+  - {on: card_out, reg: work, text: "{He} dug it out of a wallet held together with electrical tape."}
+  - {on: card_out, reg: old, text: "{He} had to go through {his} whole wallet for it: a library card, a Legion card, a photo of somebody, then the licence."}
+  - {on: card_out, reg: work, text: "{He} handed it over with a hand that had done a day's work, and it showed on the card's edges."}
+  - {on: card_out, drunk: 2, text: "{He} dropped it on the mat, picked it up, and gave it to him with the wet side down."}
+  - {on: card_out, drunk: 2, text: "{He} offered him a debit card first, then a loyalty card from the Esso, then the licence."}
+  - {on: card_out, teen: true, text: "{He} handed it over fast, like it was hot."}
+  - {on: card_out, teen: true, text: "{He} gave it to him and then didn't know what to do with {his} hand."}
+  - {on: card_out, teen: true, text: "{He} had it ready in {his} hand the whole time {he} was in the line, and gave it to him before he asked."}
+  - {on: card_out, idcard: true, text: "It wasn't a licence. It was the province's photo ID, the one for people who don't drive."}
+  - {on: card_out, oop: true, text: "It wasn't one of theirs. An Alberta licence, from the other side of the Rockies."}
+  - {on: card_out, why: back, text: "{He} put it in his hand like it settled something."}
+
+  # ---- no card
+
+  - {on: noid, text: "Shit. It's in the truck."}
+  - {on: noid, text: "I've got my debit card? It's got my name on it."}
+  - {on: noid, reg: work, text: "Wallet's in my other jacket. Back in five."}
+  - {on: noid, reg: old, text: "I don't carry it any more. They took the licence off me in March."}
+  - {on: noid, reg: old, text: "I've been coming here since before you could walk, son."}
+  - {on: noid, reg: strip, text: "Oh my god, I left it at work. It's in my locker."}
+  - {on: noid, reg: kid, text: "bro i'm {age}. look at me"}
+  - {on: noid, reg: teen, text: "it's in my car"}
+  - {on: noid, reg: teen, text: "i left it at my friend's"}
+  - {on: noid, reg: teen, text: "i don't have it on me but i'm nineteen. i swear"}
+  - {on: noid, reg: teen, text: "my wallet got stolen. like last week. i'm getting a new one"}
+
+  # ---- a photo on a phone (the teller)
+
+  - {on: phone_out, text: "{He} held up {his} phone. On the screen was a photo of a licence."}
+  - {on: phone_out, text: "{He} didn't have a card. {He} had a phone with a picture of one on it, and turned it round to show him."}
+
+  # ---- going in on a nod
+
+  - {on: nod_in, text: "Cheers."}
+  - {on: nod_in, text: "Thanks."}
+  - {on: nod_in, text: "Night."}
+  - {on: nod_in, text: "Ta, man."}
+  - {on: nod_in, reg: work, text: "Yep. Cheers."}
+  - {on: nod_in, reg: old, text: "Mind how you go, son."}
+  - {on: nod_in, reg: old, text: "That's the way."}
+  - {on: nod_in, reg: kid, text: "you're the best"}
+  - {on: nod_in, reg: hospital, text: "Thank you. Thank you."}
+  - {on: nod_in, reg: strip, text: "Thanks, hon."}
+  - {on: nod_in, reg: town, text: "Thanks very much."}
+  - {on: nod_in, reg: harbour, text: "Good on you."}
+  - {on: nod_in, reg: work, text: "Appreciate it."}
+  - {on: nod_in, reg: work, text: "Thanks, bud."}
+  - {on: nod_in, reg: old, text: "Good lad."}
+  - {on: nod_in, reg: old, text: "Thank you, son."}
+  - {on: nod_in, reg: kid, text: "legend"}
+  - {on: nod_in, reg: kid, text: "appreciate you"}
+  - {on: nod_in, reg: teen, text: "thanks"}
+  - {on: nod_in, reg: teen, text: "ok cool. thanks"}
+  - {on: nod_in, reg: hospital, text: "Bless you."}
+  - {on: nod_in, reg: harbour, text: "Ta."}
+  - {on: nod_in, reg: strip, sex: f, text: "You're a doll."}
+  - {on: nod_in, reg: town, text: "Thank you."}
+  - {on: nod_in, drunk: 2, text: "You're a good man. You're a good man."}
+
+  # ---- going in, after he's looked
+
+  - {on: in, text: "Thanks."}
+  - {on: in, text: "Cheers."}
+  - {on: in, text: "Pass, did I?"}
+  - {on: in, text: "Thank you."}
+  - {on: in, text: "All good?"}
+  - {on: in, reg: work, text: "Yep. Thanks."}
+  - {on: in, reg: hospital, text: "I'd card me too. I look about twelve and about sixty."}
+  - {on: in, reg: old, text: "Don't get many asking for mine these days. Thank you."}
+  - {on: in, reg: town, text: "Thank you. Very thorough."}
+  - {on: in, reg: harbour, text: "Right you are."}
+  - {on: in, reg: kid, text: "appreciate it man"}
+  - {on: in, asked: true, text: "That's me. Can I go in now?"}
+  - {on: in, took: true, text: "Can I have that back?"}
+  - {on: in, waited: [12, 999], text: "Took you long enough."}
+  - {on: in, waited: [20, 999], reg: work, text: "Twenty minutes in the rain for a beer. Worth it, better be."}
+  - {on: in, reg: old, text: "Satisfied? Good."}
+  - {on: in, reg: kid, text: "we good? sick"}
+  - {on: in, reg: teen, text: "ok. thanks"}
+  - {on: in, reg: teen, fake: true, text: "thanks!"}
+  - {on: in, reg: teen, fake: true, text: "cool. ok. cool. thanks"}
+  - {on: in, reg: hospital, text: "If I fall asleep at the bar, somebody wake me."}
+  - {on: in, reg: strip, text: "Tell Paige I said hi. Oh, I'll tell her."}
+
+  # ---- turned away
+
+  - {on: refused, text: "Unbelievable."}
+  - {on: refused, text: "Okay. Okay."}
+  - {on: refused, teen: true, text: "seriously?"}
+  - {on: refused, teen: true, text: "it's literally me"}
+  - {on: refused, teen: true, text: "whatever"}
+  - {on: refused, teen: true, text: "ok"}
+  - {on: refused, teen: true, text: "can i have it back at least"}
+  - {on: refused, teen: true, text: "my friends are already inside"}
+  - {on: refused, teen: true, text: "you're not even a cop"}
+  - {on: refused, teen: true, kind: sib, text: "that's me. i had my hair different"}
+  - {on: refused, teen: true, kind: phone, text: "it's my actual licence. it's just on my phone"}
+  - {on: refused, noid: true, teen: false, text: "You know me. Everybody knows me."}
+  - {on: refused, drunk: 2, text: "I've had two."}
+  - {on: refused, drunk: 2, text: "You're new. That's what this is."}
+  - {on: refused, drunk: 2, text: "Gary's going to hear about this."}
+  - {on: refused, drunk: 3, text: "I'm not even. I'm not."}
+  - {on: refused, reg: old, ages: [70, 99], text: "Fifty years, and nobody's turned me away from this door."}
+  - {on: refused, reg: old, ages: [60, 69], text: "Thirty years I've been coming here. Thirty years."}
+  - {on: refused, reg: old, text: "Your mother would be ashamed of you, son."}
+  - {on: refused, reg: town, text: "Well. That's a shame. We've been coming here for years."}
+  - {on: refused, reg: kid, text: "bro"}
+  - {on: refused, reg: kid, text: "ok cool. cool cool cool"}
+  - {on: refused, reg: work, text: "Right. Right. Have a good night, then."}
+  - {on: refused, reg: hospital, text: "I've been up since five saving lives and I can't have a beer."}
+  - {on: refused, expired: true, text: "It ran out? It's me in the picture, isn't it?"}
+  - {on: refused, known: true, was: refused, text: "Twice. Twice now."}
+
+  # ---- he keeps the card
+
+  - {on: kept, text: "You can't keep that."}
+  - {on: kept, teen: true, kind: sib, text: "that's not mine. you can't keep it. it's my sister's"}
+  - {on: kept, teen: true, kind: sib, sex: m, text: "my brother's gonna kill me"}
+  - {on: kept, teen: true, kind: sib, text: "dude. that's their actual licence. they need it for work"}
+  - {on: kept, teen: true, kind: printed, text: "i paid sixty bucks for that"}
+  - {on: kept, teen: true, kind: printed, text: "that's my property. that's literally theft"}
+  - {on: kept, teen: true, kind: lifted, text: "that's my real licence. you can't take my real licence"}
+  - {on: kept, teen: false, text: "That's government property. You can't keep that. I'm calling Gary."}
+
+  # ---- the answers to his questions (the card read back, or not)
+
+  - {on: middle, free: true, text: "{middle}."}
+  - {on: middle, free: true, text: "It's {middle}."}
+  - {on: middle, free: true, teen: true, text: "{middle|lc}"}
+  - {on: middle, free: true, hes: true, text: "Uh. {middle}."}
+  - {on: middle, free: true, hes: true, text: "{middle}. Why?"}
+  - {on: middle, free: true, hes: true, teen: true, text: "it's. {middle|lc}?"}
+  - {on: middle, free: true, hes: true, teen: true, text: "{middle|lc}. like the. yeah"}
+  - {on: middle, reg: old, text: "{middle}. After my grandfather, who'd have hated this weather."}
+
+  - {on: birthday, free: true, text: "{month} {day_ord}."}
+  - {on: birthday, free: true, reg: old, text: "The {day_ord} of {month}."}
+  - {on: birthday, free: true, teen: true, text: "{month|lc} {day_ord}"}
+  - {on: birthday, free: true, hes: true, text: "{month}. The {day_ord}."}
+  - {on: birthday, free: true, hes: true, teen: true, text: "uh. {month|lc} {day_ord}. yeah"}
+  - {on: birthday, free: true, hes: true, teen: true, text: "{month|lc}. {day_ord}? {day_ord}"}
+
+  - {on: sign, free: true, text: "{sign}."}
+  - {on: sign, free: true, teen: true, text: "{sign|lc}"}
+  - {on: sign, free: true, hes: true, text: "Hang on. {sign}?"}
+  - {on: sign, free: true, hes: true, teen: true, text: "uhhh. {sign|lc}? i think"}
+  - {on: sign, reg: old, text: "I don't hold with that. {sign}, they tell me."}
+  - {on: sign, reg: strip, sex: f, text: "{sign}. Obviously. Can't you tell?"}
+
+  - {on: postal, free: true, text: "{postal_said}."}
+  - {on: postal, free: true, teen: true, text: "{postal_said|lc}"}
+  - {on: postal, free: true, hes: true, text: "Uh. {postal_said}? Something like that."}
+  - {on: postal, free: true, hes: true, teen: true, text: "v zero r. uh. {postal_said|lc}"}
+  - {on: postal, reg: old, text: "{postal_said}. Same as everybody's in this town, near enough."}
+
+  - {on: year, free: true, text: "{year_long}."}
+  - {on: year, free: true, text: "{year_short}."}
+  - {on: year, free: true, teen: true, text: "{year_long}"}
+  - {on: year, free: true, hes: true, text: "{year_long}. Uh, yeah."}
+  - {on: year, free: true, hes: true, teen: true, text: "two thousand and. uh. {year_short}"}
+  - {on: year, free: true, slip: true, text: "{slip}. No. {year_long}."}
+  - {on: year, free: true, slip: true, teen: true, text: "{slip|lc}. no wait. {year_long}"}
+
+  # ---- a word with them (rapport): by what he can read on them, then the wave, then who they are
+
+  - {on: chat, detail: sawdust, text: "Twelve hours of cedar. I can smell it in my sleep."}
+  - {on: chat, detail: earplugs, text: "Sorry, what? Kidding. I've still got the saws in my ears."}
+  - {on: chat, detail: gate_pass, text: "Still got a job. For now. Ask me in March."}
+  - {on: chat, detail: cedar, text: "Cedar on the saws today. Smell that? That's money, that is. Was."}
+  - {on: chat, detail: filings, text: "Saw shop. Everything in there's sharp but me."}
+  - {on: chat, detail: layoff_list, text: "Don't ask me who's on it. Everybody asks me who's on it."}
+  - {on: chat, detail: bar_oil, text: "Saw's sharper than me tonight. Bush is a mud bath."}
+  - {on: chat, detail: cork_boots, text: "Spikes stay outside. I know the rule. Everybody knows the rule."}
+  - {on: chat, detail: pitch, text: "It's in my hair, isn't it. It's always in my hair."}
+  - {on: chat, detail: diesel, text: "Ten hours in the cab. My back's a question mark."}
+  - {on: chat, detail: logbook, text: "Logbook says I'm asleep. Logbook's a liar."}
+  - {on: chat, detail: ferry_jacket, text: "Eleven sailings. Not one person said thank you."}
+  - {on: chat, detail: salt_boots, text: "Hauled traps all day. Don't shake my hand, it's done."}
+  - {on: chat, detail: scales, text: "Don't come near me, I stink. Good day, though. Good day."}
+  - {on: chat, detail: rope_hands, text: "Lost a glove over the side at ten in the morning. You can tell."}
+  - {on: chat, detail: lanyard_turned, text: "If anybody asks, I'm not a nurse. I'm nobody."}
+  - {on: chat, detail: compression, text: "Twelve hours on my feet. I'm going to sit down and never get up again."}
+  - {on: chat, detail: pen_hand, text: "Charting till nine. I'm going to dream in charts."}
+  - {on: chat, detail: gloves_powder, text: "Eleven residents and two of us on. Don't ask."}
+  - {on: chat, detail: sanitizer, text: "I know. I smell like the hospital. It doesn't come off."}
+  - {on: chat, detail: red_pen, text: "Twenty-eight essays on the same book, and they all hate it, and so do I."}
+  - {on: chat, detail: marking, text: "I brought it so I'd feel guilty. It's working."}
+  - {on: chat, detail: lanyard_school, text: "Is it still on? God. I'm off duty. I'm off duty."}
+  - {on: chat, detail: esso_vest, text: "Don't tell my manager I came straight here in the vest."}
+  - {on: chat, detail: scratch_dust, text: "Won four dollars. I'm celebrating."}
+  - {on: chat, detail: fryer, text: "I know. I smell like the fryer. Everybody from the diner does."}
+  - {on: chat, detail: burn_wrist, text: "Flat-top. You stop feeling it after the first year."}
+  - {on: chat, detail: flour, text: "Up at five for the pies. I'm running on butter tarts."}
+  - {on: chat, detail: price_gun, text: "Four ninety-nine. Everything in that store is four ninety-nine."}
+  - {on: chat, detail: nails_done, text: "Don't touch me, they're still wet."}
+  - {on: chat, detail: name_tag, text: "Is it still on? It's still on. Great. Everybody knows my name now."}
+  - {on: chat, detail: drywall, text: "Sanding mud all day. I've got it in my teeth."}
+  - {on: chat, detail: paint, text: "Eggshell. Somebody's living room on the hill. They changed their minds twice."}
+  - {on: chat, detail: sawdust_fine, text: "Finishing on Hillcrest. Rich people's baseboards."}
+  - {on: chat, detail: tape_measure, text: "Measure twice. I measured once. Long story."}
+  - {on: chat, detail: grease, text: "Transmission. Don't ask whose."}
+  - {on: chat, detail: knuckles, text: "Wrench slipped. Wrench always slips."}
+  - {on: chat, detail: manure, text: "Sorry about the boots. The cows don't care what day it is."}
+  - {on: chat, detail: hay, text: "Up at four. I'll be asleep in the corner by eleven."}
+  - {on: chat, detail: early, text: "Been up since four. This is my one night."}
+  - {on: chat, detail: hivis_town, text: "Water main on Second. Don't drink the water on Second."}
+  - {on: chat, detail: mud_cuffs, text: "Dug a ditch all day in that grey clay. Town's built on it. Town's sinking in it."}
+  - {on: chat, detail: office_shoes, text: "Wrong shoes. Wrong everything. Meetings all afternoon, on a Friday."}
+  - {on: chat, detail: hair_on_sleeve, text: "Eleven cuts and a colour. My feet are gone."}
+  - {on: chat, detail: laptop_bag, text: "Online course. Accounting. Don't laugh."}
+  - {on: chat, detail: phone_cracked, text: "Don't. I know."}
+  - {on: chat, detail: job_paper, text: "Fort Mac's hiring. Everybody's going. I'm thinking about it."}
+  - {on: chat, detail: smoke_hands, text: "I quit. Twice this week."}
+  - {on: chat, detail: poppy, text: "The eleventh's on Wednesday. You'll come up to the cenotaph?"}
+  - {on: chat, detail: hearing, retired: mill, text: "You'll have to speak up, son. The mill took that ear in seventy-nine."}
+  - {on: chat, detail: hearing, text: "You'll have to speak up, son. It's the left one. Stand on the right."}
+  - {on: chat, detail: readers, text: "Have you read the paper this week? Never mind. Nobody has."}
+  - {on: chat, detail: keys_ring, text: "Forty-one keys. I could let myself into half this town."}
+  - {on: chat, detail: ring_line, text: "Don't."}
+  - {on: chat, detail: hospital_band, ages: [19, 55], text: "My mum's up the hill. Since Tuesday. I need an hour somewhere that isn't the hospital."}
+  - {on: chat, detail: hospital_band, ages: [56, 99], text: "Sitting up the hill with my sister. Since Tuesday. I need an hour somewhere that isn't the hospital."}
+  - {on: chat, detail: ferry_stub, text: "Mainland all day. Specialist. Don't ask."}
+  - {on: chat, detail: tattoo_wrap, text: "My kid's name. Don't make me take the wrap off, it's still weeping."}
+  - {on: chat, detail: funeral, ages: [19, 55], text: "We buried my uncle today. He'd want me here. He practically lived here."}
+  - {on: chat, detail: funeral, ages: [56, 99], text: "We buried a friend today. Fifty years I knew him. He'd want me here."}
+  - {on: chat, detail: court, text: "Got off. Well. Got adjourned. Same thing, tonight."}
+  - {on: chat, detail: alberta_plate, text: "Two weeks home, then back to camp. I'm making it count."}
+  - {on: chat, detail: sober_coin, text: "Soda water. Don't look at me like that. I like the noise."}
+  - {on: chat, detail: baby_spit, text: "First night out since she was born. Don't let me stay past one."}
+  - {on: chat, detail: rental_skates, text: "We tied. Which is worse than losing, somehow."}
+  - {on: chat, detail: wet_through, text: "Walked from the flats. Don't ask why."}
+  - {on: chat, detail: lottery, text: "One of these is the one. You'll see."}
+  - {on: chat, detail: school_bag, text: "it's my brother's bag"}
+  - {on: chat, detail: mom_calls, text: "it's just my mom. it's fine. she's always like this"}
+  - {on: chat, detail: gum, text: "what. it's gum"}
+  - {on: chat, detail: all_ages, text: "that's from like last week. i forgot it was on"}
+  - {on: chat, detail: big_jacket, text: "it's my dad's. he doesn't wear it"}
+  - {on: chat, wave: dinner, text: "Prime rib, Fridays. We've been coming since it was eleven ninety-five."}
+  - {on: chat, wave: arena, ages: [30, 60], text: "Beer league. {Age} and still skating like I'm nineteen. Badly."}
+  - {on: chat, wave: arena, ages: [19, 29], text: "We had the ice at eight thirty. Eight thirty on a Friday. Who books that."}
+  - {on: chat, wave: swing, group: mill, text: "Last swing shift for half of us, March. That's what they're saying. March."}
+  - {on: chat, wave: swing, group: hospital, text: "Two of us for thirty beds tonight. Tomorrow too. You get used to it. You don't."}
+  - {on: chat, wave: legion, text: "Legion's dry at midnight. Here isn't. That's the whole of it."}
+  - {on: chat, wave: ferry, text: "Last boat's the worst. Everybody's drunk or crying, and some of them both."}
+  - {on: chat, cast: bigman, text: "Big guy plays pool in there Wednesdays. We work the chain together. He in?"}
+  - {on: chat, cast: driver, text: "You met Kayla Moffat yet? We were in the same year. Her brother's a mess. Nice kid."}
+  - {on: chat, cast: glasses, text: "My uncle Dennis in? Table 28. Course he is. Where else."}
+  - {on: chat, cast: bartender, text: "Paige still behind that bar? I worked the floor with her, back when it had carpet you could see."}
+  - {on: chat, cast: terry, text: "Terry still on the desk next door? Tell him his cousin says the Canucks are frauds."}
+  - {on: chat, cast: hivis, text: "Guy from my contract's staying upstairs. Room eleven. He down here?"}
+  - {on: chat, cast: cook, text: "Is the cook still the cook? I used to cook here. Before. Long story."}
+  - {on: chat, cast: goodshoes, text: "Is he in there? You know who I mean. Good shoes. Never mind."}
+  - {on: chat, reg: work, sex: m, partner: true, text: "Payday. Don't tell my wife."}
+  - {on: chat, reg: work, sex: f, partner: true, text: "Payday. Don't tell my husband. He'll want a new saw."}
+  - {on: chat, reg: work, partner: false, text: "Payday. First round's mine. The last one's the bank's."}
+  - {on: chat, reg: work, text: "How long you been on the door here? Week? Week. Huh."}
+  - {on: chat, reg: work, text: "Last guy on this door just stopped coming one Friday. You hear about that?"}
+  - {on: chat, reg: hospital, text: "Full moon next week. You'll see. Everybody goes nuts."}
+  - {on: chat, reg: hospital, text: "We had three from here up at Emerg last month. Be careful out here."}
+  - {on: chat, reg: harbour, text: "Glass is dropping. More of this tomorrow, and worse Sunday."}
+  - {on: chat, reg: harbour, text: "Saw a seal in the harbour that must have been nine feet. Nobody believes me."}
+  - {on: chat, reg: strip, text: "Is Paige on? Tell her it's me. She'll know."}
+  - {on: chat, reg: strip, text: "Everybody's saying you're from the city. Are you from the city?"}
+  - {on: chat, reg: town, text: "It's nice to see a new face on the door. The last one was. Well."}
+  - {on: chat, reg: town, partner: true, ages: [50, 99], text: "We don't usually do Fridays. It's our anniversary. Thirty-one years."}
+  - {on: chat, reg: old, text: "When the mill was three shifts there were two of you on this door, and a line to the highway."}
+  - {on: chat, reg: old, ages: [72, 99], text: "I drank here when it was men on that side and ladies and escorts on this. You wouldn't know."}
+  - {on: chat, reg: old, text: "My father said the '46 quake put a crack up that wall you could post a letter through. They plastered it. It's still there, if you know where to look."}
+  - {on: chat, reg: kid, text: "you're from the city right? everybody's saying"}
+  - {on: chat, reg: kid, text: "is the guy with the shoes in there? the one paige hates"}
+  - {on: chat, reg: kid, text: "dude it's so dead in here on wednesdays. fridays are the only night"}
+  - {on: chat, reg: teen, text: "so like. how long have you been doing this"}
+  - {on: chat, reg: teen, text: "it's really raining. like really. wow"}
+  - {on: chat, reg: teen, text: "my friends are inside already. they said it's chill"}
+
+  # ---- what he reads off them, sizing them up (the teller): passed, then failed
+
+  - {on: size, text: "He looked {him} over. {Detail_see}: {detail_read}."}
+  - {on: size, sober: true, kind: own, text: "Sober, tired, and exactly who the card said. {Detail_see}: {detail_read}."}
+  - {on: size, drunk: 2, text: "{He}'d had more than {he} was going to say. The eyes took a second to arrive after the head turned."}
+  - {on: size, drunk: 3, text: "{He} was hammered, and working hard at not being, and the work showed."}
+  - {on: size, teen: true, text: "The face was seventeen if it was a day: the jaw not finished, the skin not weathered by anything yet."}
+  - {on: size, kind: sib, text: "{He} was watching the card in his hand, not him. People don't watch their own licence."}
+  - {on: size, kind: sib, text: "{He} was younger than the card by a few years, and holding still the way the young do when they're lying."}
+  - {on: size, kind: lifted, text: "{He} kept {his} eyes on {his} own birthday, under his thumb, the whole time he held it."}
+  - {on: size, kind: printed, text: "{He} was too calm about it. Nobody's that calm about their own licence."}
+  - {on: size, kind: phone, text: "{He} kept the phone tipped so the glare hid half the screen."}
+  - {on: size, kind: printed, teen: true, text: "{He} was sixteen or seventeen and had practised this in a mirror. {He} was word perfect, and {his} knee was going."}
+
+  - {on: size_fail, text: "He couldn't get a read off {him}. {He} looked like anybody."}
+  - {on: size_fail, text: "Nothing. {He} gave him nothing to read."}
+  - {on: size_fail, text: "He looked, and the rain on the glass behind {him} was more interesting."}
+  - {on: size_fail, drunk: 1, text: "Drunk, or tired, or both. He couldn't say which, and that was the whole question."}
+
+  # ---- the card held up by the face (the teller)
+
+  - {on: look, looked: match, text: "The same face, younger, under the strip light at the motor vehicle office."}
+  - {on: look, looked: match, reg: old, text: "The same face, ten years and a lot of weather ago."}
+  - {on: look, looked: match, teen: false, text: "{His} face. A worse haircut, and the same eyes."}
+  - {on: look, looked: eyes, text: "The card said {card_eyes} eyes. {His} were {eyes}."}
+  - {on: look, looked: height, text: "The height on the card was a hand off what was standing in front of him."}
+  - {on: look, looked: older, text: "Close. The same family's face. But the one on the card had a few more years on it, and a different jaw."}
+  - {on: look, looked: older, text: "It was {his} face the way a {owner_sib}'s face is: near enough, in a bad light."}
+  - {on: look, looked: young, text: "It was {his} face. The face was younger than the year on the card."}
+  - {on: look, looked: young, kind: printed, text: "It was {his} face, and {his} name, and a year that would have made {him} older than {he} looked by a mile."}
+
+  # ---- a glance, and something stopped him (the teller)
+
+  - {on: caught, kind: sib, text: "Something stopped his hand on the way back: the face on the card was close to {his}, and not {his}."}
+  - {on: caught, kind: sib, text: "He'd let {owner_name} in {owner_when}. This wasn't {owner_name}."}
+  - {on: caught, kind: lifted, text: "The year caught the light wrong as he handed it back. He didn't hand it back."}
+  - {on: caught, kind: printed, text: "It was too light. Too smooth. He kept hold of it."}
+  - {on: caught, expired: true, text: "It had run out in {card_expired}."}
+  - {on: caught, kind: phone, text: "It was a phone with a picture of a card on it."}
+  - {on: caught, noid: true, text: "{His} hand was empty."}
+
+  # ---- the line, behind them (the teller)
+
+  - {on: left, text: "At the back of the line {a_person} {in_top} gave up and went back to the lot."}
+  - {on: left, text: "{A_person} {in_top} looked at the line, looked at the rain, and left."}
+  - {on: left, text: "{A_person} {in_top} got a text, read it, and went off across the lot to wherever it said."}
+  - {on: left, text: "Somebody at the back of the line, {a_person} {in_top}, gave up and went down the highway toward the Legion's dark."}
+  - {on: left, reg: work, text: "{A_person} {in_top} said, loud enough, that there was beer in the fridge at home, and went to drink it."}
+  - {on: left, reg: kid, text: "{A_person} {in_top} called somebody a name he didn't catch, through the glass, and left."}
+  - {on: left, drunk: 2, text: "{A_person} {in_top} said something to the glass that he couldn't hear, and went off up the highway."}
+  - {on: left, teen: true, text: "{A_person} {in_top} melted off the back of the line into the dark of the lot."}
+  - {on: left, reg: old, text: "{A_person} {in_top} decided {he} was too old to stand in the rain for a beer, said so to the line, and went."}
+  - {on: left, together: true, text: "{A_person} {in_top} and {others} gave it up together and went back to their car."}
+
+  - {on: slipped, text: "While he was reading a card, {a_person} {in_top} went past his shoulder, through the inner door, and was gone into the room."}
+  - {on: slipped, text: "{A_person} {in_top} stepped round the one at the front and went in like {he} had somewhere to be."}
+  - {on: slipped, known: true, text: "{A_person} {in_top} went past with a nod, like {he} had a right to. Maybe {he} did."}
+  - {on: slipped, teen: true, text: "Somebody small {in_top} ducked past under his elbow while his eyes were on a card, and was in."}
+
+  # ---- the one come for the licence he kept
+
+  - {on: for_card, text: "My {teen_sib} says you've got my licence."}
+  - {on: for_card, text: "You've got my licence. My {teen_sib} took it out of my wallet. I didn't even know."}
+  - {on: for_card, text: "I need my licence back. I drive for work. I'll deal with my {teen_sib}."}
+  - {on: for_card, reg: kid, text: "ok so. my {teen_sib} is an idiot. can i have my licence back"}

@@ -1,0 +1,103 @@
+# The town: its streets, fixed, the same in every game (bible/11_SKELETON.md, "The door, busier:
+# the town"; DECIDED 14 October: "predetermined streets, a real living little town, nothing fluffed
+# off"). The people on them are generated once a game from content/data/people.yaml.
+#
+# Every street name here is Claude's draft. HUTCH: rename any of them. Shore Road is already on the
+# Sov's 1958 licence and the inspector's letter (godot/world/town.gd). The town itself has no name
+# yet, so nothing here says it, and a licence's address stops at the street, the province and the
+# postal code.
+#
+# areas: the six parts of the town, each with a postal code (rural island codes start V0R)
+# streets: where people live. homes: what's on it (house, suite: a basement suite or a room behind a
+#          shop, flat: over a shop, unit: an apartment block's, trailer: a pad in the park, motel: a
+#          room by the week, room: the Sov's, upstairs), numbers: the house numbers on it, weight: how
+#          many households it holds, against the others
+# places: where people work, drink, pray and go, with the address on the door
+
+areas:
+  strip:  {name: the highway strip, postal: V0R 2K0}
+  main:   {name: the old main street, postal: V0R 2K1}
+  harbour: {name: the harbour, postal: V0R 2K2}
+  hill:   {name: the hill, postal: V0R 2K3}
+  flats:  {name: the flats, postal: V0R 2K4}
+  out:    {name: out the highway, postal: V0R 2K5}
+
+streets:
+  # the highway through town, along the shore; the Sov is on the water side of it
+  - {id: shore, name: Shore Road, short: SHORE RD, area: strip, homes: [house, flat], numbers: [1700, 2600], weight: 5}
+  - {id: cannery_lane, name: Cannery Lane, short: CANNERY LANE, area: strip, homes: [house, suite], numbers: [10, 90], weight: 3}
+  - {id: sov, name: the Sovereign Hotel, short: SHORE RD, area: strip, homes: [room], numbers: [2240, 2240], weight: 1}
+  # the old main street, down the hill to the highway, older than the highway
+  - {id: first, name: First Avenue, short: 1ST AVE, area: main, homes: [flat, house, unit], numbers: [1, 480], weight: 6}
+  - {id: second, name: Second Avenue, short: 2ND AVE, area: main, homes: [house, suite], numbers: [100, 690], weight: 7}
+  - {id: third, name: Third Avenue, short: 3RD AVE, area: main, homes: [house, suite], numbers: [100, 720], weight: 7}
+  - {id: alder, name: Alder Street, short: ALDER ST, area: main, homes: [house], numbers: [200, 560], weight: 4}
+  - {id: church, name: Church Street, short: CHURCH ST, area: main, homes: [house, unit], numbers: [20, 330], weight: 3}
+  # the harbour: the government wharf, the ferry dock, the shut fish plant
+  - {id: wharf, name: Wharf Road, short: WHARF RD, area: harbour, homes: [house, flat], numbers: [10, 260], weight: 3}
+  - {id: ferry, name: Ferry Road, short: FERRY RD, area: harbour, homes: [house], numbers: [100, 480], weight: 3}
+  # the hill: the hospital, the high school, the better houses, the water tower, and the road up
+  - {id: ridge, name: Ridge Road, short: RIDGE RD, area: hill, homes: [house], numbers: [1000, 1980], weight: 5}
+  - {id: arbutus, name: Arbutus Crescent, short: ARBUTUS CRES, area: hill, homes: [house], numbers: [1, 99], weight: 4}
+  - {id: hillcrest, name: Hillcrest Drive, short: HILLCREST DR, area: hill, homes: [house, suite], numbers: [200, 880], weight: 6}
+  - {id: tower, name: Tower Road, short: TOWER RD, area: hill, homes: [house], numbers: [1500, 2300], weight: 2}
+  # the flats: the trailer park, the motel, the RV lots
+  - {id: flats_rd, name: Flats Road, short: FLATS RD, area: flats, homes: [house, suite], numbers: [100, 900], weight: 4}
+  - {id: park, name: Bayview Mobile Home Park, short: FLATS RD, area: flats, homes: [trailer], numbers: [1, 62], weight: 6}
+  - {id: motel, name: the Tidewater Motel, short: FLATS RD, area: flats, homes: [motel], numbers: [1, 18], weight: 2}
+  # out the highway: the mill and its road, the farms, the gun club, the golf course
+  - {id: mill_rd, name: Mill Road, short: MILL RD, area: out, homes: [house], numbers: [3000, 4800], weight: 4}
+  - {id: shore_north, name: Shore Road North, short: SHORE RD N, area: out, homes: [house], numbers: [5000, 9800], weight: 3}
+  - {id: kerr, name: Kerr Road, short: KERR RD, area: out, homes: [house], numbers: [1200, 3900], weight: 2}
+
+# Where the park's pads, the motel's rooms and the Sov's rooms are numbered from: they print as
+# "PAD 14", "RM 6", "RM 9" over the street's own number (the park's is 2100 Flats Road, the
+# motel's 2380, the Sov's 2240 Shore Road).
+lots:
+  park: {number: 2100, prefix: PAD}
+  motel: {number: 2380, prefix: RM}
+  sov: {number: 2240, prefix: RM}
+
+places:
+  # the strip
+  sov:        {name: the Sov, street: shore, number: 2240, kind: bar}
+  beer_store: {name: the Sov's beer store, street: shore, number: 2240, kind: shop}
+  esso:       {name: the Esso, street: shore, number: 2090, kind: shop}
+  diner:      {name: the diner, street: shore, number: 2010, kind: food}
+  hardware:   {name: the hardware store, street: shore, number: 1880, kind: shop}
+  pawn:       {name: the pawn shop, street: shore, number: 1880, kind: shop}
+  thrift:     {name: the hospital auxiliary thrift store, street: shore, number: 1880, kind: shop}
+  gym:        {name: the gym, street: shore, number: 1880, kind: gym}
+  nails:      {name: the nail salon, street: shore, number: 1880, kind: shop}
+  # the old main street
+  office:     {name: Gary's office, street: first, number: 211, kind: office}
+  library:    {name: the library, street: first, number: 150, kind: public}
+  hall:       {name: the community hall, street: first, number: 320, kind: public}
+  legion:     {name: the Legion, street: first, number: 98, kind: bar}
+  united:     {name: the United church, street: church, number: 40, kind: church}
+  catholic:   {name: the Catholic church, street: church, number: 205, kind: church}
+  cafe:       {name: the café in the old bank, street: first, number: 214, kind: food}
+  # the harbour
+  govt_wharf: {name: the government wharf, street: wharf, number: 1, kind: wharf}
+  ferry_dock: {name: the ferry dock, street: ferry, number: 500, kind: ferry}
+  fish_plant: {name: the fish plant, street: wharf, number: 220, kind: shut}
+  # the hill
+  hospital:   {name: the hospital, street: hillcrest, number: 900, kind: hospital}
+  school:     {name: the high school, street: ridge, number: 1250, kind: school}
+  care_home:  {name: the care home, street: hillcrest, number: 940, kind: hospital}
+  # the flats
+  motel_desk: {name: the Tidewater, street: motel, number: 2380, kind: motel}
+  # out the highway
+  mill:       {name: the mill, street: mill_rd, number: 4900, kind: mill}
+  gurdwara:   {name: the gurdwara, street: mill_rd, number: 3600, kind: church}
+  gun_club:   {name: the gun club, street: kerr, number: 4100, kind: club}
+  golf:       {name: the golf course, street: shore_north, number: 7200, kind: club}
+  arena:      {name: the arena, street: ridge, number: 1700, kind: public}
+
+# The cast's own addresses, so their licences are from the same town as everyone else's. Claude's
+# drafts, like the cards themselves (content/data/props.yaml). The Moffats live out the highway, the
+# big man's family; GOOD SHOES on the hill.
+cast:
+  hoodie:    {street: kerr, number: 2215}
+  driver:    {street: kerr, number: 2215}
+  goodshoes: {street: arbutus, number: 14}
