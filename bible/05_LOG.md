@@ -164,6 +164,7 @@ Update this file at the end of every session: add a session entry, move items be
 - The consequence audit counted the walk across the room as a choice that changes nothing. It changes the clock, as the ways out do, and is counted with them now.
 - The rail by the pool table, the third place to settle the skeleton names, waits for the room's next pass at its furniture: it has to be drawn, and the pool table's scenes and its dice are set from where he stands now.
 - The story changed (the walk across the room, what's said when he runs), so a night saved before goes on from the floor.
+- Delivered on 23 October (7ddafa0): `releases/The-Bouncer-2026-10-23b.zip` to play on Linux, the Godot web build at its link (version 9) and the browser build at its link (version 12, which plays as it did: walking the floor is the 3D build's).
 
 ## Decisions register
 
