@@ -153,6 +153,7 @@ Update this file at the end of every session: add a session entry, move items be
 - Found, putting the pictures against the words: the old man stood halfway along the wharf, where the walk has him at the end under the light; the Legion's gun pointed straight across the street, where the walk has it aimed at the bank; and while he walked along the highway the camera went back to the top of the main street. All three match the words now. The looks were checked from where he stands too: from Gary's porch the Legion is behind the library and its gun behind a maple, so they're looked at from the wharf and the highway instead.
 - Open question 20 (where Gary's office is, and what's in it) still stays open: everything in the room is a draft for Hutch to correct.
 - The story changed (the looks, a word on the walk), so a night saved before goes on from the floor.
+- Delivered on 23 October (7d7d82b): `releases/The-Bouncer-2026-10-23.zip` to play on Linux, the Godot web build at its link (version 8) and the browser build at its link (version 11).
 
 ## Decisions register
 
