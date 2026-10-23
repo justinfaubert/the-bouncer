@@ -13,13 +13,15 @@ extends RefCounted
 const STAND := 1.76        # his eyes, standing: a big man, not a giant
 const SIT_DOOR := 1.62     # on the stool by the door
 const SIT_T28 := 1.28      # on a low stool at table 28
+const LEAN_BAR := 1.62     # leaning on the bar on his forearms
 
 # at: his eyes; look: what he's looking at when he gets there
 const POSTS := {
 	"door": {"at": Vector3(1.7, SIT_DOOR, 8.85), "look": Vector3(3.45, 1.25, 10.1), "seat": true},
 	"floor": {"at": Vector3(7.0, STAND, 6.7), "look": Vector3(9.8, 1.0, 3.6)},
-	# the bar: in the gap in its stools (Pub.SERVICE_Z), across from the bartender
-	"bar": {"at": Vector3(2.85, STAND, 5.0), "look": Vector3(1.15, 1.45, 4.8)},
+	# the bar: in the gap in its stools (Pub.SERVICE_Z), across from the bartender, leaning on it on
+	# his forearms (the Ink: "He leaned on the bar in the gap in the stools where staff stood")
+	"bar": {"at": Vector3(2.68, LEAN_BAR, 5.0), "look": Vector3(1.15, 1.45, 4.8), "lean": true},
 	"t28": {"at": Vector3(9.08, SIT_T28, 6.97), "look": Vector3(9.55, 0.95, 8.4), "seat": true},
 	"pool": {"at": Vector3(7.85, STAND, 5.5), "look": Vector3(10.2, 0.9, 3.9)},
 	"hall": {"at": Vector3(7.3, STAND, -0.6), "look": Vector3(15.2, 1.3, -0.62)},
@@ -69,6 +71,37 @@ const FLIGHTS := {
 }
 
 
+# Where each place in the bar is on its floor, for going there by pointing at it (game/going.gd): a
+# spot inside one of these is that place, and anywhere else on the floor of the room is just the
+# floor. Round ones are [x, z, radius]; the rest [x0, z0, x1, z1]; the first one a spot's in is
+# the one. Behind the bar, the trapdoor; the stool by the door (and the vestibule, past it); the
+# bar, its stools and the gap in them, and behind it; table 28 and its six stools; the pool table
+# and the room round it a cue needs; the jukebox, by the pool table. The parts of the building off
+# the room are their places whole (game/hotspots.gd's zones): the back hall, the kitchen, the
+# deck, the lot.
+const AREAS := {
+	"keg": [1.05, 1.9, 0.6],
+	"door": [1.7, 8.85, 1.05],
+	"bar": [0.3, 0.9, 3.05, 7.75],
+	"t28": [9.4, 8.1, 1.6],
+	"pool": [7.55, 2.65, 11.25, 5.15],
+	"pool:juke": [13.2, 0.75, 0.85],
+}
+const ZONE_AREAS := {"vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot"}
+
+# Back onto the floor from somewhere off the room: just inside it, through the way he came (from
+# anywhere in the room he steps back off where he was instead: game/view.gd). From the back hall
+# and from upstairs, through the hall's doorway; the deck's door; the main door from the lot; from
+# the kitchen, a step or two out past its swing door, and up the ladder behind the bar, round its
+# end and out from it. Each is somewhere he can see everything the floor offers from (the clutter
+# on the bar's end mustn't hide the ledge by the door, nor the vestibule's corner the sign on its
+# wall): tests/floor_sight.gd finds such spots, and tests/reach.gd checks them.
+const FLOOR_FROM := {
+	"hall": Vector3(6.5, 0.0, 1.35), "upstairs": Vector3(6.5, 0.0, 1.35), "kitchen": Vector3(4.0, 0.0, 2.0),
+	"deck": Vector3(14.7, 0.0, 7.0), "lot": Vector3(3.6, 0.0, 8.0), "keg": Vector3(3.6, 0.0, 2.0),
+}
+
+
 # A place seen more than one way. The lot: the whole building from across the gravel when he
 # arrives; the pickup's driver's window, the glass fogged; the step under the light over the door
 # at the end, the big man at his truck by the beer store. The back hall: through the hotel door to
@@ -109,6 +142,22 @@ static func post(place: String, frame := "") -> Dictionary:
 
 static func away(place: String) -> bool:
 	return place in AWAY
+
+
+# the place in the bar a spot on its floor is part of (AREAS, then the part of the building it's
+# in), or "floor" for the open floor of the room, or "" for nowhere he goes by pointing
+static func area_of(p: Vector3, zone: String) -> String:
+	if zone in ["room", "vest"]:
+		for k in AREAS:
+			var a: Array = AREAS[k]
+			if a.size() == 3:
+				if Vector2(p.x - a[0], p.z - a[1]).length() <= a[2]:
+					return k
+			elif p.x >= a[0] and p.x <= a[2] and p.z >= a[1] and p.z <= a[3]:
+				return k
+	if ZONE_AREAS.has(zone):
+		return ZONE_AREAS[zone]
+	return "floor" if zone == "room" else ""
 
 
 # The doorways on a way across the floor, and how far along it each is: [door, metres, 0] (the 0

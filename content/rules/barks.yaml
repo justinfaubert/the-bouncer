@@ -558,6 +558,25 @@
   speaker: father
   text: Every door's got its exceptions. They're just not on the sign.
 
+# His legs (toys.ink, toy_legs): he ran across the bar's floor, in the 3D build, and every head in
+# the room came round. The first time it's the father's rule; after that, one of the others.
+- id: legs_ran_father
+  on: toy:legs:ran
+  speaker: father
+  text: Never run on the floor. A doorman running tells the whole room there's trouble, and then the room goes looking for it.
+
+- id: legs_ran_manual
+  on: toy:legs:ran
+  speaker: manual
+  when: [ran_room >= 2]
+  text: Staff will move through the licensed area at a walking pace. A running employee may itself occasion an incident.
+
+- id: legs_ran_wrongman
+  on: toy:legs:ran
+  speaker: wrongman
+  when: [ran_room >= 3]
+  text: In the story the doorman ran, and by the time he got there everybody was already standing.
+
 # ---------------------------------------------------------------- the hand
 #
 # The voices and the player. While the player has a hand on a choice (the pointer resting on it, a

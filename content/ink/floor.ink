@@ -48,6 +48,12 @@
 + {fam ? kids_waiting && not fam_done && not truck_gone} [Go out to the pickup in the lot. #loc: lot]
     ~ pass(2)
     -> at_lot
+// Walking about the room, in the 3D build (godot/game/going.gd): not to a place, just to somewhere
+// else on the floor he can see. A walk across the room costs a minute, and whatever's due happens
+// while he's at it. Only his legs make this (#unlisted): the browser build has no floor to walk.
++ [Walk across the room. #toy: legs walk #unlisted]
+    ~ pass(1)
+    -> hub.choose
 
 // ------------------------------------------------------------------ straight on
 

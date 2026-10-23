@@ -17,6 +17,19 @@
 { rep_staff <= -3:
     She served him the same way she served everyone, and not one bit more.
 }
+// he ran across her floor since she last had him at the bar (toys.ink, toy_legs) (Claude's draft).
+// The first time it goes down with her, and the third, and that's the word on him (word.yaml).
+{ ran_room > ran_seen:
+    ~ ran_seen = ran_room
+    { stopping:
+    - BARTENDER: Door. You don't run on my floor. Half the room just looked round for the fight.
+        ~ rep(rep_staff, -1)
+    - BARTENDER: Walk, Door.
+    - BARTENDER: Again with the running.
+        ~ rep(rep_staff, -1)
+    - BARTENDER: Again with the running.
+    }
+}
 -> opts
 
 = opts

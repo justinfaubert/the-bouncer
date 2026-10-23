@@ -104,6 +104,13 @@ his_licence:
   expires: "2027-10-21"                                  # "Good till next October" (office.ink)
   number: "SW 118340"
 
+# Not handed to him at all: his legs, in the 3D build (godot/game/going.gd). A body can walk
+# (across the room: the hub's #unlisted choice, content/ink/floor.ink) and ran (across the bar's
+# floor, in front of everyone: toy_legs, content/ink/toys.ink). Nothing draws it.
+
+legs:
+  kind: body
+
 # ---------------------------------------------------------------- the kid's phone
 #
 # photos, in order: card (a licence, photographed on something), or place (a plate of a place,

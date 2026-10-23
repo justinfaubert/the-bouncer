@@ -57,6 +57,8 @@ func _run() -> void:
 			var ap: String = str(a).get_slice(":", 0)
 			var bp: String = str(b).get_slice(":", 0)
 			v.frame = str(a).get_slice(":", 1) if ":" in str(a) else ""
+			# the floor's own spot to start from, not wherever the last walk to it ended
+			v.floor_spot = null
 			v.jump_to(ap)
 			v.yaw = 0.0
 			v.want_yaw = 0.0
@@ -120,7 +122,8 @@ func _run() -> void:
 				_wrong("%s: not there after %.0f s" % [name, time])
 				v.jump_to(bp)
 				continue
-			var want: Vector3 = Posts.post(bp, v.frame).at
+			# the floor: where on it the page put him (a step or two off where he was), not its post
+			var want: Vector3 = v._post(bp, v.frame).at
 			if v.eye_pos.distance_to(want) > 0.02:
 				_wrong("%s: ends at %s, not %s" % [name, v.eye_pos, want])
 			if through != "":
@@ -148,6 +151,7 @@ func _run() -> void:
 	# two places in one stretch of the page: a stop at the first, standing, then on to the second
 	for trip in [["door", "bar", "door"], ["floor", "door", "deck"], ["bar", "keg", "floor"], ["t28", "pool", "door"], ["lot", "kitchen", "floor"]]:
 		v.frame = ""
+		v.floor_spot = null
 		v.jump_to(trip[0])
 		v.turned_t = -INF
 		v.walk_to(trip[1])
@@ -169,21 +173,24 @@ func _run() -> void:
 		if v.walking:
 			_wrong("%s: not there after %.0f s" % [name, time])
 			continue
-		if v.eye_pos.distance_to(Posts.post(trip[2]).at) > 0.02:
+		if v.eye_pos.distance_to(v._post(trip[2], "").at) > 0.02:
 			_wrong("%s: ends at %s" % [name, v.eye_pos])
 		if not stopped:
 			_wrong("%s: didn't stop at the %s on the way" % [name, trip[1]])
 		elif lowest < -0.01 and Posts.post(trip[1]).get("seat", false):
 			_wrong("%s: sat down at the %s on the way" % [name, trip[1]])
 		print("  %5.1f s  %s" % [time, name])
-	# where he stands, at every place and every way it's seen: nobody's spot under him (his own
-	# stool at table 28 aside, and the two spots nobody's put at yet)
+	# where he stands, at every place and every way it's seen, and where he comes back onto the
+	# floor from off it: nobody's spot under him (his own stool at table 28 aside, and the two spots
+	# nobody's put at yet)
 	var spots: Dictionary = main.stage.SPOTS
 	var stood := {}
 	for p in Posts.POSTS:
 		stood[p] = Posts.POSTS[p].at
 	for f in Posts.FRAMES:
 		stood[f] = Posts.FRAMES[f].at
+	for k in Posts.FLOOR_FROM:
+		stood["the floor, from the " + str(k)] = Posts.FLOOR_FROM[k] + Vector3(0, Posts.STAND, 0)
 	for name in stood:
 		var at: Vector3 = stood[name]
 		var floor_y := Pub.KEG_Y if at.y < 0.0 else (Pub.UP_Y if at.y > Pub.UP_Y else 0.0)

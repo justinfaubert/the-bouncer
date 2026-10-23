@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The Godot build of 23 October 2026.
+Wednesday, from the interview to close. The Godot build of 23 October 2026, the second that day.
 
 
 PLAY IT
@@ -36,6 +36,11 @@ repo writes it, and the browser build plays the same file.
 
 HANDS ON
 
+    Go somewhere      click the floor. In the bar he walks there, round the tables and whoever's
+                      standing, and a pale ring on the floor shows where he'd end up. The floor
+                      round a place (his stool, the bar, table 28, the pool table, the jukebox)
+                      takes him to it. E with nothing under his eyes walks him to the floor
+                      he's looking at; Space on the way hurries him
     Choose            click a choice, or press its number
     Go on             Space or Enter, where the night stops to let a moment land
     Look round        drag across the room, or the arrows (or W A S D); the wheel narrows his eyes
@@ -47,12 +52,49 @@ HANDS ON
                       Esc to put it down
     Notes, sketch     Tab, M
     Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
-    On a pad          either stick looks round; the d-pad goes through the choices and A makes one
+    On a pad          either stick looks round; the d-pad goes through the choices and A makes one;
+                      Y walks him to the floor he's looking at
 
 Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earlier build was
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE FIRST BUILD OF 23 OCTOBER
+
+The skeleton's second milestone: going where he looks.
+
+- He goes where you point. Click the floor anywhere in the bar and he walks there, at a walk,
+  round the tables, the stools and whoever's standing, and stops there still looking the way he
+  was. A pale ring on the carpet shows where a click would take him, and another stays where he's
+  going till he's there. A walk across the room costs a minute of the night, so whatever's due
+  happens while he's at it; a step or two costs nothing. Wherever he's standing, the dice tray
+  goes down a step off him.
+- The places are in the room now, not in a list. The row of ways to go at the bottom of the column
+  is gone, and the column says GO WHERE HE LOOKS instead. Rest the pointer on the door, the bar,
+  table 28, the pool table or the hall's doorway and it lights up, as before. Click the floor
+  round a place (his stool by the door, the bar and its stools, table 28, the pool table, the
+  jukebox) and he goes there, the same as clicking the place itself. From a place, a click on the
+  open floor is the way back onto it, and he walks out to where you clicked. The sketch (M) still
+  takes him anywhere lit on it.
+- In the middle of something (someone talking to him, a check, someone at the door), a click on
+  the floor only turns his head there. He goes when the night lets him.
+- The places are places to settle. He sits on his stool, and at the bar he leans on it now, on
+  his forearms in the gap in the stools, the way the story always said he did, and you hear his
+  weight go onto it. Back onto the floor from a place, he takes a step or two off it into the room
+  instead of going back to one spot in the middle.
+- A doorman doesn't run in a bar. Space still hurries him, and across the bar's floor the room sees
+  it: heads come round, his father has something to say about it (keep doing it and the manual
+  and the wrong man do too), table 28 wants to know where the fire is next time he's over, and
+  the bartender tells him off at the bar. That costs him with her, the first time and the third.
+- The clock at the top of the column runs up to the night's a minute at a time as he walks and
+  the lines come in, instead of jumping: ten minutes take a couple of seconds, an hour about five.
+  His notes and the menu stop it.
+- The rail by the pool table, the skeleton's third place to settle, waits for the room's next
+  pass at its furniture. For now he stands at the corner of the table to watch.
+- The story has changed a little (the walk across the room, what's said when he runs), so a night
+  you're partway through goes on from the floor.
 
 
 WHAT'S NEW SINCE 17 OCTOBER

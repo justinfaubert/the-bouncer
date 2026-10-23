@@ -33,11 +33,11 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/bar.ink
 
-13. **at_bar** (`content/ink/bar.ink:46`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
-14. **at_bar** (`content/ink/bar.ink:69`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
-15. **at_bar** (`content/ink/bar.ink:105`): The lifer's history with table 28. She knew them when they were young. What were they like?
-16. **at_bar** (`content/ink/bar.ink:113`): Her name. Or keep it back until he's earned it.
-17. **at_bar** (`content/ink/bar.ink:156`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
+13. **at_bar** (`content/ink/bar.ink:59`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
+14. **at_bar** (`content/ink/bar.ink:82`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
+15. **at_bar** (`content/ink/bar.ink:118`): The lifer's history with table 28. She knew them when they were young. What were they like?
+16. **at_bar** (`content/ink/bar.ink:126`): Her name. Or keep it back until he's earned it.
+17. **at_bar** (`content/ink/bar.ink:169`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
 
 ## content/ink/rats.ink
 

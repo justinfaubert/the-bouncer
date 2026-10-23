@@ -30,6 +30,7 @@ var notes: Notes
 var sketch: Sketch
 var hand: Hand
 var spots: Hotspots
+var going: Going
 var dice: Dice
 var props: Props
 var marks: Marks
@@ -44,6 +45,12 @@ var shown_knots := {}
 var prompts := {}
 var read_chars := 0
 var _save_soon := -1.0
+# The clock in the column's head: it runs up to the night's a minute at a time, as he walks there and
+# as the lines come in, rather than jumping (the skeleton's "the clock moves when he moves"). His
+# notes and the menus stop it.
+var clock_shown := -1
+var _clock_to := -1
+var _tick := 0.0
 var _quit_asked := false
 
 
@@ -105,6 +112,7 @@ func _ready() -> void:
 	spots = Hotspots.new()
 	add_child(spots)
 	spots.setup(self)
+	going = Going.new(self)
 	hand = Hand.new()
 	add_child(hand)
 	hand.setup(self)
@@ -132,7 +140,9 @@ func _ready() -> void:
 	menus.setup(self)
 
 	view.sheet.gui_input.connect(_on_world_input)
-	view.arrived.connect(func(where): stage.arrived(where); spots.refresh(); props.arrived())
+	view.arrived.connect(func(where): stage.arrived(where); spots.refresh(); props.arrived(); going.arrived(where))
+	view.ran.connect(func(): going.ran())
+	view.settled.connect(func(): audio.sfx("thump", 0.3, 0.7))
 	stage.walked.connect(func(_id): props.arrived())
 	view.people_at = stage.standing
 	stage.sync(game, true)
@@ -323,6 +333,10 @@ func reset_story() -> void:
 	props.drop_all()
 	marks.clear()
 	column.reset()
+	clock_shown = -1
+	going.moved()
+	view.floor_spot = null
+	view.floor_next = null
 
 
 func persist() -> void:
@@ -418,7 +432,11 @@ func after(res: Dictionary, live: bool) -> void:
 				stamped = true
 		column.show_end(stamped)
 	else:
-		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
+		var list := game.visible_choices()
+		column.show_choices(list, Look.TENSION_WORDS, going.hidden(list))
+	# a spot on the floor he was to go to, if the page had put him on it (game/going.gd), is
+	# forgotten once it hasn't
+	view.floor_next = null
 	refresh_status()
 	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
 	# table 28, the doorway of Gary's office, the wharf's rail, the highway, the kid on the freezer):
@@ -442,7 +460,11 @@ func refresh_status() -> void:
 	var shown := st.duplicate()
 	if Look.PLACE.has(view.place):
 		shown.here = view.place
-	column.set_status(shown)
+	_clock_to = int(st.clock)
+	# a new night, a night picked up, or a long way at once: there at once
+	if clock_shown < 0 or clock_shown > _clock_to or _clock_to - clock_shown > 90:
+		clock_shown = _clock_to
+	column.set_status(shown, clock_shown)
 	view.drinks = int(st.get("felt", st.drinks))
 	view.tension = int(st.tension)
 	view.hurt = int(st.hurt)
@@ -490,8 +512,11 @@ func render_items(items: Array, live: bool) -> Control:
 				if live and it.get("role") == "dialogue":
 					stage.speaking(str(it.get("speaker", "")))
 			"chosen":
-				node = column.add_chosen(it)
+				# his legs (a walk across the room, game/going.gd) aren't a choice anyone reads
+				if str(it.get("toy", "")) != "legs":
+					node = column.add_chosen(it)
 			"place":
+				going.moved()
 				node = column.add_place(it)
 				view.frame = _frame_for(str(it.here))
 				view.walk_to(str(it.here), not live, walked)
@@ -748,8 +773,10 @@ func _transcript() -> String:
 				var lab := str(it.get("label", ""))
 				out.append((lab + ": " if lab != "" and it.get("role") != "narration" else "") + str(it.get("text", "")))
 			"chosen":
-				out.append("")
-				out.append("> " + str(it.get("text", "")))
+				# his legs, a walk across the room, aren't a choice anyone reads (render_items)
+				if str(it.get("toy", "")) != "legs":
+					out.append("")
+					out.append("> " + str(it.get("text", "")))
 			"check":
 				out.append("[%s %s %d: %s]" % [str(it.get("label", "")), str(it.get("word", "")), int(it.get("target", 0)), "success" if it.get("success") else "failure"])
 			"place":
@@ -764,7 +791,11 @@ func _on_world_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and not e.pressed and e.button_index == MOUSE_BUTTON_LEFT and view.was_click():
 		if dice.wants_click():
 			return
-		spots.click()
+		# what's under his eyes, or with nothing there, the floor: he goes there (game/going.gd)
+		if spots.under != null:
+			spots.click()
+		else:
+			going.click()
 
 
 func _unhandled_input(e: InputEvent) -> void:
@@ -957,6 +988,15 @@ func _process(dt: float) -> void:
 		_save_soon -= dt
 		if _save_soon <= 0.0:
 			persist()
+	if clock_shown < _clock_to and not notes.visible and not menus.is_open():
+		_tick += dt
+		# quicker the more there is to go, and the last few minutes a third of a second each: ten
+		# minutes take two seconds and a half, an hour five
+		if _tick >= clampf(1.5 / float(_clock_to - clock_shown), 0.04, 0.35):
+			_tick = 0.0
+			clock_shown += 1
+			column.show_clock(clock_shown)
+	going.process(dt)
 
 
 # the caches are static and outlive the scene; let go of them before the servers shut down,

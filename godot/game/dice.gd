@@ -300,7 +300,7 @@ func play(it: Dictionary, c: CheckCard, _p: float, done: Callable) -> void:
 	main.view.heart = 1.25 + 0.12 * mini(int(it.roll.get("tension", 0)), 4)
 	# start working the throw out now, while they're still in his hand
 	var cam: Camera3D = main.view.cam
-	spot = spot_for(main.view.place, main.view.eye_pos, -cam.global_transform.basis.z, main.view.frame)
+	spot = spot_for(main.view.place, main.view.eye_pos, -cam.global_transform.basis.z, main.view.frame, main.stage.standing())
 	if main.view.place == "t28":
 		spot.glasses = _t28_glasses()
 	if spot.has("tray"):
@@ -483,8 +483,10 @@ static func _turns() -> void:
 
 
 # where they go down from here (SPOTS), or into the tray on the floor (TRAYS), the one most nearly
-# the way he's looking
-static func spot_for(place: String, eye: Vector3, fwd: Vector3, frame := "") -> Dictionary:
+# the way he's looking. Somewhere on the floor that isn't its post (he walked there: game/going.gd),
+# the tray's places are worked out where he stands, the same way: a step from him, on the carpet
+# clear of the tables and the stools, and nobody standing on it.
+static func spot_for(place: String, eye: Vector3, fwd: Vector3, frame := "", people: Array = []) -> Dictionary:
 	# seen from somewhere of its own (the jukebox, not the felt), it's that spot's floor
 	var key := place + ":" + frame if TRAYS.has(place + ":" + frame) else place
 	if SPOTS.has(key):
@@ -492,9 +494,13 @@ static func spot_for(place: String, eye: Vector3, fwd: Vector3, frame := "") -> 
 	fwd.y = 0.0
 	fwd = fwd.normalized() if fwd.length() > 0.01 else Vector3.FORWARD
 	var c := Vector3.ZERO
-	if TRAYS.has(key) and not (TRAYS[key] as Array).is_empty():
+	var ring: Array = TRAYS.get(key, [])
+	var post: Vector3 = Posts.POSTS["floor"].at
+	if key == "floor" and Vector2(eye.x - post.x, eye.z - post.z).length() > 0.3:
+		ring = floor_ring(eye, people)
+	if not ring.is_empty():
 		var best := -INF
-		for p in TRAYS[key]:
+		for p in ring:
 			var way := Vector3(p.x - eye.x, 0.0, p.z - eye.z).normalized()
 			if way.dot(fwd) > best:
 				best = way.dot(fwd)
@@ -503,6 +509,24 @@ static func spot_for(place: String, eye: Vector3, fwd: Vector3, frame := "") -> 
 		c = eye + fwd * 0.8
 		c.y = eye.y - (Posts.SIT_DOOR if Posts.post(place, frame).get("seat", false) else Posts.STAND)
 	return tray_spot(c)
+
+
+# the tray's places round him where he stands on the floor: a step off, clear of everything, and
+# nobody's feet
+static func floor_ring(eye: Vector3, people: Array) -> Array:
+	var out: Array = []
+	for k in 10:
+		var a := TAU * k / 10.0
+		var p := Vector3(eye.x + cos(a) * 0.8, 0.0, eye.z + sin(a) * 0.8)
+		if Nav.clearance(p) < TRAY_R + 0.12:
+			continue
+		var stood_on := false
+		for pp in people:
+			if Vector2((pp as Vector3).x - p.x, (pp as Vector3).z - p.z).length() < 0.45:
+				stood_on = true
+		if not stood_on:
+			out.append(p)
+	return out
 
 
 # the tray lying at c, on the floor, and the throw into it: from his hand down close over it, a

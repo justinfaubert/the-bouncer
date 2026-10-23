@@ -4,10 +4,12 @@
 # PATH as `godot`, and its export templates.
 #
 #   sh godot/tools/bundle/make.sh [out-dir]        from the repo's root; out-dir defaults to releases/
+#
+# A second build the same day takes a name of its own: BUNDLE_NAME=The-Bouncer-2026-10-23b sh ...
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd)
 OUT=${1:-$ROOT/releases}
-NAME=The-Bouncer-$(date +%Y-%m-%d)
+NAME=${BUNDLE_NAME:-The-Bouncer-$(date +%Y-%m-%d)}
 STAGE=$(mktemp -d)
 B="$STAGE/$NAME"
 mkdir -p "$B/game" "$B/godot-project" "$OUT"

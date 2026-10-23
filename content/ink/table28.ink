@@ -317,6 +317,11 @@ FATHER: The rule is whoever pays for the carpet. I told you.
 
 = again
 ~ pass(2)
+// he ran across the room since they last had him over (toys.ink, toy_legs): table 28 saw (Claude's draft)
+{ ran_room > ran_seen:
+    ~ ran_seen = ran_room
+    TABLE28: {stopping:Where's the fire, Big Fella?|Slow down! You'll spill somebody!|There he goes again!}
+}
 { pull_table >= 3:
     {stopping:
     - They made room for him before he got there.

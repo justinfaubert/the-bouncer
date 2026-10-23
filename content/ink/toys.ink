@@ -10,8 +10,18 @@
 //
 // If no choice is waiting for it, the engine calls the thing's function, toy_<thing>(what), if
 // one is written here, which changes what it changes and prints what happens, if anything. The
-// clock doesn't move. (None are written yet: on Wednesday every thing he's handed either moves the
-// night on, or a voice answers it.)
+// clock doesn't move. (One is written, his legs, at the bottom: every thing he's handed on Wednesday
+// either moves the night on, or a voice answers it.)
 //
 // Either way the voices can answer: toy:<thing>:<what> in content/rules/barks.yaml.
 // Claude's drafts, all of it.
+
+
+// His legs, in the 3D build (godot/game/going.gd). Walking about the room is a choice of its own
+// (the hub's, floor.ink). Running across it isn't: he can, and the room sees it. A doorman doesn't
+// run in a bar. Running means something's wrong; heads turn, and the bar and table 28 have
+// something to say about it next time he's over there (bar.ink, table28.ink).
+=== function toy_legs(what)
+{ what == "ran":
+    ~ ran_room += 1
+}

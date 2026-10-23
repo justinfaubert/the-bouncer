@@ -81,9 +81,10 @@ const LEXICON := [
 	["\\bstool\\b|sit back down|your post|the door\\b|front door|at the door|lock", "door_post"],
 	["\\bbed\\b|sleep|lie down", "a:his_bed"],
 ]
-# where each place is, for the ways out of the one he's in
+# where each place is, for the ways out of the one he's in (the floor's everywhere: pointing at any of
+# it is going there, game/going.gd)
 const WAYS := {
-	"door": "door_post", "floor": "p:7.6,1.0,5.6", "bar": "a:bar_top", "t28": "a:t28", "pool": "a:pool_table",
+	"door": "door_post", "floor": "", "bar": "a:bar_top", "t28": "a:t28", "pool": "a:pool_table",
 	"hall": "a:hall_way", "kitchen": "a:swing_door", "keg": "a:trap_over", "deck": "a:deck_door",
 	"lot": "a:truck|a:main_door", "upstairs": "a:hotel_door",
 }
@@ -201,6 +202,11 @@ func clear() -> void:
 static func loc_of(c: Dictionary) -> String:
 	var l = c.get("loc")
 	return "" if l == null else str(l)
+
+
+# what a choice on offer is about, in the room: a key for _where, or "" for nothing in it
+func about(c: Dictionary) -> String:
+	return _about(c)
 
 
 func _about(c: Dictionary) -> String:
@@ -655,12 +661,13 @@ func click() -> void:
 
 
 # E: the choice his eyes are on, or the thing; or, if there's nothing there, pick back up what he
-# put down
+# put down; or, with nothing put down, go where he's looking (game/going.gd)
 func use() -> void:
 	if under != null and (under.look != "" or not under.list.is_empty()):
 		click()
 		return
-	main.props.raise()
+	if not main.props.raise():
+		main.going.ahead()
 
 
 func _look(id: String) -> void:

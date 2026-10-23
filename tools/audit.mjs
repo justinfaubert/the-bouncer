@@ -336,9 +336,10 @@ for (const [it, v] of items) {
 
 // ---------------------------------------------------------------- the report
 
-// Ways out: leaving a place or a conversation and going back to the room. What they change is the
-// clock, and the clock is the night's (sim.ink): whatever he isn't attending to happens without him.
-const WAY_OUT = /^(The floor|That's enough|Leave (him|her|them) to|Out of the|Go back( in)?\.?$|Get up|Never mind)/;
+// Ways out: leaving a place or a conversation and going back to the room, or walking across it (his
+// legs, in the 3D build: floor.ink). What they change is the clock, and the clock is the night's
+// (sim.ink): whatever he isn't attending to happens without him.
+const WAY_OUT = /^(The floor|That's enough|Leave (him|her|them) to|Out of the|Go back( in)?\.?$|Get up|Never mind|Walk across the room)/;
 const waysOut = choices.filter((c) => c.inert && WAY_OUT.test(c.text) && c.scene.length === 0);
 const inert = choices.filter((c) => c.inert && !waysOut.includes(c));
 const weak = choices.filter((c) => !c.inert && !c.sub && !c.check && !c.labelRead && c.scene.length === 0 && c.dead.length > 0 && c.live.filter((x) => !TIME.has(x)).length === 0);

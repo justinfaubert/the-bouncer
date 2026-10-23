@@ -10,9 +10,11 @@
 # His head turns with a drag across the room, or the arrow keys; the wheel narrows his eyes on
 # something far off. Where the pointer rests is where his attention is (game/main.gd asks what's
 # there). He walks between places the way world/nav.gd finds round the tables and the stools and
-# whoever's standing about, at a man's pace (the space bar hurries him), the doors opening as he
-# comes to them, his eyes on the way ahead (unless the player looks somewhere else on the way), and
-# when he gets there he's still looking the way he was. Nothing turns his head for him but what would turn a man's: someone
+# whoever's standing about, at a man's pace (the space bar hurries him, and in the bar the room
+# sees him run), the doors opening as he comes to them, his eyes on the way ahead (unless the player
+# looks somewhere else on the way), and when he gets there he's still looking the way he was. The
+# floor isn't one spot: it's wherever on it he's standing, where the player pointed (game/going.gd),
+# or a step or two off the place he was at when the page puts him back on it. Nothing turns his head for him but what would turn a man's: someone
 # coming into it (the Ink's #portrait), the dice going down (and back after, unless the player's
 # looked away), and sitting down, which turns him to what the seat faces. Never while the player's
 # turning it.
@@ -31,6 +33,8 @@ class_name View
 extends Node
 
 signal arrived(place: String)
+signal ran                        # he ran across the bar's floor, in front of everyone
+signal settled                    # he's come to a post he sits or leans at, and his weight's gone onto it
 
 const WORLD_W := 0.655
 const MASK_LAYER := 20
@@ -50,6 +54,7 @@ const DOOR_PAST := 1.1            # and swings to when he's this far past it
 const TURN := 3.2                 # how fast his head comes round on its own, walking (radians a second)
 const STOP := 0.7                 # a stop on the way, where the page has him somewhere and then on (seconds)
 const SIGHTED := 3.5              # how far from the end of the way the Sov's front turns his head, the first time
+const RAN := 1.8                  # how far he has to hurry across the bar's floor for the room to see him run
 
 var pub: Pub
 var settings: Dictionary
@@ -75,6 +80,8 @@ var want_zoom := 1.0
 var focus_fov := 0.0              # a look at something close (the dice): the fov it wants, 0 for none
 var walking := false
 var on_floor := ""                # "" on the ground floor; "keg" or "upstairs", off it; or the place away from the Sov he's at
+var floor_spot = null             # where he's standing on the floor, or going to (on the floor, y 0); null for the floor's post
+var floor_next = null             # a spot the player pointed at, for the next time the page puts him on the floor
 var people_at := Callable()       # where the people are, to walk round (game/main.gd: the stage's)
 var _nav: Nav
 var _legs: Array = []             # the rest of the walk: {"path", "y1"} on foot, {"cut", ...} the ladder or the stairs, {"wait", "look"} a stop
@@ -89,6 +96,8 @@ var _stride := 0.0                # how far he's walked, for his steps
 var _off := false                 # he's set off on this stretch (he turns to it first)
 var _held := 0.0                  # how long he's been turning to it
 var _hurry := false
+var _hurried := 0.0               # how far he's hurried across the bar's floor on this walk
+var _seen_run := false            # and the room's seen it
 var _wait := 0.0                  # stopped on the way, for this much longer
 var _cut: Tween
 var _to := {}                     # the post the walk ends at
@@ -254,11 +263,14 @@ func jump_to(where: String) -> void:
 	_v = 0.0
 	_wait = 0.0
 	_look_after = null
+	if where == "floor" and floor_next != null:
+		floor_spot = floor_next
+	floor_next = null
 	place = where
 	_framed = frame
 	on_floor = where if Posts.FLIGHTS.has(where) or Posts.away(where) else ""
 	pub.lift_trap(on_floor == "keg", true)
-	var p := Posts.post(where, frame)
+	var p := _post(where, frame)
 	eye_pos = p.at
 	var first = _first_look(where)
 	var a := Posts.aim(eye_pos, first if first != null else p.look)
@@ -300,6 +312,8 @@ func walk_to(where: String, instant := false, then := false) -> void:
 		return
 	if where != place or frame != _framed:
 		_look_after = null
+	if where == "floor":
+		_floor_for()
 	# a walk asked for in the middle of a cut: the cut's done first, at once, and the rest of the walk
 	# it was on goes with it (its end would go on to that)
 	if _cut != null and _cut.is_valid():
@@ -312,7 +326,7 @@ func walk_to(where: String, instant := false, then := false) -> void:
 	flash = 0.0
 	place = where
 	_framed = frame
-	_to = Posts.post(where, frame)
+	_to = _post(where, frame)
 	_to_where = where
 	# a door he'd opened on the way he was going swings to behind him
 	for d in _doors:
@@ -323,8 +337,73 @@ func walk_to(where: String, instant := false, then := false) -> void:
 	walking = true
 	_walk_t0 = t
 	_hurry = false
+	_hurried = 0.0
+	_seen_run = false
 	_path = PackedVector3Array()
 	_next_leg()
+
+
+# Somewhere else on the floor, while he's on it (game/going.gd): the walk there, the same as to any
+# place, from wherever he is, on the way somewhere or not.
+func go_to_spot(p: Vector3) -> void:
+	if place != "floor" or on_floor != "":
+		return
+	floor_next = Vector3(p.x, 0.0, p.z)
+	# a man already hurrying across the room keeps on hurrying
+	var hurried := _hurry and walking
+	place = ""
+	walk_to("floor")
+	_hurry = hurried
+
+
+# Where on the floor the page is putting him: where the player pointed, if they did; from a place in
+# the room, a step or two off it, out into the room; from anywhere off it, just inside the room, the
+# way he came (Posts.FLOOR_FROM). Already on the floor, he stays where he is.
+func _floor_for(from_at = null) -> void:
+	if floor_next != null:
+		floor_spot = floor_next
+		floor_next = null
+	elif place != "floor" or floor_spot == null:
+		floor_spot = _step_back(place, from_at if from_at != null else eye_pos)
+
+
+func _step_back(from: String, at: Vector3) -> Vector3:
+	if Posts.FLOOR_FROM.has(from):
+		return Posts.FLOOR_FROM[from]
+	var mid: Vector3 = Posts.POSTS["floor"].at
+	mid.y = 0.0
+	if Posts.away(from) or on_floor != "":
+		return mid
+	var me := Vector3(at.x, 0.0, at.z)
+	var people: Array = people_at.call() if people_at.is_valid() else []
+	var best = null
+	var best_d := INF
+	for k in 16:
+		var a := TAU * k / 16.0
+		for r in [1.15, 1.5]:
+			var q: Vector3 = me + Vector3(cos(a), 0.0, sin(a)) * r
+			if Nav.clearance(q) < Nav.BODY + 0.12 or Hotspots.zone_of(q + Vector3(0, 1, 0)) != "room":
+				continue
+			var crowded := false
+			for pp in people:
+				if Vector2((pp as Vector3).x - q.x, (pp as Vector3).z - q.z).length() < 0.75:
+					crowded = true
+			if crowded:
+				continue
+			var d: float = q.distance_to(mid)
+			if d < best_d:
+				best_d = d
+				best = q
+	return best if best != null else mid
+
+
+# the post he stands at in a place: on the floor, the spot he's on (still looking the way he is)
+func _post(where: String, fr: String) -> Dictionary:
+	if where == "floor" and floor_spot != null:
+		var p: Vector3 = floor_spot
+		var ahead := Vector3(-sin(yaw), 0.0, -cos(yaw)) * 3.0
+		return {"at": Vector3(p.x, Posts.STAND, p.z), "look": Vector3(p.x, 1.3, p.z) + ahead}
+	return Posts.post(where, fr)
 
 
 # the next place after the one he's on his way to: he stops there, on his feet (not onto its stool),
@@ -343,9 +422,11 @@ func _then(where: String) -> void:
 	if not off_floor:
 		stop_at.y = Posts.STAND
 	_legs.append({"wait": STOP, "look": _to.look})
+	if where == "floor":
+		_floor_for(_to.at)
 	place = where
 	_framed = frame
-	var p := Posts.post(where, frame)
+	var p := _post(where, frame)
 	_legs.append_array(_plan(where, p, stop_at, _to_where if off_floor else ""))
 	_to = p
 	_to_where = where
@@ -454,6 +535,12 @@ func _walking(dt: float) -> void:
 	var ds := minf(maxf(_v, 0.12) * dt, left)
 	_s += ds
 	_stride += ds
+	# hurrying across the bar's floor, in front of everyone: the room sees him run
+	if _hurry and not _seen_run and on_floor == "" and Hotspots.zone_of(eye_pos) in ["room", "vest"]:
+		_hurried += ds
+		if _hurried >= RAN:
+			_seen_run = true
+			ran.emit()
 	left = _len - _s
 	var here: Vector3 = Nav.at(_path, _s)[0]
 	# off a stool his eyes rise in the first steps; onto one, they sink in the last
@@ -564,6 +651,8 @@ func _arrive() -> void:
 	if to != null:
 		look_at_point(to)
 	pub.shadows_near(eye_pos)
+	if (_to.get("seat", false) or _to.get("lean", false)) and not Posts.away(_to_where):
+		settled.emit()
 	arrived.emit(_to_where)
 
 

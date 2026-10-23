@@ -52,7 +52,7 @@ On a choice (inside the brackets):
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 | `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
 | `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`. |
-| `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo). Give it words anyway, for the director and the bots. |
+| `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo), or his legs (a walk across the room, in the 3D build: `#toy: legs walk`). Give it words anyway, for the director and the bots. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 

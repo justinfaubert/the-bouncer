@@ -161,11 +161,22 @@ func reset() -> void:
 
 # ---------------------------------------------------------------- the head
 
-func set_status(st: Dictionary) -> void:
+var _head_place := ""
+
+
+# the head: the day, the clock (shown_clock: the clock the head is showing, which runs up to the
+# night's as he walks and as the lines come in: game/main.gd), where he is, and what's on him
+func set_status(st: Dictionary, shown_clock := -1) -> void:
 	var day: String = Look.DAY_NAMES.get(int(st.get("day", 1)), "Day %d" % int(st.get("day", 1)))
 	var part := "the interview" if str(st.get("here", "")) == "office" else ("before the shift" if int(st.clock) < 1180 else "the test shift")
 	head_day.text = (day + ", " + part).to_upper()
-	var cp := BUtil.clock_parts(int(st.clock))
+	_head_place = str(Look.PLACE.get(str(st.here), "")).to_upper()
+	show_clock(int(st.clock) if shown_clock < 0 else shown_clock)
+	_status_row(st)
+
+
+func show_clock(c: int) -> void:
+	var cp := BUtil.clock_parts(c)
 	head_clock.clear()
 	head_clock.push_font(Look.font("display"), 46)
 	head_clock.push_color(Look.INK)
@@ -177,9 +188,12 @@ func set_status(st: Dictionary) -> void:
 	head_clock.add_text(" " + str(cp.ampm).to_upper() + "     ")
 	head_clock.pop()
 	head_clock.push_color(Look.INK_2)
-	head_clock.add_text(str(Look.PLACE.get(str(st.here), "")).to_upper())
+	head_clock.add_text(_head_place)
 	head_clock.pop()
 	head_clock.pop()
+
+
+func _status_row(st: Dictionary) -> void:
 	head_row.clear()
 	# what his size is holding off (engine/checks.gd, felt): only the ones that show count
 	var felt := int(st.get("felt", st.drinks))
@@ -564,12 +578,16 @@ func clear_choices() -> void:
 	rows.clear()
 
 
-# list: the visible choices; the ways out of a place (#class: move) go in a row under the rest
-func show_choices(list: Array, tension_words: Array) -> void:
+# list: the visible choices; the ways out of a place (#class: move) go in a row under the rest. hide:
+# the ways he goes by in the room instead (game/going.gd), which aren't here at all; where there
+# are any, a line under the rest says so.
+func show_choices(list: Array, tension_words: Array, hide: Array = []) -> void:
 	clear_choices()
 	var main_idx: Array = []
 	var ways: Array = []
 	for i in list.size():
+		if i in hide:
+			continue
 		if str(list[i].get("cls", "")) == "move":
 			ways.append(i)
 		else:
@@ -606,6 +624,16 @@ func show_choices(list: Array, tension_words: Array) -> void:
 		m.mouse_filter = Control.MOUSE_FILTER_PASS
 		m.add_child(flow)
 		choices_box.add_child(m)
+	if not hide.is_empty():
+		var go := UiBits.label(("OR GO" if not main_idx.is_empty() or not ways.is_empty() else "GO") + " WHERE HE LOOKS", "ui_b", 15, Look.MUTED, 3)
+		go.custom_minimum_size = Vector2(0, 34)
+		go.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		go.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var gm := MarginContainer.new()
+		gm.add_theme_constant_override("margin_top", 10 if not main_idx.is_empty() or not ways.is_empty() else 0)
+		gm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		gm.add_child(go)
+		choices_box.add_child(gm)
 	_fade_in_choices()
 
 

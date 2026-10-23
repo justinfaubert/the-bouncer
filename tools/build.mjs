@@ -244,7 +244,7 @@ for (const r of barkSet.rules) if (r.mark) checkMark(r.mark, 'barks.yaml: ' + r.
 for (const m of scan.markRefs) checkMark(m.spec, m.loc);
 // Props: every thing a line hands over is in props.yaml, and every choice that waits for a thing
 // waits for something it can be done with (src/ui/props.js)
-const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'] };
+const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'], body: ['walk', 'ran'] };
 const propThings = Object.entries(props || {}).filter(([id]) => id !== 'tonight');
 if (props && props.tonight && isNaN(Date.parse(props.tonight))) err(`props.yaml: tonight "${props.tonight}" isn't a date (YYYY-MM-DD)`);
 for (const [id, pr] of propThings) {

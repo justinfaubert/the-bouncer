@@ -29,6 +29,7 @@ drunk, and fullscreen.
 | | |
 |---|---|
 | Choose | click a choice, or its number |
+| Go somewhere | click the floor. In the bar he walks there, round the tables and whoever's standing, and a pale ring on the floor shows where he'd end up. The floor round a place (the stool by the door, the bar, table 28, the pool table, the jukebox) takes him to it, and he settles there. The places aren't listed in the column: they're pinned where they are in the room, and the sketch (M) takes him to any lit on it. E with nothing under his eyes walks him to the floor he's looking at. Space on the way hurries him, and in the bar the room sees him run |
 | Go on, where the night stops to let a moment land | Space or Enter |
 | Look round | drag across the room, or the arrow keys (or W A S D); the wheel narrows his eyes |
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
@@ -59,7 +60,8 @@ the rest are things (the scanner's beeps, the door, the dice, the pen).
   (`column.gd`), choices, checks and the dice (`dice.gd`, thrown by hand; `dice_sim.gd` works out
   how two cubes fall, off the surface, its walls, the glasses on it and each other), things in his
   hands (`props.gd`: the licences, with a hologram in the laminate, the kid's phone, the binder),
-  the voices marking up the room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), his
+  the voices marking up the room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), going
+  where he looks (`going.gd`: a click on the floor, the rings on it, the room seeing him run), his
   notes and the sketch (`notes.gd`, `sketch.gd`), the title and pause and settings (`menus.gd`), saves (`store.gd`),
   sound (`sound.gd`). `view.gd` is his eyes: the posts, walking between them, and the press that
   prints what he sees.
@@ -107,6 +109,7 @@ godot --headless --path godot -s res://tests/reach.gd -- --seeds 1-12 --steps 40
 godot --headless --path godot -s res://tests/looks.gd        # what each thing he can look at says
 godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
 godot --headless --path godot -s res://tests/walks.gd        # every walk, from every post to every other
+godot --headless --path godot -s res://tests/going.gd -- --seed 3   # going where he looks, clicked
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
 godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
 ```
@@ -116,7 +119,9 @@ of sight, the town's before the night included; on 23 October 2026 it found none
 nights. `walks.gd` walks him from every post to every other (702 walks, the town's cuts among them)
 and through two places at once, the way the page sends him, and
 fails a walk that goes through anything, goes faster than he walks, or gets to a door before it's
-open; it also fails a post with somebody's spot under it. `tray_spots.gd` prints the table of tray
+open; it also fails a post with somebody's spot under it. `going.gd` plays a night on to the floor
+and clicks it the way a player would: across the room, a step or two, E, a run, the floor round
+the bar, table 28 and the door, and back out from each. `tray_spots.gd` prints the table of tray
 spots for `game/dice.gd`, and `walk_grid.gd` writes the walk map: run both again when the room
 changes.
 
@@ -131,7 +136,8 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolu
 from where he stands at them, and the dice thrown at each post. `tests/shots_town.gd` takes the
 town's places at their hours, his head turned from them, and the lot come to from the town, with
 what a frame there costs; `tests/shots_opening.gd` plays the opening from Gary's office, choice by
-choice, and takes a picture after the choices it's given, and of his notes and the sketch. An
+choice, and takes a picture after the choices it's given, and of his notes and the sketch.
+`tests/shots_going.gd` takes the page out on the floor, the rings, the bar and a run. An
 exported build takes `--grab /tmp/title.png` to save a picture of its title and quit.
 `tests/pad.gd` plays the start of a night on a pad (the d-pad, A, B and a stick), headless.
 

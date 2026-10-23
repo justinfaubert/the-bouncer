@@ -155,6 +155,16 @@ Update this file at the end of every session: add a session entry, move items be
 - The story changed (the looks, a word on the walk), so a night saved before goes on from the floor.
 - Delivered on 23 October (7d7d82b): `releases/The-Bouncer-2026-10-23.zip` to play on Linux, the Godot web build at its link (version 8) and the browser build at its link (version 11).
 
+### 2026-10-23 (Friday), going where he looks
+
+- The skeleton's second milestone, looking and going, is built in Godot: a click on the bar's floor walks him there, and the floor round each place in the room is that place. The ways round are gone from the column. What it built is under PROPOSED, "Proposed with going where he looks (2026-10-23)".
+- The browser build has no floor to walk, so it plays as it did. The walk across the room is a choice only his legs make (`#unlisted`), which the bots and the parity checks make the way a player would.
+- `godot/tests/going.gd` plays a night on to the floor and clicks it as a player would: across the room, a step or two, E, a run, and the floor round the bar, table 28 and the door, and back out from each.
+- Found: from the floor by the kitchen's swing door, and by the bar's end coming up from the keg room, the incident book on the ledge by the door was behind the clutter on the end of the bar, and a step further out the ID sign was behind the corner of the vestibule. Both spots moved to where nothing's in the way (`godot/tests/floor_sight.gd` finds such spots when the room changes), and `godot/tests/reach.gd` finds none wrong again.
+- The consequence audit counted the walk across the room as a choice that changes nothing. It changes the clock, as the ways out do, and is counted with them now.
+- The rail by the pool table, the third place to settle the skeleton names, waits for the room's next pass at its furniture: it has to be drawn, and the pool table's scenes and its dice are set from where he stands now.
+- The story changed (the walk across the room, what's said when he runs), so a night saved before goes on from the floor.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -436,6 +446,21 @@ Proposed with Gary's office in pictures (2026-10-23), the first milestone's seco
 - **The seawall:** sitting on it across the highway from the Sov, with the sign on the roof and the lot. Dusk at ten past five, and night from seven.
 - **Looks:** twenty-one things in the office, on the street, at the Esso and at the seawall, each with a long look and a short one. The office's are through Gary's eyes, and the bank's has a writing prompt for Hutch. The Sov's roof sign and the beer store can be looked at from the seawall too.
 - **The browser's plates:** the office from Gary's chair (from 4:30 the day goes out of the window), the old main street down the hill to the harbour, the Esso with the Sov down the highway, and the Sov from the seawall, each going to night after six. Away from the Sov, the faces are painted on the ground of where they are (the office, the canopy, the dusk), with no red. New face parts: long hair loose past the shoulders, a jacket open over a T-shirt, a mala, a vest over a hoodie, a toque, and an older woman's set hair and reading glasses.
+
+Proposed with going where he looks (2026-10-23), the second milestone. Built in Godot:
+
+- **Pointing:** a click on the bar's floor that he can see and could stand on, or near it (the nearest spot a man fits, within a metre and a half), is somewhere to go. He walks there at a walk, round everything, and stops still looking the way he was. Elsewhere in the building (the hall, the kitchen, the deck, the lot), a click on the floor is the way there, as its pin is. Off the ground floor (the keg room, upstairs) and away from the Sov, the floor isn't anywhere to point yet.
+- **The floor round a place is the place:** the stool by the door and the vestibule round it; the bar, its stools and the trapdoor behind it; table 28; the pool table, and the jukebox by it (`world/posts.gd`, AREAS). A click there is the night's choice to go there, the same as clicking the place. When nothing on offer goes there, it's just the floor by it.
+- **The floor is wherever he's standing on it,** not one spot: where he was pointed, or, when the page puts him back on it, a step or two off the place he was at, out in the room and clear of anyone. From somewhere off the room, it's just inside the way he came.
+- **From a place,** a click on the open floor is the way back onto it ("The floor"), and he walks out to where it was clicked.
+- **In the middle of something,** with nothing on offer that goes anywhere, a click on the floor turns his head there and no more.
+- **A walk across the room is a minute,** taken when he gets there (two and a half metres or more), so whatever's due happens as he does it. A step or two is free. It's the floor's unlisted choice "Walk across the room." (`content/ink/floor.ink`), made only by his legs, and nothing about it is printed.
+- **The rings:** while the pointer rests on floor a click would take him to, with nothing lit under it, a pale ring lies on the floor where he'd end up: the spot, or the place's own (the stool, the gap in the bar's stools). Once he's going, one stays where he's going till he's there.
+- **The column:** the ways to go are left out of it, each pinned where it is in the room, and it says GO WHERE HE LOOKS (OR GO WHERE HE LOOKS under what else there is) instead. The keys number only what's shown. A way the room can't show from where he is stays in the column. E (Y on a pad) with nothing under his eyes walks him to the floor he's looking at.
+- **Settling:** on the stool he sits, and at the bar he leans now, on his forearms in the gap in the stools, his eyes a little lower than standing. A soft thump as his weight goes onto either.
+- **Running:** hurrying two metres or so across the bar's floor is running, and the room sees it. Heads come round toward him (the seated a little, the standing more) and go back after a few seconds. The voices have a line each, once a night: THE FATHER the first time ("Never run on the floor. A doorman running tells the whole room there's trouble, and then the room goes looking for it."), THE MANUAL from the second, THE WRONG MAN from the third. Next time he's at table 28 they say so ("Where's the fire, Big Fella?"), and at the bar the bartender does ("Door. You don't run on my floor. Half the room just looked round for the fight."), which costs him with her the first time and the third. The lines are Claude's drafts.
+- **The clock on the page** runs up to the night's a minute at a time instead of jumping, quicker the more there is to go, and the last few minutes a third of a second each: ten minutes in about two and a half seconds, an hour in five. A new night, a night picked up, or more than an hour and a half at once, and it's there at once. His notes and the menu stop it.
+- **Waiting:** the rail by the pool table, for a pass at the room's furniture, with the pool table's scenes and its dice looked at again from there.
 
 ### REJECTED
 

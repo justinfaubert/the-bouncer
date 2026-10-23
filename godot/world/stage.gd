@@ -985,6 +985,32 @@ func speaking(speaker: String) -> void:
 	_turned[id] = tw
 
 
+# He ran across the room (game/going.gd): everyone in it turns to look, one after another the way a
+# room does, and then goes back to what they were doing. Standing, they turn round to it; sitting,
+# as far as a stool lets them.
+func heads_to(p: Vector3) -> void:
+	for id in figures:
+		var f: Dictionary = figures[id]
+		if walkers.has(id) or str(f.spot) == "" or not SPOTS.has(f.spot):
+			continue
+		if not str(SPOTS[f.spot].zone) in ["room", "vest"]:
+			continue
+		var node: Node3D = f.node
+		if not node.is_visible_in_tree():
+			continue
+		var to := p - node.global_position
+		var d := wrapf(atan2(-to.x, -to.z) - float(f.base_yaw), -PI, PI)
+		var lim := 0.35 if _seated(f.spot) else 1.0
+		if _turned.has(id) and (_turned[id] as Tween).is_valid():
+			(_turned[id] as Tween).kill()
+		var tw := node.create_tween()
+		tw.tween_interval(randf_range(0.0, 0.45))
+		tw.tween_property(node, "rotation:y", float(f.base_yaw) + clampf(d, -lim, lim), 0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_interval(randf_range(2.8, 4.2))
+		tw.tween_property(node, "rotation:y", float(f.base_yaw), 1.3).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_turned[id] = tw
+
+
 # The Ink's #portrait: someone comes into the story. His eyes go to them, if they're where he can
 # see them.
 func glance(id: String) -> void:
