@@ -156,9 +156,9 @@ func _spots() -> void:
 	s["deck_steps_lot"] = {"pos": Vector3(18.05, 0, 5.85), "face": Vector3(19.0, 0, 16.0), "zone": "deck"}
 	# Away from the Sov (world/town.gd), put in the town so they're put away with it. In Gary's
 	# office: the armchair across his desk, just inside the front door, the bookkeeper's chair at her
-	# desk; the ice freezer by the Esso's door; the wharf's rail. Where someone sits, the height of
-	# the seat (_seat_on); "still", the ones in a chair with arms or at a desk, who don't turn to
-	# him in it.
+	# desk; the ice freezer by the Esso's door; the wharf's rail at the end, under its light. Where
+	# someone sits, the height of the seat (_seat_on); "still", the ones in a chair with arms or at a
+	# desk, who don't turn to him in it.
 	var ox := Town.OFFICE_X
 	var oy := Town.OFFICE_Y
 	var oz := Town.OFFICE_Z
@@ -166,7 +166,7 @@ func _spots() -> void:
 	s["office_door"] = {"pos": Vector3(ox + 0.45, oy, oz - 1.1), "face": Vector3(Town.GARY.x, oy, oz), "zone": "office", "in": "town"}
 	s["office_bk"] = {"pos": Vector3(ox + 3.15, oy, oz - 1.15), "face": Vector3(ox + 3.15, oy, oz - 2.3), "zone": "office", "in": "town", "seat": 0.46, "still": true}
 	s["esso_freezer"] = {"pos": Vector3(-147.3, Town.APRON, 12.4), "face": Vector3(-147.3, Town.APRON, 20.0), "zone": "town", "in": "town", "seat": 0.86}
-	s["wharf_rail"] = {"pos": Vector3(-198.15, Town.WHARF_Y, 58.0), "face": Vector3(-190.0, Town.WHARF_Y, 61.0), "zone": "town", "in": "town"}
+	s["wharf_rail"] = {"pos": Vector3(-198.15, Town.WHARF_Y, 93.6), "face": Vector3(-190.0, Town.WHARF_Y, 96.6), "zone": "town", "in": "town"}
 	SPOTS = s
 
 

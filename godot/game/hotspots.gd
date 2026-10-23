@@ -126,9 +126,15 @@ const OPENINGS := [
 # on the door frame from table 28 (the screen's in the way), the hockey on the back wall from the end
 # of table 28 standing (the pool table's light is in the way), the hotel door from the payphone, and
 # from the door out to the lot, his window along the front (the next one's frame is in the way) and
-# the sign on the roof (straight up)
+# the sign on the roof (straight up); and in the town, what's behind something from the top of the
+# old main street
 const HIDDEN := {"a:payphone": ["hall", "hall:clerk"], "a:tape": ["t28"], "a:tv": ["t28:stand"], "a:hotel_door": ["hall:phone"],
-	"a:his_window": ["lot:truck"], "a:roof_sign": ["lot:truck"]}
+	"a:his_window": ["lot:truck"], "a:roof_sign": ["lot:truck"],
+	# from the foot of Gary's porch, the Legion's set back behind the library, and its gun behind the
+	# maple on the library's lawn; from the highway, the church and the pickup up the street are
+	# behind the library and the gun
+	"a:street_legion": ["street"], "a:street_gun": ["street"],
+	"a:street_church": ["street:highway"], "a:street_pickup": ["street:highway"]}
 # a choice that names one of the voices in his head is about him, not anything in the room
 static var _voice_name := RegEx.create_from_string("\\bTHE (FATHER|MANUAL|WRONG MAN|FIGHTER|TABLE|KID|CIRCLE)\\b")
 

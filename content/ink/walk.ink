@@ -61,7 +61,7 @@ He didn't look round to say it. He was looking down at the pilings, where the wa
 
 = highway
 ~ clock = MAX(clock, 1012)
-He walked east along the shoulder with the water on his right and the trucks throwing it up off the road, toward the Sov's sign a long way down, small and red, the second E dead even from here.
+He walked north along the shoulder with the water on his right and the trucks throwing it up off the road, toward the Sov's sign a long way down, small and red, the second E dead even from here.
 The Esso came first, on the left. A canopy lit white from underneath, two islands of pumps, the store behind them with its window full of signs, and a kid in a toque and the Esso's vest sitting on the ice freezer by the door with his phone. #portrait: essokid
 He hadn't eaten since the morning.
 * [Stop at the Esso.]

@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, the test shift. The Godot build of 17 October 2026.
+Wednesday, from the interview to close. The Godot build of 23 October 2026.
 
 
 PLAY IT
@@ -53,6 +53,64 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE 17 OCTOBER
+
+The skeleton's first milestone: Gary's office, and the walk to the Sov at dusk.
+
+- The game starts in Gary's office now, as you decided. Wednesday, four in the afternoon, Van
+  Dusen Holdings: the front room of his mother's house on the old main street, across from the
+  bank that's been a cafe for eleven years. You see the doorman through Gary's eyes, across the
+  desk, and answer for him: how he sits, his licence, where he was before, why he left, fights,
+  what he does while Gary's on the phone about the prime rib, the rye from the bottom drawer, the
+  rule about table 28, any questions, the rent, the shirt, the form. Gary hears two voices of his
+  own while he sizes him up: THE TILL, which prices everything, and SENIOR, his dead father, who
+  calls him Junior. They're never heard again after the office.
+- The office is built, in 3D: Gary's desk and his lamp, the chair across it, the bookkeeper at
+  her desk writing in her ledger, the Sov in 1958 on the wall behind him beside the first
+  licence, the box of shirts, rain on the window and the old bank across the street. From his
+  chair Gary watches the doorman in the doorway, then across the desk, and turns to the
+  bookkeeper while she does the papers. The health inspector's notice on his desk is the one the
+  doorman reads upside down, with PEST circled twice.
+- It's hard not to get hired, but not impossible: mean the threat, walk out, or be rude to both of
+  them, and the game ends there. Lies Gary catches cost him with Gary, not the job.
+- His stats. Strength, Constitution, Dexterity, Intelligence, Wisdom, Charisma and Gut Brain, out
+  of 10. Your answers set them: each answer that says something about him puts a point on two of
+  them, and he comes out of the office between 2 and 7. They print on a card as he goes down the
+  porch steps, and they're in his notes (Tab) from then on, with any old number struck through when
+  one moves.
+- Every check in the night uses one now. The choice says which, and his number for it; the dice
+  say where every point came from. The targets went up by four, an ordinary man's 4, so a man
+  like that has the odds the night always gave him.
+- Constitution holds his drink. A big man takes a couple before they show; the top of the column
+  says "feels like" when he's holding some off, and only the ones that show reach the dice and the
+  print. Eat at the Esso and he holds one more. Walk past it hungry and he's a point worse in the
+  body all night, and a point sharper in the gut.
+- The walk to the Sov at dusk, his own eyes from the porch steps, and the town built for it: the
+  old main street down the hill (the library, the Legion with its field gun aimed at the bank, BANK
+  still cut in the stone over the cafe and its chalkboard, the thrift store, the video store shut
+  for years, two churches), the old man from the end of the bar at the rail under the light at the
+  end of the wharf, the highway along the water, the Esso and its kid up on the ice freezer, who's
+  watching a light over the mainland that hasn't moved in two nights and rates a machine's answers
+  at four cents each, the Sov's sign with its dead E, and then the seawall, to watch the door from
+  outside for two hours, or up to his room. What he sees comes back during the night.
+- The light goes by the clock: grey rain at four, the street lamps coming on from half past, dusk
+  by ten past five and dark by six. The first time he gets to the Sov from the town he's facing
+  its front in the lot, the door and the windows and the sign; after that his head's his own again.
+- Rest the pointer on things in the office and along the walk and their names come up, as at the
+  Sov: twenty-one of them, and in the office it's Gary who looks.
+- His security licence, the one Gary looks at: SECURITY WORKER, his licence number, the dates, and
+  his name drawn as bars, since the name is yours to give.
+- The sketch (M) is the town while he's walking, and the Sov's floor once he's in. The notes (Tab)
+  and the sketch had been coming up as blank pages: the paper was drawn over what was on it. Fixed.
+- Sound for the new places: rain on Gary's window and the bookkeeper's one-finger typing, the
+  Esso's canopy buzzing over the pumps and the highway, the water and the road on the seawall.
+- Two writing prompts for you in the new parts: the opening lines, which are read in the office
+  now, and the old main street (look at the bank across from Gary's porch).
+- The title says Start Wednesday.
+- The story has changed (a new opening, and stats in every check), so a night you're partway
+  through goes on from the floor.
 
 
 WHAT'S NEW SINCE 15 OCTOBER

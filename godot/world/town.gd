@@ -71,7 +71,8 @@ const RAIN_AT := {
 	"esso": [Vector3(-131.0, 7.0, 27.0), Vector3(10.0, 0.3, 7.0)],
 	"esso:kid": [Vector3(-148.5, 6.0, 13.9), Vector3(6.0, 0.3, 0.9)],
 	"seawall": [Vector3(8.0, 6.5, 30.5), Vector3(12.0, 0.3, 5.0)],
-	"street:wharf": [Vector3(-200.0, 7.5, 54.0), Vector3(8.0, 0.3, 9.0)],
+	"street:wharf": [Vector3(-200.0, 7.5, 89.6), Vector3(8.0, 0.3, 9.0)],
+	"street:highway": [Vector3(-170.0, 7.0, 30.0), Vector3(16.0, 0.3, 7.0)],
 }
 # the pictures and lettering, drawn once into one texture (_draw_plates): where each is in it, in pixels
 const PLATES := {
@@ -1086,15 +1087,18 @@ func _legion() -> void:
 	_bx(Vector3(1.6, 0.3, 4.4), Vector3(ex, -0.15 - drop * 0.3, 3.8), T.walk)
 	_plate("legion", 4.2, 0.49, Vector3(ex, 3.45, 0.02), Basis.IDENTITY, T.pic)
 	anchors["street_legion"] = _xf * Vector3(0, 2.4, 0)
-	# the gun, on its plinth on the lawn, pointing at the street
-	var g := _xf * Vector3(10.0, 0.0, 3.8)
+	# the gun, on its plinth on the lawn, aimed up the street at the old bank's door (walk.ink)
+	var g := _xf * Vector3(10.0, 0.0, 3.0)
 	_xf = keep
 	g.y = ground_y(g.x, g.z)
-	_gun(g)
+	_gun(g, Vector3(MAIN_X - WALK, 0.0, -76.0))
 
 
-# A field gun, an old one, on a concrete plinth, aimed at the street (-x)
-func _gun(at: Vector3) -> void:
+# A field gun, an old one, on a concrete plinth, aimed at `aim` (in its own frame, along -x)
+func _gun(at: Vector3, aim: Vector3) -> void:
+	var keep := _xf
+	_xf = keep * Transform3D(Basis(Vector3.UP, atan2(aim.z - at.z, at.x - aim.x)), at)
+	at = Vector3.ZERO
 	_bx(Vector3(1.7, 0.7, 3.0), at + Vector3(0, 0.35, 0), M.concrete)
 	var top := at + Vector3(0, 0.7, 0)
 	for sz in [-0.78, 0.78]:
@@ -1105,7 +1109,8 @@ func _gun(at: Vector3) -> void:
 	_cy(0.055, 0.09, 2.4, top + Vector3(-0.75, 1.0, 0), T.olive, 10, Vector3(0, 0, 82))
 	_bx(Vector3(0.5, 0.26, 0.34), top + Vector3(0.2, 0.86, 0), T.olive)
 	_bx(Vector3(2.3, 0.18, 0.22), top + Vector3(1.15, 0.42, 0), T.olive, Vector3(0, 0, -14))
-	anchors["street_gun"] = top + Vector3(0, 0.9, 0)
+	anchors["street_gun"] = _xf * (top + Vector3(0, 0.9, 0))
+	_xf = keep
 
 
 # The library: small, brick, up a flight of steps, a stone sign carved over the door; a lamp on in
@@ -1830,7 +1835,8 @@ func _esso() -> void:
 	for lx in [-155.0, -150.0, -145.0]:
 		for lz in [17.4, 20.9, 24.4]:
 			_bx(Vector3(2.0, 0.04, 0.9), Vector3(lx, 4.88, lz), T.canopy_lit)
-	anchors["esso_canopy"] = Vector3(-150.0, 5.4, 26.0)
+	# its lit underside, over the pumps (from his post at its edge, its edge is straight up)
+	anchors["esso_canopy"] = Vector3(-150.0, 4.84, 20.0)
 	for iz in [19.0, 23.0]:
 		var l := OmniLight3D.new()
 		l.position = Vector3(-150.0, 4.45, iz)

@@ -172,9 +172,11 @@ func _frame_for(where: String) -> String:
 		if _choices_from("interview.arrive"):
 			return "door"
 		return "bk" if _choices_from("interview.paperwork") else ""
-	# the walk (content/ink/walk.ink): the old man at the wharf's rail; the kid on the freezer, once
-	# he's talking to him
+	# the walk (content/ink/walk.ink): the old man at the wharf's rail; the highway, walking along it
+	# to the Esso; the kid on the freezer, once he's talking to him
 	if where == "street":
+		if _choices_from("dusk.highway"):
+			return "highway"
 		return "wharf" if _choices_from("dusk.wharf") else ""
 	if where == "esso":
 		var kn: Array = game.vars().get("knows", [])
@@ -419,8 +421,8 @@ func after(res: Dictionary, live: bool) -> void:
 		column.show_choices(game.visible_choices(), Look.TENSION_WORDS)
 	refresh_status()
 	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
-	# table 28, the doorway of Gary's office, the wharf's rail, the kid on the freezer): over to it,
-	# and back
+	# table 28, the doorway of Gary's office, the wharf's rail, the highway, the kid on the freezer):
+	# over to it, and back
 	if view.place in ["hall", "pool", "t28", "office", "street", "esso"] and not res.get("ended", false):
 		var f := _frame_for(view.place)
 		if f != view.frame:

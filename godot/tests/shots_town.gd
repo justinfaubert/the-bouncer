@@ -1,7 +1,8 @@
 extends SceneTree
 # Pictures of the town before the night (world/town.gd), each place and each way it's seen, at its
 # hour: Gary's office at four, from his chair, and the doorway and the bookkeeper from it; the old
-# main street at twenty to five, and the old man at the wharf's rail; the Esso at five to five, and
+# main street at twenty to five, and the old man at the wharf's rail; the highway north from the
+# foot of the street at eight minutes to five; the Esso at five to five, and
 # the kid on its freezer; the seawall at ten past five and at ten past seven; his room at
 # twenty-five to six; his head turned from those posts to what's round them (the bank, the white
 # church, the Esso's store, his father's photo and the notice on Gary's desk);
@@ -22,6 +23,7 @@ const SHOTS := [
 	["office_bk", "office", "bk", 960],
 	["street", "street", "", 1000],
 	["street_wharf", "street", "wharf", 1000],
+	["street_highway", "street", "highway", 1012],
 	["esso", "esso", "", 1015],
 	["esso_kid", "esso", "kid", 1015],
 	["seawall", "seawall", "", 1030],

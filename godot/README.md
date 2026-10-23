@@ -63,8 +63,10 @@ the rest are things (the scanner's beeps, the door, the dice, the pen).
   notes and the sketch (`notes.gd`, `sketch.gd`), the title and pause and settings (`menus.gd`), saves (`store.gd`),
   sound (`sound.gd`). `view.gd` is his eyes: the posts, walking between them, and the press that
   prints what he sees.
-- `world/`: the Sovereign in 3D, built in code (`pub.gd`), the posts he stands at and the doors
-  he goes through (`posts.gd`), the way across the ground floor round everything in it and
+- `world/`: the Sovereign in 3D, built in code (`pub.gd`), and the town round it before the night
+  (`town.gd`: Gary's office, the old main street, the wharf, the highway, the Esso and the seawall,
+  put away once the night starts), the posts he stands at and the doors he goes through
+  (`posts.gd`), the way across the ground floor round everything in it and
   everyone (`nav.gd`, on the walk map `textures/walk_grid.png`), and the people, staged by the
   clock and the story (`stage.gd`, to the spec in `docs/STAGING.md`). Ten of them walk in and out
   (each has a `<id>_walk.glb`, a walk made by `sketches/door-look/tools/export_walkers.py`), the
@@ -125,8 +127,11 @@ xvfb-run -a -s "-screen 0 1280x720x24" godot --rendering-driver opengl3 --resolu
 ```
 
 `tests/shots_reach.gd` takes pictures of his eyes on things, the jukebox and the payphone seen
-from where he stands at them, and the dice thrown at each post. An exported build takes
-`--grab /tmp/title.png` to save a picture of its title and quit.
+from where he stands at them, and the dice thrown at each post. `tests/shots_town.gd` takes the
+town's places at their hours, his head turned from them, and the lot come to from the town, with
+what a frame there costs; `tests/shots_opening.gd` plays the opening from Gary's office, choice by
+choice, and takes a picture after the choices it's given, and of his notes and the sketch. An
+exported build takes `--grab /tmp/title.png` to save a picture of its title and quit.
 `tests/pad.gd` plays the start of a night on a pad (the d-pad, A, B and a stick), headless.
 
 Against the browser build: both of these play whole nights with a seeded player and compare every
@@ -140,7 +145,7 @@ godot --headless --path godot -s res://tests/engine_run.gd -- --from 1 --to 40 -
 node tools/engine_diff.mjs --from 1 --to 40 --godot /tmp/eng       # the whole engine
 ```
 
-On 17 October 2026 both came out identical for 40 nights of 40.
+On 23 October 2026 both came out identical for 40 nights of 40.
 
 ## Exporting
 

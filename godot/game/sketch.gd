@@ -31,6 +31,9 @@ const SPOTS := {
 const TOWN := {
 	"office": Vector2(98, 34), "street": Vector2(70, 150), "esso": Vector2(182, 142), "seawall": Vector2(300, 184),
 }
+# and the walk's other ways of seeing the street (world/posts.gd): out at the end of the wharf, and on
+# the highway past the foot of the street, on his way to the Esso
+const TOWN_FRAMES := {"street:wharf": Vector2(70, 222), "street:highway": Vector2(100, 171)}
 
 var main
 var page: Control
@@ -344,7 +347,8 @@ func _draw_town(sz: Vector2) -> void:
 	# where he is
 	for id in TOWN:
 		page.draw_circle(_to_px(TOWN[id].x, TOWN[id].y), 2.4 * k, Color(PENCIL, 0.45))
-	var me: Vector2 = TOWN[main.game.here()]
+	var here: String = main.game.here()
+	var me: Vector2 = TOWN_FRAMES.get(here + ":" + str(main.view.frame), TOWN[here])
 	page.draw_circle(_to_px(me.x, me.y), 5.5 * k, INK)
 	page.draw_string(Look.font("read_i"), Vector2(30, sz.y - 22), "The Sov's floor comes up once he's inside.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, PENCIL)
 

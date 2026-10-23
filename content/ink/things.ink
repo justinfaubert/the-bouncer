@@ -293,7 +293,7 @@
 
 === function toy_street_library(what)
 {stopping:
-- The library, the oldest stone on the street, PUBLIC LIBRARY over the door, and a lamp on in one of the tall windows for whoever came in next.
+- The library, brick, up its flight of steps, PUBLIC LIBRARY carved in the stone over the door, and a lamp on in one of the tall windows for whoever came in next.
 - The library, one lamp on.
 }
 
@@ -305,7 +305,7 @@
 
 === function toy_street_gun(what)
 {stopping:
-- A field gun on a concrete plinth on the Legion's lawn, its barrel aimed across the road at the bank. Whoever set it there had either not thought about that, or had.
+- A field gun on a concrete plinth on the Legion's lawn, its barrel aimed up the road at the bank. Whoever set it there had either not thought about that, or had.
 - The gun, still aimed at the bank.
 }
 
@@ -318,13 +318,13 @@
 
 === function toy_street_church(what)
 {stopping:
-- The white church, wooden, its spire going up into the rain, and the board on its lawn: ST. ANDREW'S, SUNDAY SERVICE 10:30 AM, ALL WELCOME. The other church, the stone one further down, didn't say.
+- The white church, wooden, its spire going up into the rain, and the board on its lawn: ST. ANDREW'S, SUNDAY SERVICE 10:30 AM, ALL WELCOME. The other church, the stone one further up, didn't say.
 - St. Andrew's. All welcome.
 }
 
 === function toy_street_wharf(what)
 {stopping:
-- The government wharf, across the highway at the foot of the street: wet planks, crab traps stacked at its head, two fish boats tied up, and the light at the end with somebody standing under it, not fishing.
+- The government wharf, across the highway at the foot of the street: wet planks, crab traps stacked at its head, a few fish boats tied up, and the light at the end with somebody standing under it, not fishing.
 - {knows ? endbar_wharf:The old man, still at the end of the wharf.|The wharf, and somebody under the light at the end.}
 }
 

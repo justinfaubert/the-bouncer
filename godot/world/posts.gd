@@ -76,8 +76,9 @@ const FLIGHTS := {
 # payphone and the wall of numbers round it. The pool table: the jukebox past it, on the back wall,
 # round behind whoever's standing at it. Table 28: standing at the end of it, behind the stool,
 # until he sits down with them. Away from the Sov: from Gary's chair, the doorway and the bookkeeper
-# (he only turns his head: the same chair); down at the harbour, the old man at the wharf's rail; at
-# the Esso, the kid on the ice freezer.
+# (he only turns his head: the same chair); down at the harbour, the old man at the wharf's rail;
+# along the highway, the Esso coming and the Sov's sign down the road; at the Esso, the kid on the
+# ice freezer.
 const FRAMES := {
 	"t28:stand": {"at": Vector3(9.05, STAND, 6.38), "look": Vector3(9.5, 1.0, 8.3)},
 	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62)},
@@ -90,8 +91,11 @@ const FRAMES := {
 	# the bookkeeper at her desk against the wall
 	"office:door": {"at": Town.GARY, "look": Town.DOORWAY, "seat": true},
 	"office:bk": {"at": Town.GARY, "look": Town.BOOKKEEPER, "seat": true},
-	# out on the government wharf, a few steps behind the old man at its rail
-	"street:wharf": {"at": Vector3(-199.9, Town.WHARF_Y + STAND, 55.3), "look": Vector3(-198.1, Town.WHARF_Y + 1.45, 58.0)},
+	# out at the end of the government wharf, a few steps behind the old man at its rail under the light
+	"street:wharf": {"at": Vector3(-199.9, Town.WHARF_Y + STAND, 90.9), "look": Vector3(-198.1, Town.WHARF_Y + 1.45, 93.6)},
+	# on the highway's shoulder past the foot of the street, the seawall on his right, looking north
+	# along it: the Esso first, on the left, and the Sov's sign a long way down
+	"street:highway": {"at": Vector3(-186.0, STAND, 34.3), "look": Vector3(-140.0, 2.5, 20.0)},
 	# out from under the canopy, the kid on the ice freezer by the store's door
 	"esso:kid": {"at": Vector3(-149.6, Town.APRON + STAND, 15.3), "look": Vector3(-147.3, Town.APRON + 1.6, 12.45)},
 }

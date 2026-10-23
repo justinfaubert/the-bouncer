@@ -307,7 +307,7 @@ DECIDED (14 October): the town is generated once a game, and detailed: "predeter
 **The streets are fixed.** Drawn by hand, the same in every game, so a player learns the town the way he does:
 
 - **The highway strip:** the Sov and its beer store, the Esso a few minutes up the highway toward the old main street (as built: he passes it on the walk in), the diner, and the strip mall (the hardware store, the pawn shop, the hospital auxiliary's thrift store, the gym, a nail salon, and an empty unit that's been FOR LEASE since the mill's notice).
-- **The old main street,** down by the water and older than the highway: Gary's office in a converted house, the library, the community hall, the Legion, two churches, the old bank that's a café now.
+- **The old main street,** down by the water and older than the highway: Gary's office in a converted house, the library, the community hall, the Legion, two churches, the old bank that's a café now. As built (23 October), it comes down the hill into the highway with the government wharf across from its foot, and has a thrift store and a video store shut for years; the community hall isn't built yet.
 - **The harbour:** the government wharf, the ferry dock, the shut fish plant.
 - **The hill:** the hospital, the high school, the better houses, the water tower, and the road up, which matters on the last night.
 - **The flats:** the trailer park, the motel, the RV lots.
@@ -626,7 +626,7 @@ The licence hologram that only gleamed is fixed in both builds, and Hutch says i
 
 The first three days (M2 in `04_PRODUCTION.md`), with the new bones under them, before anything widens (depth before breadth):
 
-1. **Gary's office:** the interview through his eyes, the answers setting the stats, and the walk to the Sov at dusk (built 17 October).
+1. **Gary's office:** the interview through his eyes, the answers setting the stats, and the walk to the Sov at dusk (built 17 October, and drawn in both builds on 23 October: the office, the old main street, the wharf, the Esso and the seawall, in 3D in Godot).
 2. **Looking and going:** the free look first (built 15 October), and walking the way a man would, with the people who come and go walking too (built 17 October); then going where he looks, and the posts as places to settle.
 3. **His hand:** handling's two choices, his pockets, the lost-and-found box, and the first temptations (the beer, Gary's shot).
 4. **The town:** the streets and their first hundred people, licences drawn from them, and a Friday's waves at the door.

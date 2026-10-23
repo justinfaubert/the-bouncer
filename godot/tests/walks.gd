@@ -31,6 +31,11 @@ func _run() -> void:
 	await _frames(5)
 	main.start_new(2)
 	await _frames(10)
+	# the room as it is when he gets there, at twenty to eight, not while he's in Gary's office at four
+	main.game.set_var("clock", 1180)
+	main.view.clock = 1180
+	main.stage.sync(main.game, true)
+	await _frames(10)
 	var v: View = main.view
 	var nav := Nav.new()
 	var people: Array = main.stage.standing()

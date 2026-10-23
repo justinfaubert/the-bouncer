@@ -145,6 +145,15 @@ Update this file at the end of every session: add a session entry, move items be
 - Open question 20 (where Gary's office is, and what's in it) stays open. The build follows the skeleton's draft until Hutch says otherwise.
 - The story changed (a new opening, and stats in every check), so a night saved before goes on from the floor.
 
+### 2026-10-23 (Friday), Gary's office in pictures
+
+- The second half of the first milestone: the office, the walk and the seawall are drawn now, in both builds. In Godot, Gary's front room, the old main street, the wharf, the highway along the shore, the Esso and the seawall are built in code the way the Sov is (`godot/world/town.gd`), with the people met there, and the light goes by the clock from the rain's grey at four to dark at twenty past six. In the browser each place has a plate, with its later look, and the faces met there are drawn on their own grounds. What it built is under PROPOSED, "Proposed with Gary's office in pictures (2026-10-23)".
+- The walk said he went "east along the shoulder with the water on his right", which on the island's east coast would put the water behind him. The town is built with the shore running north and south, so he walks north now.
+- The notice on Gary's desk, drawn for the first time, says what the Ink has the doorman read upside down: the routine inspection on the fourteenth, the one the note on the Sov's till means, with PEST circled twice.
+- Found, putting the pictures against the words: the old man stood halfway along the wharf, where the walk has him at the end under the light; the Legion's gun pointed straight across the street, where the walk has it aimed at the bank; and while he walked along the highway the camera went back to the top of the main street. All three match the words now. The looks were checked from where he stands too: from Gary's porch the Legion is behind the library and its gun behind a maple, so they're looked at from the wharf and the highway instead.
+- Open question 20 (where Gary's office is, and what's in it) still stays open: everything in the room is a draft for Hutch to correct.
+- The story changed (the looks, a word on the walk), so a night saved before goes on from the floor.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -403,6 +412,28 @@ Proposed with Gary's office (2026-10-17), the skeleton's first milestone. Built:
 - **His security licence:** SECURITY WORKER on a dark green band, a licence number, issue and expiry dates, and a seal. His name is drawn as bars, because it's Hutch's to give.
 - **Sound:** rain on Gary's window and the bookkeeper's one-finger keys; the canopy's buzz, the pumps and the highway's tires at the Esso; the water and the road on the seawall.
 - **The title** says "Start Wednesday".
+
+Proposed with Gary's office in pictures (2026-10-23), the first milestone's second half. Built:
+
+- **The town in 3D** (Godot): the highway along the shore both ways, the water to the east. The Esso is a hundred and fifty metres south of the Sov on the inland side. Past it, the old main street comes down the hill into the highway, a metre in every twenty-five, with the government wharf out from its foot. Up the street, across from the old bank, is Gary's office. None of it is there once the night has started: the Sov is as it was built.
+- **The light by the clock:** grey rain at four, the street's lamps coming on circuit by circuit from 4:32 and the houses' windows a few at a time, dusk at ten past five, dark by six, and from twenty past six the night's own light. When he stays somewhere while the clock moves, the light eases after it.
+- **Gary's front room,** on an old fir floor two feet up off the sidewalk: Gary's desk and lamp, the chair across it, and the bookkeeper's desk against the wall on his right, with her ledger and her mug. The window has its blinds half down, and the old bank is across the street. Behind Gary hangs the Sov in August 1958, every letter of the sign lit, beside the first licence: "to sell beer by the glass in the beverage room of THE SOVEREIGN HOTEL, Shore Road, for the year 1958". Over her desk is a calendar for November 2026 with a fish boat on it. There's the safe and the box of shirts. On Gary's desk is a snapshot of a woman and a girl on a cold beach, which nobody explains. The room is lit only by its lamp and its window.
+- **The inspector's notice** on Gary's desk, the one the doorman reads upside down: ENVIRONMENTAL HEALTH, a routine inspection on Saturday 14 November while they're open, pest control records to be shown on request, and PEST circled twice in Gary's pen.
+- **From Gary's chair,** his head is on the doorway while the doorman stands in it, on the doorman once he sits, and round on the bookkeeper while she does the papers. The doorman is modelled across the desk, standing in the doorway, and for his licence photo. The bookkeeper writes in her ledger.
+- **The old main street,** from the foot of Gary's porch steps:
+  - the library;
+  - the Legion (BRANCH 38), its field gun aimed up the street at the bank, as the walk says;
+  - BANK cut over the cafe, with its chalkboard out (clam chowder, pie $4.50, coffee $2.25);
+  - the thrift store;
+  - the video store papered over, with FOR LEASE and a 555-01 number;
+  - the white wooden church (ST. ANDREW'S, Sunday service at 10:30) and the grey stone one;
+  - the power poles, the wet road, a pickup at the curb.
+- **The wharf:** across the highway at the foot of the street, with fish boats tied to a float alongside, and the old man from the end of the bar at its rail at the end, under its light, where the walk has him. When the walk takes him out there, he's a few steps behind the old man.
+- **The highway:** walking along it, he's on the shoulder past the foot of the street with the seawall on his right, the Esso coming up on the left and the Sov's sign down the road, small and red.
+- **The Esso:** the canopy lit white from beneath over two islands of pumps, and the store's lit window and glass door. The price sign by the road has the numbers and nothing else (179.9, 193.9, 188.9), and no company's mark is drawn anywhere. He arrives under the canopy facing the store, with the kid in his toque and the Esso's vest up on the ice freezer by the door. Once they're talking he's out from under it in front of the kid.
+- **The seawall:** sitting on it across the highway from the Sov, with the sign on the roof and the lot. Dusk at ten past five, and night from seven.
+- **Looks:** twenty-one things in the office, on the street, at the Esso and at the seawall, each with a long look and a short one. The office's are through Gary's eyes, and the bank's has a writing prompt for Hutch. The Sov's roof sign and the beer store can be looked at from the seawall too.
+- **The browser's plates:** the office from Gary's chair (from 4:30 the day goes out of the window), the old main street down the hill to the harbour, the Esso with the Sov down the highway, and the Sov from the seawall, each going to night after six. Away from the Sov, the faces are painted on the ground of where they are (the office, the canopy, the dusk), with no red. New face parts: long hair loose past the shoulders, a jacket open over a T-shirt, a mala, a vest over a hoodie, a toque, and an older woman's set hair and reading glasses.
 
 ### REJECTED
 
