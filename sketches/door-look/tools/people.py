@@ -2100,6 +2100,250 @@ def fp_hand(kind):
     return B, h, parts, props
 
 
+# ---------------------------------------------------------------------------------------- Gary's hands
+
+# Gary Van Dusen, late fifties, the boss: his right hand in his own view across the desk, as the
+# doorman's are in his. Soft hands that used to work, paler and hairier than the doorman's, a few
+# age spots, a gold signet ring on the little finger, and the cuff of a blue oxford shirt turned
+# back once.
+GARY = dict(build='medium')
+
+
+class GaryHand(Hand):
+    """Gary's hand: softer and a little fuller all over than the Hand it's made as (`soft`), his
+    thumb longer and fuller still (`tl`, `tr`), the pad of it spread flat on what it presses
+    (`pad` times as wide as the bone)."""
+    tl, tr, pad, soft = 1.06, 1.08, 1.14, 0.0006
+
+    def thumb(self, th=None):
+        pts, d0, pad = Hand.thumb(self, th)
+        q = [pts[0]]
+        for j in range(3):
+            q.append(q[-1] + (pts[j + 1] - pts[j]) * self.tl)
+        return q, d0, pad
+
+    def sdf(self, nails=False):
+        f0 = Hand.sdf(self, nails)
+        k = self.k
+        (t0, t1, t2, t3), d0, pad = self.thumb()
+        ax = norm(np.cross(d0, pad))
+        T = [self.w(q) for q in (t1, t2, t3)]
+        r = [x * k * self.tr for x in THUMB[2][1:]]
+        full = S.blend(0.003 * k, S.cone(T[0], T[1], r[0], r[1]), S.cone(T[1], T[2], r[1], r[2]))
+        # the pad of its last bone pressed flat: wider across, no deeper toward what it presses
+        e = self.dirw(norm(t3 - t2))
+        pd = self.dirw(turn(pad, ax, self.th[3] + self.th[4]))
+        c = self.w(t2 + (t3 - t2) * 0.5) + pd * r[2] * 0.3
+        full = S.blend(0.004 * k, full, S.ellipsoid(c, V(r[2] * self.pad, 0.0125 * k, r[2] * 0.72), S.frame(np.cross(e, pd), e)))
+        soft = self.soft
+        return lambda P: S._smin(f0(P), full(P), 0.004 * k) - soft
+
+
+def _angle_about(a, b, axis):
+    """The angle turning a to b about axis (a and b square to it)."""
+    return float(np.arctan2(np.dot(np.cross(a, b), axis), np.dot(a, b)))
+
+
+def hold_card_edge(B, c, face, theta=1.5, back=0.2, tilt=-0.3, az=0.0, el=0.85, x1=0.06, y1=0.0027,
+                   to=((0.3, 1.5, 0.8), (0.3, 1.5, 0.8), (1.45, 1.7, 0.9), (1.55, 1.75, 0.9))):
+    """Gary's right hand holding a card (a licence) up by its right short edge, centred at c, its face
+    toward `face`, level: his thumb flat across its face from that edge, over where the name is
+    printed, its knuckle `x1` right of the card's middle and `y1` above it; his first two fingers
+    bent round behind the card onto its back (curling toward `to` till they touch), the other two
+    curled under. The hand is turned so its fingers run `theta` round from up toward the left,
+    leaning `back` away from the card, and its palm `tilt` from facing him; the thumb's long bone
+    comes up off the card toward him by `el` and runs `az` up from level. The rest follows from
+    where that puts the root of the thumb."""
+    face = norm(V(*face))
+    up = norm(V(0, 0, 1) - face * face[2])
+    Rc = S.frame(np.cross(up, face), up)          # x along the card, y up it, z out of its face
+    u = V(-np.sin(theta), np.cos(theta), 0.0)
+    h = GaryHand(B, V(0, 0, 0), Rc @ (u * np.cos(back) - V(0, 0, np.sin(back))), Rc @ turn(V(0, 0, 1), u, tilt), True,
+                 grip='open', size=B.hands)
+    k = h.k
+    # where the thumb lies, in the card's frame: its pad on the face, straight across it to the left
+    r = [x * k * h.tr for x in THUMB[2]]
+    L = [x * k * h.tl for x in THUMB[1]]
+    p1 = V(x1, y1, CARD[2] / 2 + r[1] + 0.0008)
+    p2 = p1 + norm(V(-1.0, 0.0, (r[2] - r[1]) / L[1])) * L[1]
+    p3 = p2 + norm(V(-1.0, 0.0, (r[3] - r[2]) / L[2])) * L[2]
+    d0 = V(-np.cos(el) * np.cos(az), np.cos(el) * np.sin(az), np.sin(el))
+    p0 = p1 - d0 * L[0]
+    h.o = (V(*c) + Rc @ p0 - h.M @ (V(*THUMB[0]) * k)).astype(np.float32)
+    # the thumb's angles that put it there
+    dh = h.M.T @ (Rc @ d0)
+    e1, e2 = norm(p2 - p1), norm(p3 - p2)
+    padc = norm(e1 - d0 * float(np.dot(e1, d0)))
+    pad0 = norm(V(-1, 0, 0) - dh * float(np.dot(V(-1, 0, 0), dh)))
+    h.th = [float(np.arctan2(dh[0], dh[1])), float(np.arcsin(np.clip(dh[2], -1.0, 1.0))),
+            _angle_about(pad0, h.M.T @ (Rc @ padc), dh), float(np.arccos(np.clip(np.dot(d0, e1), -1.0, 1.0))),
+            _angle_about(e1, e2, norm(np.cross(d0, padc)))]
+    # the fingers: the first two bent onto the back of the card, the others curled under
+    card = card_sdf(V(*c), Rc)
+    h.close(card, thumb=False, gap=0.0003, to=([tuple(x) for x in to], GRIPS['fist'][1]))
+    h.prop = dict(kind='card', at=V(*c), R=Rc)
+    return h
+
+
+def _scatter(shapes, far=0.01):
+    """The union of many small shapes, each a (lo, hi, f) asked only about the points in its box
+    (and `far` everywhere else), so a few hundred cost little more than one."""
+    def f(P):
+        out = np.full(len(P), far, dtype=np.float32)
+        for lo, hi, g in shapes:
+            m = np.all((P >= lo) & (P <= hi), axis=1)
+            if m.any():
+                out[m] = np.minimum(out[m], g(P[m]))
+        return out
+    return f
+
+
+def _skin_at(skin, o, d):
+    """From o (inside the skin) out along d: the point on it there, and which way it faces."""
+    s = o + _surf(skin, o, d, far=0.06)
+    n = _grad(skin, s[None, :])[0]
+    return s, norm(n)
+
+
+def gary_hairs(h, skin, fore, side, seed=7):
+    """The hair on the back of Gary's hand, of his thumb and of the first bones of his fingers, and
+    round his forearm out to the cuff (thicker on its back): short hairs lying along the skin the
+    way they grow, down the arm and out across the hand toward the little finger. Returns the
+    shape of them all."""
+    rng = np.random.default_rng(seed)
+    back = h.dirw((0.0, 0.0, -1.0))
+    spots = []                        # (where it starts inside, the way out, the way the hair runs)
+    for _ in range(70):
+        x, y = rng.uniform(-0.03, 0.022), rng.uniform(0.014, 0.076)
+        spots.append((h.w((x, y, 0.004)), back, h.dirw((-0.35, 1.0, 0.0))))
+    for i in range(4):
+        pts = h.finger(i)
+        base, splay, _, _ = FINGERS[i]
+        u0 = V(np.sin(splay), np.cos(splay), 0.0)
+        ax = norm(np.cross(u0, V(0, 0, 1)))
+        e = turn(u0, ax, h.curls[i][0])
+        for _ in range(4):
+            t = rng.uniform(0.12, 0.55)
+            spots.append((h.w(pts[0] + (pts[1] - pts[0]) * t), h.dirw(-turn(e, ax, np.pi / 2)), h.dirw(e)))
+    (t0, t1, t2, t3), d0, pad = h.thumb()
+    tax = norm(np.cross(d0, pad))
+    for _ in range(10):
+        t = rng.uniform(0.35, 1.45)
+        o = t0 + (t1 - t0) * min(t, 1.0) + (t2 - t1) * max(t - 1.0, 0.0)
+        spots.append((h.w(o), h.dirw(-turn(pad, tax, h.th[3] if t > 1.0 else 0.0)), h.dirw(d0)))
+    across = norm(np.cross(fore, side))
+    dors = norm(back - fore * float(np.dot(back, fore)))
+    for _ in range(230):
+        s, a = rng.uniform(0.008, 0.058), rng.uniform(0.0, 2.0 * np.pi)
+        out = side * np.cos(a) + across * np.sin(a)
+        if rng.uniform() > 0.3 + 0.7 * max(0.0, float(np.dot(out, dors))):
+            continue
+        spots.append((fore * s, out, -fore + side * 0.25))
+    shapes = []
+    for o, d, g in spots:
+        if float(skin(o[None, :])[0]) >= 0.0:
+            continue
+        s, n = _skin_at(skin, o, d)
+        g = norm(g - n * float(np.dot(g, n)))
+        g = turn(g, n, rng.uniform(-0.35, 0.35))
+        L = rng.uniform(0.0036, 0.0055)
+        c = s + n * 0.00015
+        R = S.frame(np.cross(g, n), g)
+        ext = L / 2 + 0.008
+        shapes.append((c - ext, c + ext, S.ellipsoid(c, V(0.0005, L / 2, 0.0005), R)))
+    return _scatter(shapes)
+
+
+def gary_spots(h, skin, fore, side, rise=0.0003):
+    """A few age spots: flat brown marks on the back of his hand, the back of his thumb and the
+    side of his wrist, each a skin's breadth proud of it."""
+    back = h.dirw((0.0, 0.0, -1.0))
+    across = norm(np.cross(fore, side))
+    marks = [(h.w((-0.013, 0.046, 0.004)), back, 0.0034), (h.w((0.009, 0.062, 0.004)), back, 0.0024),
+             (h.w((-0.022, 0.028, 0.004)), back, 0.0028), (fore * 0.024, norm(side * 0.8 - across * 0.6), 0.003),
+             (fore * 0.046, norm(side * 0.5 - across * 0.85), 0.0022)]
+    (t0, t1, t2, t3), d0, pad = h.thumb()
+    marks.append((h.w(t0 + (t1 - t0) * 0.7), h.dirw(-pad), 0.0022))
+    shapes = []
+    for o, d, r in marks:
+        if float(skin(o[None, :])[0]) >= 0.0:
+            continue
+        s, _ = _skin_at(skin, o, d)
+        g = (lambda s, r: lambda P: np.maximum(np.linalg.norm(P - s, axis=1) - r, skin(P) - rise))(s, r)
+        shapes.append((s - r - 0.008, s + r + 0.008, g))
+    return _scatter(shapes)
+
+
+def gary_ring(h):
+    """His gold signet ring, on the first bone of the little finger: a band round it and a flat oval
+    face on its back."""
+    pts = h.finger(3)
+    base, splay, _, rr = FINGERS[3]
+    u0 = V(np.sin(splay), np.cos(splay), 0.0)
+    ax = norm(np.cross(u0, V(0, 0, 1)))
+    e = turn(u0, ax, h.curls[3][0])
+    c = h.w(pts[0] + (pts[1] - pts[0]) * 0.45)
+    ew = h.dirw(e)
+    dors = h.dirw(-turn(e, ax, np.pi / 2))
+    rf = (rr[0] * 0.55 + rr[1] * 0.45) * h.k + getattr(h, 'soft', 0.0)
+    band = S.torus(c, rf + 0.0011, 0.0011, S.frame(dors, np.cross(ew, dors)))
+    top = S.ellipsoid(c + dors * (rf + 0.0016), V(0.0047, 0.0043, 0.0017), S.frame(np.cross(ew, dors), ew))
+    return S.intersect(S.blend(0.0012, band, top), S.halfspace(c + dors * (rf + 0.0027), dors))
+
+
+def _band(axis, t0, t1, rin, rout, rr):
+    """A band round the line through the origin along `axis`, from t0 to t1 along it and rin to
+    rout out from it, its edges rounded over by rr."""
+    tc, ht, rc, hr = (t0 + t1) / 2, (t1 - t0) / 2, (rin + rout) / 2, (rout - rin) / 2
+
+    def f(P):
+        t = P @ axis
+        q = np.stack([np.abs(np.linalg.norm(P - np.outer(t, axis), axis=1) - rc) - hr + rr, np.abs(t - tc) - ht + rr], axis=1)
+        return (np.linalg.norm(np.maximum(q, 0.0), axis=1) + np.minimum(q.max(axis=1), 0.0) - rr).astype(np.float32)
+    return f
+
+
+def gary_hand(kind):
+    """Gary's right hand for his own view, as fp_hand is the doorman's (his wrist at the origin, his
+    forearm going back toward his eye): 'right_card', a licence held up by its right short edge
+    (hold_card_edge), or 'right_phone', his phone with its screen to him (hold_phone). Out of the
+    cuff of his shirt, turned back once, his forearm bare to it. Returns the Build, the Hand, its
+    parts and the things it holds."""
+    B = Build(GARY)
+    face = norm(V(-0.1, -0.75, 0.65))
+    if kind == 'right_card':
+        h = hold_card_edge(B, V(0, 0, 0), face)
+        # the forearm from the wrist out to his right, down and back toward him
+        up = norm(V(0, 0, 1) - face * face[2])
+        fore = norm(S.frame(np.cross(up, face), up) @ V(0.8, -0.45, 0.4))
+    else:
+        # the doorman's grip, closed round the phone as a plain hand, then made his: soft and full,
+        # but his thumb no longer than the grip closed it
+        h = hold_phone(B, V(0, 0, 0), face, right=True)
+        h.__class__ = GaryHand
+        h.tl = 1.0
+        fore = norm(V(0.0, -1.0, -0.35))
+    d = -h.o
+    h.o = V(0, 0, 0)
+    props = [dict(h.prop, at=h.prop['at'] + d)]
+    h.fore = fore
+    k = h.k
+    side = h.M[:, 0]
+    hand = h.sdf()
+    arm = S.econe(fore * 0.004, fore * 0.12, (0.0268 * k, 0.0178 * k), (0.032, 0.028), side)
+    skin = lambda P: np.minimum(hand(P), arm(P))
+    # the cuff turned back once: a doubled band standing off the forearm, its edges rounded over,
+    # then the sleeve on up
+    cuff = _band(fore, 0.062, 0.118, 0.0352, 0.0418, 0.0024)
+    sleeve = rings(S.cone(fore * 0.112, fore * 0.34, 0.0385, 0.046), fore * 0.112, fore, 0.0014, 0.034, 0.04, 0.22)
+    parts = [Part('skin_pale', hand, order=1), Part('skin_pale', arm),
+             Part('oxford', cuff, order=2), Part('oxford', sleeve, order=1),
+             Part('gold', gary_ring(h), order=3),
+             Part('age_spot', gary_spots(h, skin, fore, side), order=2),
+             Part('hand_hair', gary_hairs(h, skin, fore, side), order=3)]
+    return B, h, parts, props
+
+
 # ---------------------------------------------------------------------------------------- a person
 
 POSES = {

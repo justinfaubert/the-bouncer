@@ -346,6 +346,8 @@ func _hands() -> void:
 	var edge := _office("him_desk")
 	if FileAccess.file_exists(PEOPLE + "him_desk.glb"):
 		_figure("him_desk")
+	# and the light over Gary's own side of the desk, behind him, that his hands are seen by
+	_light(Vector3(0.35, 2.5, edge.z - 1.6), Color("f3ead8"), 0.8, 3.5)
 	var head := _anchor("him_desk", "head", Vector3(0, 1.3, 0))
 	await _look(Vector3(0.06, 1.17, edge.z - 1.15), head + Vector3(0, -0.2, 0))
 	for shot in [["card", "rest", "gary_right_card"], ["card", "look", "gary_right_card"], ["phone", "rest", "gary_right_phone"],
@@ -356,13 +358,10 @@ func _hands() -> void:
 		await _frames(20)
 		await _grab("hands_%s_%s" % [shot[0], shot[1]])
 		if shot[0] == "card" and shot[1] == "rest":
-			# the same, closer: the thumb over the name
+			# the same, closer: the thumb over the name (his hands go with the camera, so the licence
+			# comes to the middle of the view rather than the view turning to it)
+			n.position = Vector3(0, 0, -0.25)
 			main.view.focus_fov = 24.0
-			var a: Vector2 = Posts.aim(main.view.eye_pos, n.global_position)
-			main.view.yaw = a.x
-			main.view.pitch = a.y
-			main.view.want_yaw = a.x
-			main.view.want_pitch = a.y
 			await _frames(30)
 			await _grab("hands_card_thumb")
 			# and as it would print with its new materials given a cut in pub.gd's CUTS

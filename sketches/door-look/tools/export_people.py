@@ -44,11 +44,14 @@ COLOURS = {
     'scar': '#dbbfab', 'mala': '#3a2a1f', 'tassel': '#2a2421',
     # the bookkeeper's ledger: its cloth cover a dark green
     'ledger': '#2e3a30',
+    # Gary's hand: paler than the doorman's, the hair on it greying, his age spots, the blue oxford
+    # of his shirt cuff and the gold of his signet ring
+    'skin_pale': '#d9c0ae', 'hand_hair': '#7a6f66', 'age_spot': '#b48d70', 'oxford': '#9fb3cb', 'gold': '#c9a44c',
 }
 ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 'glasses': 0.3, 'reflective': 0.4, 'cue': 0.4,
          'glass': 0.05, 'beer': 0.2, 'wine': 0.2, 'cola': 0.2, 'chrome': 0.25, 'vape': 0.35, 'card': 0.4, 'clicker_window': 0.3,
-         'mala': 0.4}
-METAL = {'chrome': 1.0, 'buckle': 0.8, 'zip': 0.7, 'vape': 0.6}
+         'mala': 0.4, 'gold': 0.3}
+METAL = {'chrome': 1.0, 'buckle': 0.8, 'zip': 0.7, 'vape': 0.6, 'gold': 0.6}
 
 KID = dict(age='young', build='slight', hat='hood', top='hoodie', face=['earbuds'], hair='messy',
            shoulders=0.86, chest=0.84, drape=True)
@@ -635,18 +638,23 @@ def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), fo
 # the doorman's own hands, for the first-person view
 FP = {'his_left_clicker': 'left_clicker', 'his_right_card': 'right_card', 'his_right_phone': 'right_phone',
       'his_right_open': 'right_open'}
+# and Gary's, in the same way, for his view across the desk
+GARY_FP = {'gary_right_card': 'right_card', 'gary_right_phone': 'right_phone'}
+# what's too small for a hand's grain (a hair, an age spot, a ring), meshed finer as a mesh of its own
+FINE = ('hand_hair', 'age_spot', 'gold')
 
 
 def build_fp(name, preview=False):
-    """One of his hands: the wrist at the origin, the forearm back along Godot's +z, the hand forward
-    (-z). Anchors: wrist, grip (the middle of what it holds), and the thing's own (button; card and
-    card_facing; phone and phone_facing)."""
+    """One of his hands (or Gary's): the wrist at the origin, the forearm back along Godot's +z, the
+    hand forward (-z). Anchors: wrist, grip (the middle of what it holds), and the thing's own
+    (button; card and card_facing; phone and phone_facing)."""
     import bpy
     import json
-    B, h, parts, props = PP.fp_hand(FP[name])
+    B, h, parts, props = PP.gary_hand(GARY_FP[name]) if name in GARY_FP else PP.fp_hand(FP[name])
     pts = np.array([h.o] + [h.w(q) for i in range(4) for q in h.finger(i)] + [h.w(q) for q in h.thumb()[0]] + [h.fore * 0.34])
     lo, hi = pts.min(axis=0) - 0.06, pts.max(axis=0) + 0.06
-    verts, faces, mat, names = PP.S.mesh_islands(parts, lo, hi, 0.0022)
+    fine = [q for q in parts if q.name in FINE]
+    verts, faces, mat, names = PP.S.mesh_islands([q for q in parts if q.name not in FINE], lo, hi, 0.0022)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     me = bpy.data.meshes.new(name)
     me.from_pydata(verts.tolist(), [], faces.tolist())
@@ -666,6 +674,30 @@ def build_fp(name, preview=False):
         dec.ratio = 24000 / n0
         bpy.ops.object.modifier_apply(modifier='decimate')
     extras = []
+    if fine:
+        # the hairs, the age spots and the ring, meshed finer, kept apart from the hand's decimation
+        verts, faces, mat, names = PP.S.mesh_islands(fine, lo, hi, 0.0006)
+        me = bpy.data.meshes.new(name + '_detail')
+        me.from_pydata(verts.tolist(), [], faces.tolist())
+        for n in names:
+            me.materials.append(material(n))
+        me.polygons.foreach_set('material_index', mat.tolist())
+        me.validate(verbose=False)
+        me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
+        me.update()
+        od = bpy.data.objects.new(name + '_detail', me)
+        bpy.context.scene.collection.objects.link(od)
+        nd = len(me.polygons)
+        if nd > 9000:
+            for o in bpy.context.selected_objects:
+                o.select_set(False)
+            bpy.context.view_layer.objects.active = od
+            od.select_set(True)
+            dec = od.modifiers.new('decimate', 'DECIMATE')
+            dec.ratio = 9000 / nd
+            bpy.ops.object.modifier_apply(modifier='decimate')
+        print(f'{name}: detail {nd} -> {len(od.data.polygons)} faces')
+        extras.append(od)
     for pr in props:
         extras += PROPS[pr['kind']](pr)
     for o in bpy.context.selected_objects:
@@ -700,5 +732,5 @@ def build_fp(name, preview=False):
 if __name__ == '__main__':
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     prev = '--preview' in sys.argv
-    for n in (args or list(PEOPLE) + list(FP)):
-        (build_fp if n in FP else build)(n, prev)
+    for n in (args or list(PEOPLE) + list(FP) + list(GARY_FP)):
+        (build_fp if n in FP or n in GARY_FP else build)(n, prev)
