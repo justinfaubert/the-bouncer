@@ -188,6 +188,7 @@ Update this file at the end of every session: add a session entry, move items be
 - `godot/tests/column_player.gd` plays a night using only the column and fails on a moment with nothing there to click, or the column coming back the same at the same minute with nothing in the night changed. Run on the build before the fix, it went round in circles at "Count the room." by nine o'clock; on the fixed build, nights go to the end.
 - Hutch also asked to shift to polishing and tightening what's there, and the visuals: the faces, more and more distinct colour, more objects that matter, and the night feeling a bit dead. The town (the fourth milestone) waits on its own branch, `m4-town`, unshipped.
 - The story changed (the count's ten minutes), so a night saved before goes on from the floor. That takes a night caught in the loop out of it.
+- Delivered on 23 October (279f768): `releases/The-Bouncer-2026-10-23d.zip` to play on Linux, and the Godot web build at its link (version 11). The browser build stays at version 13: it lists every way to go, so it never had the loop, and it gets the count's ten minutes with its next publish.
 
 ## Decisions register
 
