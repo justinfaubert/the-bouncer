@@ -2,9 +2,11 @@
 # the doors he walks through and the ladder and the stairs off the ground floor.
 #
 # The Ink's places (content/ink/main.ink, LIST where): floor, door, bar, t28, pool, hall, kitchen,
-# keg, deck, lot, upstairs. He walks between the ones on the ground floor the way world/nav.gd finds
-# round things, through the doors; the keg room (down the ladder under the trapdoor) and his room
-# upstairs are a cut, from the top of the ladder or the foot of the stairs.
+# keg, deck, lot, upstairs, and before the night, away from the Sov: office, street, esso, seawall.
+# He walks between the ones on the ground floor the way world/nav.gd finds round things, through the
+# doors; the keg room (down the ladder under the trapdoor) and his room upstairs are a cut, from the
+# top of the ladder or the foot of the stairs. Going to or from anywhere away from the Sov is a cut
+# too, from wherever he is: there's no walking across town on the page.
 class_name Posts
 extends RefCounted
 
@@ -26,7 +28,27 @@ const POSTS := {
 	"deck": {"at": Vector3(17.5, STAND, 8.7), "look": Vector3(21.0, 0.6, 30.0)},
 	"lot": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1)},
 	"upstairs": {"at": Vector3(14.1, 3.4 + 1.62, 7.1), "look": Vector3(14.6, 3.4 + 1.1, 9.95), "seat": true},
+	# Away from the Sov (world/town.gd). Gary's office: Gary's eyes, in his chair behind the desk,
+	# on whoever's in the chair across it
+	"office": {"at": Town.GARY, "look": Town.VISITOR, "seat": true},
+	# on the sidewalk at the foot of Gary's porch, down the old main street to the highway and the
+	# harbour
+	"street": {"at": Town.STREET_EYE, "look": Vector3(-200.0, 1.2, 40.0)},
+	# under the Esso's canopy at its edge by the road, down the highway to the Sov's sign
+	"esso": {"at": Vector3(-150.0, Town.APRON + STAND, 25.0), "look": Vector3(8.0, 11.0, 10.5)},
+	# sitting on the seawall across the highway from the Sov, its front and the sign on its roof
+	"seawall": {"at": Vector3(8.0, 1.37, 35.75), "look": Vector3(7.0, 5.6, 10.3), "seat": true},
 }
+
+# the places away from the Sov: going to or from any of them, the page goes blank and he's there
+const AWAY := ["office", "street", "esso", "seawall"]
+
+# The one arrival where the place turns his head (game/view.gd): the first time he comes to the Sov
+# from the town, across the highway from the seawall or down from his room and round the front, he's
+# facing its front in the lot, the door and the windows and the sign; he's never seen it close up.
+# His room on the way doesn't count; anywhere else at the Sov first, and it's been seen. After that
+# he's still looking the way he was, wherever he gets to.
+const FIRST_SIGHT := {"place": "lot", "look": Vector3(5.0, 5.2, 10.1), "through": ["upstairs"]}
 
 # The doorways he walks through: the middle of each on the floor, and the door in it that opens as
 # he comes to it (Pub.swing_door) and swings to behind him. A door the night's propped open (the
@@ -52,7 +74,9 @@ const FLIGHTS := {
 # the front desk, while he talks to the night clerk; round the corner at the end of it, the dead
 # payphone and the wall of numbers round it. The pool table: the jukebox past it, on the back wall,
 # round behind whoever's standing at it. Table 28: standing at the end of it, behind the stool,
-# until he sits down with them.
+# until he sits down with them. Away from the Sov: from Gary's chair, the doorway and the bookkeeper
+# (he only turns his head: the same chair); down at the harbour, the old man at the wharf's rail; at
+# the Esso, the kid on the ice freezer.
 const FRAMES := {
 	"t28:stand": {"at": Vector3(9.05, STAND, 6.38), "look": Vector3(9.5, 1.0, 8.3)},
 	"hall:clerk": {"at": Vector3(16.85, STAND, -0.5), "look": Vector3(18.3, 1.42, -0.62)},
@@ -61,6 +85,14 @@ const FRAMES := {
 	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1)},
 	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99)},
 	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4)},
+	# Gary's office, from his chair: the doorway, where the man stands as he comes in, and round to
+	# the bookkeeper at her desk against the wall
+	"office:door": {"at": Town.GARY, "look": Town.DOORWAY, "seat": true},
+	"office:bk": {"at": Town.GARY, "look": Town.BOOKKEEPER, "seat": true},
+	# out on the government wharf, a few steps behind the old man at its rail
+	"street:wharf": {"at": Vector3(-199.9, Town.WHARF_Y + STAND, 55.3), "look": Vector3(-198.1, Town.WHARF_Y + 1.45, 58.0)},
+	# out from under the canopy, the kid on the ice freezer by the store's door
+	"esso:kid": {"at": Vector3(-149.6, Town.APRON + STAND, 15.3), "look": Vector3(-147.3, Town.APRON + 1.6, 12.45)},
 }
 
 
@@ -68,6 +100,10 @@ static func post(place: String, frame := "") -> Dictionary:
 	if frame != "" and FRAMES.has(place + ":" + frame):
 		return FRAMES[place + ":" + frame]
 	return POSTS.get(place, POSTS["door"])
+
+
+static func away(place: String) -> bool:
+	return place in AWAY
 
 
 # The doorways on a way across the floor, and how far along it each is: [door, metres, 0] (the 0

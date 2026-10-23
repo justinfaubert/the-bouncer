@@ -17,6 +17,13 @@
 # looked away), and sitting down, which turns him to what the seat faces. Never while the player's
 # turning it.
 #
+# Anywhere away from the Sov (Gary's office, the old main street, the Esso, the seawall: world/
+# town.gd) he doesn't walk to or from: the page goes blank, as it does on the ladder, and he's
+# there. The light is the clock's: grey daylight in the rain at four in the afternoon, dusk, and
+# from six on the night exactly as it's always been (daylight()). And once the Sov itself turns
+# his head: the first time he comes to it from the town, he's facing its front in the lot
+# (Posts.FIRST_SIGHT).
+#
 # His body is in the print (the review's "the print is his body"): drink slips the plates and
 # sways the view, nerves coarsen the cut and bring the red up in the dark, hurt thickens red at the
 # edges, his heart pulses the ink, and late in the night the ink starves.
@@ -42,6 +49,7 @@ const DOOR_NEAR := 1.3            # a door opens when he's this far from it on t
 const DOOR_PAST := 1.1            # and swings to when he's this far past it
 const TURN := 3.2                 # how fast his head comes round on its own, walking (radians a second)
 const STOP := 0.7                 # a stop on the way, where the page has him somewhere and then on (seconds)
+const SIGHTED := 3.5              # how far from the end of the way the Sov's front turns his head, the first time
 
 var pub: Pub
 var settings: Dictionary
@@ -66,7 +74,7 @@ var zoom := 1.0                   # the wheel: 1 as he is, down to 0.5 narrowing
 var want_zoom := 1.0
 var focus_fov := 0.0              # a look at something close (the dice): the fov it wants, 0 for none
 var walking := false
-var on_floor := ""                # "" on the ground floor; "keg" or "upstairs", off it
+var on_floor := ""                # "" on the ground floor; "keg" or "upstairs", off it; or the place away from the Sov he's at
 var people_at := Callable()       # where the people are, to walk round (game/main.gd: the stage's)
 var _nav: Nav
 var _legs: Array = []             # the rest of the walk: {"path", "y1"} on foot, {"cut", ...} the ladder or the stairs, {"wait", "look"} a stop
@@ -103,6 +111,12 @@ var clock := 0
 var heart := 0.0                  # beats per second, 0 at rest; main.gd raises it for the dice
 var _beat := 0.0
 var flash := 0.0
+# the light by the clock
+var _day := -1.0                  # the clock the light's at (it eases to the clock); -1 before there's been one
+var _snap := true                 # the next light goes on at once: he's just got somewhere
+var _lit := ""                    # the light last put on: its clock and where it was for
+var _night := {}                  # the night as _environment() makes it, to go back to exactly
+var _first_sight := false         # he's come from the town and not been anywhere at the Sov yet (Posts.FIRST_SIGHT)
 
 
 static func Post_default() -> Vector3:
@@ -207,6 +221,8 @@ func _environment() -> void:
 	env.fog_enabled = true
 	env.fog_light_color = Color("16181e")
 	env.fog_density = 0.01
+	_night = {"sky": env.background_color, "ambient": env.ambient_light_color, "ambient_e": env.ambient_light_energy,
+		"fog": env.fog_light_color, "fog_d": env.fog_density, "exposure": env.tonemap_exposure}
 
 
 func resize() -> void:
@@ -240,17 +256,31 @@ func jump_to(where: String) -> void:
 	_look_after = null
 	place = where
 	_framed = frame
-	on_floor = where if Posts.FLIGHTS.has(where) else ""
+	on_floor = where if Posts.FLIGHTS.has(where) or Posts.away(where) else ""
 	pub.lift_trap(on_floor == "keg", true)
 	var p := Posts.post(where, frame)
 	eye_pos = p.at
-	var a := Posts.aim(eye_pos, p.look)
+	var first = _first_look(where)
+	var a := Posts.aim(eye_pos, first if first != null else p.look)
 	yaw = a.x
 	pitch = a.y
 	want_yaw = yaw
 	want_pitch = pitch
+	_got_to(where)
 	pub.shadows_near(eye_pos)
 	_apply()
+
+
+# Somewhere new, in a jump or the blank of a cut: the town there or put away (world/town.gd), his
+# eyes' nearest focus (out in the open, the far things want the depth: nothing comes that close),
+# and the light for here, at once.
+func _got_to(where: String) -> void:
+	pub.away(where, clock, _framed)
+	var near := 0.03 if not Posts.away(where) or where == "office" else 0.1
+	cam.near = near
+	mcam.near = near
+	_snap = true
+	_light_step(0.0, true)
 
 
 # Walk to a place: round things, through the doors; down the ladder or up the stairs, the page goes
@@ -309,13 +339,14 @@ func _then(where: String) -> void:
 	elif not _path.is_empty():
 		_y1 = Posts.STAND
 	var stop_at: Vector3 = _to.at
-	if not Posts.FLIGHTS.has(_to_where):
+	var off_floor: bool = Posts.FLIGHTS.has(_to_where) or Posts.away(_to_where)
+	if not off_floor:
 		stop_at.y = Posts.STAND
 	_legs.append({"wait": STOP, "look": _to.look})
 	place = where
 	_framed = frame
 	var p := Posts.post(where, frame)
-	_legs.append_array(_plan(where, p, stop_at, _to_where if Posts.FLIGHTS.has(_to_where) else ""))
+	_legs.append_array(_plan(where, p, stop_at, _to_where if off_floor else ""))
 	_to = p
 	_to_where = where
 
@@ -328,8 +359,14 @@ func hurry() -> void:
 
 
 # The walk, in stretches: off the floor he's on (up the ladder, down the stairs), across the ground
-# floor, and onto the one he's going to.
+# floor, and onto the one he's going to. To or from anywhere away from the Sov, one cut, straight
+# there; another way of seeing the same place from the same chair is only a turn of his head.
 func _plan(where: String, p: Dictionary, from: Vector3, off: String) -> Array:
+	if Posts.away(where) or Posts.away(off):
+		if where == off and from.distance_to(p.at) < 0.05:
+			return []
+		var to_floor := where if Posts.away(where) or Posts.FLIGHTS.has(where) else ""
+		return [{"cut": p.at, "floor": to_floor, "after": p.look, "away": where}]
 	var legs: Array = []
 	if off != "":
 		var up: Dictionary = Posts.FLIGHTS[off]
@@ -431,7 +468,13 @@ func _walking(dt: float) -> void:
 		elif d[2] == 1 and _s >= float(d[1]) + DOOR_PAST:
 			pub.swing_door(d[0], false)
 			d[2] = 2
-	if mine and _legs.is_empty() and _to.get("seat", false) and left < 0.9:
+	var sight = _sight_ahead()
+	if mine and _legs.is_empty() and sight != null and left < SIGHTED:
+		# round the front of the Sov the first time: it turns his head as he comes to it
+		var a0 := Posts.aim(Vector3(here.x, _y1, here.z), sight)
+		want_yaw = _near_angle(yaw, a0.x)
+		want_pitch = clampf(a0.y, PITCH_MIN, PITCH_MAX)
+	elif mine and _legs.is_empty() and _to.get("seat", false) and left < 0.9:
 		# sitting down: he turns to what the seat faces as he comes to it
 		var a := Posts.aim(Vector3(here.x, _y1, here.z), _to.look)
 		want_yaw = _near_angle(yaw, a.x)
@@ -453,9 +496,12 @@ func _walking(dt: float) -> void:
 
 # Down the ladder, up the stairs: he looks at the way down or up, the page goes blank, and he comes
 # out of it on the other floor looking at the room (or, back on the ground floor, the way he's going).
+# To or from somewhere away from the Sov, the page goes blank where he is, a little longer, and he
+# comes out of it there.
 func _cut_to(leg: Dictionary) -> void:
 	_v = 0.0
 	var to: Vector3 = leg.cut
+	var away = leg.get("away")
 	_cut = create_tween()
 	var before = leg.get("before")
 	if before != null and turned_t <= _walk_t0:
@@ -472,9 +518,17 @@ func _cut_to(leg: Dictionary) -> void:
 		on_floor = str(leg.floor)
 		if on_floor == "" and leg.get("lid", false):
 			pub.lift_trap(false, true)
+		if away != null:
+			pub.lift_trap(on_floor == "keg", true)
+			_got_to(str(away))
 		pub.shadows_near(to)
-		# the page is blank: his head's where it'd be coming off the ladder or the stairs
+		# the page is blank: his head's where it'd be coming off the ladder or the stairs (or, back
+		# from the town to the Sov's front the first time, on the Sov)
 		var look_at = leg.get("after")
+		if away != null and _legs.is_empty():
+			var first = _first_look(str(away))
+			if first != null:
+				look_at = first
 		if look_at == null and not _legs.is_empty() and _legs[0].has("path"):
 			look_at = Nav.at(_legs[0].path, AHEAD)[0] + Vector3(0, to.y - 0.3, 0)
 		if look_at != null:
@@ -483,7 +537,7 @@ func _cut_to(leg: Dictionary) -> void:
 			pitch = clampf(a2.y, PITCH_MIN, PITCH_MAX)
 			want_yaw = yaw
 			want_pitch = pitch)
-	_cut.tween_interval(0.15)
+	_cut.tween_interval(0.15 if away == null else 0.35)
 	_cut.tween_property(self, "flash", 0.0, 0.45)
 	_cut.tween_callback(func():
 		_cut = null
@@ -491,7 +545,7 @@ func _cut_to(leg: Dictionary) -> void:
 
 
 # there: still looking the way he was, unless someone there's turned his head on the way, or he's
-# sat down, which turns him to what the seat faces
+# sat down, which turns him to what the seat faces, or it's the Sov's front, the first time
 func _arrive() -> void:
 	walking = false
 	_path = PackedVector3Array()
@@ -502,12 +556,36 @@ func _arrive() -> void:
 		to = (to as Callable).call()
 		if to == Vector3.INF:
 			to = null
+	var first = _first_look(_to_where)
+	if to == null and first != null:
+		to = first
 	if to == null and _to.get("seat", false):
 		to = _to.look
 	if to != null:
 		look_at_point(to)
 	pub.shadows_near(eye_pos)
 	arrived.emit(_to_where)
+
+
+# He's got somewhere: a jump, the end of a walk, the blank of a cut. The first time he's at the
+# Sov's front after the town, what it turns his head to (Posts.FIRST_SIGHT), and null any other
+# time. Being away from the Sov sets it up; being anywhere at the Sov but his room on the way uses
+# it up.
+func _first_look(where: String) -> Variant:
+	if Posts.away(where):
+		_first_sight = true
+		return null
+	if not _first_sight or where in Posts.FIRST_SIGHT.through:
+		return null
+	_first_sight = false
+	return Posts.FIRST_SIGHT.look if where == Posts.FIRST_SIGHT.place else null
+
+
+# on his way to the Sov's front the first time after the town: what it'll turn his head to, or null
+func _sight_ahead() -> Variant:
+	if _first_sight and _to_where == Posts.FIRST_SIGHT.place:
+		return Posts.FIRST_SIGHT.look
+	return null
 
 
 func _near_angle(from: float, to: float) -> float:
@@ -620,6 +698,7 @@ func _process(dt: float) -> void:
 	pitch += dpitch
 	zoom = lerpf(zoom, want_zoom, 1.0 - exp(-dt * 8.0))
 	_skin(dt)
+	_light_step(dt)
 	_apply()
 
 
@@ -673,6 +752,110 @@ func _pin_press() -> void:
 	press.set_shader_parameter("paper_px", grain_px)
 	press.set_shader_parameter("time", t)
 	press.set_shader_parameter("flash", flash)
+
+
+# ---------------------------------------------------------------- the light by the clock
+
+# The light outside by the clock, on the 4th of November under cloud, sunset at ten to five: grey
+# daylight in the rain at four; dusk at twenty to five, the lamps coming on; the canopy's light over
+# everything at five to five; a slate sky by ten past, the Sov lit. Past the last row it goes on into
+# the night, and from NIGHT_FROM (and before the night has a clock at all) it's the night exactly as
+# _environment() makes it and the press as it's always been. Each row: the clock, the sky, the
+# ambient light and how much of it, the fog and how thick, the exposure, the cloud's own light (a
+# soft key from the west, out of doors only), and the press's lift and white point. A daylit scene is
+# mostly light, and the press prints light as paper: the exposure keeps the surfaces in the middle
+# tones, where the key block cuts strokes, and a lift nearer 1 keeps those from opening up to paper.
+const DAY := [
+	[960, Color("d6d9da"), Color("9aa1a8"), 2.6, Color("c4c9cc"), 0.005, 1.35, 1.4, 0.85, 0.95],
+	[1000, Color("b9bec2"), Color("858c95"), 1.5, Color("9da3aa"), 0.0055, 1.05, 0.7, 0.88, 0.96],
+	[1015, Color("76808c"), Color("5f6774"), 0.9, Color("646c78"), 0.0065, 1.2, 0.3, 0.84, 0.94],
+	[1030, Color("4f5967"), Color("4a5260"), 0.7, Color("424955"), 0.0075, 1.35, 0.08, 0.78, 0.93],
+	[1055, Color("14161c"), Color("3c4351"), 0.58, Color("1a1c23"), 0.009, 1.46, 0.0, 0.73, 0.92],
+]
+const NIGHT_FROM := 1100
+const PRESS_NIGHT := [0.72, 0.92]  # the press's own lift and white point (look/press.gdshader), where the dusk ends
+const INDOORS := 0.8            # the ambient light in Gary's front room, against outside: the one window
+
+
+# The light for a clock: put on at once (as at the start of a night, or after a cut), or eased to
+# from the light there is, when the clock moves on while he stays where he is. main.gd sets `clock`
+# from the night's status; this follows it on its own.
+func daylight(at: int, now := false) -> void:
+	clock = at
+	if now:
+		_snap = true
+	_light_step(0.0, now)
+
+
+func _light_step(dt: float, force := false) -> void:
+	# the page going blank: the light changes in the blank
+	if not force and _cut != null and _cut.is_valid():
+		return
+	var want := float(clock)
+	# just got somewhere, or the clock's jumped (a night begun, a night loaded): no easing to it
+	if _snap or _day < 0.0 or absf(want - _day) > 30.0:
+		_day = want
+		_snap = false
+	elif absf(want - _day) > 0.05:
+		_day = lerpf(_day, want, 1.0 - exp(-dt * 0.9))
+	else:
+		_day = want
+	var key := "%.1f %s" % [_day, place]
+	if key == _lit:
+		return
+	_lit = key
+	_put_light(_day)
+
+
+func _put_light(c: float) -> void:
+	var key: DirectionalLight3D = pub.town.key if pub.town != null else null
+	pub.dusk(c, place)
+	if c >= NIGHT_FROM or c < float(DAY[0][0]) - 60.0:
+		env.background_color = _night.sky
+		env.ambient_light_color = _night.ambient
+		env.ambient_light_energy = _night.ambient_e
+		env.fog_light_color = _night.fog
+		env.fog_density = _night.fog_d
+		env.tonemap_exposure = _night.exposure
+		press.set_shader_parameter("lift", null)
+		press.set_shader_parameter("levels_in", null)
+		if key != null:
+			key.visible = false
+		return
+	var r := _day_row(c)
+	env.background_color = r[0]
+	env.ambient_light_color = r[1]
+	env.ambient_light_energy = r[2] * (INDOORS if place == "office" else 1.0)
+	env.fog_light_color = r[3]
+	env.fog_density = r[4]
+	env.tonemap_exposure = r[5]
+	press.set_shader_parameter("lift", r[7])
+	press.set_shader_parameter("levels_in", Vector2(0.0, r[8]))
+	if key != null:
+		key.light_energy = r[6]
+		key.visible = r[6] > 0.001 and Posts.away(place)
+
+
+# the light at a clock, between the rows of DAY, and past the last of them on into the night
+func _day_row(c: float) -> Array:
+	var night := [_night.sky, _night.ambient, _night.ambient_e, _night.fog, _night.fog_d, _night.exposure, 0.0,
+		PRESS_NIGHT[0], PRESS_NIGHT[1]]
+	var rows: Array = []
+	for row in DAY:
+		rows.append([float(row[0]), row.slice(1)])
+	rows.append([float(NIGHT_FROM), night])
+	if c <= rows[0][0]:
+		return rows[0][1]
+	for i in range(1, rows.size()):
+		if c <= rows[i][0]:
+			var k: float = (c - rows[i - 1][0]) / (rows[i][0] - rows[i - 1][0])
+			var a: Array = rows[i - 1][1]
+			var b: Array = rows[i][1]
+			var out: Array = []
+			for j in a.size():
+				out.append(a[j].lerp(b[j], k) if a[j] is Color else lerpf(float(a[j]), float(b[j]), k))
+			return out
+	return night
 
 
 # ---------------------------------------------------------------- his body in the print

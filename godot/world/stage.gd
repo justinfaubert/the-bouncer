@@ -29,7 +29,13 @@ const SEEN := {
 	"floor": ["vest", "room", "lot"], "bar": ["vest", "room"], "t28": ["vest", "room", "lot", "truck"], "pool": ["room", "vest"],
 	"hall": ["hall", "room", "lobby"], "kitchen": ["kitchen"], "keg": ["keg"], "deck": ["deck", "lot"],
 	"lot": ["lot", "truck", "vest", "room"], "upstairs": ["upstairs", "lot", "truck"],
+	# before the night, away from it: Gary's front room and the street out of its window; the town;
+	# from the seawall, the town and the Sov's lot across the highway
+	"office": ["office", "town"], "street": ["town"], "esso": ["town"], "seawall": ["town", "lot", "truck"],
 }
+# where the man across Gary's desk is, by what Gary's looking at (Posts.FRAMES): in the doorway as
+# he comes in, while Gary's looking there, and in the chair across the desk otherwise
+const HIM_AT := {"office:door": ["office_door", "him_stand"], "office": ["office_chair", "him_desk"]}
 # the ones who drift on their own between glances, and where to
 const WANDER := {
 	"bartender": ["bar_back_mid", "bar_back_till", "bar_back_far", "bar_back_mid"],
@@ -49,7 +55,7 @@ const OFF_INTO := Vector3(6.2, 0, 17.5)                         # out of the doo
 const COMES_FROM := [Vector3(4.6, 0, 13.4), Vector3(6.4, 0, 15.6), Vector3(2.6, 0, 16.4), Vector3(7.5, 0, 18.5)]
 # which post sees what a part of the building does, for what he can see on the way somewhere
 const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot",
-	"lobby": "hall", "keg": "keg", "upstairs": "upstairs"}
+	"lobby": "hall", "keg": "keg", "upstairs": "upstairs", "office": "office", "town": "street"}
 
 var pub: Pub
 var content: Dictionary
@@ -148,6 +154,19 @@ func _spots() -> void:
 	# at the top of the deck steps: one looking across at the door, one looking down the deck at the lot
 	s["deck_steps"] = {"pos": Vector3(17.95, 0, 5.3), "face": Vector3(16.3, 0, 7.0), "zone": "deck"}
 	s["deck_steps_lot"] = {"pos": Vector3(18.05, 0, 5.85), "face": Vector3(19.0, 0, 16.0), "zone": "deck"}
+	# Away from the Sov (world/town.gd), put in the town so they're put away with it. In Gary's
+	# office: the armchair across his desk, just inside the front door, the bookkeeper's chair at her
+	# desk; the ice freezer by the Esso's door; the wharf's rail. Where someone sits, the height of
+	# the seat (_seat_on); "still", the ones in a chair with arms or at a desk, who don't turn to
+	# him in it.
+	var ox := Town.OFFICE_X
+	var oy := Town.OFFICE_Y
+	var oz := Town.OFFICE_Z
+	s["office_chair"] = {"pos": Vector3(ox + 1.9, oy, oz), "face": Vector3(Town.GARY.x, oy, oz), "zone": "office", "in": "town", "seat": 0.46, "still": true}
+	s["office_door"] = {"pos": Vector3(ox + 0.45, oy, oz - 1.1), "face": Vector3(Town.GARY.x, oy, oz), "zone": "office", "in": "town"}
+	s["office_bk"] = {"pos": Vector3(ox + 3.15, oy, oz - 1.15), "face": Vector3(ox + 3.15, oy, oz - 2.3), "zone": "office", "in": "town", "seat": 0.46, "still": true}
+	s["esso_freezer"] = {"pos": Vector3(-147.3, Town.APRON, 12.4), "face": Vector3(-147.3, Town.APRON, 20.0), "zone": "town", "in": "town", "seat": 0.86}
+	s["wharf_rail"] = {"pos": Vector3(-198.15, Town.WHARF_Y, 58.0), "face": Vector3(-190.0, Town.WHARF_Y, 61.0), "zone": "town", "in": "town"}
 	SPOTS = s
 
 
@@ -164,6 +183,9 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	var v := game.vars()
 	var clock := int(BUtil.js_int(v.get("clock", 1180)))
 	var here := here_as if here_as != "" else game.here()
+	# away from the Sov he's wherever his eyes are, whatever the night's bookkeeping says yet
+	if here_as == "" and view != null and Posts.away(view.place):
+		here = view.place
 	var out := {}
 	var fam := func(item: String) -> bool: return _has(v, "fam", item)
 	var arr := func(item: String) -> bool: return _has(v, "arrivals", item)
@@ -193,11 +215,23 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	# at the end, out in the lot: the big man at his truck, till he's driven off
 	if here == "lot" and fam.call("lot_scene") and not fam.call("dad_drove"):
 		out.bigman = ["work_truck", "bigman"]
-	# 8. the end of the bar, till last call; the keg room after two, if he goes down to him
-	if clock < 1530:
+	# 8. the end of the bar, till last call (before the night, at the wharf's rail, looking at the
+	# water); the keg room after two, if he goes down to him
+	if clock < Town.NIGHT:
+		out.endbar = ["wharf_rail", "endbar_wharf"]
+	elif clock < 1530:
 		out.endbar = ["bar_s0", "endbar"]
 	elif here == "keg" and _visits(game, "keg_parley") > 0:
 		out.endbar = ["keg_parley", "endbar"]
+	# Before the night, away from the Sov (world/town.gd). Gary's office: the man across the desk
+	# (HIM_AT) and the bookkeeper at hers; never Gary, whose eyes these are. The kid on the ice
+	# freezer at the Esso, till the night.
+	if here == "office":
+		var framed := "office:" + view.frame if view != null and view.frame != "" else "office"
+		out.him = HIM_AT.get(framed, HIM_AT.office)
+		out.bookkeeper = ["office_bk", "bookkeeper_desk"]
+	if here == "esso" and clock < Town.NIGHT:
+		out.essokid = ["esso_freezer", "essokid_freezer"]
 	# 9. the two women from upstairs at the near end of the bar with their white wine
 	if not cleared.call("cl_res"):
 		var up := bool(BUtil.js_truthy(v.get("slippers_upstairs", false)))
@@ -807,14 +841,17 @@ func _place(id: String) -> void:
 			node.reparent(pub.dyn.truck, false)
 		node.transform = Transform3D(Basis.IDENTITY, s.pos + Vector3(0, float(s.get("y", 0.0)), 0))
 	else:
-		if node.get_parent() != self:
-			node.reparent(self, false)
+		# in the town, they're put away with it while he's at the Sov
+		var holder: Node3D = pub.town.far if s.get("in", "") == "town" and pub.town != null else self
+		if node.get_parent() != holder:
+			node.reparent(holder, false)
 		var pos: Vector3 = s.pos + Vector3(0, float(s.get("y", 0.0)) + _sit_offset(model, spot), 0)
 		node.transform = Transform3D.IDENTITY
 		node.position = pos
 		var face: Vector3 = s.face
 		if Vector2(face.x - pos.x, face.z - pos.z).length() > 0.01:
 			node.look_at(Vector3(face.x, pos.y, face.z), Vector3.UP)
+		_seat_on(node, s, f.anchors)
 	f.spot = spot
 	f.base_yaw = node.rotation.y
 	wander_at[id] = t + randf_range(20.0, 45.0)
@@ -842,6 +879,15 @@ func _gone() -> ShaderMaterial:
 		_gone_mat = ShaderMaterial.new()
 		_gone_mat.shader = sh
 	return _gone_mat
+
+
+# Sitting on something of the town's (a chair, the freezer): the point of them that sits on things
+# (their model's "seat") on the seat, its height over the spot. Without one, where they stand.
+func _seat_on(node: Node3D, s: Dictionary, an: Dictionary) -> void:
+	if not s.has("seat") or not an.has("seat"):
+		return
+	var a: Array = an.seat
+	node.position = s.pos + Vector3(0, float(s.seat), 0) - node.basis * Vector3(a[0], a[1], a[2])
 
 
 # The truck's two sit higher than a stool: brought down to one when they're inside.
@@ -921,7 +967,8 @@ func speaking(speaker: String) -> void:
 	if f == null or view == null or walkers.has(id):
 		return
 	var node: Node3D = f.node
-	if node.get_parent() != self:
+	var s: Dictionary = SPOTS.get(f.spot, {})
+	if node.get_parent() != self and (s.get("in", "") != "town" or s.get("still", false)):
 		return
 	if not in_sight(head_of(id), SPOTS[f.spot].zone):
 		return

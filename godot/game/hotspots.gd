@@ -81,9 +81,11 @@ const WAYS := {
 	"hall": "a:hall_way", "kitchen": "a:swing_door", "keg": "a:trap_over", "deck": "a:deck_door",
 	"lot": "a:truck|a:main_door", "upstairs": "a:hotel_door",
 }
-# the part of the building each place is in
+# the part of the building each place is in (and before the night, away from it: Gary's front
+# room, and the town round it, world/town.gd)
 const PART := {"door": "vest", "floor": "room", "bar": "room", "t28": "room", "pool": "room", "hall": "hall",
-	"kitchen": "kitchen", "keg": "keg", "deck": "deck", "lot": "lot", "upstairs": "upstairs"}
+	"kitchen": "kitchen", "keg": "keg", "deck": "deck", "lot": "lot", "upstairs": "upstairs",
+	"office": "office", "street": "town", "esso": "town", "seawall": "town"}
 # the way out of somewhere closed in, whichever way he's going (from the front desk, the hotel door)
 const WAY_OUT := {"keg": "a:keg_ladder", "kitchen": "a:swing_door", "deck": "a:deck_door", "lot": "a:main_door",
 	"hall": "a:hall_way", "hall:clerk": "a:hotel_door"}
@@ -93,8 +95,9 @@ const TOWARD := {"hall": "a:hall_way", "upstairs": "a:hall_way", "lobby": "a:hal
 # the doors and openings between two parts of the building, seen from either side
 const BETWEEN := {"a:swing_door": ["room", "kitchen"], "a:hall_way": ["room", "hall"], "a:deck_door": ["room", "deck"],
 	"a:main_door": ["vest", "lot"], "a:hotel_door": ["hall", "lobby"]}
-# the parts of the building with nothing between them: the room and the vestibule
-const OPEN := ["room|vest"]
+# the parts of the building with nothing between them: the room and the vestibule; the town and
+# the lot, across the highway
+const OPEN := ["room|vest", "town|lot"]
 # and the openings he sees one part from another through, any other two being walled off from each
 # other: [part, part, corner, corner, the door in it if it's only open when that is], each a
 # rectangle down the middle of a wall 0.2 thick. The back hall's doorway; the main door (glass) and
@@ -108,6 +111,9 @@ const OPENINGS := [
 	["hall", "lobby", Vector3(16.1, 0.0, -1.04), Vector3(16.1, 2.05, -0.16), "hotel_door"],
 	["deck", "lot", Vector3(16.35, 0.0, 10.05), Vector3(40.0, 2.75, 10.05), ""],
 	["upstairs", "lot", Vector3(14.1, 3.85, 10.17), Vector3(15.1, 5.15, 10.17), ""],
+	# Gary's front window and the glass in his front door, on the street
+	["office", "town", Vector3(Town.OFFICE_X - 0.1, Town.OFFICE_Y + 0.8, Town.OFFICE_Z + 0.35), Vector3(Town.OFFICE_X - 0.1, Town.OFFICE_Y + 2.25, Town.OFFICE_Z + 1.75), ""],
+	["office", "town", Vector3(Town.OFFICE_X - 0.1, Town.OFFICE_Y + 1.07, Town.OFFICE_Z - 1.41), Vector3(Town.OFFICE_X - 0.1, Town.OFFICE_Y + 1.99, Town.OFFICE_Z - 0.79), ""],
 ]
 # what's round a corner or behind something from where he stands (place, or place:frame), in a part
 # of the building he otherwise sees from there: the payphone at the end of the back hall, the tape
@@ -392,6 +398,23 @@ func _where(key: String) -> Array:
 				r = 0.4
 			"trapdoor", "deck_door", "kitchen_back", "wc_single", "wc_men", "wc_women", "main_door", "hotel_door", "swing_door", "hall_way":
 				r = 0.5
+			# away from the Sov (world/town.gd): Gary's front room, then the town
+			"bk_mug", "office_lamp", "office_notice":
+				r = 0.12
+			"office_calendar", "office_licence", "office_shirts":
+				r = 0.24
+			"office_safe", "office_photo":
+				r = 0.4
+			"office_window":
+				r = 0.7
+			"esso_ice", "street_gun":
+				r = 0.8
+			"esso_prices", "street_pickup":
+				r = 1.4
+			"esso_window", "street_library", "street_legion", "street_bank":
+				r = 2.2
+			"esso_canopy", "street_church", "street_wharf", "seawall_water":
+				r = 3.5
 		return [pub.anchors[n], r]
 	if key.begins_with("p:"):
 		var v := key.substr(2).split(",")
@@ -415,6 +438,10 @@ func _where(key: String) -> Array:
 
 
 static func zone_of(p: Vector3) -> String:
+	if Town.in_office(p):
+		return "office"
+	if Town.in_town(p):
+		return "town"
 	if p.y < -0.2:
 		return "keg"
 	if p.y > 3.3:
