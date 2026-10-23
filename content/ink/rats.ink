@@ -205,11 +205,12 @@ The lid had been propped open with a brick.
 = kg_opts
 { due(): -> called_up }
 <- moves(keg)
+<- held_light
 + [The office.]
     -> keg_office
 * [Look around with the flashlight.]
     -> look
-* {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 12]
+* {at_keg.look} [Follow the scratching into the crawlspace. #check: wrongman 12 {mat_mod()}]
     -> crawl
 + {fries == 1} [Leave the fries on the third step.]
     -> leave_fries
@@ -217,8 +218,14 @@ The lid had been propped open with a brick.
     -> check_bait
 + {trap_at ? keg && clock >= traps_set + 60 && not at_keg.check_traps} [Check the traps.]
     -> check_traps
-* {clock >= 1320} [Change the lager. It's been spitting foam since ten.]
+* {lager_off()} [Change the lager. It's been spitting foam since ten.]
     -> change_keg
+
+// Right after he's had the flashlight along the walls, it's in his hand to think about (hand.ink).
+= held_light
+{ TURNS_SINCE(-> look) != 0: -> DONE }
+<- reads_flashlight(-> kg_opts)
+-> DONE
 
 // Hutch, in director mode (27 Sept), on what's in a keg room the customers never see: rats, empties,
 // cases of clamato and tomato and the other juices for mix, napkins, straws, and an office where the
@@ -252,15 +259,29 @@ The lid had been propped open with a brick.
     -> office_opts
 * {incident !? inc_office} [Wipe the mirror clean.]
     ~ office_wiped = true
-    He wiped it with the side of his hand until it was only a mirror, and put the straw in his pocket.
+    He wiped it with the side of his hand until it was only a mirror, and picked up the straw. #prop: straw
     FATHER: Now it's yours. That's what wiping it does.
-    -> office_opts
+    -> straw_held
 + {not poison} [Take the bait.]
     -> lay_poison
 + {not traps} [Take the traps.]
     -> set_traps
 + [Out of the office.]
     -> kg_opts
+
+// The straw off the mirror, in his hand (hand.ink). Whose it is, nobody says (Claude's draft,
+// PROPOSED): the bartender knows it was there, and so do the rats.
+= straw_held
+- (sh)
+<- reads_straw(-> sh)
+* [Put it in his pocket.]
+    ~ pocket(straw)
+    He put it in the left pocket of his jacket, where nobody would see it unless they went looking.
+* (straw_back) [Put it back on the desk, beside the clean mirror.]
+    He put it back on the desk where it had been, beside the mirror, so whoever it was would know somebody had been in.
+* (straw_snapped) [Snap it and drop it in the empties.]
+    He snapped it in two and dropped it in a case of empties going back to the brewery.
+- -> office_opts
 
 = lay_poison
 ~ pass(3)
@@ -388,6 +409,9 @@ FIGHTER: Go in there.
 = crawl
 ~ pass(10)
 He went past the last keg and got down on his hands and knees on the dirt. The floor joists were a foot above his back. He went toward the sound.
+{ knows ? mat_seen:
+    He went the way the beer mat in the last doorman's pocket said: toward the front of the building, behind 28.
+}
 { passed:
     -> knot
 }

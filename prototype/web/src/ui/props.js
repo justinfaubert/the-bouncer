@@ -9,6 +9,7 @@
 //               the story is waiting for one; otherwise the hand holding it holds on.
 //   the binder  open it and leaf through the sleeves (the arrows, a swipe, the arrow keys). Stay on
 //               a page and he's looking at that page; get to the back and he's been through them all.
+//   a thing     the rest (kind: thing): tap it to turn it over; "Look closer" brings it up.
 //
 // Every handling goes to the game (api.play(id, what), Game.toy): if a choice is waiting for it,
 // that choice is made; otherwise a voice may say something. A thing is in his hands while the
@@ -275,6 +276,7 @@
       if (pr.kind === 'card') buildCard(s, pr, item);
       else if (pr.kind === 'phone') buildPhone(s, pr, item, at);
       else if (pr.kind === 'binder') buildBinder(s, pr);
+      else if (pr.kind === 'thing' && thingPic(pr, true)) buildThing(s, pr);
       else return null;
       shown.push(s);
       refresh();
@@ -428,6 +430,358 @@
         if (!live) { down = null; rest(); }
       };
       pose(0, 0);
+    }
+
+    // ---------------------------------------------------------------- a thing in his hand
+
+    // The things he handles that aren't a licence, a phone or the binder (content/data/props.yaml,
+    // kind: thing), drawn the way the Godot build prints them (godot/game/things.gd): what's printed
+    // on each side, and what's been pencilled on it. Tap it to turn it over; "Look closer" brings it
+    // up. The game hears both (Game.toy: "turn", "look").
+    const PENCIL = '#4a4a50';
+    const TF = {
+      ui: "'Barlow Condensed',sans-serif;font-weight:600", hand: 'Kalam,cursive', mono: "'IBM Plex Mono',monospace",
+      anton: 'Anton,Impact,sans-serif', disp: "'Big Shoulders Display','Barlow Condensed',sans-serif;font-weight:300",
+      rec: "'Courier Prime',monospace"
+    };
+    function xe(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function tx(x, y, s, size, font, fill, more) {
+      return '<text x="' + x + '" y="' + y + '" fill="' + fill + '" style="font-family:' + font + ';font-size:' + size + 'px' + (more || '') + '">' + xe(s) + '</text>';
+    }
+    function mid(x, y, s, size, font, fill, more) { return tx(x, y, s, size, font, fill, ';text-anchor:middle' + (more || '')); }
+    function pts(a) { return a.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+    function line(a, col, w, more) { return '<polyline points="' + pts(a) + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-linecap="round" stroke-linejoin="round"' + (more || '') + '/>'; }
+    // a line of the yaml's front: or back: list, and whether it's in pencil ("~ ...") or printed
+    function sides(pr, side) {
+      return (pr[side] || []).map(function (l) { const s = String(l); return [s.replace(/^~/, '').trim(), /^~/.test(s)]; });
+    }
+    // a ring gone round in pencil, never quite closing
+    function pencilRing(cx, cy, rx, ry, r, w) {
+      const a = [];
+      for (let i = 0; i <= 52; i++) {
+        const t = Math.PI * 2 * i / 48, k = 1 + (r() - 0.5) * 0.1;
+        a.push([cx + Math.cos(t) * rx * k, cy + Math.sin(t) * ry * k]);
+      }
+      return line(a, PENCIL, w || 2.4, ' opacity=".9"');
+    }
+    // the knot as he drew it: a ring of rats, heads out, each one shaded in, the tails run in to the
+    // middle and tied there, gone over and over
+    function knot(cx, cy, rad, r) {
+      let s = '';
+      const n = 9;
+      for (let i = 0; i < n; i++) {
+        const a = Math.PI * 2 * (i + 0.5) / n - Math.PI / 2 + (r() - 0.5) * 0.12;
+        const d = [Math.cos(a), Math.sin(a)], sd = [-d[1], d[0]];
+        const at = function (along, across) { return [cx + d[0] * (rad + along) + sd[0] * across, cy + d[1] * (rad + along) + sd[1] * across]; };
+        const deg = (a * 180 / Math.PI).toFixed(1);
+        const b = at(13, 0), hd = at(33, 0);
+        s += '<ellipse cx="' + b[0].toFixed(1) + '" cy="' + b[1].toFixed(1) + '" rx="17" ry="10.5" transform="rotate(' + deg + ' ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1) + ')" fill="' + PENCIL + '" fill-opacity=".42" stroke="' + PENCIL + '" stroke-width="2"/>';
+        s += '<ellipse cx="' + hd[0].toFixed(1) + '" cy="' + hd[1].toFixed(1) + '" rx="11" ry="6.5" transform="rotate(' + deg + ' ' + hd[0].toFixed(1) + ' ' + hd[1].toFixed(1) + ')" fill="' + PENCIL + '" fill-opacity=".42"/>';
+        s += line([at(39, 4), at(45, 0), at(39, -4)], PENCIL, 2);
+        for (const e of [-1, 1]) {
+          const ear = at(27, e * 8.5);
+          s += '<circle cx="' + ear[0].toFixed(1) + '" cy="' + ear[1].toFixed(1) + '" r="4.2" fill="none" stroke="' + PENCIL + '" stroke-width="1.6"/>';
+          s += line([at(20, e * 9), at(24, e * 15)], PENCIL, 1.6, ' opacity=".75"');
+          s += line([at(4, e * 9), at(1, e * 15)], PENCIL, 1.6, ' opacity=".75"');
+        }
+        const tail = [];
+        for (let k = 0; k <= 10; k++) { const t = k / 10; tail.push(at(-(4 + t * (rad - 16)), Math.sin(t * Math.PI * 1.4) * 8)); }
+        s += line(tail, PENCIL, 1.8, ' opacity=".85"');
+      }
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="12" ry="10" fill="' + PENCIL + '" fill-opacity=".55"/>';
+      for (let k = 0; k < 12; k++) {
+        s += '<ellipse cx="' + (cx + (r() - 0.5) * 12).toFixed(1) + '" cy="' + (cy + (r() - 0.5) * 12).toFixed(1) + '" rx="' + (8 + r() * 9).toFixed(1) + '" ry="' + (6 + r() * 8).toFixed(1) + '" fill="none" stroke="' + PENCIL + '" stroke-width="1.8" opacity=".8"/>';
+      }
+      return s;
+    }
+
+    // each thing's picture, one side of it: [width, height, svg inside]
+    function thingPic(pr, front) {
+      const shape = String(pr.shape || '');
+      const r = rng(shape + ':' + front);
+      const fl = sides(pr, 'front'), bl = sides(pr, 'back');
+      let s = '';
+      switch (shape) {
+        case 'flashlight': {
+          // two D cells in steel: the head and its lens, the body, the knurled grip, the switch
+          s += '<rect x="72" y="44" width="420" height="52" rx="10" fill="#1d1e22"/>';
+          s += '<rect x="300" y="40" width="150" height="60" rx="8" fill="#16171a"/>';
+          for (let x = 306; x < 446; x += 6) s += '<rect x="' + x + '" y="42" width="2" height="56" fill="#2a2b30"/>';
+          s += '<path d="M 18 28 L 92 42 L 92 98 L 18 112 Z" fill="#26272c"/><rect x="10" y="28" width="12" height="84" rx="4" fill="#e9e4cf"/>';
+          s += '<rect x="488" y="46" width="24" height="48" rx="7" fill="#26272c"/>';
+          if (front) s += '<rect x="182" y="35" width="34" height="11" rx="3" fill="#3a3b40"/>';
+          s += '<rect x="80" y="50" width="404" height="5" rx="2" fill="#fff" opacity=".1"/>';
+          return [520, 140, s];
+        }
+        case 'key': {
+          // the key to twelve on its fob: a long diamond of green plastic, the number in gold, and
+          // on the back what every hotel fob used to say; the key hangs off the narrow end
+          const fx = front ? 116 : 4, gold = '#c9a44c', hole = front ? 52 : 388, hx = fx + hole;
+          s += '<g transform="translate(' + fx + ',4)"><polygon points="8,120 220,8 432,120 220,232" fill="#2f4a3c"/>';
+          s += '<polygon points="26,120 220,20 414,120 220,220" fill="none" stroke="' + gold + '" stroke-opacity=".55" stroke-width="2.5"/>';
+          s += '<circle cx="' + hole + '" cy="120" r="11" fill="#101512"/>';
+          if (front) {
+            s += mid(220, 64, 'THE SOVEREIGN', 14, TF.ui, gold, ';letter-spacing:2px;opacity:.85');
+            s += mid(220, 154, fl.length ? fl[0][0] : '', 84, TF.anton, gold);
+            s += mid(220, 188, 'HOTEL', 14, TF.ui, gold, ';letter-spacing:4px;opacity:.85');
+          } else {
+            s += mid(220, 106, 'DROP IN ANY MAILBOX', 21, TF.ui, gold, ';letter-spacing:2px');
+            s += mid(220, 134, 'POSTAGE GUARANTEED', 21, TF.ui, gold, ';letter-spacing:2px');
+            s += mid(220, 160, 'THE SOVEREIGN HOTEL', 15, TF.mono, gold, ';opacity:.8');
+          }
+          s += '</g><circle cx="' + hx + '" cy="124" r="20" fill="none" stroke="#b39550" stroke-width="5"/>';
+          s += '<g fill="#b39550" transform="translate(' + (front ? hx - 8 : hx + 8) + ',124)' + (front ? ' scale(-1,1)' : '') + '">';
+          s += '<path fill-rule="evenodd" d="M 0 0 a 18 18 0 1 0 36 0 a 18 18 0 1 0 -36 0 Z M 6 0 a 6 6 0 1 0 12 0 a 6 6 0 1 0 -12 0 Z"/>';
+          s += '<rect x="34" y="-8" width="10" height="16"/><rect x="42" y="-6" width="68" height="12"/>';
+          s += '<path d="M 52 6 h 8 v 7 h -8 Z M 66 6 h 7 v 5 h -7 Z M 78 6 h 9 v 8 h -9 Z M 92 6 h 6 v 4 h -6 Z"/></g>';
+          return [560, 250, s];
+        }
+        case 'keys': {
+          // the big man's keys: the ring, his truck's key, his house key, a rabbit's foot gone grey
+          s += '<g' + (front ? '' : ' transform="translate(400,0) scale(-1,1)"') + '>';
+          s += '<circle cx="200" cy="70" r="34" fill="none" stroke="#c9ccd0" stroke-width="6"/>';
+          s += '<g transform="rotate(-28 200 104)"><rect x="174" y="104" width="52" height="70" rx="14" fill="#18181a"/><rect x="193" y="172" width="14" height="80" fill="#c9ccd0"/><path d="M 207 196 h 7 v 8 h -7 Z M 207 216 h 5 v 8 h -5 Z" fill="#c9ccd0"/></g>';
+          s += '<g transform="rotate(24 200 104)"><circle cx="200" cy="128" r="24" fill="#b39550"/><circle cx="200" cy="118" r="6" fill="#20232a"/><rect x="193" y="150" width="14" height="72" fill="#b39550"/><path d="M 193 176 h -8 v 8 h 8 Z M 193 196 h -6 v 8 h 6 Z" fill="#b39550"/></g>';
+          s += '<rect x="196" y="102" width="8" height="20" fill="#c9ccd0"/><ellipse cx="200" cy="168" rx="23" ry="50" fill="#8f8b84"/>';
+          for (let i = 0; i < 26; i++) { const y = 124 + r() * 88, x = 200 + (r() - 0.5) * 34; s += line([[x, y], [x + (r() - 0.5) * 6, y + 6 + r() * 6]], '#a9a59d', 1.4, ' opacity=".7"'); }
+          s += '</g>';
+          return [400, 260, s];
+        }
+        case 'straw':
+          // two inches of straw, cut square at both ends
+          s += '<g transform="rotate(-8 150 45)"><rect x="40" y="36" width="220" height="18" fill="#ebe8e0" stroke="#a9a59b" stroke-width="1.5"/>';
+          s += '<rect x="42" y="39" width="216" height="3" fill="#fff" opacity=".7"/><ellipse cx="260" cy="45" rx="4" ry="9" fill="#bdb9ae"/></g>';
+          return [300, 90, s];
+        case 'glass':
+          // a pint of the red, pulled behind her bar: the glass, the beer, the head on it
+          s += '<path d="M 40 30 L 260 30 L 236 400 Q 150 412 64 400 Z" fill="#9a5a22"/>';
+          s += '<path d="M 40 30 L 260 30 L 256 84 Q 150 96 44 84 Z" fill="#efe6d2"/>';
+          s += '<path d="M 40 30 L 260 30 L 236 400 Q 150 412 64 400 Z" fill="none" stroke="#d9d4c6" stroke-width="5" opacity=".8"/>';
+          s += '<rect x="70" y="100" width="12" height="280" rx="6" fill="#fff" opacity=".16"/>';
+          for (let i = 0; i < 18; i++) s += '<circle cx="' + (80 + r() * 140).toFixed(1) + '" cy="' + (110 + r() * 280).toFixed(1) + '" r="' + (1 + r() * 1.6).toFixed(1) + '" fill="#e8c890" opacity=".5"/>';
+          return [300, 420, s];
+        case 'shirt': {
+          // Gary's shirt, folded out of its box: black, and turned over, what it says across his back
+          s += '<rect width="600" height="650" fill="#222327"/><rect x="93" width="6" height="650" fill="#2d2f34"/><rect x="501" width="6" height="650" fill="#2d2f34"/><rect y="410" width="600" height="5" fill="#2d2f34"/>';
+          for (let i = 0; i < 40; i++) s += '<rect x="' + (r() * 600).toFixed(0) + '" y="' + (r() * 650).toFixed(0) + '" width="' + (30 + r() * 90).toFixed(0) + '" height="1.5" fill="#fff" opacity=".025"/>';
+          if (front) s += '<path d="M 208 14 A 92 58 0 0 0 392 14" fill="none" stroke="#18191c" stroke-width="22"/><path d="M 208 14 A 92 58 0 0 0 392 14" fill="none" stroke="#34363b" stroke-width="2"/>';
+          else s += mid(300, 250, bl.length ? bl[0][0] : 'SECURITY', 74, TF.ui, '#e8e6df', ';letter-spacing:8px');
+          return [600, 650, s];
+        }
+        case 'bill': {
+          // a fifty folded small, in the press's inks and not the note's own, which is red, and red is
+          // the sign's and blood's
+          const ink = '#4e5a4a', ink2 = '#7a6a52', num = (front ? fl : bl).length ? (front ? fl : bl)[0][0] : '50';
+          s += '<rect width="760" height="340" fill="#d9d3bd"/>';
+          for (let i = 0; i < 22; i++) {
+            const a = [];
+            for (let x = 0; x <= 770; x += 14) a.push([x, 20 + i * 15 + Math.sin(x * 0.024 + i * 0.8) * 7 + Math.sin(x * 0.009 + i) * 4]);
+            s += line(a, ink2, 1.3, ' opacity=".28"');
+          }
+          if (front) {
+            for (let k = 0; k < 9; k++) s += '<ellipse cx="200" cy="170" rx="' + (96 - k * 7) + '" ry="' + (122 - k * 8) + '" fill="none" stroke="' + ink + '" stroke-width="1.6" opacity="' + (0.5 - k * 0.04).toFixed(2) + '"/>';
+            s += tx(470, 222, num, 210, TF.disp, ink, ';opacity:.92') + tx(486, 296, 'FIFTY', 26, TF.ui, ink2, ';letter-spacing:6px');
+          } else {
+            for (let i = 0; i < 12; i++) s += '<rect x="' + (330 + i * 26) + '" y="' + (120 - (i % 3) * 14) + '" width="12" height="' + (140 + (i % 3) * 14) + '" fill="' + ink + '" opacity=".35"/>';
+            s += tx(40, 196, num, 170, TF.disp, ink) + tx(40, 298, 'CINQUANTE', 24, TF.ui, ink2, ';letter-spacing:5px');
+          }
+          s += '<rect y="168" width="760" height="3" fill="#333326" opacity=".25"/><rect x="378" width="3" height="340" fill="#333326" opacity=".2"/>';
+          return [760, 340, s];
+        }
+        case 'mat': {
+          // the last doorman's beer mat: the Sov's, printed on the front; on the back, in his pencil,
+          // his count of them, doubling, the knot as he drew it, and where
+          s += '<rect x="4" y="4" width="504" height="504" rx="46" fill="' + (front ? '#e6dfca' : '#ddd5bf') + '"/>';
+          s += '<circle cx="300" cy="290" r="150" fill="none" stroke="#73522e" stroke-width="14" opacity=".09"/>';
+          if (front) {
+            const navy = '#2a3550';
+            s += '<circle cx="256" cy="256" r="222" fill="none" stroke="' + navy + '" stroke-width="6"/><circle cx="256" cy="256" r="208" fill="none" stroke="' + navy + '" stroke-width="2"/>';
+            const look = [[190, 42, TF.ui, 4], [292, 86, TF.disp, 2], [356, 30, TF.ui, 4]];
+            fl.forEach(function (l, i) { const k = look[Math.min(i, 2)]; s += mid(256, k[0], l[0], k[1], k[2], navy, ';letter-spacing:' + k[3] + 'px'); });
+            for (const sx of [-1, 1]) {
+              const c = [256 + sx * 150, 120];
+              s += '<polygon points="' + pts([[0, -12], [4, -3], [13, -3], [6, 3], [9, 12], [0, 6], [-9, 12], [-6, 3], [-13, -3], [-4, -3]].map(function (p) { return [c[0] + p[0], c[1] + p[1]]; })) + '" fill="' + navy + '"/>';
+            }
+          } else {
+            let y = 70;
+            for (const l of bl) {
+              const t = l[0];
+              if (/^\(/.test(t)) { s += knot(256, y + 64, 60, r); y += 214; continue; }
+              if (/^BEHIND/.test(t)) {
+                s += tx(70, y + 10, t, 50, TF.hand, PENCIL, ';letter-spacing:1px');
+                s += line([[66, y + 24], [326, y + 20]], PENCIL, 2.6) + line([[80, y + 31], [316, y + 28]], PENCIL, 1.8, ' opacity=".7"');
+                continue;
+              }
+              // the date, and the count in a column of its own
+              const m = /^(.*?)\s{2,}(\S+)$/.exec(t);
+              const tilt = ' transform="rotate(' + ((r() - 0.6) * 2.6).toFixed(2) + ' 70 ' + y + ')"';
+              s += '<g' + tilt + '>' + tx(70, y, m ? m[1] : t, 38, TF.hand, PENCIL);
+              if (m) {
+                s += tx(300, y, m[2], 38, TF.hand, PENCIL, ';text-anchor:end');
+                if (m[2] === '35') s += pencilRing(281, y - 14, 34, 25, r);
+              }
+              s += '</g>';
+              y += 44;
+            }
+          }
+          return [512, 512, s];
+        }
+        case 'tickets': {
+          // two from the machine at the terminal, one behind the other, neither torn
+          const ink = '#1d2430';
+          const one = function (dx, dy, behind) {
+            let t = '<g transform="translate(' + dx + ',' + dy + ')"><rect width="860" height="540" fill="' + (behind ? '#e0dbcd' : '#ece8dc') + '" stroke="#000" stroke-opacity=".12"/>';
+            if (front) {
+              t += '<rect width="860" height="96" fill="#2d3a48"/>';
+              if (!behind) {
+                if (fl.length) t += tx(36, 66, fl[0][0], 46, TF.ui, '#ece8dc', ';letter-spacing:4px');
+                for (let i = 1; i < fl.length; i++) t += tx(40, 166 + (i - 1) * 66, fl[i][0], i < 3 ? 46 : 52, TF.mono, ink, ';white-space:pre');
+                let bx = 40, on = true;
+                while (bx < 600) { const w = 3 + Math.floor(r() * 7); if (on) t += '<rect x="' + bx + '" y="440" width="' + w + '" height="70" fill="' + ink + '"/>'; bx += w; on = !on; }
+                t += tx(640, 462, 'NOT VALID WITHOUT', 18, TF.mono, ink, ';opacity:.6') + tx(640, 488, 'A SAILING TIME', 18, TF.mono, ink, ';opacity:.6');
+              }
+            } else {
+              t += '<rect y="70" width="860" height="90" fill="#3a2e24"/>';
+              if (!behind) ['VALID ONLY FOR THE SAILING SHOWN.', 'NOT TRANSFERABLE. NO REFUNDS AFTER DEPARTURE.', 'KEEP THIS TICKET UNTIL YOU DISEMBARK.'].forEach(function (l, i) { t += tx(40, 244 + i * 40, l, 24, TF.mono, ink, ';opacity:.7'); });
+            }
+            return t + '</g>';
+          };
+          s += one(26, 20, true) + one(0, 0, false);
+          return [888, 562, s];
+        }
+        case 'bag': {
+          // the door float, out of the jacket's right pocket: the money in its clear bag, the till tape
+          // round it; turned over, his pencil on the back of the tape
+          s += '<rect width="900" height="480" rx="10" fill="#2a2c31"/>';
+          for (let k = 0; k < 5; k++) s += '<rect x="' + (170 + (r() - 0.5) * 20).toFixed(0) + '" y="' + (110 + (r() - 0.5) * 16).toFixed(0) + '" width="560" height="260" rx="6" fill="#bfc2a8" style="filter:brightness(' + (1 - 0.05 * (4 - k)).toFixed(2) + ')"/>';
+          const ink = '#4f5b4c';
+          s += '<rect x="184" y="124" width="532" height="232" rx="4" fill="' + ink + '" opacity=".12"/>' + tx(198, 196, '20', 78, TF.disp, ink) + tx(620, 350, '20', 78, TF.disp, ink);
+          for (let k = 0; k < 7; k++) s += '<ellipse cx="550" cy="240" rx="' + (70 - k * 6) + '" ry="' + (90 - k * 7) + '" fill="none" stroke="' + ink + '" stroke-width="1.4" opacity=".3"/>';
+          s += '<rect x="392" y="70" width="116" height="340" fill="#f1eee4"/>';
+          if (front) ['THE SOV', 'DOOR', 'FLOAT', '--------', '400.00'].forEach(function (l, i) { s += tx(402, 118 + i * 42, l, 22, TF.rec, '#262626', ';opacity:.75'); });
+          else {
+            bl.forEach(function (l, i) { s += tx(397, 116 + i * 64, l[0].replace(/\s{2,}/g, ' '), 18, TF.hand, PENCIL); });
+            s += '<rect x="400" y="280" width="100" height="2" fill="' + PENCIL + '"/>';
+          }
+          s += '<rect width="900" height="46" fill="#1b2130"/>';
+          for (let x = 10; x < 900; x += 16) s += '<rect x="' + x + '" y="18" width="8" height="10" fill="#6c7380"/>';
+          if (front) {
+            s += '<rect x="40" y="390" width="250" height="66" rx="3" fill="#e4e1d6"/>' + tx(52, 416, 'AMOUNT', 16, TF.ui, '#3d4250', ';letter-spacing:2px');
+            if (fl.length) s += tx(150, 440, fl[0][0], 40, TF.hand, PENCIL);
+          }
+          return [900, 480, s];
+        }
+        case 'book': {
+          // the paperback under the glove, its cover half off: two men in white, one thrown over his
+          // own wrist, head first, by the other; a price sticker from a yard sale
+          const white = '#ece8dc', blue = '#23303f';
+          s += '<rect width="440" height="712" fill="' + blue + '"/>';
+          if (front) {
+            const cv = function (p) { return [220 + (p[0] - 220) * 0.9, 640 + (p[1] - 604) * 0.9]; };
+            const limb = function (a, w) { return line(a.map(cv), white, w * 0.9); };
+            const add = function (p, d) { return [p[0] + d[0], p[1] + d[1]]; };
+            s += tx(40, 112, fl.length ? fl[0][0] : '', 84, TF.anton, '#e0b52e', ';letter-spacing:6px');
+            s += tx(44, 154, "A BEGINNER'S GUIDE", 18, TF.ui, white, ';letter-spacing:4px;opacity:.8');
+            s += line([[40, 604], [400, 604]].map(cv), '#3a485a', 3);
+            const hip = [160, 470], sh = [172, 384];
+            s += '<polygon points="' + pts([[-24, -8], [24, -8], [60, 130], [-56, 130]].map(function (d) { return cv(add(hip, d)); })) + '" fill="' + white + '"/>';
+            s += '<polygon points="' + pts([[-2, 50], [4, 50], [6, 130], [-4, 130]].map(function (d) { return cv(add(hip, d)); })) + '" fill="' + blue + '"/>';
+            s += limb([hip, sh], 44);
+            s += '<polygon points="' + pts([[-26, -12], [26, -12], [26, -2], [-26, -2]].map(function (d) { return cv(add(hip, d)); })) + '" fill="#101418"/>';
+            const h1 = cv(add(sh, [9, -50]));
+            s += '<circle cx="' + h1[0].toFixed(1) + '" cy="' + h1[1].toFixed(1) + '" r="20.7" fill="' + white + '"/>';
+            s += limb([add(sh, [12, 2]), [226, 352], [270, 318]], 17) + limb([add(sh, [4, 14]), [206, 428], [252, 418]], 17);
+            const uh = [322, 250], us = [346, 352], ul = Math.hypot(us[0] - uh[0], us[1] - uh[1]);
+            s += limb([uh, us], 40);
+            const h2 = cv([us[0] + (us[0] - uh[0]) / ul * 46, us[1] + (us[1] - uh[1]) / ul * 46]);
+            s += '<circle cx="' + h2[0].toFixed(1) + '" cy="' + h2[1].toFixed(1) + '" r="18.9" fill="' + white + '"/>';
+            s += limb([add(us, [-10, -6]), [300, 328], [272, 318]], 15) + limb([add(us, [12, 6]), [388, 404], [402, 446]], 15);
+            s += limb([uh, [284, 196], [300, 146]], 20) + limb([uh, [350, 202], [392, 186]], 20);
+            s += '<polygon points="300,0 440,0 440,250 420,200 400,214 392,150 366,136 360,90 328,64 322,30" fill="#efe9da"/>';
+            s += '<circle cx="380" cy="676" r="30" fill="#e08a2e"/>' + mid(380, 686, '$1', 28, TF.ui, '#2a1d10');
+          } else {
+            for (let i = 0; i < 9; i++) s += '<rect x="50" y="' + (120 + i * 34) + '" width="' + (340 - (i % 3) * 40) + '" height="12" rx="4" fill="' + white + '" opacity=".35"/>';
+            s += '<rect x="250" y="560" width="150" height="100" fill="#ece8dc"/>';
+            let x = 262;
+            while (x < 388) { const w = 2 + Math.floor(r() * 4); s += '<rect x="' + x + '" y="572" width="' + w + '" height="64" fill="#101418"/>'; x += w + 2 + Math.floor(r() * 3); }
+          }
+          return [440, 712, s];
+        }
+        case 'jacket': {
+          // the last doorman's jacket, folded at the bottom of the drawer: brown canvas, a corduroy
+          // collar, the flaps of its two outside pockets, the stitching gone pale
+          const canvas = '#6e5d3e';
+          s += '<rect width="840" height="680" fill="' + canvas + '"/>';
+          for (let i = 0; i < 160; i++) s += '<rect x="' + (r() * 840).toFixed(0) + '" y="' + (r() * 680).toFixed(0) + '" width="' + (20 + r() * 70).toFixed(0) + '" height="1.2" fill="#000" opacity=".06"/>';
+          for (const x of [0, 690]) s += '<rect x="' + x + '" width="150" height="680" fill="#000" opacity=".08"/><rect x="' + (x + 30) + '" y="300" width="90" height="120" rx="30" fill="#a39374" opacity=".55"/>';
+          s += '<path d="M 220 0 A 200 110 0 0 0 620 0" fill="none" stroke="#4a3b28" stroke-width="48"/>';
+          s += '<rect x="416" y="110" width="8" height="570" fill="#000" opacity=".25"/>';
+          for (const y of [180, 300, 420, 540]) s += '<circle cx="446" cy="' + y + '" r="9" fill="#8d8d8d"/>';
+          for (const x of [200, 480]) {
+            s += '<rect x="' + x + '" y="420" width="170" height="70" rx="4" fill="#000" opacity=".12"/>';
+            for (let d = x + 8; d < x + 160; d += 15) s += '<rect x="' + d + '" y="478" width="9" height="2" fill="#a08c62"/>';
+          }
+          return [840, 680, s];
+        }
+      }
+      return null;
+    }
+
+    function buildThing(s, pr) {
+      const fig = s.el, shape = String(pr.shape || '');
+      const two = shape !== 'jacket';                 // the jacket lies folded; it has the one side
+      const f = thingPic(pr, true);
+      const el = h('div', 'thing thing-' + shape);
+      el.tabIndex = 0;
+      el.setAttribute('role', 'button');
+      const name = pr.name || s.id;
+      el.setAttribute('aria-label', name + (two ? '. Turn it over.' : '.'));
+      const inner = h('div', 'th-in');
+      const front = h('div', 'th-face th-front');
+      if (f) front.append(svg(f[0], f[1], f[2]));
+      inner.append(front);
+      if (two) {
+        const b = thingPic(pr, false), back = h('div', 'th-face th-back');
+        if (b) back.append(svg(b[0], b[1], b[2]));
+        inner.append(back);
+      }
+      el.append(inner);
+      const thing = h('div', 'prop-thing');
+      thing.append(el);
+      const closer = h('button', 'prop-act', 'Look closer');
+      closer.type = 'button';
+      const acts = h('div', 'prop-acts');
+      acts.append(closer);
+      fig.append(thing, acts, hint(two ? 'Tap it to turn it over.' : ''));
+      let flipped = false;
+      function turn() {
+        if (!can(s) || !two) return;
+        flipped = !flipped;
+        el.classList.toggle('flipped', flipped);
+        el.setAttribute('aria-label', name + (flipped ? '. The back. Turn it over.' : '. Turn it over.'));
+        sfx('card', 0.5);
+        buzz(5);
+        play(s.id, 'turn');
+      }
+      function look() {
+        if (!can(s)) return;
+        const near = !el.classList.contains('closer');
+        el.classList.toggle('closer', near);
+        closer.textContent = near ? 'Not so close' : 'Look closer';
+        sfx('card', 0.6);
+        if (near) play(s.id, 'look');
+      }
+      el.addEventListener('click', turn);
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); turn(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); look(); }
+      });
+      closer.addEventListener('click', look);
+      s.setLive = function (live) {
+        closer.disabled = !live;
+        el.tabIndex = live ? 0 : -1;
+        if (!live && el.classList.contains('closer')) { el.classList.remove('closer'); closer.textContent = 'Look closer'; }
+      };
     }
 
     // ---------------------------------------------------------------- the phone

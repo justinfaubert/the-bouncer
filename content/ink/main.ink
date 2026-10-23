@@ -22,6 +22,8 @@ INCLUDE deck.ink
 INCLUDE closing.ink
 INCLUDE toys.ink
 INCLUDE things.ink
+INCLUDE hand.ink
+INCLUDE drawer.ink
 
 -> interview
 
@@ -127,7 +129,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 
@@ -273,6 +275,10 @@ EXTERNAL last_word(group)
 // under it. The engine runs it only once that line is out, so a move made after a scene's last
 // line starts when the line's been shown, not with it.
 EXTERNAL beat()
+// What he made of a thing he held (hand.ink): the voice whose read he kept, or "" if he kept none.
+EXTERNAL kept_read(thing)
+// How many reads of a voice's he's kept tonight. A heeded voice speaks up more.
+EXTERNAL heeded(voice)
 
 // Fallbacks so the story also runs in Inky, where there's no engine.
 === function seated(voice)
@@ -293,3 +299,7 @@ EXTERNAL beat()
 ~ return ""
 === function beat()
 ~ return true
+=== function kept_read(thing)
+~ return ""
+=== function heeded(voice)
+~ return 0

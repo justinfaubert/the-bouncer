@@ -48,6 +48,7 @@
       this.rel = {};          // explicit relationships, set in play; defaults come from the voice data
       this.learned = [];      // voices he has, in the room or not
       this.history = [];      // tension over the night, for the inspector
+      this.heard = {};        // voice -> how many of its reads of a thing in his hand he's kept (heed)
       this.stateIndex = {};
       if (statesData && statesData.states) {
         for (const s of statesData.states) this.stateIndex[canonConflicts(s.conflicts)] = s;
@@ -61,6 +62,7 @@
       this.rel = {};
       this.learned = [];
       this.history = [];
+      this.heard = {};
       for (const id of initialSeated || []) { this.learn(id); this.seat(id); }
     }
 
@@ -88,6 +90,16 @@
       this.seated.splice(i, 1);
       return true;
     }
+
+    // He kept this voice's read of a thing in his hand (content/ink/hand.ink): the voices he heeds
+    // speak more often (Barks.best, Barks.pick).
+    heed(id) {
+      if (!this.known(id)) return false;
+      this.heard[id] = (this.heard[id] | 0) + 1;
+      return true;
+    }
+
+    heeded(id) { return this.heard[id] | 0; }
 
     getRel(a, b) {
       if (a === b) return 1;
@@ -160,7 +172,7 @@
     }
 
     toJSON() {
-      return { seated: this.seated.slice(), rel: Object.assign({}, this.rel), learned: this.learned.slice(), history: this.history.slice(-100) };
+      return { seated: this.seated.slice(), rel: Object.assign({}, this.rel), learned: this.learned.slice(), history: this.history.slice(-100), heard: Object.assign({}, this.heard) };
     }
 
     fromJSON(o) {
@@ -169,6 +181,8 @@
       this.rel = Object.assign({}, o.rel || {});
       this.learned = (o.learned || []).filter(this.known.bind(this));
       this.history = (o.history || []).slice();
+      this.heard = {};
+      for (const id in (o.heard || {})) if (this.known(id)) this.heard[id] = o.heard[id] | 0;
     }
   }
 

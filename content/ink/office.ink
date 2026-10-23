@@ -346,6 +346,7 @@ OWNER: That's my dad's rule. So one of them's had enough. More than. What do you
 OWNER: Questions? Anything?
 * ["What happened to the last guy?"]
     ~ knows += old_doorman
+    ~ knows += jacket_heard
     OWNER: He left. Friday, middle of the rush. Left his jacket.
     TILL: Owes me a jacket.
 * {knows ? notice_read} ["What's on the fourteenth?"]
@@ -407,6 +408,7 @@ TILL: Eleven dollars a shirt. Forty-eight shirts.
 SENIOR: Nobody on this island ever wore a shirt that said what he was.
 * [Take it.]
     ~ shirt = 1
+    ~ stow(gary_shirt, in_inside)
     He took it, and folded it in four, and put it inside his jacket.
     OWNER: Good. Good man. Professional.
 * ["I've got my own."]
@@ -443,6 +445,7 @@ She held a form out across the gap between the desks, to Gary, without looking a
 = the_key
 Gary took a key off a hook behind him, on a plastic tag with 12 on it in marker, and put it on the desk between them. #look: him
 OWNER: Twelve. End of the hall, over the deck. Terry's got the other key. Terry's got every key.
+~ stow(room_key, in_jeans)
 OWNER: Seven-thirty, quarter to eight. She'll show you. She was my dad's.
 SENIOR: She was mine.
 ~ stats_done()

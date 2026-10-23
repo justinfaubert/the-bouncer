@@ -90,7 +90,7 @@
 - Six taps on the steel bar, their handles facing the room in the brewers' colours: two lagers, a pale ale, a red, a stout, a cider.
 - The taps.
 }
-{ clock >= 1320 && not at_keg.change_keg:
+{ lager_off():
     The lager on the end had been spitting foam since ten.
 }
 

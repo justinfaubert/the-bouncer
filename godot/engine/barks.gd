@@ -9,6 +9,8 @@ extends RefCounted
 
 # Chance that a voice speaks up at all, by tension. At 0 the room is quiet.
 const CHANCE := [0.0, 0.45, 0.65, 0.85, 1.0]
+# and a heeded voice's, for every read of his he's kept (never at 0): see barks.js, Heeded voices
+const HEED := 0.08
 
 static var _crit: RegEx
 static var _seat: RegEx
@@ -137,9 +139,12 @@ func best(event: String, get_var: Callable, psyche: Psyche, used: Array, rng: BR
 	for r in cands:
 		if r.specificity > top:
 			top = r.specificity
+	# a heeded voice's rule goes in once more for each read of his he's kept
 	var pool: Array = []
 	for r in cands:
-		if r.specificity == top:
+		if r.specificity != top:
+			continue
+		for k in 1 + psyche.heeded(r.speaker):
 			pool.append(r)
 	return rng.pick(pool)
 
@@ -150,6 +155,7 @@ func pick(event: String, get_var: Callable, psyche: Psyche, used: Array, rng: BR
 		return null
 	if not rule.always:
 		var t := mini(4, psyche.tension())
-		if rng.next() >= CHANCE[t]:
+		var chance: float = minf(1.0, CHANCE[t] + HEED * psyche.heeded(str(rule.speaker))) if t > 0 else 0.0
+		if rng.next() >= chance:
 			return null
 	return rule

@@ -20,6 +20,13 @@ extends RefCounted
 #   #prop: sister_card    on a line: a thing he's handed or picks up (props.yaml)
 #   #toy: sister_card look   on a choice: handling that thing that way makes this choice
 #   #unlisted             on a choice: not in the list; only handling a thing makes it
+#   #read: father truck_keys  on a choice: that voice's read of the thing in his hand; keeping it
+#                         puts it in his notes beside the thing, and the voice speaks more often
+#
+# Reads: what he makes of a thing in his hand (content/ink/hand.ink). Each seated voice reads it, as
+# a choice tagged #read: <voice> <thing>, and he keeps one, or none. The kept read is his notes'
+# (reads, by thing), the voice is heeded from then on (Psyche.heed: it speaks more often), and the
+# Ink can ask kept_read(thing) and heeded(voice). What he carries is the Ink's (his pockets, status).
 #
 # Items and choices are Dictionaries with the same keys as the browser build's, so a save, a
 # transcript or a bot report reads the same from either.
@@ -55,6 +62,7 @@ var said: Dictionary = {}  # group -> {up, down: {id, text}, last}: their word o
 var taught: Array = []     # what THE MANUAL has explained
 var hand_used: Array = []  # hand: lines the voices have said to the player
 var _hand: Dictionary = {} # what each choice on offer whispers, worked out once per set of choices
+var reads: Dictionary = {} # thing -> the read of it he kept: {voice, text, clock}
 var turn := 0
 var screen = null
 var ended := false
@@ -211,6 +219,7 @@ func _reset() -> void:
 	taught = []
 	hand_used = []
 	_hand = {}
+	reads = {}
 	turn = 0
 	screen = null
 	ended = false
@@ -239,6 +248,9 @@ func _make_story():
 			_pending.append({"kind": "psyche", "op": "unseat", "voice": BUtil.js_str(v)})
 		return ok)
 	s.bind_external_function("learn", func(v): return psyche.learn(BUtil.js_str(v)))
+	# what he made of a thing he's held: the voice whose read he kept ("" if he kept none)
+	s.bind_external_function("kept_read", func(th): return str(reads[BUtil.js_str(th)].voice) if reads.has(BUtil.js_str(th)) else "", true)
+	s.bind_external_function("heeded", func(v): return psyche.heeded(BUtil.js_str(v)), true)
 	s.bind_external_function("last_word", func(g): return _last_word(BUtil.js_str(g)), true)
 	# nothing, but not safe to look ahead past: the Ink's move after a scene's last line waits for it
 	s.bind_external_function("beat", func(): return true)
@@ -289,6 +301,7 @@ func serialize() -> Dictionary:
 		"said": said.duplicate(true),
 		"taught": taught.duplicate(),
 		"handUsed": hand_used.duplicate(),
+		"reads": reads.duplicate(true),
 		"tasks": tasks.duplicate(true),
 		"checks": check_history.slice(-40),
 		"statLog": stat_log.duplicate(true),
@@ -318,6 +331,7 @@ func load_save(save_in) -> Dictionary:
 	word_used = (save.get("wordUsed") if save.get("wordUsed") is Array else []).duplicate()
 	taught = (save.get("taught") if save.get("taught") is Array else ["check", "tension", "word", "room"]).duplicate()
 	hand_used = (save.get("handUsed") if save.get("handUsed") is Array else []).duplicate()
+	reads = save.get("reads") if save.get("reads") is Dictionary else {}
 	tasks = save.get("tasks") if save.get("tasks") is Dictionary else {}
 	check_history = (save.get("checks") if save.get("checks") is Array else []).duplicate()
 	stat_log = (save.get("statLog") if save.get("statLog") is Array else []).duplicate()
@@ -384,7 +398,22 @@ func status() -> Dictionary:
 		"statsSet": BUtil.js_truthy(get_var("stats_set")),
 		# the drinks that show (Checks.felt): what the print and his hands go by
 		"felt": Checks.felt(get_var("drinks"), Checks.read_stats(_gv), get_var("ate")),
+		# what's on him, pocket by pocket, and what he's left where (content/ink/hand.ink)
+		"pockets": pockets(),
 	}
+
+
+# His pockets (content/ink/hand.ink): right and left outside, inside, his jeans; what he's put down
+# for later, in the lost-and-found drawer behind the bar (once he's had it open) and in room twelve;
+# and what's still in the last doorman's jacket (content/ink/drawer.ink).
+func pockets() -> Dictionary:
+	var out := {}
+	for k in [["right", "in_right"], ["left", "in_left"], ["inside", "in_inside"], ["jeans", "in_jeans"], ["drawer", "in_drawer"],
+			["twelve", "in_twelve"], ["jacket", "in_jacket"]]:
+		var v = ink_value(get_var(k[1]))
+		out[k[0]] = v.duplicate() if v is Array else []
+	out["drawerSeen"] = BUtil.js_truthy(get_var("drawer_seen"))
+	return out
 
 
 # what goes into a check besides the dice and the voice: drink, hurt, his stats, whether he ate
@@ -444,13 +473,21 @@ func choose_choice(choice: Dictionary, looked: Array = []) -> Dictionary:
 	var vars_before := vars()
 	var passed = _resisted(choice, looked)
 	turn += 1
+	# a read he keeps is his before the story goes on, so the Ink sees it (kept_read)
+	if choice.get("read") != null:
+		reads[str(choice.read.thing)] = {"voice": choice.read.voice, "text": choice.text, "clock": before.clock}
+		psyche.heed(str(choice.read.voice))
 	var chosen := {"kind": "chosen", "text": choice.text, "knot": choice.get("knot", ""), "check": {"voice": choice.check.voice} if choice.get("check") != null else null}
 	if choice.get("toy") != null:
 		chosen["toy"] = choice.toy.id
+	if choice.get("read") != null:
+		chosen["read"] = choice.read.voice
 	items.append(chosen)
 	if passed != null:
 		items.append(passed)
 	var step := {"t": turn, "c": before.clock, "x": choice.text}
+	if choice.get("read") != null:
+		step["r"] = choice.read.voice
 	path.append(step)
 	if choice.get("check") != null:
 		var c: Dictionary = choice.check
@@ -1002,6 +1039,12 @@ func _read_choices() -> Array:
 					"word": Checks.difficulty_word(spec.target), "odds": p, "oddsWord": Checks.odds_word(p), "mods": mods.parts}
 				if not psyche.is_seated(spec.voice):
 					ch["hidden"] = true
+		# "#read: father truck_keys": a voice's read of the thing in his hand. Only the seated speak.
+		if BUtil.js_truthy(tv.get("read")) and not (tv.read is bool):
+			var rw := BUtil.split_ws(BUtil.js_trim(BUtil.js_str(tv.read)))
+			ch["read"] = {"voice": rw[0].to_lower(), "thing": rw[1] if rw.size() > 1 else ""}
+			if not psyche.is_seated(ch.read.voice):
+				ch["hidden"] = true
 		# "#room: -fighter +table": who this choice lets in or puts out of his head
 		if BUtil.js_truthy(tv.get("room")):
 			var nxt: Array = psyche.seated.duplicate()
@@ -1034,7 +1077,8 @@ func _read_choices() -> Array:
 			hand.append("leave_door")
 		if ch.loc != null and ch.loc != h:
 			hand.append("loc:" + ch.loc)
-		ch["hand"] = hand
+		# a read is a voice already: nobody leans in on it
+		ch["hand"] = [] if ch.has("read") else hand
 		out.append(ch)
 	return out
 

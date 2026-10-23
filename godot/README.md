@@ -34,8 +34,8 @@ drunk, and fullscreen.
 | Look round | drag across the room, or the arrow keys (or W A S D); the wheel narrows his eyes |
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
-| Something in his hands | drag to turn it, E to look closer, Q and R to go through it, Esc to put it down |
-| His notes, the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
+| Something in his hands | drag a licence to tip it, click to turn it over, E to look closer, Q and R to go through it, Esc to put it down. What the voices make of it is above what he does with it, under WHAT HE MAKES OF IT: keep one, or none |
+| His notes (what's in his head, and on the second page what's on him: Q or E turns it), the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |
 | On a pad | either stick looks round; the d-pad goes through the choices and A makes the lit one (with none lit, A goes on and throws the dice); B is Esc, Y is E, Back his notes, the left shoulder the sketch |
 
@@ -59,7 +59,8 @@ the rest are things (the scanner's beeps, the door, the dice, the pen).
 - `game/`: what's on the screen. `main.gd` runs a night: the Ink's lines down the column
   (`column.gd`), choices, checks and the dice (`dice.gd`, thrown by hand; `dice_sim.gd` works out
   how two cubes fall, off the surface, its walls, the glasses on it and each other), things in his
-  hands (`props.gd`: the licences, with a hologram in the laminate, the kid's phone, the binder),
+  hands (`props.gd`: the licences, with a hologram in the laminate, the kid's phone, the binder, and
+  the other things he handles, made in `things.gd`: in his open hand, held up like a card, or a pint),
   the voices marking up the room (`marks.gd`), looking as choosing (`hotspots.gd`, `hand.gd`), going
   where he looks (`going.gd`: a click on the floor, the rings on it, the room seeing him run), his
   notes and the sketch (`notes.gd`, `sketch.gd`), the title and pause and settings (`menus.gd`), saves (`store.gd`),
@@ -137,7 +138,11 @@ from where he stands at them, and the dice thrown at each post. `tests/shots_tow
 town's places at their hours, his head turned from them, and the lot come to from the town, with
 what a frame there costs; `tests/shots_opening.gd` plays the opening from Gary's office, choice by
 choice, and takes a picture after the choices it's given, and of his notes and the sketch.
-`tests/shots_going.gd` takes the page out on the floor, the rings, the bar and a run. An
+`tests/shots_going.gd` takes the page out on the floor, the rings, the bar and a run.
+`tests/shots_things.gd` saves the darkroom's pictures of the things he handles, and takes each one
+in his hand at the bar, brought closer and turned over; `tests/shots_hand.gd` plays a night to the
+voices' reads of a thing, keeps one, and takes his notes' second page, ON HIM (`--start the_drawer
+--prefer jacket` gets there without playing the night). An
 exported build takes `--grab /tmp/title.png` to save a picture of its title and quit.
 `tests/pad.gd` plays the start of a night on a pad (the d-pad, A, B and a stick), headless.
 

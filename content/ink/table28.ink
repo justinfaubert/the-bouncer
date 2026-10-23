@@ -253,10 +253,10 @@ TEAM_JACKET: {shuffle:He's all right, this one!|You're all right, son. You're al
 -> topics
 
 = tip_offer
-The one in the team jacket reached over and put something in his shirt pocket. A folded fifty.
+The one in the team jacket reached over and tucked something into the pocket of his jacket. He took it out and looked at it: a fifty, folded small. #prop: fifty
 TEAM_JACKET: For looking after us.
-FATHER: That's not a tip. That's a leash.
 - (tp)
+<- reads_fifty(-> tp)
 * [Keep it.]
     ~ tip(50)
     ~ rep(rep_t28, 1)

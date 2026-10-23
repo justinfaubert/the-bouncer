@@ -15,6 +15,8 @@ node tools/audit.mjs            does every choice change something the night rea
 |---|---|
 | `main.ink` | Every VAR and LIST: what the world remembers. Read this first. |
 | `sim.ink` | `pass(m)`, the only thing that moves the clock, and everything that happens while he isn't looking. `due()` and the `events` tunnel. `num()` for writing numbers out. |
+| `office.ink` | Wednesday at four in Gary's office, through Gary's eyes: the interview, and the answers that set his seven stats. |
+| `walk.ink` | The walk to the Sov at dusk: room twelve, the old main street, the wharf, the Esso, the seawall. |
 | `prologue.ink` | Arriving, the bartender, the note, the first look at the room. |
 | `floor.ink` | The hub: where he stands between things. Counting the room, walking the doors. |
 | `door.ink` | The stool and everyone who comes to it: the kid, his sister, HI-VIS, GOOD SHOES, RAINCOAT. |
@@ -22,6 +24,8 @@ node tools/audit.mjs            does every choice change something the night rea
 | `pool.ink` | The big man, his buddy, the fight, telling him about the hospital. |
 | `bar.ink` | The bartender, the binder, the card machine, the owner's call. |
 | `rats.ink` | The kitchen, the keg room, the knot in the wall, bait and traps, the rat on the carpet. |
+| `hand.ink` | His hand: what he carries (his pockets, the lost-and-found drawer, room twelve, the last doorman's jacket), and the voices' reads of each thing he holds, one knot a thing. |
+| `drawer.ink` | The lost-and-found drawer under the till, the last doorman's jacket and its pockets, and the paperback under the glove. |
 | `toys.ink` | What the player's hands do between choices, when handling a thing isn't one of the choices on offer: `toy_<thing>(what)`. None are written for Wednesday. |
 | `things.ink` | What he sees when he looks at a thing in the building that nothing on offer is about (the dartboard, the tape by the door, the sign on the roof): `toy_<thing>("look")`. The things, and where they are, are in `content/data/things.yaml`. |
 | `hall.ink` | The washrooms, the payphone, the kid in the single washroom. |
@@ -52,6 +56,7 @@ On a choice (inside the brackets):
 | `#room: -fighter +{v}` | Who this choice puts out of his head and lets in. The page shows, under the choice, how loud the room would be after (the tension words, not numbers). Tags can hold `{variables}`. |
 | `#class: move` | A way out of the place he's in. These go in a row of places under the other choices. |
 | `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`. |
+| `#read: father truck_keys` | That voice's read of the thing in his hand (`hand.ink`). The reads go above what he does with it, under WHAT HE MAKES OF IT. One kept takes no time, comes back to the scene's choices with the reads gone, goes on his notes beside the thing, and makes the voice speak up more after. The Ink can ask `kept_read("truck_keys")` and `heeded("father")`. A scene offers them with a thread: `<- reads_keys(-> opts)`. |
 | `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo), or his legs (a walk across the room, in the 3D build: `#toy: legs walk`). Give it words anyway, for the director and the bots. |
 
 On a line (or on its own line, which attaches it to the next line of text):
@@ -67,7 +72,7 @@ On a line (or on its own line, which attaches it to the next line of text):
 | `#bark: some_event` | Offers a named event to the barks in `content/rules/barks.yaml`. |
 | `#pause` | The page waits for a tap before going on. |
 | `#prompt: text` | A writing prompt that shows in the game when Settings → Show writing prompts is on. |
-| `#prop: hoodie_phone` | A thing he's handed, drawn under the line for the player to handle (`content/data/props.yaml`, `prototype/web/src/ui/props.js`): a licence to turn over, tip to the light and hold up by a face; a phone to look at closer and swipe; the binder to leaf through. It stays in his hands while the choices it came with are on offer, or while a choice is waiting for it (`#toy:`). A second word says how it's shown: `#prop: hoodie_phone held`. |
+| `#prop: hoodie_phone` | A thing he's handed, drawn under the line for the player to handle (`content/data/props.yaml`, `prototype/web/src/ui/props.js`): a licence to turn over, tip to the light and hold up by a face; a phone to look at closer and swipe; the binder to leaf through; any other thing (`kind: thing`) to turn over and look at closer. It stays in his hands while the choices it came with are on offer, or while a choice is waiting for it (`#toy:`). A second word says how it's shown: `#prop: hoodie_phone held`. |
 | `#mark: pool.lefthand` | On a voice's line: that voice marks the spot on the place's picture, in its own hand (`content/data/marks.yaml`). |
 | `#look: bartender` | What turns his head on that line: someone in the room (as the Godot build's stage knows them: `hoodie`, `vape`, `bigman`, `goodshoes`, `raincoat`, `bartender`) or a place (`bar`, `t28`, `pool`, `door`). The Godot build turns him to it if he can see it, unless the player's turning his head; nothing if he's standing there. The browser build ignores it. |
 | `#stats` | Prints his seven stats under the line, as they stand (once they're set: `stats_set`, in `office.ink`). After that, any change to one prints on its own, with the old number struck through. |

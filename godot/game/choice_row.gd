@@ -15,6 +15,8 @@ var body: RichTextLabel
 var num: Label
 var tip_text := ""       # where a check's number comes from
 var _tip: Control
+var read_label := ""     # a voice's read of the thing in his hand: whose (set before setup)
+var read_style := ""
 
 
 func setup(c: Dictionary, i: int, k: int, size: int, odds_numbers: bool, tension_words: Array) -> void:
@@ -66,11 +68,25 @@ func setup(c: Dictionary, i: int, k: int, size: int, odds_numbers: bool, tension
 		for m in ck.get("mods", []):
 			bits.append(("+" if int(m.value) > 0 else "−") + str(absi(int(m.value))) + " " + str(m.label))
 		tip_text = ", ".join(bits) if not bits.is_empty() else "Nothing for or against it tonight."
-	body.push_font(Look.font("read"), size)
-	body.push_color(Look.INK)
-	body.add_text(str(c.text))
-	body.pop()
-	body.pop()
+	if c.get("read") != null:
+		# in that voice's own hand, as it would say it in his head
+		var v := Look.voice(read_style if read_style != "" else str(c.read.voice))
+		body.push_font(UiBits.spaced("ui_b", 1), int(size * 0.7))
+		body.push_color(v.color)
+		body.add_text(read_label + "   ")
+		body.pop()
+		body.pop()
+		body.push_font(Look.font(str(v.font)), int(size * float(v.size)))
+		body.push_color(v.color)
+		body.add_text(Look.voice_text(v, str(c.text)))
+		body.pop()
+		body.pop()
+	else:
+		body.push_font(Look.font("read"), size)
+		body.push_color(Look.INK)
+		body.add_text(str(c.text))
+		body.pop()
+		body.pop()
 	var room = c.get("room")
 	if room != null:
 		body.push_font(UiBits.spaced("ui", 1), int(size * 0.7))

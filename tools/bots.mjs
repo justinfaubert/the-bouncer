@@ -236,6 +236,12 @@ function outcomeOf(v, g) {
     'who got past him, at close': pastAtClose(v, g),
     "the kid's phone": has(v.knows, 'kid_photo') ? 'swiped to the pool table' : (has(v.knows, 'kid_legal') ? 'saw his licence' : 'never looked'),
     'GOOD SHOES known': visits(g, 'door_banned.recognised') ? 'by his licence, in his hand' : (has(v.knows, 'banned_face') ? 'from the binder or the bar' : 'never'),
+    // his hand (content/ink/hand.ink, drawer.ink): what he made of things, and what he did with them
+    'reads kept': String(Object.keys(g.reads || {}).length),
+    'the lager': v.pour_how ? { 1: 'poured one, drank it, rinsed the glass', 2: 'poured one, drank it at the ledge', 3: 'poured one, down the sink', '-1': 'poured one, caught' }[v.pour_how]
+      : (v.watched_bar ? 'watched her bar' : (visits(g, 'at_bar.lager_out') ? 'left her bar' : (visits(g, 'at_keg.change_keg') ? 'changed it himself' : 'never'))),
+    "the last doorman's jacket": v.jacket_done ? ({ 1: 'gave her the float', 2: 'left the float', 3: 'took the money' }[v.float_how] || 'through it') : (has(v.knows, 'lost_jacket') ? 'knew where it was' : 'never'),
+    "the big man's keys": v.took_keys ? ({ 1: 'the drawer', 2: 'his pocket', 3: 'his daughter' }[v.keys_how] || '?') + ({ 1: ', gave them back at two', '-1': ', kept them at two' }[v.keys_back] || '') : 'not taken',
     'ends at': B.util.fmtClock(v.clock | 0),
   };
 }

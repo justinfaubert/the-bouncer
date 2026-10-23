@@ -190,9 +190,11 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	var fam := func(item: String) -> bool: return _has(v, "fam", item)
 	var arr := func(item: String) -> bool: return _has(v, "arrivals", item)
 	var cleared := func(item: String) -> bool: return _has(v, "cleared", item)
-	# 1. the bartender, behind the bar all night; 10. the cook, till he goes home at eleven; Terry on
+	# 1. the bartender, behind the bar all night, but for the two minutes she's down the trapdoor
+	# changing the lager (bar.ink, lager_out); 10. the cook, till he goes home at eleven; Terry on
 	# the front desk through the hotel door, all night
-	out.bartender = ["bar_back_mid", "bartender"]
+	if not bool(BUtil.js_truthy(v.get("lager_down", false))):
+		out.bartender = ["bar_back_mid", "bartender"]
 	out.terry = ["desk_stool", "terry"]
 	if clock < 1380:
 		out.cook = ["kitchen_fryer", "cook"]
@@ -215,6 +217,10 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	# at the end, out in the lot: the big man at his truck, till he's driven off
 	if here == "lot" and fam.call("lot_scene") and not fam.call("dad_drove"):
 		out.bigman = ["work_truck", "bigman"]
+	# at two in the morning, back from the Esso for his keys: outside the front door's glass, under
+	# the light over it (closing.ink, keys_at_two), till he's had his answer
+	if _visits(game, "after_hours.keys_at_two") > 0 and int(BUtil.js_int(v.get("keys_back", 0))) == 0:
+		out.bigman = ["door_step", "bigman"]
 	# 8. the end of the bar, till last call (before the night, at the wharf's rail, looking at the
 	# water); the keg room after two, if he goes down to him
 	if clock < Town.NIGHT:

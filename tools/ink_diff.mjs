@@ -2,6 +2,7 @@
 // Plays the raw Ink with inkjs exactly as godot/tests/ink_run.gd does in Godot (same seeded
 // chooser, same save and load mid-night), then compares the two transcripts line for line.
 //   node tools/ink_diff.mjs --from 1 --to 50 --godot /tmp/ink
+// --start knot.stitch plays each night from there, the same as ink_run.gd's --start.
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -14,6 +15,7 @@ const argv = process.argv.slice(2);
 const opt = (n, d) => { const i = argv.indexOf('--' + n); return i === -1 ? d : argv[i + 1]; };
 const FROM = parseInt(opt('from', 1), 10), TO = parseInt(opt('to', 10), 10);
 const GDIR = opt('godot', '/tmp/ink');
+const START = opt('start', '');
 const storyJson = fs.readFileSync(path.join(ROOT, 'data', 'build', 'story.json'), 'utf8');
 
 const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/\|/g, '\\p');
@@ -25,6 +27,7 @@ function night(seed) {
   const onError = (msg, type) => lines.push(`E|${type}|${esc(msg)}`);
   story.onError = onError;
   story.state.storySeed = seed % 2147483647;
+  if (START) story.ChoosePathString(START);
   let rng = seed, steps = 0, stateJson = null;
   const saveAt = 20 + (seed % 60);
   for (;;) {

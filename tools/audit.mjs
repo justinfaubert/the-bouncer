@@ -142,6 +142,12 @@ function writesOf(t) {
         // stat_up(ref s): a point on one of his stats, in Gary's office (office.ink)
         const v = call[2].trim();
         if (vars.has(v)) out.push(v);
+      } else if (fn === 'stow' || fn === 'unstow' || fn === 'pocket') {
+        // where a thing is (hand.ink): stow(t, ref into), unstow(t), pocket(t). What reads it reads
+        // the thing (on_him(straw), in_drawer ? truck_keys); a thing in a temp is any of them.
+        const [t, into] = call[2].split(',').map((x) => x.trim());
+        if (items.has(t)) out.push(items.get(t) + ':' + t);
+        else out.push(into && vars.has(into) ? into : 'in_inside');
       } else if (EFFECTS[fn]) out.push(...EFFECTS[fn]);
     }
   }
@@ -217,6 +223,7 @@ const isRead = (id) => (reads.get(id) || []).length > 0;
 function live(w) {
   const [v, it] = w.split(':');
   if (v === 'psyche' || v === 'heat()') return true;
+  if (v === 'read') return isRead('kept_read') || isRead('heeded');
   if (it) return isRead(it) || listReadWhole(v);
   return isRead(v);
 }
@@ -295,6 +302,9 @@ for (const ch of choices) {
     if (/#\s*task:|#\s*done:/.test(b.text)) w.push('task');
     if (/^\s*[A-Z][A-Z0-9_]+:/.test(b.text)) said.push(b.text.trim());
   }
+  // a voice's read of what's in his hand (#read:, hand.ink) is kept by the engine: kept_read() and
+  // heeded() read it in the Ink, and the voice speaks more often after (barks.js)
+  if (/#\s*read:/.test(ch.tags)) w.push('read');
   ch.writes = [...new Set(w)];
   ch.live = ch.writes.filter((x) => x === 'task' || live(x));
   ch.dead = ch.writes.filter((x) => x !== 'task' && !live(x));
@@ -317,6 +327,11 @@ function labelsIn(knot) {
 
 const writtenAnywhere = new Set();
 for (const L of lines) for (const x of writesOf(L.text)) writtenAnywhere.add(x.split(':')[0]), x.includes(':') && writtenAnywhere.add(x.split(':')[1]);
+// a VAR's first value puts its items there from the start: what he begins the night carrying (hand.ink)
+for (const L of lines) {
+  const m = L.text.match(/^\s*VAR\s+[A-Za-z_]\w*\s*=\s*\(([^)]*)\)/);
+  if (m) for (const it of m[1].split(',').map((x) => x.trim())) if (items.has(it)) writtenAnywhere.add(it);
+}
 const deadState = [];
 for (const [v, def] of vars) {
   if (def.constant) continue;

@@ -155,3 +155,7 @@ him:
 slippers:
   label: SLIPPERS
   note: A resident from upstairs who comes down in her slippers.
+ballcap:
+  label: BALL CAP
+  look: {age: young, build: slight, hat: cap, hair: short, top: hoodie, mood: flat}
+  note: Never in the bar on Wednesday. His licence is in the last doorman's jacket (drawer.ink), eighteen, nineteen on 2 January; she put him in the binder for three months on 2 October, the Friday the last doorman went (props.yaml, binder, sleeve 8). Draft (PROPOSED), and the name on his licence is a placeholder.

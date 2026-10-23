@@ -11,6 +11,8 @@
 #            through when the story is waiting for one; otherwise the owner's hand holds on to it.
 #   binder   leaf through it (page); stay on a page (page3 is staying on page three); get to the
 #            last sleeve (all)
+#   thing    anything else he holds (his own things, what he picks up or is given): turn it over
+#            (turn), bring it up close (look)
 # A choice in the Ink can wait for one of those (`#toy: hoodie_phone swipe`), and with `#unlisted`
 # handling the thing is the only way to make it. The voices answer in content/rules/barks.yaml
 # (toy:<id>:<what>, or toy:card:<what> for any card).
@@ -153,7 +155,167 @@ binder:
     5:  {photo: photograph, who: {age: old, hat: cap, top: coat, face: [lined], mood: tired}, date: "2025-12-24", length: ONE YEAR}
     6:  {photo: photocopy, who: {hair: messy, top: tshirt, mood: wary}, date: "2026-05-16", length: ONE YEAR}
     7:  {photo: photograph, who: {sex: f, hair: short, top: jacket, mood: hard}, date: "2024-03-09", length: LIFE}
-    8:  {photo: printout, who: {age: young, hat: cap, top: hoodie, mood: smile}, date: "2026-10-02", length: THREE MONTHS}
+    8:  {photo: printout, face: ballcap, date: "2026-10-02", length: THREE MONTHS}    # till his birthday (drawer.ink)
     9:  {photo: photocopy, who: {build: big, hair: bald, top: hivis, face: [stubble], mood: flat}, date: "2025-06-21", length: TWO YEARS}
     10: {photo: printout, who: {hair: thin, top: jacket, face: [glasses], mood: drunk}, date: "2026-02-14", length: ONE YEAR}
     11: {photo: printout, who: {hair: buzz, top: tshirt, face: [necktat], mood: hard}, date: "2023-11-11", length: LIFE}
+
+# ---------------------------------------------------------------- what he carries, and what he picks up
+#
+# His pockets are the inventory (content/ink/hand.ink, bible/11_SKELETON.md: What he carries). Each
+# thing here is one he holds in a scene, and the voices read it; most can go in a pocket, the lost-
+# and-found drawer behind the bar, or room twelve.
+#
+# shape: what it's made as, in his hand in the Godot build (godot/game/props.gd) and on the page in
+#   the browser's (prototype/web/src/ui/props.js): flashlight, key, shirt, bill, straw, keys, glass,
+#   bag, mat, tickets, book, jacket.
+# front, back: what's on each side, a line at a time. A line starting ~ is somebody's hand, in pencil
+#   or marker, not print.
+# The four things about every item, for his notes (the skeleton): whose it is and how he came by it;
+#   heat, the trouble it is if it's found on him; what it does; and what it's worth, and to whom.
+# All of it Claude's drafts (PROPOSED in bible/05_LOG.md).
+
+flashlight:
+  kind: thing
+  shape: flashlight
+  name: His flashlight
+  front: ["Two D cells, steel"]
+  whose: His own. It's been in his right pocket at every door he's worked.
+  heat: None, till he swings it. Then it's a weapon, in law.
+  does: Lights the keg room, and the eyes in it, and the hologram on a licence.
+  worth: Thirty dollars, new.
+
+room_key:
+  kind: thing
+  shape: key
+  name: The key to twelve
+  front: ["12"]
+  whose: The Sov's. Gary took it off the hook behind him and put it on the desk.
+  heat: None.
+  does: Room twelve, at the end of the hall over the deck. Terry has the other one. Terry has every key.
+  worth: Six-fifty a month, with the hydro, off the top of his pay.
+
+gary_shirt:
+  kind: thing
+  shape: shirt
+  name: Gary's shirt
+  front: [""]
+  back: [SECURITY]
+  whose: Gary's, out of the box of forty-eight in the corner of his office.
+  heat: Everybody can see what he is.
+  does: Says SECURITY across his back, a hand high, in white.
+  worth: Eleven dollars to Gary. Twenty-four off Friday's cheque, if he read the form.
+
+fifty:
+  kind: thing
+  shape: bill
+  # the press's inks, not the note's own colour: red is the sign's, and blood's
+  name: A fifty, folded small
+  front: ["50"]
+  back: ["50"]
+  whose: Table 28's. The one in the team jacket put it in his pocket.
+  heat: Whose man he is.
+  does: Buys a night. Buys him, if he keeps it.
+  worth: Fifty dollars.
+
+straw:
+  kind: thing
+  shape: straw
+  name: A straw, cut down to two inches
+  whose: Somebody on staff's. It was on the mirror on the desk in the office downstairs.
+  heat: Possession, and whose it is.
+  does: Nothing, now. It says what somebody did.
+  worth: Nothing. A lot, to whoever it belongs to.
+
+truck_keys:
+  kind: thing
+  shape: keys
+  name: The big man's keys
+  front: ["~ a Ford key, a house key, a rabbit's foot gone grey"]
+  whose: The big man's, from the pool table. He put them in his hand in the lot.
+  heat: Somebody else's keys. He'll come looking for them.
+  does: His work truck, his house.
+  worth: His truck and his work, to him. Maybe his life, tonight.
+
+pint:
+  kind: thing
+  shape: glass
+  name: A pint of the red
+  whose: The Sov's. He pulled it himself, behind her bar.
+  heat: Not rung in.
+  does: A drink, and nobody owes anybody.
+  worth: Seven-fifty.
+
+float_bag:
+  kind: thing
+  shape: bag
+  name: The last doorman's float
+  front: ["$208"]
+  back: ["~ FLOAT    400.00", "~ SEP 18  - 96.00", "~ SEP 25  - 96.00", "~          208.00"]
+  whose: The Sov's door float, out of the right pocket of the last doorman's jacket.
+  heat: Cash that isn't his. The bookkeeper counts.
+  does: Says somebody paid him short, two Fridays running, and he took what he was owed.
+  worth: Two hundred and eight dollars.
+
+beer_mat:
+  kind: thing
+  shape: mat
+  name: The last doorman's beer mat
+  front: [THE SOVEREIGN, HOTEL, BEER PARLOUR]
+  back: ["~ JUL 27   4", "~ AUG 10   9", "~ AUG 24  17", "~ SEP 14  35", "~ (the knot, drawn)", "~ BEHIND 28"]
+  whose: The last doorman's. He counted them on it.
+  heat: None. Nobody would believe it.
+  does: Where they are, drawn, behind table 28. They double.
+  worth: To the old man at the end of the bar, something.
+
+ferry_tickets:
+  kind: thing
+  shape: tickets
+  name: Two ferry tickets
+  front: [FOOT PASSENGER, ADULT  ONE WAY, FRI 02 OCT 2026, "SAILING 23:15"]
+  whose: The last doorman's, and somebody's he never said.
+  heat: None. Only somebody's heart.
+  does: The last boat, the Friday he went. Neither one torn.
+  worth: Nothing now. They were good for the one sailing.
+
+minor_card:
+  kind: card
+  face: ballcap
+  look: {hat: none, hair: short}                         # cap off for the photo, the way they make you
+  surname: MACAULAY
+  given: RYAN THOMAS
+  born: "2008-01-02"                                     # eighteen tonight; nineteen on 2 January
+  issued: "2025-03-14"
+  expires: "2030-01-02"
+  class: 7N
+  sex: M
+  height: 185
+  weight: 72
+  eyes: BLU
+  hair: BRN
+  number: "7718405"
+  name: A boy's licence
+  whose: A boy's, eighteen. The last doorman held it at the door and let him in on it.
+  heat: A minor's licence, on the doorman. The Manual has a word for that.
+  does: Gets the boy in, the day it comes back to him and he's nineteen.
+  worth: Everything, to a boy of eighteen.
+
+aikido_book:
+  kind: thing
+  shape: book
+  name: A paperback on aikido
+  front: [AIKIDO]
+  back: ["COMMUNITY HALL", "AIKIDO  TUESDAYS 7 PM", "$15  BEGINNERS WELCOME"]
+  whose: Nobody's. It's been in the lost-and-found since the summer.
+  heat: None.
+  does: Wrist locks, and the idea that the other man's force is a gift. The class is Tuesdays at the community hall.
+  worth: A dollar at a yard sale. Maybe more, later.
+
+last_jacket:
+  kind: thing
+  shape: jacket
+  name: The last doorman's jacket
+  whose: The last doorman's. Folded at the bottom of the lost-and-found since the Friday he went.
+  heat: None, unless he comes back for it.
+  does: Three pockets, with table 28's four stories in them.
+  worth: Thirty-three days of nobody wanting to know.

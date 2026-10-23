@@ -10,6 +10,12 @@
 #               then R (or a drag across it) swipes to the next photo, and E brings it closer.
 #   the binder  the 86 binder from under the till: Q and R leaf through the sleeves. Staying on a
 #               page is looking at it; getting to the back is having been through them all.
+#   a thing     anything else he's handed or picks up (his flashlight, the straw, the big man's keys,
+#               what's in the last doorman's jacket: game/things.gd). It lies in his open hand, or he
+#               holds it up like a licence, or round, like a pint; a click turns it over in his
+#               fingers and E brings it closer. While it's in his hand the voices each make something
+#               of it (content/ink/hand.ink), and keeping what one of them makes of it keeps it in his
+#               hand for what he does with it next.
 #
 # Every handling goes to the game (main.toy, Game.toy): if a choice on offer is waiting for it,
 # that choice is made; otherwise a voice may say something. A thing stays in his hands while the
@@ -31,14 +37,16 @@ const TILT_SEEN := 40.0
 const SWEET := Vector2(-8.0, -6.0)          # the tip of a card (degrees, as held.tilt) that meets the lamp
 const DWELL := 3.0
 const MONTHS := ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
-# the licence's photo: whose face, as a model
-const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card", "him": "him_card"}
+# the licence's photo: whose face, as a model; <face>_cap is the same face in the binder, the cap on
+const FACES := {"hoodie": "hoodie_door", "driver": "driver", "goodshoes": "goodshoes_card", "him": "him_card", "ballcap": "ballcap_card",
+	"ballcap_cap": "ballcap_cap"}
 
 var main
 var P := {}                      # content.props
 var tex := {}                    # the darkroom's pictures, by name
 var jobs: Array = []
 var developing := false
+var wanted := {}                 # a picture something in his hand needs before it's developed: its materials
 var held = null                  # what's in his hands: a Dictionary, or null
 var _waiting := {}               # held out before it can be in his hand: he's on his way, or they are
 const WAIT_MAX := 12.0           # seconds it waits for whoever's bringing it, if they never come into sight
@@ -53,6 +61,7 @@ var _figs_in := 0.0
 var _holo_face_shader: Shader
 var hint: Label
 var t := 0.0
+var things: Things
 
 
 func setup(m) -> void:
@@ -84,6 +93,8 @@ func setup(m) -> void:
 			_job("card_%s_front" % id, _card_face.bind(pr, true))
 			_job("card_%s_back" % id, _card_face.bind(pr, false))
 			_job("card_%s_holo" % id, _card_holo.bind(pr))
+	things = Things.new(self)
+	things.jobs(P)
 	_job("photo_table", _photo_table)
 	_job("photo_pool", _photo_pool)
 	if P.has("binder"):
@@ -98,6 +109,20 @@ func setup(m) -> void:
 
 func _job(name: String, build: Callable) -> void:
 	jobs.append([name, build])
+
+
+# A picture a thing in his hand needs before the darkroom's got to it (a night picked up at the bar,
+# and straight to the drawer): it goes to the front of the queue, and the material gets it when it's
+# developed.
+func rush(name: String, m: ShaderMaterial) -> void:
+	for i in jobs.size():
+		if str(jobs[i][0]) == name:
+			jobs.push_front(jobs.pop_at(i))
+			break
+	if not wanted.has(name):
+		wanted[name] = []
+	wanted[name].append(m)
+	_develop.call_deferred()
 
 
 func _develop() -> void:
@@ -117,6 +142,10 @@ func _develop() -> void:
 			img.convert(Image.FORMAT_RGBA8)
 			img.generate_mipmaps()
 			tex[job[0]] = ImageTexture.create_from_image(img)
+			for m in wanted.get(job[0], []):
+				(m as ShaderMaterial).set_shader_parameter("albedo_tex", tex[job[0]])
+				(m as ShaderMaterial).set_shader_parameter("emission_tex", tex[job[0]])
+			wanted.erase(job[0])
 		sv.queue_free()
 	developing = false
 
@@ -601,6 +630,11 @@ func _sleeve(k: String, s: Dictionary) -> SubViewport:
 		_rect(c, ph, ground)
 		if s.has("card") and tex.has("face_" + str(P.get(str(s.card), {}).get("face", ""))):
 			_pic(c, "face_" + str(P[str(s.card)].face), ph)
+		elif s.has("face") and tex.has("face_" + str(s.face)):
+			# someone in the story, off the office printer: their face as the door saw it, with the cap
+			# on if they wear one (the licence photo is the only one they take it off for)
+			var f := "face_" + str(s.face)
+			_pic(c, f + "_cap" if tex.has(f + "_cap") else f, ph)
 		else:
 			_silhouette(c, ph, s.get("who", {}), kind, r)
 		if kind == "photocopy":
@@ -753,9 +787,24 @@ func offer(it: Dictionary, live: bool, now := false) -> void:
 			held.body = body3
 			_binder_page()
 			main.audio.sfx("page")
+		"thing":
+			# the thing on its own node, so turning it over turns it and not the hand under it
+			var body4 := Node3D.new()
+			node.add_child(body4)
+			var spin := Node3D.new()
+			body4.add_child(spin)
+			held.body = body4
+			held.spin = spin
+			held.shape = str(pr.get("shape", ""))
+			things.build(id, pr, spin)
+			main.audio.sfx("card", 0.6)
 	var hands: Dictionary = GARY_HAND_FOR if main.game.here() == "office" else HAND_FOR
 	if hands.has(kind) and held.has("body"):
 		_right_hand(held.body, hands[kind][0], hands[kind][1])
+	elif kind == "thing":
+		var hb := Things.held_by(str(held.shape))
+		if not hb.is_empty():
+			_right_hand(held.body, hb[0], hb[1])
 	_pose(held.pose, true)
 	_hint()
 
@@ -848,6 +897,10 @@ func _pose(p: String, instant := false) -> void:
 	var node: Node3D = held.node
 	var pos := Vector3.ZERO
 	var rot := Vector3.ZERO
+	if str(held.kind) == "thing":
+		var ps := Things.pose(str(held.shape), p)
+		pos = ps[0]
+		rot = ps[1]
 	match str(held.kind) + ":" + p:
 		"card:rest":
 			pos = Vector3(0.062, -0.07, -0.25)
@@ -869,8 +922,9 @@ func _pose(p: String, instant := false) -> void:
 			pos = Vector3(0.0, -0.045, -0.33)
 			rot = Vector3(-8, 0, 0)
 		_:
-			pos = Vector3(0.0, -0.4, -0.3)
-			rot = Vector3(-40, 0, 0)
+			if str(held.kind) != "thing":
+				pos = Vector3(0.0, -0.4, -0.3)
+				rot = Vector3(-40, 0, 0)
 	var basis := Basis.from_euler(Vector3(deg_to_rad(rot.x), deg_to_rad(rot.y), deg_to_rad(rot.z)))
 	var tr := Transform3D(basis, pos)
 	if instant:
@@ -992,6 +1046,15 @@ func raise() -> bool:
 	return true
 
 
+# He kept what one of the voices made of the thing in his hand (main.choose): it's still in his hand,
+# for what he does with it next.
+func keep() -> void:
+	if held != null:
+		held.turn = main.game.turn
+	if not _waiting.is_empty():
+		_waiting.turn = main.game.turn
+
+
 func _live() -> bool:
 	if held == null or not main.in_game or main.game.ended:
 		return false
@@ -1031,6 +1094,8 @@ func _hint() -> void:
 			s = "E  take the phone" if held.node == null else "R  or drag across it: the next photo   ·   E  closer   ·   Esc  down"
 		"binder":
 			s = "Q  R  the sleeves   ·   E  closer   ·   Esc  down"
+		"thing":
+			s = "Click  turn it over   ·   E  closer   ·   Esc  down"
 	if held.away and held.node != null:
 		s = "E  pick it up again"
 	hint.text = s
@@ -1064,14 +1129,25 @@ func _verb_look() -> void:
 			_pose("look")
 			main.audio.sfx("card", 0.7)
 			_play("look")
-		"phone", "binder":
+		"phone", "binder", "thing":
 			_pose("rest" if held.pose == "look" else "look")
 			if held.kind == "phone":
 				main.audio.sfx("swipe", 0.6)
 				_play("look")
+			elif held.kind == "thing" and held.pose == "look":
+				_play("look")
 
 
 func _flip(say := true) -> void:
+	if held != null and held.kind == "thing" and held.has("spin"):
+		held.flipped = not held.flipped
+		var spin: Node3D = held.spin
+		var tw0 := spin.create_tween()
+		tw0.tween_property(spin, "rotation:y", PI if held.flipped else 0.0, 0.38).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		main.audio.sfx("card", 0.5)
+		if say:
+			_play("turn")
+		return
 	if held == null or held.kind != "card":
 		return
 	held.flipped = not held.flipped
@@ -1131,7 +1207,7 @@ func _on_sheet_input(e: InputEvent) -> void:
 			_play("tilt")
 	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed:
 		if main.view.was_click() and _near_held(e.position + main.view.sheet.global_position):
-			if held.kind == "card":
+			if held.kind == "card" or held.kind == "thing":
 				_flip()
 			elif held.kind == "phone":
 				_verb_look()
@@ -1170,7 +1246,7 @@ func _near_held(p: Vector2) -> bool:
 	var c := _screen_of_held()
 	if c.x < 0.0:
 		return false
-	var reach := 200.0 if held.kind == "binder" else 130.0
+	var reach := 200.0 if held.kind == "binder" or str(held.get("shape", "")) in ["jacket", "shirt", "bag", "book", "flashlight"] else 130.0
 	return p.distance_to(c) < reach * (1.6 if held.pose == "look" else 1.0)
 
 
@@ -1199,6 +1275,13 @@ func _process(dt: float) -> void:
 			body.rotation.y = lerpf(body.rotation.y, want.y, 1.0 - exp(-dt * 10.0))
 		held.tilt = held.tilt.lerp(Vector2.ZERO, 1.0 - exp(-dt * 0.8))
 		_aim_lamp()
+	# a thing in his hand: the hand breathes, and with drink in him it wanders
+	if held.kind == "thing" and held.has("body"):
+		var hb: Node3D = held.body
+		var calm2 := deg_to_rad(0.45)
+		if bool(main.settings.get("skin", true)):
+			calm2 += deg_to_rad(1.2) * clampf(float(main.view.drinks) / 8.0, 0.0, 1.0)
+		hb.rotation = Vector3(sin(t * 1.3) * calm2, sin(t * 0.9 + 1.7) * calm2, 0.0)
 	# the binder: staying on a page is looking at it; the back of it is having been through them all
 	if held.kind == "binder" and not held.away:
 		held.stay += dt

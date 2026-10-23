@@ -1,10 +1,16 @@
-# His notes (Tab): a page of his notebook held up over the room.
+# His notes (Tab): a page of his notebook held up over the room. Q and E, or the tabs at the head
+# of it, turn to the other page.
 #
-# The room in his head: who has a seat, how they get on (a line between two seats, solid where
-# they get on and broken where they're at odds), and how loud it is in there. His seven stats,
-# once Gary's office has set them, with every old number struck through. What he's been asked
-# to do tonight, ticked off. The night so far, a line for each choice with the time on it. Click a
-# voice for where it comes from and what's for and against its dice tonight.
+# In his head: who has a seat, how they get on (a line between two seats, solid where they get on
+# and broken where they're at odds), and how loud it is in there. His seven stats, once Gary's
+# office has set them, with every old number struck through. What he's been asked to do tonight,
+# ticked off. The night so far, a line for each choice with the time on it. Click a voice for where
+# it comes from and what's for and against its dice tonight.
+#
+# On him: what's in his pockets, pocket by pocket (content/ink/hand.ink), and what he's put down
+# for later, in the lost-and-found drawer and up in twelve; under each thing, what he made of it, if
+# he kept what one of the voices made of it. Click a thing for whose it is, what it costs him to
+# carry, what it does and what it's worth (content/data/props.yaml).
 class_name Notes
 extends Control
 
@@ -17,8 +23,12 @@ const SEAT_ANGLES := [-90.0, -18.0, 54.0, 126.0, 198.0]
 var main
 var page: Control
 var info_voice := ""
+var info_thing := ""
+var page_no := 0          # 0 in his head, 1 on him
 var leaned := {}          # voice -> when it last leaned in (it rings on the page)
 var t := 0.0
+var _hits: Array = []     # [Rect2, what]: the tabs, and on him, the things, as last drawn
+const POCKETS := [["right", "RIGHT POCKET"], ["left", "LEFT POCKET"], ["inside", "INSIDE POCKET"], ["jeans", "JEANS"]]
 
 
 func setup(m) -> void:
@@ -62,6 +72,15 @@ func toggle() -> void:
 func open() -> void:
 	visible = true
 	info_voice = ""
+	info_thing = ""
+	main.audio.sfx("page")
+	refresh()
+
+
+# the other page
+func turn_page() -> void:
+	page_no = 1 - page_no
+	info_thing = ""
 	main.audio.sfx("page")
 	refresh()
 
@@ -100,6 +119,19 @@ func _seat_points() -> Array:
 
 func _on_page_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+		for h in _hits:
+			if (h[0] as Rect2).has_point(e.position):
+				var what := str(h[1])
+				if what.begins_with("tab:"):
+					if int(what.substr(4)) != page_no:
+						turn_page()
+				else:
+					info_thing = "" if info_thing == what else what
+					main.audio.sfx("pen")
+					page.queue_redraw()
+				return
+		if page_no != 0:
+			return
 		var seated: Array = main.game.psyche.seated
 		var pts := _seat_points()
 		for i in mini(5, seated.size()):
@@ -159,6 +191,27 @@ func _draw_page() -> void:
 		head += "   " + str(Look.HURT_WORDS[clampi(int(st.hurt), 0, 3)]).to_lower()
 	_text("hand", 24, head, Vector2(160, 50), INK_2)
 	_text("ui_b", 13, "TAB OR ESC TO PUT IT AWAY", Vector2(sz.x - 40, 48), PENCIL, HORIZONTAL_ALIGNMENT_RIGHT, -1)
+	# the two pages, as tabs under the head on the right, clear of however long the head runs: the
+	# one he's on in red
+	_hits.clear()
+	var fu := Look.font("ui_b")
+	var names := ["IN HIS HEAD", "ON HIM"]
+	var tabs_w := fu.get_string_size("Q  E", HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	for nm in names:
+		tabs_w += fu.get_string_size(str(nm), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 26.0
+	var tx := sz.x - 40.0 - tabs_w
+	for k in 2:
+		var name: String = names[k]
+		var w := fu.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		_text("ui_b", 15, name, Vector2(tx, 80), RED if k == page_no else PENCIL)
+		if k == page_no:
+			page.draw_line(Vector2(tx, 86), Vector2(tx + w, 86), RED, 2.0)
+		_hits.append([Rect2(tx - 6, 62, w + 12, 32), "tab:%d" % k])
+		tx += w + 26.0
+	_text("ui_b", 11, "Q  E", Vector2(tx, 79), PENCIL)
+	if page_no == 1:
+		_draw_on_him(st, sz)
+		return
 
 	# the room in his head
 	_text("ui_b", 16, "IN HIS HEAD", Vector2(40, 110), RED)
@@ -284,6 +337,116 @@ func _draw_page() -> void:
 		y2 += 30
 	if path.is_empty():
 		_text("hand", 22, "The shift's just started.", Vector2(x2, y2), PENCIL)
+
+
+# The second page: what he has on him, and where he's left what he's put down.
+func _draw_on_him(st: Dictionary, sz: Vector2) -> void:
+	var g: Game = main.game
+	var P: Dictionary = main.content.get("props", {})
+	var pk: Dictionary = st.get("pockets", {})
+	var x := 40.0
+	var w := sz.x * 0.42
+	_text("ui_b", 16, "ON HIM", Vector2(x, 110), RED)
+	var y := 150.0
+	var any := false
+	for pair in POCKETS:
+		var items: Array = pk.get(pair[0], [])
+		if items.is_empty():
+			continue
+		any = true
+		_text("ui_b", 13, str(pair[1]), Vector2(x, y), PENCIL)
+		y += 30.0
+		for it in items:
+			y = _thing_row(str(it), P, Vector2(x + 14, y), w - 14)
+		y += 8.0
+	if not any:
+		_text("hand", 24, "Nothing but his wallet.", Vector2(x, y), PENCIL)
+		y += 40.0
+	# where he's left things, for later
+	var later: Array = []
+	if bool(pk.get("drawerSeen", false)):
+		var dr: Array = (pk.get("drawer", []) as Array).duplicate()
+		if not BUtil.js_truthy(g.get_var("book_seen")):
+			dr.erase("aikido_book")
+		if not dr.is_empty():
+			later.append(["IN THE LOST-AND-FOUND DRAWER", dr])
+	if not (pk.get("twelve", []) as Array).is_empty():
+		later.append(["UP IN TWELVE", pk.twelve])
+	if BUtil.js_truthy(g.get_var("jacket_done")) and not (pk.get("jacket", []) as Array).is_empty():
+		later.append(["STILL IN THE LAST DOORMAN'S JACKET", pk.jacket])
+	if not later.is_empty():
+		y += 14.0
+		_text("ui_b", 16, "LEFT FOR LATER", Vector2(x, y), RED)
+		y += 40.0
+		for l in later:
+			_text("ui_b", 13, str(l[0]), Vector2(x, y), PENCIL)
+			y += 30.0
+			for it in l[1]:
+				y = _thing_row(str(it), P, Vector2(x + 14, y), w - 14)
+			y += 8.0
+	# the other half: the thing he's clicked, or what he's made of things tonight
+	var x2 := sz.x * 0.5 + 40.0
+	var w2 := sz.x * 0.42
+	if info_thing != "" and P.has(info_thing):
+		var pr: Dictionary = P[info_thing]
+		_text("hand", 32, str(pr.get("name", info_thing)), Vector2(x2, 116), INK)
+		var y2 := 160.0
+		for f in [["whose", "WHOSE"], ["heat", "HEAT"], ["does", "DOES"], ["worth", "WORTH"]]:
+			if str(pr.get(f[0], "")) == "":
+				continue
+			_text("ui_b", 13, str(f[1]), Vector2(x2, y2), RED)
+			y2 = _para("read", 19, str(pr.get(f[0])), Vector2(x2 + 80, y2), w2 - 80, INK_2) + 10.0
+		var rd = g.reads.get(info_thing)
+		if rd is Dictionary:
+			y2 += 10.0
+			_text("ui_b", 13, "WHAT HE MADE OF IT", Vector2(x2, y2), RED)
+			y2 = _read_line(rd, Vector2(x2, y2 + 30), w2)
+		return
+	_text("ui_b", 16, "WHAT HE MADE OF THINGS", Vector2(x2, 110), RED)
+	var y3 := 150.0
+	var kept: Array = []
+	for th in g.reads:
+		var r2: Dictionary = g.reads[th].duplicate()
+		r2["thing"] = th
+		kept.append(r2)
+	kept.sort_custom(func(a, b): return int(a.get("clock", 0)) < int(b.get("clock", 0)))
+	if kept.is_empty():
+		y3 = _para("read_i", 18, "Nothing yet. When a thing's in his hand, each voice makes something of it, and he can keep what one of them makes of it, or none.", Vector2(x2, y3), w2, PENCIL)
+	for r3 in kept:
+		_text("hand_l", 17, BUtil.fmt_clock(int(r3.get("clock", 0))).replace(" pm", "").replace(" am", ""), Vector2(x2, y3), PENCIL)
+		_text("hand", 22, str(P.get(str(r3.thing), {}).get("name", r3.thing)), Vector2(x2 + 64, y3), INK)
+		y3 = _read_line(r3, Vector2(x2 + 64, y3 + 28), w2 - 64) + 6.0
+		if y3 > sz.y - 60.0:
+			break
+	_para("read_i", 17, "Click a thing for whose it is, what it costs him to carry, what it does and what it's worth.", Vector2(x2, maxf(y3 + 10.0, sz.y - 70.0)), w2, PENCIL)
+
+
+# a thing on the page, clickable, and under it what he made of it
+func _thing_row(id: String, P: Dictionary, at: Vector2, width: float) -> float:
+	var pr: Dictionary = P.get(id, {})
+	var name := str(pr.get("name", id))
+	var f := Look.font("hand")
+	var w := f.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x
+	var on := info_thing == id
+	_text("hand", 24, name, at, INK if not on else RED)
+	if on:
+		page.draw_line(at + Vector2(0, 6), at + Vector2(w, 6), RED, 1.5)
+	_hits.append([Rect2(at + Vector2(-6, -24), Vector2(w + 12, 32)), id])
+	var y := at.y + 30.0
+	var rd = main.game.reads.get(id)
+	if rd is Dictionary:
+		y = _read_line(rd, Vector2(at.x + 10, y), width - 10) + 4.0
+	return y
+
+
+# what a voice made of a thing, in its colour, its name first
+func _read_line(rd: Dictionary, at: Vector2, width: float) -> float:
+	var id := str(rd.get("voice", ""))
+	var def: Dictionary = main.content.voices.get(id, {})
+	var style := str(def.get("style", id))
+	var vc := Look.voice_color(style).darkened(0.45)
+	var lab := str(def.get("label", id.to_upper()))
+	return _para("read_i", 17, lab + ": " + Look.voice_text(Look.voice(style), str(rd.get("text", ""))), at, width, vc, 1.25)
 
 
 func _voice_info(id: String, at: Vector2, width: float) -> float:

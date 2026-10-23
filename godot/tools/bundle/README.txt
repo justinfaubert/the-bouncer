@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The Godot build of 23 October 2026, the second that day.
+Wednesday, from the interview to close. The Godot build of 23 October 2026, the third that day.
 
 
 PLAY IT
@@ -48,9 +48,10 @@ HANDS ON
                       E or a click makes it. Rest it on anything else whose name comes up,
                       fainter, and E or a click looks at it
     Throw the dice    hold Space or the mouse button to shake, let go to throw
-    In his hands      drag to turn it, E to look closer, Q and R to go through it,
-                      Esc to put it down
-    Notes, sketch     Tab, M
+    In his hands      click it to turn it over (drag a licence to tip it to the light), E to look
+                      closer, Q and R to go through it, Esc to put it down. What the voices make
+                      of it is above what he does with it: keep one, or none
+    Notes, sketch     Tab (Q or E turns to the page of what's on him), M
     Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
     On a pad          either stick looks round; the d-pad goes through the choices and A makes one;
                       Y walks him to the floor he's looking at
@@ -59,6 +60,58 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE SECOND BUILD OF 23 OCTOBER
+
+The skeleton's third milestone: his hand.
+
+- Handling's two choices, as you decided: whenever he's holding something, what to do with it and
+  what to think about it. What the voices make of it is above what he does with it, under WHAT HE
+  MAKES OF IT, each in its own hand: his father, the manual, the fighter, the wrong man, and table
+  28 and the kid if he's let them into his head. Keep one, or none. A read he keeps takes no time,
+  goes in the column and on his notes beside the thing, and that voice speaks up more for the rest
+  of the night. There are reads for Gary's shirt, his flashlight in the keg room, table 28's folded
+  fifty, the straw off the office mirror, the big man's keys, the pint he pours himself, and each
+  thing in the last doorman's jacket.
+- His pockets. His notes have a second page, ON HIM (Q or E turns to it): his jacket's right pocket
+  (the flashlight from his last door), its left and inside pockets, his jeans (his wallet and the
+  key to twelve), what he's left in the lost-and-found drawer, and what's up in room twelve. Click
+  a thing there for whose it is, the trouble he's in if he's found with it, what it's good for,
+  what it's worth, and the read he kept. The summary at the end of the night says what was on him.
+- The lost-and-found drawer under the till. Once Gary or the bartender has told him the last one
+  left his jacket, ask her where it is and she pulls the drawer out for him: three winters of
+  toques and phone chargers, and at the bottom, folded, the last doorman's jacket. After that it's
+  his to open whenever he's at the bar, to put things in or take them out; or after hours, when
+  she tells him where the jacket is.
+- The jacket has a thing in it for each of table 28's four stories about him, and every one of
+  them is true. The door float, with his sum on the back of the till tape: two Fridays in September
+  paid short, two hundred and eight left (give it to her, put it back, or take it). A beer mat with
+  his count of the rats, doubling, and the knot drawn, BEHIND 28 (it shows the way in the
+  crawlspace). Two ferry tickets, foot passengers, the last boat on the Friday he went, neither one
+  torn. And the licence of the boy he let in, who's on page eight of her binder. Who the woman was,
+  the jacket doesn't say; she's yours, if you want her. Under the glove there's a paperback on
+  aikido, with a flyer from the community hall in it for a bookmark.
+- The first temptations. From ten the lager spits foam, and if he hasn't changed the keg himself
+  she goes down the trapdoor to do it and leaves him her bar for two minutes. Watch it, go back to
+  his door (and table 28 helps itself), or pour himself a pint: drink it down before she's up (his
+  Dexterity against the clock), take it to the ledge as if she'd poured it, or tip it down the
+  sink. She counts when she comes up. And every drink he asks her for, she's in it with him: write
+  his drinking in the log the way it happened and it says how many she poured, and she has
+  something to say about that.
+- The big man's keys, taken off him at close, are in his hand to decide: his daughter, while she's
+  in the lot; the drawer; or his own pocket. If the big man walked, he's back at two in the
+  morning, soaked, knocking on the glass of the front door under the light. Give them back, or
+  tell him noon through the glass.
+- The things are drawn, and in his hand: in his open hand, palm up (the flashlight, the key to
+  twelve, the big man's keys, the straw, Gary's shirt, the float bag, the paperback), held up the
+  way he holds a licence (the beer mat, the ferry tickets, the fifty), or round a pint. Click one
+  to turn it over in his fingers, E to bring it closer. The jacket lies folded on the bar.
+- The boy on page eight of the binder has his cap on now, the way she'd have taken his picture at
+  the door; on his licence it's off, the way they make you for the photo.
+- The old man at the end of the bar notices what was in his hands, and what he did behind her bar.
+- The story has changed (the jacket, the drawer, the pour, the keys), so a night you're partway
+  through goes on from the floor.
 
 
 WHAT'S NEW SINCE THE FIRST BUILD OF 23 OCTOBER

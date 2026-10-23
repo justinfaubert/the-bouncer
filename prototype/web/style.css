@@ -259,6 +259,21 @@ button { font: inherit; color: inherit; }
 .him-notes { display: grid; grid-template-columns: auto 1fr; gap: 1px 14px; margin: 0 0 12px; padding: 0 0 10px; border-bottom: 1px solid var(--rule); font-family: var(--f-hand); font-size: 1.02rem; line-height: 1.3; color: var(--ink-2); }
 .him-notes[hidden] { display: none; }
 .him-notes .hn-v s { margin-right: .1em; color: var(--muted); text-decoration-color: var(--ink-2); }
+/* on him: his pockets, and where he's left things for later; a thing tapped says what it is, and
+   under each thing, what he made of it */
+.pockets { font-size: .95rem; line-height: 1.35; }
+.pk-h { margin: 14px 0 4px; font-family: var(--f-ui); font-size: .74rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.pk-k { margin: 8px 0 2px; font-family: var(--f-ui); font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pk-list { list-style: none; margin: 0; padding: 0 0 0 10px; display: grid; gap: 4px; }
+.pk-thing { padding: 0; border: 0; background: none; cursor: pointer; text-align: left; font-family: var(--f-hand); font-size: 1.08rem; color: var(--ink); }
+.pk-thing.on { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@media (hover: hover) { .pk-thing:hover { color: var(--accent); } }
+.pk-read { margin: 0 0 4px 8px; font-size: .88rem; line-height: 1.35; }
+.pk-read .who { font-size: .66rem; }
+.pk-info { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 4px 0 8px 8px; padding: 8px 10px; background: var(--paper-3); font-size: .88rem; }
+.pk-info dt { font-family: var(--f-ui); font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); padding-top: .2em; }
+.pk-info dd { margin: 0; color: var(--ink-2); }
+.pk-none { margin: 0; font-family: var(--f-hand); color: var(--muted); }
 .notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: .95rem; line-height: 1.35; }
 .notes li { display: grid; grid-template-columns: 14px 1fr; gap: 8px; }
 .notes li::before { content: ""; width: 10px; height: 10px; margin-top: .3em; border: 1.5px solid var(--ink-2); border-radius: 1px; }
@@ -266,6 +281,7 @@ button { font: inherit; color: inherit; }
 .notes li.done::before { background: var(--ink-2); box-shadow: inset 0 0 0 2px var(--paper-2); }
 .notes .none { color: var(--muted); font-style: italic; }
 .notes li.none::before { display: none; }
+.notes li.none { display: block; }
 
 .rail-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 8px; border-top: 1px solid var(--rule); }
 .build { font-family: var(--f-ui); font-size: .72rem; letter-spacing: .06em; color: var(--muted); }
@@ -324,13 +340,13 @@ button { font: inherit; color: inherit; }
 .v-kid { --vc: var(--v-kid); --vf: "Work Sans", system-ui, sans-serif; }
 .v-till { --vc: var(--v-till); --vf: "Courier Prime", "Courier New", Courier, monospace; }
 .v-senior { --vc: var(--v-senior); --vf: "Big Shoulders Display", "Barlow Condensed", "Arial Narrow", sans-serif; }
-.ln.voice.v-fighter .said { letter-spacing: .01em; font-size: .96em; }
-.ln.voice.v-manual .said { font-size: .88em; }
-.ln.voice.v-wrongman .said { font-style: italic; font-size: 1.12em; }
-.ln.voice.v-table .said { font-size: .9em; }
-.ln.voice.v-kid .said { font-weight: 300; text-transform: lowercase; }
-.ln.voice.v-till .said { font-size: .92em; }
-.ln.voice.v-senior .said { font-weight: 400; text-transform: uppercase; letter-spacing: .05em; font-size: 1.08em; }
+.ln.voice.v-fighter .said, .read.v-fighter .said { letter-spacing: .01em; font-size: .96em; }
+.ln.voice.v-manual .said, .read.v-manual .said { font-size: .88em; }
+.ln.voice.v-wrongman .said, .read.v-wrongman .said { font-style: italic; font-size: 1.12em; }
+.ln.voice.v-table .said, .read.v-table .said { font-size: .9em; }
+.ln.voice.v-kid .said, .read.v-kid .said { font-weight: 300; text-transform: lowercase; }
+.ln.voice.v-till .said, .read.v-till .said { font-size: .92em; }
+.ln.voice.v-senior .said, .read.v-senior .said { font-weight: 400; text-transform: uppercase; letter-spacing: .05em; font-size: 1.08em; }
 
 .ln.chosen {
   display: flex;
@@ -341,6 +357,10 @@ button { font: inherit; color: inherit; }
   line-height: 1.35;
   color: var(--muted);
 }
+/* a read of the thing in his hand, kept: the voice's words, in its own hand (content/ink/hand.ink) */
+.ln.chosen.read { display: block; }
+.read .who { font-family: var(--f-ui); font-weight: 600; font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; color: var(--vc); margin-right: .55em; white-space: nowrap; }
+.read .said { color: var(--vc); font-family: var(--vf); }
 .room-pv { display: block; margin-top: .2em; font-family: var(--f-ui); font-size: .82rem; letter-spacing: .05em; color: var(--muted); }
 .room-pv.up { color: var(--bad); }
 .room-pv.down { color: var(--good); }
@@ -759,6 +779,10 @@ button { font: inherit; color: inherit; }
 /* the ways out of a place: a row of places under what there is to do */
 .ways { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 1.1em 0 0; padding: .9em 0 0 .4em; border-top: 1px solid var(--rule); }
 .choices:not(.ways) + .ways { margin-top: .9em; }
+/* what the voices make of the thing in his hand, over what he does with it */
+.reads-k { margin: 1.6em 0 0; font-family: var(--f-ui); font-size: .76rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.choices.reads { margin-top: .35em; }
+.choices.reads + .choices { margin-top: .9em; }
 .ways-k { margin-right: .4em; font-family: var(--f-ui); font-size: .76rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .choice.way {
   display: inline-flex; align-items: baseline; gap: .45em; width: auto;
@@ -1167,7 +1191,7 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
   .tabbar {
     display: grid;
     grid-area: tabs;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     background: var(--paper-2);
     border-top: 1px solid var(--rule);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -1248,6 +1272,30 @@ textarea.io { width: 100%; min-height: 9rem; box-sizing: border-box; padding: .6
 .prop-act:hover:not(:disabled), .prop-act:focus-visible { border-color: var(--ink); color: var(--ink); }
 .prop-act:disabled { opacity: .5; cursor: default; }
 .pr-noface { display: grid; place-items: center; width: 100%; height: 100%; aspect-ratio: 4 / 5; background: #CFC9BA; color: #56524A; font: 600 1.4em/1 "Barlow Condensed", sans-serif; }
+
+/* a thing in his hand (src/ui/props.js, buildThing): drawn both sides; tap it to turn it over, and
+   "Look closer" brings it up */
+.thing { --tw: 300px; position: relative; width: min(var(--tw), 84vw); perspective: 1000px; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; transition: width .38s cubic-bezier(.2, .8, .2, 1); }
+.thing.closer { width: min(calc(var(--tw) * 1.5), 92vw); }
+.th-in { position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.3, .7, .15, 1); }
+.thing.flipped .th-in { transform: rotateY(180deg); }
+.th-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.th-face svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 .45em .8em rgba(20, 18, 14, .32)); }
+.th-back { position: absolute; inset: 0; transform: rotateY(180deg); }
+.thing:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+.prop.spent .thing { cursor: default; }
+.thing-flashlight { --tw: 300px; }
+.thing-key { --tw: 280px; }
+.thing-keys { --tw: 210px; }
+.thing-straw { --tw: 170px; }
+.thing-glass { --tw: 140px; }
+.thing-shirt { --tw: 250px; }
+.thing-bill { --tw: 260px; }
+.thing-mat { --tw: 230px; }
+.thing-tickets { --tw: 300px; }
+.thing-bag { --tw: 330px; }
+.thing-book { --tw: 190px; }
+.thing-jacket { --tw: 320px; }
 
 /* a licence, the size of every card in every wallet: 85.6 by 54 */
 .lic { --cw: min(320px, 84vw); --rx: 0deg; --ry: 0deg; --flip: 0deg; position: relative; width: var(--cw); aspect-ratio: 85.6 / 54; font-size: calc(var(--cw) / 30); perspective: 900px; -webkit-tap-highlight-color: transparent; }

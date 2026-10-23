@@ -293,12 +293,16 @@ WRONGMAN: In the story, the doorman heard them talking about him the first night
 
 // Gary's shirt, folded in four inside his jacket since the office (office.ink, the_shirt).
 = shirt_room
-Gary's shirt was still folded in four inside his jacket. He took it out and held it up. SECURITY, a hand high, in white.
+Gary's shirt was still folded in four inside his jacket. He took it out and held it up. SECURITY, a hand high, in white. #prop: gary_shirt
+- (shirt_opts)
+<- reads_shirt(-> shirt_opts)
 * [Put it on, over the black one.]
     ~ shirt_on = true
+    ~ unstow(gary_shirt)
     He put it on. It was a size too small across the shoulders, the way they always are.
 * [Leave it on the chair.]
     ~ shirt_on = false
+    ~ stow(gary_shirt, in_twelve)
     He left it on the chair, folded, the word inside.
 - -> lie_down
 

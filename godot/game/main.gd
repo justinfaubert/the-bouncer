@@ -105,6 +105,7 @@ func _ready() -> void:
 	column.setup(settings)
 	for id in content.voices:
 		column.voice_labels[id] = str(content.voices[id].get("label", id.to_upper()))
+		column.voice_styles[id] = str(content.voices[id].get("style", id))
 	column.chose.connect(choose)
 	column.hand_on.connect(func(i, on): hand.on_row(i, on))
 	column.end_action.connect(_end_action)
@@ -371,9 +372,13 @@ func choose(i: int) -> void:
 	if i < 0 or i >= list.size():
 		return
 	var considered := hand.leave(i)
+	var was_read: bool = list[i].get("read") != null
 	var res := game.choose(i, {"considered": considered})
 	if res.is_empty():
 		return
+	# what he made of the thing in his hand: it's still in his hand, to do something with
+	if was_read:
+		props.keep()
 	persist()
 	audio.sfx("choose")
 	marks.fade_all()
@@ -774,7 +779,10 @@ func _transcript() -> String:
 				out.append((lab + ": " if lab != "" and it.get("role") != "narration" else "") + str(it.get("text", "")))
 			"chosen":
 				# his legs, a walk across the room, aren't a choice anyone reads (render_items)
-				if str(it.get("toy", "")) != "legs":
+				if it.get("read") != null:
+					out.append("")
+					out.append("> " + str(column.voice_labels.get(str(it.read), str(it.read).to_upper())) + ": " + str(it.get("text", "")))
+				elif str(it.get("toy", "")) != "legs":
 					out.append("")
 					out.append("> " + str(it.get("text", "")))
 			"check":
@@ -867,6 +875,10 @@ func _key(e: InputEventKey) -> void:
 		get_viewport().set_input_as_handled()
 		notes.close()
 		sketch.toggle()
+		return
+	if notes.visible and (k == KEY_Q or k == KEY_E):
+		get_viewport().set_input_as_handled()
+		notes.turn_page()
 		return
 	if k == KEY_E or k == KEY_F:
 		get_viewport().set_input_as_handled()

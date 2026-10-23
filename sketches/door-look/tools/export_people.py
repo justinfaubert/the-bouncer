@@ -146,6 +146,12 @@ PEOPLE = {
     'him_desk': (HIM, 'armchair', dict(lean=0.18, head_tilt=0.1), 0.008),
     'him_stand': (HIM, 'stand', dict(head_tilt=0.06), 0.008),
     'him_card': (dict(HIM, hair='cropped', over=None, extra=[], head_drop=0.3), 'stand', dict(), 0.008),
+    # the boy in the ball cap the last doorman let in (content/data/props.yaml, minor_card): his
+    # licence photo, the cap off for it the way they make you, eighteen and slight
+    'ballcap_card': (dict(age='young', build='slight', hair='short', top='hoodie', shoulders=0.88, chest=0.86), 'stand', dict(), 0.008),
+    # and as the door saw him, off the office printer for the binder (props.yaml, binder, sleeve 8):
+    # the cap on
+    'ballcap_cap': (dict(age='young', build='slight', hair='short', hat='cap', top='hoodie', shoulders=0.88, chest=0.86), 'stand', dict(), 0.008),
     # the bookkeeper, late sixties, a retired bank teller: at her desk in the office writing in the
     # ledger, her chair turned out a little toward the room; reading glasses down her nose on a
     # chain, short grey hair set, a blue-grey cardigan over a blouse, slacks, sensible shoes
@@ -164,7 +170,8 @@ PEOPLE = {
 }
 # figures seen close (at the stool): finer meshes and more faces
 NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
-        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer', 'endbar_wharf'}
+        'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer', 'endbar_wharf', 'ballcap_card',
+        'ballcap_cap'}
 
 
 def make(name, look, pose, kw, step, near):
@@ -580,7 +587,7 @@ def chain(pr):
 
 
 PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'lanyard': lanyard, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
-         'case': case, 'mala': mala, 'ledger': ledger, 'pen': pen, 'chain': chain}
+         'case': case, 'mala': mala, 'ledger': ledger, 'pen': pen, 'chain': chain, 'palm': lambda pr: []}
 
 
 def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), focus=None):
@@ -637,7 +644,7 @@ def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), fo
 
 # the doorman's own hands, for the first-person view
 FP = {'his_left_clicker': 'left_clicker', 'his_right_card': 'right_card', 'his_right_phone': 'right_phone',
-      'his_right_open': 'right_open'}
+      'his_right_open': 'right_open', 'his_right_pint': 'right_pint', 'his_right_palm': 'right_palm'}
 # and Gary's, in the same way, for his view across the desk
 GARY_FP = {'gary_right_card': 'right_card', 'gary_right_phone': 'right_phone'}
 # what's too small for a hand's grain (a hair, an age spot, a ring), meshed finer as a mesh of its own
@@ -714,6 +721,12 @@ def build_fp(name, preview=False):
             a[pr['kind']] = g(pr['at'])
             a[pr['kind'] + '_facing'] = g(pr['R'][:, 2])
             a[pr['kind'] + '_up'] = g(pr['R'][:, 1])
+        if pr['kind'] in ('pint', 'palm'):
+            # the glass's foot, facing him, its axis up; or where a thing lies in his palm, facing out of
+            # it, up the fingers
+            a[pr['kind']] = g(pr['at'])
+            a[pr['kind'] + '_facing'] = g(-pr['R'][:, 1] if pr['kind'] == 'pint' else pr['R'][:, 2])
+            a[pr['kind'] + '_up'] = g(pr['R'][:, 2] if pr['kind'] == 'pint' else pr['R'][:, 1])
         if pr['kind'] == 'clicker':
             a['button'] = g(pr['at'] + pr['R'][:, 1] * (PP.CLICKER['r'] + 0.01))
             a['clicker_window'] = g(pr['at'] + pr['R'][:, 2] * (PP.CLICKER['t'] / 2) + pr['R'][:, 1] * 0.006)

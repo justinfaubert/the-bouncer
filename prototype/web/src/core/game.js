@@ -17,6 +17,8 @@
 //   #prop: sister_card      on a line: a thing he's handed or picks up, drawn under it (props.yaml)
 //   #toy: sister_card look  on a choice: handling that thing that way makes this choice (see toy)
 //   #unlisted               on a choice: not in the list; only handling a thing makes it
+//   #read: father truck_keys  on a choice: that voice's read of the thing in his hand; keeping it
+//                         puts it in his notes beside the thing, and the voice speaks more often (see reads)
 //
 // Every line item carries `raw` (the line exactly as the Ink printed it, speaker label and all)
 // and `knot` (the part of the Ink it came from), so the director's edits (src/core/director.js)
@@ -36,6 +38,11 @@
 //
 // Toys: things the player can play with between choices, a card at the door, the kid's phone, the
 // binder under the till (toy, and content/ink/toys.ink).
+//
+// Reads: what he makes of a thing in his hand (content/ink/hand.ink). Each seated voice reads it, as
+// a choice tagged #read: <voice> <thing>, and he keeps one, or none. The kept read is his notes'
+// (reads, by thing), the voice is heeded from then on (Psyche.heed: it speaks more often), and the
+// Ink can ask kept_read(thing) and heeded(voice). What he carries is the Ink's (his pockets, status).
 (function (B) {
   'use strict';
 
@@ -152,6 +159,7 @@
       this.taught = [];       // what THE MANUAL has explained (teach:<what> in barks.yaml)
       this.handUsed = [];     // hand: lines the voices have said to the player (whisper, murmur)
       this._hand = {};        // what each choice on offer whispers, worked out once per set of choices
+      this.reads = {};        // thing -> the read of it he kept: {voice, text, clock}
       this.turn = 0;
       this.screen = null;
       this.ended = false;
@@ -187,6 +195,9 @@
         return ok;
       });
       bind('learn', function (v) { return P.learn(String(v)); });
+      // what he made of a thing he's held: the voice whose read he kept ("" if he kept none)
+      bind('kept_read', function (t) { const r = self.reads[String(t)]; return r ? r.voice : ''; }, true);
+      bind('heeded', function (v) { return P.heeded(String(v)); }, true);
       bind('last_word', function (g) { return self._lastWord(String(g)); }, true);
       // nothing, but not safe to look ahead past: the Ink's move after a scene's last line waits for it
       bind('beat', function () { return true; });
@@ -230,6 +241,7 @@
         said: B.util.deepClone(this.said),
         taught: this.taught.slice(),
         handUsed: this.handUsed.slice(),
+        reads: B.util.deepClone(this.reads),
         tasks: B.util.deepClone(this.tasks),
         checks: this.checkHistory.slice(-40),
         statLog: this.statLog.slice(),
@@ -255,6 +267,7 @@
       this.wordUsed = (save.wordUsed || []).slice();
       this.taught = (save.taught || ['check', 'tension', 'word', 'room']).slice();
       this.handUsed = (save.handUsed || []).slice();
+      this.reads = save.reads || {};
       this.tasks = save.tasks || {};
       this.checkHistory = (save.checks || []).slice();
       this.statLog = (save.statLog || []).slice();
@@ -312,8 +325,19 @@
         stats: B.Checks.readStats(g),
         statsSet: !!g('stats_set'),
         // the drinks that show (Checks.felt): what the print goes by
-        felt: B.Checks.felt(g('drinks'), B.Checks.readStats(g), g('ate'))
+        felt: B.Checks.felt(g('drinks'), B.Checks.readStats(g), g('ate')),
+        // what's on him, pocket by pocket, and what he's left where (content/ink/hand.ink)
+        pockets: this.pockets()
       };
+    }
+
+    // His pockets (content/ink/hand.ink): right and left outside, inside, his jeans; what he's put
+    // down for later, in the lost-and-found drawer behind the bar (once he's had it open) and in room
+    // twelve; and what's still in the last doorman's jacket (content/ink/drawer.ink).
+    pockets() {
+      const list = (name) => { const v = inkValue(this.getVar(name)); return Array.isArray(v) ? v : []; };
+      return { right: list('in_right'), left: list('in_left'), inside: list('in_inside'), jeans: list('in_jeans'),
+        drawer: list('in_drawer'), twelve: list('in_twelve'), jacket: list('in_jacket'), drawerSeen: !!this.getVar('drawer_seen') };
     }
 
     // what goes into a check besides the dice and the voice: drink, hurt, his stats, whether he ate
@@ -359,9 +383,15 @@
       const varsBefore = this.vars();
       const passed = this._resisted(choice, looked || []);
       this.turn++;
-      items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null, toy: choice.toy ? choice.toy.id : undefined });
+      // a read he keeps is his before the story goes on, so the Ink sees it (kept_read)
+      if (choice.read) {
+        this.reads[choice.read.thing] = { voice: choice.read.voice, text: choice.text, clock: before.clock };
+        this.psyche.heed(choice.read.voice);
+      }
+      items.push({ kind: 'chosen', text: choice.text, knot: choice.knot || '', check: choice.check ? { voice: choice.check.voice } : null, toy: choice.toy ? choice.toy.id : undefined, read: choice.read ? choice.read.voice : undefined });
       if (passed) items.push(passed);
       const step = { t: this.turn, c: before.clock, x: choice.text };
+      if (choice.read) step.r = choice.read.voice;
       this.path.push(step);
       if (choice.check) {
         const c = choice.check;
@@ -857,6 +887,12 @@
             if (!this.psyche.isSeated(spec.voice)) ch.hidden = true;
           }
         }
+        // "#read: father truck_keys": a voice's read of the thing in his hand. Only the seated speak.
+        if (tv.read && tv.read !== true) {
+          const rw = String(tv.read).trim().split(/\s+/);
+          ch.read = { voice: rw[0].toLowerCase(), thing: rw[1] || '' };
+          if (!this.psyche.isSeated(ch.read.voice)) ch.hidden = true;
+        }
         // "#room: -fighter +table": who this choice lets in or puts out of his head, so the page
         // can show what the room would sound like after
         if (tv.room) {
@@ -876,7 +912,8 @@
         if (tv.room) for (const op of String(tv.room).split(/\s+/)) if (op.length > 1 && (op[0] === '+' || op[0] === '-')) hand.push((op[0] === '+' ? 'room_in:' : 'room_out:') + op.slice(1).toLowerCase());
         if (ch.loc && here === 'door' && ch.loc !== 'door') hand.push('leave_door');
         if (ch.loc && ch.loc !== here) hand.push('loc:' + ch.loc);
-        ch.hand = hand;
+        // a read is a voice already: nobody leans in on it
+        ch.hand = ch.read ? [] : hand;
         out.push(ch);
       }
       return out;

@@ -171,7 +171,7 @@
         At close: the man from the pool table, drunk, in the lot. He left with his family, in their truck.
     }
 - x == inc_drinking:
-    Staff drinking on shift. {Num(drinks - drinks_before)} drinks. Him.
+    Staff drinking on shift. {Num(drinks - drinks_before)} drinks. Him. {she_poured > 0:{Num(she_poured)} poured by the bartender.} {poured_self > 0 && pour_how != 3:One poured by himself, behind the bar.}
 - x == inc_poison:
     Rat poison put down {poison_at ? t28:in the hole in the baseboard behind table 28|{poison_at ? kitchen:behind the walk-in in the kitchen|in the keg room}}.
 - x == inc_hurt:
@@ -479,20 +479,53 @@ He put a hand flat on the big man's back, between the shoulders, and walked him 
 # done: fetch
 The big man stood there in the rain without his keys. Then he started walking, along the shoulder of the highway toward town, and the doorman watched him until the dark had him.
 There was no cab to call. The cab company on the wall by the payphone had closed years ago.
-He put the keys behind the bar, in the drawer with the lost-and-found, for the morning.
+-> hold_keys(false) ->
+{ keys_how == 1:
+    He put them behind the bar, in the drawer with the lost-and-found, for the morning.
+}
 FATHER: Nobody ever did that for me.
 FATHER: I'd have hit anybody who tried.
 -> clear
+
+// The big man's keys in his hand: the skeleton's own example of handling (bible/11_SKELETON.md,
+// What he carries). The voices read them (hand.ink, reads_keys), and he decides where they go.
+// His daughter is a place they can go only while she's in the lot.
+= hold_keys(daughter_here)
+A Ford key and a house key on a ring, and a rabbit's foot gone grey with handling. #prop: truck_keys
+- (hk)
+<- reads_keys(-> hk)
+* {daughter_here} [Give them to his daughter.]
+    ~ keys_how = 3
+    ~ unstow(truck_keys)
+    ~ rep(rep_kids, 1)
+    He went round to the driver's door and held them out. She looked at them, and at him.
+    DRIVER: Thank you.
+    She said it hard, the way she said everything, and put them in her coat with her own.
+* [Behind the bar, in the lost-and-found drawer.]
+    ~ keys_how = 1
+    ~ drawer_seen = true
+    ~ stow(truck_keys, in_drawer)
+* [In his own pocket.]
+    ~ keys_how = 2
+    ~ pocket(truck_keys)
+    He put them in the left pocket of his jacket. They'd be where he could feel them.
+- ->->
 
 = to_pickup
 ~ fam += dad_went
 # done: fetch
 The daughter opened the passenger door for him and he got in. {in_truck(kid_at):The kid in the hoodie got in beside him, in the middle, where he'd have sat when he was small.} {vape_at == s_lot || in_truck(vape_at):The boyfriend got in the back without being told.}
+{ took_keys:
+    He still had the big man's keys in his hand.
+    -> hold_keys(true) ->
+}
 ~ family_gone()
 The pickup pulled out of the lot, slowly, onto the highway toward town.
 {
 - took_keys:
-    He had the big man's keys in his hand. He put them behind the bar, in the drawer with the lost-and-found, for the morning.
+    { keys_how == 1:
+        He put the keys behind the bar, in the drawer with the lost-and-found, for the morning.
+    }
     FATHER: Nobody ever did that for me.
     FATHER: I'd have hit anybody who tried.
 - close_pool.walk_him:
@@ -975,6 +1008,12 @@ She turned the book round and read it.
 { left_out ? inc_fight && name_on_log:
     BARTENDER: Your name on it, I said. There's nothing on it.
 }
+// What she poured him is in it with him, if he wrote it the way it happened (bar.ink, shift_drink).
+{ logged ? inc_drinking && she_poured > 0:
+    BARTENDER: Poured by the bartender.
+    BARTENDER: Nine of you wrote in that, and not one of you put me in it.
+    ~ rep(rep_staff, -1)
+}
 {
 - LIST_COUNT(shaded) + LIST_COUNT(left_out) == 0:
     BARTENDER: Huh.
@@ -1146,13 +1185,26 @@ BARTENDER: So. Why'd you leave your last door?
     ~ said++
     She'd been down to put the float in the safe. She came back up the stairs and stopped at the top with the trapdoor open, and looked at him.
     BARTENDER: Somebody's been tidying in the office.
+    { at_keg.straw_held.straw_back:
+        BARTENDER: Left them the straw, though. So they'd know.
+    - else:
+        BARTENDER: Straw and all.
+    }
     She didn't say whose it was. She didn't say thanks, either, in so many words.
 }
-{ took_keys && said < 2:
+{
+- in_drawer ? truck_keys && said < 2:
     ~ said++
     She found the big man's keys in the lost-and-found drawer when she put the float bag away, and held them up.
     BARTENDER: He'll be in for these at noon, sorry for himself.
     BARTENDER: You'll be asleep upstairs. I'll be here.
+- on_him(truck_keys) && said < 2:
+    ~ said++
+    BARTENDER: You've still got his keys on you. The big fella's.
+    BARTENDER: Then it's you he comes looking for. Not me.
+- keys_how == 3 && said < 2:
+    ~ said++
+    BARTENDER: You gave his keys to his girl. Yep. That's where they go.
 }
 { owner_count == -1 && said < 2:
     ~ said++
@@ -1206,6 +1258,9 @@ BARTENDER: So. Why'd you leave your last door?
     BARTENDER: And there's a two-four behind my front door.
     BARTENDER: That's mine now. If he asks, it was always mine.
 }
+{ fam ? dad_walked && (in_drawer ? truck_keys || on_him(truck_keys)):
+    -> keys_at_two ->
+}
 BARTENDER: Junior'll call me in the morning and ask how you did.
 {
 - rep_staff >= 3:
@@ -1226,8 +1281,55 @@ BARTENDER: Friday's different. Friday's everybody.
 }
 -> goodnight
 
-// Table 28 told him four stories about the last doorman (table28.ink).
+// The big man walked home without his keys (close_pool, keys), and got as far as the Esso, and came
+// back for them (bible/11_SKELETON.md: "the big man at two in the morning, asking for them back").
+// Claude's draft, PROPOSED.
+= keys_at_two
+~ temp from_drawer = in_drawer ? truck_keys
+Somebody knocked on the glass of the front door with the flat of a hand. #look: door
+The big man, under the light over the door, in the rain. He'd got as far as the Esso and come back. His jacket was soaked through to the shape of him.
+BIGMAN: Bud. Bud. My keys.
+{ from_drawer:
+    She looked at the drawer under the till, and then at the doorman, and didn't open it.
+}
+// The voice whose read of the keys he kept at close has the last word on them (hand.ink, reads_keys).
+{ kept_read("truck_keys"):
+- "father":
+    FATHER: Not tonight, I said. It's still tonight.
+- "manual":
+    MANUAL: Keys held by staff are held for the licensee. The patron's condition is assessed at the time of return.
+- "fighter":
+    FIGHTER: Keep the glass between you. He's wet through, and angry, and he's walked a mile to stand there.
+- "wrongman":
+    WRONGMAN: In the story, the doorman opened the door. In the story, the doorman always opens the door.
+- "table":
+    TABLE: Two in the morning! Told you! Every time!
+- "kid":
+    KID: he did that at my door once. knocking like that. flat hand
+}
+* (gave_back) [{from_drawer:Get them out of the drawer and take them out to him.|Take them out to him.}]
+    ~ keys_back = 1
+    ~ unstow(truck_keys)
+    ~ rep(rep_staff, -1)
+    He unlocked the door and held them out, and the big man took them the way you take your change.
+    BIGMAN: Thanks, bud.
+    He went across the gravel to his work truck, and dropped the keys, and picked them up. It started on the third go. Its lights went off along the highway toward town, slowly, the way a drunk man drives when he knows he's drunk.
+    FATHER: Twenty years nobody took my keys. The one night somebody did, I'd have walked back for them too.
+* (said_noon) [Through the glass: {from_drawer:"She'll have them for you at noon."|"Noon. You'll get them at noon."}]
+    ~ keys_back = -1
+    ~ rep(rep_staff, 1)
+    He said it through the glass, so it came as much from his face as his voice.
+    The big man stood in the rain and looked at him a long time.
+    BIGMAN: Yeah, okay.
+    He went back out to the highway the way he'd come, along the shoulder, toward town.
+- ->->
+
+// Table 28 told him four stories about the last doorman (table28.ink). If he's been through the
+// jacket already (drawer.ink), he knows, and she'd rather not.
 = last_doorman
+{ jacket_done:
+    -> goodnight
+}
 * ["Table 28 told me about the last doorman. Which one's true?"]
     BARTENDER: Which ones did they tell you?
     He told her. The pay, the big rat, the woman, the one he let in.
@@ -1235,11 +1337,19 @@ BARTENDER: Friday's different. Friday's everybody.
     BARTENDER: His jacket's in the lost-and-found. Folded at the bottom of the drawer, under three winters of toques and phone chargers. Nobody's been through the pockets.
     BARTENDER: You want to know which one's true, that's where it'll be. I never wanted to know.
     ~ knows += lost_jacket
-    { took_keys:
+    { in_drawer ? truck_keys:
         The big man's keys were in the same drawer now, on top of it.
     }
+    -> jacket_now
 * (didnt_ask) [Don't ask.]
 - -> goodnight
+
+= jacket_now
+* [Go through the jacket's pockets.]
+    ~ drawer_from = 2
+    -> the_drawer
+* (left_jacket) [Leave it be.]
+    -> goodnight
 
 = goodnight
 // "Last a week. Then ask me" (bar.ink). If she's telling the owner he'll do, she shortens it.
@@ -1306,6 +1416,27 @@ WRONGMAN: This is the story. This is the one they'll tell about you.
 { last_glass == 2 && noticed < 2:
     ~ noticed++
     ENDBAR: And you left hers standing full on the bar, after. {nursed:Twice in a night.|Like me.}
+}
+// What he did behind her bar, and with what was in his hands (bar.ink, drawer.ink, rats.ink).
+{ pour_how == 3 && noticed < 2:
+    ~ noticed++
+    ENDBAR: You poured yourself a glass of her red, behind her bar, and put it down her sink. Very few would.
+}
+{ (pour_how == 1 || pour_how == 2 || pour_how == -1) && noticed < 2:
+    ~ noticed++
+    ENDBAR: You poured yourself a glass of her red with your back to her mirror. A mirror is not the only thing behind a bar.
+}
+{ float_how == 3 && noticed < 2:
+    ~ noticed++
+    ENDBAR: Two hundred and eight dollars, out of his jacket. He took what he was owed, that one, and not a cent past it. One hears a drawer, through a floor.
+}
+{ on_him(beer_mat) && noticed < 2:
+    ~ noticed++
+    ENDBAR: You have his mat in your pocket. He drew us. He was the last who did.
+}
+{ on_him(straw) && noticed < 2:
+    ~ noticed++
+    ENDBAR: There is a straw in your pocket, Doorman, with somebody else's night on it.
 }
 { traps_reset && noticed < 2:
     ~ noticed++
@@ -1571,7 +1702,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 // He may have been up already, before the shift (walk.ink, twelve).
 { from_room:
     His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
-    { shirt == 1 && not shirt_on:
+    { in_twelve ? gary_shirt:
         Gary's shirt was on the chair where he'd left it, folded, the word inside.
     }
 - else:
@@ -1580,6 +1711,12 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 }
 // HUTCH: His room. What does a room that comes with a bar job look like, and what did he bring with him?
 // The light the kid at the Esso showed him at dusk (walk.ink, kid_sky).
+{ in_twelve ? last_jacket:
+    He hung the last doorman's jacket on the back of the door, where it would be the first thing he saw when he woke.
+}
+{ on_him(aikido_book):
+    He read the paperback from the lost-and-found by the light from the lot. It said the other man's force was a gift, if you didn't fight it. It said a lot of things like that. He read the part about the wrist twice.
+}
 { knows ? esso_sky:
     Out the window, low over the strait where the cloud had torn again, was the light the kid at the Esso had shown him. It hadn't moved. He watched it until he was sure it hadn't, and for a while after that.
 }
@@ -1810,8 +1947,13 @@ The door: {count_in} in past the stool #class: row
     In his pocket: nothing #class: row
     He's ${0 - cash} down on the night. #class: sub
 }
-{ office_wiped:
-    And a straw, cut down to two inches. #class: sub
+{ float_how == 3:
+    Two hundred and eight of it is the last doorman's float. #class: sub
+}
+// What else is on him (hand.ink), but his flashlight and the key to twelve, which always are.
+~ temp carried = in_left + in_inside
+{ carried:
+    And {things_said(carried)}. #class: sub
 }
 { ev_card.lent:
     Twenty more is in room nine. #class: sub
@@ -1857,7 +1999,7 @@ The door: {count_in} in past the stool #class: row
 }
 {
 - fam ? dad_went && fam ? lot_scene:
-    The big man from the pool table went to the hospital in his daughter's truck at two in the morning. {took_keys:His keys are in the lost-and-found drawer.}
+    The big man from the pool table went to the hospital in his daughter's truck at two in the morning. {in_drawer ? truck_keys:His keys are in the lost-and-found drawer.}{keys_how == 3:His daughter has his keys.}
 - fam ? dad_went && fam ? all_out:
     He put them all out, the big man too, and they went to the hospital together in the pickup.
 - fam ? dad_went && fam ? dad_ejected:
@@ -1866,8 +2008,10 @@ The door: {count_in} in past the stool #class: row
     The big man from the pool table went to the hospital with his kids.
 - fam ? dad_drove:
     The big man drove himself home drunk{fam ? dad_stayed && not family_in_lot:, after his family had gone without him}. {family_in_lot:His kids followed him.}
+- fam ? dad_walked && keys_back == 1:
+    The big man walked as far as the Esso, and came back for his keys at a quarter past two, and got them, and drove home.
 - fam ? dad_walked && took_keys:
-    The big man walked home along the highway. His keys are in the lost-and-found drawer.
+    The big man walked home along the highway{keys_back == -1:, twice}. {in_drawer ? truck_keys:His keys are in the lost-and-found drawer.}
 - fam ? dad_walked:
     He put the big man out. The big man walked home along the highway, and his kids followed him in the pickup with the hazards on.
 - fam ? dad_ejected:
@@ -1962,7 +2106,7 @@ The door: {count_in} in past the stool #class: row
 The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shaded, {LIST_COUNT(left_out)} left out.
 {
 - office_wiped:
-    The mirror in the office is clean. #class: sub
+    The mirror in the office is clean{at_keg.straw_held.straw_back:, with the straw beside it}{at_keg.straw_held.straw_snapped:, and the straw is in two pieces in a case of empties going back to the brewery}. #class: sub
 - left_out ? inc_office:
     The mirror in the office isn't in the book. #class: sub
 - knows ? office_seen && incident !? inc_office:
@@ -2006,8 +2150,16 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 - rep_cook <= -2:
     The cook has him down as one more thing that makes his night worse.
 }
-{ knows ? lost_jacket:
+{
+- jacket_done && jacket_how == 2:
+    The last doorman's jacket is on the back of his door in twelve.{knows ? doorman_stories: Every one of table 28's stories was in the pockets.}
+- jacket_done:
+    He's been through the last doorman's jacket.{knows ? doorman_stories: Every one of table 28's stories was in the pockets.} It's folded at the bottom of the lost-and-found again.
+- knows ? lost_jacket:
     The last doorman's jacket is in the lost-and-found. Nobody's been through the pockets.
+}
+{ showed_her ? ferry_tickets:
+    The bartender looked at the ferry tickets a long time. #class: sub
 }
 { knows ? esso_rater:
     The kid at the Esso gets four cents an answer for saying which of a machine's sounds more like a person. {rated == 3:He said neither.|It's getting hard to tell, he says.} #class: sub
@@ -2086,6 +2238,10 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 }
 { seated("table") || seated("kid"):
     In his head: {heads()}.
+}
+// Whose word he took on the things he held (hand.ink, the reads).
+{ heeds() != "":
+    On what he held: {heeds()}.
 }
 { any_word():
     WHAT THEY'RE SAYING

@@ -47,6 +47,7 @@
     hand: null,                  // the voices reaching for the player (src/ui/hand.js)
     readChars: 0,                // how much story came before the choices now up
     skin: null,                  // drink, hurt, his heart and the rain, on the page (src/ui/skin.js)
+    thingOpen: null,             // the thing on him tapped open on the rail, to say what it is
     saveTimer: 0
   };
 
@@ -588,6 +589,18 @@
   function chosenNode(item) {
     const p = document.createElement('p');
     p.className = 'ln chosen';
+    if (item.read) {
+      // the read he kept, in the voice's own hand, the way it's kept on his notes
+      p.classList.add('read', 'v-' + voiceStyle(item.read));
+      const who = document.createElement('span');
+      who.className = 'who';
+      who.textContent = voiceLabel(item.read);
+      const said = document.createElement('span');
+      said.className = 'said';
+      said.textContent = item.text;
+      p.append(who, said);
+      return p;
+    }
     const t = document.createElement('span');
     if (item.check) {
       p.classList.add('v-' + voiceStyle(item.check.voice));
@@ -1031,12 +1044,13 @@
     // places; the keys number them on from the list. In director mode everything is a line.
     const idx = list.map(function (c, i) { return i; });
     const asWays = !app.dir.on;
-    const main = idx.filter(function (i) { return !asWays || list[i].cls !== 'move'; });
+    // what the voices make of the thing in his hand go first: he keeps one of them, or none, and
+    // then does something with it (content/ink/hand.ink)
+    const reads = idx.filter(function (i) { return list[i].read && !(asWays && list[i].cls === 'move'); });
+    const main = idx.filter(function (i) { return (!asWays || list[i].cls !== 'move') && !list[i].read; });
     const ways = asWays ? idx.filter(function (i) { return list[i].cls === 'move'; }) : [];
     let k = 0;
-    const ol = document.createElement('ol');
-    ol.className = 'choices';
-    main.forEach(function (i) {
+    function item(i) {
       const c = list[i];
       const li = document.createElement('li');
       const b = document.createElement('button');
@@ -1060,15 +1074,40 @@
         body.append(ck);
       }
       const words = app.dir.choiceText(c);
-      body.append(document.createTextNode(words));
+      if (c.read) {
+        // in that voice's own hand, as it would say it in his head
+        b.classList.add('read', 'v-' + voiceStyle(c.read.voice));
+        const who = document.createElement('span');
+        who.className = 'who';
+        who.textContent = voiceLabel(c.read.voice);
+        const said = document.createElement('span');
+        said.className = 'said';
+        said.textContent = words;
+        body.append(who, said);
+      } else {
+        body.append(document.createTextNode(words));
+      }
       if (words !== c.text) b.classList.add('edited');
       if (c.room) body.append(roomPreview(c.room));
       b.append(n, body);
       b.addEventListener('click', function () { choose(i); });
       li.append(b);
       if (app.dir.on) app.dir.choiceTools(li, c);
-      ol.append(li);
-    });
+      return li;
+    }
+    if (reads.length) {
+      const head = document.createElement('div');
+      head.className = 'reads-k';
+      head.textContent = 'What he makes of it';
+      box.append(head);
+      const rl = document.createElement('ol');
+      rl.className = 'choices reads';
+      reads.forEach(function (i) { rl.append(item(i)); });
+      box.append(rl);
+    }
+    const ol = document.createElement('ol');
+    ol.className = 'choices';
+    main.forEach(function (i) { ol.append(item(i)); });
     if (main.length) box.append(ol);
     if (ways.length) {
       const nav = document.createElement('div');
@@ -1204,6 +1243,8 @@
       }
     }
 
+    renderPockets(st);
+
     // notes
     const notes = $('#notes');
     notes.innerHTML = '';
@@ -1221,6 +1262,58 @@
       li.textContent = t.text;
       notes.append(li);
     }
+  }
+
+  // What he has on him, pocket by pocket, and where he's left things for later (content/ink/hand.ink);
+  // a thing tapped says whose it is, what it costs him to carry, what it does and what it's worth
+  // (content/data/props.yaml); under each, what he made of it.
+  const POCKETS = [['right', 'Right pocket'], ['left', 'Left pocket'], ['inside', 'Inside pocket'], ['jeans', 'Jeans']];
+
+  function renderPockets(st) {
+    const box = $('#pockets');
+    if (!box) return;
+    const g = app.game;
+    const P = C.props || {};
+    const pk = st.pockets || {};
+    function row(id) {
+      const on = app.thingOpen === id;
+      let h = '<li><button type="button" class="pk-thing' + (on ? ' on' : '') + '" data-act="thing" data-thing="' + esc(id) + '" aria-expanded="' + on + '">' +
+        esc((P[id] && P[id].name) || id) + '</button>';
+      if (on) h += thingInfo(id);
+      if (g.reads && g.reads[id]) h += readLine(g.reads[id]);
+      return h + '</li>';
+    }
+    function group(label, items) { return '<h3 class="pk-k">' + esc(label) + '</h3><ul class="pk-list">' + items.map(row).join('') + '</ul>'; }
+    let html = '';
+    for (const [k, label] of POCKETS) if ((pk[k] || []).length) html += group(label, pk[k]);
+    if (!html) html = '<p class="pk-none">Nothing but his wallet.</p>';
+    const later = [];
+    if (pk.drawerSeen) {
+      // the paperback's under the jacket till he's lifted it out (drawer.ink)
+      const dr = (pk.drawer || []).filter(function (t) { return t !== 'aikido_book' || g.getVar('book_seen'); });
+      if (dr.length) later.push(['In the lost-and-found drawer', dr]);
+    }
+    if ((pk.twelve || []).length) later.push(['Up in twelve', pk.twelve]);
+    if (g.getVar('jacket_done') && (pk.jacket || []).length) later.push(["Still in the last doorman's jacket", pk.jacket]);
+    if (later.length) {
+      html += '<h3 class="pk-h">Left for later</h3>';
+      for (const l of later) html += group(l[0], l[1]);
+    }
+    box.innerHTML = html;
+  }
+
+  function thingInfo(id) {
+    const pr = (C.props || {})[id] || {};
+    let h = '';
+    for (const f of [['whose', 'Whose'], ['heat', 'Heat'], ['does', 'Does'], ['worth', 'Worth']]) {
+      if (pr[f[0]]) h += '<dt>' + f[1] + '</dt><dd>' + esc(pr[f[0]]) + '</dd>';
+    }
+    return h ? '<dl class="pk-info">' + h + '</dl>' : '';
+  }
+
+  // what a voice made of a thing, in its own hand
+  function readLine(rd) {
+    return '<p class="pk-read read v-' + esc(voiceStyle(rd.voice)) + '"><span class="who">' + esc(voiceLabel(rd.voice)) + '</span><span class="said">' + esc(rd.text) + '</span></p>';
   }
 
   function showVoice(id) {
@@ -1669,6 +1762,11 @@
       if (act === 'menu') { if (app.inGame) openMenu(); }
       else if (act === 'rail') openRail(t.getAttribute('data-sec'));
       else if (act === 'close-rail') closeRail();
+      else if (act === 'thing') {
+        const id = t.getAttribute('data-thing');
+        app.thingOpen = app.thingOpen === id ? null : id;
+        if (app.inGame) renderRail();
+      }
     });
 
     $('#overlay').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeDialog(); });

@@ -31,6 +31,10 @@
 // offered right after THE FATHER says something; its speaker has to be someone else in the room.
 // Allies back each other up and voices at odds contradict, so the relationships in his head
 // (bible/02_SYSTEMS.md) can be heard, and the louder the room, the more they argue.
+//
+// Heeded voices: every read of a thing in his hand he's kept (content/ink/hand.ink, Psyche.heed)
+// makes that voice speak more often. Where rules tie, it's that many times likelier to be the one
+// picked, and when the room's loud enough for anyone to speak up, its chance goes up by HEED a read.
 (function (B) {
   'use strict';
 
@@ -98,6 +102,8 @@
 
   // Chance that a voice speaks up at all, by tension. At 0 the room is quiet.
   const CHANCE = [0, 0.45, 0.65, 0.85, 1];
+  // and a heeded voice's, for every read of his it's kept (never at 0)
+  const HEED = 0.08;
 
   class Barks {
     constructor(rules) { this.rules = compile(rules); }
@@ -120,7 +126,14 @@
       if (!cands.length) return null;
       let top = -1;
       for (const r of cands) if (r.specificity > top) top = r.specificity;
-      return rng.pick(cands.filter(function (r) { return r.specificity === top; }));
+      // a heeded voice's rule goes in once more for each read of his he's kept
+      const pool = [];
+      for (const r of cands) {
+        if (r.specificity !== top) continue;
+        const n = 1 + psyche.heeded(r.speaker);
+        for (let k = 0; k < n; k++) pool.push(r);
+      }
+      return rng.pick(pool);
     }
 
     pick(event, getVar, psyche, used, rng, not) {
@@ -128,7 +141,8 @@
       if (!rule) return null;
       if (!rule.always) {
         const t = Math.min(4, psyche.tension());
-        if (rng.next() >= CHANCE[t]) return null;
+        const chance = t > 0 ? Math.min(1, CHANCE[t] + HEED * psyche.heeded(rule.speaker)) : 0;
+        if (rng.next() >= chance) return null;
       }
       return rule;
     }

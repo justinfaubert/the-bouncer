@@ -46,9 +46,12 @@ It told him Wednesday. #pause
 // Gary's shirt, folded in four inside his jacket since the office (office.ink, the_shirt). In
 // room twelve he's already put it on or left it on the chair (walk.ink).
 = vestibule
-In the vestibule, between the two doors, he took Gary's shirt out of his jacket.
+In the vestibule, between the two doors, he took Gary's shirt out of his jacket. #prop: gary_shirt
+- (shirt_opts)
+<- reads_shirt(-> shirt_opts)
 * [Put it on, over the black one.]
     ~ shirt_on = true
+    ~ unstow(gary_shirt)
     He put it on. It was a size too small across the shoulders, the way they always are.
 * [Leave it in the jacket.]
     ~ shirt_on = false
@@ -128,6 +131,7 @@ FATHER: Four doors, and one of them's yours. That's three you're answerable for 
         BARTENDER: Ask table 28 why. You'll get three stories, and the hell of it is they all happened.
     }
     ~ knows += old_doorman
+    ~ knows += jacket_heard
     -> where_more
 * (asked_anyone) ["Anyone I should know about?"]
     ~ pass(2)

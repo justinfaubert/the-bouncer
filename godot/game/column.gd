@@ -394,6 +394,17 @@ func add_chosen(it: Dictionary) -> Control:
 	var ck = it.get("check")
 	var scr = block_screen
 	var dark: bool = scr == "log" or scr == "ledger"
+	# a read he kept: what that voice made of the thing in his hand, in its own hand (content/ink/hand.ink)
+	if it.get("read") != null:
+		var style := voice_style(str(it.read))
+		var v := Look.voice(style)
+		parts.append(["ui_b", int(s * 0.74), v.color, _voice_label(str(it.read)) + "   "])
+		parts.append([v.font, int(s * float(v.size)), v.color, Look.voice_text(v, str(it.text))])
+		var rm := MarginContainer.new()
+		rm.add_theme_constant_override("margin_top", 10)
+		rm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rm.add_child(UiBits.para(parts))
+		return _add(rm)
 	if ck != null:
 		var style := str(ck.voice)
 		parts.append(["ui_b", int(s * 0.8), Look.voice_color(style).darkened(0.5 if dark else 0.0), "[" + _voice_label(style) + "]  "])
@@ -407,10 +418,15 @@ func add_chosen(it: Dictionary) -> Control:
 
 
 var voice_labels := {}
+var voice_styles := {}
 
 
 func _voice_label(id: String) -> String:
 	return str(voice_labels.get(id, id.to_upper()))
+
+
+func voice_style(id: String) -> String:
+	return str(voice_styles.get(id, id))
 
 
 func add_check(it: Dictionary, odds_text: String) -> CheckCard:
@@ -585,14 +601,41 @@ func show_choices(list: Array, tension_words: Array, hide: Array = []) -> void:
 	clear_choices()
 	var main_idx: Array = []
 	var ways: Array = []
+	var reads: Array = []
 	for i in list.size():
 		if i in hide:
 			continue
 		if str(list[i].get("cls", "")) == "move":
 			ways.append(i)
+		elif list[i].get("read") != null:
+			reads.append(i)
 		else:
 			main_idx.append(i)
 	var k := 0
+	# what the voices make of the thing in his hand: he keeps one of them, or none, and then does
+	# something with it (content/ink/hand.ink)
+	if not reads.is_empty():
+		var head := UiBits.label("WHAT HE MAKES OF IT", "ui_b", 15, Look.MUTED, 3)
+		head.custom_minimum_size = Vector2(0, 30)
+		head.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		head.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		choices_box.add_child(head)
+	for i in reads:
+		k += 1
+		var row := ChoiceRow.new()
+		var c: Dictionary = list[i]
+		row.read_label = _voice_label(str(c.read.voice))
+		row.read_style = voice_style(str(c.read.voice))
+		row.setup(c, i, k if k <= 9 else 0, size_px, settings.get("odds", "words") == "numbers", tension_words)
+		row.picked.connect(func(ix): chose.emit(ix))
+		row.hand_on.connect(func(ix, on): hand_on.emit(ix, on))
+		choices_box.add_child(row)
+		rows.append(row)
+	if not reads.is_empty() and not main_idx.is_empty():
+		var gap := Control.new()
+		gap.custom_minimum_size = Vector2(0, 12)
+		gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		choices_box.add_child(gap)
 	for i in main_idx:
 		k += 1
 		var row := ChoiceRow.new()

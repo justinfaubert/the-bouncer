@@ -2,6 +2,10 @@
 // The bartender is his partner and his witness (bible/02_SYSTEMS.md): she sees everything he does.
 // Her respect (rep_staff) is the hardest thing in the game to earn.
 
+// From ten till somebody changes the keg, him in the keg room (rats.ink) or her (lager_out, below).
+=== function lager_off()
+~ return clock >= 1320 && not at_keg.change_keg && not at_bar.lager_out
+
 === at_bar ===
 ~ here = bar
 { due(): -> hub }
@@ -30,6 +34,9 @@
     - BARTENDER: Again with the running.
     }
 }
+{ lager_off():
+    -> lager_out
+}
 -> opts
 
 = opts
@@ -47,6 +54,11 @@
     -> how_long
 * {at_bar.how_long > 0} ["What do I call you?"]
     -> name
+* {knows ? jacket_heard && not drawer_seen} ["Where's the jacket the last one left?"]
+    -> jacket_ask
++ {drawer_seen} [The lost-and-found drawer.]
+    ~ drawer_from = 1
+    -> the_drawer
 + [{drinks - drinks_before == 0:"Pour me one."|"Another."} #hand: drink]
     -> shift_drink
 + {knows ? endbar_seen && at_bar.endbar < 3} [Go and stand by the old man at the end of the bar.]
@@ -126,13 +138,25 @@ BARTENDER: Last a week, Door. Then ask me.
 // HUTCH: Her name. Or keep it back until he's earned it.
 -> opts
 
+// He's heard the last one left his jacket (office.ink, prologue.ink). Claude's draft, PROPOSED.
+= jacket_ask
+~ pass(1)
+~ knows += lost_jacket
+She pointed down with the knife, at the drawer under the till.
+BARTENDER: Lost-and-found. Bottom of the drawer, under three winters of toques.
+BARTENDER: Nobody's been through the pockets. I never wanted to know.
+~ drawer_from = 1
+-> the_drawer
+
 // Counted from the start of the shift: Gary's two at four o'clock aren't hers to count (prologue.ink).
+// Every one she pours him, she's in it with him (she_poured): the log can say so (closing.ink).
 = shift_drink
 ~ pass(3)
 {
 - drinks - drinks_before == 0:
     She poured a rye and put it on the ledge, not the bar, where the customers couldn't see it. #sfx: glass
     BARTENDER: That's your one. On the ledge, not the bar, and you don't come back for two.
+    ~ she_poured++
     ~ drink()
     FATHER: One.
     { drinks_before:
@@ -140,11 +164,13 @@ BARTENDER: Last a week, Door. Then ask me.
     }
 - drinks - drinks_before == 1:
     She poured it. She put it on the ledge. She didn't say anything this time, which was worse. #sfx: glass
+    ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
     FATHER: Two. Two is how it starts. One is a drink and two is a decision.
 - drinks - drinks_before == 2:
     She looked at him. Then she poured it, because she was a bartender and he was a grown man, and she'd seen nine doormen. #sfx: glass
+    ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
     FIGHTER: Loose. Good. You're better loose.
@@ -160,6 +186,101 @@ BARTENDER: Last a week, Door. Then ask me.
     ~ rep(rep_staff, -1)
 }
 -> opts
+
+// From ten the lager's been spitting foam (things.ink, toy_taps). If he hasn't changed the keg
+// himself (rats.ink, at_keg.change_keg), she goes down and does it, and her bar is his while she's
+// down there. Hutch (14 October): "there should be other temptations as well, like pouring ourself
+// a beer when the bartender isn't looking or asking the bartender and implicating them"
+// (bible/11_SKELETON.md, Temptations). Claude's draft, PROPOSED.
+= lager_out
+~ pass(1)
+She pulled a lager and it came out foam, and she tipped it in the sink and pulled again, and it was foam again. #look: bartender
+BARTENDER: Fuckin' lager.
+BARTENDER: Watch my bar, Door. Two minutes.
+~ lager_down = true
+She lifted the trapdoor and went down, minding the third step, and he heard the keg room door bang shut under his feet.
+For two minutes it was his: the taps, the till, the rail, the well. Nobody at the bar wanted anything. In the back-bar mirror, between the bottles, the room, and him in it, at her bar with nobody behind it.
+* (watched) [Watch her bar.]
+    ~ watched_bar = true
+    ~ pass(2)
+    He stood in the gap in the stools with his back to her taps and watched the room, and the room watched the hockey.
+    -> lager_up
+* [Go round and pour himself one. #hand: drink]
+    -> self_pour
+* (left_bar) [Back to his door.]
+    -> lager_left
+
+// The pint he pulled himself is in his hand, and the voices read it (hand.ink, reads_pint).
+= self_pour
+~ poured_self++
+~ pass(1)
+He went round behind the bar and took a pint glass off the stack and pulled himself a red, because the lager was off and the red was nearest. It came up clean, with a head you could stand a coin on. #prop: pint
+- (pr)
+<- reads_pint(-> pr)
+* [Drink it down and rinse the glass, before she's up. #hand: drink #check: fighter:dex 12]
+    ~ drink()
+    { passed:
+        ~ pour_how = 1
+        He drank it in four swallows standing behind her taps, and rinsed the glass, and put it upside down on the rack with the others, and was back in the gap in the stools with the back of his hand across his mouth when the trapdoor came up.
+    - else:
+        ~ pour_how = -1
+        He had it half down when the trapdoor came up, and her head after it.
+    }
+* [Take it round to the ledge, where she puts his. #hand: drink]
+    ~ pour_how = 2
+    ~ drink()
+    He put it on the ledge, not the bar, where she put his, and went back round to the gap in the stools and drank it there as if she'd poured it.
+* [Pour it down the sink.]
+    ~ pour_how = 3
+    He looked at it a while. Then he tipped it down the bar sink, and rinsed the glass, and put it on the rack with the others.
+- -> lager_up
+
+// She comes up from the keg room, and she counts.
+= lager_up
+~ lager_down = false
+The trapdoor came up, and she came up after it, wiping her hands on the bar towel. #look: bartender
+BARTENDER: Lager's back.
+She said it to the room. Then she looked at the till, and the rail, and him.
+{
+- pour_how == -1:
+    ~ rep(rep_staff, -2)
+    She looked at the glass in his hand, and at the red tap, and at him.
+    BARTENDER: You want one, you ask me. Nobody pours in my bar. Nobody.
+    She took the glass out of his hand and put it in the sink, half full, and rang it in. #sfx: till
+    ~ cash -= 7
+    BARTENDER: Seven-fifty. Call it seven.
+- pour_how == 2:
+    ~ rep(rep_staff, -1)
+    She looked at the pint on the ledge, which she hadn't poured.
+    She rang it in without asking him what it was. She knew what it was. #sfx: till
+    ~ cash -= 7
+    BARTENDER: Seven-fifty. Call it seven. Next time you ask me, Door.
+- pour_how == 1:
+    She looked at the rack, where one glass was wet with the others dry, and at him, and he looked at the room.
+    BARTENDER: Mm.
+- pour_how == 3:
+    She looked at the rack, where one glass was wet with the others dry.
+    BARTENDER: Mm.
+- watched_bar:
+    ~ rep(rep_staff, 1)
+    BARTENDER: Mm. Thanks.
+    Nine doormen, she'd had, and every one of them had helped himself to something while she was down there.
+}
+-> opts
+
+// He went back to his door and left her bar to itself, and table 28 helped themselves.
+= lager_left
+~ rep(rep_staff, -1)
+~ here = door
+He went back to his door.
+From the stool he watched the one in the team jacket get up from table 28 and go round behind the bar, the way he must have done it in nineteen eighty-one, and start pulling a round.
+~ lager_down = false
+The trapdoor came up, and she came up after it, and stood there with the bar towel in her hand.
+BARTENDER: Out.
+TEAM_JACKET: Lager's off!
+TABLE28: Hear, hear!
+He went, and she poured their round, and when she'd done it she looked down the room at the doorman on his stool, and didn't say anything.
+-> carry_on
 
 = endbar
 ~ pass(5)

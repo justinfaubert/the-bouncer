@@ -2056,7 +2056,8 @@ def fp_hand(kind):
     back toward the camera (-y) in the sleeve of his work jacket, the hand forward (+y). kind:
     'left_clicker' (the tally counter in his fist, its face to him, his thumb on its button),
     'right_card' (a licence held up, its face to him), 'right_phone', 'right_open' (open, palm
-    down). Returns the Hand, its parts and the things it holds."""
+    down), 'right_pint' (round a pint glass, held up), 'right_palm' (open, palm up, for a thing to
+    lie in). Returns the Hand, its parts and the things it holds."""
     B = Build(DOORMAN)
     fore = norm(V(0.0, -1.0, -0.35))
     props = []
@@ -2082,6 +2083,15 @@ def fp_hand(kind):
         face = norm(V(-0.1, -0.75, 0.65))
         h = hold_phone(B, V(0, 0, 0), face, right=True)
         props.append(h.prop)
+    elif kind == 'right_pint':
+        # a pint held up to look at: his hand round it from the right, the thumb up its near side
+        h = hold_glass(B, V(0, 0, 0), V(1.0, -0.15, 0.0), right=True, kind='pint', height=0.058, thumb=(0.8, 0.22, 0.6, 0.1, 0.1))
+        props.append(h.prop)
+    elif kind == 'right_palm':
+        # open, palm up and cupped a little, for what he's been handed to lie in it: the prop is
+        # where it lies, x across the palm, y up the fingers, z out of it
+        h = Hand(B, V(0, 0, 0), V(0.0, 1.0, 0.12), V(0.0, -0.12, 1.0), right=True, grip='relaxed')
+        props.append(dict(kind='palm', at=h.w((-0.003, 0.056, 0.0175)), R=S.frame(h.dirw((1, 0, 0)), h.dirw((0, 1, 0)))))
     else:
         h = Hand(B, V(0, 0, 0), V(0.0, 1.0, -0.1), V(0.0, 0.1, -1.0), right=True, grip='relaxed')
     # the wrist to the origin, and what it holds with it

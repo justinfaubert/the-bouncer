@@ -2,6 +2,7 @@ extends SceneTree
 # Plays the raw Ink (no engine, the story's own fallbacks) with a seeded chooser and writes a
 # transcript, for tools/ink_diff.mjs to compare line for line with inkjs.
 #   godot --headless --path godot -s res://tests/ink_run.gd -- --from 1 --to 50 --out /tmp/ink
+# --start knot.stitch plays each night from there instead, to reach a scene the seeded chooser rarely does.
 
 func esc(s: String) -> String:
 	return s.replace("\\", "\\\\").replace("\n", "\\n").replace("|", "\\p")
@@ -11,12 +12,14 @@ func _init() -> void:
 	var from := 1
 	var to := 10
 	var out_dir := "/tmp/ink"
+	var start := ""
 	var i := 0
 	while i < args.size():
 		match args[i]:
 			"--from": from = int(args[i + 1]); i += 1
 			"--to": to = int(args[i + 1]); i += 1
 			"--out": out_dir = args[i + 1]; i += 1
+			"--start": start = args[i + 1]; i += 1
 		i += 1
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	var t0 := Time.get_ticks_usec()
@@ -31,6 +34,8 @@ func _init() -> void:
 		story.allow_external_function_fallbacks = true
 		story.on_error = func(msg, type): lines.append("E|%d|%s" % [type, esc(str(msg))])
 		story.state().story_seed = seed % 2147483647
+		if start != "":
+			story.choose_path_string(start)
 		var rng := seed
 		var steps := 0
 		var save_at := 20 + seed % 60

@@ -28,6 +28,9 @@ extends Node
 # before the general); "a|b": a, or if that's not there or not in sight, b
 const LEXICON := [
 	["payphone|numbers on the wall|receiver", "a:payphone|a:hall_end"],
+	# the lost-and-found, under the till, and what's in it (content/ink/drawer.ink), before the
+	# licences, the big man's keys and Scratch's lottery tickets that can be in it
+	["the drawer|lost-and-found|jacket's pockets|the paperback", "a:till"],
 	# before the night, in Gary's office and on the walk (world/town.gd)
 	["photo behind|1958", "a:office_photo"],
 	["gary's desk|upside down", "a:office_notice"],
@@ -210,6 +213,9 @@ func about(c: Dictionary) -> String:
 
 
 func _about(c: Dictionary) -> String:
+	# what a voice makes of the thing in his hand is about that, not anything in the room
+	if c.get("read") != null:
+		return ""
 	var loc := loc_of(c)
 	var away: bool = loc != "" and loc != main.view.place
 	var text := str(c.get("text", ""))

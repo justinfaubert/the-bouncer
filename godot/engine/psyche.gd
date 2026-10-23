@@ -15,6 +15,7 @@ var seated: Array = []
 var rel: Dictionary = {}          # explicit relationships, set in play; defaults come from the voice data
 var learned: Array = []           # voices he has, in the room or not
 var history: Array = []           # tension over the night
+var heard: Dictionary = {}        # voice -> how many of its reads of a thing in his hand he's kept (heed)
 var state_index: Dictionary = {}
 var classes: Dictionary = {}
 
@@ -77,6 +78,7 @@ func reset(initial_seated: Array) -> void:
 	rel = {}
 	learned = []
 	history = []
+	heard = {}
 	for id in initial_seated:
 		learn(id)
 		seat(id)
@@ -92,6 +94,19 @@ func learn(id: String) -> bool:
 	if not learned.has(id):
 		learned.append(id)
 	return true
+
+
+# He kept this voice's read of a thing in his hand (content/ink/hand.ink): the voices he heeds speak
+# more often (Barks.best, Barks.pick).
+func heed(id: String) -> bool:
+	if not known(id):
+		return false
+	heard[id] = int(heard.get(id, 0)) + 1
+	return true
+
+
+func heeded(id: String) -> int:
+	return int(heard.get(id, 0))
 
 
 func is_seated(id: String) -> bool:
@@ -203,7 +218,7 @@ func record(clock: int) -> void:
 
 
 func to_json() -> Dictionary:
-	return {"seated": seated.duplicate(), "rel": rel.duplicate(), "learned": learned.duplicate(), "history": history.slice(-100)}
+	return {"seated": seated.duplicate(), "rel": rel.duplicate(), "learned": learned.duplicate(), "history": history.slice(-100), "heard": heard.duplicate()}
 
 
 func from_json(o) -> void:
@@ -225,3 +240,9 @@ func from_json(o) -> void:
 	history = []
 	for h in o.get("history", []):
 		history.append({"clock": int(h.get("clock", 0)), "t": int(h.get("t", 0)), "seats": int(h.get("seats", 0))})
+	heard = {}
+	var hd = o.get("heard", {})
+	if hd is Dictionary:
+		for k in hd:
+			if known(str(k)):
+				heard[str(k)] = int(hd[k])

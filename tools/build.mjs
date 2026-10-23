@@ -97,6 +97,7 @@ function scanInk(files) {
   const markRefs = [];          // {spec, loc}: #mark: tags
   const propRefs = [];          // {id, loc}: #prop: tags
   const toyRefs = [];           // {id, what, loc}: #toy: tags on choices
+  const readRefs = [];          // {voice, thing, loc}: #read: tags on choices
   for (const f of files) {
     const lines = fs.readFileSync(f, 'utf8').split('\n');
     let knot = '(top)';
@@ -118,6 +119,7 @@ function scanInk(files) {
       for (const m of code.matchAll(/#\s*mark:\s*([^#]+)/gi)) markRefs.push({ spec: m[1].trim(), loc });
       for (const m of code.matchAll(/#\s*prop:\s*([^#\s\]]*)/gi)) propRefs.push({ id: m[1], loc });
       for (const m of code.matchAll(/#\s*toy:\s*([^#\]]*)/gi)) { const w = m[1].trim().split(/\s+/); toyRefs.push({ id: w[0] || '', what: w[1] || '', loc }); }
+      for (const m of code.matchAll(/#\s*read:\s*([^#\]]*)/gi)) { const w = m[1].trim().split(/\s+/); readRefs.push({ voice: (w[0] || '').toLowerCase(), thing: w[1] || '', loc }); }
       for (const m of code.matchAll(/#\s*(sfx|music|amb|portrait):\s*([a-z0-9_]+)/gi)) fx.push({ type: m[1].toLowerCase(), id: m[2], loc });
       // a speaker label at the start of a content line (after choice bullets / gathers)
       const body = code.replace(/^\s*(?:[*+\-]\s*)*(?:\([a-z0-9_]+\)\s*)?(?:\{[^}]*:\s*)?/i, '');
@@ -134,7 +136,7 @@ function scanInk(files) {
     words.byFile[rel(f)] = w;
     words.total += w;
   }
-  return { speakers, checks, fx, prompts, words, knots, markRefs, propRefs, toyRefs };
+  return { speakers, checks, fx, prompts, words, knots, markRefs, propRefs, toyRefs, readRefs };
 }
 
 // ---------------------------------------------------------------- main
@@ -244,7 +246,9 @@ for (const r of barkSet.rules) if (r.mark) checkMark(r.mark, 'barks.yaml: ' + r.
 for (const m of scan.markRefs) checkMark(m.spec, m.loc);
 // Props: every thing a line hands over is in props.yaml, and every choice that waits for a thing
 // waits for something it can be done with (src/ui/props.js)
-const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'], body: ['walk', 'ran'] };
+const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'], body: ['walk', 'ran'], thing: ['turn', 'look'] };
+// what a thing (kind: thing) can be made as, in the Godot build's hands and on the browser's page
+const THING_SHAPES = ['flashlight', 'key', 'shirt', 'bill', 'straw', 'keys', 'glass', 'bag', 'mat', 'tickets', 'book', 'jacket'];
 const propThings = Object.entries(props || {}).filter(([id]) => id !== 'tonight');
 if (props && props.tonight && isNaN(Date.parse(props.tonight))) err(`props.yaml: tonight "${props.tonight}" isn't a date (YYYY-MM-DD)`);
 for (const [id, pr] of propThings) {
@@ -259,6 +263,11 @@ for (const [id, pr] of propThings) {
     if (pr.face && !charIds.has(pr.face)) err(`props.yaml: ${id} shows the face of "${pr.face}", who isn't in characters.yaml`);
   }
   if (pr.kind === 'phone' && (!Array.isArray(pr.photos) || !pr.photos.length)) err(`props.yaml: ${id} (a phone) has no photos`);
+  if (pr.kind === 'thing') {
+    if (!THING_SHAPES.includes(pr.shape)) err(`props.yaml: ${id} (a thing) needs a shape (${THING_SHAPES.join(', ')})`);
+    if (!pr.name) err(`props.yaml: ${id} (a thing) has no name`);
+    for (const side of ['front', 'back']) if (pr[side] !== undefined && !Array.isArray(pr[side])) err(`props.yaml: ${id}'s ${side} should be a list of lines`);
+  }
   if (pr.kind === 'binder') {
     if (!(pr.pages > 0)) err(`props.yaml: ${id} (a binder) needs pages: <how many>`);
     for (const [n, pg] of Object.entries(pr.sleeves || {})) {
@@ -269,6 +278,16 @@ for (const [id, pr] of propThings) {
   }
 }
 for (const r of scan.propRefs) if (!props || !props[r.id] || r.id === 'tonight') err(`#prop: "${r.id}" at ${r.loc} is not in props.yaml`);
+// Reads (content/ink/hand.ink): a voice of his, reading a thing he can hold, and one read a voice a thing
+const readSeen = new Map();
+for (const r of scan.readRefs) {
+  if (!voiceIds.has(r.voice)) err(`#read: unknown voice "${r.voice}" at ${r.loc}`);
+  else if (voices[r.voice].whose) err(`#read: ${r.voice} at ${r.loc} is ${voices[r.voice].whose}'s voice, not his`);
+  if (!r.thing || !props || !props[r.thing] || r.thing === 'tonight') err(`#read: ${r.voice} reads "${r.thing}" at ${r.loc}, which isn't a thing in props.yaml`);
+  const key = r.voice + ' ' + r.thing;
+  if (readSeen.has(key)) err(`#read: ${key} at ${r.loc} again (first at ${readSeen.get(key)}): one read a voice a thing`);
+  else readSeen.set(key, r.loc);
+}
 for (const t of scan.toyRefs) {
   const pr = props && props[t.id];
   if (!pr || t.id === 'tonight') { err(`#toy: "${t.id}" at ${t.loc} is not in props.yaml`); continue; }
