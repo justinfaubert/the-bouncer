@@ -50,9 +50,12 @@ To swap one, put a file with the same name, as `.wav`, `.ogg` or `.mp3`, in a fo
 `audio` next to the game (or in `audio` inside the saves folder). A file there wins over the
 placeholder. More takes of the same sound go in as `card_2`, `card_3` and so on, and the game
 picks among them. The names are the files in `audio/`: the room's layers are the `amb_` ones
-(rain on the glass, the room's talk in two layers, the jukebox through the wall, the fryer, the
-cellar, and before he gets there the bookkeeper's typing, the Esso's canopy and the highway), and
-the rest are things (the scanner's beeps, the door, the dice, the pen).
+(rain on the glass, the room's talk in two layers, the jukebox, the fryer and the cook's radio,
+the cellar, and before he gets there the bookkeeper's typing, the Esso's canopy and the highway),
+then the room's own sounds, each from where it happens (a glass set down, table 28's laugh, the
+pool game shot by shot, the bartender's pour), and the rest are his (the scanner's beeps, the
+door, the dice, the pen). `docs/SOUNDS.md` lists every one, what it's for and where and when it
+plays.
 
 ## What's in here
 

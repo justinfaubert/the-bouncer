@@ -221,6 +221,22 @@ Update this file at the end of every session: add a session entry, move items be
 - The bones made the people's models heavier (88 MB from 55), and the web build with them, about 77 MB the first time, more than an artifact takes in one publish. The web build's parts are named by a hash of what's in them now (`godot/tools/web/pack.py`), so they went up beside the old build's before the page that asks for them, and no browser can mix a part kept from an earlier build with a new page.
 - Delivered on 24 October (5fc3bd5): `releases/The-Bouncer-2026-10-24b.zip` to play on Linux, and the Godot web build at its link (version 14). The browser build stays at version 13.
 
+### 2026-10-24 (Saturday), the room's sound and talk
+
+- The second step of the polish, after the people: the room going on by itself while he stands still, each sound from where it happens, and the room's own talk, overheard (the polish page's "The room's sound and talk").
+- `godot/world/doings.gd` runs the room's goings-on. Table 28 laughs at something every half minute to a minute and a quarter, sooner as the rounds go, now and then with a hand slapped on the table; every few minutes they all look up at the hockey over the back wall, and a time in three go up for a goal, a time in three groan at a near one. Paige works between serving, by where she's standing: wipes the bar down in front of her, pulls a pint at the taps and sets it down, rings something through the till, her right hand on the bar top, the tap's handle or the till's keys, and a step toward it when it's out of her reach. Someone coughs every minute or two (the shoulders jolt and the head goes down); a smoker on the deck lights up; every six to twelve minutes a glass goes over at one of the tables, whoever's near looks, one of them laughs, and Paige looks across.
+- The pool game is heard shot by shot: the cue, the balls, now and then one dropping, a new break every seven to twelve shots, quicker as the game heats up. Only while the table's out of his sight, since nobody's shown taking a shot. The pool game's loop (`amb_pool`) is gone.
+- People go to the washroom when the night leaves them be (Dennis, the big man's buddy, Good Shoes, hi-vis): up from their place with the stool scraped back, down the back hall, the door, a minute or two, the flush, the door, and back to their place. Anyone getting up or sitting down scrapes their stool.
+- None of it happens at the table he's at, which is the story's, and none of it moves the clock: the night goes by what he does, as before.
+- Every sound comes from where it happens (`at` in `godot/game/sound.gd`): louder near it, from its side as he turns his head, lower and duller from another part of the building. The cook's radio is a new layer in the kitchen till eleven. Eighteen new placeholder sounds (`godot/tools/sounds.py`): glass_down, clink, laugh, laugh_one, cough, stool, pour, wipe, flush, door_wc, slap, cue, pocket, break, lighter, cheer, groan, spill.
+- What he overhears (`content/rules/talk.yaml`, `godot/game/talk.gd`): the room talking among itself, a few lines at a time, written over the heads of whoever's saying it as they say it, on a slip of the night's paper in the reading italic, word by word with the jaw, the others in it turning to whoever's talking. Near him it's clear; further off, or over a full room, the words are fainter; past earshot it isn't heard. One at a time and each once a night; never with the table he's at, or Paige while he's at the bar; never over the story's own lines, and broken off if the story wants one of them. A line said off the edge of his eyes is kept at the edge, on that side, pointing that way; one from behind him, on the side the conversation's on.
+- Twenty-six conversations, all drafts in each speaker's voice (bible/10_VOICES.md), with a HUTCH note at the top of the file: table 28 on diesel at the Esso, the mill's three shifts, pickled eggs, the new kid (one way if they like him, another if they don't), Dennis's wife, the toast; the big man's buddy talking too much; the old man at the end of the bar on the tide; the woman from room nine on the drip, her husband, the wine; the card machine; hi-vis in room eleven; Good Shoes on Gary; and two strangers on HAARP, Alberta's cloud seeding, the saucer pictures the Air Force gave a bar owner, the light over the mainland, the big one being overdue, two shifts at the mill by spring, the ferry, the new doorman, and something under the jukebox.
+- Once he's heard one through, a voice in his head can answer it, in the column (barks.yaml's `ears:<id>`): nine answers so far.
+- The talk is only in the Godot build; the browser build is unchanged.
+- `godot/docs/SOUNDS.md` lists every sound for Hutch: what it stands for, where and when it plays, how many takes, how to put recordings in, and which would change the most.
+- The voices' answers are new rules, so the story's hash changed: a night saved before says so when it's continued, and goes on from the floor.
+- Claude's calls here are under PROPOSED, "Proposed with the room's sound and talk (2026-10-24)".
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -556,6 +572,17 @@ Proposed with the people alive (2026-10-24), from Hutch's note that the night fe
 - **A sip** every twenty-five to seventy seconds, four or five seconds long, never while they talk.
 - **Table 28's glasses:** one each in front of the five, near the edge, left at an empty stool; the empties of each round in the middle.
 - **Talk:** about fourteen letters a second, the jaw open up to 14 degrees.
+
+Proposed with the room's sound and talk (2026-10-24), from Hutch's note that the night feels dead:
+
+- **The clock stays the story's:** the room goes on in real time while he stands still, but the night's clock only moves with what he does. A clock running on its own would push the night on while the player reads.
+- **How often:** table 28's laugh every 30 to 75 seconds, sooner with the rounds; the hockey every 150 to 320 seconds, a goal a time in three and a near miss a time in three; Paige's work every 5 to 14 seconds while she's free (wiping 3 to 6 seconds, a pour 3.6, the till 1.4 to 2.4); a cough every 50 to 150 seconds; a lighter on the deck every 40 to 100; a spilled glass every 6 to 12 minutes; a trip to the washroom every 200 to 420 seconds, gone 50 to 110; a pool shot every 11 to 24 seconds by the heat, a pocket a shot in three.
+- **Who goes to the washroom:** Dennis, the big man's buddy, Good Shoes and hi-vis, one at a time, never from the table or the game he's at.
+- **The pool game heard, not shown:** shots only while the table's out of his sight; its loop retired.
+- **Overheard talk:** earshot 7.5 m in an empty room and a third less in a full one (24 in); the ones in a conversation within 3.8 m of each other; 9 to 22 seconds between conversations, a quarter to three quarters of a second between lines; a line stays up 2.4 seconds after it's said; the words fainter past 60% of earshot; a conversation he can't see only if they're all within 70% of earshot. The most particular conversation that can happen goes first, then the nearest. Strangers ("a" and "b") are the room's unnamed people.
+- **The drafts:** the twenty-six conversations and the nine answers (talk.yaml, barks.yaml's "overheard"). The skeleton's talk at the bar (HAARP, the cloud seeding, the Air Force's pictures, the light over the mainland) stays in fragments, never settled.
+- **Two to a table:** the room's extra people sit two to a table as they come in, so the first strangers in have someone to talk to.
+- **The cook's radio:** on in the kitchen till he goes at eleven.
 
 ### REJECTED
 

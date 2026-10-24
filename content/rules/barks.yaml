@@ -13,6 +13,7 @@
 #          answer:<voice>   right after that voice has said one of these (see "answers" below)
 #          hand:<...>    the voices and the player, before a choice is made (see "the hand" below)
 #          toy:<thing>:<what>   the player handling a thing between choices (see "toys" below)
+#          ears:<talk>   he's just overheard that conversation (content/rules/talk.yaml; see "overheard" below)
 #          anything named by a #bark: tag in the Ink
 #
 # All of these are Claude's drafts. Rewrite freely; the build checks the variable names.
@@ -576,6 +577,55 @@
   speaker: wrongman
   when: [ran_room >= 3]
   text: In the story the doorman ran, and by the time he got there everybody was already standing.
+
+# ---------------------------------------------------------------- overheard
+# A voice in his head on something he's just overheard the room say (content/rules/talk.yaml; only
+# the Godot build has the talk). Tried once, when the conversation's done; no chance gate.
+
+- id: ears_new_kid
+  on: ears:t28_new_kid
+  speaker: father
+  text: They talk about you so you'll hear it. Don't let them see you heard it.
+
+- id: ears_new_kid_bad
+  on: ears:t28_new_kid_bad
+  speaker: wrongman
+  text: In the story, the table that's turned on you never says it to your face. It says it to the table.
+
+- id: ears_dennis
+  on: ears:t28_dennis
+  speaker: father
+  text: That's not a funny drunk. That's a drunk they're used to.
+
+- id: ears_pool_quiet
+  on: ears:pool_quiet
+  speaker: fighter
+  text: Shoulders up round his ears and he's not looking at the ball. That's not a man playing pool.
+
+- id: ears_goodshoes
+  on: ears:goodshoes_gary
+  speaker: father
+  text: A man who says the owner's name twice wants you to hear it once.
+
+- id: ears_haarp
+  on: ears:haarp
+  speaker: manual
+  text: Staff are reminded that the ionosphere is outside the licensed premises.
+
+- id: ears_light
+  on: ears:the_light
+  speaker: father
+  text: Eyes on the door. The sky's somebody else's job.
+
+- id: ears_overdue
+  on: ears:overdue
+  speaker: fighter
+  text: Feet under you. Always. You never know which way a floor's going to go.
+
+- id: ears_rat
+  on: ears:rat_seen
+  speaker: manual
+  text: Sightings of vermin are to be reported to the licensee, who will be glad to hear it.
 
 # ---------------------------------------------------------------- the hand
 #

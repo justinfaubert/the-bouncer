@@ -9,7 +9,9 @@
 # into the dark; whoever's coming, in from the lot. For anyone else, his eyes close for a blink and
 # it's done.
 # And the room lives between glances on its own: the bartender works along the bar, the buddy goes
-# round the table, Slippers drifts between the jukebox and the bar.
+# round the table, Slippers drifts between the jukebox and the bar. It goes on while he watches too
+# (world/doings.gd): laughs, the pool game, the bartender at her work, someone off to the washroom
+# and back; and it's heard, a stool scraped back behind him as someone sits or gets up.
 #
 # The people are sculpted and posed in tools/people.py (sketches/door-look), one model per pose;
 # where their heads and hands and phones are is written beside each model in a .json.
@@ -17,6 +19,7 @@ class_name Stage
 extends Node3D
 
 signal walked(id: String)          # someone's got where they were walking to
+signal sound(id: String, pos: Vector3, gain: float, reach: float)   # one of the room's own, from where it happens
 
 const PEOPLE := "res://models/people/"
 const BLINK_AFTER := 1.1           # seconds a change waits in his sight before he blinks
@@ -56,6 +59,10 @@ const COMES_FROM := [Vector3(4.6, 0, 13.4), Vector3(6.4, 0, 15.6), Vector3(2.6, 
 # which post sees what a part of the building does, for what he can see on the way somewhere
 const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot",
 	"lobby": "hall", "keg": "keg", "upstairs": "upstairs", "office": "office", "town": "street"}
+# the men's on the back hall, for whoever goes: in front of its door, and inside it, past the door
+const WC_DOOR := "wc_men"
+const WC_FRONT := Vector3(7.47, 0, -0.8)
+const WC_IN := Vector3(7.47, 0, -1.8)
 
 var pub: Pub
 var content: Dictionary
@@ -74,12 +81,17 @@ var walkers := {}                  # id -> the walk they're on (see _walk_off)
 var _nav: Nav
 var _v := {}                       # the night as of the last sync: where people go when they go
 var life := Life.new()             # the ones with bones, alive while he watches (world/life.gd)
+var doings := Doings.new()         # and the room going on by itself (world/doings.gd)
+var away := {}                     # id -> the washroom: {"back": when, "flushed": bool, "want": [spot, model] to come back to}
+var _quiet := false                # putting everyone where they are at once: no stools heard
 
 
 func setup(p: Pub, c: Dictionary) -> void:
 	pub = p
 	content = c
 	life.cups = pub.dyn.get("t28_glasses")
+	life.heard = func(id, pos, gain, reach): sound.emit(id, pos, gain, reach)
+	doings.stage = self
 	_spots()
 
 
@@ -343,7 +355,7 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	# on their feet with a pint
 	var fillers := [["crew_b", "table"], ["patron_a", "table"], ["patron_e", "bar"], ["patron_c", "stand"],
 		["patron_b", "table"], ["patron_f", "table"], ["patron_d", "stand"], ["crew_a", "table"]]
-	var free := {"table": ["table_d_0", "table_c_1", "table_d_1", "table_c_0", "table_a_2", "table_d_2", "table_c_2"],
+	var free := {"table": ["table_d_0", "table_d_1", "table_c_1", "table_c_0", "table_a_2", "table_d_2", "table_c_2"],
 		"bar": ["bar_s1", "bar_s5"], "stand": ["pool_watch", "stand_bar", "stand_window"]}
 	var used := {}
 	for id in out:
@@ -453,6 +465,15 @@ func sync(game: Game, instant: bool) -> void:
 	for id in figures.keys():
 		if not want.has(id):
 			want[id] = []
+	# whoever's in the washroom stays there till they're done, unless the night wants them now (a
+	# scene's on, or he's come to where they were)
+	var scene_on: bool = game.story != null and _scene(game).begins_with("ev_")
+	for id in away.keys():
+		away[id].want = want.get(id, [])
+		if scene_on or instant or _post_of(away[id].want) == (view.place if view != null else ""):
+			_back(id)
+		else:
+			want[id] = []
 	# the ones who drift stay where they've drifted to; but with him at the bar, the bartender comes
 	# back across from him
 	var at_bar: bool = game.story != null and game.here() == "bar"
@@ -465,8 +486,11 @@ func sync(game: Game, instant: bool) -> void:
 			want[id] = [f.spot, w[1]]
 	if instant:
 		_stop_walks()
+		_quiet = true
 		for id in want:
 			_place(id)
+		_quiet = false
+		_from_wc.clear()
 		for key in things:
 			_do_thing(key)
 		waiting.clear()
@@ -629,6 +653,10 @@ func _walk_off(id: String) -> bool:
 			from = node.global_position
 	elif w.is_empty():
 		return false
+	# back out of the washroom: from in front of its door (and through it, below)
+	var from_wc: bool = f == null and _from_wc.has(id)
+	if from_wc:
+		from = WC_FRONT
 	var to := Vector3.INF
 	if w.is_empty():
 		to = _goes_to(id)
@@ -660,6 +688,18 @@ func _walk_off(id: String) -> bool:
 		path = _nav.way(from, to)
 	if path.size() < 2:
 		return false
+	# to the washroom and in through its door, or out through it and back
+	var wc_door := -1.0
+	var into_wc: bool = w.is_empty() and away.has(id)
+	if into_wc:
+		path.append(WC_IN)
+		wc_door = Nav.length_of(path) - WC_IN.distance_to(Vector3(WC_IN.x, 0, Pub.HALL_Z))
+	elif from_wc:
+		path.insert(0, WC_IN)
+		wc_door = WC_IN.distance_to(Vector3(WC_IN.x, 0, Pub.HALL_Z))
+		_from_wc.erase(id)
+	if f != null and str(f.spot) != "" and _seated(f.spot):
+		_scrape(f.spot)
 	# the walking body in place of the standing one (or a new one, coming in)
 	if f == null:
 		var holder := Node3D.new()
@@ -690,9 +730,12 @@ func _walk_off(id: String) -> bool:
 		anim.play("walk")
 		anim.seek(randf(), true)
 		anim.speed_scale = 0.0
+	var doors := Posts.doors_on(path)
+	if wc_door >= 0.0:
+		doors.append([WC_DOOR, wc_door, 0])
 	walkers[id] = {"path": path, "len": Nav.length_of(path), "s": 0.0, "v": 0.0, "to": w.duplicate(),
 		"pace": float(STROLL[id]), "stride": maxf(0.3, float(f.anchors.get("stride", 1.0))), "anim": anim,
-		"doors": Posts.doors_on(path)}
+		"doors": doors}
 	return true
 
 
@@ -787,6 +830,8 @@ func _seated(spot: String) -> bool:
 # where someone going goes: the three from the pickup back to it while it's there, everyone else out
 # of the door and off across the lot
 func _goes_to(id: String) -> Vector3:
+	if away.has(id):
+		return WC_FRONT
 	var var_of := {"hoodie": "kid_at", "driver": "sister_at", "vape": "vape_at"}
 	if var_of.has(id) and pickup_here and _spot_of(_v, var_of[id]) == "s_truck":
 		return _truck_door("truck_wheel" if id == "driver" else "truck_back")
@@ -815,12 +860,22 @@ func _place(id: String) -> void:
 	var f = figures.get(id)
 	if w.is_empty():
 		if f != null:
+			if str(f.spot) != "" and _seated(f.spot):
+				_scrape(f.spot)
 			(f.node as Node3D).queue_free()
 			figures.erase(id)
 		return
 	var spot: String = w[0]
 	var model: String = w[1]
 	var s: Dictionary = SPOTS[spot]
+	_from_wc.erase(id)
+	# a stool scraped as someone gets up off it, or sits down on one
+	var was := str(f.spot) if f != null else ""
+	if was != spot:
+		if was != "" and _seated(was):
+			_scrape(was)
+		if _seated(spot):
+			_scrape(spot)
 	if f != null and f.model != model:
 		(f.node as Node3D).queue_free()
 		figures.erase(id)
@@ -973,6 +1028,8 @@ func arrived(_where: String) -> void:
 # Anyone without bones turns a little toward him, if he can see them.
 func speaking(speaker: String, text := "") -> void:
 	var id: String = SPEAKS_FOR.get(speaker, speaker)
+	if away.has(id):
+		_back(id)
 	var f = figures.get(id)
 	if f == null or view == null or walkers.has(id):
 		return
@@ -1043,6 +1100,9 @@ func _process(dt: float) -> void:
 	t += dt
 	if not walkers.is_empty():
 		_walk_on(dt)
+	if not away.is_empty():
+		_errands()
+	doings.update(dt)
 	_check -= dt
 	if _check <= 0.0 and view != null:
 		_check = 0.25
@@ -1091,3 +1151,69 @@ func _wander() -> void:
 		want[id] = [next, f.model]
 		_place(id)
 		wander_at[id] = t + randf_range(25.0, 60.0)
+
+
+# ---------------------------------------------------------------- the washroom
+
+# Someone off to the washroom for secs (world/doings.gd): gone from their place the way anyone goes
+# (walking there if he's looking, or while he isn't), and back to it after.
+func errand(id: String, secs: float) -> void:
+	if not figures.has(id) or away.has(id) or walkers.has(id):
+		return
+	away[id] = {"back": t + secs, "flushed": false, "want": want.get(id, [])}
+	want[id] = []
+	_settle(0.0)
+
+
+# Done in there: the flush, the door, and out.
+func _errands() -> void:
+	for id in away.keys():
+		var a: Dictionary = away[id]
+		if t < float(a.back) or walkers.has(id) or figures.has(id):
+			continue
+		if not a.flushed:
+			a.flushed = true
+			a.back = t + randf_range(1.8, 2.6)
+			sound.emit("flush", WC_IN + Vector3(0.6, 0.5, -0.5), 0.9, 1.5)
+			continue
+		sound.emit("door_wc", Vector3(WC_FRONT.x, 1.0, Pub.HALL_Z), 0.9, 1.2)
+		_from_wc[id] = true
+		_back(id)
+
+
+var _from_wc := {}                 # the ones coming back out of the washroom, for their walk out of it
+
+
+# Back to where the night wants them, from the washroom or on the way to it.
+func _back(id: String) -> void:
+	if not away.has(id):
+		return
+	want[id] = away[id].want
+	away.erase(id)
+	# gone already, or on the way: they come back out of the washroom (once they're in it)
+	if not figures.has(id) or walkers.has(id):
+		_from_wc[id] = true
+
+
+# the post a place is seen best from (for "he's come to where they were")
+func _post_of(w: Array) -> String:
+	if w.is_empty():
+		return ""
+	var spot := str(w[0])
+	if spot.begins_with("t28"):
+		return "t28"
+	if spot.begins_with("pool"):
+		return "pool"
+	if spot.begins_with("bar_"):
+		return "bar"
+	return ""
+
+
+# A stool scraped on the carpet, or a chair on the deck: from where it is.
+func _scrape(spot: String) -> void:
+	if _quiet or view == null:
+		return
+	var s: Dictionary = SPOTS.get(spot, {})
+	if s.is_empty() or s.get("in", "") != "":
+		return
+	sound.emit("stool", (s.pos as Vector3) + Vector3(0, 0.4, 0), randf_range(0.6, 0.9), 1.2)

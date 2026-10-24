@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The second Godot build of 24 October 2026.
+Wednesday, from the interview to close. The third Godot build of 24 October 2026.
 
 
 PLAY IT
@@ -61,6 +61,38 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE SECOND BUILD OF 24 OCTOBER
+
+The room's sound, and its talk.
+
+- The room goes on by itself while he stands there. Table 28 laughs at something and slaps the
+  table, looks up at the hockey together and goes up for a goal or groans at a near one. The
+  bartender wipes the bar down, pulls a pint at the taps and sets it down, rings something
+  through the till. Someone coughs; a smoker on the deck lights up; now and then a glass goes over
+  at a table and whoever's near looks. The pool game goes on shot by shot while the table's out
+  of his sight, with a new break every so often.
+- People go to the washroom: up from their place with the stool scraped back, down the back hall,
+  the door, a minute or two, the flush, and back to where they were.
+- Every sound comes from where it happens: louder near it, from its side as he turns his head,
+  and lower and duller through a wall or the floor. The cook has a radio on in the kitchen till
+  he goes at eleven.
+- He overhears the room. A few lines at a time, written over the heads of whoever's saying it as
+  they say it, their mouths going and the others turning to them: table 28 on the price of diesel
+  and the new kid on the door, the big man's buddy talking too much, the woman from room nine on
+  her drip, two at the bar on HAARP, the light over the mainland or the big one being overdue.
+  Near him it's clear, further off or over a full room it's fainter, and out of earshot it isn't
+  heard. Talk behind him shows at the edge, on the side it's coming from. One conversation at a
+  time, each once a night, and never at the table he's at.
+- Once he's heard one through, a voice in his head can have something to say about it.
+- None of it moves the clock: the night still goes by what he does.
+- The overheard lines are drafts, each in its speaker's voice, in content/rules/talk.yaml in the
+  repo, for you to rewrite, cut, or add to.
+- Every sound is still a placeholder. godot-project/docs/SOUNDS.md lists every one: what it's
+  for, where and when it plays, and how to put your own recordings in.
+- The voices' answers to the talk are new rules, so a night saved before says the story has
+  changed when you continue it, and goes on from the floor.
 
 
 WHAT'S NEW SINCE THE FIRST BUILD OF 24 OCTOBER
@@ -445,12 +477,19 @@ Everything new is logged as PROPOSED in the repo's bible/05_LOG.md, for you to k
 
 SOUND
 
-Every sound is still a placeholder made in code. A .wav, .ogg or .mp3 with the same name, in a
-folder called audio inside game/ (next to the game), takes its place from the next start; more
-takes of one sound go in as card_2, card_3 and so on. The names:
+Every sound is still a placeholder made in code, holding the place for a recording.
+godot-project/docs/SOUNDS.md lists every one: what it stands for, where and when it plays, and
+how many takes it has. To put one of yours in, give it the same name (.wav, .ogg or .mp3) and
+put it in a folder called audio inside game/ (next to the game), or in
+~/.local/share/The Bouncer/audio/, where it carries over to the next build; it's used from the
+next start. More takes of one sound go in as laugh_2, laugh_3 and so on, and the game picks among
+them. Mono for anything in the room, since the game puts it where it happens. The names:
 
-    the room   amb_rain_glass amb_rain_out amb_rain_roof amb_room_tone amb_talk_a amb_talk_b
-               amb_shout amb_juke amb_pool amb_fryer amb_fan amb_tube amb_cellar amb_rats amb_sea
-    things     beep_ok beep_bad (the scanner) thump (the door) gust rattle tick tock (the dice)
-               clack (the balls) thud ring glass scratch till bell card page pen printer swipe
-               tear stamp steps heart whisper lift choose click_ui
+    the room's layers   amb_room_tone amb_talk_a amb_talk_b amb_shout amb_juke amb_rain_glass
+                        amb_rain_out amb_rain_roof amb_fryer amb_fan amb_radio amb_tube
+                        amb_cellar amb_rats amb_sea amb_keys amb_canopy amb_traffic
+    the room's own      glass_down clink laugh laugh_one slap cheer groan cough stool pour wipe
+                        till door_wc flush cue clack pocket break lighter spill
+    his                 beep_ok beep_bad (the scanner) thump (the door) thud glass scratch ring
+                        bell rattle tick tock (the dice) stamp printer tear pen page card swipe
+                        whisper steps choose click_ui

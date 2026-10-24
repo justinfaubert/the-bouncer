@@ -34,6 +34,7 @@ var going: Going
 var dice: Dice
 var props: Props
 var marks: Marks
+var talk: Talk
 var audio: Sound
 
 var in_game := false
@@ -89,7 +90,17 @@ func _ready() -> void:
 
 	audio = Sound.new()
 	add_child(audio)
+	audio.view = view
 	audio.setup(settings)
+
+	# what he overhears, under the voices' marks (game/talk.gd)
+	talk = Talk.new()
+	talk.set_anchors_preset(Control.PRESET_FULL_RECT)
+	talk.anchor_right = WORLD_W
+	root.add_child(talk)
+	talk.setup(view, stage, content.get("talk", []), func(n): return game.get_var(n), func(): return game.psyche,
+		func(): return in_game and pending == null and rolling == null and not game.ended)
+	talk.finished.connect(overheard)
 
 	marks = Marks.new()
 	marks.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -146,6 +157,7 @@ func _ready() -> void:
 	view.ran.connect(func(): going.ran())
 	view.settled.connect(func(): audio.sfx("thump", 0.3, 0.7))
 	stage.walked.connect(func(_id): props.arrived())
+	stage.sound.connect(audio.at)
 	view.people_at = stage.standing
 	stage.sync(game, true)
 	menus.title()
@@ -334,6 +346,7 @@ func reset_story() -> void:
 	hand.stop()
 	props.drop_all()
 	marks.clear()
+	talk.reset()
 	column.reset()
 	clock_shown = -1
 	going.moved()
@@ -409,6 +422,21 @@ func toy(id: String, what: String) -> String:
 	refresh_status()
 	persist_soon()
 	return "said"
+
+
+# The room said something he heard through (game/talk.gd): a voice in his head can answer it.
+func overheard(id: String) -> void:
+	if not in_game or pending != null or rolling != null or game.ended:
+		return
+	var res := game.overheard(id)
+	if res.is_empty():
+		return
+	column.begin_batch()
+	var first := render_items(res.items, true)
+	column.reveal(true)
+	if first != null:
+		column.keep_in_view(first)
+	persist_soon()
 
 
 func show(res: Dictionary, live: bool) -> void:
@@ -516,6 +544,7 @@ func render_items(items: Array, live: bool) -> Control:
 				if it.get("prop") != null:
 					props.offer(it, live)
 				if live and it.get("role") == "dialogue":
+					talk.interrupt(str(it.get("speaker", "")))
 					stage.speaking(str(it.get("speaker", "")), str(it.get("text", "")))
 			"chosen":
 				# his legs (a walk across the room, game/going.gd) aren't a choice anyone reads
@@ -669,8 +698,11 @@ func _look(id: String) -> void:
 func _sync_sound() -> void:
 	var st := game.status()
 	var g := func(n): return int(BUtil.js_int(game.get_var(n)))
+	var b := func(n): return bool(BUtil.js_truthy(game.get_var(n)))
 	audio.room({"n": g.call("room_count"), "heat": g.call("pool_heat"), "rounds": g.call("t28_rounds"),
-		"rats": g.call("rat_count"), "clock": int(st.clock), "here": str(st.here)})
+		"rats": g.call("rat_count"), "clock": int(st.clock), "here": str(st.here),
+		"t28": stage.present("team_jacket"), "pool_on": stage.present("bigman") or stage.present("buddy"),
+		"doors": {"deck": b.call("deck_door"), "kitchen": b.call("kitchen_door"), "hotel": b.call("hotel_door")}})
 	audio.place(str(st.here), int(st.clock))
 
 

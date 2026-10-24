@@ -413,6 +413,290 @@ LAYERS = {
 }
 
 
+# no longer played: the pool game's heard shot by shot now (ROOM: cue, clack, pocket, break). Still
+# made, so the files after it come out the same, but not written.
+RETIRED = {'pool'}
+
+
+# ---------------------------------------------------------------------------------- the room's own
+#
+# The sounds the room makes from where they happen (game/sound.gd, Sound.at; world/doings.gd): a
+# glass set down after a sip, table 28 laughing, the pool game shot by shot, the bartender pouring
+# and wiping down, someone in the washroom. Made after everything above, so adding them changed
+# none of the files before them.
+
+def _voice(o, t0, f0, n, rate, vol, vowel=(750, 1250, 2500), fall=0.85, breath=0.25):
+    """One person's 'ha ha ha': n syllables at `rate` a second, a buzz at f0 (falling a little
+    through the laugh) through the vowel's three formants, each syllable softer than the last."""
+    for i in range(n):
+        s = t0 + i / rate * (0.9 + 0.2 * r())
+        d = 0.055 + 0.05 * r()
+        m = int(SR * (d + 0.08))
+        i0 = int(SR * s)
+        if i0 >= len(o):
+            return
+        tt = np.arange(m) / SR
+        f = f0 * (fall ** (i / max(n - 1, 1))) * (1.0 + 0.03 * np.sin(2 * np.pi * 6 * tt)) * (1 + 0.02 * (r() - 0.5))
+        ph = 2 * np.pi * np.cumsum(f) / SR
+        src = 2 * ((ph / (2 * np.pi)) % 1.0) - 1
+        src += breath * rng.standard_normal(m)
+        y = np.zeros(m)
+        for fq, g in zip(vowel, (1.0, 0.55, 0.22)):
+            y += g * _filter(src, 'bandpass', fq * (0.95 + 0.1 * r()), 5.0)
+        env = np.minimum(tt / 0.012, 1.0) * np.exp(-np.maximum(tt - d * 0.5, 0) / (d * 0.45))
+        y = y * env
+        y = y / (np.max(np.abs(y)) + 1e-9) * vol * (1 - 0.6 * i / max(n, 1))
+        k = min(m, len(o) - i0)
+        o[i0:i0 + k] += y[:k]
+
+
+def _breath_in(o, t, vol):
+    burst(o, t, 0.25, 1400, 0.9, vol)
+
+
+def _laugh(o, v):
+    # table 28 going off together: four or five of them, high and low, in on it at different
+    # moments, one wheezing at the end
+    voices = 4 + int(r() * 2)
+    for k in range(voices):
+        f0 = [105, 125, 150, 190, 230][k % 5] * (0.92 + 0.16 * r())
+        vowel = [(700, 1200, 2450), (650, 1080, 2400), (780, 1300, 2600), (600, 1000, 2300)][int(r() * 4)]
+        _voice(o, 0.05 + r() * 0.45, f0, 4 + int(r() * 5), 4.2 + r() * 1.8, (0.11 + r() * 0.07) * v, vowel)
+    _breath_in(o, 1.75 + r() * 0.3, 0.04 * v)
+
+
+def _laugh_one(o, v):
+    f0 = 110 + r() * 50
+    _voice(o, 0.02, f0, 5 + int(r() * 3), 4.8 + r(), 0.2 * v, (720, 1180, 2450))
+    _breath_in(o, 1.1 + r() * 0.2, 0.05 * v)
+
+
+def _cough(o, v):
+    s = 0.0
+    for i in range(2 + int(r() * 2)):
+        burst(o, s, 0.07, 450 + r() * 250, 1.2, (0.3 - i * 0.06) * v)
+        burst(o, s + 0.01, 0.05, 1500 + r() * 400, 1.5, (0.1 - i * 0.02) * v)
+        tone(o, s, 120 + r() * 40, 0.06, 0.05 * v, 'sawtooth', 95)
+        s += 0.2 + r() * 0.12
+
+
+def _stool(o, v):
+    # a stool pushed back on the carpet: a judder of the feet, and the joint creaking under him
+    n = int(SR * (0.28 + r() * 0.15))
+    x = _filter(rng.standard_normal(n), 'bandpass', 380 + r() * 200, 1.1)
+    tt = np.arange(n) / SR
+    x *= (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * (28 + r() * 14) * tt))) * np.sin(np.pi * tt / tt[-1]) ** 0.6
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.12 * v
+    o[:n] += x[:len(o)]
+    tone(o, 0.05 + r() * 0.1, 170 + r() * 60, 0.18, 0.03 * v, 'sawtooth', 230 + r() * 40)
+
+
+def _pour(o, v):
+    # a pint pulled from the tap: the rush into the glass, its note rising as the glass fills, and
+    # the last of it as the tap goes off
+    secs = 3.0 + r() * 0.6
+    n = int(SR * secs)
+    tt = np.arange(n) / SR
+    x = np.zeros(n)
+    seg = int(SR * 0.05)
+    noise = rng.standard_normal(n + seg)
+    for i0 in range(0, n, seg):
+        f = 850 + 900 * (i0 / n) ** 0.8
+        y = _filter(noise[i0:i0 + seg * 2], 'bandpass', f, 3.5)[:seg]
+        x[i0:i0 + len(y)] += y[:n - i0]
+    x += 0.5 * _filter(rng.standard_normal(n), 'bandpass', 2600, 0.8)
+    x *= am(n, 9, 0.35, 0.02)
+    env = np.minimum(tt / 0.12, 1.0) * np.where(tt < secs - 0.25, 1.0, np.exp(-(tt - (secs - 0.25)) / 0.06))
+    x = x * env
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.07 * v
+    o[:n] += x[:len(o)]
+    tone(o, secs - 0.22, 2400, 0.05, 0.01 * v)
+
+
+def _wipe(o, v):
+    for k in range(2):
+        s = k * (0.26 + r() * 0.06)
+        n = int(SR * 0.24)
+        x = _filter(rng.standard_normal(n), 'lowpass', 1100 + r() * 400, 0.7)
+        x *= np.sin(np.linspace(0, np.pi, n)) ** 2
+        x = x / (np.max(np.abs(x)) + 1e-9) * 0.05 * v
+        i0 = int(SR * s)
+        o[i0:i0 + n] += x[:len(o) - i0]
+
+
+def _flush(o, v):
+    n = int(SR * 3.2)
+    tt = np.arange(n) / SR
+    x = np.zeros(n)
+    seg = int(SR * 0.1)
+    noise = rng.standard_normal(n + seg * 2)
+    for i0 in range(0, n, seg):
+        f = 2200 * np.exp(-tt[i0] / 1.4) + 300
+        y = _filter(noise[i0:i0 + seg * 2], 'lowpass', f, 0.7)[:seg]
+        x[i0:i0 + len(y)] += y[:n - i0]
+    x *= am(n, 6, 0.4, 0.03)
+    env = np.minimum(tt / 0.15, 1.0) * np.exp(-np.maximum(tt - 0.6, 0) / 1.1)
+    x = x * env
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.16 * v
+    o[:n] += x[:len(o)]
+    noise_tail = int(SR * 1.4)
+    i0 = int(SR * 2.4)
+    y = _filter(rng.standard_normal(noise_tail), 'bandpass', 3000, 1.5) * np.linspace(1, 0, noise_tail)
+    y = y / (np.max(np.abs(y)) + 1e-9) * 0.02 * v
+    k = min(noise_tail, len(o) - i0)
+    o[i0:i0 + k] += y[:k]
+
+
+def _slap(o, v):
+    burst(o, 0, 0.04, 280, 0.8, 0.35 * v, 'lowpass')
+    burst(o, 0, 0.012, 2100, 1.2, 0.2 * v)
+    tone(o, 0.015, 3100 + r() * 600, 0.12, 0.025 * v)
+    tone(o, 0.03, 3900 + r() * 500, 0.1, 0.02 * v)
+
+
+def _cue(o, v):
+    burst(o, 0, 0.007, 1800 + r() * 500, 2.2, 0.26 * v)
+    burst(o, 0.002, 0.02, 700, 1.2, 0.08 * v, 'lowpass')
+
+
+def _pocket(o, v):
+    burst(o, 0, 0.03, 480 + r() * 120, 1.1, 0.26 * v)
+    n = int(SR * 0.7)
+    x = _filter(rng.standard_normal(n), 'lowpass', 260, 0.7) * am(n, 16, 0.6, 0.01)
+    x *= np.exp(-np.arange(n) / SR / 0.3)
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.1 * v
+    i0 = int(SR * 0.05)
+    o[i0:i0 + n] += x[:len(o) - i0]
+
+
+def _break(o, v):
+    _cue(o, v)
+    s = 0.03
+    for i in range(14):
+        burst(o, s, 0.015, 2300 + r() * 1500, 3, (0.24 - i * 0.012) * v)
+        s += 0.008 + r() * 0.035
+    for i in range(5):
+        s += 0.12 + r() * 0.25
+        burst(o, s, 0.014, 2400 + r() * 1200, 3, 0.08 * v)
+
+
+def _lighter(o, v):
+    for i in range(2 + int(r() * 2)):
+        burst(o, i * 0.06, 0.012, 4200 + r() * 1500, 3, 0.1 * v)
+    burst(o, 0.17, 0.3, 900, 0.9, 0.05 * v)
+
+
+def _long(o, t0, f0, dur, vol, vowel, glide):
+    """One voice on one long vowel (a 'hey!', an 'ohh'): a buzz at f0 going to f0 * glide over it,
+    through the vowel's three formants."""
+    m = int(SR * (dur + 0.15))
+    i0 = int(SR * t0)
+    if i0 >= len(o):
+        return
+    tt = np.arange(m) / SR
+    f = f0 * (1 + (glide - 1) * np.minimum(tt / dur, 1.0)) * (1.0 + 0.025 * np.sin(2 * np.pi * 5.5 * tt))
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    src = 2 * ((ph / (2 * np.pi)) % 1.0) - 1 + 0.3 * rng.standard_normal(m)
+    y = np.zeros(m)
+    for fq, g in zip(vowel, (1.0, 0.6, 0.25)):
+        y += g * _filter(src, 'bandpass', fq * (0.95 + 0.1 * r()), 4.0)
+    env = np.minimum(tt / 0.03, 1.0) * np.exp(-np.maximum(tt - dur * 0.6, 0) / (dur * 0.3))
+    y = y * env
+    y = y / (np.max(np.abs(y)) + 1e-9) * vol
+    k = min(m, len(o) - i0)
+    o[i0:i0 + k] += y[:k]
+
+
+def _cheer(o, v):
+    # a goal on table 28's hockey: up they go, a shout each, a hand or two on the table, and a laugh
+    for k in range(3 + int(r() * 2)):
+        _long(o, 0.02 + r() * 0.25, 170 + r() * 70, 0.35 + r() * 0.4, (0.1 + r() * 0.06) * v, (620, 1750, 2550), 1.1 + r() * 0.1)
+    for i in range(2 + int(r() * 2)):
+        _slap(o[int(SR * (0.15 + i * 0.22 + r() * 0.1)):], 0.6 * v)
+    _voice(o, 0.9 + r() * 0.3, 130 + r() * 30, 4, 5.0, 0.08 * v)
+
+
+def _groan(o, v):
+    # a near thing: the long 'ohh' going down together
+    for k in range(3 + int(r() * 2)):
+        _long(o, 0.02 + r() * 0.2, 140 + r() * 60, 0.7 + r() * 0.5, (0.09 + r() * 0.05) * v, (520, 900, 2400), 0.72 + r() * 0.1)
+
+
+def _spill(o, v):
+    # a glass knocked over on a table: the clunk of it going down, the beer across the top, and the
+    # glass rolling a little on its side
+    burst(o, 0, 0.03, 260, 0.8, 0.3 * v, 'lowpass')
+    burst(o, 0.002, 0.015, 1400, 1.4, 0.12 * v)
+    tone(o, 0.005, 1900 + r() * 500, 0.1, 0.03 * v)
+    n = int(SR * 0.6)
+    x = _filter(rng.standard_normal(n), 'bandpass', 900 + r() * 300, 0.9)
+    x *= np.exp(-np.arange(n) / SR / 0.18) * am(n, 22, 0.5, 0.01)
+    x = x / (np.max(np.abs(x)) + 1e-9) * 0.09 * v
+    i0 = int(SR * 0.03)
+    o[i0:i0 + n] += x[:len(o) - i0]
+    m = int(SR * 0.7)
+    y = _filter(rng.standard_normal(m), 'lowpass', 400, 0.7) * am(m, 7, 0.7, 0.02)
+    y *= np.sin(np.linspace(0, np.pi, m))
+    y = y / (np.max(np.abs(y)) + 1e-9) * 0.04 * v
+    i1 = int(SR * 0.35)
+    o[i1:i1 + m] += y[:len(o) - i1]
+
+
+def radio(x, secs):
+    """The cook's radio up on the shelf: a song on a small speaker, all middle and no bottom."""
+    beat = 0.5
+    t = 0.0
+    i = 0
+    while t < secs:
+        root = [196, 196, 147, 165][(i // 8) % 4]
+        if i % 2 == 0:
+            tone(x, t, root, 0.4, 0.08, 'sawtooth')
+            tone(x, t, root * 1.5, 0.35, 0.05, 'sawtooth')
+        if i % 4 == 2:
+            burst(x, t, 0.05, 2500, 1.0, 0.05)
+        burst(x, t, 0.03, 180, 0.8, 0.07, 'lowpass')
+        if i % 16 == 12:
+            for k in range(4):
+                tone(x, t + k * 0.12, root * 2 * [1, 1.12, 1.26, 1.5][k], 0.14, 0.04, 'triangle')
+        t += beat
+        i += 1
+    noise_bed(x, 'bandpass', 3000, 1.0, 0.004)
+    y = _filter(_filter(x, 'highpass', 450, 0.7), 'lowpass', 3200, 0.7)
+    x[:] = y
+
+
+ROOM = {
+    'glass_down': lambda o, v: (burst(o, 0, 0.03, 240, 0.8, 0.22 * v, 'lowpass'), burst(o, 0.001, 0.02, 950, 1.5, 0.1 * v),
+                                tone(o, 0.004, 2300 + r() * 700, 0.12, 0.028 * v), burst(o, 0.02, 0.12, 650, 1.2, 0.025 * v)),
+    'clink': lambda o, v: (tone(o, 0, 2900 + r() * 600, 0.35, 0.07 * v), tone(o, 0, 4500 + r() * 500, 0.2, 0.03 * v),
+                           burst(o, 0, 0.004, 5200, 3, 0.05 * v)),
+    'laugh': _laugh,
+    'laugh_one': _laugh_one,
+    'cough': _cough,
+    'stool': _stool,
+    'pour': _pour,
+    'wipe': _wipe,
+    'flush': _flush,
+    'door_wc': lambda o, v: (burst(o, 0, 0.005, 3200, 3, 0.12 * v), tone(o, 0.04, 85, 0.2, 0.3 * v, glide=45),
+                             burst(o, 0.04, 0.06, 300, 0.8, 0.15 * v, 'lowpass')),
+    'slap': _slap,
+    'cue': _cue,
+    'pocket': _pocket,
+    'break': _break,
+    'lighter': _lighter,
+    'cheer': _cheer,
+    'groan': _groan,
+    'spill': _spill,
+}
+ROOM_SECONDS = {'laugh': 2.4, 'laugh_one': 1.6, 'cough': 1.0, 'pour': 3.8, 'wipe': 0.7, 'flush': 4.0, 'break': 2.0,
+                'pocket': 0.9, 'clink': 0.5, 'lighter': 0.6, 'cheer': 2.0, 'groan': 1.8, 'spill': 1.2}
+ROOM_TAKES = {'glass_down': 4, 'clink': 2, 'laugh': 3, 'laugh_one': 3, 'cough': 3, 'stool': 3, 'pour': 2, 'wipe': 2,
+              'door_wc': 2, 'slap': 2, 'cue': 3, 'pocket': 2, 'lighter': 2, 'cheer': 2, 'groan': 2}
+ROOM_LAYERS = {
+    'radio': (12, lambda x, s: radio(x, s)),
+}
+
+
 def main(only=None):
     """Everything, or only the files named (amb_keys ...): the rest are still made, in order, so
     each file comes out the same either way, but only those are written."""
@@ -425,6 +709,15 @@ def main(only=None):
             fn(x, 1.0)
             put(name if k == 0 else f'{name}_{k + 1}', x)
     for name, (secs, fn) in LAYERS.items():
+        x = loop(secs, fn)
+        if name not in RETIRED:
+            put('amb_' + name, x)
+    for name, fn in ROOM.items():
+        for k in range(ROOM_TAKES.get(name, 1)):
+            x = buf(ROOM_SECONDS.get(name, 0.6))
+            fn(x, 1.0)
+            put(name if k == 0 else f'{name}_{k + 1}', x)
+    for name, (secs, fn) in ROOM_LAYERS.items():
         put('amb_' + name, loop(secs, fn))
     print('wrote', len(only) if only else len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))
 

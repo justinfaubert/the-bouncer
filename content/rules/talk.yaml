@@ -1,0 +1,217 @@
+# What he overhears: the room talking among itself, a few lines at a time, written over the heads of
+# the ones saying it as they say it (the Godot build: godot/game/talk.gd). Near enough and it's
+# clear; further off, or over a full room, it's fainter; past earshot it isn't heard at all.
+#
+# Each conversation:
+#   id      its name
+#   when    when it can happen: the same criteria as barks.yaml, on the Ink's VARs (optional)
+#   lines   in order, each "who: what they say". Who is one of the room's people by their id in
+#           characters.yaml (and slippers_b, the woman from upstairs with Slippers), "table28" for
+#           table 28 all at once, or "a" and "b" for strangers: whoever's sitting or standing
+#           together beside the others in it, or, with nobody named, any two together.
+#   then    laugh (they laugh at it) or clink (glasses together), after the last line (optional)
+#
+# One at a time, each once a night, never at the table he's at (that's the story's) and never over
+# the story's own lines; the most specific that can happen goes first, then the nearest. Everyone in
+# it has to be in the room, near enough to each other to be talking, and near enough to him to be
+# heard, and he has to be able to see one of them.
+#
+# Once he's heard one through, a voice in his head can answer it: the barks event ears:<id>
+# (content/rules/barks.yaml).
+#
+# All of these are Claude's drafts, each in its speaker's voice (bible/10_VOICES.md). HUTCH: rewrite
+# any of them, cut them, or put your own in. Talk overheard in a bar is the thing you've heard more
+# of than anyone. The game's text rules hold here too: no dashes, no ellipses; a sentence that
+# trails off just stops.
+
+# ---------------------------------------------------------------- table 28
+
+- id: t28_diesel
+  lines:
+    - team_jacket: A dollar ninety-one for diesel at the Esso. A dollar ninety-one!
+    - hearing_aid: Ninety-one.
+    - scratch: It'll come down. It's due.
+    - team_jacket: Due, he says! It's due!
+  then: laugh
+
+- id: t28_mill
+  lines:
+    - cardigan: When the mill ran three shifts, you couldn't get a table in here on a Wednesday.
+    - team_jacket: You couldn't get in the door! We had this one, mind.
+    - hearing_aid: This one.
+  then: laugh
+
+- id: t28_eggs
+  lines:
+    - team_jacket: Back in the day you got a pickled egg and a slap on the back for a dollar.
+    - scratch: A dollar ten.
+    - team_jacket: A dollar ten! He's counting my eggs now!
+  then: laugh
+
+- id: t28_new_kid
+  when: [clock >= 1230]
+  lines:
+    - team_jacket: So. The new kid. What do we think?
+    - scratch: He's big. Big's a good sign on a door.
+    - cardigan: He said good evening to me. I can't remember the last one who did that.
+    - team_jacket: Give him a week. A week, tops!
+
+- id: t28_new_kid_good
+  when: [clock >= 1230, rep_t28 >= 1]
+  lines:
+    - team_jacket: The new kid's all right. Isn't he? He's all right!
+    - glasses: He's all right. He's a good, he's.
+    - team_jacket: Somebody buy the big fella a drink. Not me. Somebody.
+  then: laugh
+
+- id: t28_new_kid_bad
+  when: [clock >= 1230, rep_t28 <= -1]
+  lines:
+    - team_jacket: That one on the door. Not one of ours, that one.
+    - scratch: I don't like his numbers.
+    - team_jacket: Ten doormen since spring. Ten! We'll see the eleventh by Friday.
+
+- id: t28_dennis
+  when: [t28_rounds >= 4]
+  lines:
+    - glasses: My wife says to me, she says, Dennis. She says, you're.
+    - team_jacket: We know what she says, Dennis. The whole island knows what she says.
+    - glasses: Thirty years. Thirty years, and she still.
+  then: laugh
+
+- id: t28_toast
+  when: [t28_rounds >= 5]
+  lines:
+    - team_jacket: To the Sov! And to the ones who aren't here to see it!
+    - table28: Hear, hear!
+  then: clink
+
+# ---------------------------------------------------------------- the pool table
+
+- id: pool_double
+  lines:
+    - buddy: Yeah yeah, no, that's mine, you left me that, that's mine.
+    - bigman: I left you that.
+    - buddy: Twenty bucks. Listen. Listen. Double or nothing.
+    - bigman: Rack 'em, bud.
+
+- id: pool_quiet
+  when: [clock >= 1260]
+  lines:
+    - buddy: You're quiet tonight. Am I talking too much? I'm talking too much.
+    - bigman: Shoot your ball.
+    - buddy: Yeah yeah. No. Shooting.
+
+# ---------------------------------------------------------------- along the bar
+
+- id: endbar_tide
+  lines:
+    - endbar: Another, if you would. The same as before.
+    - bartender: Yep.
+    - endbar: The tide is on the turn. One can hear it under the floor.
+    - bartender: That's the cooler, hon.
+
+- id: slippers_drip
+  lines:
+    - slippers: Room nine has had that drip since August. Since the long weekend.
+    - slippers_b: You should tell Terry.
+    - slippers: I told Terry. Terry tells the drip.
+  then: laugh
+
+- id: slippers_door
+  when: [clock >= 1300]
+  lines:
+    - slippers: My husband would have had that door shut by nine. Nine, and not a minute after.
+    - slippers_b: Your husband had a temper.
+    - slippers: He had standards, dear. It looked like temper from the outside.
+
+- id: slippers_wine
+  lines:
+    - slippers: Is this the same bottle as Tuesday, dear? It tastes like Tuesday.
+    - bartender: Same box, sweetheart. Same Tuesday.
+
+- id: card_machine
+  lines:
+    - a: Card machine working tonight?
+    - bartender: Ask the fuckin' card machine, hon. It decides.
+
+- id: hivis_room
+  lines:
+    - hivis: How's she goin'.
+    - a: Can't complain. You on at the mill?
+    - hivis: Contract. Six weeks. I'm in room eleven, so.
+    - a: Upstairs here? Christ.
+    - hivis: Fair enough.
+
+- id: goodshoes_gary
+  lines:
+    - goodshoes: Gary and I go back. I completely understand the caution, of course.
+    - a: Sure.
+    - goodshoes: He's a reasonable man, Gary. I'm a reasonable man.
+
+# ---------------------------------------------------------------- the room
+# (the talk at the bar, bible/11_SKELETON.md: a real thing with a leap on the end of it, never
+# settled, never explained)
+
+- id: haarp
+  when: [clock >= 1290]
+  lines:
+    - a: HAARP. Alaska. Look it up.
+    - b: I'm not looking anything up.
+    - a: A hundred and eighty antennas in a field, all pointed up.
+    - b: Where else would you point them?
+
+- id: seeding
+  lines:
+    - a: They seed the clouds in Alberta. That's not a theory, that's a contract.
+    - b: That's for the hail. That's over Calgary.
+    - a: And the rain in November '21? That just happened, did it?
+    - b: That was rain. It rains here.
+
+- id: saucers
+  when: [clock >= 1320]
+  lines:
+    - a: The Air Force gave a bar owner fake saucer pictures. A bar owner.
+    - b: Which bar?
+    - a: Not this one. One down by Area 51. It was in the paper.
+    - b: Gary'd have them framed behind the till.
+  then: laugh
+
+- id: the_light
+  lines:
+    - a: That light's out over the mainland again. Two nights now.
+    - b: It's a plane.
+    - a: Planes blink. It doesn't blink.
+    - b: Then it's a star. Drink your drink.
+
+- id: overdue
+  lines:
+    - a: They say we're overdue. The big one. Three hundred years.
+    - b: They've been saying overdue since I was in school.
+    - a: Well. It's more overdue now, then.
+
+- id: two_shifts
+  lines:
+    - a: They're saying two shifts at the mill again by spring.
+    - b: They said that in March.
+    - a: Now they're saying it in November.
+
+- id: ferry
+  lines:
+    - a: Ferry was late again. Forty minutes.
+    - b: Forty's not late. Forty's the ferry.
+
+- id: about_him
+  when: [clock >= 1260]
+  lines:
+    - a: That the new doorman?
+    - b: Second one this month.
+    - a: Big.
+    - b: The last one was big too. Lasted a Friday.
+
+- id: rat_seen
+  when: [rat_count >= 40]
+  lines:
+    - a: Did you see that? By the jukebox. Something went under.
+    - b: There's no rats in here.
+    - a: I never said rats.

@@ -533,6 +533,8 @@ func swing_door(which: String, open: bool, now := false) -> void:
 			list = [[dyn.deck_door, 80.0]]
 		"hotel":
 			list = [[dyn.hotel_door, -86.0]]
+		"wc_men", "wc_women", "wc_single":
+			list = [[dyn[which], 80.0]]           # into the washroom
 	for pair in list:
 		var n: Node3D = pair[0]
 		_still(n)

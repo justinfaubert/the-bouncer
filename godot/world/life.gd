@@ -6,7 +6,11 @@
 # (his; Gary's, in the office) when it comes close, when it's been on them a while, and while they
 # talk to it. The eyes go first and the head comes after, the way eyes do; they blink, and nearly
 # always when their eyes go a long way; the upper lids follow the eyes down; and the jaw goes with
-# what they say. Stage keeps its old ways (the whole figure turned, a bob) for anyone without bones.
+# what they say. They talk among themselves too (game/talk.gd: what he overhears), each looking at
+# whoever they're talking to; they laugh, the head back and the shoulders going; and the bartender
+# works while he watches, wiping down, pulling a pint, at the till (world/doings.gd). A glass from the
+# table put back down is heard where it lands. Stage keeps its old ways (the whole figure turned, a
+# bob) for anyone without bones.
 #
 # Each bone is turned about its own joint by a turn given in the model's frame as it's posed (a
 # bone's turn carries the bones on it, so the head's goes on top of the neck's): see _turn.
@@ -30,11 +34,13 @@ const JAW_OPEN := 14.0            # the jaw at its widest in talk, degrees
 const BONES := ["hips", "spine", "chest", "neck", "head", "jaw", "eye.L", "eye.R", "lid.L", "lid.R",
 	"upper_arm.L", "upper_arm.R", "forearm.L", "forearm.R", "hand.L", "hand.R"]
 const SIP_TILT := 0.8             # how far a glass tips at the mouth (radians)
+const REACH := 0.44               # as far from the shoulder as a hand goes easily, at work (metres)
 
 var people := {}                  # id -> a person's bones and state (see add)
 var t := 0.0
 var talk_free := 0.0              # when the last line given out has been said: lines are said one after another
 var cups: Node3D = null           # the glasses on table 28 (world/pub.gd), for whoever sits at it to drink from
+var heard := Callable()           # a sound of theirs from where it happens: (name, point, how loud, how near for full)
 
 
 static func _v(a) -> Vector3:
@@ -52,7 +58,7 @@ func add(id: String, node: Node3D, body: Node3D, anchors: Dictionary, seated: bo
 		return false
 	var sk: Skeleton3D = sks[0]
 	var rig: Dictionary = anchors.rig
-	var p := {"id": id, "node": node, "sk": sk, "b": {}, "L": {}, "G": {}, "Gi": {}, "O": {}, "seated": seated}
+	var p := {"id": id, "node": node, "body": body, "sk": sk, "b": {}, "L": {}, "G": {}, "Gi": {}, "O": {}, "seated": seated}
 	for name in BONES:
 		var i := sk.find_bone(name)
 		if i < 0:
@@ -132,6 +138,10 @@ func add(id: String, node: Node3D, body: Node3D, anchors: Dictionary, seated: bo
 	p.jaw = 0.0
 	p.jawv = 0.0
 	p.force = {}
+	p.laugh0 = -100.0
+	p.laugh_len = 0.0
+	p.cough0 = -100.0
+	p.job = {}
 	people[id] = p
 	return true
 
@@ -166,6 +176,107 @@ func startle(id: String, point: Vector3) -> void:
 		return
 	var d0 := t + randf_range(0.0, 0.45)
 	p.force = {"kind": "point", "point": point, "at": d0, "until": d0 + randf_range(2.8, 4.2)}
+
+
+# A line of theirs to someone else in the room (game/talk.gd, what he overhears): the jaw goes with
+# it, once they're done with whatever they were saying, and they look at whoever it's to. Returns
+# when it's said, in the room's time (t); for someone without bones, when it would be.
+func say(id: String, text: String, to := "") -> float:
+	var p = people.get(id)
+	if p == null or text.strip_edges() == "":
+		return t + float(_syllables(text, 0.0).back()[0])
+	var tk: Array = p.talk
+	var t0 := t
+	if not tk.is_empty():
+		t0 = maxf(t0, float(tk[tk.size() - 1][0]) + 0.1)
+	var keys := _syllables(text, t0)
+	tk.append_array(keys)
+	var end := float(keys[keys.size() - 1][0])
+	if to != "":
+		p.force = {"kind": "them", "point": to, "at": t0, "until": end + randf_range(0.4, 1.2)}
+	return end
+
+
+# What they were saying, broken off (the story wants them now): the jaw shut, the look let go.
+func hush(id: String) -> void:
+	var p = people.get(id)
+	if p != null:
+		(p.talk as Array).clear()
+		p.force = {}
+
+
+# Someone listening: they look at whoever's talking, after a moment, till then.
+func listen(id: String, to: String, until: float) -> void:
+	var p = people.get(id)
+	if p == null or id == to:
+		return
+	var d0 := t + randf_range(0.1, 0.6)
+	p.force = {"kind": "them", "point": to, "at": d0, "until": maxf(until, d0 + 0.8)}
+
+
+# Their eyes on something for a while (the TV, a ball on the felt), after a moment.
+func look_over(id: String, point: Vector3, secs: float) -> void:
+	var p = people.get(id)
+	if p == null:
+		return
+	var d0 := t + randf_range(0.0, 0.5)
+	p.force = {"kind": "point", "point": point, "at": d0, "until": d0 + secs}
+
+
+# A laugh, s how hard (0 to 1), starting a moment from now: the head goes back, the shoulders with
+# each "ha", the jaw open on them, and the eyes screwed up.
+func laugh(id: String, s := 1.0, after := 0.0) -> void:
+	var p = people.get(id)
+	if p == null:
+		return
+	p.laugh0 = t + after
+	p.laugh_len = lerpf(1.2, 2.4, s) * randf_range(0.85, 1.15)
+	p.laugh_s = s
+	p.laugh_hz = randf_range(4.0, 5.4)
+
+
+# A cough: twice forward from the chest, the jaw open on it and the eyes shut.
+func cough(id: String) -> void:
+	var p = people.get(id)
+	if p != null:
+		p.cough0 = t
+
+
+# Whether they're free for something of their own (world/doings.gd): not talking or about to, not
+# laughing, drinking, at work or told where to look.
+func idle(id: String) -> bool:
+	var p = people.get(id)
+	if p == null:
+		return false
+	if not (p.talk as Array).is_empty() or not (p.job as Dictionary).is_empty() or not (p.force as Dictionary).is_empty():
+		return false
+	return t >= float(p.laugh0) + float(p.laugh_len) and not (p.sip as Dictionary).get("on", false)
+
+
+# The bartender at her work while he watches (world/doings.gd), for secs: "wipe", the bar top round
+# and round under her right hand; "pour", up to a tap's handle, drawn down while the glass fills and
+# let go; "till", her fingers on its keys. point: where, in the room.
+func work(id: String, kind: String, point: Vector3, secs: float) -> bool:
+	var p = people.get(id)
+	if p == null or not _arm(p, "R") or not (p.job as Dictionary).is_empty() or (p.sip as Dictionary).get("on", false):
+		return false
+	# a step in toward it, if it's further off than an easy reach (behind the bar her feet don't show):
+	# along the floor toward it, as far as brings the shoulder within reach, and no further than a step
+	var sk: Skeleton3D = p.sk
+	var sh: Vector3 = sk.global_transform * (p.O["upper_arm.R"] as Vector3)
+	var flat := Vector3(point.x - sh.x, 0.0, point.z - sh.z)
+	var dy := point.y - sh.y
+	var step := clampf(flat.length() - sqrt(maxf(REACH * REACH - dy * dy, 0.01)), 0.0, 0.25)
+	var node: Node3D = p.node
+	var local := node.global_transform.basis.orthonormalized().inverse() * (flat.normalized() * step) if flat.length() > 0.01 else Vector3.ZERO
+	p.job = {"kind": kind, "point": point, "t0": t, "secs": secs, "step": Vector3(local.x, 0.0, local.z)}
+	p.force = {"kind": "point", "point": point, "at": t, "until": t + minf(secs, 2.5)}
+	return true
+
+
+func working(id: String) -> bool:
+	var p = people.get(id)
+	return p != null and not (p.job as Dictionary).is_empty()
 
 
 func talking(p: Dictionary) -> bool:
@@ -249,6 +360,7 @@ func _head_world(p: Dictionary) -> Vector3:
 
 
 func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Dictionary) -> void:
+	_step(p)
 	var sk: Skeleton3D = p.sk
 	var to_sk := sk.global_transform.affine_inverse()
 	var me := sk.global_transform * (p.eyes as Vector3)
@@ -310,17 +422,34 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 		p.next_shift = t + randf_range(6.0, 22.0)
 	p.shift = (p.shift as Vector3).lerp(p.shift_to, 1.0 - exp(-dt * 1.6))
 	var sh: Vector3 = p.shift
-	# the jaw, with what they're saying
+	# the jaw, with what they're saying, or open on each "ha" of a laugh (lg how far into the laugh
+	# they are, ha the shoulders' and the jaw's beat in it)
 	var open := _talk_open(p)
+	var lg := 0.0
+	var ha := 0.0
+	var ls := t - float(p.laugh0)
+	if ls >= 0.0 and ls < float(p.laugh_len):
+		var ll := float(p.laugh_len)
+		lg = float(p.laugh_s) * smoothstep(0.0, 0.15, ls) * (1.0 - smoothstep(ll * 0.55, ll, ls))
+		ha = 0.5 + 0.5 * sin(TAU * float(p.laugh_hz) * ls)
+		open = maxf(open, lg * (0.3 + 0.5 * ha))
+	# a cough: two jolts, the second a little less
+	var cs := t - float(p.cough0)
+	var cg := 0.0
+	if cs >= 0.0 and cs < 0.9:
+		cg = exp(-pow(cs / 0.08, 2.0)) + 0.75 * exp(-pow((cs - 0.34) / 0.08, 2.0))
+		open = maxf(open, 0.4 * cg)
 	var jaw_v := _spring(float(p.jaw), float(p.jawv), open, 34.0, dt)
 	p.jaw = clampf(jaw_v.x, -0.05, 1.1)
 	p.jawv = jaw_v.y
-	# a sip, started when it's time, and how far they lean in to reach a glass on the table
-	var lean := _sip_phase(p)
+	# a sip, started when it's time, and how far they lean in to reach a glass on the table (or over
+	# the bar, wiping it down)
+	var lean := _sip_phase(p) + _work_lean(p) + 0.06 * cg
 	# the turn shared out: the chest a little past a big one, then the neck and the head (which
 	# keep their look as the body leans in)
 	var hy: float = p.hy
-	var hp: float = p.hp + (float(p.jaw) - 0.3) * 0.022 * (1.0 if open > 0.0 else 0.0) + float(p.drink) * 0.14
+	var hp: float = p.hp + (float(p.jaw) - 0.3) * 0.022 * (1.0 if open > 0.0 else 0.0) + float(p.drink) * 0.14 + lg * 0.16 - cg * 0.1
+	var bounce := lg * (ha - 0.5) * 0.05
 	var cmax := CHEST_MAX_SEATED if p.seated else CHEST_MAX
 	var chest_y := signf(hy) * minf(maxf(absf(hy) - 0.7, 0.0) * 0.45, cmax)
 	var rest_y := hy - chest_y
@@ -328,8 +457,8 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 	var tf: Vector3 = p.tf
 	var right: Vector3 = p.right
 	var up: Vector3 = p.up
-	var d_spine := Basis(tf, sh.y) * Basis(tr, sh.x * 0.6 + br * 0.0035 - lean * 0.6)
-	var d_chest := Basis(Vector3.UP, chest_y + sh.z) * Basis(tr, sh.x * 0.4 + br * 0.007 - lean * 0.4) * Basis(tf, -sh.y * 0.5)
+	var d_spine := Basis(tf, sh.y) * Basis(tr, sh.x * 0.6 + br * 0.0035 - lean * 0.6 + bounce * 0.4)
+	var d_chest := Basis(Vector3.UP, chest_y + sh.z) * Basis(tr, sh.x * 0.4 + br * 0.007 - lean * 0.4 + bounce) * Basis(tf, -sh.y * 0.5)
 	var d_neck := Basis(Vector3.UP, rest_y * 0.4 - sh.z * 0.5) * Basis(right, hp * 0.4 - br * 0.009 - sh.x * 0.5 + lean * 0.4) * Basis(tf, -sh.y * 0.4)
 	var d_head := Basis(Vector3.UP, rest_y * 0.6) * Basis(right, hp * 0.6 + lean * 0.6)
 	_turn(p, "spine", d_spine)
@@ -347,6 +476,8 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 	# the arms kept where they were (a glass stays on the bar while they turn), but for a sip
 	var keep := x_chest.inverse()
 	var sipping := _sip(p, c1, x_chest, h1, x_head, tr)
+	if sipping == "":
+		sipping = _work(p, c1, x_chest)
 	for sd in ["L", "R"]:
 		if sd != sipping:
 			_turn(p, "upper_arm." + sd, keep)
@@ -380,7 +511,7 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 		k = 1.0
 	elif s < 0.24:
 		k = 1.0 - smoothstep(0.11, 0.24, s)
-	var lid := maxf(float(p.blink_deg) * k, rad_to_deg(maxf(-ep, 0.0)) * 0.75)
+	var lid := maxf(maxf(float(p.blink_deg) * k, rad_to_deg(maxf(-ep, 0.0)) * 0.75), float(p.blink_deg) * maxf(0.45 * lg, 0.8 * minf(cg, 1.0)))
 	var d_lid := Basis(right, -deg_to_rad(minf(lid, float(p.blink_deg))))
 	_turn(p, "lid.L", d_lid)
 	_turn(p, "lid.R", d_lid)
@@ -434,7 +565,11 @@ func _sip_phase(p: Dictionary) -> float:
 	sp.g = g
 	sp.w = w
 	sp.tip = smoothstep(r + 0.6, r + 1.1, s) * (1.0 - smoothstep(r + 0.8 + hold, r + 1.35 + hold, s))
+	var was: bool = sp.get("held", false)
 	sp.held = not sp.table or (s >= r and s < r + 1.9 + hold)
+	# a glass from the table, down on it again: heard where it lands
+	if sp.table and was and not sp.held and heard.is_valid():
+		heard.call("glass_down", (sp.spot as Transform3D).origin, randf_range(0.45, 0.8), 1.0)
 	p.drink = sp.tip
 	# leaning in to the table for it, and back up to drink
 	return float(sp.get("lean", 0.0)) * g * (1.0 - w)
@@ -511,6 +646,100 @@ func _sip(p: Dictionary, c1: Vector3, x_chest: Basis, h1: Vector3, x_head: Basis
 			else:
 				(gn as Node3D).global_transform = sp.spot
 	return side
+
+
+# The bartender's right arm at her work (work), with the body as it's posed now: up from where it
+# rests to the place (the bar top, a tap's handle, the till), what she does there, and back. The hand
+# keeps the way it's turned at rest: flat on the bar. Returns "R" while it's at it, "" otherwise.
+func _work(p: Dictionary, c1: Vector3, x_chest: Basis) -> String:
+	var jb: Dictionary = p.job
+	if jb.is_empty():
+		return ""
+	var s := t - float(jb.t0)
+	var secs := float(jb.secs)
+	if s > secs + 1.2:
+		p.job = {}
+		(p.sk as Skeleton3D).set_bone_pose_scale(int(p.b["hand.R"]), Vector3.ONE)
+		return ""
+	var g := smoothstep(0.0, 0.6, s) * (1.0 - smoothstep(secs + 0.5, secs + 1.2, s))
+	var s0: Vector3 = p.O["upper_arm.R"]
+	var w0: Vector3 = p.O["hand.R"]
+	var sh := c1 + x_chest * (s0 - (p.O.chest as Vector3))
+	var rest_w := sh + (w0 - s0)
+	var tf: Vector3 = p.tf
+	var tr: Vector3 = p.tr
+	var goal := (p.sk as Skeleton3D).global_transform.affine_inverse() * (jb.point as Vector3)
+	var on := smoothstep(0.5, 0.9, s)
+	match str(jb.kind):
+		"wipe":
+			var a := s * TAU * 0.95
+			goal += (tf * cos(a) * 0.07 + tr * sin(a) * 0.1) * on
+		"pour":
+			var pull := smoothstep(0.8, 1.15, s) * (1.0 - smoothstep(secs - 0.25, secs + 0.1, s))
+			goal += (Vector3.DOWN * 0.04 - tf * 0.07) * pull
+		"till":
+			goal += Vector3.DOWN * 0.012 * (0.5 + 0.5 * sin(s * TAU * 3.2)) * on
+	var arms := _two_bone(p, "R", sh, rest_w.lerp(goal, g), 0.0)
+	# the hand as it rests (flat, for the bar top and the till's keys), or for a tap's handle turned
+	# thumb up on its forearm and closed round it
+	var x_hand := Basis.IDENTITY
+	if str(jb.kind) == "pour":
+		var e0: Vector3 = p.O["forearm.R"]
+		x_hand = Basis((w0 - e0).normalized(), 1.2 * g)
+		(p.sk as Skeleton3D).set_bone_pose_scale(int(p.b["hand.R"]), Vector3(1.0, 1.0 - 0.35 * g, 1.0))
+	_turn(p, "upper_arm.R", x_chest.inverse() * arms[0])
+	_turn(p, "forearm.R", (arms[0] as Basis).inverse() * arms[1])
+	_turn(p, "hand.R", (arms[1] as Basis).inverse() * x_hand)
+	return "R"
+
+
+# Stepping in to a job and back again (work): the body moved along the floor under its holder.
+func _step(p: Dictionary) -> void:
+	var body = p.get("body")
+	if body == null or not is_instance_valid(body):
+		return
+	var jb: Dictionary = p.job
+	var to := Vector3.ZERO
+	if not jb.is_empty():
+		var s := t - float(jb.t0)
+		to = (jb.step as Vector3) * smoothstep(0.0, 0.55, s) * (1.0 - smoothstep(float(jb.secs) + 0.45, float(jb.secs) + 1.15, s))
+	if (body as Node3D).position != to:
+		(body as Node3D).position = to
+
+
+# how far she leans over the bar for it: a little, wiping down
+func _work_lean(p: Dictionary) -> float:
+	var jb: Dictionary = p.job
+	if jb.is_empty() or str(jb.kind) != "wipe":
+		return 0.0
+	var s := t - float(jb.t0)
+	return 0.07 * smoothstep(0.0, 0.6, s) * (1.0 - smoothstep(float(jb.secs) + 0.5, float(jb.secs) + 1.2, s))
+
+
+# An arm's two bones to put its wrist at target, from the shoulder where it is now (sh): the elbow
+# kept the way it bends at rest, out and down by `out` (a sip's a little out and down). Returns the
+# upper arm's and the forearm's turns, in the skeleton's frame as it's posed, and the elbow and wrist.
+func _two_bone(p: Dictionary, side: String, sh: Vector3, target: Vector3, out: float) -> Array:
+	var s0: Vector3 = p.O["upper_arm." + side]
+	var e0: Vector3 = p.O["forearm." + side]
+	var w0: Vector3 = p.O["hand." + side]
+	var a := (e0 - s0).length()
+	var b := (w0 - e0).length()
+	var to := target - sh
+	var d := clampf(to.length(), absf(a - b) + 0.01, a + b - 0.003)
+	var u := to.normalized()
+	var o: Vector3 = (p.tr as Vector3) * (1.0 if side == "R" else -1.0)
+	var pole := (e0 - s0) + (o * 0.06 + Vector3.DOWN * 0.04) * out
+	pole = pole - u * pole.dot(u)
+	if pole.length() < 1e-4:
+		pole = Vector3.DOWN - u * Vector3.DOWN.dot(u)
+	pole = pole.normalized()
+	var ca := clampf((a * a + d * d - b * b) / (2.0 * a * d), -1.0, 1.0)
+	var e1 := sh + (u * ca + pole * sqrt(1.0 - ca * ca)) * a
+	var w1 := sh + u * d
+	var x_ua := Basis(Quaternion((e0 - s0).normalized(), (e1 - sh).normalized()))
+	var x_fa := Basis(Quaternion(x_ua * (w0 - e0).normalized(), (w1 - e1).normalized())) * x_ua
+	return [x_ua, x_fa, e1, w1]
 
 
 # Whether they've an arm to drink with on that side.

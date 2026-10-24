@@ -21,10 +21,14 @@ Windows.
 
 Every sound is a placeholder made in code. A .wav, .ogg or .mp3 with the same name in a folder
 called "audio" next to the game takes its place from the next start; more takes of one sound go in
-as card_2, card_3 and so on. The names:
+as laugh_2, laugh_3 and so on. docs/SOUNDS.md in the project lists every one and where it plays.
+The names:
 
-  the room      amb_rain_glass amb_rain_out amb_rain_roof amb_room_tone amb_talk_a amb_talk_b
-                amb_shout amb_juke amb_pool amb_fryer amb_fan amb_tube amb_cellar amb_rats amb_sea
-  things        beep_ok beep_bad (the scanner) thump (the door) gust rattle tick tock (the dice)
-                clack (the balls) thud ring glass scratch till bell card page pen printer swipe
-                tear stamp steps heart whisper lift choose click_ui
+  the room's layers   amb_room_tone amb_talk_a amb_talk_b amb_shout amb_juke amb_rain_glass
+                      amb_rain_out amb_rain_roof amb_fryer amb_fan amb_radio amb_tube amb_cellar
+                      amb_rats amb_sea amb_keys amb_canopy amb_traffic
+  the room's own      glass_down clink laugh laugh_one slap cheer groan cough stool pour wipe till
+                      door_wc flush cue clack pocket break lighter spill
+  his                 beep_ok beep_bad (the scanner) thump (the door) thud glass scratch ring bell
+                      rattle tick tock (the dice) stamp printer tear pen page card swipe whisper
+                      steps choose click_ui

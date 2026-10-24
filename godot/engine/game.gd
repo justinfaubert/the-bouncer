@@ -646,6 +646,23 @@ func toy(id: String, what: String = "") -> Dictionary:
 	return {"items": items, "choices": choices, "ended": ended, "chose": false}
 
 
+# Something he's just overheard the room say (the Godot build's talk, content/rules/talk.yaml): a
+# voice in his head can answer it, once (barks.yaml, ears:<id>). Nothing moves the night on.
+func overheard(id: String) -> Dictionary:
+	if story == null or ended:
+		return {}
+	var rule = barks.best("ears:" + id, _gv, psyche, barks_used, _toy_rng("ears:" + id))
+	if rule == null:
+		return {}
+	if rule.once:
+		barks_used.append(rule.id)
+	var it := _bark_item(rule)
+	night_log.append(it)
+	if night_log.size() > LOG_CAP:
+		night_log = night_log.slice(night_log.size() - LOG_CAP)
+	return {"items": [it]}
+
+
 # the choice on offer that handling this thing this way would make, if there is one
 func toy_choice(id: String, what: String):
 	for c in choices:
