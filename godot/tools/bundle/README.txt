@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The third Godot build of 24 October 2026.
+Wednesday, from the interview to close. The fourth Godot build of 24 October 2026.
 
 
 PLAY IT
@@ -61,6 +61,28 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE THIRD BUILD OF 24 OCTOBER
+
+Colour and light.
+
+- The night's printed in five inks now. Beside the blue-black, the amber and the red, there's a
+  green-white for fluorescent tubes and screens and a brick-and-sepia for the warm things the
+  light falls on: faces, the bar top, jackets, the carpet. The amber is the warm light itself,
+  and the red is still only the sign, the jukebox, tail lights and blood.
+- Each place has its own light. The bar's warm under its lamps; the back hall, the kitchen and
+  the washrooms are green-white under their tubes, and so is the television's glow; the jukebox
+  throws red; the deck's caged bulb is a cold LED, so the deck's the blue of rain at night; the
+  Esso's canopy is green-white; the lot's sodium orange.
+- Everyone wears a colour of their own: the kid's teal hoodie, his sister's rust jacket, the
+  crew's hi-vis, the constable's navy, Team Jacket's green and gold, the work flannels in
+  mustard, brick, green and grey, and the rest.
+- The night changes colour: warm at eight, paler and colder after midnight, and at last call the
+  house lights come up white.
+- Under the lamps straight over them, faces had black holes for eyes. A faint light from his
+  own eyes falls on the people now, so a face across the table reads.
+- Nothing in the story changed, so a night saved before goes on where it was.
 
 
 WHAT'S NEW SINCE THE SECOND BUILD OF 24 OCTOBER

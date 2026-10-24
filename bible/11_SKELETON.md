@@ -376,7 +376,7 @@ Then one choice, the dice land, and the next frame prints. The other man's next 
 
 **The constable** (DECIDED: rapport or enmity with at least one officer). The detachment's one car on nights, forty minutes after Paige calls it in. On the night of the brawl it's seven SUVs, half an hour after it's over, picking up stragglers (Hutch's story 2). Rapport comes from calling it in early and true, a log that matches the footage, what he confiscates handed over instead of pawned, coffee at the diner, and the night he did her job before she got there. Enmity comes from a log that lies, the choke, a video, the pawn shop, and the club's money. With rapport she tells him things the town doesn't know yet. With enmity she waits.
 
-**Seen from outside twice.** Through Gary's eyes on day 1, and from the camera over the bar if the footage is pulled: printed in the same three inks, high and grey and silent, the only other time the player sees him doing what he did. Both times someone is judging him. Set beside the log he wrote, it's the gap the hidden measure has been keeping all along.
+**Seen from outside twice.** Through Gary's eyes on day 1, and from the camera over the bar if the footage is pulled: printed in the same inks, high and grey and silent, the only other time the player sees him doing what he did. Both times someone is judging him. Set beside the log he wrote, it's the gap the hidden measure has been keeping all along.
 
 **The walk.** To try, and to cut if it isn't good: once he has a good hold, the frames stop and the player steers the man to the door in real time, through the room, the man pulling, the tables in the way, the door to get open. It's the commonest physical thing in the job.
 

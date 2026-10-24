@@ -621,8 +621,8 @@ func _town_materials() -> void:
 		_wins.append(w)
 	T.shop = glow(Color("fff0d6"), 1.0)
 	T.shop.set_shader_parameter("albedo", Color("cfc8b8"))
-	# the lamps: the street's heads warm, the highway's sodium, the wharf's white
-	var cols := ["ffd7a0", "ffd7a0", "ffd7a0", "ffd7a0", "ffb060", "e8eef6"]
+	# the lamps: the street's heads warm, the highway's sodium, the wharf's the cold ink's green-white
+	var cols := ["ffd7a0", "ffd7a0", "ffd7a0", "ffd7a0", "ffac40", "d2f2e2"]
 	var head_e := [4.5, 4.5, 4.5, 4.5, 6.0, 5.0]
 	var pool_e := [0.42, 0.42, 0.42, 0.42, 0.55, 0.35]
 	var sh := Shader.new()
@@ -637,10 +637,10 @@ func _town_materials() -> void:
 	# the Esso
 	T.canopy = mat(Color("e8eaeb"), 0.6, 0.0, 0, up, 5.0, 0.9)
 	T.band = mat(Color("2c3b5c"), 0.5, 0.0, 3, up, 7.0, 0.8)
-	T.canopy_lit = glow(Color("f2f6ff"), 2.6)
+	T.canopy_lit = glow(Color("d2f6e4"), 2.6)
 	T.pump = mat(Color("d6d8da"), 0.5, 0.0, 2, up, 5.0, 1.0)
 	T.ice = mat(Color("eceeef"), 0.4, 0.0, 2, up, 5.0, 1.0)
-	T.store_in = glow(Color("eef2f2"), 0.95)
+	T.store_in = glow(Color("cff2e0"), 0.95)
 	T.can = mat(Color("3d4a40"), 0.6, 0.2, 2, up, 5.0, 1.0)
 	T.bucket = mat(Color("3a5d7c"), 0.5, 0.0, 2, up, 5.0, 1.0)
 	T.tank = mat(Color("dcdcd8"), 0.4, 0.2, 2, up, 5.0, 1.0)
@@ -670,7 +670,7 @@ func _town_materials() -> void:
 	T.beige = mat(Color("c9c3b4"), 0.5, 0.0, 2, up, 5.0, 1.0)
 	T.radiator = mat(Color("d4d1c7"), 0.4, 0.2, 2, up, 5.0, 1.0)
 	T.monitor = mat(Color("29292c"), 0.4, 0.0, 2, up, 5.0, 1.0)
-	T.mon_glow = glow(Color("cfdcea"), 0.5)
+	T.mon_glow = glow(Color("c2e6d6"), 0.5)
 	T.knit = mat(Color("6c7079"), 0.95, 0.0, 4, up, 5.0, 0.8)
 	T.chair = surfaced(mat(Color(0.74, 0.54, 0.37), 0.6, 0.0, 2, up, 6.0, 1.0), "wood", 0.7)
 	T.coat = mat(Color("3a3c3a"), 0.9, 0.0, 4, up, 5.0, 0.8)
@@ -1840,7 +1840,7 @@ func _esso() -> void:
 	for iz in [19.0, 23.0]:
 		var l := OmniLight3D.new()
 		l.position = Vector3(-150.0, 4.45, iz)
-		l.light_color = Color("eef3ff")
+		l.light_color = Color("bcf2da")
 		l.light_energy = 2.4
 		l.omni_range = 11.0
 		l.omni_attenuation = 1.1
@@ -1939,7 +1939,7 @@ func _esso_store() -> void:
 		_bx(Vector3(0.6, 0.02, 0.3), Vector3(lx, y + 2.96, zf + 0.7), T.canopy_lit)
 	var spill := OmniLight3D.new()
 	spill.position = Vector3(x0 + 10.5, y + 2.6, zf + 1.6)
-	spill.light_color = Color("eef2f6")
+	spill.light_color = Color("c0f0dc")
 	spill.light_energy = 1.0
 	spill.omni_range = 7.0
 	spill.light_cull_mask = OUTDOORS

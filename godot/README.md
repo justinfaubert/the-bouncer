@@ -78,8 +78,11 @@ plays.
   (each has a `<id>_walk.glb`, a walk made by `sketches/door-look/tools/export_walkers.py`), the
   bartender comes along behind the bar, and the rest change between glances, while he isn't
   looking.
-- `look/`: the shaders. `press.gdshader` is the print: three inks on cream stock, picked by the
-  colour of the light (`press/separation.png`, made by `sketches/door-look/tools/press.py`).
+- `look/`: the shaders. `press.gdshader` is the print: five inks on cream stock (the night, the
+  lamp, the neon, the cold and the earth), picked by the colour of the light (`press/separation.png`
+  and `press/separation_b.png`, made by `sketches/door-look/tools/press.py`; to tune them, take the
+  places as his eyes see them with `tests/shots_places.gd --raw` and print them offline with
+  `sketches/door-look/tools/press_preview.py`).
   `column.gdshader` is the text column, one even ink so the words read clean (the paper's grain
   stays in the room's print), and `licence.gdshader` is a licence's face, laminate and hologram.
 - `models/`: the props and the people, made in code (`sketches/door-look/tools/`), loaded

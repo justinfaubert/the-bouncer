@@ -238,6 +238,18 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude's calls here are under PROPOSED, "Proposed with the room's sound and talk (2026-10-24)".
 - Delivered on 24 October (9591196): `releases/The-Bouncer-2026-10-24c.zip` to play on Linux, and the Godot web build at its link (version 16). The browser build stays at version 13.
 
+### 2026-10-24 (Saturday), colour and light
+
+- The third step of the polish, after the people and the room's sound: more colour, and more distinct, inside the printed look (the polish page's "Colour and light").
+- Five inks now, not three. Beside the night (blue-black), the lamp (amber) and the neon (red): the cold (#8fc7b8), the green-white of fluorescent tubes and screens, and the earth (#9a5a3c), brick and sepia. The light still picks the ink. The lamp ink is the warm light itself; the earth ink is for the warm things the light falls on, half-lit (a face, the bar top, a jacket, the carpet); the cold ink is for the tubes and the screens, and for greens; the neon is kept for a red as strong as the sign's (the sign, the jukebox, tail lights, blood). Never more than two colours on one spot besides the night, so the print stays clean. Each plate has its own misregistration and grain.
+- A light for each place: the bar warm under its lamps; the back hall, the kitchen and the washrooms under green-white tubes; the two televisions and the cooler's glass the same green-white; the jukebox red; the deck's caged bulb a cold LED someone's screwed into it, so the deck is the blue of rain at night; the Esso's canopy and store green-white, and the wharf's lamps; the sign red, as before, and the lot's sodium and the highway's lamps the lamp ink's own orange, so their pools on the wet ground print orange and not brown.
+- A colour for each person, in what they wear: the kid's teal hoodie, his sister's rust canvas jacket, the crew's hi-vis, the constable's navy, Team Jacket's green and gold, the work flannels mustard (the man with the hearing aid), brick (the big man), green (the second of the mill crew) and grey, Cardigan's camel, the boyfriend's mustard hoodie, the woman in the raincoat's ochre, the cook's white tee, and the rest. Still no red on anyone.
+- The night changes colour: the lamps lean warm at eight and are as built by eleven; from midnight they go paler and the room's own light colder; at last call the house lights come half up, white, and at two all the way.
+- Faces had gone to two black holes for eyes under the lamps straight over them. A faint light from his own eyes falls on the people and nothing else (not his hands), so a face across the table reads.
+- `sketches/door-look/tools/press.py` makes the two tables the press reads (`press/separation.png` and `press/separation_b.png`). `godot/tests/shots_places.gd --raw` takes every place as his eyes see it, `sketches/door-look/tools/press_preview.py` prints those pictures offline to tune the tables without the game, `godot/tests/shots_swatches.gd` tries colours for clothes under each light, and `godot/tests/shots_lineup.gd` shows everyone in a row.
+- Nothing in the story changed, so a night saved before goes on where it was.
+- Claude's calls here are under PROPOSED, "Proposed with colour and light (2026-10-24)".
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -584,6 +596,16 @@ Proposed with the room's sound and talk (2026-10-24), from Hutch's note that the
 - **The drafts:** the twenty-six conversations and the nine answers (talk.yaml, barks.yaml's "overheard"). The skeleton's talk at the bar (HAARP, the cloud seeding, the Air Force's pictures, the light over the mainland) stays in fragments, never settled.
 - **Two to a table:** the room's extra people sit two to a table as they come in, so the first strangers in have someone to talk to.
 - **The cook's radio:** on in the kitchen till he goes at eleven.
+
+Proposed with colour and light (2026-10-24), from Hutch's note on colour ("there should be more color, also more distinct"):
+
+- **The two inks:** the cold #8fc7b8 and the earth #9a5a3c, as the polish page had them.
+- **Which ink where** (press.py): a colour in the render prints as the nearest mix the press can make, with colour ink costing more in the dark. The lamp ink costs more again the darker the colour, unless it's a strong yellow-orange (the sodium's pool far off); the earth costs least in the half-light; the cold is cheap, and greens are taken half as strong again as other colours; the neon pays heavily unless the colour is as red as the sign's light on a wall. At most two colour inks on a spot.
+- **The lights:** the tubes b0f0dc; the televisions 9fdcc6 and their screens' glow a9dcc8; the cooler cdeedd; the jukebox's light ff3355; the deck's LED c4e2ee; the Esso's canopy bcf2da; the wharf's lamps d2f2e2; the lot's sodium and the highway's lamps ffac40 (were ffa04a and ffb060). The bar's lamps and the sign as before.
+- **The night's colour:** the bar's lamps 45% of the way to ffa04a at eight, back to as built by eleven, 60% of the way to ffe4c4 by last call; the room's ambient light to 323f5e by last call; the house lights 55% up at last call (half past one), full at two.
+- **What they wear** (pub.gd's WEARS, by the start of each model's file name): the kid 2f6a66, his sister 5e2a16, the crew's and room eleven's hi-vis 8ee03c, the constable 1f2a44, Team Jacket 1f4438 with d8b25a trim, the flannels 6e5a2c (hearing aid), 5a3424 (the big man), 3a5a48 (crew), 4c4a5a (the man with the red beard), Cardigan 8a6c3c, the one in the big glasses 4c6470, the big man's buddy 8c7c46, the boyfriend b08a2c, the kid in the ball cap 4a2418, Dennis's wife's raincoat c0a66a, the first of the two women from upstairs 4a7a66, the cook dcd8ce, the woman in the brown cardigan 7a5a3a.
+- **The light from his eyes:** efe4d4 at 0.45, on the people only (their own visual layer, 3), never his hands or Gary's.
+- **The deck's LED:** someone at the Sov put a cold LED in the old cage over the deck door.
 
 ### REJECTED
 

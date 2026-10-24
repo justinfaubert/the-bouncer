@@ -4,7 +4,7 @@
 #   the mask    a second camera on the same room from the same place that sees visual layer 20:
 #               every surface draws how the key block is cut on it (look/surface.gdshader), and a
 #               quad over its view finds the edges and creases in the depth (look/lines.gdshader)
-#   the press   a shader over the eye's picture that separates it into the three inks, cuts the key
+#   the press   a shader over the eye's picture that separates it into the five inks, cuts the key
 #               block with the mask and prints it on the paper (look/press.gdshader)
 #
 # His head turns with a drag across the room, or the arrow keys; the wheel narrows his eyes on
@@ -151,6 +151,17 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	eye.add_child(cam)
 	hands = Node3D.new()
 	cam.add_child(hands)
+	# a little light from his own eyes on the people and nothing else: under the lamps straight over
+	# them, their eyes went to two holes in the dark
+	var fill := OmniLight3D.new()
+	fill.light_color = Color("efe4d4")
+	fill.light_energy = 0.45
+	fill.omni_range = 8.0
+	fill.omni_attenuation = 1.4
+	fill.light_cull_mask = 1 << (Pub.PEOPLE_LAYER - 1)
+	fill.light_specular = 0.0
+	fill.position = Vector3(0, 0.2, 0.1)
+	cam.add_child(fill)
 	# the mask: the same room from the same place, drawn as the key block's cut, with the lines
 	# found over it (the Compatibility renderer can't read the depth of a multisampled view, so the
 	# mask gets its own)
@@ -199,12 +210,15 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	press.set_shader_parameter("scene", eye.get_texture())
 	press.set_shader_parameter("cut_mask", mask.get_texture())
 	press.set_shader_parameter("separation", Pub.tex_static("res://press/separation.png", false))
+	press.set_shader_parameter("separation_b", Pub.tex_static("res://press/separation_b.png", false))
 	press.set_shader_parameter("grain", Pub.tex_static("res://press/grain.png", false))
 	press.set_shader_parameter("paper_tex", Pub.tex_static("res://press/paper.png", false))
 	press.set_shader_parameter("paper", Look.STOCK)
 	press.set_shader_parameter("ink_night", Look.NIGHT)
 	press.set_shader_parameter("ink_lamp", Look.LAMP)
 	press.set_shader_parameter("ink_neon", Look.NEON)
+	press.set_shader_parameter("ink_cold", Look.COLD)
+	press.set_shader_parameter("ink_earth", Look.EARTH)
 	sheet.material = press
 	parent.add_child(sheet)
 	sheet.gui_input.connect(_on_sheet_input)
@@ -864,6 +878,7 @@ const DAY := [
 const NIGHT_FROM := 1100
 const PRESS_NIGHT := [0.72, 0.92]  # the press's own lift and white point (look/press.gdshader), where the dusk ends
 const INDOORS := 0.8            # the ambient light in Gary's front room, against outside: the one window
+const LATE_AMBIENT := Color("323f5e")  # the ambient light by last call
 
 
 # The light for a clock: put on at once (as at the start of a night, or after a cut), or eased to
@@ -901,7 +916,9 @@ func _put_light(c: float) -> void:
 	pub.dusk(c, place)
 	if c >= NIGHT_FROM or c < float(DAY[0][0]) - 60.0:
 		env.background_color = _night.sky
-		env.ambient_light_color = _night.ambient
+		# the room's own light goes colder after midnight (pub.set_clock does its lamps)
+		env.ambient_light_color = (_night.ambient as Color).lerp(LATE_AMBIENT,
+			clampf((c - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0))
 		env.ambient_light_energy = _night.ambient_e
 		env.fog_light_color = _night.fog
 		env.fog_density = _night.fog_d

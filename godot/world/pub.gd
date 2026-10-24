@@ -25,6 +25,15 @@ const HALL_Z := -1.21                          # the washrooms' fronts, on the h
 const KEG_Y := -2.5                            # the keg room's floor
 const UP_Y := 3.4                              # the upstairs floor
 const MASK_LAYER := 20
+const PEOPLE_LAYER := 3                        # the people are on it as well as the first: a light of their own (view.gd)
+# The light of each place picks its ink (look/press.gdshader): the bar's lamps warm, the tubes in the
+# back and the screens a green-white, the lot's sodium orange, the sign red.
+const TUBE_LIGHT := "b0f0dc"                   # the back hall's tubes, the kitchen's and the washrooms'
+const COLD_LIGHT := "cdeedd"                   # the cooler's glass behind the bar
+# the night's colour: the lamps lean warm at eight and paler after midnight, and at last call the
+# house lights come up white on everything (set_clock)
+const EARLY := Color("ffa04a")
+const LATE := Color("ffe4c4")
 
 var M := {}
 var rng := RandomNumberGenerator.new()
@@ -170,7 +179,12 @@ func model(path: String, at := Vector3.ZERO, parent: Node = null) -> Node3D:
 			push_warning("model " + path + ": " + str(err))
 			return Node3D.new()
 		root = doc.generate_scene(state) as Node3D
-		_reprint(root)
+		_reprint(root, _who(path))
+		# the people (not his hands, nor Gary's) are on a layer of their own too, for the light from
+		# his eyes
+		if "/people/" in path and not path.get_file().begins_with("his_") and not path.get_file().begins_with("gary_"):
+			for mi in root.find_children("*", "MeshInstance3D", true, false):
+				(mi as MeshInstance3D).set_layer_mask_value(PEOPLE_LAYER, true)
 		var ps := PackedScene.new()
 		_own(root, root)
 		ps.pack(root)
@@ -190,16 +204,28 @@ func _own(n: Node, owner_node: Node) -> void:
 		_own(c, owner_node)
 
 
-func _reprint(n: Node) -> void:
+func _reprint(n: Node, who := "") -> void:
 	if n is MeshInstance3D:
 		var mi := n as MeshInstance3D
 		for i in mi.mesh.get_surface_count():
-			var m := _from_model(mi.mesh.surface_get_material(i))
+			var m := _from_model(mi.mesh.surface_get_material(i), who)
 			if mi.skin != null:
 				m = _rest_cut(m, mi.mesh, i)
 			mi.set_surface_override_material(i, m)
 	for c in n.get_children():
-		_reprint(c)
+		_reprint(c, who)
+
+
+# whose model a file is, for what they wear (WEARS): the longest name there that the file's name
+# starts with
+static func _who(path: String) -> String:
+	var base := path.get_file().get_basename()
+	var best := ""
+	for k in WEARS:
+		var ks := str(k)
+		if ks.length() > best.length() and (base == ks or base.begins_with(ks + "_")):
+			best = ks
+	return best
 
 
 var _rest_cache := {}
@@ -236,6 +262,30 @@ const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel"
 	# fair hair printed as pale as the skin, and a woman's long hair read as part of her head; grey
 	# hair between the dark and the white
 	"hair_blonde": Color("8a6a3c"), "hair_grey": Color("6e7276")}
+# Each of them in a colour of their own, in what they wear, so they tell apart across the room and
+# the press gives each their own ink or two (by the start of the model's file name, which all of a
+# person's poses share; everyone else wears what tools/export_people.py gave them). Still no red.
+const WEARS := {
+	"hoodie": {"hoodie": Color("2f6a66")},                    # the kid: a teal hoodie
+	"driver": {"jacket": Color("5e2a16")},                    # his sister: a rust canvas jacket
+	"crew_a": {"hivis": Color("8ee03c")},                     # the mill crew's hi-vis
+	"hivis": {"hivis": Color("8ee03c")},                      # and room eleven's
+	"constable": {"uniform": Color("1f2a44"), "uniform_trim": Color("141a2a")},   # the constable's navy
+	"team_jacket": {"jacket": Color("1f4438"), "jacket_trim": Color("d8b25a")},   # the team's green and gold
+	"hearing_aid": {"flannel": Color("6e5a2c")},              # the work flannels: mustard,
+	"bigman": {"flannel": Color("5a3424")},                   # brick,
+	"crew_b": {"flannel": Color("3a5a48")},                   # green,
+	"patron_a": {"flannel": Color("4c4a5a")},                 # and grey
+	"cardigan": {"cardigan": Color("8a6c3c")},                # camel
+	"glasses": {"tshirt": Color("4c6470")},                   # slate
+	"buddy": {"tshirt": Color("8c7c46")},                     # khaki
+	"vape": {"hoodie": Color("b08a2c")},                      # a mustard hoodie
+	"ballcap": {"hoodie": Color("4a2418")},                   # a brown one
+	"raincoat": {"raincoat": Color("c0a66a")},                # an ochre raincoat
+	"slippers": {"cardigan": Color("4a7a66")},                # a sage cardigan
+	"cook": {"tshirt": Color("dcd8ce")},                      # a white tee
+	"patron_f": {"cardigan_c": Color("7a5a3a")},              # a brown cardigan
+}
 # how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight].
 # His own hand (models/people/his_right_*.glb) is "skin" too, and Hutch likes it as it prints, the
 # strokes running round the fingers like wood grain (14 October): if the faces want a different
@@ -273,16 +323,20 @@ const CUTS := {
 var from_model_cache := {}
 
 
-func _from_model(src: Material) -> Material:
+func _from_model(src: Material, who := "") -> Material:
 	if src == null:
 		return M.wall
 	var key := src.resource_name
-	if from_model_cache.has(key):
-		return from_model_cache[key]
+	var wears: Dictionary = WEARS.get(who, {})
+	var ck := key + "@" + who if wears.has(key) else key
+	if from_model_cache.has(ck):
+		return from_model_cache[ck]
 	var sm := src as BaseMaterial3D
 	var c := sm.albedo_color if sm else Color(0.7, 0.7, 0.7)
 	if RECOLOUR.has(key):
 		c = RECOLOUR[key]
+	if wears.has(key):
+		c = wears[key]
 	var out: Material
 	if key == "wood":
 		out = M.top
@@ -298,7 +352,7 @@ func _from_model(src: Material) -> Material:
 	else:
 		var cut: Array = CUTS.get(key, [0, Vector3.UP, 6.0, 1.0])
 		out = mat(c, sm.roughness if sm else 0.8, sm.metallic if sm else 0.0, cut[0], cut[1], cut[2], cut[3])
-	from_model_cache[key] = out
+	from_model_cache[ck] = out
 	return out
 
 
@@ -379,22 +433,24 @@ func _materials() -> void:
 	M.glass = glass(Color("a9bccb"), 0.12)
 	M.pint = glass(Color("d8cfb5"), 0.5)
 	M.drop = glass(Color("eef2f6"), 0.5)
-	M.tv = glow(Color("b5c6de"), 1.1)
-	M.juke = glow(Color("e0708e"), 0.9)
+	# the screens, the cooler and the tubes are the cold ink's green-white; the jukebox is the neon's
+	M.tv = glow(Color("a9dcc8"), 1.1)
+	M.juke = glow(Color("d0103a"), 0.9)
 	M.lamp = glow(Color("ffdfae"), 3.0)
 	M.bulb = glow(Color("ffd9a0"), 4.0)
+	M.led = glow(Color("c4e2ee"), 4.0)
 	M.shade = glow(Color("f0c890"), 0.9)
 	# the reds are picked for after the eye's tonemapper, which turns a bright red salmon: this one
 	# comes out as the neon ink itself (tests/agx_probe.gd)
 	M.neon = glow(Color("cc001a"), 1.0)
-	M.screen = glow(Color("e6eefc"), 0.8)
+	M.screen = glow(Color("d6f0e4"), 0.8)
 	M.lotto = glow(Color("c8e6a0"), 1.2)
-	M.cooler = glow(Color("dfe9f2"), 1.2)
-	M.sodium = glow(Color("ffb060"), 6.0)
+	M.cooler = glow(Color("cdeedd"), 1.2)
+	M.sodium = glow(Color("ffac40"), 6.0)
 	M.tail = glow(Color("cc001a"), 1.0)
 	M.head = glow(Color("f4f6ff"), 9.0)
 	M.far = glow(Color("ffd49a"), 7.0)
-	M.tube = glow(Color("e8f0ff"), 3.5)
+	M.tube = glow(Color("d8f5e4"), 3.5)
 	M.exit = glow(Color("cc0a1a"), 1.0)
 	M.window_lit = glow(Color("ffcf8a"), 1.6)
 
@@ -597,24 +653,31 @@ func prop_door(which: String, open: bool) -> void:
 	n.rotation.y = a
 
 
-# The room's light by the clock: as it is all night, up a little at last call, and at two the
-# house lights, the ones nobody's meant to see the room by.
+# The room's light by the clock: the lamps warm at eight, paler after midnight; at last call they're
+# up a little and the house lights come up white, the ones nobody's meant to see the room by, and at
+# two all the way.
 func set_clock(clock: int) -> void:
 	if clock == int(dyn.get("clock", -1)):
 		return
 	dyn.clock = clock
 	var up := 1.0
 	var work := 0.0
-	if clock >= 1560:
+	if clock >= Look.CLOSE_TIME:
 		up = 1.35
 		work = 1.0
-	elif clock >= 1530:
+	elif clock >= Look.LAST_CALL:
 		up = 1.15
+		work = 0.55
+	# warm at eight, the lamps as built by eleven, paler from midnight on
+	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 900 else 0.0
+	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 900 else 1.0
 	for l in lamps:
 		var li := l as Light3D
 		if not li.has_meta("base"):
 			li.set_meta("base", li.light_energy)
+			li.set_meta("tint", li.light_color)
 		li.light_energy = float(li.get_meta("base")) * up
+		li.light_color = (li.get_meta("tint") as Color).lerp(EARLY, 0.45 * early).lerp(LATE, 0.6 * late)
 	for l in dyn.get("work", []):
 		(l as Light3D).light_energy = 0.9 * work
 		(l as Light3D).visible = work > 0.0
@@ -1348,8 +1411,8 @@ func _deck() -> void:
 	cyl(0.08, 0.08, 0.18, Vector3(18.1, 0.09, 9.6), M.steel, null, 12)
 	# the building's outside wall, siding
 	wall(Vector2(16.25, 3.6), Vector2(16.25, 10.4), 3.4, M.siding, [[2.9, 4.1, 0.0, 2.3]], 0.0, 0.05)
-	# a bulb over the door in a cage
-	ball(0.05, Vector3(16.4, 2.5, 7.1), M.bulb)
+	# a bulb over the door in a cage: someone's put a cold LED in it
+	ball(0.05, Vector3(16.4, 2.5, 7.1), M.led)
 	anchors["deck_rail"] = Vector3(18.3, 1.0, 7.1)
 	anchors["deck_can"] = Vector3(18.1, 0.2, 9.6)
 
@@ -1620,7 +1683,8 @@ func _lights() -> void:
 	cyl(0.16, 0.16, 0.05, Vector3(2.25, 3.17, 9.2), M.lamp)
 	omni(Vector3(2.3, 1.95, 8.1), Color("ffcf93"), 0.55, 3.2)
 	omni(Vector3(4.1, 3.4, 11.1), Color("ff3a28"), 0.7, 7.0, true, "sign")
-	var s := omni(Vector3(15.4, 6.2, 21.5), Color("ffa04a"), 5.0, 16.0, true, "sodium")
+	# the lot's sodium, the lamp ink's own orange, so its pool on the wet lot prints in that ink
+	var s := omni(Vector3(15.4, 6.2, 21.5), Color("ffac40"), 5.0, 16.0, true, "sodium")
 	s.omni_attenuation = 1.4
 	var pl := spot(POOL + Vector3(0, 1.86, 0), POOL, Color("fff0d6"), 7.0, 3.2, 58.0, true)
 	lights["pool"] = pl
@@ -1635,11 +1699,12 @@ func _lights() -> void:
 			[Vector3(15.9, 2.05, 9.3), -90.0], [Vector3(14.3, 2.05, 9.98), 180.0]]:
 		sconce(sc[0], sc[1])
 	lamps.append(omni(Vector3(0.7, 2.5, 4.4), Color("ffcf93"), 1.2, 4.5, false, "back_bar"))
-	omni(Vector3(1.1, 1.2, 0.7), Color("dfe9f2"), 0.5, 2.6)
-	omni(Vector3(9.4, 2.3, 0.7), Color("a9c0e8"), 0.55, 4.5)
-	omni(Vector3(15.2, 2.3, 4.0), Color("a9c0e8"), 0.45, 4.0)
-	omni(Vector3(13.2, 1.6, 0.7), Color("f07aa0"), 0.8, 3.0, false, "juke")
-	# the house lights, off until two, when they come up hard on everything
+	# the cooler's glass and the two televisions, green-white; the jukebox, red
+	omni(Vector3(1.1, 1.2, 0.7), Color(COLD_LIGHT), 0.5, 2.6)
+	omni(Vector3(9.4, 2.3, 0.7), Color("9fdcc6"), 0.55, 4.5)
+	omni(Vector3(15.2, 2.3, 4.0), Color("9fdcc6"), 0.45, 4.0)
+	omni(Vector3(13.2, 1.6, 0.7), Color("ff3355"), 1.0, 3.0, false, "juke")
+	# the house lights, off until last call, when they come up white, and hard on everything at two
 	var work: Array = []
 	for p in [Vector3(4.0, 3.0, 2.5), Vector3(12.0, 3.0, 2.5), Vector3(4.0, 3.0, 7.5), Vector3(12.0, 3.0, 7.5)]:
 		var w := omni(p, Color("eef3f5"), 0.0, 7.5)
@@ -1649,16 +1714,17 @@ func _lights() -> void:
 	# the room's middle: a little light off the ceiling so the depth reads (the review: frame 3)
 	for p in [Vector3(5.5, 2.6, 3.0), Vector3(12.5, 2.6, 3.0), Vector3(6.5, 2.6, 7.2), Vector3(12.0, 2.6, 7.0)]:
 		lamps.append(omni(p, Color("e8b87a"), 0.28, 5.5))
-	# behind the back wall: the hall's tubes, the kitchen's, the washrooms'
-	omni(Vector3(9.0, 2.3, -0.6), Color("dfe8f0"), 0.9, 4.5, true, "hall")
-	omni(Vector3(14.5, 2.3, -0.6), Color("dfe8f0"), 0.8, 4.0, false, "hall2")
-	omni(Vector3(2.4, 2.3, -1.3), Color("eef2f6"), 1.1, 4.5, true, "kitchen")
+	# behind the back wall: the hall's tubes, the kitchen's, the washrooms', all of them the cold
+	# ink's green-white
+	omni(Vector3(9.0, 2.3, -0.6), Color(TUBE_LIGHT), 0.9, 4.5, true, "hall")
+	omni(Vector3(14.5, 2.3, -0.6), Color(TUBE_LIGHT), 0.8, 4.0, false, "hall2")
+	omni(Vector3(2.4, 2.3, -1.3), Color(TUBE_LIGHT), 1.1, 4.5, true, "kitchen")
 	for x in [7.5, 9.8, 12.0]:
-		omni(Vector3(x, 2.2, -1.9), Color("e6eef4"), 0.5, 2.2)
+		omni(Vector3(x, 2.2, -1.9), Color(TUBE_LIGHT), 0.5, 2.2)
 	# the keg room's bare bulb
 	omni(Vector3(2.9, KEG_Y + 1.85, 2.6), Color("ffcf93"), 1.3, 3.9, true, "keg")
-	# the deck's caged bulb
-	omni(Vector3(16.6, 2.45, 7.1), Color("ffc98a"), 1.1, 4.5, true, "deck")
+	# the deck's caged bulb, a cold LED: the deck's the blue of rain at night
+	omni(Vector3(16.6, 2.45, 7.1), Color("c4e2ee"), 1.1, 4.5, true, "deck")
 	# upstairs: the bulb, and the sign's red up through the window
 	omni(Vector3(14.7, UP_Y + 2.3, 8.2), Color("ffcf93"), 0.8, 4.0, true, "upstairs")
 	omni(Vector3(14.6, UP_Y + 0.6, 10.6), Color("ff3a28"), 0.6, 3.5)

@@ -1,17 +1,19 @@
-# The look of the page: the paper, the three inks, the type, and how each voice speaks.
+# The look of the page: the paper, the five inks, the type, and how each voice speaks.
 #
-# The world is printed in three inks on cream stock (look/press.gdshader). The column beside it is a
+# The world is printed in five inks on cream stock (look/press.gdshader). The column beside it is a
 # solid of the night ink with the words knocked out of it, so the words are the paper showing
 # through, and the voices print in their own colours and faces, as they do in the browser build
 # (prototype/web/style.css, .v-<style>).
 class_name Look
 extends RefCounted
 
-# the stock and the three inks (the same as sketches/door-look/tools/press.py)
+# the stock and the five inks (the same as sketches/door-look/tools/press.py)
 const STOCK := Color("eae2cf")
 const NIGHT := Color("1b2130")
 const LAMP := Color("f0a23c")
 const NEON := Color("d9382c")
+const COLD := Color("8fc7b8")
+const EARTH := Color("9a5a3c")
 
 # the column's type: knocked out of the night ink, or printed in the voices' colours
 const INK := Color("eae2cf")

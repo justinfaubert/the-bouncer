@@ -3,13 +3,16 @@
   press/separation.png   how much of each ink prints for any rendered colour: a 33x33x33 table
                          laid out as 33 slices side by side (x = red + 33 * blue, y = green);
                          r = the night ink, g = the lamp ink, b = the neon ink
+  press/separation_b.png the same table for the other two inks: r = the cold ink, g = the earth ink
   press/grain.png        three grain screens, one per ink (r, g, b), 128 px square, tiling
   press/paper.png        the paper: r its tooth and fibres, g and b two slow mottles; 512 px square, tiling
 
-The inks are defined here and again in press.gdshader; change them in both.
+The inks are defined here and again in press.gdshader; change them in both. The game reads its
+own copies of these from godot/press/: copy them over after a change.
 
-  python3 tools/press.py
+  python3 tools/press.py [--separation]    (--separation: only the two tables, not the grain and paper)
 """
+import itertools
 import numpy as np
 from PIL import Image
 import os
@@ -20,7 +23,11 @@ os.makedirs(OUT, exist_ok=True)
 rng = np.random.default_rng(28)
 
 PAPER = '#eae2cf'                                                           # the build's stock
-INKS = {'night': '#1b2130', 'lamp': '#f0a23c', 'neon': '#d9382c'}
+# night: the key block, blue-black. lamp: amber, the warm light itself. neon: red, the sign and blood
+# and nothing else. cold: the green-white of fluorescent tubes and TV light. earth: brick and sepia,
+# for skin, wood, leather and beer, the warm things the light falls on.
+INKS = {'night': '#1b2130', 'lamp': '#f0a23c', 'neon': '#d9382c', 'cold': '#8fc7b8', 'earth': '#9a5a3c'}
+ORDER = ('night', 'lamp', 'neon', 'cold', 'earth')
 
 
 def hex_rgb(h):
@@ -47,30 +54,46 @@ def oklab(rgb_lin):
 # ------------------------------------------------------------------ separation
 
 def mixes(steps):
-    """Every mix of the three inks at `steps` levels each, and the colour it prints on the paper."""
+    """The mixes the press prints: the night ink with up to two of the colour inks, each at `steps`
+    levels, and the colour each mix prints on the paper. Never three colours on one spot: the
+    print stays clean, the way a few inks on a poster are."""
     paper = lin(hex_rgb(PAPER))
-    ks = [lin(hex_rgb(INKS[k])) for k in ('night', 'lamp', 'neon')]
+    ks = [lin(hex_rgb(INKS[k])) for k in ORDER]
     c = np.linspace(0.0, 1.0, steps)
-    cn, cl, cr = np.meshgrid(c, c, c, indexing='ij')
-    cov = np.stack([cn.ravel(), cl.ravel(), cr.ravel()], axis=1)
+    sets = []
+    for i, j in itertools.combinations(range(1, len(ORDER)), 2):
+        cn, ci, cj = np.meshgrid(c, c, c, indexing='ij')
+        cov = np.zeros((cn.size, len(ORDER)))
+        cov[:, 0], cov[:, i], cov[:, j] = cn.ravel(), ci.ravel(), cj.ravel()
+        sets.append(cov)
+    cov = np.unique(np.concatenate(sets), axis=0)
     col = np.ones((len(cov), 3)) * paper
     for i, k in enumerate(ks):
         col *= 1.0 - cov[:, i:i + 1] * (1.0 - k)                           # inks filter the light they sit on
     return cov, oklab(col)
 
 
-def separation(n=33, steps=21, chroma=1.5, economy=0.004):
+def smooth(x, a, b):
+    t = np.clip((x - a) / (b - a), 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def separation(n=33, steps=21, chroma=1.5, green=2.4, economy=0.004, lamp_dark=3.0, cold_cheap=0.6, earth_dark=0.6,
+               red_gate=0.08):
     """For every rendered colour, how much of each ink prints.
 
     The rendered picture's white is the bare paper and its black is solid night ink, so the whole
     range of the render lands inside what the press can print. A grey in the render prints as a
-    tint of the night ink alone; only colour in the render brings in the lamp and neon inks, so the
-    warm light prints amber, the sign prints red, and plain shadow stays blue-black.
+    tint of the night ink alone; only colour in the render brings in the colour inks, each where it
+    belongs: the lamp ink for warm light (it costs more the darker the colour, so what the light
+    falls on, a face, the bar, a jacket, prints in the earth ink instead), the cold ink for the
+    tubes' and the screens' green-white (a green-white is a faint colour, so greens are taken
+    stronger than the rest, and the cold ink is cheap), and the neon ink only for a red as strong
+    as the sign's (anything less red pays for it heavily).
     """
     cov, lab = mixes(steps)
     # the night ink alone, from bare paper to solid: the print's grey scale
     c1 = np.linspace(0.0, 1.0, 1001)
-    solo = np.zeros((1001, 3)); solo[:, 0] = c1
     paper = lin(hex_rgb(PAPER)); night = lin(hex_rgb(INKS['night']))
     axis = oklab(paper * (1.0 - c1[:, None] * (1.0 - night)))                # L falls as c1 rises
     Lp, Lk = axis[0, 0], axis[-1, 0]
@@ -78,18 +101,37 @@ def separation(n=33, steps=21, chroma=1.5, economy=0.004):
     r, gg, b = np.meshgrid(g, g, g, indexing='ij')
     tgt = np.stack([r.ravel(), gg.ravel(), b.ravel()], axis=1)
     t = oklab(lin(tgt))
-    L = Lk + np.clip(t[:, 0], 0, 1) * (Lp - Lk)                             # the render's range onto the press's
+    tL = np.clip(t[:, 0], 0, 1)
+    L = Lk + tL * (Lp - Lk)                                                 # the render's range onto the press's
     na = np.interp(-L, -axis[:, 0], axis[:, 1])                             # the night-ink grey at that lightness
     nb = np.interp(-L, -axis[:, 0], axis[:, 2])
-    ch = chroma * (0.55 + 0.45 * np.clip(t[:, 0] / 0.55, 0, 1))              # dark colours keep less of it
+    C = np.hypot(t[:, 1], t[:, 2])
+    hue = np.degrees(np.arctan2(t[:, 2], t[:, 1]))
+    greens = smooth(hue, 90.0, 125.0) * (1.0 - smooth(hue, 185.0, 215.0))
+    ch = (chroma + (green - chroma) * greens) * (0.55 + 0.45 * np.clip(tL / 0.55, 0, 1))   # dark colours keep less
     want = np.stack([L, na + t[:, 1] * ch, nb + t[:, 2] * ch], axis=1)
-    dim = 1.0 + 2.0 * (1.0 - np.clip(t[:, 0], 0, 1))                          # colour ink costs more in the dark
-    cost = economy * (cov[None, :, 1] + cov[None, :, 2])
-    best = np.empty((len(tgt), 3))
-    for s in range(0, len(tgt), 256):
-        d = ((want[s:s + 256, None, :] - lab[None, :, :]) ** 2).sum(axis=2) + cost * dim[s:s + 256, None]
-        best[s:s + 256] = cov[d.argmin(axis=1)]
-    lut = best.reshape(n, n, n, 3)                                          # [r, g, b, ink]
+    # what each ink costs at each colour
+    dim = 1.0 + 2.0 * (1.0 - tL)                                            # colour ink costs more in the dark
+    sat = C / np.maximum(tL, 0.12)
+    red = smooth(sat, 0.14, 0.24) * (1.0 - smooth(hue, 36.0, 46.0)) * (1.0 - smooth(-hue, 40.0, 60.0))
+    w = np.zeros((len(tgt), len(ORDER)))
+    # the lamp ink is the light itself: bright, or a strong yellow-orange even where it's dim (the
+    # sodium's pool far off); a dim, weak or redder warm is a thing the light's on, in the earth ink
+    light = smooth(sat, 0.14, 0.2) * smooth(hue, 60.0, 66.0)
+    w[:, 1] = economy * dim * (1.0 + lamp_dark * (1.0 - smooth(tL, 0.55, 0.85)) * (1.0 - light))
+    w[:, 2] = economy * dim + red_gate * (1.0 - red)
+    w[:, 3] = economy * dim * cold_cheap
+    w[:, 4] = economy * (1.0 + earth_dark * (1.0 - tL))                      # the earth's for the half-lit warm things
+    # nearest mix: |want - lab|^2 + cost, as products so it's quick
+    lab32 = lab.astype(np.float32)
+    ll = (lab32 ** 2).sum(axis=1)
+    covT = cov.T.astype(np.float32)
+    best = np.empty((len(tgt), len(ORDER)))
+    for s in range(0, len(tgt), 1024):
+        wt = want[s:s + 1024].astype(np.float32)
+        d = ll[None, :] - 2.0 * (wt @ lab32.T) + w[s:s + 1024].astype(np.float32) @ covT
+        best[s:s + 1024] = cov[d.argmin(axis=1)]
+    lut = best.reshape(n, n, n, len(ORDER))                                 # [r, g, b, ink]
     # smooth it a little so neighbouring colours don't jump between very different mixes
     k = np.array([0.25, 0.5, 0.25])
     for ax in range(3):
@@ -98,10 +140,13 @@ def separation(n=33, steps=21, chroma=1.5, economy=0.004):
         p = np.pad(lut, pad, mode='edge')
         sl = lambda a, b: tuple(slice(a, b) if i == ax else slice(None) for i in range(4))
         lut = k[0] * p[sl(0, -2)] + k[1] * p[sl(1, -1)] + k[2] * p[sl(2, None)]
-    img = np.zeros((n, n * n, 3))
-    for bi in range(n):
-        img[:, bi * n:(bi + 1) * n, :] = lut[:, :, bi, :].transpose(1, 0, 2)  # y = green, x = red
-    Image.fromarray(np.clip(img * 255 + 0.5, 0, 255).astype(np.uint8)).save(os.path.join(OUT, 'separation.png'))
+    for name, inks in (('separation.png', (0, 1, 2)), ('separation_b.png', (3, 4))):
+        img = np.zeros((n, n * n, 3))
+        for bi in range(n):
+            sl = lut[:, :, bi, :].transpose(1, 0, 2)                        # y = green, x = red
+            for ch_i, ink in enumerate(inks):
+                img[:, bi * n:(bi + 1) * n, ch_i] = sl[:, :, ink]
+        Image.fromarray(np.clip(img * 255 + 0.5, 0, 255).astype(np.uint8)).save(os.path.join(OUT, name))
     return lut
 
 
@@ -145,14 +190,18 @@ def paper(size=512):
 
 
 if __name__ == '__main__':
+    import sys
     lut = separation()
-    grain()
-    paper()
+    if '--separation' not in sys.argv:
+        grain()
+        paper()
     # a check: how a few colours print
     for name, rgb in [('white', (1, 1, 1)), ('black', (0, 0, 0)), ('mid grey', (0.5, 0.5, 0.5)),
                       ('lamp-lit wall', (0.78, 0.6, 0.4)), ('neon on gravel', (0.5, 0.12, 0.12)),
                       ('night lot', (0.12, 0.13, 0.17)), ('sodium', (0.9, 0.6, 0.25)), ('cool TV', (0.6, 0.7, 0.85)),
                       ('dark red', (0.2, 0.05, 0.05)), ('dark warm', (0.2, 0.14, 0.09)), ('felt', (0.3, 0.4, 0.3)),
-                      ('skin lit', (0.85, 0.66, 0.52)), ('deep shadow', (0.04, 0.04, 0.05))]:
+                      ('skin lit', (0.85, 0.66, 0.52)), ('skin shade', (0.45, 0.3, 0.22)), ('bar top', (0.42, 0.24, 0.12)),
+                      ('tube-lit wall', (0.82, 0.92, 0.86)), ('hi-vis', (0.75, 0.85, 0.2)), ('sign red', (0.95, 0.25, 0.15)),
+                      ('deep shadow', (0.04, 0.04, 0.05))]:
         i = [int(round(v * 32)) for v in rgb]
-        print(f'{name:16s} night {lut[i[0], i[1], i[2], 0]:.2f}  lamp {lut[i[0], i[1], i[2], 1]:.2f}  neon {lut[i[0], i[1], i[2], 2]:.2f}')
+        print(f'{name:16s} ' + '  '.join(f'{k} {lut[i[0], i[1], i[2], j]:.2f}' for j, k in enumerate(ORDER)))
