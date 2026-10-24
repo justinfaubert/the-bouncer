@@ -190,6 +190,19 @@ Update this file at the end of every session: add a session entry, move items be
 - The story changed (the count's ten minutes), so a night saved before goes on from the floor. That takes a night caught in the loop out of it.
 - Delivered on 23 October (279f768): `releases/The-Bouncer-2026-10-23d.zip` to play on Linux, and the Godot web build at its link (version 11). The browser build stays at version 13: it lists every way to go, so it never had the loop, and it gets the count's ten minutes with its next publish.
 
+### 2026-10-24 (Saturday), new faces
+
+- Hutch's first note on the polish pass was the faces: they "look highly unnatural and bit off putting, everyone has a huge square jaw, strange proportions". Hutch picked new heads made from scratch over starting from MakeHuman's model, and every head in the game is new. The old ones were one shape for everyone, with a jaw nearly as wide as the skull and lids that didn't come over the eyes.
+- `sketches/door-look/tools/head.py` builds them on the measurements of real heads (Farkas and others): an average man's is 196 mm from the brow to the back of the skull, 152 across, 232 from the crown to the chin, with the cheekbones 140 across, the angles of the jaw 112 and the pupils 63 apart. A woman's is drawn on a woman's measurements, not a man's made smaller.
+- A face comes from who the person is: a man or a woman, their age, how heavy or lean they are and their expression, with the small differences everyone has drawn from their name, so every model of one person (the kid at the door, at the jukebox and in the lot) has the same face. The years lengthen the ears and the nose, thin the lips, hood the eyes and bag them, and lower the brows; weight widens the jaw and the neck and fills the cheeks, and a lean face goes hollow under the cheekbones.
+- The features are made on the head: eyes in their sockets with lids over them (the upper over the top of the iris, its edge drawn as the line of the lashes), a nose with its bridge, tip and wings, lips on the curve of the teeth, ears, brows, and a neck with its cords. Beards and moustaches grow where a beard grows.
+- Hair under a cap or a toque shows below its edge, over the ears and down the nape (it was a block). Thinning hair is a horseshoe round the back of the head. The kid's fringe is hair now, not a stray dot.
+- In the print, the lips are cut like the skin, a shade darker (never red: red stays the sign's and blood's), and the lashes and the dark of a mouth are solid. Fair hair prints darker than the skin it used to vanish into, and grey hair between the dark and the white. The constable's brows are heavier.
+- `godot/tests/shots_faces.gd` takes every model's head from the front and at three-quarters, close (`--only` for some). The old and new side by side are on the polish page.
+- What the faces are, and the defaults they took, are under PROPOSED, "Proposed with the new faces (2026-10-24)". Paige's face is drawn at about fifty-three, as the draft has her (open question 5).
+- Next in the polish: everyone rigged, so they breathe, blink, look about, turn to him and talk with their mouths. A first cut of the skeleton is in `tools/rig.py` (`export_people.py --rig`), tried on Paige; nothing in the game uses it yet.
+- The story didn't change, so a saved night goes on where it was.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -509,6 +522,14 @@ Proposed with his hand (2026-10-23), the third milestone. Built in both builds:
 - **The boy on page eight** is modelled with his cap on, the way Paige would have taken his picture at the door. On his licence it's off, the way they make you for the photo. The name on the licence is a placeholder.
 - **The things, drawn:** in Godot, most lie in his open hand, palm up (a new model of his hand, made beside the old ones, which aren't re-exported, so the grain stays); the flat ones he holds up the way he holds a licence; the pint round its middle. A click turns the thing over in his fingers and E brings it closer. The jacket lies folded on the bar. The key's fob, the shirt's SECURITY, the fifty (in the press's inks, not the note's colour: red stays the sign's and blood's), the mat's pencil and its knot, the tickets, the float's tape, and the paperback's cover and flyer are all drawn. In the browser each is a picture, front and back: tap to turn it, "Look closer" to bring it up.
 - **The big man at two** stands outside the front door's glass, under the light over it, till he's had his answer.
+
+Proposed with the new faces (2026-10-24), from Hutch's note on the faces:
+
+- **Heads on real proportions:** every head is built on an average man's, after the anthropometric literature (Farkas and others), and a woman's on a woman's: a smaller nose and jaw, a narrower chin and neck, fuller lips, slightly larger eyes and a taller opening of the lids, higher and more arched brows, less brow ridge, and the head drawn 0.955 the size.
+- **A face from who they are:** man or woman, age (twenty to eighty), lean to heavy, and an expression (a smile lifts the lower lids), with the small differences everyone has drawn from their name: a longer or shorter lower face (the lips, the chin and the angles of the jaw move together), the nose's length and how far it stands out, the chin's, the skull's, the eyes' spacing and tilt, the ears, the brows. One face in seven is a little crooked.
+- **Their ages as drawn:** the young about twenty-four, the rest about forty, the old about sixty-seven; Paige about fifty-three, and him about thirty-eight. The years lengthen the ears and the nose and drop its tip, thin the lips, hood the eyes and bag them, lower the brows, take the fat from the cheeks and soften the jaw.
+- **Hair:** short hair below the edge of a cap or a toque, a horseshoe for thinning hair, the kid's fringe.
+- **The print:** the lips a shade darker than the skin and cut like it; the lashes and the dark of a mouth solid; fair hair printed 8a6a3c, grey 6e7276.
 
 ### REJECTED
 

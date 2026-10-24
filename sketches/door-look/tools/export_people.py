@@ -20,6 +20,8 @@ OUT = os.path.join(HERE, '..', 'models', 'people')
 # base colours, by material name (sRGB hex)
 COLOURS = {
     'skin': '#c7a38a', 'hair': '#3a2e26', 'eye': '#d2c6b2', 'iris': '#1d1a19', 'stubble': '#a2826f', 'earbud': '#efefea',
+    # the red of the lips (a darker skin, never the sign's red) and the dark line of the lashes
+    'lip': '#a87d6c', 'lash': '#231c19', 'mouth': '#2a1d1a',
     'hoodie': '#3d3c3b', 'cord': '#d6d2c8', 'jeans': '#3a4557', 'shoe': '#d8d3c8', 'sole': '#ece6da',
     'flannel': '#7a3b30', 'jacket': '#2d3a5a', 'jacket_trim': '#c4ad76', 'coat': '#5a5445', 'cardigan': '#7a6850',
     'whites': '#e6e2d8', 'suit': '#34373e', 'tshirt': '#6b6d72', 'sweatshirt': '#45474b', 'hivis': '#d4e43c',
@@ -30,7 +32,7 @@ COLOURS = {
     'raincoat': '#b5ab90', 'sweater': '#5d6b5a', 'denim': '#56708f', 'fleece': '#4b5866', 'workjacket': '#6e5d3e',
     'shirt': '#cfd3d6', 'shirt_white': '#e8e6e0', 'tie': '#5e2b2e', 'belt': '#2a221c', 'buckle': '#b9b1a1', 'zip': '#8d8d8d',
     'dress_shoe': '#211915', 'cardigan_b': '#6c7b8e', 'cardigan_c': '#8e5f5a', 'slipper_b': '#5e6f8c', 'skirt': '#3e3a48',
-    'hair_grey': '#9c9892', 'hair_white': '#d2cec6', 'hair_blonde': '#a88d5e', 'hair_red': '#7a4128', 'hair_dark': '#1f1a17',
+    'hair_grey': '#4d5156', 'hair_white': '#d2cec6', 'hair_blonde': '#a88d5e', 'hair_red': '#7a4128', 'hair_dark': '#1f1a17',
     'jeans_black': '#26272b', 'jeans_light': '#6f86a3',
     # things they hold
     'glass': '#d9e3e1', 'beer': '#b2761e', 'foam': '#efe6cf', 'wine': '#5c1626', 'cola': '#2b160d',
@@ -54,18 +56,18 @@ ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 
 METAL = {'chrome': 1.0, 'buckle': 0.8, 'zip': 0.7, 'vape': 0.6, 'gold': 0.6}
 
 KID = dict(age='young', build='slight', hat='hood', top='hoodie', face=['earbuds'], hair='messy',
-           shoulders=0.86, chest=0.84, drape=True)
-GOODSHOES = dict(hair='parted', top='suit', mood='smile', shoe_mat='dress_shoe', shoes='dress')
-DRIVER = dict(sex='f', age='young', hair='ponytail', top='jacket')
-VAPE = dict(age='young', hair='messy', top='hoodie')
-HIVIS = dict(hat='cap', top='hivis', face=['stubble'])
+           shoulders=0.86, chest=0.84, drape=True, seed='kid')
+GOODSHOES = dict(hair='parted', top='suit', mood='smile', shoe_mat='dress_shoe', shoes='dress', seed='goodshoes')
+DRIVER = dict(sex='f', age='young', hair='ponytail', top='jacket', seed='driver')
+VAPE = dict(age='young', hair='messy', top='hoodie', seed='vape')
+HIVIS = dict(hat='cap', top='hivis', face=['stubble'], seed='hivis')
 # the doorman: 1.93 m, broad and heavy through the chest and shoulders, some belly but solid; late
 # thirties, stubble, his long dark hair down and wet from the rain; a mala of dark wooden beads over
 # an ironed charcoal t-shirt, a dark canvas work jacket open over it, dark jeans, work boots, and
 # scarred knuckles
 HIM = dict(build='big', size=1.005, bulk=0.93, belly=0.022, face=['stubble'], hair='long_wet', hair_mat='hair_dark', top='tshirt',
            top_mat='sweatshirt', creased=True, over='jacket', extra=['mala'], bottoms='jeans', shoes='boots',
-           knuckles='scarred', head_drop=0.45)
+           knuckles='scarred', head_drop=0.45, seed='him', age_n=0.3)
 
 # who, in what pose, how finely (metres per voxel for the body)
 PEOPLE = {
@@ -80,7 +82,8 @@ PEOPLE = {
                 'sit', dict(lean=0.2, head_turn=-0.5, hands=[(-0.14, 0.42, 0.83), (0.2, 0.3, 1.22)]), 0.012),
     'bigman': (dict(build='big', hair='buzz', face=['beard'], top='flannel', sleeves='rolled'), 'cue', dict(left_handed=True), 0.012),
     'buddy': (dict(build='slight', hair='short', top='tshirt', hat='cap', size=0.94), 'stand', dict(head_turn=0.3), 0.012),
-    'bartender': (dict(build='slight', sex='f', hair='bun', face=['lined'], top='apron', age='old', bottoms='trousers', shoes='sneakers'), 'bar', dict(top=1.1), 0.012),
+    # (Paige: her age is open, the draft has her in her fifties)
+    'bartender': (dict(build='slight', sex='f', hair='bun', face=['lined'], top='apron', age='old', age_n=0.55, bottoms='trousers', shoes='sneakers'), 'bar', dict(top=1.1), 0.012),
     'hivis': (dict(HIVIS), 'sit', dict(seat=0.76, table=1.08, lean=0.3), 0.012),
     'endbar': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks'),
                'sit', dict(seat=0.76, table=1.08, lean=0.12, head_turn=0.5), 0.012),
@@ -92,7 +95,7 @@ PEOPLE = {
                                    hands=[(-0.17, 0.5, 1.4), (0.05, 0.3, 1.3)], palms=[(0.3, 0, -1), (-0.1, -0.6, 0.8)], phone=1), 0.012),
     'vape': (VAPE, 'sit', dict(seat=0.98, feet='floor', floor=0.62, reach=0.55, lean=-0.3, head_roll=0.35, head_tilt=-0.1,
                                hands=[(-0.2, 0.18, 1.05), (0.2, 0.22, 1.08)]), 0.012),
-    'slippers': (dict(sex='f', age='old', hair='bun', top='cardigan', bottoms='trousers', shoes='slippers', bulk=1.1),
+    'slippers': (dict(sex='f', age='old', hair='bun', top='cardigan', bottoms='trousers', shoes='slippers', bulk=1.1, seed='slippers_a'),
                  'reach', dict(), 0.012),
     # --- new
     # the cook at the pass, tired, his weight on his hand
@@ -134,7 +137,7 @@ PEOPLE = {
     # the constable from the detachment in town, forty minutes after the call: her cap on in the
     # rain, the duty jacket with its band, standing just inside the door looking at the room
     'constable': (dict(sex='f', hair='bun', hat='cap', top='jacket', top_mat='uniform', trim_mat='uniform_trim',
-                       bottoms='trousers', shoes='boots'), 'stand', dict(head_turn=0.2), 0.008),
+                       bottoms='trousers', shoes='boots', face_numbers=dict(brow_w=6.6, brow_lift=1.0)), 'stand', dict(head_turn=0.2), 0.008),
     # Terry, the night clerk, on his stool behind the front desk with his chin on his fist, watching
     # the bar's TV down the back hall through the gap he props the door open for
     'terry': (dict(build='slight', hair='thin', face=['glasses'], top='flannel', top_mat='flannel_b', trim_mat='flannel_b',
@@ -148,10 +151,10 @@ PEOPLE = {
     'him_card': (dict(HIM, hair='cropped', over=None, extra=[], head_drop=0.3), 'stand', dict(), 0.008),
     # the boy in the ball cap the last doorman let in (content/data/props.yaml, minor_card): his
     # licence photo, the cap off for it the way they make you, eighteen and slight
-    'ballcap_card': (dict(age='young', build='slight', hair='short', top='hoodie', shoulders=0.88, chest=0.86), 'stand', dict(), 0.008),
+    'ballcap_card': (dict(age='young', build='slight', hair='short', top='hoodie', shoulders=0.88, chest=0.86, seed='ballcap'), 'stand', dict(), 0.008),
     # and as the door saw him, off the office printer for the binder (props.yaml, binder, sleeve 8):
     # the cap on
-    'ballcap_cap': (dict(age='young', build='slight', hair='short', hat='cap', top='hoodie', shoulders=0.88, chest=0.86), 'stand', dict(), 0.008),
+    'ballcap_cap': (dict(age='young', build='slight', hair='short', hat='cap', top='hoodie', shoulders=0.88, chest=0.86, seed='ballcap'), 'stand', dict(), 0.008),
     # the bookkeeper, late sixties, a retired bank teller: at her desk in the office writing in the
     # ledger, her chair turned out a little toward the room; reading glasses down her nose on a
     # chain, short grey hair set, a blue-grey cardigan over a blouse, slacks, sensible shoes
@@ -165,7 +168,7 @@ PEOPLE = {
                              over='vest', bottoms='jeans'), 'perch', dict(), 0.008),
     # the old man from the end of the bar, as he is there, out on the wharf at night: standing at
     # the rail along its edge, the rail's top 1.0 high, both hands on it, looking out over the water
-    'endbar_wharf': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks'),
+    'endbar_wharf': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks', seed='endbar'),
                      'rail', dict(), 0.008),
 }
 # figures seen close (at the stool): finer meshes and more faces
@@ -178,11 +181,12 @@ def make(name, look, pose, kw, step, near):
     """A person meshed into Blender (an empty scene each time): the parts' objects (body, head,
     hands), the things they hold, the build and the pose, and how many faces each part came to."""
     import bpy
-    meshes = PP.mesh_person(look, pose, step=step, head_step=0.0028 if near else 0.005,
+    look = dict(look, seed=look.get('seed', name))
+    meshes = PP.mesh_person(look, pose, step=step, head_step=0.0022 if near else 0.0032,
                             hand_step=0.0022 if near else 0.0045, **kw)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     # how many faces each part keeps: the people at the stool are seen at arm's length
-    targets = {'body': 36000 if near else 12000, 'head': 32000 if near else 7000, 'hands': 16000 if near else 2400}
+    targets = {'body': 36000 if near else 12000, 'head': 40000 if near else 14000, 'hands': 16000 if near else 2400}
     obs, report = [], []
     for part, verts, faces, mat, names in meshes:
         me = bpy.data.meshes.new(f'{name}_{part}')
@@ -205,6 +209,8 @@ def make(name, look, pose, kw, step, near):
             dec = ob.modifiers.new('decimate', 'DECIMATE')
             dec.ratio = targets[part] / n0
             bpy.ops.object.modifier_apply(modifier='decimate')
+            # (the collapse leaves a few faces with no area, which the glTF export warns about)
+            ob.data.validate(verbose=False)
         report.append(f'{part} {n0} -> {len(ob.data.polygons)}')
         obs.append(ob)
     B, p, _ = PP.person(look, pose, **kw)
@@ -221,19 +227,33 @@ def build(name, preview=False):
     t0 = time.time()
     obs, extras, B, p, report = make(name, look, pose, kw, step, name in NEAR)
     t1 = time.time()
+    rigged = '--rig' in sys.argv
+    if rigged:
+        # the skeleton the room moves them by (tools/rig.py)
+        import rig as RG
+        hd = PP.head_of(B, dict(look, seed=look.get('seed', name)))
+        arm, added = RG.rig(name, obs, extras, B, p, hd)
+        obs = obs + added
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + '.glb')
     for o in bpy.context.selected_objects:
         o.select_set(False)
-    for o in obs + extras:
+    for o in obs + extras + ([arm] if rigged else []):
         o.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True, export_apply=True,
-                              export_yup=True)
+    if rigged:
+        bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True, export_apply=False,
+                                  export_yup=True, export_skins=True, export_animations=False, export_def_bones=False)
+    else:
+        bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True, export_apply=True,
+                                  export_yup=True)
     nf = sum(len(o.data.polygons) for o in obs + extras)
     print(f'{name}: {", ".join(report)} faces ({nf} in all, {os.path.getsize(path) / 1e6:.2f} MB), '
           f'made in {t1 - t0:.1f}s, total {time.time() - t0:.1f}s')
+    a = anchors(B, p)
+    if rigged:
+        a['rig'] = RG.rig_anchors(B, p, hd)
     with open(os.path.join(OUT, name + '.json'), 'w') as fh:
-        json.dump(anchors(B, p), fh, indent=1)
+        json.dump(a, fh, indent=1)
     if preview:
         render_preview(obs + extras, os.path.join(OUT, 'previews', name + '.png'))
     if '--face' in sys.argv:

@@ -12,6 +12,7 @@ seat for someone sitting.
 """
 import numpy as np
 import sdf as S
+import head as HD
 from sdf import Part
 
 V = lambda *a: np.array(a, dtype=np.float32)
@@ -793,17 +794,58 @@ def hold_upright(B, c, r, toward, right=True, obj=None, thumb=(1.0, 0.55, 0.6, 0
     return h
 
 
+def head_scale(B):
+    """How big the head is drawn, 1 being an average man's: heads differ less than bodies do, and a
+    woman's is 0.955 of a man's."""
+    return (0.955 if B.f else 1.0) * (1.0 + 0.3 * (B.size / (0.93 if B.f else 1.0) - 1.0))
+
+
+def face_of(B, look):
+    """The numbers of a person's face (tools/head.py) from their look: man or woman, their age and
+    build, the expression, and the small differences everyone has, drawn from their name
+    (look['seed'], the same for every model of one person). look['face_numbers'] sets any of them
+    outright."""
+    F = look.get('face', [])
+    age = look.get('age_n', 0.78 if B.old else (0.06 if B.young else 0.36))
+    fat = float(np.clip((B.bulk / (0.9 if B.f else 1.0) - 1.0) / 0.45 + 4.0 * (B.belly - 0.015), -1.0, 1.0))
+    smile = 0.7 if ('smile' in F or look.get('mood') == 'smile') else 0.0
+    over = dict(look.get('face_numbers', {}))
+    if 'gaunt' in look:
+        over.setdefault('gaunt', look['gaunt'])
+    if 'lined' in F:
+        over.setdefault('lines', 1.6)
+    return HD.face('f' if B.f else 'm', age=age, fat=fat, seed=look.get('seed'), smile=smile, **over)
+
+
+_heads = {}
+
+
+def head_of(B, look):
+    """The person's head (a built head.Head), made once for each face."""
+    fp = face_of(B, look)
+    key = repr(sorted(fp.items()))
+    if key not in _heads:
+        _heads[key] = HD.Head(**fp).build()
+    return _heads[key]
+
+
+def head_world(B, p, f):
+    """A shape of the head's (in its own frame, metres for an average man's head) where the head is."""
+    H, R, s = p.head, p.Rh, head_scale(B)
+    return lambda P: f(((P - H) @ R) / s) * s
+
+
 def readers_ends(B, p):
     """The ends of the arms of reading glasses worn down the nose, behind the ears: where their
     chain is fixed."""
-    s = B.size * (0.96 if B.f else 1.0)
+    s = head_scale(B)
     return [p.head + p.Rh @ (V(sx * 0.07, -0.032, -0.012) * s) for sx in (-1, 1)]
 
 
 def eyes_at(B, p):
     """The midpoint between the eyes (their fronts)."""
-    s = B.size * (0.96 if B.f else 1.0)
-    return p.head + p.Rh @ (V(0, 0.07, 0.005) * s)
+    s = head_scale(B)
+    return p.head + p.Rh @ (V(0, 0.076, 0.005) * s)
 
 
 # ---------------------------------------------------------------------------------------- body
@@ -935,7 +977,8 @@ def body_parts(B, p, look):
         c0 = p.pelvis + R @ V(0, 0, hem * s - 0.018)
         add('buckle', S.box(c0 + _surf(body, c0, R @ V(0, 1, 0)) + R @ V(0, 0.008, 0), V(0.022, 0.006, 0.016), 0.003, R), order=2)
     # the neck
-    add('skin', S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.025, -0.07), 0.056 * b ** 0.5, 0.05))
+    # (up into the head's own neck, inside it)
+    add('skin', S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.016, -0.11), 0.056 * b ** 0.5, 0.042))
     neck_r = 0.056 * b ** 0.5
     Rn = R @ S.rot(0, -0.35, 0)
     # arms: sleeves to the wrist, or to above the elbow for a t-shirt
@@ -1180,11 +1223,8 @@ def body_parts(B, p, look):
     if 'chain' in look.get('extra', ()):
         # the chain of her reading glasses: fixed behind each ear, hanging down by her neck and round
         # the back of it on her collar, let fall there and left to settle
-        hs = s * (0.96 if B.f else 1.0)
-        Hh, Rh = p.head, p.Rh
-        skull = S.ellipsoid(Hh + Rh @ (V(0, -0.014, 0.024) * hs), V(0.073, 0.093, 0.092) * hs, Rh)
-        on = S.union(body, skull, S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.025, -0.07), neck_r, 0.05),
-                     *[S.ellipsoid(Hh + Rh @ (V(sx * 0.075, -0.006, -0.006) * hs), V(0.012, 0.022, 0.03) * hs, Rh) for sx in (-1, 1)])
+        on = S.union(body, head_world(B, p, head_of(B, look).skin),
+                     S.cone(p.neck + R @ V(0, 0.0, -0.03), p.head + p.Rh @ V(0, -0.016, -0.11), neck_r, 0.042))
         if top in ('cardigan', 'jacket', 'coat', 'suit', 'tweed', 'whites', 'flannel'):
             on = S.union(on, S.torus(p.neck + R @ V(0, 0.012, -0.012), 0.062 * b ** 0.5 + 0.012, 0.02, R @ S.rot(0, -0.35, 0)))
         ends = readers_ends(B, p)
@@ -1688,116 +1728,31 @@ def sole(ankle, toe_dir, s, look):
 # ---------------------------------------------------------------------------------------- head
 
 def head_parts(B, p, look):
-    """The head at p.head turned by p.Rh: skull, face, features, hair, hat. Carved rather than
-    modelled: flat planes that meet in creases at the brow, the cheekbones, the nose and the jaw,
-    and eyes set back in sockets under the brow, so the print finds lines and shadow in them."""
+    """The head at p.head turned by p.Rh: the face (tools/head.py, its numbers from the look), and
+    on it the hair, a hat, glasses, a beard."""
     H, R = p.head, p.Rh
-    s = B.size * (0.96 if B.f else 1.0)
+    s = head_scale(B)
     at = lambda x, y, z: H + R @ (V(x, y, z) * s)
     dirn = lambda x, y, z: R @ norm(V(x, y, z))
     F = look.get('face', [])
-    old, young, fem = B.old, B.young, B.f
-    smile = 'smile' in F or look.get('mood') == 'smile'
-    gaunt = look.get('gaunt', 0.6 if old else (0.3 if young or fem else 0.45))
     parts = []
     add = lambda name, f, order=0: parts.append(Part(name, f, order=order))
     hair_mat = look.get('hair_mat', 'hair')
-    jaw_w = 0.056 if fem else (0.061 if not young else 0.057)
-    if 'beard' in F or B.bulk > 1.2:
-        jaw_w += 0.004
-    sag = 0.008 if old else 0.0
-    skull = S.ellipsoid(at(0, -0.014, 0.024), V(0.073, 0.093, 0.092) * s, R)
-    # the forehead a plane leaning back, meeting the temples in a soft corner each side
-    # (the forehead full, standing only a little behind the brow)
-    brain = S.blend(0.02 * s, skull, S.ellipsoid(at(0, 0.036, 0.04), V(0.058, 0.05, 0.05) * s, R))
-    brain = S.intersect(brain, S.halfspace(at(0, 0.082, 0.03), dirn(0, 1, 0.32)), 0.012 * s)
-    for sx in (-1, 1):
-        brain = S.intersect(brain, S.halfspace(at(sx * 0.047, 0.058, 0.03), dirn(sx * 0.72, 0.69, 0.05)), 0.012 * s)
-    face = S.ellipsoid(at(0, 0.028, -0.024), V(0.058, 0.066, 0.066) * s, R)
-    # the jaw: from under each ear to the chin, its underside a plane
-    jaw = S.blend(0.016 * s,
-        S.cone(at(-jaw_w, -0.006, -0.05 - sag), at(-0.016, 0.062, -0.087 - sag * 0.5), 0.015 * s, 0.014 * s),
-        S.cone(at(jaw_w, -0.006, -0.05 - sag), at(0.016, 0.062, -0.087 - sag * 0.5), 0.015 * s, 0.014 * s),
-        S.ellipsoid(at(0, 0.064, -0.086 - sag * 0.5), V(0.024 if not fem else 0.02, 0.015, 0.016) * s, R))
-    head = S.blend(0.02 * s, brain, face, jaw)
-    # the cheekbones: a ridge from under the eye back toward the ear, the cheek falling in below it
-    for sx in (-1, 1):
-        head = S.blend(0.01 * s, head, S.capsule(at(sx * 0.03, 0.074, -0.014), at(sx * 0.064, 0.022, -0.006), 0.0085 * s))
-        if smile or young or fem:
-            # the fat of the cheek over it, lifted in a smile
-            head = S.blend(0.012 * s, head, S.ellipsoid(at(sx * 0.037, 0.068, -0.024 + (0.006 if smile else 0.0)), V(0.017, 0.013, 0.015) * s, R))
-        head = S.carve(head, S.ellipsoid(at(sx * 0.054, 0.058, -0.05), V(0.012, 0.018, 0.019) * s, R), (0.014 - 0.006 * gaunt) * s)
-    # the underside of the jaw, cut flat from the chin back to below the ears
-    jp = at(0, 0.064, -0.1015 - sag)
-    jn = dirn(0, -0.43, -0.9)
-    head = S.carve(head, S.intersect(lambda P: -((P - jp) @ jn), S.halfspace(at(0, -0.015, 0), dirn(0, -1, 0))), 0.004 * s)
-    bw = 0.0072 if fem or young else 0.0082
-    # each brow from the bridge out over the eye, then turning back round the temple, thinning
-    brow = S.union(*[S.union(S.cone(at(sx * 0.013, 0.077, 0.025), at(sx * 0.034, 0.071, 0.025), bw * s, bw * 0.95 * s),
-                             S.cone(at(sx * 0.034, 0.071, 0.025), at(sx * 0.049, 0.054, 0.019), bw * 0.95 * s, bw * 0.7 * s))
-                     for sx in (-1, 1)])
-    head = S.blend(0.009 * s, head, brow, S.sphere(at(0, 0.076, 0.026), 0.008 * s))
-    # the nose: a ridge with flat sides from the bridge to the tip, the wings of the nostrils either side
-    bridge, tipc = at(0, 0.084, 0.016), at(0, 0.108, -0.024)
-    ridge = S.cone(bridge, tipc, 0.0095 * s, 0.0125 * s)
-    ridge = S.intersect(ridge, S.halfspace(at(0.0, 0.095, 0.0), dirn(0.83, 0.52, 0.18)), 0.002 * s)
-    ridge = S.intersect(ridge, S.halfspace(at(0.0, 0.095, 0.0), dirn(-0.83, 0.52, 0.18)), 0.002 * s)
-    nose = S.blend(0.006 * s, ridge, S.sphere(at(0, 0.106, -0.027), 0.0098 * s),
-                   S.sphere(at(-0.0128, 0.095, -0.031), 0.0092 * s), S.sphere(at(0.0128, 0.095, -0.031), 0.0092 * s))
-    lips = S.union(S.ellipsoid(at(0, 0.088, -0.05), V(0.021, 0.009, 0.0058) * s, R),
-                   S.ellipsoid(at(0, 0.083, -0.0605), V(0.018, 0.0095, 0.0066) * s, R))
-    ears = S.union(S.ellipsoid(at(-0.075, -0.006, -0.006), V(0.01, 0.02, 0.029) * s, R @ S.rot(0.25, 0, 0)),
-                   S.ellipsoid(at(0.075, -0.006, -0.006), V(0.01, 0.02, 0.029) * s, R @ S.rot(-0.25, 0, 0)))
-    head = S.blend(0.006 * s, head, nose)
-    head = S.blend(0.007 * s, head, lips, ears)
-    # the crease round each wing of the nose
-    for sx in (-1, 1):
-        head = S.carve(head, S.capsule(at(sx * 0.02, 0.092, -0.022), at(sx * 0.021, 0.091, -0.036), 0.0016 * s), 0.0016 * s)
-    # the eye sockets: deep under the brow, deepest at the inner corner by the bridge of the nose
-    ey = 0.064
-    for sx in (-1, 1):
-        head = S.carve(head, S.ellipsoid(at(sx * 0.031, 0.083, 0.005), V(0.019, 0.017, 0.0135) * s, R), 0.005 * s)
-        head = S.carve(head, S.sphere(at(sx * 0.016, 0.081, 0.009), 0.0068 * s), 0.004 * s)
-    # the mouth's line, turned up at the corners in a smile
-    if smile:
-        for sx in (-1, 1):
-            head = S.carve(head, S.capsule(at(0, 0.0945, -0.0556), at(sx * 0.02, 0.089, -0.0505), 0.0018 * s), 0.002)
-            head = S.carve(head, S.capsule(at(sx * 0.02, 0.093, -0.028), at(sx * 0.027, 0.087, -0.052), 0.0022 * s), 0.004)
-    else:
-        head = S.carve(head, S.capsule(at(-0.02, 0.094, -0.0553), at(0.02, 0.094, -0.0553), 0.0017 * s), 0.002)
-    # the fold under the lower lip, above the chin
-    head = S.carve(head, S.capsule(at(-0.011, 0.083, -0.071), at(0.011, 0.083, -0.071), 0.0022 * s), 0.004 * s)
-    if 'lined' in F or old:
-        # the lines the years put in: across the brow, beside the mouth
-        for zz in (0.05, 0.062):
-            head = S.carve(head, S.capsule(at(-0.03, 0.08, zz), at(0.03, 0.08, zz), 0.0016 * s), 0.002)
-        if not smile:
-            for sx in (-1, 1):
-                head = S.carve(head, S.capsule(at(sx * 0.019, 0.096, -0.03), at(sx * 0.029, 0.086, -0.062), 0.002 * s), 0.003)
+    hd = head_of(B, look)
+    world = lambda f: head_world(B, p, f)
+    head = world(hd.skin)
+    skull = world(hd.skull)
+    brain = skull
     add('skin', head)
-    for sx in (-1, 1):
-        eye_c = at(sx * 0.03, ey, 0.005)
-        add('eye', S.sphere(eye_c, 0.0118 * s), order=1)
-        # the lids: skins over the top of the eye and, thinner, the bottom, that leave an almond
-        # open between them, 24 mm across and 9.5 high (narrower in a smile): the two arcs of two
-        # long cylinders run front to back, one below whose top is the upper lid's edge, one above
-        # for the lower
-        zc, w, h = 0.004, 0.024, (0.0078 if smile else 0.0095)
-        r = ((w / 2) ** 2 + h * h / 4) / h
-        up_arc = S.capsule(at(sx * 0.03, ey - 0.05, zc - (r - h / 2)), at(sx * 0.03, ey + 0.07, zc - (r - h / 2)), r * s)
-        low_arc = S.capsule(at(sx * 0.03, ey - 0.05, zc + (r - h / 2)), at(sx * 0.03, ey + 0.07, zc + (r - h / 2)), r * s)
-        above = S.box(at(sx * 0.03, ey, zc + 0.02), V(0.03, 0.03, 0.02) * s, 0.0, R)
-        below_ = S.box(at(sx * 0.03, ey, zc - 0.02), V(0.03, 0.03, 0.02) * s, 0.0, R)
-        add('skin', S.carve(S.intersect(S.sphere(eye_c, 0.0134 * s), above), up_arc), order=2)
-        add('skin', S.carve(S.intersect(S.sphere(eye_c, 0.0127 * s), below_), low_arc), order=2)
-        # the iris: a dark cap standing a little proud of the white, straight ahead, the lids over
-        # its top and bottom edges, so he looks at whoever he's facing. It's cut to the almond, so
-        # it never shows through the lids.
-        iris = S.sphere(at(sx * 0.03, ey + 0.0082, 0.004), 0.0062 * s)
-        add('iris', S.intersect(S.intersect(iris, up_arc), low_arc), order=3)
+    add('lip', world(hd.lip_skin), order=1)
+    # the brows the hair's colour, greying with no hair to go by
+    brow_mat = look.get('brow_mat') or ('hair_grey' if B.old and look.get('hair') in ('bald', 'thin') and hair_mat == 'hair' else hair_mat)
+    add(brow_mat, world(hd.brow_skin), order=2)
+    for name, f, order in hd.parts[3:]:
+        add(name, world(f), order=order)
     if 'earbuds' in F:
         for sx in (-1, 1):
-            add('earbud', S.ellipsoid(at(sx * 0.074, 0.008, -0.012), V(0.008, 0.009, 0.011) * s, R), order=3)
+            add('earbud', S.ellipsoid(at(sx * 0.074, -0.004, -0.008), V(0.008, 0.009, 0.011) * s, R), order=3)
     if 'hearingaid' in F:
         add('earbud', S.ellipsoid(at(-0.084, -0.02, 0.0), V(0.006, 0.01, 0.016) * s, R), order=3)
     if 'glasses' in F:
@@ -1826,38 +1781,62 @@ def head_parts(B, p, look):
     for name, f in getattr(p, 'collar', ()):
         add(name, f, order=3)
     beard_mat = look.get('beard_mat', hair_mat)
-    if 'moustache' in F or 'beard' in F:
-        add(beard_mat, S.union(*[S.ellipsoid(at(sx * 0.012, 0.092, -0.048), V(0.017, 0.008, 0.0062) * s, R @ S.rot(0, 0, sx * 0.4))
-                                 for sx in (-1, 1)]), order=2)
+    zone = world(hd.beard_zone)
     if 'beard' in F:
-        beard = S.carve(S.blend(0.02, S.offset(jaw, 0.008 * s), S.ellipsoid(at(0, 0.06, -0.085), V(0.055, 0.045, 0.04) * s, R)),
-                        S.ellipsoid(at(0, 0.1, -0.063), V(0.02, 0.02, 0.012) * s, R), 0.004)
-        add(beard_mat, beard, order=1)
+        add(beard_mat, world(hd.full_beard), order=1)
+    elif 'moustache' in F:
+        add(beard_mat, world(hd.moustache), order=1)
     elif 'stubble' in F:
-        add('stubble', S.intersect(S.offset(jaw, 0.0015), S.halfspace(at(0, 0.09, -0.046), dirn(0, 0.3, 1))), order=1)
+        # (deep into the skin, so it meshes whole at any step: only its face shows)
+        add('stubble', S.intersect(S.carve(S.offset(head, 0.0008 * s), S.offset(head, -0.005 * s)), zone), order=1)
     # hair
     hair = look.get('hair', 'short')
     hat = look.get('hat')
-    face_hole = S.ellipsoid(at(0, 0.1, 0.0), V(0.08, 0.06, 0.06) * s, R)
+    face_hole = S.ellipsoid(at(0, 0.1, 0.012), V(0.08, 0.06, 0.068) * s, R)
     # a hat's crown ends on a plane that rises from the nape to above the brow, so it never comes
     # down into the eyes
     over = lambda z0, rise: S.halfspace(at(0, 0.0, z0), dirn(0, rise, -1))
+    # hair t deep over the skull, thinning to a third of that at its edge round the face
+    def shell(t, hole, fade=0.016):
+        return lambda P: skull(P) - s * np.maximum(t * (0.33 + 0.67 * np.clip(hole(P) / (fade * s), 0.0, 1.0)), min(t, 0.003))
+    # and never over the face: where the face stands out of it (the cheeks), it gives way
+    face_clear = S.intersect(S.intersect(S.offset(head, 0.003 * s), S.halfspace(at(0, 0.03, 0), dirn(0, -1, 0))),
+                             S.halfspace(at(0, 0, -0.005), dirn(0, 0, 1)))
+
+    def cropped_short(t, hole):
+        # short hair all round, t deep, off the face and up off the nape
+        h = S.intersect(shell(t, hole), S.carve(S.box(at(0, -0.01, 0.05), V(0.1, 0.12, 0.095) * s, 0.0, R), hole, 0.01))
+        return S.intersect(h, S.halfspace(at(0, 0.0, -0.022), dirn(0, 0.4, -1)), 0.004)
+    if hat in ('cap', 'flatcap', 'beanie'):
+        # under a cap or a toque: what shows of short hair below its edge, over the ears and down the
+        # nape (a bun low at the back of the head, under the cap's band)
+        add(hair_mat, cropped_short(0.006, face_hole), order=1)
+        if hair == 'bun':
+            add(hair_mat, S.ellipsoid(at(0, -0.104, -0.004), V(0.03, 0.026, 0.024) * s, R), order=1)
     if hat is None:
         if hair in ('short', 'parted', 'messy'):
-            h = S.intersect(S.offset(skull, 0.009 * s), S.carve(S.box(at(0, -0.01, 0.04), V(0.1, 0.12, 0.08) * s, 0.0, R), face_hole, 0.01))
+            h = S.intersect(shell(0.009, face_hole), S.carve(S.box(at(0, -0.01, 0.05), V(0.1, 0.12, 0.095) * s, 0.0, R), face_hole, 0.01))
             h = S.intersect(h, S.halfspace(at(0, 0.0, -0.022), dirn(0, 0.4, -1)), 0.004)
             if hair == 'messy':
                 h = S.ripple(h, 0.003, 180.0, (0.3, 0.7, 0.2))
             add(hair_mat, h, order=1)
         elif hair == 'buzz':
-            add(hair_mat, S.intersect(S.offset(skull, 0.003 * s), S.carve(S.box(at(0, -0.01, 0.04), V(0.1, 0.12, 0.08) * s, 0.0, R),
-                                                                       S.ellipsoid(at(0, 0.1, 0.0), V(0.08, 0.06, 0.07) * s, R), 0.01)), order=1)
+            add(hair_mat, S.intersect(S.offset(skull, 0.003 * s), S.carve(S.box(at(0, -0.01, 0.05), V(0.1, 0.12, 0.095) * s, 0.0, R),
+                                                                       face_hole, 0.01)), order=1)
         elif hair == 'thin':
-            add(hair_mat, S.intersect(S.offset(skull, 0.005 * s), S.carve(S.box(at(0, -0.04, 0.0), V(0.1, 0.07, 0.05) * s, 0.0, R),
-                                                                       S.ellipsoid(at(0, 0.1, 0.0), V(0.08, 0.06, 0.07) * s, R), 0.01)), order=1)
+            # gone on top: what's left a fringe round the back and over the ears, thinning up to where
+            # the bald crown begins, and short sideburns in front of the ears
+            bald = S.ellipsoid(at(0, 0.02, 0.085), V(0.1, 0.13, 0.075) * s, R)
+            add(hair_mat, cropped_short(0.005, S.union(face_hole, bald)), order=1)
         elif hair in ('long', 'bun', 'ponytail'):
-            add(hair_mat, S.intersect(S.offset(skull, 0.01 * s), S.carve(S.box(at(0, -0.01, 0.03), V(0.1, 0.12, 0.09) * s, 0.0, R),
-                                                                      S.ellipsoid(at(0, 0.1, -0.005), V(0.07, 0.06, 0.06) * s, R), 0.01)), order=1)
+            # (pulled back into a bun or a tail, it lies close to the head)
+            hole = S.ellipsoid(at(0, 0.1, 0.005), V(0.07, 0.06, 0.068) * s, R)
+            h = S.carve(S.intersect(shell(0.01 if hair == 'long' else 0.0055, hole),
+                                    S.carve(S.box(at(0, -0.01, 0.04), V(0.1, 0.12, 0.105) * s, 0.0, R), hole, 0.01)), face_clear, 0.004)
+            if hair != 'long':
+                # combed back: shallow furrows running over the head
+                h = S.ripple(h, 0.0009 * s, 2 * np.pi / (0.014 * s), R @ V(1, 0, 0))
+            add(hair_mat, h, order=1)
             if hair == 'long':
                 add(hair_mat, S.ellipsoid(at(0, -0.045, -0.1), V(0.085, 0.055, 0.14) * s, R), order=1)
             if hair == 'bun':
@@ -1866,13 +1845,17 @@ def head_parts(B, p, look):
                 add(hair_mat, S.cone(at(0, -0.1, 0.02), at(0, -0.14, -0.16), 0.022 * s, 0.012 * s), order=1)
         elif hair == 'bob':
             # cut blunt at the jaw all round, a fringe over the brow
-            bob = S.blend(0.03 * s, S.offset(skull, 0.012 * s),
-                          S.ellipsoid(at(0, -0.02, -0.035), V(0.09, 0.098, 0.06) * s, R))
+            bob = S.blend(0.03 * s, S.offset(skull, 0.009 * s),
+                          S.ellipsoid(at(0, -0.02, -0.035), V(0.086, 0.094, 0.056) * s, R))
             bob = S.intersect(bob, S.halfspace(at(0, 0, -0.064), dirn(0, 0.12, -1)), 0.004)
-            bob = S.carve(bob, S.ellipsoid(at(0, 0.11, -0.03), V(0.066, 0.07, 0.083) * s, R), 0.006)
+            bob = S.carve(bob, S.ellipsoid(at(0, 0.1, -0.03), V(0.072, 0.085, 0.083) * s, R), 0.006)
             bob = S.carve(bob, S.offset(skull, 0.001), 0.0)
-            add(hair_mat, bob, order=1)
-            add(hair_mat, S.intersect(S.offset(skull, 0.013 * s), S.box(at(0, 0.07, 0.055), V(0.06, 0.03, 0.02) * s, 0.0, R @ S.rot(0, -0.3, 0))), order=1)
+            # falling in locks from the crown: shallow grooves round the head, up and down
+            up, fw = R[:, 2], R[:, 1]
+            sd = np.cross(fw, up)
+            bob = (lambda f: lambda P: f(P) + 0.0011 * s * np.sin(56.0 * np.arctan2((P - H) @ sd, (P - H) @ fw)))(bob)
+            add(hair_mat, S.carve(bob, face_clear, 0.004), order=1)
+            add(hair_mat, S.intersect(S.offset(skull, 0.012 * s), S.ellipsoid(at(0, 0.075, 0.052), V(0.064, 0.036, 0.028) * s, R)), order=1)
         elif hair == 'set':
             # short and set: brushed back off the face in soft waves that follow the hairline round,
             # lifted at the crown, close over the ears and tapering to the nape
@@ -1901,13 +1884,11 @@ def head_parts(B, p, look):
         crown = S.intersect(S.offset(skull, 0.012 * s), over(0.021, 0.36), 0.002)
         add('cap', crown, order=1)
         add('cap', S.box(at(0, 0.1, 0.05), V(0.058, 0.05, 0.0035) * s, 0.003, R @ S.rot(0, -0.12, 0)), order=2)
-        add(hair_mat, S.intersect(S.offset(skull, 0.006 * s), S.box(at(0, -0.06, -0.02), V(0.09, 0.05, 0.03) * s, 0.0, R)), order=1)
     elif hat == 'flatcap':
         cap = S.blend(0.02 * s, S.intersect(S.offset(skull, 0.01 * s), over(0.03, 0.3), 0.003),
                       S.ellipsoid(at(0, 0.006, 0.068), V(0.086, 0.1, 0.034) * s, R @ S.rot(0, -0.12, 0)))
         add('cap', cap, order=1)
         add('cap', S.box(at(0, 0.092, 0.046), V(0.06, 0.03, 0.004) * s, 0.003, R @ S.rot(0, -0.25, 0)), order=2)
-        add(hair_mat, S.intersect(S.offset(skull, 0.006 * s), S.box(at(0, -0.06, -0.02), V(0.09, 0.05, 0.03) * s, 0.0, R)), order=1)
     elif hat == 'beanie':
         add('cap', S.intersect(S.offset(skull, 0.012 * s), over(0.018, 0.25), 0.002), order=1)
         add('cap', S.intersect(S.offset(skull, 0.018 * s), S.intersect(over(0.018, 0.25), lambda P: -over(0.036, 0.25)(P))), order=2)
@@ -1944,9 +1925,12 @@ def head_parts(B, p, look):
         rim = lambda P: np.sqrt(cut(P) ** 2 + mid(P) ** 2) - 0.0085 * s
         hoodf = S.blend(0.006, hoodf, rim)
         add('hoodie', hoodf, order=2)
-        # his fringe, swept across under the peak
-        add(hair_mat, S.blend(0.01, S.cone(at(-0.042, 0.06, 0.068), at(0.008, 0.088, 0.05), 0.011 * s, 0.007 * s),
-                            S.cone(at(0.008, 0.088, 0.05), at(0.04, 0.08, 0.036), 0.007 * s, 0.003 * s)), order=1)
+        # his fringe, swept across his forehead under the peak: lying on it, its edge slanting down from
+        # his left to his right temple, thinning to the edge, untidy
+        edge = S.halfspace(at(0, 0.0, 0.037), dirn(-0.2, 0, -1))
+        fringe = lambda P: brain(P) - s * (0.0025 + 0.0045 * np.clip(-edge(P) / (0.014 * s), 0.0, 1.0))
+        fringe = S.intersect(fringe, S.intersect(edge, S.box(at(0, 0.075, 0.06), V(0.058, 0.045, 0.045) * s, 0.0, R)), 0.003)
+        add(hair_mat, S.ripple(fringe, 0.0008 * s, 2 * np.pi / (0.009 * s), R @ norm(V(1, 0, 0.35))), order=1)
     if hat is None and hair == 'bald':
         pass
     return parts
@@ -1984,7 +1968,7 @@ def long_wet_hair(p, s, skull, at, dirn):
     # the hairline: across the top of the brow and down in front of each ear to a short sideburn
     hole = S.blend(0.02 * s, S.ellipsoid(at(0, 0.1, -0.008), V(0.068, 0.06, 0.062) * s, R),
                    *[S.ellipsoid(at(sx * 0.06, 0.05, -0.065), V(0.03, 0.06, 0.042) * s, R) for sx in (-1, 1)])
-    scalp = S.intersect(S.offset(skull, 0.0065 * s), S.carve(S.box(at(0, -0.01, 0.03), V(0.1, 0.12, 0.09) * s, 0.0, R), hole, 0.01))
+    scalp = S.intersect(S.offset(skull, 0.0065 * s), S.carve(S.box(at(0, -0.01, 0.05), V(0.1, 0.12, 0.11) * s, 0.0, R), hole, 0.01))
     for sx in (-1, 1):
         # tucked behind the ears, close round them
         ear = S.ellipsoid(at(sx * 0.077, -0.004, -0.008), V(0.016, 0.024, 0.033) * s, R @ S.rot(-sx * 0.25, 0, 0))

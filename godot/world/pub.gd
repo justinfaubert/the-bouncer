@@ -205,7 +205,10 @@ const SCREENS := {"phone_screen": "phone_screen"}
 # red is the sign's and blood's: a red flannel would print as either, so the flannels are brown, and
 # so are the red hair, the rose cardigan and the tie. The women from upstairs drink white wine.
 const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36"),
-	"hair_red": Color("5a4028"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c")}
+	"hair_red": Color("5a4028"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c"),
+	# fair hair printed as pale as the skin, and a woman's long hair read as part of her head; grey
+	# hair between the dark and the white
+	"hair_blonde": Color("8a6a3c"), "hair_grey": Color("6e7276")}
 # how the key block is cut on the people's and the props' materials: [cut, direction, spacing, line weight].
 # His own hand (models/people/his_right_*.glb) is "skin" too, and Hutch likes it as it prints, the
 # strokes running round the fingers like wood grain (14 October): if the faces want a different
@@ -236,6 +239,9 @@ const CUTS := {
 	"ledger": [2, Vector3.UP, 6.0, 1.0],
 	"skin_pale": [4, Vector3.UP, 4.5, 0.7], "age_spot": [4, Vector3.UP, 4.5, 0.7], "hand_hair": [4, Vector3.UP, 3.5, 0.5],
 	"oxford": [4, Vector3.UP, 5.5, 0.8], "gold": [3, Vector3.UP, 5.0, 0.0],
+	# the faces: lips cut like the skin they are, a shade darker; the lashes a solid line, and the dark
+	# of a mouth behind the lips solid
+	"lip": [4, Vector3.UP, 4.5, 0.7], "lash": [3, Vector3.UP, 5.0, 0.0], "mouth": [3, Vector3.UP, 5.0, 0.0],
 }
 var from_model_cache := {}
 

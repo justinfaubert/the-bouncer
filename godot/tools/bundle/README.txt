@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The Godot build of 23 October 2026, the fourth that day.
+Wednesday, from the interview to close. The Godot build of 24 October 2026.
 
 
 PLAY IT
@@ -61,6 +61,21 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE FOURTH BUILD OF 23 OCTOBER
+
+New faces.
+
+- Everyone's head is new, made from scratch on the measurements of real heads, and a woman's on a
+  woman's. No more square jaws: the jaw narrows to the chin, the skull is long enough at the back,
+  the ears lie close, and the neck comes up under the skull, not under the ears.
+- A face comes from who they are: their age, heavy or lean, and the small differences everyone
+  has, drawn from their name, so nobody shares a face and each person keeps theirs wherever they
+  turn up. The old have longer ears and noses, thinner lips, hooded eyes with bags under them.
+- The eyes have lids over them, and the lips, the lashes and the brows are drawn. Hair shows under
+  caps and toques, thinning hair is a horseshoe, and fair hair doesn't vanish into the skin.
+- Nothing else changed, so a night saved before goes on where it was.
 
 
 WHAT'S NEW SINCE THE THIRD BUILD OF 23 OCTOBER
