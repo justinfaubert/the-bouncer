@@ -202,6 +202,7 @@ Update this file at the end of every session: add a session entry, move items be
 - What the faces are, and the defaults they took, are under PROPOSED, "Proposed with the new faces (2026-10-24)". Paige's face is drawn at about fifty-three, as the draft has her (open question 5).
 - Next in the polish: everyone rigged, so they breathe, blink, look about, turn to him and talk with their mouths. A first cut of the skeleton is in `tools/rig.py` (`export_people.py --rig`), tried on Paige; nothing in the game uses it yet.
 - The story didn't change, so a saved night goes on where it was.
+- Delivered on 24 October (db25a33): `releases/The-Bouncer-2026-10-24.zip` to play on Linux, and the Godot web build at its link (version 12). The browser build stays at version 13.
 
 ## Decisions register
 
