@@ -236,6 +236,7 @@ Update this file at the end of every session: add a session entry, move items be
 - `godot/docs/SOUNDS.md` lists every sound for Hutch: what it stands for, where and when it plays, how many takes, how to put recordings in, and which would change the most.
 - The voices' answers are new rules, so the story's hash changed: a night saved before says so when it's continued, and goes on from the floor.
 - Claude's calls here are under PROPOSED, "Proposed with the room's sound and talk (2026-10-24)".
+- Delivered on 24 October (9591196): `releases/The-Bouncer-2026-10-24c.zip` to play on Linux, and the Godot web build at its link (version 16). The browser build stays at version 13.
 
 ## Decisions register
 
