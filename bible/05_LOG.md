@@ -218,6 +218,8 @@ Update this file at the end of every session: add a session entry, move items be
 - `godot/tests/shots_life.gd` takes a picture every half second of the room's own time at a post, with someone saying a line partway, everyone with a drink drinking at once (`--sip`), at a given hour's light (`--clock`).
 - How they look and drink, and table 28's glasses, are under PROPOSED, "Proposed with the people alive (2026-10-24)".
 - The story didn't change, so a saved night goes on where it was.
+- The bones made the people's models heavier (88 MB from 55), and the web build with them, about 77 MB the first time, more than an artifact takes in one publish. The web build's parts are named by a hash of what's in them now (`godot/tools/web/pack.py`), so they went up beside the old build's before the page that asks for them, and no browser can mix a part kept from an earlier build with a new page.
+- Delivered on 24 October (5fc3bd5): `releases/The-Bouncer-2026-10-24b.zip` to play on Linux, and the Godot web build at its link (version 14). The browser build stays at version 13.
 
 ## Decisions register
 
