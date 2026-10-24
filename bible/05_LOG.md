@@ -249,6 +249,7 @@ Update this file at the end of every session: add a session entry, move items be
 - `sketches/door-look/tools/press.py` makes the two tables the press reads (`press/separation.png` and `press/separation_b.png`). `godot/tests/shots_places.gd --raw` takes every place as his eyes see it, `sketches/door-look/tools/press_preview.py` prints those pictures offline to tune the tables without the game, `godot/tests/shots_swatches.gd` tries colours for clothes under each light, and `godot/tests/shots_lineup.gd` shows everyone in a row.
 - Nothing in the story changed, so a night saved before goes on where it was.
 - Claude's calls here are under PROPOSED, "Proposed with colour and light (2026-10-24)".
+- Delivered on 24 October (46ee5b2): `releases/The-Bouncer-2026-10-24d.zip` to play on Linux, and the Godot web build at its link (version 18; version 17 only carried the first half of the new files). The browser build stays at version 13.
 
 ## Decisions register
 
