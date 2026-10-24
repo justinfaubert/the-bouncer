@@ -2,13 +2,16 @@
 # pck gzipped and cut into parts under 14 MB (an artifact takes files up to 15 MB), put back
 # together by the page (page.html) as they stream in. The parts are named .wasm, gzip or not,
 # because an artifact serves a file only by the types it knows and serves that one byte for byte;
-# the page reads them as bytes.
+# the page reads them as bytes. Each part's name carries a few letters of a hash of what's in it,
+# so a browser never mixes a part kept from an earlier build with a new page, and a build too big
+# for one publish (an artifact takes 64 MB at a time) can go up beside the old build's parts
+# before its page does.
 #
 #   python3 godot/tools/web/pack.py build/web build/web-artifact
 #
 # Publish the-bouncer.html from the output folder with the other files beside it; local.html is
 # the same page as a whole document, for trying it with any static server.
-import gzip, json, os, re, shutil, sys
+import gzip, hashlib, json, os, re, shutil, sys
 src, out = sys.argv[1], sys.argv[2]
 page_path = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'page.html')
 PART = 14_000_000
@@ -25,8 +28,9 @@ for name, typ in [('index.wasm', 'application/wasm'), ('index.pck', 'application
     z = gzip.compress(raw, 9, mtime=0)
     stem = name.replace('index.', '')
     files = []
+    tag = hashlib.sha1(z).hexdigest()[:8]
     for k in range(0, len(z), PART):
-        fn = f'{stem}.gz.{k // PART}.wasm'
+        fn = f'{stem}.gz.{k // PART}.{tag}.wasm'
         open(os.path.join(out, fn), 'wb').write(z[k:k + PART])
         files.append(fn)
     parts[name] = {'parts': files, 'size': len(raw), 'type': typ}
