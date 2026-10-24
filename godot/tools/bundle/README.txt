@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The Godot build of 24 October 2026.
+Wednesday, from the interview to close. The second Godot build of 24 October 2026.
 
 
 PLAY IT
@@ -61,6 +61,23 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE FIRST BUILD OF 24 OCTOBER
+
+The people are alive.
+
+- Everyone breathes, shifts their weight, and looks about: at whoever they're with, at whoever's
+  talking, at their phone or their glass, round the room. The eyes go first and the head
+  follows; they blink, and the lids follow the eyes down.
+- They look at him: when he comes close, when he's been watching them a while, and while they
+  talk to him. Some hold it (the constable stares it out); the kid meets it for a second and
+  keeps away from it after.
+- Their mouths go with what they say, line by line as the column prints them. In Gary's office
+  the man across the desk says the answers you pick for him.
+- Whoever has a drink lifts it now and then. At table 28 each of them has a glass near the edge
+  now: they lean in for it, drink, and put it back.
+- Nothing in the story changed, so a night saved before goes on where it was.
 
 
 WHAT'S NEW SINCE THE FOURTH BUILD OF 23 OCTOBER

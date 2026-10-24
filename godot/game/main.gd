@@ -516,11 +516,14 @@ func render_items(items: Array, live: bool) -> Control:
 				if it.get("prop") != null:
 					props.offer(it, live)
 				if live and it.get("role") == "dialogue":
-					stage.speaking(str(it.get("speaker", "")))
+					stage.speaking(str(it.get("speaker", "")), str(it.get("text", "")))
 			"chosen":
 				# his legs (a walk across the room, game/going.gd) aren't a choice anyone reads
 				if str(it.get("toy", "")) != "legs":
 					node = column.add_chosen(it)
+					# a line of his out loud: his mouth goes with it where he can be seen (Gary's office)
+					if live and str(it.get("text", "")).begins_with("\""):
+						stage.speaking("him", str(it.text))
 			"place":
 				going.moved()
 				node = column.add_place(it)

@@ -204,6 +204,21 @@ Update this file at the end of every session: add a session entry, move items be
 - The story didn't change, so a saved night goes on where it was.
 - Delivered on 24 October (db25a33): `releases/The-Bouncer-2026-10-24.zip` to play on Linux, and the Godot web build at its link (version 12). The browser build stays at version 13.
 
+### 2026-10-24 (Saturday), the people alive
+
+- Hutch said the night "feels a bit dead". The people in it stood like statues and bobbed. Now everyone modelled has bones (`tools/rig.py`, `export_people.py --rig`): the hips up to the head, the jaw, the eyes and the upper lids, and the arms. The walkers keep their walk.
+- `godot/world/life.gd` moves them while he's near enough to see them (nobody at the Sov stirs while he's in Gary's office). Each breathes, and shifts their weight now and then, standing or settled on a stool.
+- They look about: at whoever they're with, at whoever's talking, at their phone or their glass, round the room, and at him, when he comes close, when he's been looking at them a while, and while they talk to him. The eyes go first and the head comes after, quick or slow by the person. They blink every few seconds, and nearly always when their eyes go a long way, and the upper lids follow the eyes down.
+- How readily each meets his eye is their own: the kid in the hoodie meets it for a second and keeps away from it after; the constable stares it out; Paige holds it; the big man holds it longer.
+- Their mouths go with what they say: the jaw opens on the vowels, shuts on b, m and p, nearly on f and v, and stops at a comma and longer at the end of a sentence, about fourteen letters a second. Lines are said one after another, as the column prints them. In Gary's office the man across the desk says the answers the player picks for him.
+- Whoever holds a drink lifts it now and then, when they aren't talking: up to the mouth, a tip, and down. At table 28 each of the five has a glass of their own now, in front of them near the edge (the empties of their rounds still pile up in the middle): they lean in for it, sit back to drink, and put it back where it was.
+- A stubbled face's mouth showed skin when it opened: the stubble ran across the line of the lips and wasn't cut with them. It is now (him, the cook, hi-vis and four others).
+- The print's strokes stay on the skin as a head turns: they're cut by where the skin is at rest (the surface shader's cuts 2 and 4 read the rest pose from the mesh), not where it is in the room.
+- A room of them takes under a millisecond a frame here.
+- `godot/tests/shots_life.gd` takes a picture every half second of the room's own time at a post, with someone saying a line partway, everyone with a drink drinking at once (`--sip`), at a given hour's light (`--clock`).
+- How they look and drink, and table 28's glasses, are under PROPOSED, "Proposed with the people alive (2026-10-24)".
+- The story didn't change, so a saved night goes on where it was.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -531,6 +546,14 @@ Proposed with the new faces (2026-10-24), from Hutch's note on the faces:
 - **Their ages as drawn:** the young about twenty-four, the rest about forty, the old about sixty-seven; Paige about fifty-three, and him about thirty-eight. The years lengthen the ears and the nose and drop its tip, thin the lips, hood the eyes and bag them, lower the brows, take the fat from the cheeks and soften the jaw.
 - **Hair:** short hair below the edge of a cap or a toque, a horseshoe for thinning hair, the kid's fringe.
 - **The print:** the lips a shade darker than the skin and cut like it; the lashes and the dark of a mouth solid; fair hair printed 8a6a3c, grey 6e7276.
+
+Proposed with the people alive (2026-10-24), from Hutch's note that the night feels dead:
+
+- **Who meets his eye, and for how long:** each has a boldness from 0 (never holds it) to 1 (stares it out): the kid 0.12, the kid at the Esso 0.2, the sister's boyfriend 0.3, the bookkeeper 0.3, Dennis's wife 0.3, the sister 0.35, the man at the end of the bar 0.4, the two women from upstairs 0.4, Scratch 0.45, Dennis 0.55, hi-vis 0.6, Terry 0.6, Paige 0.65, Team Jacket 0.7, the banned man 0.7, him (across Gary's desk) 0.75, the big man 0.8, the constable 0.95, anyone else 0.5. Under 0.3 they meet it for a second and keep away from it a few seconds more.
+- **What draws their eyes:** their phone most (the kid, the sister), the ledger (the bookkeeper), then a glass, keys or a card; whoever's talking near them six times anyone else; him three times when he's within arm's reach, eight times while they talk to him, twelve times once they've noticed him looking (after one to three seconds of it, sooner for the bold).
+- **A sip** every twenty-five to seventy seconds, four or five seconds long, never while they talk.
+- **Table 28's glasses:** one each in front of the five, near the edge, left at an empty stool; the empties of each round in the middle.
+- **Talk:** about fourteen letters a second, the jaw open up to 14 degrees.
 
 ### REJECTED
 

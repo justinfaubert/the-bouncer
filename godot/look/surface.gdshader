@@ -40,6 +40,10 @@ uniform int cut = 0;
 uniform vec3 cut_dir = vec3(0.0, 1.0, 0.0);
 uniform float cut_px = 7.0;           // how far apart the strokes are on the screen, in pixels
 uniform float lines = 1.0;            // how strongly this surface's edges and creases draw
+// a person with bones (tools/rig.py): their strokes cut by where each point is in the model's pose,
+// its height and how much it faces up, kept in a set of UVs (1 the first, 2 the second), so the
+// strokes go with the skin when it moves instead of crawling over it; 0, by where it is now
+uniform int rest_uv = 0;
 
 const uint MASK_LAYER = 524288u;      // visual layer 20: only the mask camera sees it
 
@@ -50,12 +54,14 @@ varying vec3 world_pos;
 varying vec3 world_nrm;
 varying vec3 local_pos;
 varying vec3 local_nrm;
+varying vec2 rest;                     // with rest_uv: the point's height and how much it faces up, in the pose
 
 void vertex() {
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	world_nrm = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 	local_pos = VERTEX;
 	local_nrm = NORMAL;
+	rest = rest_uv == 2 ? UV2 : UV;
 }
 
 vec3 mask_out(vec3 v) {
@@ -90,13 +96,18 @@ void fragment() {
 			} else if (cut == 1) {
 				f = dot(world_pos, d);
 			} else if (cut == 2) {
-				f = dot(local_pos, d);
+				f = rest_uv > 0 ? rest.x : dot(local_pos, d);
 			} else {
 				// round the form: level with the body's own tilted axis, pushed along it where the
 				// surface turns away, so the strokes curve over a shoulder or a cheek the way a
 				// gouge follows the wood
-				vec3 n = normalize(local_nrm);
-				f = dot(local_pos, d) + 0.018 * dot(n, d) - 0.012 * (1.0 - abs(dot(n, d)));
+				float h = dot(local_pos, d);
+				float nd = dot(normalize(local_nrm), d);
+				if (rest_uv > 0) {
+					h = rest.x;
+					nd = rest.y;
+				}
+				f = h + 0.018 * nd - 0.012 * (1.0 - abs(nd));
 			}
 			// keep the strokes cut_px apart on the screen at any distance: pick the two nearest
 			// octaves of spacing and blend them, the way an engraver adds a line between two

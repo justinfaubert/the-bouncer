@@ -38,5 +38,66 @@
   0.0863,
   0.9174,
   0.3885
- ]
+ ],
+ "rig": {
+  "bones": [
+   "hips",
+   "spine",
+   "chest",
+   "neck",
+   "head",
+   "jaw",
+   "eye.L",
+   "lid.L",
+   "eye.R",
+   "lid.R",
+   "thigh.L",
+   "shin.L",
+   "foot.L",
+   "upper_arm.L",
+   "forearm.L",
+   "hand.L",
+   "thigh.R",
+   "shin.R",
+   "foot.R",
+   "upper_arm.R",
+   "forearm.R",
+   "hand.R"
+  ],
+  "eyes": [
+   [
+    -0.0297,
+    1.5651,
+    -0.0988
+   ],
+   [
+    0.0297,
+    1.5651,
+    -0.0988
+   ]
+  ],
+  "mouth": [
+   0.0,
+   1.4965,
+   -0.1318
+  ],
+  "blink": 53.6,
+  "head_axes": [
+   [
+    1.0,
+    0.0,
+    -0.0
+   ],
+   [
+    0.0,
+    0.012,
+    -0.9999
+   ],
+   [
+    0.0,
+    0.9999,
+    0.012
+   ]
+  ]
+ }
 }

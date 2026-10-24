@@ -73,11 +73,13 @@ var _anchors := {}
 var walkers := {}                  # id -> the walk they're on (see _walk_off)
 var _nav: Nav
 var _v := {}                       # the night as of the last sync: where people go when they go
+var life := Life.new()             # the ones with bones, alive while he watches (world/life.gd)
 
 
 func setup(p: Pub, c: Dictionary) -> void:
 	pub = p
 	content = c
+	life.cups = pub.dyn.get("t28_glasses")
 	_spots()
 
 
@@ -840,6 +842,7 @@ func _place(id: String) -> void:
 			ph.omni_range = 0.7
 			holder.add_child(ph)
 		f = {"node": holder, "spot": "", "model": model, "anchors": an, "phase": randf() * TAU, "rate": randf_range(0.18, 0.3)}
+		f.rigged = life.add(id, holder, body, an, _seated(spot))
 		figures[id] = f
 	var node: Node3D = f.node
 	if s.get("in", "") == "truck":
@@ -966,11 +969,15 @@ func arrived(_where: String) -> void:
 	_settle(0.0)
 
 
-# Someone speaks: if he can see them, they turn a little toward him.
-func speaking(speaker: String) -> void:
+# Someone speaks: their jaw goes with the line, and they look at him if they can (world/life.gd).
+# Anyone without bones turns a little toward him, if he can see them.
+func speaking(speaker: String, text := "") -> void:
 	var id: String = SPEAKS_FOR.get(speaker, speaker)
 	var f = figures.get(id)
 	if f == null or view == null or walkers.has(id):
+		return
+	if f.get("rigged", false):
+		life.speak(id, text)
 		return
 	var node: Node3D = f.node
 	var s: Dictionary = SPOTS.get(f.spot, {})
@@ -1003,6 +1010,9 @@ func heads_to(p: Vector3) -> void:
 			continue
 		var node: Node3D = f.node
 		if not node.is_visible_in_tree():
+			continue
+		if f.get("rigged", false):
+			life.startle(id, p)
 			continue
 		var to := p - node.global_position
 		var d := wrapf(atan2(-to.x, -to.z) - float(f.base_yaw), -PI, PI)
@@ -1038,9 +1048,18 @@ func _process(dt: float) -> void:
 		_check = 0.25
 		_settle(0.25)
 		_wander()
-	# breathing, and the small shifts of people sitting a long time
+	# breathing, and the small shifts of people sitting a long time: the ones with bones their own
+	# way, looking about as they do (world/life.gd), and anyone else bobbing
+	if view != null and view.cam != null:
+		var heads := {}
+		for id in figures:
+			if not walkers.has(id):
+				heads[id] = head_of(id)
+		life.update(dt, view.cam.global_position, -view.cam.global_transform.basis.z, heads)
 	for id in figures:
 		var f: Dictionary = figures[id]
+		if f.get("rigged", false):
+			continue
 		var body: Node3D = (f.node as Node3D).get_node_or_null("body")
 		if body == null:
 			continue

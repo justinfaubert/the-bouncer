@@ -194,9 +194,36 @@ func _reprint(n: Node) -> void:
 	if n is MeshInstance3D:
 		var mi := n as MeshInstance3D
 		for i in mi.mesh.get_surface_count():
-			mi.set_surface_override_material(i, _from_model(mi.mesh.surface_get_material(i)))
+			var m := _from_model(mi.mesh.surface_get_material(i))
+			if mi.skin != null:
+				m = _rest_cut(m, mi.mesh, i)
+			mi.set_surface_override_material(i, m)
 	for c in n.get_children():
 		_reprint(c)
+
+
+var _rest_cache := {}
+
+
+# A person with bones (tools/rig.py) carries where each point of them is in their pose in a set of
+# UVs (the second, where the first has a picture on it), so that the strokes round the form are cut
+# by that, and stay put on them as they move (look/surface.gdshader's rest_uv).
+func _rest_cut(m: Material, mesh: Mesh, surface: int) -> Material:
+	var sm := m as ShaderMaterial
+	if sm == null or sm.shader != SURFACE or not int(sm.get_shader_parameter("cut")) in [2, 4]:
+		return m
+	if not Vector3(sm.get_shader_parameter("cut_dir")).normalized().is_equal_approx(Vector3.UP):
+		return m
+	var fmt := (mesh as ArrayMesh).surface_get_format(surface)
+	var which := 2 if fmt & Mesh.ARRAY_FORMAT_TEX_UV2 else (1 if fmt & Mesh.ARRAY_FORMAT_TEX_UV else 0)
+	if which == 0:
+		return m
+	var key := str(sm.get_instance_id()) + ":" + str(which)
+	if not _rest_cache.has(key):
+		var r := sm.duplicate() as ShaderMaterial
+		r.set_shader_parameter("rest_uv", which)
+		_rest_cache[key] = r
+	return _rest_cache[key]
 
 
 const GLOWS := {"headlight": 9.0, "taillight": 3.0, "bulb": 4.0, "screen": 0.8, "phone_screen": 0.45, "juke_light": 0.9,
@@ -927,8 +954,11 @@ func _floor_things() -> void:
 	anchors["t28_wall"] = Vector3(9.4, 0.7, 9.95)        # under the sill: seen over the table from its stools
 
 
-# Table 28's glasses: a round's worth for each round they've ordered since the last clear, up to what
-# the table holds.
+# Table 28's glasses: each of the five with theirs in front of them, near the edge where they can
+# reach it (world/life.gd: they lean in for a sip), at the stools they sit at (world/stage.gd, t28_0
+# to t28_5 but the fourth), left there if they're out on the deck or gone; and in the middle the
+# empties of a round's worth for each round they've ordered since the last clear, up to what the
+# table holds.
 func set_t28_glasses(rounds: int, cleared: bool) -> void:
 	var g: Node3D = dyn.t28_glasses
 	for c in g.get_children():
@@ -937,10 +967,13 @@ func set_t28_glasses(rounds: int, cleared: bool) -> void:
 		return
 	var r := RandomNumberGenerator.new()
 	r.seed = 2828
-	var n := clampi(4 + rounds * 2, 0, 22)
-	for i in n:
+	for k in [0, 1, 2, 3, 5]:
+		var a := TAU * float(k) / 6.0 + 0.25 - r.randf_range(-0.02, 0.06)
+		var at := r.randf_range(0.79, 0.81)
+		pint(T28 + Vector3(cos(a) * at, 0.785, sin(a) * at), g)
+	for i in clampi(rounds * 2, 0, 17):
 		var a := TAU * i / 11.0 + r.randf() * 0.3
-		pint(T28 + Vector3(cos(a) * r.randf_range(0.2, 0.66), 0.785, sin(a) * r.randf_range(0.2, 0.66)), g)
+		pint(T28 + Vector3(cos(a) * r.randf_range(0.15, 0.55), 0.785, sin(a) * r.randf_range(0.15, 0.55)), g)
 
 
 # ---------------------------------------------------------------- behind the back wall

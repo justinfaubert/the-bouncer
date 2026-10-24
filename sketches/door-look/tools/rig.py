@@ -257,7 +257,7 @@ def mouth_bag(B, p, hd, rows=6, cols=11):
 
 def open_mouth(ob, hf):
     """Cut the head's mesh along the line where the lips meet (the faces across it, between the
-    corners), so the lips can part."""
+    corners, the stubble's too where it comes down to the lips), so the lips can part."""
     import bmesh
     fp = hf.fp
     me = ob.data
@@ -267,7 +267,7 @@ def open_mouth(ob, hf):
     w, sto = fp['ch_w'], fp['sto_z']
     cut = []
     for f in bm.faces:
-        if names[f.material_index] not in ('skin', 'lip'):
+        if names[f.material_index] not in ('skin', 'lip', 'stubble', 'beard'):
             continue
         q = hf.local(np.array([ob.matrix_world @ v.co for v in f.verts], dtype=np.float64))
         cx, cy = q[:, 0].mean(), q[:, 1].mean()
@@ -313,6 +313,26 @@ def _mesh_object(name, verts, quads, mats, mat_names):
     ob = bpy.data.objects.new(name, me)
     bpy.context.scene.collection.objects.link(ob)
     return ob
+
+
+def rest_strokes(o):
+    """Where each point of a mesh is in the model's pose, for the print (godot/look/surface.gdshader):
+    its height and how much its surface faces up (Godot's y, Blender's z), as a second set of UVs.
+    The press cuts a person's strokes by those, so the strokes stay where they're cut on the skin
+    when the bones move it (a turned head takes its strokes round with it, and a breath doesn't make
+    them crawl). A mesh with no UVs of its own has them as its only UVs (glTF's first set, Godot's
+    UV); one with a picture on it, as its second (UV2)."""
+    me = o.data
+    uv = me.uv_layers.new(name='rest')
+    M = o.matrix_world
+    N = M.to_3x3().inverted().transposed()
+    h = np.array([(M @ v.co).z for v in me.vertices])
+    up = np.array([(N @ v.normal).normalized().z for v in me.vertices])
+    vi = np.zeros(len(me.loops), dtype=np.int64)
+    me.loops.foreach_get('vertex_index', vi)
+    # (glTF turns a UV's v upside down: 1 - v)
+    co = np.stack([h[vi], 1.0 - up[vi]], axis=1).astype(np.float32)
+    uv.data.foreach_set('uv', co.ravel())
 
 
 def rig(name, obs, extras, B, p, hd):
@@ -408,6 +428,7 @@ def rig(name, obs, extras, B, p, hd):
                 idx = np.nonzero(col > 0.01)[0]
                 for k in idx:
                     groups[n].add([int(k)], float(col[k]), 'REPLACE')
+        rest_strokes(o)
         mod = o.modifiers.new('rig', 'ARMATURE')
         mod.object = arm
         o.parent = arm
@@ -425,4 +446,6 @@ def rig_anchors(B, p, hd):
         'eyes': [g(hf.world((sx * fp['eye_x'], fp['eye_y'], fp['eye_z']))) for sx in (-1.0, 1.0)],
         'mouth': g(hf.world((0.0, fp['ls_y'], fp['sto_z']))),
         'blink': round(lid_caps(B, p, hd)[1], 1),
+        # the head as it's sculpted: which way is its right, its front and its top
+        'head_axes': [g(p.Rh[:, 0]), g(p.Rh[:, 1]), g(p.Rh[:, 2])],
     }
