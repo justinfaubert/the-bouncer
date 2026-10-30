@@ -267,6 +267,7 @@ Update this file at the end of every session: add a session entry, move items be
 - The clock card: Hutch's pick, "Keep it still", is in the register as DECIDED.
 - The story changed, so a night saved before says so when it's continued, and goes on from the floor.
 - Claude's calls here are under PROPOSED, "Proposed with the things in the room (2026-10-30)". The daughter back for the coat has a HUTCH prompt (36 prompts now).
+- Delivered on 30 October (fd36bab): `releases/The-Bouncer-2026-10-30.zip` to play on Linux, the Godot web build at its link (version 20; version 19 only carried the first half of the new files), and the browser build at its link (version 14). That's the polish Hutch asked for on 23 October, all four steps; M4, the town, waits on branch `m4-town` for Hutch's go.
 
 ## Decisions register
 
