@@ -24,9 +24,10 @@
 // can ask kept_read("thing") (the voice, or "") and heeded(voice) (how many reads of his he's kept).
 // The engine only offers the reads of voices that are in the room, so write one for each.
 
-// What he can carry, or put down for later. (The pint he pours himself, and the fifty from table 28,
-// are things he holds for a moment and has read, but never carries: content/data/props.yaml.)
-LIST things = flashlight, room_key, gary_shirt, straw, truck_keys, float_bag, beer_mat, ferry_tickets, minor_card, aikido_book, last_jacket
+// What he can carry, or put down for later. (The pint he pours himself, the fifty from table 28, the
+// TV remote and the big man's phone are things he holds for a moment and has read, but never
+// carries: content/data/props.yaml.) The big man's jacket and GOOD SHOES's wallet are room.ink's.
+LIST things = flashlight, room_key, gary_shirt, straw, truck_keys, float_bag, beer_mat, ferry_tickets, minor_card, aikido_book, last_jacket, bm_coat, gs_wallet
 
 // On him. The flashlight's his own, from his last door. Gary's shirt goes inside his jacket in the
 // office, if he takes it, and the key to twelve in his jeans with his wallet (office.ink).
@@ -108,6 +109,10 @@ VAR lager_down = false      // she went down the trapdoor to change the lager (b
     ~ return "the paperback"
 - t == last_jacket:
     ~ return "the last doorman's jacket"
+- t == bm_coat:
+    ~ return "the big man's jacket"
+- t == gs_wallet:
+    ~ return "GOOD SHOES's wallet"
 }
 ~ return "it"
 
@@ -335,5 +340,73 @@ VAR lager_down = false      // she went down the trapdoor to change the lager (b
 + [Karate! Look at him! The Karate Kid! #read: table aikido_book]
     -> back
 + [my sister did that for like a year. she can still do the wrist thing #read: kid aikido_book]
+    -> back
+-> DONE
+
+// The TV remote, from under her bar rag at eleven (room.ink, the_remote).
+=== reads_remote(-> back)
+{ kept_read("remote") != "": -> DONE }
++ [Whoever has that decides what the room looks at. Make it look at something that isn't you. #read: father remote]
+    -> back
++ [Programming shown on licensed premises is the licensee's responsibility. Sport and weather are recommended. #read: manual remote]
+    -> back
++ [Five of them watching your thumb. Good. A hand's easier to read than a face. #read: fighter remote]
+    -> back
++ [In the story, somebody turned the TV off, and that's when everybody heard it start. #read: wrongman remote]
+    -> back
++ [The game! Put the game back on! The game! #read: table remote]
+    -> back
++ [dad falls asleep with it on his chest. you can't get it off him, he wakes up #read: kid remote]
+    -> back
+-> DONE
+
+// The big man's phone, out of his jacket on the hook, with his daughter on it (room.ink, the_cell).
+=== reads_cell(-> back)
+{ kept_read("bm_cell") != "": -> DONE }
++ [Your mother rang the Legion every night for a year. I told them to tell her I'd gone. #read: father bm_cell]
+    -> back
++ [Staff may handle a patron's property only to secure it. Reading it is a breach of the patron's privacy. #read: manual bm_cell]
+    -> back
++ [It's his. If he turns round now, you're a man with his hand in another man's coat. #read: fighter bm_cell]
+    -> back
++ [In the story, the phone rang all night in the coat, and the man who should have answered it was right there, playing pool. #read: wrongman bm_cell]
+    -> back
++ [Answer it! Tell her he's not here! #read: table bm_cell]
+    -> back
++ [that's kayla. she'll call till it dies. she did it to me in the summer #read: kid bm_cell]
+    -> back
+-> DONE
+
+// GOOD SHOES's wallet, off the carpet by his stool (room.ink, the_wallet).
+=== reads_wallet(-> back)
+{ kept_read("gs_wallet") != "": -> DONE }
++ [A man's wallet is the whole of him, folded. Give it back the way you found it. #read: father gs_wallet]
+    -> back
++ [Lost property is logged, secured, and returned to its owner on proof of identity. His identity is page three. #read: manual gs_wallet]
+    -> back
++ [Thick. He'll be back for that inside the hour, and he won't be smiling when he finds out who's got it. #read: fighter gs_wallet]
+    -> back
++ [In the story, the wrong man came back for his wallet. That's how he got in the second time. #read: wrongman gs_wallet]
+    -> back
++ [Drinks are on the barred fella! On him! #read: table gs_wallet]
+    -> back
++ [my dad's wallet is held together with a hair elastic. mom's #read: kid gs_wallet]
+    -> back
+-> DONE
+
+// The big man's jacket, off the hook once he's gone without it (room.ink, take_coat).
+=== reads_coat(-> back)
+{ kept_read("bm_coat") != "": -> DONE }
++ [He went out without it. That's how you know where he was going mattered. #read: father bm_coat]
+    -> back
++ [Clothing left on the premises is recorded by date and description and stored securely until claimed. #read: manual bm_coat]
+    -> back
++ [Wet at the shoulders. Heavy. Same size as you. #read: fighter bm_coat]
+    -> back
++ [In the story, the coat stayed on the hook a year. Nobody moved it. Nobody wanted to be the one. #read: wrongman bm_coat]
+    -> back
++ [That's Moffat's! The mill coat! He'll be back for that! #read: table bm_coat]
+    -> back
++ [mom got him that for christmas. he says it's too good for work so he wears it to the bar #read: kid bm_coat]
     -> back
 -> DONE

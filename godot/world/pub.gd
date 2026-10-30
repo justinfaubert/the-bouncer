@@ -26,6 +26,7 @@ const KEG_Y := -2.5                            # the keg room's floor
 const UP_Y := 3.4                              # the upstairs floor
 const MASK_LAYER := 20
 const PEOPLE_LAYER := 3                        # the people are on it as well as the first: a light of their own (view.gd)
+const HALL_LAYER := 4                          # the back hall's things, not on the first: the jukebox's red isn't to come through the wall
 # The light of each place picks its ink (look/press.gdshader): the bar's lamps warm, the tubes in the
 # back and the screens a green-white, the lot's sodium orange, the sign red.
 const TUBE_LIGHT := "b0f0dc"                   # the back hall's tubes, the kitchen's and the washrooms'
@@ -40,6 +41,7 @@ var rng := RandomNumberGenerator.new()
 var anchors := {}          # named points: posts, hotspots, marks
 var lights := {}           # named lights, for the clock and the posts
 var dyn := {}              # things that change with the night: doors, glasses, chairs up
+var stools := {}           # the stools by the spot they're at (world/stage.gd): pushed out as the night goes
 var lamps: Array = []      # the room's lamps, dimmed and brightened with the clock
 var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
 var town: Town             # the town round the Sov, Gary's office in it (world/town.gd): out only while he's away
@@ -66,6 +68,7 @@ func build() -> void:
 	_rain()
 	_lights()
 	_lobby()
+	_room_things()
 	_town()
 
 
@@ -453,6 +456,18 @@ func _materials() -> void:
 	M.tube = glow(Color("d8f5e4"), 3.5)
 	M.exit = glow(Color("cc0a1a"), 1.0)
 	M.window_lit = glow(Color("ffcf8a"), 1.6)
+	# the room's things (_room_things): brass, a work coat's canvas, a wallet's leather, the mop
+	# bucket's yellow, and the extinguisher in a brick that prints in the earth ink (red's the sign's
+	# and blood's, and nothing else's)
+	M.brass = mat(Color("a8864e"), 0.35, 0.6)
+	M.canvas = mat(Color("8a6a44"), 0.9, 0.0, 2, Vector3.UP, 6.0, 0.8)
+	M.collar = mat(Color("4a3a28"), 0.95, 0.0, 2, Vector3.UP, 4.0, 0.8)
+	M.leather = mat(Color("6a4630"), 0.5, 0.0, 3)
+	M.yellow = mat(Color("d8a428"), 0.5)
+	M.ext = mat(Color("8a5a3a"), 0.45, 0.1)
+	M.soaked = mat(Color("2a2826"), 0.25, 0.1)             # the mat inside the door, when it's given up
+	M.dregs = mat(Color("8a5a2a"), 0.2, 0.0, 3)              # flat beer in the bottom of an empty
+	M.lace = mat(Color("e6dcc0"), 0.6, 0.0, 3)               # and the foam dried down the inside of it
 
 
 func box(size: Vector3, pos: Vector3, m: Material, rot_y := 0.0, parent: Node = null) -> MeshInstance3D:
@@ -655,19 +670,35 @@ func prop_door(which: String, open: bool) -> void:
 
 # The room's light by the clock: the lamps warm at eight, paler after midnight; at last call they're
 # up a little and the house lights come up white, the ones nobody's meant to see the room by, and at
-# two all the way.
+# two all the way. Unless he's had a hand in it at the dimmer (content/ink/room.ink, lights_at_last;
+# set_house): all the way up at once if he turned it himself, at quarter to if he asked her, and if
+# he left them low, low till the last of them are out the door.
 func set_clock(clock: int) -> void:
 	if clock == int(dyn.get("clock", -1)):
 		return
 	dyn.clock = clock
 	var up := 1.0
 	var work := 0.0
-	if clock >= Look.CLOSE_TIME:
+	var some := clock >= Look.LAST_CALL
+	var full := clock >= Look.CLOSE_TIME
+	match int(dyn.get("house", 0)):
+		1:
+			full = some
+		2:
+			full = full or clock >= Look.LAST_CALL + 15
+		-1:
+			full = clock >= Look.CLOSE_TIME + 15
+			some = full
+	if full:
 		up = 1.35
 		work = 1.0
-	elif clock >= Look.LAST_CALL:
+	elif some:
 		up = 1.15
 		work = 0.55
+	# the dial on the dimmer by the door: a quarter up all night, then however far they've come
+	var dial: Node3D = dyn.get("dimmer")
+	if dial != null:
+		dial.rotation.z = deg_to_rad(-130.0 if full else (-20.0 if some else 95.0))
 	# warm at eight, the lamps as built by eleven, paler from midnight on
 	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 900 else 0.0
 	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 900 else 1.0
@@ -679,7 +710,7 @@ func set_clock(clock: int) -> void:
 		li.light_energy = float(li.get_meta("base")) * up
 		li.light_color = (li.get_meta("tint") as Color).lerp(EARLY, 0.45 * early).lerp(LATE, 0.6 * late)
 	for l in dyn.get("work", []):
-		(l as Light3D).light_energy = 0.9 * work
+		(l as Light3D).light_energy = 0.9 * work if work < 1.0 else 1.35
 		(l as Light3D).visible = work > 0.0
 
 
@@ -794,9 +825,8 @@ func _vestibule() -> void:
 			c.position = sp[0]
 			c.rotation = Vector3(0, deg_to_rad(sp[1]), 0)
 			dyn["ledge_" + String(c.name)] = c
-	# his stool, and the mat inside the door
+	# his stool (the tiles inside the door, and the mat on them: _room_things)
 	stool(Vector3(EYE_DOOR.x, 0, EYE_DOOR.z), 0.78)
-	box(Vector3(1.8, 0.012, 1.0), Vector3((DOOR_W + DOOR_E) / 2.0, 0.006, 9.45), M.dark)
 	anchors["tape"] = Vector3(2.157, 1.4, 9.99)
 	anchors["id_sign"] = Vector3(4.52, 1.6, 9.72)
 	anchors["ledge"] = Vector3(1.3, 1.06, 9.72)
@@ -891,12 +921,14 @@ func _bar() -> void:
 	# and staff stand (he does, at the bar): two steel rails on the bar top either side of it, to
 	# keep it clear
 	var z2 := 1.6
+	var si := 0
 	while z2 < 7.4:
 		if absf(z2 - SERVICE_Z) > 0.1:
-			stool(Vector3(2.65, 0, z2), 0.76)
+			_keep_stool("bar_s%d" % si, stool(Vector3(2.65, 0, z2), 0.76))
 		else:
 			rng.randf()        # the turn the stool would have had, so the rest of the room's as it was
 		z2 += 0.85
+		si += 1
 	for rz in [SERVICE_Z - 0.44, SERVICE_Z + 0.44]:
 		box(Vector3(0.66, 0.026, 0.022), Vector3(1.95, 1.133, rz), M.steel)
 	# the binder and the incident book under the till
@@ -987,10 +1019,12 @@ func _floor_things() -> void:
 		stool(T28 + Vector3(cos(a2) * 1.18, 0, sin(a2) * 1.18))
 	pendant(T28)
 	# the other tables
-	for t in TABLES:
+	for ti in TABLES.size():
+		var t: Vector3 = TABLES[ti]
 		table(t)
-		for s in [Vector3(0.62, 0, 0), Vector3(-0.62, 0, 0), Vector3(0, 0, 0.62)]:
-			stool(t + s)
+		var offs := [Vector3(0.62, 0, 0), Vector3(-0.62, 0, 0), Vector3(0, 0, 0.62)]
+		for j in offs.size():
+			_keep_stool("table_%s_%d" % ["abcd"[ti], j], stool(t + offs[j]))
 		pendant(t)
 	for z in [2.4, 4.4, 6.4]:
 		pendant(Vector3(1.95, 0, z), 2.3)
@@ -1003,10 +1037,13 @@ func _floor_things() -> void:
 	for tv in [[Vector3(9.4, 2.45, 0.0), 180.0, "tv_hockey"], [Vector3(16.0, 2.35, 4.0), 90.0, "tv_news"]]:
 		var set := model("res://models/tv.glb", tv[0])
 		set.rotation.y = deg_to_rad(tv[1])
-		screen_quad(Vector2(1.21, 0.69), Vector3(0, 0.0025, -0.107), tv[2], 1.1, 180.0, set)
+		var sq := screen_quad(Vector2(1.21, 0.69), Vector3(0, 0.0025, -0.107), tv[2], 1.1, 180.0, set)
+		if tv[2] == "tv_hockey":
+			dyn.tv_screen = sq
 	# the dartboard on the east wall, and the oche on the carpet at 2.37 m
 	var board := model("res://models/dartboard.glb", Vector3(16.0, 1.73, 2.3))
 	board.rotation.y = PI / 2.0
+	dyn.board_darts = board.find_child("darts", true, false)
 	box(Vector3(0.04, 0.008, 0.6), Vector3(16.0 - 2.37, 0.004, 2.3), M.frame)
 	anchors["pool_table"] = POOL + Vector3(0, 0.85, 0)
 	anchors["t28"] = T28 + Vector3(0, 0.8, 0)
@@ -1039,6 +1076,446 @@ func set_t28_glasses(rounds: int, cleared: bool) -> void:
 	for i in clampi(rounds * 2, 0, 17):
 		var a := TAU * i / 11.0 + r.randf() * 0.3
 		pint(T28 + Vector3(cos(a) * r.randf_range(0.15, 0.55), 0.785, sin(a) * r.randf_range(0.15, 0.55)), g)
+
+
+# What he did at the dimmer (content/ink/room.ink, lights): 1 he turned it up himself, 2 he asked
+# her to, -1 he left them low, 0 neither. The lamps take it from the clock (set_clock).
+func set_house(h: int) -> void:
+	if h == int(dyn.get("house", 0)):
+		return
+	dyn.house = h
+	if dyn.has("clock"):
+		var c := int(dyn.clock)
+		dyn.clock = -1
+		set_clock(c)
+
+
+# What's on the big TV over the back wall (content/ink/room.ink, tv_on): the hockey and its goals
+# till the late news comes on at half past eleven; the game again from the start, or the curling, if
+# he's had the remote; or off, a dark square with the room in it, and its light off with it.
+const TV_ON := {0: "tv_hockey", 1: "tv_light", 2: "tv_replay", 4: "tv_curling"}
+
+func set_tv(on: int) -> void:
+	var q: MeshInstance3D = dyn.get("tv_screen")
+	if q == null:
+		return
+	var m := q.material_override as ShaderMaterial
+	var lit := on != 3
+	if lit:
+		m.set_shader_parameter("emission_tex", tex("res://textures/" + str(TV_ON.get(on, "tv_hockey")) + ".png"))
+	m.set_shader_parameter("emission_energy", 1.1 if lit else 0.0)
+	m.set_shader_parameter("roughness", 1.0 if lit else 0.12)
+	m.set_shader_parameter("metallic", 0.0 if lit else 0.5)
+	(lights.tv as Light3D).visible = lit
+
+
+# The empties on the rail by the pool table (content/ink/room.ink, ledge_glasses): gathering at the
+# end where the big man plays, one every twenty minutes, till somebody carries them over.
+func set_rail_glasses(n: int) -> void:
+	var g: Node3D = dyn.rail_glasses
+	for c in g.get_children():
+		c.queue_free()
+	var r := RandomNumberGenerator.new()
+	r.seed = 1150
+	var x := 10.85
+	for i in clampi(n, 0, 6):
+		x -= r.randf_range(0.15, 0.3)
+		empty(Vector3(x, 1.1375, r.randf_range(0.055, 0.1)), g, r)
+
+
+# An empty pint: the glass, an inch of flat beer in the bottom, and the foam dried down the inside
+# of it to where the last of it was drunk, which is what the press has of it to cut (it can't cut
+# glass, and nor can anybody see it across a room).
+func empty(at: Vector3, parent: Node, r: RandomNumberGenerator) -> void:
+	pint(at, parent)
+	cyl(0.034, 0.033, 0.022, at + Vector3(0, 0.013, 0), M.dregs, parent, 12)
+	var top := r.randf_range(0.1, 0.14)
+	var lace := cyl(0.0333 + top * 0.0533, 0.0346, top - 0.024, at + Vector3(0, (top + 0.024) / 2.0, 0), M.lace, parent, 12)
+	(lace.mesh as CylinderMesh).cap_top = false
+	(lace.mesh as CylinderMesh).cap_bottom = false
+
+
+# The chain through the house cues and the padlock on its end: across the cues and snapped shut on
+# the right-hand staple, or hanging down the left side of the rack from its staple with the padlock
+# open at the bottom of it.
+func set_rack(locked: bool) -> void:
+	var lock: Node3D = dyn.padlock
+	var sh: Node3D = lock.get_node("shackle")
+	(dyn.chain_across as Node3D).visible = locked
+	(dyn.chain_tail as Node3D).visible = not locked
+	lock.position = Vector3(11.872, 1.2, 0.1) if locked else Vector3(11.345, 0.69, 0.09)
+	lock.rotation.z = 0.0 if locked else 0.25
+	sh.position.y = 0.025 if locked else 0.04
+	sh.rotation.y = 0.0 if locked else deg_to_rad(80.0)
+
+
+# The three darts: in the board, or points down in the pint glass by the till with her pens.
+func set_darts(pulled: bool) -> void:
+	if dyn.get("board_darts") != null:
+		(dyn.board_darts as Node3D).visible = not pulled
+	(dyn.till_darts as Node3D).visible = pulled
+
+
+# The big man's coat on its hook by the dartboard, or not; hanging crooked with his phone in it.
+func set_coat(on: bool, crooked: bool) -> void:
+	var c: Node3D = dyn.bm_coat
+	c.visible = on
+	c.rotation.x = 0.07 if crooked else 0.0
+
+
+# The tiles inside the front door, a step wetter for every two who come in and every two hours
+# (content/ink/room.ink, wet): the shine on them, the mat given up at the worst of it; and the yellow
+# sign folded behind the bucket, or out on the tiles.
+func set_wet(level: int, sign_out: bool) -> void:
+	var f: MeshInstance3D = dyn.wet
+	f.visible = level > 0
+	if level > 0:
+		(f.material_override as ShaderMaterial).set_shader_parameter("albedo_tex", tex("res://textures/wet_%d.png" % clampi(level, 1, 3)))
+	(dyn.mat as MeshInstance3D).material_override = M.soaked if level >= 3 else M.dark
+	(dyn.sign_out as Node3D).visible = sign_out
+	(dyn.sign_folded as Node3D).visible = not sign_out
+
+
+# A stool as the night's left it (world/stage.gd): 0 where it goes, 1 pushed out by whoever got up
+# and went, 2 over on its side.
+func set_stool(spot: String, how: int) -> void:
+	var n: Node3D = stools.get(spot)
+	if n == null:
+		return
+	var home: Vector3 = n.get_meta("home")
+	var turn: float = n.get_meta("turn")
+	n.rotation = Vector3(0.0, turn, 0.0)
+	n.position = home
+	if how == 1:
+		var out: Vector3 = n.get_meta("out")
+		n.position = home + out
+		n.rotation.y = turn + 0.5
+	elif how == 2:
+		# over toward the room, its legs to the bar
+		n.rotation = Vector3(0.0, 0.0, -PI / 2.0)
+		n.position = home + Vector3(-0.02, 0.211, 0.0)
+
+
+func _keep_stool(spot: String, n: Node3D) -> void:
+	stools[spot] = n
+	n.set_meta("home", n.position)
+	n.set_meta("turn", n.rotation.y)
+	# pushed out away from what it's at: a table's stool back from the table, a bar stool out from
+	# the bar into the room
+	var out := Vector3(0.14, 0.0, 0.05)
+	for t in TABLES:
+		var d: Vector3 = n.position - t
+		if d.length() < 0.8:
+			out = d.normalized() * 0.24 + Vector3(-d.z, 0.0, d.x).normalized() * 0.07
+	n.set_meta("out", out)
+
+
+# The coffee can on the deck filling with butts as the night goes, and then the boards round it.
+func set_butts(n: int) -> void:
+	var g: Node3D = dyn.butts
+	for c in g.get_children():
+		c.queue_free()
+	var r := RandomNumberGenerator.new()
+	r.seed = 2006
+	var can := Vector3(18.1, 0.0, 9.6)
+	for i in clampi(n, 0, 34):
+		if i < 14:
+			var p := can + Vector3(r.randf_range(-0.05, 0.05), 0.172, r.randf_range(-0.05, 0.05))
+			var d := Vector3(r.randf_range(-0.7, 0.7), 1.0, r.randf_range(-0.7, 0.7)).normalized()
+			_stick(p, p + d * 0.032, 0.0045, M.paper, g, 5)
+		else:
+			var ang := r.randf_range(PI, PI * 1.5)
+			var p2 := can + Vector3(cos(ang), 0.0, sin(ang)) * r.randf_range(0.14, 0.5) + Vector3(0, 0.0045, 0)
+			var d2 := Vector3(cos(ang + 1.3), 0.0, sin(ang + 1.3))
+			_stick(p2, p2 + d2 * 0.032, 0.0045, M.paper, g, 5)
+
+
+# Something flat with an outline, like a coat on a hook: the outline in its own z (across) and y
+# (up), `thick` deep along x, its back `back` behind the node.
+func _slab(outline: PackedVector2Array, thick: float, m: Material, parent: Node3D, back := 0.0) -> MeshInstance3D:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Godot's front faces wind clockwise as they're seen. The outline's plane is seen unmirrored from
+	# the room's side (-x) and mirrored from the wall's, and triangulate_polygon's triangles all go
+	# anticlockwise (y up): so the room's face takes each one reversed, and the wall's as it comes
+	var tris := Geometry2D.triangulate_polygon(outline)
+	var x0 := back - thick
+	for face in [[x0, -1.0], [back, 1.0]]:
+		for i in range(0, tris.size(), 3):
+			var acw := (outline[tris[i + 1]] - outline[tris[i]]).cross(outline[tris[i + 2]] - outline[tris[i]]) > 0.0
+			var idx := [tris[i], tris[i + 2], tris[i + 1]] if acw == (face[1] < 0.0) else [tris[i], tris[i + 1], tris[i + 2]]
+			for k in idx:
+				var v: Vector2 = outline[k]
+				st.set_normal(Vector3(face[1], 0.0, 0.0))
+				st.set_uv(Vector2(v.x, -v.y))
+				st.add_vertex(Vector3(face[0], v.y, v.x))
+	# the edge all round, each side facing out of the outline
+	var n := outline.size()
+	var cw := Geometry2D.is_polygon_clockwise(outline)
+	for i in n:
+		var a: Vector2 = outline[i]
+		var b: Vector2 = outline[(i + 1) % n]
+		var e := b - a
+		var nz := Vector3(0.0, -e.x, e.y).normalized() * (-1.0 if cw else 1.0)
+		var quad := [Vector3(x0, a.y, a.x), Vector3(back, a.y, a.x), Vector3(back, b.y, b.x), Vector3(x0, b.y, b.x)]
+		var order := [0, 1, 2, 0, 2, 3] if cw else [0, 2, 1, 0, 3, 2]
+		for k in order:
+			st.set_normal(nz)
+			st.set_uv(Vector2(float(i) / n, quad[k].x))
+			st.add_vertex(quad[k])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = m
+	parent.add_child(mi)
+	return mi
+
+
+# A rod from a to b: a mop's handle, a pen, a dart's shaft, a butt.
+func _stick(a: Vector3, b: Vector3, r: float, m: Material, parent: Node = null, seg := 6) -> MeshInstance3D:
+	var c := cyl(r, r, a.distance_to(b), (a + b) / 2.0, m, parent, seg)
+	c.basis = Basis(Quaternion(Vector3.UP, (b - a).normalized()))
+	return c
+
+
+# A dart, its point at the node and its flights up: the point, the barrel, the shaft, the flights.
+func _dart(n: Node3D) -> void:
+	_stick(Vector3.ZERO, Vector3(0, 0.032, 0), 0.0012, M.steel, n, 4)
+	_stick(Vector3(0, 0.032, 0), Vector3(0, 0.078, 0), 0.0036, M.brass, n, 8)
+	_stick(Vector3(0, 0.078, 0), Vector3(0, 0.118, 0), 0.0018, M.black, n, 5)
+	for a in [0.0, PI / 2.0]:
+		box(Vector3(0.026, 0.036, 0.0008), Vector3(0, 0.122, 0), M.dark, rad_to_deg(a), n)
+
+
+# ---------------------------------------------------------------- the room's things
+
+# What's to hand in the Sov, and what the night does to it (content/ink/room.ink): the drink rail on
+# the back wall behind the pool table, where the players' empties gather; the chain and the padlock
+# on the house cues; the darts in the board, or in the pint glass by the till; the coat hooks by the
+# dartboard, and the big man's work coat on one with his phone in it; GOOD SHOES's wallet by his
+# stool, if he left it; the tiles inside the front door and the mat on them, the wet the rain brings
+# in, the mop in its bucket in the corner by the screen and the yellow sign; the dimmer for the house
+# lights on the wall over the ledge, by his hand; the extinguisher at the end of the back hall; the
+# coffee can of butts on the deck. Built with dice of its own, so nothing else in the building moves.
+# world/stage.gd keeps each to the night (the set_ functions above) the way it keeps the people: while
+# he isn't looking.
+func _room_things() -> void:
+	var r := RandomNumberGenerator.new()
+	r.seed = 1104
+	# the rail along the back wall, under the hockey, on three brackets
+	box(Vector3(3.4, 0.035, 0.15), Vector3(9.2, 1.12, 0.075), M.top)
+	for x in [7.7, 9.2, 10.7]:
+		box(Vector3(0.03, 0.11, 0.11), Vector3(x, 1.045, 0.055), M.frame)
+	var rail := Node3D.new()
+	add_child(rail)
+	dyn.rail_glasses = rail
+	set_rail_glasses(2)
+	# the chain for the four house cues (_floor_things), on a staple on the left of the rack: either
+	# brought across the cues and locked to the staple on the right, or let hang down the left side
+	# of the rack with the padlock open on its end (set_rack)
+	for sx in [11.33, 11.87]:
+		box(Vector3(0.014, 0.036, 0.026), Vector3(sx, 1.25, 0.064), M.steel)
+	var across := Node3D.new()
+	add_child(across)
+	var tail := Node3D.new()
+	add_child(tail)
+	for i in 18:
+		var flat := i % 2 == 0
+		box(Vector3(0.03, 0.012 if flat else 0.004, 0.004 if flat else 0.012), Vector3(11.345 + i * 0.03, 1.25, 0.09), M.steel, 0.0, across)
+		box(Vector3(0.004 if flat else 0.012, 0.03, 0.012 if flat else 0.004), Vector3(11.345, 1.235 - i * 0.03, 0.09), M.steel, 0.0, tail)
+	dyn.chain_across = across
+	dyn.chain_tail = tail
+	var lock := Node3D.new()
+	add_child(lock)
+	box(Vector3(0.044, 0.05, 0.02), Vector3.ZERO, M.brass, 0.0, lock)
+	var sh := Node3D.new()
+	sh.name = "shackle"
+	sh.position = Vector3(-0.014, 0.025, 0.0)
+	lock.add_child(sh)
+	for lx in [0.0, 0.028]:
+		box(Vector3(0.006, 0.032, 0.006), Vector3(lx, 0.016, 0.0), M.steel, 0.0, sh)
+	box(Vector3(0.034, 0.006, 0.006), Vector3(0.014, 0.032, 0.0), M.steel, 0.0, sh)
+	dyn.padlock = lock
+	set_rack(false)
+	# the pint glass at the door end of the bar, by the till, with her pens and the bottle opener in
+	# it, and the darts points down in it once he's pulled them out of the board
+	var cup := Vector3(1.74, 1.12, 7.62)
+	pint(cup)
+	for k in 3:
+		var foot := cup + Vector3(r.randf_range(-0.014, 0.014), 0.012, r.randf_range(-0.014, 0.014))
+		_stick(foot, foot + Vector3(r.randf_range(-0.03, 0.03), 0.15, r.randf_range(-0.03, 0.03)), 0.0045, M.black if k != 1 else M.paper, null, 6)
+	var opener := box(Vector3(0.006, 0.13, 0.026), cup + Vector3(0.012, 0.09, -0.012), M.steel)
+	opener.rotation.z = 0.16
+	var darts := Node3D.new()
+	add_child(darts)
+	for k in 3:
+		var dn := Node3D.new()
+		dn.position = cup + Vector3(r.randf_range(-0.015, 0.015), 0.014, r.randf_range(-0.015, 0.015))
+		dn.rotation = Vector3(r.randf_range(-0.2, 0.2), r.randf_range(0.0, TAU), r.randf_range(-0.2, 0.2))
+		darts.add_child(dn)
+		_dart(dn)
+	dyn.till_darts = darts
+	set_darts(false)
+	# the coat hooks on the east wall by the dartboard, a board with three hooks on it, and the big
+	# man's work coat hung by its loop from the middle one: canvas gone soft, the collar pinched up
+	# where the loop is, the shoulders fallen, the sleeves hanging
+	box(Vector3(0.025, 0.1, 0.84), Vector3(15.9875, 1.72, 1.15), M.wood)
+	for z in [0.86, 1.15, 1.44]:
+		box(Vector3(0.07, 0.012, 0.014), Vector3(15.94, 1.705, z), M.frame)
+		box(Vector3(0.012, 0.032, 0.014), Vector3(15.906, 1.72, z), M.frame)
+	var coat := Node3D.new()
+	coat.position = Vector3(15.925, 1.712, 1.15)
+	add_child(coat)
+	# its outline as it hangs, seen from the room (across the wall, and down): the loop, the collar,
+	# the shoulders fallen from it, the sleeves down the sides to the cuffs, the hem
+	var half := [Vector2(0.0, 0.0), Vector2(0.045, -0.03), Vector2(0.075, -0.06), Vector2(0.2, -0.13), Vector2(0.245, -0.17),
+		Vector2(0.262, -0.24), Vector2(0.278, -0.69), Vector2(0.27, -0.735), Vector2(0.232, -0.742), Vector2(0.236, -0.8),
+		Vector2(0.252, -0.865), Vector2(0.12, -0.872), Vector2(0.0, -0.878)]
+	var outline := PackedVector2Array()
+	for v in half:
+		outline.append(v)
+	for i in range(half.size() - 2, 0, -1):
+		outline.append(Vector2(-half[i].x, half[i].y))
+	_slab(outline, 0.085, M.canvas, coat, 0.035)
+	# on its front: the collar turned up round the loop, the sleeves' inside edges, the placket, the
+	# flaps of the two pockets
+	var face := 0.035 - 0.085                                   # the slab's face, to the room
+	box(Vector3(0.01, 0.05, 0.13), Vector3(face - 0.005, -0.05, 0.0), M.collar, 0.0, coat)
+	for side in [1.0, -1.0]:
+		var seam := box(Vector3(0.004, 0.46, 0.012), Vector3(face - 0.002, -0.47, 0.205 * side), M.dark, 0.0, coat)
+		seam.rotation.x = deg_to_rad(-2.0) * side
+		box(Vector3(0.006, 0.032, 0.11), Vector3(face - 0.003, -0.62, 0.1 * side), M.dark, 0.0, coat)
+	box(Vector3(0.004, 0.76, 0.01), Vector3(face - 0.002, -0.48, 0.0), M.dark, 0.0, coat)
+	dyn.bm_coat = coat
+	set_coat(true, true)
+	# the light for the darts on its arm out from the wall, left on since the league folded: the
+	# board's seen by it, and the score, and the hooks beside them
+	box(Vector3(0.72, 0.02, 0.02), Vector3(15.64, 2.26, 1.95), M.frame)
+	cyl(0.05, 0.08, 0.1, Vector3(15.27, 2.22, 1.95), M.shade, null, 14)
+	lamps.append(spot(Vector3(15.27, 2.17, 1.95), Vector3(16.0, 1.45, 1.65), Color("ffc98a"), 2.6, 3.0, 60.0))
+	# GOOD SHOES's wallet on the carpet by the stool he had, where it came out of his coat as he was
+	# turned for the door, if he left it
+	# fallen open a little off what's in it: the half it landed on, the other sprung up off the fold,
+	# and the edges of the notes and the cards between
+	var wal := Node3D.new()
+	wal.position = Vector3(3.2, 0.0, 3.5)
+	wal.rotation.y = deg_to_rad(24.0)
+	add_child(wal)
+	box(Vector3(0.11, 0.009, 0.09), Vector3(0.0, 0.0045, 0.0), M.leather, 0.0, wal)
+	box(Vector3(0.09, 0.004, 0.08), Vector3(0.01, 0.011, 0.0), M.paper, 0.0, wal)
+	var lid := Node3D.new()
+	lid.position = Vector3(-0.055, 0.009, 0.0)
+	lid.rotation.z = deg_to_rad(14.0)
+	wal.add_child(lid)
+	box(Vector3(0.11, 0.009, 0.09), Vector3(0.055, 0.0045, 0.0), M.leather, 0.0, lid)
+	wal.visible = false
+	dyn.gs_wallet = wal
+	# the tiles inside the front door, from the door to the end of the screen, a steel strip where
+	# they meet the carpet, the mat on them by the door; and the wet on them (set_wet), see-through
+	# to the tiles and shining where it lies
+	box(Vector3(2.25, 0.008, 1.08), Vector3(3.375, 0.0, 9.54), M.tile)
+	box(Vector3(2.25, 0.005, 0.035), Vector3(3.375, 0.0025, 8.99), M.steel)
+	dyn.mat = box(Vector3(1.5, 0.012, 0.6), Vector3(3.2, 0.01, 9.73), M.dark)
+	var wet := MeshInstance3D.new()
+	var wq := QuadMesh.new()
+	wq.size = Vector2(2.25, 1.08)
+	wet.mesh = wq
+	wet.position = Vector3(3.375, 0.0062, 9.54)
+	wet.rotation.x = -PI / 2.0
+	var wm := glass(Color("15171c"), 1.0)
+	wm.set_shader_parameter("roughness", 0.04)
+	wm.set_shader_parameter("metallic", 0.2)
+	wet.material_override = wm
+	wet.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(wet)
+	dyn.wet = wet
+	# the mop in its yellow bucket in the corner between the door and the screen, the wringer up,
+	# the handle leaned into the corner
+	var bk := Node3D.new()
+	bk.position = Vector3(4.28, 0.0, 9.8)
+	add_child(bk)
+	box(Vector3(0.34, 0.24, 0.28), Vector3(0.0, 0.15, 0.0), M.yellow, 0.0, bk)
+	box(Vector3(0.3, 0.003, 0.24), Vector3(0.0, 0.2715, 0.0), M.soaked, 0.0, bk)
+	box(Vector3(0.12, 0.13, 0.27), Vector3(0.1, 0.33, 0.0), M.dark, 0.0, bk)
+	for c in [Vector2(-0.14, -0.11), Vector2(0.14, -0.11), Vector2(-0.14, 0.11), Vector2(0.14, 0.11)]:
+		cyl(0.02, 0.02, 0.03, Vector3(c.x, 0.015, c.y), M.black, bk, 8)
+	box(Vector3(0.15, 0.06, 0.13), Vector3(-0.05, 0.3, 0.0), M.paper, 0.0, bk)
+	_stick(Vector3(-0.05, 0.3, 0.0), Vector3(0.2, 1.5, 0.17), 0.012, M.wood, bk, 6)
+	# the yellow sign: folded and leaned on the screen beside the bucket, or out on the tiles, open,
+	# a face to the door and his stool and one to the room
+	var sm := mat(Color(1, 1, 1), 0.6, 0.0, 3)
+	sm.set_shader_parameter("albedo_tex", tex("res://textures/wet_sign.png"))
+	var folded := Node3D.new()
+	folded.position = Vector3(4.452, 0.31, 9.47)
+	folded.rotation.z = deg_to_rad(-6.0)
+	add_child(folded)
+	box(Vector3(0.04, 0.62, 0.3), Vector3.ZERO, M.yellow, 0.0, folded)
+	_sign_face(Vector3(-0.021, 0.0, 0.0), -90.0, sm, folded)
+	dyn.sign_folded = folded
+	var open := Node3D.new()
+	open.position = Vector3(4.25, 0.0, 9.03)
+	open.rotation.y = deg_to_rad(-70.0)
+	add_child(open)
+	for side in [1.0, -1.0]:
+		var leaf := Node3D.new()
+		leaf.position = Vector3(0.0, 0.62, 0.0)
+		leaf.rotation.x = deg_to_rad(11.0) * side
+		open.add_child(leaf)
+		box(Vector3(0.3, 0.62, 0.012), Vector3(0.0, -0.31, 0.0), M.yellow, 0.0, leaf)
+		_sign_face(Vector3(0.0, -0.31, -0.0068 * side), 180.0 if side > 0.0 else 0.0, sm, leaf)
+	open.visible = false
+	dyn.sign_out = open
+	anchors["mop"] = Vector3(4.28, 0.55, 9.8)
+	# the dimmer for the house lights, on the front wall over the ledge by his right hand: a brass
+	# plate and a dial with a mark on it (set_clock turns it)
+	box(Vector3(0.075, 0.115, 0.008), Vector3(1.86, 1.34, 9.996), M.brass)
+	var dial := Node3D.new()
+	dial.position = Vector3(1.86, 1.335, 9.984)
+	add_child(dial)
+	var knob := cyl(0.021, 0.023, 0.016, Vector3.ZERO, M.dark, dial, 16)
+	knob.rotation.x = PI / 2.0
+	box(Vector3(0.004, 0.015, 0.004), Vector3(0.0, 0.011, -0.009), M.paper, 0.0, dial)
+	dyn.dimmer = dial
+	dial.rotation.z = deg_to_rad(95.0)
+	# the extinguisher at the end of the back hall, on the bar's side of the wall across from the
+	# payphone: the bracket, the bottle, the valve and its lever and gauge, the hose, and the tag on
+	# its neck nobody's punched in two years
+	var ex := Node3D.new()
+	ex.position = Vector3(14.4, 0.0, -0.2)
+	add_child(ex)
+	box(Vector3(0.06, 0.14, 0.02), Vector3(0.0, 1.0, -0.01), M.steel, 0.0, ex)
+	cyl(0.068, 0.068, 0.42, Vector3(0.0, 0.95, -0.088), M.ext, ex, 16)
+	cyl(0.03, 0.068, 0.045, Vector3(0.0, 1.1825, -0.088), M.ext, ex, 16)
+	box(Vector3(0.045, 0.05, 0.04), Vector3(0.0, 1.228, -0.088), M.steel, 0.0, ex)
+	var lever := box(Vector3(0.11, 0.014, 0.028), Vector3(0.035, 1.262, -0.088), M.dark, 0.0, ex)
+	lever.rotation.z = 0.12
+	var gauge := cyl(0.015, 0.015, 0.008, Vector3(-0.022, 1.226, -0.112), M.paper, ex, 12)
+	gauge.rotation.x = PI / 2.0
+	_stick(Vector3(0.03, 1.21, -0.06), Vector3(0.078, 0.84, -0.07), 0.008, M.black, ex, 6)
+	box(Vector3(0.05, 0.075, 0.002), Vector3(-0.045, 1.13, -0.158), M.paper, 0.0, ex)
+	for mi in ex.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).layers = 1 << (HALL_LAYER - 1)
+	# the butts in the coffee can on the deck (_deck)
+	var butts := Node3D.new()
+	add_child(butts)
+	dyn.butts = butts
+	set_butts(3)
+	anchors["pool_rail"] = Vector3(10.1, 1.22, 0.1)
+	anchors["coat_hook"] = Vector3(15.9, 1.35, 1.15)
+	anchors["gs_wallet"] = Vector3(3.2, 0.03, 3.5)
+	anchors["dimmer"] = Vector3(1.86, 1.34, 9.98)
+	anchors["extinguisher"] = Vector3(14.4, 1.0, -0.3)
+
+
+# The sign's printed face, on one side of a leaf.
+func _sign_face(at: Vector3, rot_y: float, m: Material, parent: Node3D) -> void:
+	var f := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(0.3, 0.62)
+	f.mesh = q
+	f.position = at
+	f.rotation.y = deg_to_rad(rot_y)
+	f.material_override = m
+	parent.add_child(f)
 
 
 # ---------------------------------------------------------------- behind the back wall
@@ -1701,9 +2178,10 @@ func _lights() -> void:
 	lamps.append(omni(Vector3(0.7, 2.5, 4.4), Color("ffcf93"), 1.2, 4.5, false, "back_bar"))
 	# the cooler's glass and the two televisions, green-white; the jukebox, red
 	omni(Vector3(1.1, 1.2, 0.7), Color(COLD_LIGHT), 0.5, 2.6)
-	omni(Vector3(9.4, 2.3, 0.7), Color("9fdcc6"), 0.55, 4.5)
+	omni(Vector3(9.4, 2.3, 0.7), Color("9fdcc6"), 0.55, 4.5, false, "tv")
 	omni(Vector3(15.2, 2.3, 4.0), Color("9fdcc6"), 0.45, 4.0)
-	omni(Vector3(13.2, 1.6, 0.7), Color("ff3355"), 1.0, 3.0, false, "juke")
+	var juke := omni(Vector3(13.2, 1.6, 0.7), Color("ff3355"), 1.0, 3.0, false, "juke")
+	juke.light_cull_mask &= ~(1 << (HALL_LAYER - 1))
 	# the house lights, off until last call, when they come up white, and hard on everything at two
 	var work: Array = []
 	for p in [Vector3(4.0, 3.0, 2.5), Vector3(12.0, 3.0, 2.5), Vector3(4.0, 3.0, 7.5), Vector3(12.0, 3.0, 7.5)]:

@@ -52,6 +52,9 @@
     -> single_empty
 * [Read the wall around the payphone.]
     -> payphone
+// The inspector's on the fourteenth (room.ink).
+* [Look at the extinguisher at the end of the hall.]
+    -> extinguisher
 + {hivis_on_stairs()} [Somebody's coming down the hotel stairs.]
     -> hivis_stairs
 + {hotel_door} [Kick the wedge out from under the hotel door.]
@@ -76,7 +79,7 @@
 { stopping:
 - The men's was a trough urinal from when the hotel was built, and two stalls, one without a door. Empty. Somebody had written a phone number on the condom machine and somebody else had scratched it out with a key.
 - The one from table 28 with the hearing aid was at the trough, taking his time. He nodded to the doorman in the mirror the way you nod to a man on a ferry.
-- A man he'd clicked in earlier was asleep sitting up in the stall with no door, jeans up, fine. He woke him. The man said "Yep," and went back out to the bar as if he'd been sent for.
+- A man he'd let in earlier was asleep sitting up in the stall with no door, jeans up, fine. He woke him. The man said "Yep," and went back out to the bar as if he'd been sent for.
 - Empty. The floor wet. The hand dryer had been broken so long that somebody had wired a roll of paper towel to it.
 - Empty.
 }

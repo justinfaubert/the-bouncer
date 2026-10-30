@@ -132,7 +132,8 @@ func _spots() -> void:
 			s["table_%s_%d" % [names[ti], j]] = {"pos": tb + offs[j], "face": tb, "zone": "room"}
 	s["juke"] = {"pos": Vector3(13.2, 0, 1.2), "face": Vector3(13.2, 0, 0.0), "zone": "room"}
 	s["juke_kid"] = {"pos": Vector3(12.7, 0, 1.15), "face": Vector3(13.2, 0, 0.0), "zone": "room"}
-	s["pool_rail"] = {"pos": POOL + Vector3(-0.3, 0, 1.5), "face": POOL, "zone": "room"}
+	# at the drink rail on the back wall behind the pool table (world/pub.gd, _room_things)
+	s["pool_rail"] = {"pos": Vector3(8.3, 0, 0.55), "face": POOL, "zone": "room"}
 	# at the door end of the bar, by the till, where you pay: out of the gap, which is staff's
 	s["bar_stand_v"] = {"pos": Vector3(2.75, 0, 7.45), "face": Vector3(0.0, 0, 7.45), "zone": "room"}
 	# on their feet with a pint: behind the stools at the bar, and by the front window
@@ -462,6 +463,7 @@ func sync(game: Game, instant: bool) -> void:
 			var open := bool(BUtil.js_truthy(v.get(d[0], false)))
 			var which: String = d[0]
 			_thing(which, pub.anchors.get(d[1], Vector3.ZERO), d[2], func(): pub.prop_door(which, open), open)
+		_room_things(game, v)
 	for id in figures.keys():
 		if not want.has(id):
 			want[id] = []
@@ -496,6 +498,77 @@ func sync(game: Game, instant: bool) -> void:
 		waiting.clear()
 	else:
 		_settle(0.0)
+
+
+# The room's things as the night has them (content/ink/room.ink; world/pub.gd, _room_things): the
+# empties on the rail, the padlock on the cues, the darts, the big man's coat, GOOD SHOES's wallet,
+# the wet inside the door and the yellow sign, what's on the big TV, the house lights, the butts in
+# the can on the deck; and the stools, left pushed out where somebody got up and went (more of them
+# as it gets late), and the one GOOD SHOES had over on its side for a while after he went out the
+# hard way. Each waits till he isn't looking, like the people, but for the house lights: everybody
+# sees those come up.
+func _room_things(game: Game, v: Dictionary) -> void:
+	var clock := int(BUtil.js_int(v.get("clock", 1180)))
+	var num := func(n: String) -> int: return int(BUtil.js_int(v.get(n, 0)))
+	var yes := func(n: String) -> bool: return bool(BUtil.js_truthy(v.get(n, false)))
+	var empties := int(BUtil.js_int(_ink(game, "ledge_glasses", 0)))
+	_thing("rail", pub.anchors.pool_rail, "room", func(): pub.set_rail_glasses(empties), empties)
+	var locked: bool = yes.call("rack_locked")
+	_thing("rack", Vector3(11.6, 1.25, 0.1), "room", func(): pub.set_rack(locked), locked)
+	var pulled: bool = yes.call("darts_pulled")
+	_thing("board_darts", pub.anchors.dartboard, "room", func(): (pub.dyn.board_darts as Node3D).visible = not pulled, pulled)
+	_thing("till_darts", Vector3(1.74, 1.2, 7.62), "room", func(): (pub.dyn.till_darts as Node3D).visible = pulled, pulled)
+	# the coat's on its hook till it's in the lost-and-found, or she's been back for it, or he's
+	# gone home in it; crooked with the phone in it, unless the big man's had that out
+	var coat: bool = not _has(v, "in_drawer", "bm_coat") and num.call("back_for") == 0 and not _has(v, "fam", "lot_scene")
+	var crooked: bool = num.call("cell_how") != 3
+	_thing("coat", pub.anchors.coat_hook, "room", func(): pub.set_coat(coat, crooked), [coat, crooked])
+	var wallet: bool = num.call("wallet_dropped") > 0 and num.call("wallet_how") == 0 and num.call("wallet_back") == 0
+	_thing("wallet", pub.anchors.gs_wallet, "room", func(): (pub.dyn.gs_wallet as Node3D).visible = wallet, wallet)
+	var wet := int(BUtil.js_int(_ink(game, "wet", 0)))
+	var sign_out: bool = yes.call("wet_sign")
+	_thing("wet", Vector3(3.4, 0.1, 9.5), "vest", func(): pub.set_wet(wet, sign_out), [wet, sign_out])
+	var tv: int = num.call("tv_on")
+	_thing("tv", pub.anchors.tv, "room", func(): pub.set_tv(tv), tv)
+	pub.set_house(num.call("lights"))
+	var butts := clampi(3 + (clock - 1180) / 18, 3, 30)
+	_thing("butts", pub.anchors.deck_can, "deck", func(): pub.set_butts(butts), butts)
+	# whose stool is taken now, from who's where
+	var taken := {}
+	for id in want:
+		var w: Array = want[id]
+		if not w.is_empty():
+			taken[w[0]] = true
+	if not yes.call("bar_scuffle"):
+		_scuffle_at = -1
+	elif _scuffle_at < 0:
+		_scuffle_at = clock
+	for spot in pub.stools:
+		var how := 0
+		if spot == "bar_s2" and _scuffle_at >= 0 and clock < _scuffle_at + 20:
+			how = 2
+		elif not taken.has(spot) and clock >= _left_at(spot):
+			how = 1
+		var key: String = spot
+		_thing("stool_" + key, SPOTS[key].pos + Vector3(0, 0.5, 0), "room", func(): pub.set_stool(key, how), how)
+
+
+var _scuffle_at := -1              # when he first saw GOOD SHOES's stool go over (the Ink's bar_scuffle)
+
+
+# when somebody's got up off a stool and left it pushed out, if nobody's on it: each its own time,
+# from ten to nine on
+func _left_at(spot: String) -> int:
+	return 1250 + (absi(hash(spot)) % 24) * 10
+
+
+# what one of the Ink's functions makes of the night now (room.ink's ledge_glasses and wet): they
+# say nothing and change nothing
+func _ink(game: Game, fn: String, fallback):
+	if game.story == null or not game.story.has_function(fn):
+		return fallback
+	var r = game.story.evaluate_function(fn, [], false)
+	return fallback if r == null else r
 
 
 # Before the night starts (the title over the door): the room as it is at nine.

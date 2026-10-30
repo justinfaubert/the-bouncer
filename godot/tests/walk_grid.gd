@@ -49,9 +49,11 @@ func _run() -> void:
 		if n is Node3D and (str(k) in ["leaf_l", "leaf_r", "swing", "deck_door", "hotel_door", "kitchen_door", "rain", "coaster", "hotel_wedge"]
 				or str(k).begins_with("wc_")):
 			(n as Node3D).visible = false
-	# the trucks where they park: walked round, whether they're there or not
+	# the trucks where they park: walked round, whether they're there or not; and the yellow sign
+	# where it stands on the tiles inside the door when it's out
 	(dyn.truck as Node3D).visible = true
 	(dyn.work_truck as Node3D).visible = true
+	(dyn.sign_out as Node3D).visible = true
 	_solidify(main.pub)
 	await physics_frame
 	await physics_frame

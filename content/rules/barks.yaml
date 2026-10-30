@@ -559,6 +559,37 @@
   speaker: father
   text: Every door's got its exceptions. They're just not on the sign.
 
+# the room's things (content/ink/room.ink)
+- id: look_empties
+  on: toy:empties:look
+  speaker: fighter
+  text: A pint glass is a weapon with the beer gone out of it.
+
+- id: look_mop
+  on: toy:mop:look
+  speaker: fighter
+  text: Wet tile's worse than ice. On ice you know.
+
+- id: look_extinguisher
+  on: toy:extinguisher:look
+  speaker: manual
+  text: Extinguishers are inspected monthly and the tag is punched. Read the tag.
+
+- id: look_dimmer
+  on: toy:dimmer:look
+  speaker: father
+  text: Whoever turns that dial up, the room hates for a minute. Better you than her.
+
+- id: look_coat_hook
+  on: toy:coat_hook:look
+  speaker: wrongman
+  text: In the story there was a coat on a hook all night. Everybody saw it. Nobody wondered whose.
+
+- id: look_wallet
+  on: toy:wallet:look
+  speaker: fighter
+  text: Somebody's coming back for that, and he'll want to know whose hands have been on it.
+
 # His legs (toys.ink, toy_legs): he ran across the bar's floor, in the 3D build, and every head in
 # the room came round. The first time it's the father's rule; after that, one of the others.
 - id: legs_ran_father

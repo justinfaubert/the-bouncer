@@ -442,7 +442,7 @@
     const TF = {
       ui: "'Barlow Condensed',sans-serif;font-weight:600", hand: 'Kalam,cursive', mono: "'IBM Plex Mono',monospace",
       anton: 'Anton,Impact,sans-serif', disp: "'Big Shoulders Display','Barlow Condensed',sans-serif;font-weight:300",
-      rec: "'Courier Prime',monospace"
+      rec: "'Courier Prime',monospace", plain: "'Barlow Condensed',sans-serif"
     };
     function xe(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     function tx(x, y, s, size, font, fill, more) {
@@ -707,10 +707,90 @@
           }
           return [440, 712, s];
         }
+        case 'remote': {
+          // the TV remote from under her bar rag: black, the numbers, the round pad with its middle
+          // worn to the plastic, the channel and the volume; on the back the battery door, and her
+          // tape across it with what it's for in marker (the back: line)
+          const key = '#3a3c42', label = '#a9acb3';
+          s += '<rect x="6" y="6" width="248" height="928" rx="44" fill="#1c1d21"/>';
+          if (front) {
+            s += '<rect x="96" y="50" width="68" height="40" rx="16" fill="' + key + '"/>';
+            let n = 1;
+            for (let row = 0; row < 4; row++) {
+              for (let col = 0; col < 3; col++) {
+                if (row === 3 && col !== 1) continue;
+                const x = 38 + col * 66, y = 140 + row * 74;
+                s += '<rect x="' + x + '" y="' + y + '" width="52" height="50" rx="12" fill="' + key + '"/>';
+                s += mid(x + 26, y + 36, row < 3 ? String(n % 10) : '0', 28, TF.ui, label, ';opacity:.85');
+                n++;
+              }
+            }
+            s += '<circle cx="130" cy="560" r="88" fill="' + key + '"/><circle cx="130" cy="560" r="34" fill="#4c4f56"/>';
+            for (const x of [52, 160]) {
+              s += '<rect x="' + x + '" y="690" width="48" height="150" rx="22" fill="' + key + '"/>';
+              s += mid(x + 24, 728, '+', 34, TF.ui, label) + mid(x + 24, 826, '-', 34, TF.ui, label);
+            }
+            s += mid(76, 872, 'CH', 20, TF.ui, label, ';letter-spacing:2px') + mid(184, 872, 'VOL', 20, TF.ui, label, ';letter-spacing:2px');
+          } else {
+            s += '<rect x="40" y="560" width="180" height="300" rx="10" fill="#17181b"/><rect x="104" y="836" width="52" height="10" rx="4" fill="#2c2e33"/>';
+            s += '<g transform="rotate(-3 130 296)"><rect x="30" y="250" width="200" height="92" rx="3" fill="#ddd3b4"/>';
+            if (bl.length) s += mid(130, 318, bl[0][0], 64, TF.hand, '#22252c');
+            s += '</g>';
+          }
+          return [260, 940, s];
+        }
+        case 'phone': {
+          // the big man's phone out of his jacket, lit: the lock screen, his daughter's name and the
+          // missed calls, and her messages one on top of the next, the newest on top (the front:
+          // lines); turned over, the case, with the corner gone where it's been dropped on concrete
+          s += '<rect x="4" y="4" width="392" height="812" rx="46" fill="#0c0d10"/>';
+          if (front) {
+            const white = '#eef1f4', who = fl.length ? fl[0][0] : '', calls = fl.length > 1 ? fl[1][0] : '';
+            s += '<rect x="18" y="18" width="364" height="784" rx="34" fill="#1b2633"/><rect x="160" y="34" width="80" height="22" rx="11" fill="#0c0d10"/>';
+            let y = 92;
+            s += '<rect x="34" y="' + y + '" width="332" height="84" rx="18" fill="' + white + '" fill-opacity=".16"/>';
+            s += tx(52, y + 30, who, 22, TF.ui, white, ';letter-spacing:2px') + tx(52, y + 66, calls, 24, TF.plain, white);
+            y += 100;
+            for (let i = 2; i < fl.length; i++) {
+              // her sentence wrapped to the card, a line to every thirty-odd letters
+              const rows = [];
+              let row = '';
+              for (const w of fl[i][0].split(' ')) {
+                if (row && (row + ' ' + w).length > 30) { rows.push(row); row = w; } else row = row ? row + ' ' + w : w;
+              }
+              if (row) rows.push(row);
+              const hgt = 66 + 30 * rows.length;
+              s += '<rect x="34" y="' + y + '" width="332" height="' + hgt + '" rx="18" fill="' + white + '" fill-opacity=".16"/>';
+              s += tx(52, y + 28, who, 20, TF.ui, white, ';letter-spacing:2px');
+              rows.forEach(function (t, k) { s += tx(52, y + 62 + k * 30, t, 23, TF.plain, white); });
+              y += hgt + 14;
+            }
+            s += '<rect x="140" y="780" width="120" height="8" rx="4" fill="' + white + '" fill-opacity=".7"/>';
+          } else {
+            s += '<rect x="14" y="14" width="372" height="792" rx="38" fill="#18191c"/>';
+            s += '<rect x="250" y="40" width="112" height="112" rx="28" fill="#0f1012"/><circle cx="282" cy="72" r="20" fill="#26282d"/><circle cx="282" cy="120" r="20" fill="#26282d"/><circle cx="332" cy="72" r="7" fill="#3a3c42"/>';
+            for (let i = 0; i < 40; i++) { const x = 30 + r() * 340, y = 40 + r() * 740; s += line([[x, y], [x + (r() - 0.5) * 30, y + (r() - 0.5) * 8]], '#2e3036', 1.4, ' opacity=".6"'); }
+            s += '<path d="M 14 760 L 14 806 L 60 806 Q 40 792 30 776 Z" fill="#3a3c42"/>';
+          }
+          return [400, 820, s];
+        }
+        case 'wallet': {
+          // GOOD SHOES's wallet, shut: brown, good leather worn pale along the fold, the stitching
+          // round its edge; on the back the same, and the curve his hip's put in it
+          const leather = '#5a3a26', stitch = '#a07a58';
+          s += '<rect x="6" y="6" width="548" height="428" rx="26" fill="' + leather + '"/>';
+          for (let i = 0; i < 160; i++) { const w = 8 + r() * 32; s += '<rect x="' + (10 + r() * (534 - w)).toFixed(0) + '" y="' + (10 + r() * 410).toFixed(0) + '" width="' + w.toFixed(0) + '" height="1.4" fill="#000" opacity=".08"/>'; }
+          s += '<rect x="6" y="6" width="46" height="428" rx="20" fill="#887163" opacity=".8"/>';
+          for (let d = 30; d < 410; d += 22) s += '<rect x="522" y="' + d + '" width="3" height="12" fill="' + stitch + '"/><rect x="70" y="' + d + '" width="3" height="12" fill="' + stitch + '"/>';
+          for (let d = 76; d < 520; d += 22) s += '<rect x="' + d + '" y="24" width="12" height="3" fill="' + stitch + '"/><rect x="' + d + '" y="412" width="12" height="3" fill="' + stitch + '"/>';
+          if (!front) s += '<rect x="140" y="120" width="300" height="200" rx="80" fill="#000" opacity=".1"/>';
+          return [560, 440, s];
+        }
         case 'jacket': {
-          // the last doorman's jacket, folded at the bottom of the drawer: brown canvas, a corduroy
-          // collar, the flaps of its two outside pockets, the stitching gone pale
-          const canvas = '#6e5d3e';
+          // a jacket folded: the last doorman's at the bottom of the drawer, or the big man's off its
+          // hook (its cloth:): canvas, a corduroy collar, the flaps of its two outside pockets, the
+          // stitching gone pale
+          const canvas = pr.cloth ? '#' + pr.cloth : '#6e5d3e';
           s += '<rect width="840" height="680" fill="' + canvas + '"/>';
           for (let i = 0; i < 160; i++) s += '<rect x="' + (r() * 840).toFixed(0) + '" y="' + (r() * 680).toFixed(0) + '" width="' + (20 + r() * 70).toFixed(0) + '" height="1.2" fill="#000" opacity=".06"/>';
           for (const x of [0, 690]) s += '<rect x="' + x + '" width="150" height="680" fill="#000" opacity=".08"/><rect x="' + (x + 30) + '" y="300" width="90" height="120" rx="30" fill="#a39374" opacity=".55"/>';

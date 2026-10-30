@@ -19,7 +19,7 @@
 # ---------------------------------------------------------------- the room
 jukebox: {name: The jukebox., at: a:jukebox, from: [room, hall]}
 dartboard: {name: The dartboard., at: a:dartboard, from: [room, hall]}
-tv: {name: The hockey., at: a:tv, from: [room, hall]}
+tv: {name: The big TV., at: a:tv, from: [room, hall]}
 tv_news: {name: The news., at: a:tv_news, from: [room, hall]}
 cues: {name: The cue rack., at: a:cue_rack, from: [room, hall]}
 pool_table: {name: The pool table., at: a:pool_table, from: [room, hall]}
@@ -29,6 +29,15 @@ bottles: {name: The back bar., at: a:bottles, from: [room, hall]}
 taps: {name: The taps., at: a:taps, from: [room, hall]}
 lotto: {name: The lottery screen., at: a:lotto, from: [room, hall]}
 
+# ---------------------------------------------------------------- the room's things (content/ink/room.ink)
+#   when: only while these hold, on the Ink's VARs (the criteria of content/rules/barks.yaml): a thing
+#         that's only there some nights, or only for a while
+empties: {name: The empties on the rail., at: a:pool_rail, from: [room, hall]}
+coat_hook: {name: The coat hooks., at: a:coat_hook, from: [room, hall]}
+wallet: {name: A wallet., at: a:gs_wallet, from: [bar], when: [wallet_dropped > 0, wallet_how == 0, wallet_back == 0]}
+mop: {name: The mop and bucket., at: a:mop, from: [door]}
+dimmer: {name: The dimmer., at: a:dimmer, from: [door]}
+
 # ---------------------------------------------------------------- by the door
 tape: {name: The tape on the frame., at: a:tape}
 id_sign: {name: The sign by the door., at: a:id_sign}
@@ -37,6 +46,7 @@ book: {name: The incident book., at: a:ledge}
 
 # ---------------------------------------------------------------- the back hall, the kitchen, the keg room
 hotel_door: {name: The hotel door., at: a:hotel_door}
+extinguisher: {name: The extinguisher., at: a:extinguisher}
 pass: {name: The pass., at: a:pass}
 fryer: {name: The fryer., at: a:fryer}
 radio: {name: The radio., at: a:radio}

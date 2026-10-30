@@ -1,5 +1,5 @@
 THE BOUNCER
-Wednesday, from the interview to close. The fourth Godot build of 24 October 2026.
+Wednesday, from the interview to close. The first Godot build of 30 October 2026.
 
 
 PLAY IT
@@ -61,6 +61,45 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE FOURTH BUILD OF 24 OCTOBER
+
+The things in the room, and what each one does to the night.
+
+- The empties gather on the rail along the wall by the pool table, a glass every twenty minutes,
+  till somebody carries them over. Carry them and the bartender notices; the second time, table
+  28 do. Leave them, and when it goes at the pool table one can end up in it.
+- The house cues have a chain through them and a padlock hanging open on its end. Lock it and
+  nobody's taking a cue off the wall, and the big man sees why. The darts in the board are the
+  same question: pull them and they go in the pint glass by the till. The less there is to hand
+  by the pool table, the easier it is to break up; and if something gets picked up in it, the
+  police are called.
+- The TV remote, from under her bar rag after eleven: the game again from the start, the
+  curling, the late news, or off. The news has the light over the strait in it and sets table 28
+  off; the game keeps them quiet; with it off they talk louder; with the curling on they'll be
+  there till four.
+- The tiles inside the front door get wetter with the rain on everybody's boots, till the mat
+  gives up. The mop's in its bucket in the corner by the screen, with the yellow sign. A man in
+  good shoes coming in at the worst of it, or one of table 28 going out at close, can go down.
+- The extinguisher at the end of the back hall: nobody's punched its tag in two years, and the
+  inspector's on the fourteenth. Tell her and it goes on the owner's list in the mirror frame, or
+  tell him when he rings at midnight.
+- The dimmer for the house lights, on the wall over the ledge by his hand. At last call he can
+  bring them up himself, ask her to, or leave them low. It's how fast the room empties, and the
+  lamps show which.
+- What people leave behind. The big man's work coat hangs on the hooks by the dartboard with his
+  phone in it, ringing: his daughter, all night. Tell him, take it out and look, or leave it
+  ringing; if he goes without the coat, somebody's back for it after close. If GOOD SHOES was put
+  out with a hand on him, his wallet's on the carpet by the stool he had: take it out to him,
+  give it to her for the drawer, keep it on him, or look inside first. He's back for it before
+  he's paid for his gas.
+- The room shows the night: the empties on the rail, stools left pushed out as people go, one
+  over on its side for a while after a scuffle, the tiles tracked wet, the butts filling the can
+  on the deck.
+- In his hand: the remote, the big man's phone and its lock screen, the wallet.
+- The story has changed, so a night saved before says so when it's continued, and goes on from
+  the floor.
 
 
 WHAT'S NEW SINCE THE THIRD BUILD OF 24 OCTOBER

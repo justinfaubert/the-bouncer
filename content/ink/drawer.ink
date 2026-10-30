@@ -29,7 +29,7 @@ VAR book_seen = false       // he's had the paperback out from under the glove
 // What's in the drawer to take out: not the jacket, which goes or stays whole, and not the paperback
 // till he's found it under the glove.
 === function drawer_loose()
-~ temp l = in_drawer - last_jacket
+~ temp l = in_drawer - last_jacket - bm_coat
 { not book_seen:
     ~ l -= aikido_book
 }

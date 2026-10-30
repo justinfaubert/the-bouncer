@@ -26,6 +26,7 @@ node tools/audit.mjs            does every choice change something the night rea
 | `rats.ink` | The kitchen, the keg room, the knot in the wall, bait and traps, the rat on the carpet. |
 | `hand.ink` | His hand: what he carries (his pockets, the lost-and-found drawer, room twelve, the last doorman's jacket), and the voices' reads of each thing he holds, one knot a thing. |
 | `drawer.ink` | The lost-and-found drawer under the till, the last doorman's jacket and its pockets, and the paperback under the glove. |
+| `room.ink` | The room's things, and what each does to the night: the empties on the rail, the cue rack and the darts (what's in reach when it goes at the pool table), the TV and its remote (the late news sets table 28 off), the wet tiles inside the door, the mop and the yellow sign, the extinguisher in the back hall, the dimmer at last call, the big man's jacket with his phone in it, and GOOD SHOES's wallet. |
 | `toys.ink` | What the player's hands do between choices, when handling a thing isn't one of the choices on offer: `toy_<thing>(what)`. None are written for Wednesday. |
 | `things.ink` | What he sees when he looks at a thing in the building that nothing on offer is about (the dartboard, the tape by the door, the sign on the roof): `toy_<thing>("look")`. The things, and where they are, are in `content/data/things.yaml`. |
 | `hall.ink` | The washrooms, the payphone, the kid in the single washroom. |

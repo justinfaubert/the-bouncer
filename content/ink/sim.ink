@@ -19,8 +19,17 @@
     ~ room_count++
 }
 
-// Table 28 orders a round about every 45 minutes. They've been here since two.
-~ t28_rounds = 3 + (clock - OPEN_TIME) / 45
+// Table 28 orders a round about every 45 minutes. They've been here since two. The news gets them
+// another, to argue over (room.ink).
+~ t28_rounds = 3 + (clock - OPEN_TIME) / 45 + t28_extra
+
+// The hockey's over at eleven and its goals go round till half past; then it's the late news on the
+// big TV, unless somebody's put something else on (room.ink, the_remote). The news sets table 28 off.
+{ clock >= 1410 && tv_on == 0 && clock < LAST_CALL:
+    ~ tv_on = 1
+    ~ t28_off = clock
+    ~ t28_extra++
+}
 
 // The pool table heats up after nine, twice as fast while the kids are in the room and nothing's settled.
 { clock >= 1260 && pool_heat < 10:
@@ -372,6 +381,8 @@
     ~ return "wife"
 - banned_one > 0 && banned_held == 0 && arrivals ? banned_in && arrivals !? banned_out && clock >= banned_one + 40 && clock < LAST_CALL:
     ~ return "onedrink"
+- wallet_dropped > 0 && wallet_back == 0 && clock >= wallet_dropped + 25 && clock < LAST_CALL:
+    ~ return "wallet"
 }
 ~ return ""
 
@@ -398,6 +409,7 @@ VAR ev_owner_done = false
 - e == "wife": -> ev_wife_inside ->
 - e == "police": -> ev_police ->
 - e == "onedrink": -> ev_one_drink ->
+- e == "wallet": -> ev_wallet ->
 }
 ->->
 

@@ -65,6 +65,16 @@
     - The click of the balls, the lean of the table, the twenties under the rail.
     }
 }
+// The room's things (room.ink): the empties gathering on the rail, and the phone in his coat.
+{ ledge_glasses() >= 3 && not fam_done:
+    Empties along the rail by the pool table, {num(ledge_glasses())} of them, the cola gone to brown rings in the bottoms.
+}
+{ cell_ringing():
+    {stopping:
+    - On the coat hooks by the dartboard a work coat hung by its loop, and the phone in it was buzzing against the wood. The big man had his back to it.
+    - The phone in the coat on the hook was going again.
+    }
+}
 -> opts
 
 = opts
@@ -80,6 +90,15 @@
     -> talk
 + {cash >= 20 && at_pool.play == 0 && not fam_done} [Put twenty on the next game.]
     -> play
+// What's within reach when it goes (room.ink), and the phone in the big man's coat.
++ {ledge_glasses() >= 2 && not fam_done} [Take the empties off the rail to the bar.]
+    -> bus
+* {not rack_locked && not fam_done} [Lock the house cues in the rack.]
+    -> lock_rack
+* {not darts_pulled && not fam_done} [Take the darts out of the board.]
+    -> pull_darts
+* {cell_ringing()} [The phone going in the big man's jacket.]
+    -> the_cell
 + {kid_at_juke()} [The kid by the jukebox.]
     -> kid_jukebox
 + {not kid_at_juke()} [The jukebox #class: move]
@@ -91,7 +110,7 @@
 { at_pool.watch > 1:
     -> watch_again
 }
-He leaned on the pillar by the dartboard and watched a game and a half.
+He leaned on the wall by the dartboard and watched a game and a half.
 The big man missed the shots he needed and made the ones that didn't matter. Every time he missed, his left hand went flat on the rail and stayed there a second too long. When the buddy won, the big man paid him from the bills under the rail, and neither of them looked at the money.
 ~ knows += pool_lefty
 FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #mark: pool.lefthand
@@ -280,34 +299,42 @@ FATHER: Not in front of his friend. Never tell a man anything in front of his fr
 }
 * [Tell him right here, at the table. #check: father:cha 14 {bigman_mod()}]
     ~ heat(2)
-    -> told(true)
+    -> told(1)
 * ["Got a second? Over here." #check: father:cha 12 {bigman_mod()}]
-    -> told(false)
+    -> told(0)
 * ["Your daughter's {her_place()}." Just that. #check: father:cha 11 {bigman_mod()}]
-    -> told(false)
+    -> told(0)
 
+// public: 1 at the table in front of the buddy, 0 at the end of the bar, 2 the phone out of his own
+// jacket held out to him, with his daughter on it (room.ink, the_cell).
 = told(public)
 ~ fam += dad_told
 { passed:
     -> went(public)
 }
 { crit == -1:
-    -> blew_up
+    -> blew_up(public)
 }
 -> stayed(public)
 
 = went(public)
 ~ pass(3)
-{ public:
+{
+- public == 2:
+    He held the phone out, lit, between the big man and the table. The big man read it without taking it, all the way down to the morning. He stood very still.
+- public == 1:
     He said it at the table, in front of the buddy. The big man stood very still.
 - else:
     He said it at the end of the bar, low, with his back to the room. The big man stood very still.
 }
-{ knows ? kid_why:
+{ knows ? kid_why && public != 2:
     BIGMAN: Since when.
     He told him since when.
 }
 The big man put his cue on the table, across the balls, in the middle of a game, which is a thing people don't do.
+{ public == 2:
+    He took the phone out of the doorman's hand without looking at him.
+}
 BIGMAN: Where are they.
 ~ fam += dad_went
 ~ fam_done = true
@@ -353,7 +380,10 @@ FATHER: I never would have gone.
 ~ pass(3)
 ~ fam += dad_stayed
 ~ fam_done = true
-{ public:
+{
+- public == 2:
+    He held the phone out, lit, between the big man and the table. The big man read it, all of it, and handed it back to him, and the doorman put it back in the jacket on the hook, where it went on lighting up.
+- public == 1:
     He said it at the table, in front of the buddy. The big man went on chalking his cue.
 - else:
     He said it at the end of the bar, low. The big man listened to all of it and then looked past him at the pool table.
@@ -389,11 +419,15 @@ The pickup pulled out onto the highway toward town. Its tail lights went along t
 WRONGMAN: In the story, the doorman carried a message once, and the man said he'd come after, and he did come after. And that was worse.
 -> carry_on
 
-= blew_up
+= blew_up(public)
 ~ pool_heat = 9
 ~ fam += pool_fight
 ~ incident += inc_fight
-He barely got the first sentence out. The big man turned and hit the rack with the butt of his cue, hard, and the triangle went across the floor, and the whole room turned around.
+{ public == 2:
+    He'd barely got the phone up between them. The big man knocked it out of his hand onto the felt and hit the rack with the butt of his cue, hard, and the triangle went across the floor, and the whole room turned around.
+- else:
+    He barely got the first sentence out. The big man turned and hit the rack with the butt of his cue, hard, and the triangle went across the floor, and the whole room turned around.
+}
 BIGMAN: Who asked you.
 -> ev_pool.fight
 
@@ -407,7 +441,13 @@ BIGMAN: Who asked you.
 { fam ? dad_ejected:
     There was chalk on the carpet, and a smear on the cloth nobody had cleaned up.
 }
+// He went without his jacket (room.ink): it's on its hook by the dartboard.
+{ bigman_left_coat() && coat_how == 0:
+    His jacket was still on its hook by the dartboard{cell_how != 3:, hanging crooked with the weight of the phone in it}.
+}
 <- moves(pool)
+* {bigman_left_coat() && coat_how == 0} [The big man's jacket, on the hook.]
+    -> take_coat
 -> DONE
 
 
@@ -442,7 +482,9 @@ BIGMAN: Who asked you.
 
 = fight
 FIGHTER: Now. Now, now, now.
-* [Get between them. #check: fighter:dex 12 {knows ? pool_lefty:2|0}]
+// What's to hand (room.ink): the empties on the rail, the house cues, the darts. On every check here.
+{ reach_line() }
+* [Get between them. #check: fighter:dex 12 {lefty_mod() + reach_mod()}]
     ~ pass(2)
     ~ here = pool
     { passed:
@@ -456,7 +498,7 @@ FIGHTER: Now. Now, now, now.
         -> after_fight(true)
     }
 // What the Fighter made of the boyfriend at the door, and what was in the back seat, count here (vape_mod()).
-* {indoors(vape_at)} [Take the boyfriend out first. #check: fighter 10 {vape_mod()}]
+* {indoors(vape_at)} [Take the boyfriend out first. #check: fighter 10 {vape_mod() + reach_mod()}]
     ~ pass(2)
     { passed:
         ~ here = door
@@ -475,7 +517,7 @@ FIGHTER: Now. Now, now, now.
         ~ incident += inc_hurt
         -> after_fight(true)
     }
-* ["Everybody stop." #check: father:cha 14]
+* ["Everybody stop." #check: father:cha 14 {reach_mod()}]
     ~ pass(1)
     { passed:
         He didn't shout it. He said it the way the Father used to say it, from the chest, so it went under the music and came up everywhere at once.
@@ -490,7 +532,7 @@ FIGHTER: Now. Now, now, now.
         ~ incident += inc_hurt
         -> after_fight(true)
     }
-* [Wait one more second to see who starts it. #check: wrongman 12]
+* [Wait one more second to see who starts it. #check: wrongman 12 {reach_mod()}]
     ~ pass(1)
     { passed:
         WRONGMAN: The wrong man's never the one you're watching.
@@ -512,9 +554,15 @@ FIGHTER: Now. Now, now, now.
 
 = after_fight(bad)
 { bad:
+    // somebody picks up whatever was in reach (room.ink)
+    { reach_used() }
     It was over in the time it takes to say it. It always is. Then it's the long part.
 - else:
     It was over before it started, which is the only kind of fight a doorman wins.
+}
+{ used:
+    Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in her hand, and she was dialling.
+    -> weapon_call
 }
 Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in her hand and hadn't dialled it.
 { bad:
@@ -775,5 +823,12 @@ He stood at the jukebox with his back half to the room and went through albums h
 === function pool_seen_mod()
 { knows ? pool_seen:
     ~ return 1
+}
+~ return 0
+
+// He's seen the big man's left hand go flat on the rail (watch, or the Fighter's count of hands).
+=== function lefty_mod()
+{ knows ? pool_lefty:
+    ~ return 2
 }
 ~ return 0

@@ -278,7 +278,7 @@ for (const m of scan.markRefs) checkMark(m.spec, m.loc);
 // waits for something it can be done with (src/ui/props.js)
 const PROP_KINDS = { card: ['flip', 'tilt', 'look'], phone: ['look', 'swipe'], binder: ['page', 'all'], body: ['walk', 'ran'], thing: ['turn', 'look'] };
 // what a thing (kind: thing) can be made as, in the Godot build's hands and on the browser's page
-const THING_SHAPES = ['flashlight', 'key', 'shirt', 'bill', 'straw', 'keys', 'glass', 'bag', 'mat', 'tickets', 'book', 'jacket'];
+const THING_SHAPES = ['flashlight', 'key', 'shirt', 'bill', 'straw', 'keys', 'glass', 'bag', 'mat', 'tickets', 'book', 'jacket', 'remote', 'phone', 'wallet'];
 const propThings = Object.entries(props || {}).filter(([id]) => id !== 'tonight');
 if (props && props.tonight && isNaN(Date.parse(props.tonight))) err(`props.yaml: tonight "${props.tonight}" isn't a date (YYYY-MM-DD)`);
 for (const [id, pr] of propThings) {

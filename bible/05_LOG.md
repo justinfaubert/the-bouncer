@@ -251,6 +251,23 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude's calls here are under PROPOSED, "Proposed with colour and light (2026-10-24)".
 - Delivered on 24 October (46ee5b2): `releases/The-Bouncer-2026-10-24d.zip` to play on Linux, and the Godot web build at its link (version 18; version 17 only carried the first half of the new files). The browser build stays at version 13.
 
+### 2026-10-30 (Friday), the things in the room
+
+- The fourth step of the polish, after the people, the room's sound and colour: more things in the room, and each one consequential (Hutch, 23 October: "there needs to be more and they should be consequential"). All of it is in `content/ink/room.ink`, in both builds, and every choice in it changes something later (`node tools/audit.mjs`: none that nothing reads).
+- The empties on the rail along the back wall by the pool table gain a glass every twenty minutes from ten past seven, till he carries them over. The first time she notices; the second, table 28 do. Three or more on the rail are in reach when it goes at the pool table.
+- The house cues have a chain through them and a padlock hanging open on its end: he can lock it, and the big man sees why. The darts in the board he can pull and take to the pint glass by the till. What's left in reach (the empties, the cues, the darts) makes breaking it up at the pool table easier or harder; if it goes bad, somebody picks up whatever's nearest, it's in the incident log, and she calls the police herself.
+- The TV remote, under her bar rag, from eleven to last call: the game again from the start, the curling, the late news, or off. The late news has the light over the strait in it, two nights running, and sets table 28 off (a round to argue it over, and they want the doorman on their side); the game keeps them quiet; off, they talk louder; the curling keeps them in their seats. She won't give it to a doorman she's fed up with.
+- The tiles inside the front door get a step wetter for every two who come in and every two hours, to three. He can mop them and put the yellow sign out. At their worst with no sign, GOOD SHOES goes down on them coming in (and uses it, arguing his way in); at close, the one with the hearing aid does.
+- The extinguisher at the end of the back hall, across from the payphone: its tag hasn't been punched in two years, and the inspector is on the fourteenth. He can tell her (it goes on the owner's list in the mirror frame) or tell the owner when he rings at midnight.
+- The dimmer for the house lights, on the wall over the ledge by the door. At last call he can bring them up, ask her to, or leave them low: how table 28 take "drink up", how long "take your time" takes, and how long locking up takes. The Godot room's lamps follow what he did.
+- What people leave behind: the big man's work coat on the coat hooks by the dartboard, with his phone in it ringing while his daughter's out in the truck. He can tell him, take it out and read the lock screen (a Dexterity check; caught, the big man turns), hold it out to him, or leave it ringing. If the big man goes without the coat, his daughter is back for it after close, and whether the phone's still in it depends on where the coat spent the night. GOOD SHOES's wallet, if he was put out with a hand on him, on the carpet by his stool: look inside, take a fifty, take it out to him in the lot, give it to her for the drawer, or keep it; he's back for it before he's paid for his gas at the Esso.
+- The Godot room carries all of it: the rail and its empties (with the foam dried inside them, so the press has something to cut), the chain across the cues or hanging down the rack, the darts in the board or in the pint glass by the till, the coat hooks and the coat (crooked with the phone in it), a light for the darts, the wallet fallen open on the carpet, the vestibule's tiles and their wet in three steps, the mop and its bucket, the yellow sign folded or out, the dimmer's plate and dial, the extinguisher on its bracket, and on the big TV the hockey, the news, the game again, the curling, or nothing. The room shows the night too: stools left pushed out as people go, GOOD SHOES's over on its side for a while after a scuffle, and the butts filling the can on the deck. Each changes while he isn't looking, like the people, but for the house lights.
+- The things are on his eyes' list (`content/data/things.yaml`) with what he sees when he looks at them (`content/ink/things.ink`), and the remote, the big man's phone and the wallet are in his hand in both builds.
+- `godot/tests/shots_room.gd` takes each thing from where he'd see it, as the night can have it. Its pictures found the coat built inside out (it printed black under its light), the wallet hidden behind the next stool, and the jukebox's red coming through the wall onto the extinguisher; all three are fixed.
+- The clock card: Hutch's pick, "Keep it still", is in the register as DECIDED.
+- The story changed, so a night saved before says so when it's continued, and goes on from the floor.
+- Claude's calls here are under PROPOSED, "Proposed with the things in the room (2026-10-30)". The daughter back for the coat has a HUTCH prompt (36 prompts now).
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -299,6 +316,7 @@ Update this file at the end of every session: add a session entry, move items be
   - Looking and going: the player looks left and right at the details, and the camera shouldn't turn his head for him; "not a free walk, but not a limited walk either." This changes "not a free walk" above, as far as those words go.
   - His deaths depend on the death: where and when he starts again is context-aware, sometimes back in time and sometimes "a hallucination(or was it?) that starts you on the next day instead of the previous".
 - The dice tray goes down only where the dice would hit the ground. Off the ledge by the door, the bar, table 28, the felt and the kitchen's steel they land as they always have. Hutch's pick on a card, 2026-10-14 ("Ground only").
+- The night's clock stays still while he stands and watches the room: the room goes on in real time around him, but the clock only moves with what he does. Hutch's pick on a card, 2026-10-24 ("Keep it still").
 
 ### PROPOSED (waiting on Hutch)
 
@@ -589,7 +607,7 @@ Proposed with the people alive (2026-10-24), from Hutch's note that the night fe
 
 Proposed with the room's sound and talk (2026-10-24), from Hutch's note that the night feels dead:
 
-- **The clock stays the story's:** the room goes on in real time while he stands still, but the night's clock only moves with what he does. A clock running on its own would push the night on while the player reads.
+- **The clock stays the story's:** DECIDED by Hutch on a card, 2026-10-24 ("Keep it still"); in the register above.
 - **How often:** table 28's laugh every 30 to 75 seconds, sooner with the rounds; the hockey every 150 to 320 seconds, a goal a time in three and a near miss a time in three; Paige's work every 5 to 14 seconds while she's free (wiping 3 to 6 seconds, a pour 3.6, the till 1.4 to 2.4); a cough every 50 to 150 seconds; a lighter on the deck every 40 to 100; a spilled glass every 6 to 12 minutes; a trip to the washroom every 200 to 420 seconds, gone 50 to 110; a pool shot every 11 to 24 seconds by the heat, a pocket a shot in three.
 - **Who goes to the washroom:** Dennis, the big man's buddy, Good Shoes and hi-vis, one at a time, never from the table or the game he's at.
 - **The pool game heard, not shown:** shots only while the table's out of his sight; its loop retired.
@@ -607,6 +625,22 @@ Proposed with colour and light (2026-10-24), from Hutch's note on colour ("there
 - **What they wear** (pub.gd's WEARS, by the start of each model's file name): the kid 2f6a66, his sister 5e2a16, the crew's and room eleven's hi-vis 8ee03c, the constable 1f2a44, Team Jacket 1f4438 with d8b25a trim, the flannels 6e5a2c (hearing aid), 5a3424 (the big man), 3a5a48 (crew), 4c4a5a (the man with the red beard), Cardigan 8a6c3c, the one in the big glasses 4c6470, the big man's buddy 8c7c46, the boyfriend b08a2c, the kid in the ball cap 4a2418, Dennis's wife's raincoat c0a66a, the first of the two women from upstairs 4a7a66, the cook dcd8ce, the woman in the brown cardigan 7a5a3a.
 - **The light from his eyes:** efe4d4 at 0.45, on the people only (their own visual layer, 3), never his hands or Gary's.
 - **The deck's LED:** someone at the Sov put a cold LED in the old cage over the deck door.
+
+Proposed with the things in the room (2026-10-30), from Hutch's note that there should be more things, and consequential:
+
+- **Where they are:** the rail on the back wall behind the pool table, under the hockey, 3.4 m on three brackets; the coat hooks on the east wall by the dartboard, three on a board; a light for the darts on an arm out from the wall; the extinguisher at the end of the back hall across from the payphone; the dimmer on the wall over the ledge inside the door; the mop and its bucket in the vestibule's corner by the screen, the yellow sign folded behind it; the vestibule floored in tiles to the end of the screen, with a smaller mat by the door; the pint glass by the till with her pens and the bottle opener. There's no pillar.
+- **The empties:** a glass every twenty minutes from ten past seven, six at most; three make them in reach.
+- **In reach at the pool table:** each hand he puts in there is two easier with nothing in reach and one harder with all three. With the boyfriend in it, the darts go first, then the empties, then the cues; with only the big man and his buddy, the cues, then the empties, then the darts. Anything picked up calls the police, with no say for him.
+- **The TV:** the hockey till eleven, the goals till half past, then the late news unless he's changed it. The news: a round more for table 28, and harder to close while it has them going; the game again quiets them (and they like him for it, if the news had them going); off: easier to close, but they think less of him; the curling: much harder to close, and a quarter of an hour longer at it.
+- **The wet:** a step for every two in and every two hours since she mopped at half past seven, to three. GOOD SHOES slips coming in at half past ten at three with no sign out; the one with the hearing aid at close at three, sign or not.
+- **The house lights:** up, ten minutes off "take your time" and easier to close, but table 28 and she (unless she rates him) mind; asked, a little easier, and she likes being asked; low, harder, five minutes longer, and ten more to lock up. In the Godot room: up full at once, or at quarter to, or at a quarter past two.
+- **The phone:** rings from twenty past eight while the daughter's in the truck or the vestibule, till something's done about it. Reading it unseen is Dexterity 10; holding it out to him is a Charisma check, 10, with how he's taking the doorman tonight.
+- **The coat after close:** safe in the lost-and-found, or on its hook if nobody came in past the empty stool; otherwise the phone's gone from it.
+- **The wallet:** four hundred and sixty dollars, a gold card, the licence and the photograph; a fifty taken out, he counts it under the dome light.
+- **The stools:** pushed out from ten to nine, each at its own time, till about twenty to one; GOOD SHOES's over for twenty minutes after the scuffle.
+- **The butts:** three in the can at twenty to eight, one more every eighteen minutes, thirty at most.
+- **The colours:** the big man's coat canvas 8a6a44 with a corduroy collar 4a3a28 in the room (5c4630 in his hand, darker than the last doorman's); the wallet 6a4630; the extinguisher a brick 8a5a3a that prints in the earth, never the red; the bucket and the sign d8a428, in the lamp ink. The jukebox's red light doesn't reach the back hall's things through the wall.
+- **The big TV's pictures:** the hockey, the late news with the light over the strait, the game again, the curling from the prairies, and off.
 
 ### REJECTED
 

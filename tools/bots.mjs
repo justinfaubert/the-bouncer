@@ -242,6 +242,17 @@ function outcomeOf(v, g) {
       : (v.watched_bar ? 'watched her bar' : (visits(g, 'at_bar.lager_out') ? 'left her bar' : (visits(g, 'at_keg.change_keg') ? 'changed it himself' : 'never'))),
     "the last doorman's jacket": v.jacket_done ? ({ 1: 'gave her the float', 2: 'left the float', 3: 'took the money' }[v.float_how] || 'through it') : (has(v.knows, 'lost_jacket') ? 'knew where it was' : 'never'),
     "the big man's keys": v.took_keys ? ({ 1: 'the drawer', 2: 'his pocket', 3: 'his daughter' }[v.keys_how] || '?') + ({ 1: ', gave them back at two', '-1': ', kept them at two' }[v.keys_back] || '') : 'not taken',
+    // the room's things (content/ink/room.ink)
+    'the pool fight, picked up': !has(fam, 'pool_fight') ? 'no fight' : ((v.used || []).length ? (v.used || []).map((u) => ({ r_glass: 'a glass', r_cue: 'a cue', r_darts: 'the darts' }[u] || u)).join('+') : 'nothing'),
+    'the corner, before it went': [v.bussed > 0 ? 'bussed' : '', v.rack_locked ? 'rack locked' : '', v.darts_pulled ? 'darts pulled' : ''].filter(Boolean).join(', ') || 'left as it was',
+    'the TV': { 0: 'the goals', 1: 'the news', 2: 'the game again', 3: 'off', 4: 'the curling' }[v.tv_on] + (v.t28_off > 0 ? ', table 28 still going at close' : ''),
+    'the tiles': ({ 0: 'nobody went down', 1: 'GOOD SHOES went down', 2: 'the hearing aid went down' }[v.slip]) + (visits(g, 'mop') ? ', mopped' : '') + (v.wet_sign ? ', sign out' : ''),
+    'the extinguisher': { 0: 'never looked', 1: 'read the tag', 2: 'told her', 3: 'told the owner' }[v.ext_how],
+    'the house lights': { 0: 'never', 1: 'up himself', 2: 'asked her', '-1': 'left low' }[v.lights],
+    "the big man's phone": { 0: 'never touched', 1: 'told him it was going', 2: 'looked, put it back', 3: 'held it out to him', '-1': 'caught in his coat' }[v.cell_how],
+    "the big man's jacket": v.back_for ? { 1: 'daughter came back, phone there', 2: 'daughter came back, phone gone' }[v.back_for]
+      : ((has(fam, 'dad_went') || has(fam, 'dad_ejected') || has(fam, 'dad_walked')) && !has(fam, 'lot_scene') ? ({ 1: 'left: the drawer', '-1': 'left: back on the hook' }[v.coat_how] || 'left: never noticed') : 'went with him'),
+    "GOOD SHOES's wallet": !v.wallet_dropped ? 'never dropped' : ({ 1: 'handed back', 2: 'let him in for it', 3: 'tomorrow' }[v.wallet_back] || 'never came back for it') + (v.wallet_cash ? ({ 1: ', took fifty, gave it back', '-1': ', took fifty, denied it' }[v.fifty_how] || ', took fifty') : ''),
     'ends at': B.util.fmtClock(v.clock | 0),
   };
 }

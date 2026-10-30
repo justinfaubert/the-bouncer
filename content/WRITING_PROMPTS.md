@@ -14,10 +14,10 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/door.ink
 
-3. **ev_sister** (`content/ink/door.ink:376`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-4. **ev_sister** (`content/ink/door.ink:403`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-5. **door_banned** (`content/ink/door.ink:818`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-6. **door_wife** (`content/ink/door.ink:1009`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+3. **ev_sister** (`content/ink/door.ink:383`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+4. **ev_sister** (`content/ink/door.ink:410`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+5. **door_banned** (`content/ink/door.ink:831`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+6. **door_wife** (`content/ink/door.ink:1031`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 
@@ -28,16 +28,16 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:705`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:737`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:753`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:785`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
-13. **at_bar** (`content/ink/bar.ink:71`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
-14. **at_bar** (`content/ink/bar.ink:94`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
-15. **at_bar** (`content/ink/bar.ink:130`): The lifer's history with table 28. She knew them when they were young. What were they like?
-16. **at_bar** (`content/ink/bar.ink:138`): Her name. Or keep it back until he's earned it.
-17. **at_bar** (`content/ink/bar.ink:290`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
+13. **at_bar** (`content/ink/bar.ink:82`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
+14. **at_bar** (`content/ink/bar.ink:105`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
+15. **at_bar** (`content/ink/bar.ink:141`): The lifer's history with table 28. She knew them when they were young. What were they like?
+16. **at_bar** (`content/ink/bar.ink:149`): Her name. Or keep it back until he's earned it.
+17. **at_bar** (`content/ink/bar.ink:301`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
 
 ## content/ink/rats.ink
 
@@ -46,9 +46,9 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/hall.ink
 
-20. **at_hall** (`content/ink/hall.ink:156`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
-21. **at_hall** (`content/ink/hall.ink:266`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
-22. **at_hall** (`content/ink/hall.ink:450`): What's written on the wall around a dead payphone in a bar like yours?
+20. **at_hall** (`content/ink/hall.ink:159`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
+21. **at_hall** (`content/ink/hall.ink:269`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
+22. **at_hall** (`content/ink/hall.ink:453`): What's written on the wall around a dead payphone in a bar like yours?
 
 ## content/ink/deck.ink
 
@@ -58,20 +58,24 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/closing.ink
 
-26. **last_call** (`content/ink/closing.ink:241`): Last call at the Sov. What really happens in a room like this when the bell goes?
-27. **incident_log** (`content/ink/closing.ink:950`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-28. **after_hours** (`content/ink/closing.ink:1043`): The song she puts on for the count. Yours to pick, or to write.
-29. **after_hours** (`content/ink/closing.ink:1087`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-30. **keg_parley** (`content/ink/closing.ink:1388`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-31. **go_upstairs** (`content/ink/closing.ink:1712`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+26. **last_call** (`content/ink/closing.ink:247`): Last call at the Sov. What really happens in a room like this when the bell goes?
+27. **incident_log** (`content/ink/closing.ink:966`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+28. **after_hours** (`content/ink/closing.ink:1059`): The song she puts on for the count. Yours to pick, or to write.
+29. **after_hours** (`content/ink/closing.ink:1103`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+30. **keg_parley** (`content/ink/closing.ink:1404`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+31. **go_upstairs** (`content/ink/closing.ink:1728`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 
 ## content/ink/things.ink
 
-32. **toy_bottles** (`content/ink/things.ink:81`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
-33. **toy_taps** (`content/ink/things.ink:88`): What's on tap at a pub like yours?
-34. **toy_street_bank** (`content/ink/things.ink:313`): The old main street in a town like yours: what's on it that nobody from away would notice?
+32. **toy_bottles** (`content/ink/things.ink:126`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
+33. **toy_taps** (`content/ink/things.ink:133`): What's on tap at a pub like yours?
+34. **toy_street_bank** (`content/ink/things.ink:388`): The old main street in a town like yours: what's on it that nobody from away would notice?
 
 ## content/ink/drawer.ink
 
 35. **the_drawer** (`content/ink/drawer.ink:126`): The woman the ferry tickets were for. Who was she, and why did neither of them get on the boat? The jacket doesn't say, and nothing in the night does yet. Yours, if you want her.
+
+## content/ink/room.ink
+
+36. **back_for_coat** (`content/ink/room.ink:669`): The daughter, back for her father's jacket at two in the morning, and how her mother is. The draft keeps the mother in hospital, unexplained.
 

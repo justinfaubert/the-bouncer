@@ -157,14 +157,26 @@
     - Somebody had put money in the jukebox and picked the same song twice.
     }
 - clock < LAST_CALL:
-    {shuffle:
-    - Late. The room had gone warm and loud the way it does, and the carpet had started to stick.
-    - Table 28 were {num(t28_rounds)} rounds in and sounded it.
-    - The same four songs again. The TV showing highlights of the game everybody had just watched.
+    // The late news on the big TV sets them off (room.ink): the light over the strait, in fragments.
+    { t28_off > 0:
+        {shuffle:
+        - Table 28 were arguing with the late news. The light over the strait was HAARP, or it was the Americans, or it was a satellite, which was exactly what they'd want you to think.
+        - The one with the lottery tickets said cloud seeding. The one in the team jacket said cloud seeding was Alberta. Nobody at table 28 could hear anybody else.
+        - The news had the light over the strait again, somebody's phone from the ferry, and table 28 had turned all the way round in their chairs to shout at it.
+        }
+    - else:
+        {shuffle:
+        - Late. The room had gone warm and loud the way it does, and the carpet had started to stick.
+        - Table 28 were {num(t28_rounds)} rounds in and sounded it.
+        - {tv_words()}
+        }
     }
 }
 { pool_heat >= 5 && fam !? pool_fight && not fam_done:
-    { juke_low:
+    {
+    - t28_off > 0:
+        If anything was starting at the pool table, he couldn't have heard it start over table 28.
+    - juke_low:
         Voices at the pool table. With the jukebox down, he could nearly make out the words.
     - else:
         Voices at the pool table, over the music. Not words yet.

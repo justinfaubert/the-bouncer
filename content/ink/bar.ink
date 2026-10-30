@@ -34,6 +34,10 @@
     - BARTENDER: Again with the running.
     }
 }
+// GOOD SHOES's wallet, if it came out of his coat when he was put out (room.ink).
+{ wallet_there():
+    On the carpet by the stool where GOOD SHOES had been sitting, a wallet.
+}
 { lager_off():
     -> lager_out
 }
@@ -63,6 +67,13 @@
     -> shift_drink
 + {knows ? endbar_seen && at_bar.endbar < 3} [Go and stand by the old man at the end of the bar.]
     -> endbar
+// The room's things (room.ink): the wallet by the stool, the extinguisher's tag, the TV remote.
+* {wallet_there()} [The wallet by the stool where GOOD SHOES sat.]
+    -> the_wallet
+* {ext_how == 1} [Tell her about the extinguisher in the back hall.]
+    -> ext_tell_her
+* {clock >= 1380 && clock < LAST_CALL && remote_how == 0} [{remote_label()}]
+    -> the_remote
 
 = binder
 ~ pass(5)
@@ -444,6 +455,12 @@ OWNER: How is it tonight?
 - else:
     OWNER: Fella in a good coat tried to come in tonight? Says you turned him away at the door. {owner_missed:That'll be what you rang about.}
 }
+// He went down on the wet tiles coming in (room.ink, slipped), and he's spent it.
+{ slip == 1:
+    OWNER: And he says he went down on our floor, in the door. Flat on his back in a good coat. Is that right?
+    ~ rep(rep_owner, -1)
+    FATHER: There. He spent it.
+}
 * ["The book says not ever."]
     OWNER: That book's old, buddy.
     OWNER: Fine, fine. We'll talk about it.
@@ -467,6 +484,10 @@ OWNER: How is it tonight?
 - -> hang_up
 
 = hang_up
+// He's read the extinguisher's tag in the back hall (room.ink): Junior's on the line.
+{ ext_how == 1 || ext_how == 2:
+    -> owner_ext ->
+}
 OWNER: Good. Good. Put her back on, my food's here.
 He handed the phone back. She listened, said "Yep," and "Yep," and hung up.
 ~ pass(4)

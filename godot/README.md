@@ -150,6 +150,9 @@ town's places at their hours, his head turned from them, and the lot come to fro
 what a frame there costs; `tests/shots_opening.gd` plays the opening from Gary's office, choice by
 choice, and takes a picture after the choices it's given, and of his notes and the sketch.
 `tests/shots_going.gd` takes the page out on the floor, the rings, the bar and a run.
+`tests/shots_room.gd` takes the room's things from where he'd see them, as the night can have them
+(the empties on the rail, the padlock open and shut, the coat on its hook, the wet tiles and the
+yellow sign, what's on the big TV, the house lights at last call): `--only rail_late,coat`.
 `tests/shots_things.gd` saves the darkroom's pictures of the things he handles, and takes each one
 in his hand at the bar, brought closer and turned over; `tests/shots_hand.gd` plays a night to the
 voices' reads of a thing, keeps one, and takes his notes' second page, ON HIM (`--start the_drawer

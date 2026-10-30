@@ -14,6 +14,7 @@ const HELD := {
 	"straw": ["his_right_palm", "palm"], "book": ["his_right_palm", "palm"], "bag": ["his_right_palm", "palm"],
 	"shirt": ["his_right_palm", "palm"], "mat": ["his_right_card", "card"], "tickets": ["his_right_card", "card"],
 	"bill": ["his_right_card", "card"], "glass": ["his_right_pint", "pint"],
+	"remote": ["his_right_palm", "palm"], "wallet": ["his_right_palm", "palm"], "phone": ["his_right_card", "card"],
 }
 # where it sits in front of his eyes (the camera's space: -z ahead, y up), at rest and brought
 # closer (E): a position, and a turn in degrees. The open hand is palm up with his fingers straight
@@ -35,6 +36,9 @@ const POSES := {
 	"jacket:look": [Vector3(0.0, -0.22, -0.58), Vector3(-52, 0, 0)],
 	"card:rest": [Vector3(0.062, -0.07, -0.25), Vector3(12, -8, 4)],
 	"card:look": [Vector3(0.0, -0.02, -0.2), Vector3(2, 0, 0)],
+	# the big man's phone, held up like a licence but bigger, its lock screen to him
+	"phone:rest": [Vector3(0.06, -0.075, -0.32), Vector3(10, -8, 4)],
+	"phone:look": [Vector3(0.0, -0.02, -0.26), Vector3(2, 0, 0)],
 	"pint:rest": [Vector3(0.07, -0.16, -0.34), Vector3(6, 40, 0)],
 	"pint:look": [Vector3(0.03, -0.12, -0.27), Vector3(4, 32, 0)],
 	"none:rest": [Vector3(0.0, -0.29, -0.44), Vector3(-58, 0, 0)],
@@ -95,6 +99,14 @@ func jobs(P: Dictionary) -> void:
 				pp._job("thing_%s_flyer" % id, _flyer.bind(pr))
 			"jacket":
 				pp._job("thing_%s_front" % id, _jacket.bind(pr))
+			"remote":
+				pp._job("thing_%s_front" % id, _remote.bind(pr, true))
+				pp._job("thing_%s_back" % id, _remote.bind(pr, false))
+			"phone":
+				pp._job("thing_%s_front" % id, _lock_screen.bind(pr))
+			"wallet":
+				pp._job("thing_%s_front" % id, _wallet.bind(pr, true))
+				pp._job("thing_%s_back" % id, _wallet.bind(pr, false))
 
 
 # a line of the yaml's front: or back: list, and whether it's in pencil ("~ ...") or printed
@@ -508,12 +520,13 @@ func _flyer(pr: Dictionary) -> SubViewport:
 	return sv
 
 
-# The last doorman's jacket, folded at the bottom of the drawer: brown canvas, a corduroy collar,
-# the flaps of its two outside pockets, the stitching gone pale.
-func _jacket(_pr: Dictionary) -> SubViewport:
+# A work jacket, folded (the last doorman's, at the bottom of the drawer; the big man's, off its
+# hook): canvas in its own colour (cloth:), a corduroy collar, the flaps of its two outside pockets,
+# the stitching gone pale.
+func _jacket(pr: Dictionary) -> SubViewport:
 	var sv: SubViewport = pp._viewport(Vector2i(840, 680), true)
 	var c: Control = pp._page(sv)
-	var canvas := Color("6e5d3e")
+	var canvas := Color(str(pr.get("cloth", "6e5d3e")))
 	var thread := Color("a08c62")
 	pp._rect(c, Rect2(Vector2.ZERO, c.size), canvas)
 	var r: RandomNumberGenerator = pp._rng("jacket")
@@ -542,6 +555,118 @@ func _jacket(_pr: Dictionary) -> SubViewport:
 		while dash < x2 + 160.0:
 			pp._rect(c, Rect2(dash, 478, 9, 2), thread)
 			dash += 15.0
+	return sv
+
+
+# The TV remote she keeps under the bar rag: black, the numbers and the channel and the volume, a
+# round pad worn shiny in the middle; on the back the battery cover, and a strip of masking tape with
+# what it's for on it in her marker (the back: lines), so nobody points it at the jukebox.
+func _remote(pr: Dictionary, front: bool) -> SubViewport:
+	var sv: SubViewport = pp._viewport(Vector2i(260, 940), true)
+	sv.transparent_bg = true
+	var c: Control = pp._page(sv)
+	var body := Color("1c1d21")
+	var key := Color("3a3c42")
+	var label := Color("a9acb3")
+	pp._rect(c, Rect2(6, 6, 248, 928), body, 44)
+	if front:
+		pp._rect(c, Rect2(96, 50, 68, 40), key, 16)                          # the power, grey like the rest
+		var n := 1
+		for row in 4:
+			for col in 3:
+				if row == 3 and col != 1:
+					continue
+				var at := Vector2(38 + col * 66, 140 + row * 74)
+				pp._rect(c, Rect2(at, Vector2(52, 50)), key, 12)
+				var l: Label = pp._text(c, str(n % 10) if row < 3 else "0", at + Vector2(16, 6), "ui_b", 28, label)
+				l.modulate.a = 0.85
+				n += 1
+		# the round pad, its middle worn to the plastic
+		var pad := PackedVector2Array()
+		for i in 40:
+			pad.append(Vector2(130, 560) + Vector2(cos(TAU * i / 40.0), sin(TAU * i / 40.0)) * 88.0)
+		_poly(c, pad, key)
+		var mid := PackedVector2Array()
+		for i in 32:
+			mid.append(Vector2(130, 560) + Vector2(cos(TAU * i / 32.0), sin(TAU * i / 32.0)) * 34.0)
+		_poly(c, mid, Color("4c4f56"))
+		for k in 2:
+			var x := 52.0 + k * 108.0
+			pp._rect(c, Rect2(x, 690, 48, 150), key, 22)
+			pp._text(c, "+", Vector2(x + 13, 690), "ui_b", 34, label)
+			pp._text(c, "-", Vector2(x + 17, 790), "ui_b", 34, label)
+		pp._text(c, "CH", Vector2(58, 846), "ui_b", 20, label, 2)
+		pp._text(c, "VOL", Vector2(160, 846), "ui_b", 20, label, 2)
+	else:
+		pp._rect(c, Rect2(40, 560, 180, 300), Color("17181b"), 10)
+		pp._rect(c, Rect2(104, 836, 52, 10), Color("2c2e33"), 4)
+		# the tape, a bit crooked, and her marker on it
+		var tape: Panel = pp._rect(c, Rect2(30, 250, 200, 92), Color("ddd3b4"), 3)
+		tape.rotation = deg_to_rad(-3.0)
+		var ls := _lines(pr, "back")
+		if not ls.is_empty():
+			var t: Label = pp._text(c, str(ls[0][0]), Vector2(70, 254), "hand", 64, Color("22252c"))
+			t.rotation = deg_to_rad(-3.0)
+	return sv
+
+
+# The big man's phone, out of his jacket, lit: the lock screen, his daughter's name, the missed
+# calls, and her messages one on top of the next, the newest on top (the front: lines).
+func _lock_screen(pr: Dictionary) -> SubViewport:
+	var sv: SubViewport = pp._viewport(Vector2i(400, 820), true)
+	sv.transparent_bg = true
+	var c: Control = pp._page(sv)
+	pp._rect(c, Rect2(4, 4, 392, 812), Color("0c0d10"), 46)
+	pp._rect(c, Rect2(18, 18, 364, 784), Color("1b2633"), 34)
+	var white := Color("eef1f4")
+	var ls := _lines(pr, "front")
+	var who := str(ls[0][0]) if ls.size() > 0 else ""
+	var calls := str(ls[1][0]) if ls.size() > 1 else ""
+	pp._rect(c, Rect2(160, 34, 80, 22), Color("0c0d10"), 11)                 # the camera's notch
+	var y := 92.0
+	pp._rect(c, Rect2(34, y, 332, 84), Color(white, 0.16), 18)
+	pp._text(c, who, Vector2(52, y + 10), "ui_b", 22, white, 2)
+	pp._text(c, calls, Vector2(52, y + 42), "ui", 24, white)
+	y += 100.0
+	for i in range(2, ls.size()):
+		var msg := str(ls[i][0])
+		var h := 96.0 + 30.0 * floorf(msg.length() / 30.0)
+		pp._rect(c, Rect2(34, y, 332, h), Color(white, 0.16), 18)
+		pp._text(c, who, Vector2(52, y + 10), "ui_b", 20, white, 2)
+		var l: Label = pp._text(c, msg, Vector2(52, y + 38), "ui", 23, white)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		l.size = Vector2(300, h - 40)
+		y += h + 14.0
+	pp._rect(c, Rect2(140, 780, 120, 8), Color(white, 0.7), 4)
+	return sv
+
+
+# GOOD SHOES's wallet, shut: brown, good leather worn pale along the fold, the stitching round its
+# edge; on the back the same, and the curve his hip's put in it.
+func _wallet(_pr: Dictionary, front: bool) -> SubViewport:
+	var sv: SubViewport = pp._viewport(Vector2i(560, 440), true)
+	sv.transparent_bg = true
+	var c: Control = pp._page(sv)
+	var leather := Color("5a3a26")
+	var r: RandomNumberGenerator = pp._rng("wallet" + str(front))
+	pp._rect(c, Rect2(6, 6, 548, 428), leather, 26)
+	for i in 160:
+		var w := r.randf_range(8, 40)
+		pp._rect(c, Rect2(r.randf_range(10, 544 - w), r.randf_range(10, 420), w, 1.4), Color(0, 0, 0, 0.08))
+	# the fold down one long edge, gone pale with his thumb
+	pp._rect(c, Rect2(6, 6, 46, 428), Color(leather.lightened(0.28), 0.8), 20)
+	var dash := 30.0
+	while dash < 410.0:
+		pp._rect(c, Rect2(522, dash, 3, 12), Color("a07a58"))
+		pp._rect(c, Rect2(70, dash, 3, 12), Color("a07a58"))
+		dash += 22.0
+	var dx := 76.0
+	while dx < 520.0:
+		pp._rect(c, Rect2(dx, 24, 12, 3), Color("a07a58"))
+		pp._rect(c, Rect2(dx, 412, 12, 3), Color("a07a58"))
+		dx += 22.0
+	if not front:
+		pp._rect(c, Rect2(140, 120, 300, 200), Color(0, 0, 0, 0.1), 80)
 	return sv
 
 
@@ -632,8 +757,27 @@ func build(id: String, pr: Dictionary, turn: Node3D) -> Dictionary:
 			_quad(Vector2(0.06, 0.06), _print("thing_%s_flyer" % id), turn, Vector3(0.018, 0.13, 0.001), Vector3(0, 0, -6))
 		"jacket":
 			turn.position.z = 0.035
-			_box(Vector3(0.42, 0.34, 0.07), pub.mat(Color("6e5d3e"), 0.95, 0.0, 4, Vector3(0, 1, 0), 5.5, 0.8), turn, Vector3.ZERO)
+			_box(Vector3(0.42, 0.34, 0.07), pub.mat(Color(str(pr.get("cloth", "6e5d3e"))), 0.95, 0.0, 4, Vector3(0, 1, 0), 5.5, 0.8), turn, Vector3.ZERO)
 			out.faces = [_quad(Vector2(0.42, 0.34), _print("thing_%s_front" % id), turn, Vector3(0, 0, 0.0355))]
+		"remote":
+			# across his palm, its buttons up
+			turn.position.z = 0.012
+			_box(Vector3(0.05, 0.18, 0.02), pub.mat(Color("1c1d21"), 0.45, 0.0, 3), turn, Vector3(0, 0.02, 0))
+			out.faces = [_quad(Vector2(0.05, 0.18), _print("thing_%s_front" % id, true), turn, Vector3(0, 0.02, 0.0102)),
+				_quad(Vector2(0.05, 0.18), _print("thing_%s_back" % id, true), turn, Vector3(0, 0.02, -0.0102), Vector3(0, 180, 0))]
+		"phone":
+			# held up to him, its screen lit: brighter than anything printed
+			_box(Vector3(0.074, 0.152, 0.009), pub.mat(Color("141518"), 0.5, 0.0, 3), turn, Vector3(0, 0.03, -0.0005))
+			var screen := _print("thing_%s_front" % id, true)
+			screen.set_shader_parameter("emission_energy", 0.85)
+			out.faces = [_quad(Vector2(0.074, 0.152), screen, turn, Vector3(0, 0.03, 0.0042))]
+			_cyl(0.006, 0.006, 0.002, pub.mat(Color("2a2c30"), 0.3, 0.4, 3), turn, Vector3(-0.022, 0.09, -0.0055), Vector3(90, 0, 0))
+		"wallet":
+			# shut, in his palm, the fold toward his thumb
+			turn.position.z = 0.009
+			_box(Vector3(0.11, 0.087, 0.016), pub.mat(Color("5a3a26"), 0.55, 0.0, 3), turn, Vector3(0, 0.02, 0))
+			out.faces = [_quad(Vector2(0.11, 0.087), _print("thing_%s_front" % id, true), turn, Vector3(0, 0.02, 0.0082)),
+				_quad(Vector2(0.11, 0.087), _print("thing_%s_back" % id, true), turn, Vector3(0, 0.02, -0.0082), Vector3(0, 180, 0))]
 	return out
 
 

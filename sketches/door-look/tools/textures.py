@@ -522,6 +522,275 @@ def news(w=512, h=288):
     save(a, 'tv_news')
 
 
+def _rink(d, r, w, h):
+    """The broadcast's high side view of a rink, for the replay: the crowd dark over the boards, the
+    ice wider at the bottom. Returns the ice's top and bottom and where a line at the far boards
+    falls lower down."""
+    for _ in range(1400):
+        x, y = int(r.integers(0, w)), int(r.integers(0, int(h * 0.36)))
+        c = [(60, 52, 48), (90, 70, 60), (140, 110, 90), (40, 44, 70), (150, 30, 30), (200, 200, 200)][int(r.integers(0, 6))]
+        d.rectangle([x, y, x + 2, y + 3], fill=c)
+    top, bot = int(h * 0.36), int(h * 0.97)
+    d.rectangle([0, top - 4, w, top + 12], fill=(226, 224, 216))
+    for i in range(0, w, 64):
+        d.rectangle([i + 6, top - 1, i + 56, top + 9], fill=(int(r.integers(40, 200)), int(r.integers(40, 120)), int(r.integers(40, 120))))
+    d.polygon([(-40, top + 12), (w + 40, top + 12), (w + 160, bot), (-160, bot)], fill=(236, 240, 244))
+
+    def lx(x_top, y):
+        f = (y - (top + 12)) / (bot - top - 12)
+        return w / 2 + (x_top - w / 2) * (1 + 0.55 * f)
+    return top, bot, lx
+
+
+def replay(w=512, h=288):
+    """The big TV late, when somebody's put the game on again from the start (content/ink/room.ink,
+    the remote): the sports channel's night replay, at the anthem. Both teams lined up along their
+    blue lines with their helmets off, nobody's scored yet, and REPLAY in the corner."""
+    r = np.random.default_rng(2002)
+    im = Image.new('RGB', (w, h), (18, 20, 28))
+    d = ImageDraw.Draw(im)
+    top, bot, lx = _rink(d, r, w, h)
+    for xt, col, wd in ((w * 0.5, (200, 30, 30), 5), (w * 0.3, (40, 70, 170), 7), (w * 0.7, (40, 70, 170), 7)):
+        d.line([(lx(xt, top + 12), top + 12), (lx(xt, bot), bot)], fill=col, width=wd)
+    d.ellipse([w * 0.5 - 44, h * 0.66 - 20, w * 0.5 + 44, h * 0.66 + 20], outline=(190, 40, 40), width=2)
+    # the two teams standing in a line along their blue lines, bare heads, sticks down
+    for side, col, lean in ((0.3, (24, 32, 70), 1.0), (0.7, (230, 230, 230), -1.0)):
+        for k in range(6):
+            y = top + 40 + k * 24
+            s = 0.7 + 0.6 * (y - top) / (bot - top)
+            x = lx(w * side, y) + lean * 12 * s
+            d.ellipse([x - 5 * s, y - 22 * s, x + 5 * s, y - 12 * s], fill=(176, 132, 104))
+            d.rectangle([x - 7 * s, y - 13 * s, x + 7 * s, y + 3 * s], fill=col)
+            for lg in (-3, 3):
+                d.line([(x + lg * s, y + 3 * s), (x + lg * s, y + 13 * s)], fill=(30, 30, 30), width=max(1, int(3 * s)))
+            d.line([(x + 7 * s * lean, y - 4 * s), (x + 9 * s * lean, y + 13 * s)], fill=(140, 100, 60), width=max(1, int(2 * s)))
+    # at centre ice, the singer on a strip of carpet, and the flag carried round
+    cx, cy = w * 0.5, h * 0.62
+    d.rectangle([cx - 30, cy + 2, cx + 30, cy + 8], fill=(120, 40, 44))
+    d.ellipse([cx - 4, cy - 22, cx + 4, cy - 14], fill=(176, 132, 104))
+    d.rectangle([cx - 6, cy - 14, cx + 6, cy + 3], fill=(30, 30, 34))
+    d.rectangle([10, 10, 190, 38], fill=(12, 12, 16))
+    d.text((18, 24), 'HOME 0   AWAY 0', font=font('barlow-condensed-600', 22), fill=(240, 240, 240), anchor='lm')
+    d.rectangle([190, 10, 262, 38], fill=(190, 30, 30))
+    d.text((226, 24), '1ST 20:00', font=font('barlow-condensed-600', 18), fill=(240, 240, 240), anchor='mm')
+    d.rectangle([w - 110, 12, w - 12, 40], fill=(236, 234, 228))
+    d.text((w - 61, 26), 'REPLAY', font=font('archivo-black-400', 16), fill=(24, 26, 34), anchor='mm')
+    a = np.asarray(im, dtype=np.float32) / 255.0
+    a *= (0.92 + 0.08 * (np.arange(h) % 3 == 0))[:, None, None]
+    save(a, 'tv_replay')
+
+
+def light(w=512, h=288):
+    """The late news on the big TV at half past eleven (content/ink/room.ink, the TV): viewer video
+    off somebody's phone from the deck of the evening sailing. The ferry's rail across the bottom,
+    the far shore's lights low along the water, and high over the strait a white point that
+    doesn't blink. The sound's off and the captions are on, and the Air Force's word for it is in
+    them. No names, no channel but NEWS."""
+    r = np.random.default_rng(1104)
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    hz = h * 0.56                                                           # the far shore
+    sky = np.stack([0.06 + 0.05 * yy / hz, 0.075 + 0.05 * yy / hz, 0.11 + 0.05 * yy / hz], -1)
+    sea = np.stack([0.03 + 0 * yy, 0.04 + 0 * yy, 0.06 + 0 * yy], -1)
+    a = np.where((yy < hz)[..., None], sky, sea)
+    # the shore: a low dark line of hills, lit along the water
+    hills = hz - 6 - 8 * (0.5 + 0.5 * np.sin(xx / 47.0 + 1.3)) * (0.6 + 0.4 * np.sin(xx / 13.0))
+    a = np.where(((yy > hills) & (yy < hz + 2))[..., None], np.array([0.035, 0.04, 0.05]), a)
+    im = Image.fromarray((np.clip(a, 0, 1) * 255).astype(np.uint8))
+    d = ImageDraw.Draw(im)
+    for _ in range(46):
+        x = float(r.uniform(0, w)); y = hz - float(r.uniform(0, 4))
+        c = (255, int(r.integers(190, 230)), int(r.integers(120, 170)))
+        d.ellipse([x - 1, y - 1, x + 1.5, y + 1.5], fill=c)
+        # its streak in the water
+        for k in range(int(r.integers(2, 6))):
+            yk = hz + 4 + k * 5 + float(r.uniform(0, 3))
+            d.line([(x - 2, yk), (x + 2, yk)], fill=(int(c[0] * 0.35), int(c[1] * 0.3), int(c[2] * 0.25)), width=1)
+    # the light: one white point, a little glow round it, high over the water
+    glow = Image.new('L', (w, h), 0)
+    lx, ly = w * 0.71, h * 0.33
+    ImageDraw.Draw(glow).ellipse([lx - 12, ly - 12, lx + 12, ly + 12], fill=150)
+    glow = glow.filter(ImageFilter.GaussianBlur(6))
+    im = Image.composite(Image.new('RGB', (w, h), (230, 236, 246)), im, glow)
+    d = ImageDraw.Draw(im)
+    d.ellipse([lx - 3.5, ly - 3.5, lx + 3.5, ly + 3.5], fill=(255, 255, 255))
+    # the ferry's rail in front of the phone, out of focus
+    d.polygon([(0, h * 0.62), (w * 0.46, h * 0.585), (w * 0.46, h * 0.605), (0, h * 0.65)], fill=(30, 32, 38))
+    for x in (36, 118, 200):
+        d.rectangle([x, h * 0.62 - x * 0.08, x + 7, h * 0.72], fill=(26, 28, 34))
+    d.polygon([(0, h * 0.7), (w * 0.46, h * 0.66), (w * 0.46, h * 0.675), (0, h * 0.72)], fill=(26, 28, 34))
+    im = im.filter(ImageFilter.GaussianBlur(0.6))
+    d = ImageDraw.Draw(im)
+    # the captions, in their black box
+    cf = font('ibm-plex-mono-500', 15)
+    d.rectangle([14, 12, 300, 56], fill=(8, 8, 10))
+    d.text((24, 23), '>> IT IS A WEATHER BALLOON.', font=cf, fill=(240, 240, 240), anchor='lm')
+    d.text((24, 44), 'WE ARE CONFIDENT OF THAT.', font=cf, fill=(240, 240, 240), anchor='lm')
+    d.rectangle([w - 92, 12, w - 12, 40], fill=(200, 36, 36))
+    d.text((w - 52, 26), 'NEWS', font=font('archivo-black-400', 18), fill=(250, 246, 240), anchor='mm')
+    d.rectangle([0, h - 86, 326, h - 56], fill=(200, 36, 36))
+    d.text((12, h - 71), 'LIGHT OVER THE STRAIT', font=font('archivo-black-400', 20), fill=(250, 246, 240), anchor='lm')
+    d.rectangle([0, h - 56, w, h - 26], fill=(236, 234, 228))
+    d.text((12, h - 41), 'VIEWER VIDEO FROM THE EVENING SAILING  ·  A SECOND NIGHT', font=font('barlow-condensed-600', 22), fill=(24, 26, 34), anchor='lm')
+    d.rectangle([0, h - 26, w, h], fill=(14, 18, 30))
+    d.text((12, h - 13), 'AIR FORCE: A WEATHER BALLOON  ·  RAINFALL WARNING FOR THE EAST COAST OF THE ISLAND  ·', font=font('barlow-condensed-600', 16), fill=(220, 220, 226), anchor='lm')
+    a = np.asarray(im, dtype=np.float32) / 255.0
+    a *= (0.92 + 0.08 * (np.arange(h) % 3 == 0))[:, None, None]
+    save(a, 'tv_light')
+
+
+def curling(w=512, h=288):
+    """The curling, late, on the sports channel (content/ink/room.ink, the remote): the camera up
+    behind the house looking down the sheet, the rings in the bottom of the frame, a stone on its
+    way down the ice as slow as a ferry and two sweepers in front of it, the skip in the house
+    with her broom down for them. The score by the stones' colours; no names."""
+    r = np.random.default_rng(1974)
+    im = Image.new('RGB', (w, h), (30, 30, 36))
+    d = ImageDraw.Draw(im)
+    # the sheet in perspective, narrowing up the frame to the far end, with the boards either side
+    far, near = (w * 0.5, h * 0.06), h * 1.02
+    def sx(u, y):
+        f = (y - far[1]) / (near - far[1])
+        return w / 2 + u * (40 + 260 * f)
+    d.polygon([(sx(-1, far[1]), far[1]), (sx(1, far[1]), far[1]), (sx(1, near), near), (sx(-1, near), near)], fill=(228, 232, 236))
+    for u in (-1.06, 1.06):
+        d.line([(sx(u, far[1]), far[1]), (sx(u, near), near)], fill=(70, 66, 60), width=6)
+    # the pebble on the ice, and the lines: the hog line, the tee line
+    for _ in range(2200):
+        y = float(r.uniform(far[1], near)); u = float(r.uniform(-1, 1))
+        v = int(r.integers(200, 222))
+        d.point((sx(u, y), y), fill=(v, v + 4, v + 8))
+    for yl, col in ((h * 0.42, (200, 40, 40)), (h * 0.79, (40, 60, 150))):
+        d.line([(sx(-1, yl), yl), (sx(1, yl), yl)], fill=col, width=2)
+    # the house: twelve foot, eight, four, the button, foreshortened
+    cx, cy = w * 0.5, h * 0.79
+    for rr, col in ((118, (44, 76, 168)), (80, (236, 238, 240)), (42, (196, 40, 40)), (14, (236, 238, 240))):
+        d.ellipse([cx - rr, cy - rr * 0.32, cx + rr, cy + rr * 0.32], fill=col)
+    # stones in and round the house: granite, the red handles and the yellow
+    def stone(x, y, s, handle):
+        d.ellipse([x - 9 * s, y - 4 * s, x + 9 * s, y + 4 * s], fill=(96, 92, 92))
+        d.ellipse([x - 7 * s, y - 5 * s, x + 7 * s, y + 1 * s], fill=(130, 126, 124))
+        d.rectangle([x - 4 * s, y - 7 * s, x + 4 * s, y - 4 * s], fill=handle)
+    for x, y, hcol in ((cx - 30, cy - 6, (200, 40, 40)), (cx + 52, cy + 2, (226, 190, 40)), (cx + 8, cy - 22, (226, 190, 40))):
+        stone(x, y, 1.1, hcol)
+    # the stone on its way, and the two sweepers in front of it, brooms down
+    ys = h * 0.47
+    stone(w * 0.5, ys, 0.7, (200, 40, 40))
+    for k, xo in enumerate((-16, 15)):
+        x, y = w * 0.5 + xo, ys + 10 + 4 * k
+        d.ellipse([x - 4, y - 24, x + 4, y - 16], fill=(176, 132, 104))
+        d.rectangle([x - 6, y - 17, x + 6, y - 2], fill=(150, 36, 40) if k == 0 else (40, 44, 70))
+        d.line([(x - 2, y - 2), (x - 3, y + 8)], fill=(30, 30, 30), width=2)
+        d.line([(x + 2, y - 2), (x + 3, y + 8)], fill=(30, 30, 30), width=2)
+        d.line([(x, y - 10), (w * 0.5 + xo * 0.4, ys - 14)], fill=(150, 120, 70), width=2)
+        d.rectangle([w * 0.5 + xo * 0.4 - 6, ys - 16, w * 0.5 + xo * 0.4 + 6, ys - 12], fill=(40, 40, 40))
+    # the skip at the back of the house, broom down where she wants it
+    x, y = cx + 4, cy - 34
+    d.ellipse([x - 5, y - 30, x + 5, y - 20], fill=(176, 132, 104))
+    d.rectangle([x - 8, y - 21, x + 8, y - 2], fill=(150, 36, 40))
+    d.line([(x + 6, y - 14), (x + 30, y + 6)], fill=(150, 120, 70), width=2)
+    # the score by the stones' colours, the end; the ticker
+    d.rectangle([10, 10, 230, 38], fill=(12, 12, 16))
+    d.text((18, 24), 'RED 4   YELLOW 3', font=font('barlow-condensed-600', 22), fill=(240, 240, 240), anchor='lm')
+    d.rectangle([230, 10, 296, 38], fill=(44, 76, 168))
+    d.text((263, 24), 'END 6', font=font('barlow-condensed-600', 18), fill=(240, 240, 240), anchor='mm')
+    d.rectangle([0, h - 26, w, h], fill=(14, 18, 30))
+    d.text((12, h - 13), 'BONSPIEL  ·  DRAW 9  ·  EARLIER TODAY ON THE PRAIRIES  ·  THE LAST ROCK OF THE END', font=font('barlow-condensed-600', 16), fill=(220, 220, 226), anchor='lm')
+    a = np.asarray(im, dtype=np.float32) / 255.0
+    a *= (0.92 + 0.08 * (np.arange(h) % 3 == 0))[:, None, None]
+    save(a, 'tv_curling')
+
+
+def wet_sign(w=300, h=620):
+    """The yellow sign from behind the mop bucket in the corner of the vestibule, one of its two
+    faces (they're the same): CAUTION WET FLOOR in the two languages, and the little man in the
+    triangle going over backwards."""
+    im = Image.new('RGB', (w, h), (228, 184, 38))
+    d = ImageDraw.Draw(im)
+    ink = (22, 20, 18)
+    d.text((w / 2, 62), 'CAUTION', font=font('archivo-black-400', 50), fill=ink, anchor='mm')
+    # the triangle, and the man in it with his feet gone out from under him
+    t = [(w / 2, 118), (w / 2 + 122, 330), (w / 2 - 122, 330)]
+    d.polygon(t, fill=ink)
+    inner = [(w / 2, 150), (w / 2 + 96, 316), (w / 2 - 96, 316)]
+    d.polygon(inner, fill=(228, 184, 38))
+    hx, hy = w / 2 - 30, 216
+    d.ellipse([hx - 13, hy - 13, hx + 13, hy + 13], fill=ink)
+    d.line([(hx + 6, hy + 14), (w / 2 + 18, 268)], fill=ink, width=12)              # his back
+    d.line([(w / 2 + 18, 268), (w / 2 + 62, 236)], fill=ink, width=11)              # a leg kicked up
+    d.line([(w / 2 + 18, 268), (w / 2 + 48, 300)], fill=ink, width=11)              # the other going
+    d.line([(hx + 4, hy + 26), (hx - 26, hy + 2)], fill=ink, width=9)               # an arm flung back
+    d.line([(hx + 10, hy + 30), (hx + 40, hy + 8)], fill=ink, width=9)
+    for k in range(3):                                                              # the wet under him
+        y = 306 - k * 0
+        d.line([(w / 2 + 20 + k * 14, 309), (w / 2 + 28 + k * 14, 309)], fill=ink, width=3)
+    d.text((w / 2, 392), 'WET FLOOR', font=font('archivo-black-400', 38), fill=ink, anchor='mm')
+    d.line([(30, 440), (w - 30, 440)], fill=ink, width=3)
+    d.text((w / 2, 486), 'ATTENTION', font=font('archivo-black-400', 34), fill=ink, anchor='mm')
+    d.text((w / 2, 540), 'PLANCHER MOUILLÉ', font=font('barlow-condensed-600', 40), fill=ink, anchor='mm')
+    a = np.asarray(im, dtype=np.float32) / 255.0
+    save(a, 'wet_sign')
+
+
+def wet_tiles(w=450, h=216):
+    """The tiles inside the front door, wet with the rain everybody's brought in on their boots
+    (content/ink/room.ink, wet()): 2.25 m across by 1.08, 2 px to the centimetre, the room at the
+    top and the door at the bottom, his stool's side on the left. Three, a step wetter each:
+    wet_1 a few prints; wet_2 prints all over, the tiles gone grey with it, and a skid where a heel
+    went; wet_3 one long puddle with the prints in it. Only the alpha matters: how wet each place
+    is. The prints go in at the door and out to the room past the end of the screen."""
+    S = 4                                                       # drawn big, for clean edges
+    def sole(L, x, y, ang, a):
+        # a boot's print: the ball and toe, the gap of the arch, the heel; the tread breaks it up
+        p = Image.new('L', (30 * S, 64 * S), 0)
+        q = ImageDraw.Draw(p)
+        q.ellipse([4 * S, 2 * S, 26 * S, 36 * S], fill=a)
+        q.rounded_rectangle([6 * S, 42 * S, 24 * S, 58 * S], radius=6 * S, fill=a)
+        for k in range(6):
+            q.line([(4 * S, (7 + k * 5) * S), (26 * S, (7 + k * 5) * S)], fill=int(a * 0.45), width=S)
+        for k in range(3):
+            q.line([(6 * S, (46 + k * 4) * S), (24 * S, (46 + k * 4) * S)], fill=int(a * 0.45), width=S)
+        p = p.rotate(ang, expand=True, resample=Image.BICUBIC)
+        L.paste(Image.new('L', p.size, 255), (int(x * S - p.size[0] / 2), int(y * S - p.size[1] / 2)), ImageChops.lighter(p, Image.new('L', p.size, 0)))
+    def trails(L, r, n, a):
+        for _ in range(n):
+            x0 = float(r.uniform(60, 330)); x1 = float(r.uniform(160, 440))
+            dx, dy = x1 - x0, -h
+            ang = np.degrees(np.arctan2(dx, -dy))
+            ln = np.hypot(dx, dy); ux, uy = dx / ln, dy / ln
+            t = float(r.uniform(0, 130)); side = 1 if r.uniform() < 0.5 else -1
+            while t < ln + 30:
+                px, py = x0 + ux * t - uy * 10 * side, h + uy * t + ux * 10 * side
+                sole(L, px, py, -ang + float(r.normal(0, 6)), int(a * float(r.uniform(0.7, 1.0))))
+                t += float(r.uniform(124, 150)); side = -side
+    from PIL import ImageChops
+    for lvl in (1, 2, 3):
+        r = np.random.default_rng(900 + lvl)
+        L = Image.new('L', (w * S, h * S), 0)
+        if lvl >= 2:
+            # the grey of it, where the most feet go: from the door to the end of the screen
+            g = Image.new('L', (w * S, h * S), 0)
+            ImageDraw.Draw(g).polygon([(60 * S, h * S), (360 * S, h * S), (445 * S, 0), (150 * S, 0)], fill=70 if lvl == 2 else 120)
+            L = ImageChops.lighter(L, g.filter(ImageFilter.GaussianBlur(26 * S)))
+        if lvl == 3:
+            pud = Image.new('L', (w * S, h * S), 0)
+            pd = ImageDraw.Draw(pud)
+            for _ in range(26):
+                cx, cy = float(r.uniform(90, 430)), float(r.uniform(10, 200))
+                rx, ry = float(r.uniform(30, 80)), float(r.uniform(18, 46))
+                pd.ellipse([(cx - rx) * S, (cy - ry) * S, (cx + rx) * S, (cy + ry) * S], fill=215)
+            L = ImageChops.lighter(L, pud.filter(ImageFilter.GaussianBlur(10 * S)))
+        trails(L, r, (6, 16, 22)[lvl - 1], (150, 190, 235)[lvl - 1])
+        if lvl >= 2:
+            # the skid: a heel that went, a long smear toward the room
+            sk = Image.new('L', (w * S, h * S), 0)
+            ImageDraw.Draw(sk).line([(250 * S, 120 * S), (300 * S, 52 * S)], fill=230, width=16 * S)
+            L = ImageChops.lighter(L, sk.filter(ImageFilter.GaussianBlur(3 * S)))
+        L = L.resize((w, h), Image.LANCZOS)
+        a = np.ones((h, w, 4), np.float32)
+        a[..., 3] = np.asarray(L, np.float32) / 255.0
+        save(a, 'wet_%d' % lvl)
+
+
 def keno(w=256, h=192):
     """The lottery screen on the bar that table 28 plays all afternoon: the draw board, twenty
     numbers lit out of eighty."""

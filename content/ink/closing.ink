@@ -48,7 +48,7 @@
 // The bait only if he carried it up past her or told the owner on her phone; the ones let in without
 // a card only if she watched it done, or the scanner can tell her.
 === function she_saw()
-~ temp s = (inc_banned, inc_fight, inc_rat, inc_drinking, inc_hurt, inc_after, inc_hivis, inc_police)
+~ temp s = (inc_banned, inc_fight, inc_rat, inc_drinking, inc_hurt, inc_after, inc_hivis, inc_police, inc_slip)
 { poison_at ? kitchen || poison_at ? t28 || ev_owner.told_poison:
     ~ s += inc_poison
 }
@@ -96,6 +96,8 @@
     The mirror on the desk in the office.
 - x == inc_after:
     The last of them out after two.
+- x == inc_slip:
+    {slip == 1:GOOD SHOES, on the wet tiles in the vestibule.|The one with the hearing aid, on the wet tiles on his way out.}
 }
 
 // The entry the way it happened.
@@ -141,7 +143,7 @@
 - x == inc_rat:
     A rat in the bar, during service, in front of customers{walter == 0:. The one table 28 call Walter is dead}.
 - x == inc_fight:
-    {fam ? pool_fight:A fight at the pool table{name_on_log:. Not called in. His name on it}.} {bar_scuffle:A scuffle at the bar putting a barred man out. A stool went over.}
+    {fam ? pool_fight:A fight at the pool table{used:. {used_said()}}{name_on_log:. Not called in. His name on it}.} {bar_scuffle:A scuffle at the bar putting a barred man out. A stool went over.}
 - x == inc_police:
     Police attended, forty minutes after the call. {told_police == 1:He gave the constable an account, in order.|{told_police == -1:He told the constable it had sorted itself out.|The bartender gave the account.}}
 - x == inc_hivis:
@@ -182,6 +184,8 @@
     In the office in the keg room, on the desk: a mirror, a straw cut down to two inches, and a white dust in one corner of the mirror.
 - x == inc_after:
     Customers still inside after two.
+- x == inc_slip:
+    A patron slipped on the wet floor inside the front door, {wet_sign:with the sign out|with no sign out}. {slip == 1:{slipped.let_up:He got up on his own.|The doorman helped him up.}|He was caught before he was all the way down.}
 }
 
 // The same entry, the way it reads better. Shaded is not the same as false. Mostly.
@@ -219,6 +223,8 @@
     Office left untidy.
 - x == inc_after:
     Closed on time.
+- x == inc_slip:
+    Wet floor at the entrance. Mopped.
 }
 
 
@@ -271,6 +277,8 @@ Everybody who was going to leave started thinking about leaving. Table 28 ordere
     The stool at the end of the bar was empty. The glass was still there, full.
 }
 FATHER: Last call's easy. It's the half hour after it that's the job.
+// The house lights, on the dimmer inside the front door (room.ink).
+-> lights_at_last ->
 -> clear
 
 // Between the ones he's clearing, he steps back out onto the floor, once the last thing's been said.
@@ -733,19 +741,20 @@ Table 28 did not hurry for last call. Table 28 had never hurried for anything. T
     TEAM_JACKET: {clock - wife_at >= 50:An hour, though|Even so}. She'll have the chain on.
     # done: dog
     -> tt
-* ["Drink up, gentlemen." #check: father:cha 11]
+// The house lights, the TV and the news count here (room.ink, t28_close_mod).
+* ["Drink up, gentlemen." #check: father:cha 11 {t28_close_mod()}]
     { passed:
         He said it the way the Father used to say it, like a favour to them, and they drank up and stood and got their coats, in the order they always did, and went out together into the rain.
         ~ rep(rep_staff, 1)
     - else:
         TABLE28: Drink up, gentlemen!
-        ~ pass(15)
+        ~ pass(15 + t28_linger())
         They said it back to him in one voice, delighted, and didn't drink up. It was {q_words(clock)} before they went.
     }
 * ["Take your time."]
     ~ rep(rep_t28, 1)
-    ~ pass(25)
-    They took it. The bartender put the chairs up on the tables around them and they didn't notice, or noticed and didn't care, and at {q_words(clock)} they went, together, the way they'd come.
+    ~ pass(25 + t28_linger())
+    They took it{tv_on == 4:, and the curling with it, to the last stone and the one after}. The bartender put the chairs up on the tables around them and they didn't notice, or noticed and didn't care, and at {q_words(clock)} they went, together, the way they'd come.
 * {walter != 0 || rep_t28 >= 0} [Sit down with them for the last one. #hand: drink]
     ~ pass(15)
     ~ pull_table++
@@ -796,6 +805,8 @@ The one in the cardigan didn't look at the doorman.
 - secret_kept == 1:
     The one in the cardigan went out last, and touched the doorman's arm on the way past, once, without looking at him.
 }
+// The tiles at their worst on the way out (room.ink).
+{ hearing_aid_slip() }
 They went out to their trucks, and all of them drove. Everybody drove, out here.
 { knows ? t28_nine:
     There had been nine of them once, the one in the cardigan had said. You couldn't get a chair.
@@ -818,7 +829,8 @@ SCRATCH: That was in Walter's door.
 
 === lock_up ===
 ~ here = door
-~ pass(5)
+// with the house lights left low, the last of them take their time about the door (room.ink)
+~ pass(5 + lock_extra())
 He locked the front door behind the last of them and turned the sign over. #sfx: door
 # amb: empty_bar
 { clock > CLOSE_TIME + 20:
@@ -827,6 +839,10 @@ He locked the front door behind the last of them and turned the sign over. #sfx:
 // The bartender called it in after the fight, and it's forty minutes out here: sometimes that's after close.
 { police_called && not police_seen:
     -> ev_police ->
+}
+// The big man went to the hospital without his jacket, and his phone's in it (room.ink).
+{ bigman_left_coat() && fam ? dad_went && cell_how != 3:
+    -> back_for_coat ->
 }
 // Who got past him tonight: the bartender rings in every drink, and she knows whose faces she
 // served that never came past the stool. Nobody did, and that's the end of it; somebody did, and
@@ -1950,6 +1966,9 @@ The door: {count_in} in past the stool #class: row
 { float_how == 3:
     Two hundred and eight of it is the last doorman's float. #class: sub
 }
+{ wallet_cash > 0 && fifty_how != 1:
+    Fifty of it is out of GOOD SHOES's wallet. #class: sub
+}
 // What else is on him (hand.ink), but his flashlight and the key to twelve, which always are.
 ~ temp carried = in_left + in_inside
 { carried:
@@ -2025,6 +2044,17 @@ The door: {count_in} in past the stool #class: row
 { fam ? kid_kept_out:
     The kid in the hoodie waited in the truck through all of it. #class: sub
 }
+// What the big man left behind (room.ink).
+{
+- back_for == 1:
+    The big man's daughter came back for his jacket after close, and his phone was in it. #class: sub
+- back_for == 2:
+    The big man's daughter came back for his jacket after close. His phone wasn't in it. #class: sub
+- bigman_left_coat() && coat_how == 1:
+    The big man's jacket is in the lost-and-found drawer{cell_how != 3:, with his phone in it}. #class: sub
+- bigman_left_coat():
+    The big man's jacket is on its hook by the dartboard{cell_how != 3:, with his phone in it}. #class: sub
+}
 {
 - fam ? kid_home && fam ? dad_told:
     He told the kid to go home and sleep, that he'd make sure his father knew. He made sure. #class: sub
@@ -2054,6 +2084,25 @@ The door: {count_in} in past the stool #class: row
     The scanner has his licence on it, with the time. #class: sub
 }
 {
+- slip == 1:
+    He went down on the wet tiles in the vestibule{slipped.helped_up:, and the doorman helped him up|, and got up on his own}. #class: sub
+- slip == 2:
+    The one with the hearing aid went down on the wet tiles at close. The one in the team jacket caught him. #class: sub
+}
+// His wallet, if it came out of his coat by the stool (room.ink).
+{
+- fifty_how == -1:
+    He came back for his wallet and counted it in the vestibule. It was fifty short, and the doorman said that was what was in it. #class: sub
+- fifty_how == 1:
+    He came back for his wallet and counted it in the vestibule, and got his fifty back. #class: sub
+- wallet_back == 3:
+    His wallet is {wallet_how == 3:in the doorman's pocket|{wallet_how == 2:in the lost-and-found drawer|on the carpet by the stool}} till tomorrow. Gary's to bring it. #class: sub
+- wallet_back > 0:
+    He came back for his wallet, and got it. #class: sub
+- wallet_dropped > 0:
+    His wallet is {wallet_how == 3:in the doorman's pocket|{wallet_how == 2:in the lost-and-found drawer|still on the carpet by the stool}}. #class: sub
+}
+{
 - case_back == 1:
     HI-VIS's two-four went up to eleven with him.
 - case_back == -1:
@@ -2070,6 +2119,14 @@ The door: {count_in} in past the stool #class: row
     Dennis got the message about the dog{close_t28.dog_late:, late}.
 - arrivals ? wife_lied:
     Dennis never got the message about the dog.
+}
+{
+- used ? r_glass:
+    The fight at the pool table had a glass in it, off the rail.
+- used ? r_cue:
+    The fight at the pool table had a house cue in it, off the wall.
+- used ? r_darts:
+    The fight at the pool table had the darts in it, out of the board.
 }
 {
 - told_police == 1:
@@ -2103,6 +2160,15 @@ The door: {count_in} in past the stool #class: row
 { walter == 3:
     Walter has eaten the bait. It takes days. He'll go into the wall behind table 28 to do it.
 }
+// The inspector's on the fourteenth (room.ink).
+{
+- ext_how == 3:
+    The owner's getting a man out about the extinguisher in the back hall, before the fourteenth. #class: sub
+- ext_how == 2:
+    The extinguisher in the back hall is on a coaster in the mirror frame, on Junior's list{owner_ext.ext_quiet:. He had Junior on the phone and didn't say}. #class: sub
+- ext_how == 1:
+    The extinguisher in the back hall was last checked two years ago. He's the only one who's looked{owner_ext.ext_quiet:, and he had Junior on the phone and didn't say}. #class: sub
+}
 The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shaded, {LIST_COUNT(left_out)} left out.
 {
 - office_wiped:
@@ -2123,6 +2189,12 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
     Table 28 haven't made up their minds.
 - else:
     Table 28 talk around him.
+}
+{ t28_off > 0:
+    Table 28 went home still arguing about the light over the strait. #class: sub
+}
+{ bussed > 0 || mop > 0:
+    {bussed > 0:He carried the empties off the rail.} {mop > 0:He mopped the tiles inside the door.} The last one never did. #class: sub
 }
 {
 - secret_kept == 1:

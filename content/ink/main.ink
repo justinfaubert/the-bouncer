@@ -24,6 +24,7 @@ INCLUDE toys.ink
 INCLUDE things.ink
 INCLUDE hand.ink
 INCLUDE drawer.ink
+INCLUDE room.ink
 
 -> interview
 
@@ -119,6 +120,35 @@ VAR counted_at = -60        // the clock when he last finished a count: the floo
 VAR last_room_line = 0      // the clock when the floor last got a line about the room
 VAR juke_low = false        // the bartender turned the jukebox down a notch when he asked (pool.ink)
 
+// ------------------------------------------------------------------ the room's things (room.ink)
+// What's within reach, and what it does to the night. Claude's draft, PROPOSED.
+
+VAR ledge_at = 1150         // when the rail by the pool table was last cleared of empties: by her, at ten past seven
+VAR bussed = 0              // trips he's made to the bar with empties
+VAR rack_locked = false     // he snapped the padlock shut on the cue rack's chain
+VAR darts_pulled = false    // he took the darts out of the board and gave them to her
+LIST reach = r_glass, r_cue, r_darts
+VAR used = ()               // what got picked up when it went at the pool table
+VAR tv_on = 0               // the big TV: 0 the hockey and then its goals, 1 the late news, 2 the game again, 3 off, 4 the curling
+VAR t28_off = 0             // when the news set table 28 off (0: it hasn't, or he's settled them since)
+VAR t28_extra = 0           // rounds they ordered to argue over
+VAR remote_how = 0          // he asked her for the TV remote: 1 she gave it him, -1 she didn't
+VAR mopped_at = 1170        // when the tiles inside the front door were last mopped: by her, at half past seven
+VAR in_at_mop = 0           // how many had come in the front by then (count_in and walk_ins)
+VAR wet_seen = 0            // how wet he last noticed the tiles were, from the door (wet(), room.ink)
+VAR wet_sign = false        // the yellow sign's out on the tiles
+VAR slip = 0                // who went down on the wet tiles: 1 GOOD SHOES coming in, 2 the one with the hearing aid going out
+VAR ext_how = 0             // the extinguisher at the end of the back hall: 1 he read its tag, 2 told her, 3 told the owner
+VAR lights = 0              // last call: 1 he brought the house lights up himself, 2 asked her to, -1 left them low
+VAR cell_how = 0            // the big man's phone, ringing in his jacket: 1 told him it was going, 2 looked at it, 3 held it out to him, -1 he caught him in his coat
+VAR coat_how = 0            // the big man's jacket, after he went without it: 1 the drawer, -1 left on the hook
+VAR back_for = 0            // his daughter came back for it after close: 1 the jacket and the phone in it, 2 the jacket and no phone
+VAR wallet_dropped = 0      // when GOOD SHOES's wallet came out of his coat by the stool, put out with a hand on him (0: it didn't)
+VAR wallet_how = 0          // the wallet: 2 he gave it her for the drawer, 3 he kept it on him (0: still by the stool)
+VAR wallet_cash = 0         // what he took out of it
+VAR wallet_back = 0         // GOOD SHOES got it back: 1 handed out to him, 2 let in to get it himself, 3 told to come back tomorrow
+VAR fifty_how = 0           // when he counted it: 1 the doorman gave the fifty back, -1 said that's what was in it
+
 // ------------------------------------------------------------------ standing, by code
 // Each group judges him by its own code (bible/02_SYSTEMS.md). -5 .. +5. Nobody sees these.
 
@@ -211,7 +241,7 @@ VAR rats_heard = ()
 
 // ------------------------------------------------------------------ incidents, and the log he writes
 
-LIST incident = inc_kid_refused, inc_no_id, inc_deck, inc_banned, inc_rat, inc_fight, inc_police, inc_hivis, inc_wife, inc_lot, inc_drinking, inc_poison, inc_hurt, inc_drugs, inc_office, inc_after
+LIST incident = inc_kid_refused, inc_no_id, inc_deck, inc_banned, inc_rat, inc_fight, inc_police, inc_hivis, inc_wife, inc_lot, inc_drinking, inc_poison, inc_hurt, inc_drugs, inc_office, inc_after, inc_slip
 VAR logged = ()
 VAR shaded = ()
 VAR left_out = ()

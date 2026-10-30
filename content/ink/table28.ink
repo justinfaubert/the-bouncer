@@ -345,6 +345,9 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     - else:
         -> another
     }
+// The late news has set them off (room.ink, t28_news).
++ {t28_off > 0} ["What's all this?"]
+    -> t28_news
 + {walter_alive() && knows ? t28_rat} [Ask after Walter.]
     ~ pass(2)
     ~ rats_heard += h_walter

@@ -168,7 +168,8 @@ binder:
 #
 # shape: what it's made as, in his hand in the Godot build (godot/game/props.gd) and on the page in
 #   the browser's (prototype/web/src/ui/props.js): flashlight, key, shirt, bill, straw, keys, glass,
-#   bag, mat, tickets, book, jacket.
+#   bag, mat, tickets, book, jacket, remote, phone (a lock screen, the front lines on it), wallet.
+# cloth: a jacket's colour, if it isn't the last doorman's brown canvas.
 # front, back: what's on each side, a line at a time. A line starting ~ is somebody's hand, in pencil
 #   or marker, not print.
 # The four things about every item, for his notes (the skeleton): whose it is and how he came by it;
@@ -319,3 +320,45 @@ last_jacket:
   heat: None, unless he comes back for it.
   does: Three pockets, with table 28's four stories in them.
   worth: Thirty-three days of nobody wanting to know.
+
+# ---------------------------------------------------------------- the room's things (content/ink/room.ink)
+
+remote:
+  kind: thing
+  shape: remote
+  name: The TV remote
+  back: ["~ TV"]
+  whose: The Sov's. She keeps it under the bar rag by the till, the black one, not the jukebox's.
+  heat: Table 28's hockey.
+  does: Says what the room looks at, at eleven. The news sets table 28 off.
+  worth: Nothing. Everything, to table 28, at half past eleven.
+
+bm_cell:
+  kind: thing
+  shape: phone
+  name: The big man's phone
+  # the lock screen, newest on top: his daughter's messages, in her full sentences
+  front: [KAYLA, "11 missed calls", "We're outside in the truck. Tyler's going in to get you.", "She wants you there. We're coming to get you.", "They think it's her heart.", "Dad, call me. It's Mom. We're at the hospital."]
+  whose: The big man's, out of the inside pocket of his jacket on the hook by the dartboard.
+  heat: His hand in another man's coat.
+  does: Rings. His daughter, all night.
+  worth: Everything she has to tell him.
+
+gs_wallet:
+  kind: thing
+  shape: wallet
+  name: GOOD SHOES's wallet
+  whose: GOOD SHOES's. It came out of his coat by the stool when he was put out.
+  heat: A barred man's money, on the doorman.
+  does: Brings him back for it.
+  worth: Four hundred and sixty dollars, a gold card, and a photograph.
+
+bm_coat:
+  kind: thing
+  shape: jacket
+  cloth: "5c4630"             # the mill's canvas, darker than the last doorman's
+  name: The big man's jacket
+  whose: The big man's, off its hook by the dartboard. He went out without it.
+  heat: None, unless somebody's been in the pockets.
+  does: Keeps his phone, and the rain off him, when he's wearing it.
+  worth: To his daughter at two in the morning, the phone in it.

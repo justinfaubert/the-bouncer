@@ -18,6 +18,8 @@
     }
     ~ walk_ins_seen = walk_ins
 }
+// The rain on everybody's boots, on the tiles inside the door (room.ink).
+{ wet_line() }
 // She gave him half an hour in the vestibule to bring her father out (sim.ink).
 { fam ? sister_gave_up && not gave_up_seen && not fam_done && not truck_gone:
     ~ gave_up_seen = true
@@ -49,7 +51,7 @@
     ~ room_count += 2
 - A woman came in to buy smokes from the machine by the door and went out again without looking at anybody.
 - The door swung in and nobody came through it. Wind.
-- A man he'd clicked in an hour ago went out to his truck, sat in it with the engine running for ten minutes, and came back in. He let him past without clicking. Once in is once in.
+- A man he'd let in an hour ago went out to his truck, sat in it with the engine running for ten minutes, and came back in. He let him past without counting him again. Once in is once in.
 - {truck_gone:The lot was empty. Where the pickup had sat all night there was a dry patch on the gravel, going dark in the rain.|The lot was empty except for the pickup at the edge of it{fam ? kids_waiting:, still there with its engine running}.}
 - { door_still() }
 }
@@ -66,6 +68,11 @@
     ~ knows += truck
 }
 <- moves(door)
+// The tiles inside the door (room.ink): the mop's in its bucket in the corner of the vestibule.
++ {wet() >= 1} [Mop the tiles inside the door.]
+    -> mop
+* {wet() >= 1} [Put the yellow sign out on the tiles.]
+    -> wet_sign_out
 // Back through the door's own checks, so whoever is due at the door finds him on it.
 + [Stay on the door.]
     ~ pass(15)
@@ -711,7 +718,12 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
 ~ here = door
 ~ arrivals += banned_done
 A man in a good wool coat came in, closing a golf umbrella. Shaved that evening. Shoes that had never walked on gravel before tonight. #portrait: goodshoes
-GOOD SHOES: Good evening. Filthy out there, isn't it.
+// The tiles at their worst, and no sign out to read (room.ink).
+{ wet() >= 3 && not wet_sign:
+    -> slipped ->
+- else:
+    GOOD SHOES: Good evening. Filthy out there, isn't it.
+}
 He had his licence ready before he was asked, and he smiled like they'd met. #prop: goodshoes_card
 // From the seawall (walk.ink, watching): the dark car, twice round the lot before half past seven.
 { knows ? coat_scouting:
@@ -815,6 +827,7 @@ FATHER: There it is.
 }
 He smiled.
 GOOD SHOES: That's old, friend. I completely understand, but the owner and I have spoken. I'm allowed back. I'll put a couple of hundred over that bar tonight, and I'm no trouble to anyone.
+{ slip_lever() }
 // HUTCH: What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
 - (gk)
 * ["What did you do?"]
@@ -880,6 +893,9 @@ The bartender looked at the fifty and then at the man and then, over his shoulde
 ~ rep(rep_owner, -1)
 ~ pass(2)
 GOOD SHOES: The owner will hear about this.
+{ slip == 1:
+    GOOD SHOES: About all of it. The floor too.
+}
 He didn't answer. He let his size answer. The man looked at him for a while, opened his umbrella in the vestibule, which was bad luck, and went out.
 The bartender didn't look up. After a while she brought him a glass of water he hadn't asked for and put it on the ledge by the stool.
 -> at_door
@@ -912,6 +928,8 @@ FATHER: You weren't on the door. This is what not being on the door costs.
         Table 28 went quiet to listen. He walked him out anyway, a hand on his elbow the whole way, and the man said "the owner will hear about this" three times before the door shut.
         ~ rep(rep_staff, 1)
         ~ rep(rep_t28, 1)
+        // a hand on him the whole way: his wallet came out of his coat by the stool (room.ink)
+        ~ wallet_dropped = clock
     }
     ~ arrivals += banned_out
     ~ room_count--
@@ -933,6 +951,8 @@ FATHER: You weren't on the door. This is what not being on the door costs.
         ~ rep(rep_staff, 1)
         ~ rep(rep_t28, 1)
     }
+    // turned off the stool by the arm, either way: his wallet came out of his coat under it (room.ink)
+    ~ wallet_dropped = clock
     ~ arrivals += banned_out
     ~ room_count--
     -> carry_on
@@ -970,6 +990,8 @@ FATHER: One, you said.
         He said it loud enough for table 28. The doorman walked him out anyway, with the man explaining the whole way what the owner had told him, and it took longer than it should have. #sfx: door
         ~ rep(rep_staff, 1)
         ~ rep(rep_t28, 1)
+        // walked out arguing, a hand on him: his wallet came out of his coat by the stool (room.ink)
+        ~ wallet_dropped = clock
     }
     The bartender wiped the bar where his glass had been, twice.
     -> carry_on

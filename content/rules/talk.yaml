@@ -149,6 +149,39 @@
     - a: Sure.
     - goodshoes: He's a reasonable man, Gary. I'm a reasonable man.
 
+# table 28 and the big TV over the back wall (content/ink/room.ink): the late news sets them off at
+# half past eleven, unless the doorman's put something else on
+
+- id: t28_news_light
+  when: [t28_off > 0]
+  lines:
+    - team_jacket: Two nights! Same place! That's not a plane!
+    - scratch: It's HAARP. They've got it pointed right at us.
+    - hearing_aid: Seeding.
+    - team_jacket: Seeding's for the hail! That's Alberta!
+
+- id: t28_news_balloon
+  when: [t28_off > 0]
+  lines:
+    - cardigan: My brother-in-law says the Air Force told the paper it's a balloon.
+    - team_jacket: A balloon! What's it tied to?
+    - scratch: That's exactly what they'd say.
+  then: laugh
+
+- id: t28_curling
+  when: [tv_on == 4]
+  lines:
+    - team_jacket: Look at him sweep. Look at that.
+    - hearing_aid: Sweep.
+    - scratch: He's got it. He's got it. He hasn't got it.
+
+- id: t28_tv_off
+  when: [tv_on == 3]
+  lines:
+    - cardigan: It's nice, actually, without it. You can hear yourself think.
+    - team_jacket: Who wants to hear that!
+  then: laugh
+
 # ---------------------------------------------------------------- the room
 # (the talk at the bar, bible/11_SKELETON.md: a real thing with a leap on the end of it, never
 # settled, never explained)

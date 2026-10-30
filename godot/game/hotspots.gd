@@ -37,6 +37,21 @@ const LEXICON := [
 	["bookkeeper", "fig:bookkeeper"],
 	["wharf", "a:street_wharf"],
 	["the esso|something to eat", "a:esso_window"],
+	# the room's things (content/ink/room.ink), before the kid's phone, the big man, the deck's rail
+	# and the TV, whose words some of theirs share; what's said to the owner on the bar phone is
+	# nothing in the room
+	["tell her about the extinguisher|ask her to bring them up|tv remote", "fig:bartender"],
+	["tell him the extinguisher|leave it for another night", ""],
+	["extinguisher", "a:extinguisher|a:hall_end"],
+	["the wallet", "a:gs_wallet"],
+	["empties off the rail", "a:pool_rail"],
+	["house cues", "a:cue_rack"],
+	["big man's jacket|phone going in|take the phone out|leave it ringing|back in the pocket|back on its hook", "a:coat_hook"],
+	["his phone's going", "fig:bigman"],
+	["mop the tiles|yellow sign", "a:mop"],
+	["house lights|leave them low", "a:dimmer"],
+	["the game on again|the curling|put the news on|on the news|turn it off", "a:tv"],
+	["score from the game|pull a chair up|what's all this", "a:t28"],
 	["\\bphone\\b|photo|screen|swipe", "fig:hoodie:phone"],
 	["good shoes", "fig:goodshoes"],
 	["licen[cs]e|\\bid\\b|\\bcard\\b|birthday", "at_door|door_post"],
@@ -144,7 +159,8 @@ static var _voice_name := RegEx.create_from_string("\\bTHE (FATHER|MANUAL|WRONG 
 
 var main
 var spots: Array = []            # [{i, key, text, loc}]
-var things := {}                 # id -> {name, at, from}: what he can look at (content/data/things.yaml)
+var things := {}                 # id -> {name, at, from, when}: what he can look at (content/data/things.yaml)
+var _when := {}                  # id -> its when: criteria, parsed (game/../engine/barks.gd)
 var under = null                 # the spot his eyes are on: {key, at: Vector2, list: [i...], look: id or ""}
 var overlay: Control
 var caption: PanelContainer
@@ -182,6 +198,10 @@ func setup(m) -> void:
 	for pair in LEXICON:
 		_res[pair[0]] = RegEx.create_from_string("(?i)" + pair[0])
 	things = main.content.get("things", {})
+	for id in things:
+		var w = (things[id] as Dictionary).get("when")
+		if w is Array:
+			_when[id] = w.map(func(c): return Barks.parse_criterion(c))
 
 
 # the choices on offer have changed: pin each to what it's about
@@ -328,6 +348,10 @@ func look_spot(id: String) -> Array:
 	var place: String = main.view.place
 	if not from.is_empty() and not (place in from or ("room" in from and str(PART.get(place, "")) in ["room", "vest"])):
 		return []
+	# a thing that's only there some nights, or for a while: only while its when: holds
+	for c in _when.get(id, []):
+		if not Barks.test(c, func(n): return main.game.get_var(n), main.game.psyche, ""):
+			return []
 	return _first_seen(str(t.get("at", "")))
 
 
@@ -429,6 +453,15 @@ func _where(key: String) -> Array:
 				r = 0.6
 			"tape", "scanner", "till":
 				r = 0.14
+			# the room's things (world/pub.gd, _room_things)
+			"gs_wallet", "dimmer":
+				r = 0.1
+			"extinguisher", "mop":
+				r = 0.25
+			"coat_hook":
+				r = 0.4
+			"pool_rail":
+				r = 0.55
 			"trap_over":
 				r = 0.4
 			"trapdoor", "deck_door", "kitchen_back", "wc_single", "wc_men", "wc_women", "main_door", "hotel_door", "swing_door", "hall_way":

@@ -21,13 +21,35 @@
 }
 
 === function toy_dartboard(what)
+{ darts_pulled:
+    The dartboard, with nothing in it now but the holes.
+    ~ return
+}
 {stopping:
 - The dartboard on the east wall, in its cabinet with the doors open, and the line on the carpet where you stood to throw. Three darts in the board, in nothing much. Nobody had played tonight.
 - The three darts, where they'd been.
 }
 
+// What's on it is room.ink's (tv_on): the late news comes on at half past eleven, unless he's changed it.
 === function toy_tv(what)
 {
+- tv_on == 1:
+    {stopping:
+    - The late news, with the sound off and the captions on: the rainfall warning, the ferries, and then the light over the strait again, somebody's phone from the deck of the evening sailing, a white point in the dark. A man from the Air Force, and the word BALLOON in the captions.
+    - The light over the strait, going round again.
+    }
+- tv_on == 2:
+    {stopping:
+    - The game again from the start, on the sports channel's night replay. Table 28 watched it as if they didn't know how it came out.
+    - The game again. Still nothing in it.
+    }
+- tv_on == 3:
+    The TV over the back wall, off: a dark square with the room in it, small.
+- tv_on == 4:
+    {stopping:
+    - The curling, from the prairies somewhere: a stone going down the ice as slow as a ferry, and two men sweeping in front of it as if their lives depended on it.
+    - The curling. Another end.
+    }
 - clock < 1380:
     {stopping:
     - The TV over the back wall, on the hockey with the sound off: home two, away one, in the second. Table 28 watched it the way they watched the door, all of them at once, and only when something happened.
@@ -48,9 +70,32 @@
 
 === function toy_cues(what)
 {stopping:
-- Four house cues in the rack on the back wall, each one warped its own way, and one with no tip. The ones who could play brought their own.
-- The house cues, in the rack.
+- Four house cues in the rack on the back wall, each one warped its own way, and one with no tip. The ones who could play brought their own. {rack_locked:A chain through all four, and the padlock shut on it.|A chain through all four, and a padlock hanging open on the end of it.}
+- The house cues, in the rack{rack_locked:, locked}.
 }
+
+// The rail along the wall by the pool table, and whatever's gathered on it (room.ink).
+=== function toy_empties(what)
+{ ledge_glasses() == 0:
+    The rail along the wall by the pool table, wiped, with nothing on it but the rings.
+    ~ return
+}
+{Num(ledge_glasses())} empties on the rail by the pool table, pint glasses with the foam dried down the insides{ledge_glasses() >= 4:, crowding the end of it where the big man stood}.
+
+// The big man's work coat, on its hook by the dartboard (room.ink).
+=== function toy_coat_hook(what)
+{
+- in_drawer ? bm_coat || back_for > 0 || (fam ? lot_scene):
+    The coat hooks by the dartboard, with nothing on them.
+- cell_ringing():
+    A canvas work coat on the hooks by the dartboard, soft at the cuffs, and the phone in it buzzing against the wood again.
+- else:
+    A canvas work coat on the hooks by the dartboard, soft at the cuffs, hanging crooked{cell_how != 3: with the weight of the phone in it}.
+}
+
+// GOOD SHOES's wallet, by his stool, if he left it (room.ink).
+=== function toy_wallet(what)
+A wallet on the carpet by the stool where GOOD SHOES had sat.
 
 === function toy_pool_table(what)
 {stopping:
@@ -124,6 +169,28 @@
     It had a photograph of a licence in it from tonight{phone_scans > 1:, twice}, and the red light it had given it.
 }
 
+// The mop and the yellow sign, in the corner of the vestibule (room.ink).
+=== function toy_mop(what)
+{ wet_sign:
+    The mop in its bucket in the corner of the vestibule, and the yellow sign out on the tiles: CAUTION WET FLOOR, in two languages, and the little man falling over backwards.
+- else:
+    The mop in its yellow bucket in the corner of the vestibule, with the wringer up, and the sign folded behind it.
+}
+{ wet() >= 2:
+    The tiles had gone grey with the wet.
+}
+
+// The house lights' dimmer, inside the front door (room.ink, lights_at_last).
+=== function toy_dimmer(what)
+{
+- lights == 1 || (lights == 2 && clock >= 1545) || clock >= CLOSE_TIME:
+    The dimmer inside the front door, a brass plate and a dial, turned all the way up.
+- lights == -1:
+    The dimmer inside the front door, a brass plate and a dial, left where she had it: a quarter up.
+- else:
+    The dimmer inside the front door, a brass plate and a dial, down to a quarter since eight o'clock.
+}
+
 === function toy_book(what)
 {stopping:
 - The incident book on the ledge, a hardcover with a pen tied to the spine on a string. Other men's handwriting all the way back, and room left for his.
@@ -132,6 +199,14 @@
 
 
 // ------------------------------------------------------------------ the back hall, the kitchen, the keg room
+
+// The extinguisher at the end of the back hall (room.ink).
+=== function toy_extinguisher(what)
+{ ext_how > 0:
+    The extinguisher on its bracket at the end of the hall, two years since anybody punched its tag.
+- else:
+    The extinguisher on its bracket at the end of the hall, across from the payphone, with an inspection tag on a string round its neck.
+}
 
 === function toy_hotel_door(what)
 { hotel_door:
