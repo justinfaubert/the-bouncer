@@ -285,6 +285,7 @@ func settings(from: String) -> void:
 	_toggle("Drink, nerves and hurt in the print", "skin", "")
 	_toggle("Sway when he's drunk", "sway", "Off for anyone the movement makes queasy.")
 	_slider("Grain", "grain", 0.6, 1.6, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+	_slider("Strokes", "print", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_section("Looking")
 	_slider("Look speed", "look_speed", 0.4, 2.0, 0.05, func(v): return "%.2f" % v)
 	_toggle("Invert up and down", "invert", "")

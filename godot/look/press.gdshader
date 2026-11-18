@@ -16,7 +16,7 @@
 shader_type canvas_item;
 
 uniform sampler2D scene : filter_linear;              // the eye's picture
-uniform sampler2D cut_mask : filter_nearest;          // r the key block's cut, g line weight, b lines
+uniform sampler2D cut_mask : filter_linear;          // r the key block's cut, g line weight, b lines
 uniform sampler2D separation : filter_linear;         // rendered colour -> night, lamp, neon coverage
 uniform sampler2D separation_b : filter_linear;       // rendered colour -> cold, earth coverage
 uniform sampler2D grain : filter_linear, repeat_enable;
@@ -45,7 +45,9 @@ uniform float bleed = 0.0;                           // nerves: the red comes up
 uniform float hurt = 0.0;                            // hurt: red thickens at the edges of his sight
 uniform float pulse = 0.0;                           // his heart, 0..1 on each beat: the ink swells
 uniform float starve = 0.0;                          // late: the ink runs thin and the strokes break
-uniform float flash = 0.0;                           // a cut between places: the page goes blank
+uniform float flash = 0.0;
+uniform float print_k = 1.0;                         // the Print setting: 1 the cut strokes, 0 a flat wash of the night ink
+uniform vec2 band = vec2(0.16, 0.84);                // the key block's tone: below this, bare paper; above, solid ink; strokes between                           // a cut between places: the page goes blank
 
 uniform mat3 cam_basis = mat3(1.0);                  // his head, for pinning the grain to directions
 uniform float tan_half_fov = 0.55;
@@ -113,11 +115,16 @@ void fragment() {
 	// a story object, printed clean: its own picture straight onto the paper, no strokes or grain
 	float clean = step(0.97, m.r);
 
-	// the key block: strokes whose width is the tone, cut with a slightly wandering hand
-	const float aa = 0.1;
+	// the key block: strokes whose width is the tone, cut with a slightly wandering hand. The tone
+	// is pressed into a band first, the way a cutter works: the light left bare, the deep shadow
+	// left solid, and strokes only in the half-tones between, where the form turns
+	const float aa = 0.14;
+	float tone = smoothstep(band.x, band.y, cn);
 	float T = clamp(m.r / 0.9 + (g.r - 0.5) * 0.18 - pulse * 0.07, 0.0, 1.0);
 	T = aa + T * (1.0 - 2.0 * aa);
-	float key = smoothstep(T - aa, T + aa, cn);
+	float key = smoothstep(T - aa, T + aa, tone);
+	// the Print setting: towards 0, the strokes give way to a flat wash of the same ink
+	key = mix(tone * 0.8, key, print_k);
 
 	// its lines: left standing in the light, cut out of the block in the dark
 	vec3 around = texture(scene, uv + (o_k + vec2(3.0, 2.0)) * px).rgb + texture(scene, uv + (o_k + vec2(-3.0, -2.0)) * px).rgb
