@@ -47,7 +47,6 @@ var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
 var town: Town             # the town round the Sov, Gary's office in it (world/town.gd): out only while he's away
 
 var SURFACE := preload("res://look/surface.gdshader")
-var PERSON := preload("res://look/person.gdshader")
 var GLASS := preload("res://look/glass.gdshader")
 
 
@@ -123,9 +122,9 @@ func dusk(c: float, where: String) -> void:
 # A surface. `cut` is how the key block is cut on it (look/surface.gdshader): 0 strokes at a
 # constant height, 1 strokes across the floor at right angles to `dir`, 2 strokes across the
 # object's own `dir`, 3 none, 4 strokes that wrap round a form (faces, heads).
-func mat(c: Color, rough := 0.9, metal := 0.0, cut := 0, dir := Vector3.UP, px := 7.0, lines := 1.0, sh: Shader = null) -> ShaderMaterial:
+func mat(c: Color, rough := 0.9, metal := 0.0, cut := 0, dir := Vector3.UP, px := 7.0, lines := 1.0) -> ShaderMaterial:
 	var m := ShaderMaterial.new()
-	m.shader = sh if sh else SURFACE
+	m.shader = SURFACE
 	m.set_shader_parameter("albedo", c)
 	m.set_shader_parameter("roughness", rough)
 	m.set_shader_parameter("metallic", metal)
@@ -183,7 +182,7 @@ func model(path: String, at := Vector3.ZERO, parent: Node = null) -> Node3D:
 			push_warning("model " + path + ": " + str(err))
 			return Node3D.new()
 		root = doc.generate_scene(state) as Node3D
-		_reprint(root, _who(path), "/people/" in path)
+		_reprint(root, _who(path))
 		# the people (not his hands, nor Gary's) are on a layer of their own too, for the light from
 		# his eyes
 		if "/people/" in path and not path.get_file().begins_with("his_") and not path.get_file().begins_with("gary_"):
@@ -208,16 +207,16 @@ func _own(n: Node, owner_node: Node) -> void:
 		_own(c, owner_node)
 
 
-func _reprint(n: Node, who := "", person := false) -> void:
+func _reprint(n: Node, who := "") -> void:
 	if n is MeshInstance3D:
 		var mi := n as MeshInstance3D
 		for i in mi.mesh.get_surface_count():
-			var m := _from_model(mi.mesh.surface_get_material(i), who, person)
+			var m := _from_model(mi.mesh.surface_get_material(i), who)
 			if mi.skin != null:
 				m = _rest_cut(m, mi.mesh, i)
 			mi.set_surface_override_material(i, m)
 	for c in n.get_children():
-		_reprint(c, who, person)
+		_reprint(c, who)
 
 
 # whose model a file is, for what they wear (WEARS): the longest name there that the file's name
@@ -240,7 +239,7 @@ var _rest_cache := {}
 # by that, and stay put on them as they move (look/surface.gdshader's rest_uv).
 func _rest_cut(m: Material, mesh: Mesh, surface: int) -> Material:
 	var sm := m as ShaderMaterial
-	if sm == null or not sm.shader in [SURFACE, PERSON] or not int(sm.get_shader_parameter("cut")) in [2, 4]:
+	if sm == null or sm.shader != SURFACE or not int(sm.get_shader_parameter("cut")) in [2, 4]:
 		return m
 	if not Vector3(sm.get_shader_parameter("cut_dir")).normalized().is_equal_approx(Vector3.UP):
 		return m
@@ -262,7 +261,7 @@ const SCREENS := {"phone_screen": "phone_screen"}
 # red is the sign's and blood's: a red flannel would print as either, so the flannels are brown, and
 # so are the red hair, the rose cardigan and the tie. The women from upstairs drink white wine.
 const RECOLOUR := {"vinyl": Color("4c2622"), "paint": Color("6e2a24"), "flannel": Color("5b4a36"),
-	"hair_red": Color("5a4028"), "eye": Color("6a6258"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c"),
+	"hair_red": Color("5a4028"), "cardigan_c": Color("5e5048"), "tie": Color("2c3345"), "wine": Color("d8c78c"),
 	# fair hair printed as pale as the skin, and a woman's long hair read as part of her head; grey
 	# hair between the dark and the white
 	"hair_blonde": Color("8a6a3c"), "hair_grey": Color("6e7276")}
@@ -294,8 +293,6 @@ const WEARS := {
 # His own hand (models/people/his_right_*.glb) is "skin" too, and Hutch likes it as it prints, the
 # strokes running round the fingers like wood grain (14 October): if the faces want a different
 # cut, give the hand a material of its own rather than changing it.
-const CARVED_PX := 1.5
-const SKINS := ["skin", "skin_pale", "lip", "scar", "age_spot"]
 const CUTS := {
 	"skin": [4, Vector3.UP, 4.5, 0.7], "eye": [3, Vector3.UP, 5.0, 0.0], "iris": [3, Vector3.UP, 5.0, 0.0], "hair": [4, Vector3.UP, 3.5, 0.5],
 	"hoodie": [4, Vector3.UP, 5.5, 0.8], "jeans": [2, Vector3.UP, 5.5, 0.7], "cord": [3, Vector3.UP, 5.0, 0.0],
@@ -329,12 +326,12 @@ const CUTS := {
 var from_model_cache := {}
 
 
-func _from_model(src: Material, who := "", person := false) -> Material:
+func _from_model(src: Material, who := "") -> Material:
 	if src == null:
 		return M.wall
 	var key := src.resource_name
 	var wears: Dictionary = WEARS.get(who, {})
-	var ck := (key + "@" + who if wears.has(key) else key) + ("#cut" if person else "")
+	var ck := key + "@" + who if wears.has(key) else key
 	if from_model_cache.has(ck):
 		return from_model_cache[ck]
 	var sm := src as BaseMaterial3D
@@ -357,19 +354,7 @@ func _from_model(src: Material, who := "", person := false) -> Material:
 			out.set_shader_parameter("emission_tex", tex("res://textures/" + SCREENS[key] + ".png"))
 	else:
 		var cut: Array = CUTS.get(key, [0, Vector3.UP, 6.0, 1.0])
-		# a person's skin, hair and clothes are cut like a woodblock (look/person.gdshader)
-		# (and cut coarser, the gouge wider than the engraver's line on the walls)
-		# Their skin keeps its colour into the shadow and its strokes stay fine: a face is cut with
-		# few lines, or it reads as a bandage
-		var carved := person and int(cut[0]) in [2, 4]
-		var face := key in SKINS
-		out = mat(c, sm.roughness if sm else 0.8, sm.metallic if sm else 0.0, cut[0], cut[1],
-			float(cut[2]) * (CARVED_PX if carved and not face else 1.0), maxf(float(cut[3]), 1.0) if carved else cut[3],
-			PERSON if carved else SURFACE)
-		if carved and face:
-			out.set_shader_parameter("cool", 0.12)
-			out.set_shader_parameter("spare", 0.4)
-			out.set_shader_parameter("fill", 0.7)
+		out = mat(c, sm.roughness if sm else 0.8, sm.metallic if sm else 0.0, cut[0], cut[1], cut[2], cut[3])
 	from_model_cache[ck] = out
 	return out
 
