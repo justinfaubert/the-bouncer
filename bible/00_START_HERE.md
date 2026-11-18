@@ -25,6 +25,7 @@ Made by **Hutch** (showrunner with final cut, music, sound, voice) and **Claude*
 | `bible/09_REVIEW.md` | The honest review before the Godot polish pass (28 September 2026): what works, what doesn't, what to invent, and what the pass builds; marked-up frames in `bible/review/` |
 | `bible/10_VOICES.md` | How each person in the Sov talks (5 October 2026): rhythm, words, what they do with a question, what they never say |
 | `bible/11_SKELETON.md` | The skeleton (14 October 2026, rewritten with Hutch's answers that evening): the game as an RPG, Hutch's seventeen ideas folded into eight systems that are all the job, and the end |
+| `bible/13_STYLE.md` | The house style (18 November 2026): what's flat in the writing now, twelve rules, and what each of the writers and shows Hutch named gives the writing, the structure, the picture and the sound. Test scenes in `content/revisions/` |
 | `bible/12_FROM_THE_DOOR.md` | Hutch's firsthand material from the door and the bar, word for word, and where each piece goes in the game (from 14 October 2026) |
 | `tools/psyche_census.py` | Generates the 34 psyche states and checks the math (zip only) |
 | `data/psyche_states.json` | Its output (zip only) |

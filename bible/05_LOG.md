@@ -269,6 +269,15 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude's calls here are under PROPOSED, "Proposed with the things in the room (2026-10-30)". The daughter back for the coat has a HUTCH prompt (36 prompts now).
 - Delivered on 30 October (fd36bab): `releases/The-Bouncer-2026-10-30.zip` to play on Linux, the Godot web build at its link (version 20; version 19 only carried the first half of the new files), and the browser build at its link (version 14). That's the polish Hutch asked for on 23 October, all four steps; M4, the town, waits on branch `m4-town` for Hutch's go.
 
+### 2026-11-18 (Wednesday), the next phase and the style guide
+
+- Hutch asked for the next phase: better writing drawn from Philip K. Dick, Murakami, Goethe, Jonathan Carroll, Ted Chiang, The Twilight Zone, Twin Peaks, The X-Files, Tarkovsky and Daisies; a print that's easier on the eyes (the moire); the people stylized further; real audio from him; performance later; and groundwork for the days past Wednesday. "Please take the reins."
+- The plan, in Claude's order: the style guide and a test of it; the print; audio (Hutch records from the list while Claude builds the jukebox, score, voice and room reverb); the people; the story spine for days 2 to 30 and the engine for more than one night. Performance after the people. The plan doc is in the project thread ("The Bouncer: the next phase"), with the recording list. Hutch: "This all looks great", and asked for more from each inspiration.
+- `bible/13_STYLE.md`: the style guide. What's wrong now, counted (138 "the way", 151 "nobody", the teller's 11 lines), twelve rules, and each source taken apart for the writing, the structure, the picture and the sound, with what not to take. PROPOSED.
+- `content/revisions/wednesday_three_scenes.md`: the test. The lot and the building, table 28's welcome, and close, each before and after, with what changed. Not in the game until Hutch judges them.
+- The moire's cause, found for the print step: even strokes 7 px apart on every surface, two octaves of them blended at once, the line picture read unfiltered and stretched at fullscreen, and strokes over nearly everything (`look/surface.gdshader`, `look/press.gdshader`). The whole room is also drawn twice a frame, at native resolution with 4x MSAA.
+- Plugins: Hutch to add anti-ai-writing; AudioPod only if recordings come out noisy.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
