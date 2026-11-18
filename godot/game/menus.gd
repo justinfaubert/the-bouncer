@@ -298,6 +298,8 @@ func settings(from: String) -> void:
 	_slider("Everything", "master", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_slider("The room and the weather", "amb", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_slider("Things", "sfx", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+	_slider("The score", "music", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+	_slider("Voices", "voice", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_gap(16)
 	_button("Back", true, func(): back())
 	_focus_first()

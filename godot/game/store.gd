@@ -22,7 +22,7 @@ const DEFAULTS := {
 	"grain": 1.0,         # how coarse the print's grain is
 	"print": 1.0,         # the print's strokes: 1 cut, 0 a flat wash of ink (easier on the eyes)
 	"sound": true,
-	"master": 0.8, "amb": 0.6, "sfx": 0.8, "music": 0.6,
+	"master": 0.8, "amb": 0.6, "sfx": 0.8, "music": 0.6, "voice": 0.9,
 	"look_speed": 1.0,    # turning his head with the mouse
 	"invert": false,
 	"fov": 58.0,
