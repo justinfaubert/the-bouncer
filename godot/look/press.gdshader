@@ -45,9 +45,9 @@ uniform float bleed = 0.0;                           // nerves: the red comes up
 uniform float hurt = 0.0;                            // hurt: red thickens at the edges of his sight
 uniform float pulse = 0.0;                           // his heart, 0..1 on each beat: the ink swells
 uniform float starve = 0.0;                          // late: the ink runs thin and the strokes break
-uniform float flash = 0.0;
+uniform float flash = 0.0;                           // a cut between places: the page goes blank
 uniform float print_k = 1.0;                         // the Print setting: 1 the cut strokes, 0 a flat wash of the night ink
-uniform vec2 band = vec2(0.16, 0.84);                // the key block's tone: below this, bare paper; above, solid ink; strokes between                           // a cut between places: the page goes blank
+uniform vec2 band = vec2(0.16, 0.84);                // the key block's tone: below this, bare paper; above, solid ink; strokes between
 
 uniform mat3 cam_basis = mat3(1.0);                  // his head, for pinning the grain to directions
 uniform float tan_half_fov = 0.55;
