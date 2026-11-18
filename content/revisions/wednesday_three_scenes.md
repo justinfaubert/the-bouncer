@@ -59,7 +59,6 @@ A woman behind the bar was cutting limes. She looked at him, looked at the size 
     The rain had come across the strait with the last ferry and hadn't let up. It bounced on the gravel.
 }
 NARRATOR: Four weeks from that night, to the hour, the ground moved, and he was standing at that door when it did.
-NARRATOR: He didn't know that. He thought it was a job.
 { not (knows ? sov_watched):
     On the roof the sign said SOVEREIGN in red neon with the second E dead, buzzing loud enough to hear over the rain. Under it, HOTEL, all five letters working.
     Three storeys of old wood, painted a red gone the colour of brick. The cold beer and wine store at one end, lit, with a sheet of paper taped inside the glass: DEBIT DOWN. CASH ONLY. There were marks round it from old tape, other times.
@@ -82,7 +81,7 @@ A woman behind the bar was cutting limes. She looked at him, looked at the size 
 
 ### What changed
 
-- **The teller frames the night, cold, and says what's coming** (rules 5; Chiang's "Story of Your Life", Serling's frame). On every route, not only the one without Gary's office. "Four weeks from that night, to the hour" is canon: day 29, during his shift, at the door. "He thought it was a job" is the PKD working man in five words.
+- **The teller frames the night, cold, and says what's coming** (rules 5; Chiang's "Story of Your Life", Serling's frame). On every route, not only the one without Gary's office. "Four weeks from that night, to the hour" is canon: day 29, during his shift, at the door. The line stands alone: an earlier draft added "He didn't know that. He thought it was a job.", and the review below caught it as the same two-beat turn the close ends on, so it went.
 - **"The one nobody else remembered" is gone from here.** It's the same thought the close ends on, and saying it twice in one night spends it. It stays at the close (scene 3).
 - **The empire's end in junk** (Dick): DEBIT DOWN, CASH ONLY in the beer store window, with old tape marks round it, so it's happened before. Nobody remarks on it. It sets up the bartender's "Network's down, third time this week" in `bar.ink`.
 - **One strange thing, reported flat** (Murakami): the dead E comes on for a second. No voice gasps, nothing is explained.
@@ -308,6 +307,15 @@ NARRATOR: He thought he had a month. He had four weeks, to the night.
 | | "the way" | "nobody" | Teller's lines | Scene-ending buttons |
 |---|---|---|---|---|
 | Before (the three scenes) | 2 | 4 | 5 | 5 |
-| After | 0 | 1 | 7 | 0 |
+| After | 0 | 1 | 6 | 0 |
 
-Teller's lines count every branch as written; coming from Gary's office, a player heard one of them before, and hears four after.
+Teller's lines count every branch as written; coming from Gary's office, a player heard one of them before, and hears three after.
+
+## Checked for machine habits
+
+Run through the anti-ai-writing review (strict mode) on 18 November, on the three "After" blocks (803 words of story). Verdict: **passes with flags.** No banned words, no dashes. Four structural flags, one fixed:
+
+- **Fixed.** The same two-beat turn three times ("He waited. It didn't do it again." / "He didn't know that. He thought it was a job." / "He thought he had a month. He had four weeks, to the night."). The middle one is cut; the close keeps the strongest.
+- **Kept, on purpose.** Feeling shown by a body instead of named ("The one in the team jacket put his glass down", "She looked at him for a moment"). The review prefers named feelings; for this game the guide wants the reader to read people, so these stay. Hutch's call.
+- **Kept, on purpose.** Opening on the rain and the gravel, and the held moment at close. The review calls these atmospheric; here they're the place and the one quiet beat the guide asks for.
+- **Noted.** Nothing escalates across the three. That's Wednesday's job (a slow night), but it's the habit to watch when Friday is written: a machine's nights all sit at one volume.
