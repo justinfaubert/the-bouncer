@@ -8,11 +8,11 @@ animation library plays on all of them, made our own:
   hips), the skin and the tight clothes painted on it by which bone each part of it follows;
 - the clothes that stand off the body made as real shapes on the same bones, so they have edges
   the print can draw: a team jacket with its knit collar, cuffs and band, its snaps and its crest;
-  a shirt with its collar open and its sleeves rolled; a long canvas apron with a bar towel tucked
-  in it; a pencil skirt and a white half apron; a belt and its buckle;
+  a shirt with its collar open and its sleeves rolled; a long canvas apron and a bar towel over
+  the shoulder; a full skirt, a narrow belt and a server's pouch; a belt and its buckle;
 - its head taken off and a mask head put on the head bone: an egg shaped by the person (the jaw,
-  the chin, the crown, the cheekbones), a nose of their own, ears, hair as solid shells, a beard,
-  what they wear in it (a pencil through a bun, gold hoops);
+  the chin, the crown, the cheekbones), a nose of their own, ears, hair as solid shells (a beard
+  too, where there is one), what they wear in it (a pencil through a bun, pearl drops);
 - the face drawn, not sculpted (tools/faces.py), and laid together in the game (game/face.gd);
 - Amanda's braid on bones of its own, hung from her head, that the game swings (game/hair.gd).
 
@@ -45,21 +45,24 @@ COLOURS = {
     'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
     'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
-    'jacket': '#2d3a5a', 'jacket_trim': '#c4ad76', 'snap': '#b8b2a2', 'slacks': '#5a5248',
-    'flannel': '#55402c', 'flannel_dark': '#3a2c20', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
+    'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
+    'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
     'top_red': '#a3222a', 'tie_red': '#a3222a', 'skirt_black': '#1e1c20', 'tights': '#2a2628', 'apron_white': '#ece6d8',
     'apron_canvas': '#4f4436', 'towel': '#e4ddcc', 'pencil': '#d8a428', 'pencil_wood': '#d9b88a', 'graphite': '#2a2a2a',
     'gold': '#d4ac52', 'sole': '#2a2420',
+    'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
+    'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
 }
 
 # Who they are.
 #   base: the borrowed body; smooth: how much of its muscle is smoothed away
 #   body: what's pushed out: (bone, offset from it in metres: x to their left, f forward, z up;
 #         radius; how far, out or in)
-#   paint: the skin and the tight clothes: top (material, sleeves: long, rolled, short), bottom,
+#   paint: the skin and the tight clothes: top (material, sleeves: long, elbow, rolled, short), bottom,
 #          legs below a skirt (and how far above the knee they start), shoes; shaft (boots: how
 #          far up the leg); heels (degrees the foot is pitched in the game, the heel built to
-#          meet the floor there); neckline (a scoop to this height at the middle)
+#          meet the floor there); neckline (a scoop to this height at the middle; with boat, a
+#          boat neck: nearly level from shoulder to shoulder, just under the collarbones)
 #   wear: the clothes and things that stand off the body (see dress())
 #   head: the egg (w, d, h half-sizes in metres), jaw (<1 narrower below), chin (forward), crown,
 #         cheeks, flat (how flat the face is, a mask's plane: 1 not at all); nose (kind, size); ears (size, and 'boxer' for a cauliflower ear); hair (kind,
@@ -67,15 +70,17 @@ COLOURS = {
 PEOPLE = {
     # the lifer: slight and wiry, fifties, hair scraped back in a bun with a pencil through it, a
     # long face, a hard mouth; her black shirt's sleeves rolled, a long canvas apron, a bar towel
+    # thrown over her shoulder, black work shoes. Printed in the night's ink, like the bar itself
     'bartender': dict(
         base='female', smooth=12,
         body=[('spine_02', (0, 0.06, 0.02), 0.14, -0.012)],
-        paint=dict(top=('shirt_dark', 'rolled'), bottom='trousers', shoes='sneaker'),
-        wear=['shell:shirt_dark:0.004', 'collar:shirt_dark', 'rolls:shirt_dark', 'apron_long:apron_canvas', 'towel'],
+        paint=dict(top=('shirt_dark', 'rolled'), bottom='trousers', shoes='shoe_black'),
+        wear=['shell:shirt_dark:0.004', 'collar:shirt_dark', 'rolls:shirt_dark', 'apron_long:apron_canvas', 'towel_shoulder:towel_white'],
         head=dict(w=0.088, d=0.105, h=0.135, jaw=0.78, chin=0.012, crown=0.95, cheeks=0.25),
         nose=('long', 1.0), ears=0.9, hair=('bun', 'hair_grey'), beard=None, skin='skin', things=['pencil']),
-    # table 28's loudest: old, a round belly under the same team jacket every day, a few hairs
-    # combed over, a big soft drinker's face
+    # table 28's loudest: old, a round belly under the same team jacket every day (bottle green,
+    # gold trim: it prints in the cold ink, the television's), a few hairs combed over, a big soft
+    # drinker's face
     'team_jacket': dict(
         base='male', smooth=14,
         body=[('spine_01', (0, 0.13, -0.02), 0.2, 0.085), ('pelvis', (0, 0.1, 0.05), 0.16, 0.03),
@@ -84,33 +89,36 @@ PEOPLE = {
         wear=['shell:jacket:0.012', 'knit:jacket_trim', 'snaps', 'crest', 'belt'],
         head=dict(w=0.1, d=0.105, h=0.12, jaw=1.15, chin=-0.004, crown=0.85, cheeks=0.8),
         nose=('bulb', 1.25), ears=1.15, hair=('thin', 'hair_grey'), beard=None, skin='skin_ruddy', things=[]),
-    # at the pool table since before the shift: huge through the shoulders, a buzz cut, a beard, a
-    # small head on a thick neck, a broken nose and a boxer's ear; a flannel shirt, open at the
-    # neck, sleeves rolled, a belt with a big buckle
+    # at the pool table since before the shift: huge through the shoulders, his head shaved and his
+    # jaw grey with stubble (a pale dome reads from across the room, where dark hair and a dark beard
+    # didn't; a grey beard of its own, a shell round his jaw, read as a muzzle; faces.py draws the
+    # stubble), a small head on a thick neck, a broken nose and a boxer's ear; a brick flannel
+    # shirt (the earth's ink), open at the neck, sleeves rolled, a belt with a big buckle
     'bigman': dict(
         base='male', smooth=14,
         body=[('spine_03', (0, 0.02, 0.02), 0.2, 0.03), ('spine_01', (0, 0.1, 0), 0.18, 0.04)],
         paint=dict(top=('flannel', 'rolled'), bottom='jeans', shoes='boot', shaft=0.11),
         wear=['shell:flannel:0.007', 'flaps:flannel_dark', 'rolls:flannel', 'pockets:flannel_dark', 'belt', 'buckle'],
         head=dict(w=0.092, d=0.1, h=0.11, jaw=1.2, chin=0.004, crown=0.8, cheeks=0.3),
-        nose=('broken', 1.1), ears=(0.85, 'boxer'), hair=('buzz', 'hair_dark'), beard=('full', 'hair_dark'), skin='skin', things=[]),
-    # the new server: half German, half Indigenous. Olive skin; high broad cheekbones narrowing to a
-    # firm small chin; black hair combed straight back off her face, two strands loose at her
-    # temples, in a braid that hangs past her hips and swings when she moves, tied in red; gold
-    # hoops. A fitted red top with a scoop neck, a black swing skirt to the knee, a white half apron,
-    # bare legs, black heels. The one red figure in the room, drawn closer to the human than the rest, the way
-    # a pin-up is (her proportions in the game: tests/shots_masks.gd)
+        nose=('broken', 1.1), ears=(0.85, 'boxer'), hair=None, beard=None, skin='skin', things=[]),
+    # the new server, from Germany. Her features a little like Disney's Pocahontas (she isn't Native):
+    # a long face, high broad cheekbones, a strong level brow, long dark eyes lifted at the outer
+    # corners, a full mouth, a defined chin; olive skin; black hair parted in the middle and drawn
+    # back into a braid that hangs to the backs of her thighs, a strand loose at each temple; pearl
+    # drops. A crimson dress out of an old European film: a boat neck, sleeves to the elbow, a narrow
+    # black belt, a full skirt to below the knee; a server's black pouch at her hip, dark stockings,
+    # low black heels. The one person in the room printed in the sign's red, and drawn closer to the
+    # human than the rest (her proportions, her light and her motion: tests/shots_masks.gd)
     'amanda': dict(
         base='female', smooth=6,
-        body=[('spine_03', (0.075, 0.09, 0.03), 0.08, 0.012), ('spine_03', (-0.075, 0.09, 0.03), 0.08, 0.012),
+        body=[('spine_03', (0.07, 0.09, 0.03), 0.08, 0.006), ('spine_03', (-0.07, 0.09, 0.03), 0.08, 0.006),
               ('spine_01', (0.125, 0.0, 0.08), 0.075, -0.012), ('spine_01', (-0.125, 0.0, 0.08), 0.075, -0.012),
-              ('pelvis', (0.165, 0.0, 0.0), 0.1, 0.011), ('pelvis', (-0.165, 0.0, 0.0), 0.1, 0.011)],
-        paint=dict(top=('top_red', 'short'), bottom='skirt_black', legs='skin_olive', legs_from=0.3,
-                   shoes='shoe_black', heels=24, neckline=1.37),
-        wear=['shell:top_red:0.003', 'swing:skirt_black', 'apron_half:apron_white'],
-        head=dict(w=0.096, d=0.1, h=0.12, jaw=0.72, chin=0.012, crown=1.0, cheeks=0.9, flat=0.85),
-        nose=('fine', 1.0), ears=0.75, hair=('sleek', 'hair_black'), beard=None, skin='skin_olive',
-        things=['hoops', 'wisps', 'combed'], braid=dict(length=0.9, bones=8)),
+              ('pelvis', (0.165, 0.0, 0.0), 0.1, 0.008), ('pelvis', (-0.165, 0.0, 0.0), 0.1, 0.008)],
+        paint=dict(top=('dress_red', 'elbow'), bottom='tights', shoes='shoe_black', heels=14, neckline=1.425, boat=True),
+        wear=['shell:dress_red:0.003', 'swing:dress_red:-0.07:0.14', 'sash:belt_black', 'pouch:apron_black'],
+        head=dict(w=0.09, d=0.1, h=0.13, jaw=0.75, chin=0.014, crown=1.0, cheeks=1.05, flat=0.85),
+        nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_black'), beard=None, skin='skin_olive',
+        things=['pearls', 'wisps', 'parted'], braid=dict(length=1.05, bones=8)),
 }
 
 
@@ -213,13 +221,17 @@ def body(obj, arm, spec):
     legs_z = knee_z + cl.get('legs_from', 0.12)
     sleeve_x = abs(bones['upperarm_l'].head_local.x) + 0.07
     roll_x = abs(bones['lowerarm_l'].head_local.x) + 0.06
+    elbow_x = abs(bones['lowerarm_l'].head_local.x) + 0.035
+    boat = cl.get('boat', False)
 
     def neck_front(x):
+        if boat:
+            return cl['neckline'] + 0.014 * (abs(x) / 0.11) ** 2
         return cl['neckline'] + 0.075 * (abs(x) / 0.11) ** 2
 
     def neck_at(x, fwd):
         w = smoothstep(-0.07, 0.03, fwd)
-        return w * neck_front(x) + (1.0 - w) * (cl['neckline'] + 0.07)
+        return w * neck_front(x) + (1.0 - w) * (cl['neckline'] + (0.03 if boat else 0.07))
     for f in bm.faces:
         ds = [dom[v.index] for v in f.verts]
         d = max(set(ds), key=ds.count)
@@ -237,6 +249,8 @@ def body(obj, arm, spec):
             elif sleeves == 'rolled':
                 # rolled to the elbow: the forearm bare past a hand's breadth from it
                 m = cl['top'][0] if abs(c.x) < roll_x else skin
+            elif sleeves == 'elbow':
+                m = cl['top'][0] if abs(c.x) < elbow_x else skin
             else:
                 m = skin
         elif d.startswith('upperarm'):
@@ -268,6 +282,8 @@ def body(obj, arm, spec):
             return lambda p: abs(p.x) - sleeve_x
         if {skin, top} <= here and d.startswith('lowerarm') and sleeves == 'rolled':
             return lambda p: abs(p.x) - roll_x
+        if {skin, top} <= here and d.startswith('lowerarm') and sleeves == 'elbow':
+            return lambda p: abs(p.x) - elbow_x
         if cl.get('legs') and {cl['bottom'], cl['legs']} <= here and d.startswith(('thigh', 'calf')):
             return lambda p: p.z - legs_z
         if {cl['bottom'], top} <= here and d == 'pelvis':
@@ -700,8 +716,10 @@ def dress(spec, name, bodyob, arm, pts):
         elif kind == 'swing':
             # a swing skirt: fitted at the waist, flaring from the hips to the knee in soft folds. It
             # follows her hips and sways a little with her legs, and as it's never tight on them it
-            # never tears between them when she walks (a pencil skirt bound to two legs does)
-            top, hem = pelvis_z + 0.1, knee_z + 0.03
+            # never tears between them when she walks (a pencil skirt bound to two legs does). Its
+            # hem (from the knee) and its waist (from the pelvis) can be given
+            top = pelvis_z + (float(args[2]) if len(args) > 2 else 0.1)
+            hem = knee_z + (float(args[1]) if len(args) > 1 else 0.03)
             hip_z = pelvis_z - 0.05
             angs = [2 * math.pi * i / 64 for i in range(64)]
             cy, _ = slice_ring(pts, top, ('pelvis', 'spine_01'), angs, 0.012)
@@ -725,8 +743,12 @@ def dress(spec, name, bodyob, arm, pts):
                         r.append(Vector((q.x, cy + q.y, z)))
                 rings.append(r)
 
-            def swing_w(co, top=top, hem=hem, hip_z=hip_z):
-                k = 0.35 * smoothstep(hip_z, hem, co.z)
+            # how much of the hem goes with the legs: a long skirt with too much of it parts between
+            # them as she steps, like a slit
+            legs = 0.35 if hem > knee_z else 0.2
+
+            def swing_w(co, top=top, hem=hem, hip_z=hip_z, legs=legs):
+                k = legs * smoothstep(hip_z, hem, co.z)
                 side = co.x / (abs(co.x) + 0.12)
                 w = {'pelvis': 1.0 - k}
                 if k > 0:
@@ -741,6 +763,33 @@ def dress(spec, name, bodyob, arm, pts):
             _, r1 = slice_ring(pts, top + 0.002, ('pelvis', 'spine_01'), angs, 0.016, cy)
             out.append(sheet(f'{name}_skirt_band', args[0], [r0, r1], True, 0.005, arm, lambda co: {'pelvis': 0.7, 'spine_01': 0.3}))
             under['skirt'] = (rings, cy, angs, swing_w)
+            under['waist'] = (top, cy)
+        elif kind == 'sash' and 'waist' in under:
+            # a narrow belt where the bodice meets the skirt
+            top, cy = under['waist']
+            angs = [2 * math.pi * i / 48 for i in range(48)]
+            _, r0 = slice_ring(pts, top - 0.013, ('pelvis', 'spine_01'), angs, 0.02, cy)
+            _, r1 = slice_ring(pts, top + 0.013, ('pelvis', 'spine_01'), angs, 0.02, cy)
+            out.append(sheet(f'{name}_sash', args[0], [r0, r1], True, 0.005, arm, lambda co: {'pelvis': 0.5, 'spine_01': 0.5}))
+        elif kind == 'pouch' and 'skirt' in under:
+            # a server's pouch for the order pad and the change, hung from the belt at her right hip,
+            # where her hand goes for it: the job at her side, not an apron on her lap (a black one
+            # was a dark square there that drew the eye, as the white one had; a palm's width, or
+            # it's a black card on the red from across the room)
+            rings, cy, angs, w = under['skirt']
+            top = under['waist'][0]
+            side = [i for i, g in enumerate(angs) if abs(math.remainder(g + 2.8, 2 * math.pi)) < 0.16]
+            side.sort(key=lambda i: math.remainder(angs[i] + 2.8, 2 * math.pi))
+            pr = []
+            for r in [r for r in rings if top - 0.035 > r[0].z > top - 0.145][:4]:
+                row = []
+                for i in side:
+                    d = Vector((r[i].x, r[i].y - cy, 0.0))
+                    q = d * ((d.length + 0.016) / d.length)
+                    row.append(Vector((q.x, cy + q.y, r[i].z)))
+                pr.append(row)
+            if len(pr) >= 2:
+                out.append(sheet(f'{name}_pouch', args[0], pr, False, 0.012, arm, w, (0.0, cy)))
         elif kind == 'apron_half' and 'skirt' in under:
             # a white half apron lying over the front of the skirt, a pocket on it for the order pad; its
             # band round her waist, tied in a bow at the back. Small, so the skirt's black shows round
@@ -749,7 +798,8 @@ def dress(spec, name, bodyob, arm, pts):
             front = [i for i, g in enumerate(angs) if abs(math.remainder(g + math.pi / 2, 2 * math.pi)) < 0.8]
             front.sort(key=lambda i: math.remainder(angs[i] + math.pi / 2, 2 * math.pi))
             ar = []
-            for r in rings[1:9]:
+            drop = float(args[1]) if len(args) > 1 else 0.3
+            for r in [r for r in rings[1:] if r[0].z > rings[0][0].z - drop][:8]:
                 row = []
                 for i in front:
                     d = Vector((r[i].x, r[i].y - cy, 0.0))
@@ -827,6 +877,33 @@ def dress(spec, name, bodyob, arm, pts):
             c0, r0 = slice_ring(pts, top - 0.01, ('pelvis', 'spine_01'), angs, 0.024)
             _, r1 = slice_ring(pts, top + 0.012, ('pelvis', 'spine_01'), angs, 0.024, c0)
             out.append(sheet(f'{name}_apron_band', args[0], [r0, r1], True, 0.004, arm, lambda co: {'pelvis': 0.7, 'spine_01': 0.3}))
+        elif kind == 'towel_shoulder':
+            # a bar towel thrown over her left shoulder, a hand's length down her front and her back
+            x0, cz = 0.1, B["spine_03"].z + 0.04
+            near = [p for p, d in pts if abs(p.x - x0) < 0.05 and d.startswith(('spine_03', 'clavicle', 'neck', 'spine_02'))]
+            rows = []
+            for i in range(19):
+                phi = math.radians(-58 + 290 * i / 18)
+                ray = Vector((0.0, -math.cos(phi), math.sin(phi)))
+                row = []
+                for j in range(5):
+                    x = x0 - 0.04 + 0.08 * j / 4
+                    c = Vector((x, 0.01, cz))
+                    best = 0.04
+                    for p in near:
+                        q = p - c
+                        if abs(q.x) > 0.018:
+                            continue
+                        along = q.y * ray.y + q.z * ray.z
+                        side = math.hypot(q.y - ray.y * along, q.z - ray.z * along)
+                        if side < 0.02 and along > best:
+                            best = along
+                    wob = 0.004 * math.sin(i * 1.7 + j)
+                    row.append(c + ray * (best + 0.011 + wob))
+                rows.append(row)
+            ob = sheet(f'{name}_towel', args[0] if args else 'towel', [list(r) for r in zip(*rows)], False, 0.006, arm,
+                       lambda co: {'spine_03': 0.6, 'clavicle_l': 0.4}, (x0, 0.01))
+            out.append(ob)
         elif kind == 'towel':
             # a bar towel tucked in the apron's band at her right hip, folded over it
             x, z = -0.12, pelvis_z + 0.07
@@ -966,6 +1043,27 @@ def sleek_scale(d):
     return k * (1.0 + 0.03 * max(z - 0.3, 0.0))
 
 
+def hairline_c(x):
+    """Hair parted in the middle and drawn back: its line across the forehead, a notch where it
+    parts, falling away to either side over the corners of the forehead toward the temples."""
+    return 0.72 + 0.05 * math.exp(-(x / 0.06) ** 2) - 0.36 * x * x
+
+
+def centre_scale(d):
+    """How far out from the egg hair parted in the middle lies: flat at the hairline, rising behind
+    it, a little full in two wings over the temples and the tops of the ears, a groove at the part."""
+    x, f, z = d.x, -d.y, d.z
+    hl = hairline_c(x)
+    if f <= 0.0:
+        k = 1.045
+    else:
+        k = 1.006 + 0.039 * smoothstep(0.0, 0.14, z - hl)
+    side = smoothstep(0.45, 0.85, abs(x)) * math.exp(-((z - 0.15) / 0.4) ** 2) * smoothstep(-0.6, 0.1, f)
+    k *= 1.0 + 0.04 * side
+    k *= 1.0 - 0.014 * math.exp(-(x / 0.04) ** 2) * smoothstep(0.25, 0.6, z) * smoothstep(-0.4, 0.2, f)
+    return k * (1.0 + 0.025 * max(z - 0.3, 0.0))
+
+
 def face_uvs(ob, spec):
     """The face's picture projected from the front onto the mask; the back of the head and the
     sides take the picture's corner, which is bare skin."""
@@ -1031,16 +1129,17 @@ def head(spec, name):
                     blob(bm, Vector((sx * h['w'] * 1.03, dy, dz)), (r * 0.8, r, r), segs=10, rings=8)
         parts.append(to_object(bm, f'{name}_ears', [skin]))
 
-    # the hair: a shell of the egg a little out from it, cut to the hairline, and lumps
-    kind, hm = spec['hair']
+    # the hair: a shell of the egg a little out from it, cut to the hairline, and lumps (none: bald)
+    kind, hm = spec['hair'] if spec.get('hair') else (None, None)
+    fine = kind in ('sleek', 'centre')
     dirs = {}
-    shell = egg(spec, *((96, 64) if kind == 'sleek' else (48, 32)), dirs=dirs)
+    shell = egg(spec, *((96, 64) if fine else (48, 32)), dirs=dirs)
     for v in shell.verts:
-        v.co = v.co * (sleek_scale(dirs[v]) if kind == 'sleek' else 1.06)
+        v.co = v.co * (sleek_scale(dirs[v]) if kind == 'sleek' else centre_scale(dirs[v]) if kind == 'centre' else 1.06)
     drop = []
     for v in shell.verts:
         x, f, z = v.co.x / h['w'], -v.co.y / h['d'], v.co.z / h['h']
-        if kind == 'sleek':
+        if fine:
             x, f, z = dirs[v].x, -dirs[v].y, dirs[v].z
         if kind == 'bun':
             ok = z > 0.42 - 0.25 * (1 - max(f, 0)) or (f < -0.1 and z > -0.55) or (abs(x) > 0.85 and z > -0.1 and f < 0.3)
@@ -1049,6 +1148,12 @@ def head(spec, name):
             # the temples and over the tops of the ears, the lobes and her hoops left bare
             ok = z > hairline(x) or (f < 0.12 and z > -0.5)
             if abs(x) > 0.75 and -0.35 < z < 0.04 and f > -0.32:
+                ok = False
+        elif kind == 'centre':
+            # parted in the middle and drawn back over the temples and the tops of the ears into
+            # the braid: the lobes and what hangs from them left bare
+            ok = z > hairline_c(x) or (f < 0.12 and z > -0.5) or (abs(x) > 0.7 and z > -0.08 and f < 0.4)
+            if abs(x) > 0.72 and -0.42 < z < -0.08 and f > -0.3:
                 ok = False
         elif kind == 'buzz':
             ok = (z > 0.5 - 0.6 * (1 - max(f, 0))) and not (f > 0.6 and z < 0.55)
@@ -1060,24 +1165,28 @@ def head(spec, name):
         if not ok:
             drop.append(v)
     bmesh.ops.delete(shell, geom=drop, context='VERTS')
-    if kind == 'sleek':
+    if fine:
         # the hairline drawn as its curve, not stepping from vertex to vertex of the egg
+        line, scale = (hairline, sleek_scale) if kind == 'sleek' else (hairline_c, centre_scale)
         for v in shell.verts:
             if not any(e.is_boundary for e in v.link_edges):
                 continue
             d = dirs[v]
-            if -d.y < 0.15 or abs(d.x) > 0.8:
+            if -d.y < 0.15 or abs(d.x) > (0.8 if kind == 'sleek' else 0.68):
                 continue
-            z = hairline(d.x)
+            z = line(d.x)
             f = math.sqrt(max(1.0 - d.x * d.x - z * z, 0.0))
             nd = Vector((d.x, -f, z)).normalized()
-            v.co = egg_point(spec, nd) * sleek_scale(nd)
+            v.co = egg_point(spec, nd) * scale(nd)
     if kind == 'bun':
         # a twisted bun at the back of the crown
         c = Vector((0, h['d'] * 0.95, h['h'] * 0.55))
         blob(shell, c, (0.042, 0.036, 0.04))
         torus(shell, c + Vector((0, 0.006, 0)), Vector((0, 1, 0.3)), 0.034, 0.012, 18, 6)
-    parts.append(to_object(shell, f'{name}_hair', [hm], 0.006))
+    if kind:
+        parts.append(to_object(shell, f'{name}_hair', [hm], 0.006))
+    else:
+        shell.free()
     if kind == 'thin':
         # a few long hairs combed over the bald top, from the left side to the right
         bm = bmesh.new()
@@ -1095,10 +1204,10 @@ def head(spec, name):
 
     # a beard: a shell of the lower face with the mouth left showing
     if spec.get('beard'):
-        _, bmat = spec['beard']
+        _, bmat, *rest = spec['beard']
         sh = egg(spec)
         for v in sh.verts:
-            v.co = v.co * 1.07
+            v.co = v.co * (rest[0] if rest else 1.07)
         drop = []
         for v in sh.verts:
             x, f, z = v.co.x / h['w'], -v.co.y / h['d'], v.co.z / h['h']
@@ -1125,6 +1234,35 @@ def head(spec, name):
             for sx in (-1, 1):
                 torus(bm, Vector((sx * h['w'] * 1.03, 0.006, -0.058)), Vector((1, 0, 0)), 0.018, 0.0026, 24, 6)
             parts.append(to_object(bm, f'{name}_hoops', ['gold']))
+        elif thing == 'pearls':
+            # a pearl drop at each lobe on a short gold hook
+            bm, hook = bmesh.new(), bmesh.new()
+            for sx in (-1, 1):
+                lobe = Vector((sx * h['w'] * 1.03, 0.007, -0.034))
+                tube(hook, [lobe, lobe + Vector((0, 0, -0.011))], [0.0009, 0.0009], 5)
+                blob(bm, lobe + Vector((0, 0, -0.018)), (0.0052, 0.0052, 0.0064), segs=12, rings=8)
+            parts.append(to_object(hook, f'{name}_pearl_hooks', ['gold']))
+            parts.append(to_object(bm, f'{name}_pearls', ['pearl']))
+        elif thing == 'parted':
+            # the comb's lines out from the part, over the head and back to where the braid's gathered;
+            # the nearest the face run down over the temples and back above the ears
+            bm = bmesh.new()
+            g = Vector((0.0, 1.0, -0.12)).normalized()
+            for sx in (-1, 1):
+                for k, a in enumerate((0.0, 0.18, 0.4, 0.65, 0.95)):
+                    z0 = hairline_c(0.05) + 0.03 + a * (0.98 - hairline_c(0.05))
+                    f0 = math.sqrt(max(1.0 - 0.0025 - z0 * z0, 0.0)) * (1.0 - a * 0.6)
+                    d0 = Vector((sx * 0.05, -f0, z0)).normalized()
+                    bow = 0.55 * (1.0 - a * 0.7)
+                    cp = []
+                    for j in range(17):
+                        t = j / 16
+                        dd = d0.slerp(g, t) if d0.dot(g) > -0.99 else d0
+                        dd = (dd + Vector((sx * bow * math.sin(math.pi * min(t * 1.15, 1.0)), 0, -0.08 * bow * math.sin(math.pi * t)))).normalized()
+                        q = egg_point(spec, dd) * (centre_scale(dd) + 0.012)
+                        cp.append(q)
+                    tube(bm, cp, [0.0014] * len(cp), 5)
+            parts.append(to_object(bm, f'{name}_combed', [hm]))
         elif thing == 'wisps':
             # strands come loose at her temples: a long one on her right, falling past her
             # cheekbone in an S and curling out at the jaw, a short one on her left
@@ -1255,6 +1393,44 @@ def braid(spec, name, arm, pts, head_at):
     return parts
 
 
+def plaid_uvs(ob, arm, per=0.8):
+    """A plaid's UVs: round the body and round each arm, in metres over per (the texture's width),
+    so its checks run level and its seams fall where a shirt's do: down the back and under the
+    arms."""
+    me = ob.data
+    if not me.uv_layers:
+        return
+    uv = me.uv_layers.active
+    groups = {g.index: g.name for g in ob.vertex_groups}
+    bones = arm.data.bones
+    ay = bones['upperarm_l'].head_local.y
+    az = bones['upperarm_l'].head_local.z
+    for p in me.polygons:
+        m = me.materials[p.material_index] if p.material_index < len(me.materials) else None
+        if not m or m.name != 'flannel':
+            continue
+        w = {}
+        for vi in p.vertices:
+            for g in me.vertices[vi].groups:
+                n = groups.get(g.group, '')
+                w[n] = w.get(n, 0.0) + g.weight
+        dom = max(w, key=w.get) if w else ''
+        c = p.center
+        arm_face = dom.startswith(('upperarm', 'lowerarm'))
+        if arm_face:
+            a0 = math.atan2(c.z - az, c.y - ay)
+        else:
+            a0 = math.atan2(c.x, -c.y)
+        for li in p.loop_indices:
+            co = me.vertices[me.loops[li].vertex_index].co
+            if arm_face:
+                a = a0 + math.remainder(math.atan2(co.z - az, co.y - ay) - a0, 2 * math.pi)
+                uv.data[li].uv = (a * 0.055 / per, abs(co.x) / per)
+            else:
+                a = a0 + math.remainder(math.atan2(co.x, -co.y) - a0, 2 * math.pi)
+                uv.data[li].uv = (a * 0.16 / per, co.z / per)
+
+
 # ---------------------------------------------------------------- one person
 
 def build(name):
@@ -1272,6 +1448,9 @@ def build(name):
     pts = body(bodyob, arm, spec)
     dress(spec, name, bodyob, arm, pts)
     soles(spec, name, arm, pts)
+    for o in list(bpy.data.objects):
+        if o.type == 'MESH' and any(m and m.name == 'flannel' for m in o.data.materials):
+            plaid_uvs(o, arm)
     for p in head(spec, name):
         p.location = head_at
         on_bone(p, arm, 'Head')

@@ -328,6 +328,9 @@ def draw_iris(lay, E, pupil):
     lay.ellipse(0, 0, r * 0.86, r * 0.86, col)
     lay.soft([('ell', 0, -r * 0.35, r * 0.6, r * 0.38)], mixc(col, (255, 255, 255), 0.3), 0.55, r * 0.25)
     k = {'small': 0.2, 'normal': 0.44, 'big': 0.62}[pupil]
+    if E.get('iris_ring'):
+        # a warmer ring round the pupil: light down in a dark eye
+        lay.soft([('ell', 0, 0, r * (k + 0.24), r * (k + 0.24))], E['iris_ring'], 0.85, r * 0.1)
     lay.ellipse(0, 0, r * k, r * k, INK)
     lay.ellipse(-r * 0.34, r * 0.36, r * 0.24, r * 0.24, (252, 250, 244))
     if E.get('catch', 1) > 1:
@@ -660,9 +663,45 @@ def p_team_jacket(lay, st):
 
 
 def p_bigman(lay, st):
-    # deep-set eyes in the shadow of his brow, a scar through it from an old fight, the shadow of
-    # his stubble where the beard thins
+    # deep-set eyes in the shadow of his brow, a scar through it from an old fight, and the grey
+    # stubble of a man who shaves his head and not his face, the cartoon's five o'clock shadow: a
+    # flat darker grey with a clean edge, over the jaw, the chin and the lip, up under the
+    # cheekbones, stippled along its top. (A beard of its own, a shell round his jaw with a slot
+    # for the mouth, read as a muzzle; a soft one didn't survive the print.)
     skin = st['skin_col']
+    grey = mixc(darker(skin, 0.58), (96, 96, 102), 0.45)
+    top = spline([(-0.84, -0.06), (-0.7, -0.22), (-0.5, -0.31), (-0.3, -0.33), (-0.14, -0.29), (0.0, -0.28),
+                  (0.14, -0.29), (0.3, -0.33), (0.5, -0.31), (0.7, -0.22), (0.84, -0.06)], 8)
+    jaw = spline([(0.84, -0.06), (0.9, -0.5), (0.72, -0.92), (0.36, -1.12), (0.0, -1.16), (-0.36, -1.12),
+                  (-0.72, -0.92), (-0.9, -0.5), (-0.84, -0.06)], 8)
+    lay.soft([('poly', top + jaw)], grey, 0.4, 0.012)
+    # and the stipple a cartoonist gives it, dark enough for the print to keep under the lamp: dots
+    # on a jittered grid, thinning out along the top
+    edge = top + jaw
+    def inside(x, z):
+        c = False
+        for (x1, z1), (x2, z2) in zip(edge, edge[1:] + edge[:1]):
+            if (z1 > z) != (z2 > z) and x < x1 + (z - z1) * (x2 - x1) / (z2 - z1):
+                c = not c
+        return c
+    dots = []
+    k = 7
+    def rnd():
+        nonlocal k
+        k = (k * 1103515245 + 12345) % 2147483648
+        return (k >> 8) % 10000 / 10000.0
+    zz = -0.2
+    while zz > -1.15:
+        xx = -0.9 + (0.02 if int(zz * 100) % 2 else 0.0)
+        while xx < 0.9:
+            x, z = xx + (rnd() - 0.5) * 0.03, zz + (rnd() - 0.5) * 0.03
+            if inside(x, z):
+                d = min(abs(z - tz) + abs(x - tx) * 0.3 for tx, tz in top)
+                if rnd() < min(1.0, 0.35 + d * 9.0):
+                    dots.append(('ell', x, z, 0.0105, 0.0105))
+            xx += 0.042
+        zz -= 0.04
+    lay.soft(dots, mixc(grey, (40, 38, 38), 0.55), 0.85, 0.003)
     for sx in (-1, 1):
         lay.soft([('ell', sx * 0.33, 0.07, 0.24, 0.16)], darker(skin, 0.7), 0.75, 0.04)
     lay.stroke([(-0.5, 0.42), (-0.4, 0.2), (-0.33, 0.06)], 0.022, mixc(skin, (236, 220, 206), 0.55), ends=(0.4, 0.4))
@@ -672,29 +711,31 @@ def p_bigman(lay, st):
 
 
 def p_amanda(lay, st):
-    # high, broad cheekbones and the hollow under them, a straight nose, a firm small chin, a mole
-    # by her mouth; her skin warm and even, a little colour high on her cheeks. Lit like the one
-    # person in the room the light is looking for: the tops of her cheekbones, the bridge of her
-    # nose and her chin catch it
+    # fewer marks than anyone: the hollow under each high cheekbone and its top in the light, a
+    # little colour there, the sides of a straight nose, the groove above her lip, the shadow under
+    # it, her chin lit. No lines and no beauty mark: nothing on her face has happened to it yet
     skin = st['skin_col']
     for sx in (-1, 1):
-        # the hollow under the cheekbone, from the ear down toward the corner of the mouth
-        lay.soft([('poly', bez([(sx * 0.84, -0.04), (sx * 0.66, -0.24), (sx * 0.46, -0.4), (sx * 0.38, -0.44)], 12)
-                   + bez([(sx * 0.46, -0.34), (sx * 0.64, -0.15), (sx * 0.82, 0.03)], 12))], darker(skin, 0.74), 0.6, 0.045)
+        # the plane under the cheekbone, short, from by the ear down toward the mouth: cut clean
+        # along the bone, as a cartoonist draws it, and fading below (a soft one didn't survive the
+        # print, and her face read round; a long one ran to her mouth like lines of age)
+        bone = spline([(sx * 0.9, 0.0), (sx * 0.8, -0.12), (sx * 0.7, -0.21), (sx * 0.6, -0.27)], 8)
+        under = spline([(sx * 0.63, -0.3), (sx * 0.76, -0.25), (sx * 0.87, -0.17), (sx * 0.93, -0.07)], 8)
+        lay.soft([('poly', bone + under)], darker(skin, 0.68), 0.62, 0.006)
+        lay.soft([('poly', bone + under)], darker(skin, 0.68), 0.3, 0.04)
         # the cheekbone's top in the light, and colour on it
-        lay.soft([('line', bez([(sx * 0.38, -0.1), (sx * 0.56, -0.06), (sx * 0.74, 0.01)], 8), 0.06)], mixc(skin, (255, 244, 230), 0.45), 0.5, 0.035)
-        lay.soft([('ell', sx * 0.52, -0.16, 0.16, 0.08)], (204, 112, 92), 0.3, 0.04)
-        # the temples in shadow
-        lay.soft([('ell', sx * 0.82, 0.35, 0.1, 0.22)], darker(skin, 0.85), 0.4, 0.05)
+        lay.soft([('line', bez([(sx * 0.36, -0.1), (sx * 0.55, -0.06), (sx * 0.74, 0.0)], 8), 0.07)], mixc(skin, (255, 244, 230), 0.4), 0.45, 0.04)
+        lay.soft([('ell', sx * 0.5, -0.17, 0.15, 0.07)], (198, 116, 96), 0.2, 0.045)
+        # the temples a little in shadow
+        lay.soft([('ell', sx * 0.82, 0.32, 0.1, 0.2)], darker(skin, 0.88), 0.35, 0.05)
         # the sides of the nose, and its nostril
-        lay.soft([('line', bez([(sx * 0.07, 0.12), (sx * 0.08, -0.05), (sx * 0.1, -0.2)], 8), 0.03)], darker(skin, 0.84), 0.45, 0.02)
-        lay.soft([('ell', sx * 0.055, -0.265, 0.03, 0.016)], darker(skin, 0.6), 0.65, 0.008)
+        lay.soft([('line', bez([(sx * 0.07, 0.14), (sx * 0.075, -0.04), (sx * 0.095, -0.2)], 8), 0.028)], darker(skin, 0.86), 0.4, 0.02)
+        lay.soft([('ell', sx * 0.052, -0.262, 0.028, 0.014)], darker(skin, 0.62), 0.6, 0.008)
     # under the nose, the groove above her lip, the shadow under her lower lip, the chin lit
-    lay.soft([('ell', 0, -0.3, 0.09, 0.025)], darker(skin, 0.78), 0.5, 0.014)
-    lay.soft([('line', [(0.0, -0.36), (0.0, -0.44)], 0.04)], darker(skin, 0.86), 0.4, 0.012)
-    lay.soft([('ell', 0, -0.79, 0.15, 0.04)], darker(skin, 0.8), 0.55, 0.02)
-    lay.soft([('ell', 0, -0.9, 0.12, 0.05)], mixc(skin, (255, 244, 230), 0.3), 0.35, 0.03)
-    lay.ellipse(0.33, -0.5, 0.018, 0.018, darker(skin, 0.35))
+    lay.soft([('ell', 0, -0.295, 0.085, 0.022)], darker(skin, 0.8), 0.45, 0.014)
+    lay.soft([('line', [(0.0, -0.355), (0.0, -0.44)], 0.036)], darker(skin, 0.88), 0.35, 0.012)
+    lay.soft([('ell', 0, -0.78, 0.14, 0.035)], darker(skin, 0.82), 0.5, 0.02)
+    lay.soft([('ell', 0, -0.9, 0.12, 0.05)], mixc(skin, (255, 244, 230), 0.3), 0.3, 0.03)
 
 
 PEOPLE = {
@@ -738,7 +779,7 @@ PEOPLE = {
                       'marks': ['flush', 'bags'], 'gaze': {'l': (0.9, -0.5), 'r': (-0.8, 0.2)}, 'head': (1.02, 0.98)},
         }),
     # the big man, flat: small dark eyes deep under one heavy brow, a scar through it, the mouth a
-    # slot in his beard. He does everything with the brow: down into a V and he's dangerous, up
+    # slot in his stubble. He does everything with the brow: down into a V and he's dangerous, up
     # and he's a kid again
     'bigman': dict(
         skin='skin', base=p_bigman,
@@ -754,20 +795,27 @@ PEOPLE = {
             'menace': {'brow': {'angle': -0.9, 'raise': -0.06}, 'eye': {'open': 0.55, 'lid_in': 0.4}, 'mouth': {'curve': 0.35, 'open': 0.25, 'teeth': True, 'shape': 'grimace', 'width': 0.9},
                        'marks': ['glare'], 'gaze': (0, 0), 'head': (1.03, 0.97)},
         }),
-    # the new server: half German, half Indigenous. High broad cheekbones, long almond eyes lifted at
-    # the outer corners, a strong dark brow, light hazel-green eyes that catch the light twice, a
-    # straight nose, full lips the deep red of her top, a mole by her mouth. Her resting face
-    # already knows something; she teases, sticks out her tongue, rolls her eyes, winks
+    # the new server, from Germany, her features a little like Disney's Pocahontas (she isn't
+    # Native). Long almond eyes lifted at the outer corners, dark and warm, with amber round the
+    # pupil and the light caught in them twice; a strong level brow with a soft lift; a straight
+    # nose; a full mouth the deep rose of her dress, a little higher at one corner. Her resting face
+    # already knows something ("knowing", the Mona Lisa's, Khnopff's women's); sometimes she looks
+    # past him at something behind him ("far"). She's funny too: she teases, sticks out her tongue,
+    # rolls her eyes, winks
     'amanda': dict(
         skin='skin_olive', base=p_amanda, soft_marks=True,
-        eye=dict(x=0.39, z=0.06, s=0.25, up=0.5, lo=0.26, peak=0.0, tilt=0.21, lash=0.27, lo_w=0.05, crease=0.44,
-                 shadow=(112, 72, 58), shadow_a=0.72, lashes=5, lash_len=1.35, lash_w=0.5, wing=True, wing_len=1.3, wing_w=0.95,
-                 iris=0.6, iris_col=(118, 150, 104), catch=2),
-        brow=dict(x=0.41, z=0.38, s=0.27, w=0.078, arch=0.46, angle=0.02, col=(30, 22, 18)),
-        mouth=dict(z=-0.58, s=0.29, curve=0.2, crook=0.18, line_w=0.045,
-                   lips=dict(col=(158, 36, 44), upper=0.075, lower=0.106)),
+        eye=dict(x=0.39, z=0.06, s=0.25, up=0.46, lo=0.24, peak=0.06, tilt=0.17, lash=0.23, lo_w=0.045, crease=0.42,
+                 shadow=(104, 70, 58), shadow_a=0.5, lashes=4, lash_len=1.1, lash_w=0.42, wing=True, wing_len=0.75, wing_w=0.75,
+                 iris=0.6, iris_col=(62, 40, 28), iris_ring=(214, 150, 62), catch=2),
+        brow=dict(x=0.41, z=0.365, s=0.27, w=0.07, arch=0.3, angle=0.05, col=(14, 10, 10)),
+        mouth=dict(z=-0.58, s=0.27, curve=0.1, crook=0.12, line_w=0.042,
+                   lips=dict(col=(146, 44, 52), upper=0.07, lower=0.1)),
         expr={
-            'neutral': {'eye': {'open': 0.66}},
+            'neutral': {'eye': {'open': 0.7}},
+            'knowing': {'brow': {'l': {'raise': -0.01}, 'r': {'raise': 0.03, 'arch': 0.06}}, 'eye': {'open': 0.6, 'lid_out': 0.06},
+                        'mouth': {'curve': 0.32, 'crook': 0.42, 'width': 0.95}, 'gaze': (0.0, 0.0)},
+            'far': {'brow': {'raise': 0.025, 'angle': 0.08}, 'eye': {'open': 0.8}, 'mouth': {'curve': 0.0, 'crook': 0.0, 'open': 0.06, 'width': 0.95},
+                    'gaze': (-0.6, 0.3)},
             'smile': {'eye': {'open': 0.62}},
             'laugh': {'mouth': {'width': 1.0, 'open': 0.7}, 'head': (1.03, 0.97), 'gaze': (0, 0.3)},
             'surprised': {'mouth': {'width': 0.45}},

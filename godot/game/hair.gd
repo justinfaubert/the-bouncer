@@ -13,12 +13,17 @@ extends RefCounted
 # chest, since a braid lies on the back and doesn't swing round when she turns her head; and below
 # the waist by the hips, so when she leans it still lies on her skirt instead of standing off
 # behind her.
+#
+# A wind can be given (skeleton space, m/s/s): it comes and goes in slow gusts, so the braid stirs
+# even when she's standing still. Amanda's: a breeze nobody else in the room is in.
 
 var sk: Skeleton3D
 var bones: PackedInt32Array = []
 var stiff := 0.04             # how hard it leans back toward its made shape, per substep, at the top
 var keep := 0.965             # how much of its swing is left after each substep
 var thick := 1.15             # drawn a little thicker than it was made: the head is bigger too
+var wind := Vector3.ZERO      # a breeze on it, at its strongest; it gusts, a third of that to all of it
+var _t := 0.0
 var _pts: PackedVector3Array = []    # where each bone starts, then the tip: skeleton space
 var _old: PackedVector3Array = []
 var _len: PackedFloat32Array = []
@@ -182,7 +187,7 @@ func settle() -> void:
 	_start(by)
 	var caps := _bodies()
 	for k in 60:
-		_sub(by, caps, 1.0 / 48.0, 0.8)
+		_sub(by, caps, 1.0 / 48.0, 0.8, 0.6)
 	_old = _pts.duplicate()
 	_lay(by)
 
@@ -218,8 +223,13 @@ func _bodies() -> Array:
 	return out
 
 
-func _sub(by: Array[Transform3D], caps: Array, h: float, k: float) -> void:
+func _sub(by: Array[Transform3D], caps: Array, h: float, k: float, gust := -1.0) -> void:
 	var g := sk.global_transform.basis.inverse() * Vector3(0.0, -9.8 * h * h, 0.0)
+	if wind != Vector3.ZERO:
+		_t += h
+		if gust < 0.0:
+			gust = 0.66 + 0.34 * sin(_t * 0.83) * sin(_t * 0.31 + 1.7)
+		g += wind * gust * h * h
 	var n := _pts.size()
 	_pts[0] = by[0].origin
 	_old[0] = by[0].origin
