@@ -12,7 +12,8 @@ animation library plays on all of them, made our own:
   the shoulder; a full skirt, a narrow belt and a server's pouch; a belt and its buckle;
 - its head taken off and a mask head put on the head bone: an egg shaped by the person (the jaw,
   the chin, the crown, the cheekbones), a nose of their own, ears, hair as solid shells (a beard
-  too, where there is one), what they wear in it (a pencil through a bun, pearl drops);
+  too, where there is one), what they wear on it or in it (a ball cap with its brim, seams and
+  patch, a pencil behind an ear, pearl drops);
 - the face drawn, not sculpted (tools/faces.py), and laid together in the game (game/face.gd);
 - Amanda's braid on bones of its own, hung from her head, that the game swings (game/hair.gd).
 
@@ -52,6 +53,7 @@ COLOURS = {
     'gold': '#d4ac52', 'sole': '#2a2420',
     'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
     'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
+    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2',
 }
 
 # Who they are.
@@ -68,16 +70,19 @@ COLOURS = {
 #         cheeks, flat (how flat the face is, a mask's plane: 1 not at all); nose (kind, size); ears (size, and 'boxer' for a cauliflower ear); hair (kind,
 #         material); beard; things: what's in the hair or the ears
 PEOPLE = {
-    # the lifer: slight and wiry, fifties, hair scraped back in a bun with a pencil through it, a
-    # long face, a hard mouth; her black shirt's sleeves rolled, a long canvas apron, a bar towel
-    # thrown over her shoulder, black work shoes. Printed in the night's ink, like the bar itself
-    'bartender': dict(
-        base='female', smooth=12,
+    # Jim, the bartender (Hutch, 19 November 2026: the model read as a man, so he is one, in a ball
+    # cap "for now", and he takes Paige's place in the story): the lifer, slight and wiry, fifties,
+    # a long face and a hard mouth; grey hair cropped short under a dark cap with a pale patch on
+    # its front, a pencil behind his ear; his black shirt's sleeves rolled, a long canvas apron, a
+    # bar towel thrown over his shoulder, black work shoes. Printed in the night's ink, like the
+    # bar itself
+    'jim': dict(
+        base='male', smooth=12,
         body=[('spine_02', (0, 0.06, 0.02), 0.14, -0.012)],
         paint=dict(top=('shirt_dark', 'rolled'), bottom='trousers', shoes='shoe_black'),
         wear=['shell:shirt_dark:0.004', 'collar:shirt_dark', 'rolls:shirt_dark', 'apron_long:apron_canvas', 'towel_shoulder:towel_white'],
-        head=dict(w=0.088, d=0.105, h=0.135, jaw=0.78, chin=0.012, crown=0.95, cheeks=0.25),
-        nose=('long', 1.0), ears=0.9, hair=('bun', 'hair_grey'), beard=None, skin='skin', things=['pencil']),
+        head=dict(w=0.088, d=0.105, h=0.135, jaw=0.86, chin=0.014, crown=0.95, cheeks=0.25),
+        nose=('long', 1.05), ears=0.95, hair=('short', 'hair_grey'), beard=None, skin='skin', things=['cap', 'pencil_ear']),
     # table 28's loudest: old, a round belly under the same team jacket every day (bottle green,
     # gold trim: it prints in the cold ink, the television's), a few hairs combed over, a big soft
     # drinker's face
@@ -1135,7 +1140,8 @@ def head(spec, name):
     dirs = {}
     shell = egg(spec, *((96, 64) if fine else (48, 32)), dirs=dirs)
     for v in shell.verts:
-        v.co = v.co * (sleek_scale(dirs[v]) if kind == 'sleek' else centre_scale(dirs[v]) if kind == 'centre' else 1.06)
+        v.co = v.co * (sleek_scale(dirs[v]) if kind == 'sleek' else centre_scale(dirs[v]) if kind == 'centre'
+                       else 1.035 if kind == 'short' else 1.06)
     drop = []
     for v in shell.verts:
         x, f, z = v.co.x / h['w'], -v.co.y / h['d'], v.co.z / h['h']
@@ -1160,6 +1166,14 @@ def head(spec, name):
         elif kind == 'thin':
             # a band round the back and over the ears, the top bald
             ok = -0.25 < z < 0.4 and f < 0.25
+        elif kind == 'short':
+            # cropped close under a cap: up from the nape to the cap's band, and over the temples
+            # above the ears, a short sideburn in front of each, the ears left bare; the top is
+            # under the cap and needs none
+            ok = (f < 0.1 and -0.62 < z < 0.55) or (abs(x) > 0.76 and 0.1 < z < 0.55 and f < 0.52) \
+                or (abs(x) > 0.84 and -0.22 < z < 0.12 and 0.1 < f < 0.36)
+            if abs(x) > 0.8 and -0.34 < z < 0.1 and -0.14 < f < 0.1:
+                ok = False
         else:
             ok = False
         if not ok:
@@ -1229,6 +1243,129 @@ def head(spec, name):
             bm = bmesh.new()
             tube(bm, [c + a * 0.06, c + a * 0.078, c + a * 0.082], [0.0045, 0.0012, 0.0003], 6)
             parts.append(to_object(bm, f'{name}_pencil_tip', ['pencil_wood']))
+        elif thing == 'pencil_ear':
+            # a pencil behind his right ear (-x): resting on the top of the ear where it meets the
+            # head, the point just past the front of the ear, the rest of it back above the ear
+            # (further forward, it crossed his temple like a scar)
+            c = Vector((-h['w'] * 1.04, 0.01, h['h'] * 0.1))
+            a = Vector((-0.06, -1.0, 0.12)).normalized()
+            bm = bmesh.new()
+            tube(bm, [c - a * 0.05, c + a * 0.028], [0.0042, 0.0042], 6)
+            parts.append(to_object(bm, f'{name}_pencil', ['pencil']))
+            bm = bmesh.new()
+            tube(bm, [c + a * 0.028, c + a * 0.044, c + a * 0.048], [0.0042, 0.0011, 0.0003], 6)
+            parts.append(to_object(bm, f'{name}_pencil_tip', ['pencil_wood']))
+        elif thing == 'cap':
+            # a ball cap, worn a little down in front: six panels gathered at a button, its band just
+            # over the brows in front and low at the back, the front panels stiff and standing up a
+            # little, a brim curved down at its sides, and a pale patch on the front for the print
+            # to find from across the room
+            def band(f):
+                # the band's height, from the back (f -1) to the front (1): over the brows in front,
+                # high enough that they show under the brim (lower, the brim hid them, and half of
+                # what his face does with them)
+                return 0.36 + 0.18 * f
+
+            def k_at(d):
+                f, z = -d.y, d.z
+                return 1.085 + 0.03 * max(f, 0.0) * smoothstep(0.3, 0.9, z) + 0.008 * max(z - 0.55, 0.0)
+
+            def on_cap(d, lift=0.0):
+                d = d.normalized()
+                return egg_point(spec, d) * (k_at(d) + lift)
+
+            def at_band(d):
+                # the direction whose height is the band's, round the head from d
+                hor = Vector((d.x, d.y, 0.0))
+                hor = hor.normalized() if hor.length > 1e-6 else Vector((0.0, -1.0, 0.0))
+                zb = band(-hor.y)
+                r = math.sqrt(max(1.0 - zb * zb, 0.0))
+                return Vector((hor.x * r, hor.y * r, zb))
+
+            def strap_hole(d):
+                # the arch at the back above the strap, where the hair shows through
+                x, f, z = d.x, -d.y, d.z
+                return f < -0.6 and abs(x) < 0.24 and z < band(f) + 0.2 * (1.0 - (x / 0.24) ** 2)
+
+            cdirs = {}
+            cb = egg(spec, 72, 44, dirs=cdirs)
+            drop = [v for v in cb.verts if cdirs[v].z < band(-cdirs[v].y) or strap_hole(cdirs[v])]
+            bmesh.ops.delete(cb, geom=drop, context='VERTS')
+            for v in cb.verts:
+                d = cdirs[v]
+                if any(e.is_boundary for e in v.link_edges) and d.z < band(-d.y) + 0.06 and not (-d.y < -0.55 and abs(d.x) < 0.3):
+                    d = at_band(d)                 # the band's edge as its curve, not stepped
+                v.co = on_cap(d)
+            parts.append(to_object(cb, f'{name}_cap', ['cap_navy'], 0.004))
+
+            # the button on top and the seams down from it between the panels
+            bm = bmesh.new()
+            top = on_cap(Vector((0.0, 0.0, 1.0)))
+            blob(bm, top + Vector((0, 0, 0.003)), (0.0085, 0.0085, 0.0045), segs=12, rings=6)
+            for deg in (30, 90, 150, 210, 270, 330):
+                a = math.radians(deg)
+                f0 = math.cos(a)
+                pts = []
+                for j in range(13):
+                    t = j / 12
+                    z = 0.985 - t * (0.985 - band(f0) - 0.01)
+                    r = math.sqrt(max(1.0 - z * z, 0.0))
+                    pts.append(on_cap(Vector((math.sin(a) * r, -math.cos(a) * r, z)), 0.004))
+                tube(bm, pts, [0.0016] * len(pts), 5)
+            parts.append(to_object(bm, f'{name}_cap_seams', ['cap_navy']))
+
+            # the strap across the bottom of the arch at the back, and its buckle
+            bm = bmesh.new()
+            pts = []
+            for j in range(9):
+                x = -0.26 + 0.52 * j / 8
+                hz = math.sqrt(max(1.0 - x * x - band(-0.97) ** 2, 0.0))
+                pts.append(on_cap(Vector((x, hz, band(-0.97) + 0.02)), 0.002))
+            tube(bm, pts, [0.004] * len(pts), 4)
+            parts.append(to_object(bm, f'{name}_cap_strap', ['cap_navy']))
+            bm = bmesh.new()
+            blob(bm, pts[5] + Vector((0, 0.003, 0)), (0.007, 0.003, 0.005), segs=8, rings=6)
+            parts.append(to_object(bm, f'{name}_cap_buckle', ['snap']))
+
+            # the brim: out from the band across the forehead, its edge a D (deepest in the middle,
+            # nothing at the ends, where it meets the band), its sides curved down, the whole of it
+            # pitched a little down (squarer and steeper, it read as a bucket hat)
+            bm = bmesh.new()
+            nu, nv, reach = 20, 6, 0.07
+            grid = []
+            for i in range(nu + 1):
+                u = -1.0 + 2.0 * i / nu
+                a = u * 1.1
+                root = on_cap(at_band(Vector((math.sin(a), -math.cos(a), 0.0)))) + Vector((0, 0, -0.002))
+                out = Vector((math.sin(a) * 0.55, -1.0, 0.0)).normalized()
+                row = []
+                for j in range(nv + 1):
+                    t = j / nv
+                    p = root + out * (reach * math.sqrt(max(1.0 - u * u, 0.0)) * t) + Vector((0, 0, -(0.016 * u * u + 0.006) * t - 0.004 * t * t))
+                    row.append(bm.verts.new(p))
+                grid.append(row)
+            for i in range(nu):
+                for j in range(nv):
+                    bm.faces.new((grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]))
+            parts.append(to_object(bm, f'{name}_brim', ['cap_navy'], 0.006))
+
+            # the patch on the front panels
+            bm = bmesh.new()
+            pu, pz = 8, 5
+            fz = band(1.0)
+            grid = []
+            for i in range(pu + 1):
+                a = -0.34 + 0.68 * i / pu
+                row = []
+                for j in range(pz + 1):
+                    z = fz + 0.07 + 0.2 * j / pz
+                    r = math.sqrt(max(1.0 - z * z, 0.0))
+                    row.append(bm.verts.new(on_cap(Vector((math.sin(a) * r, -math.cos(a) * r, z)), 0.006)))
+                grid.append(row)
+            for i in range(pu):
+                for j in range(pz):
+                    bm.faces.new((grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]))
+            parts.append(to_object(bm, f'{name}_cap_patch', ['cap_patch'], 0.002))
         elif thing == 'hoops':
             bm = bmesh.new()
             for sx in (-1, 1):

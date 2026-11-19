@@ -16,7 +16,7 @@ face changes (game/face.gd) and puts each iris where they're looking, clipped to
 so the eyes can follow someone, slide away from them, or drift apart when they're drunk.
 
 Every face has the same expressions, so the game can ask anyone to look afraid, and each draws
-them in their own way: the bartender's anger is cold and her smile rare and crooked, the team
+them in their own way: Jim's anger is cold and his smile rare and crooked, the team
 jacket's laugh takes over his whole head and his sorrow cries, the big man does everything with
 one brow, and Amanda's resting face already knows something you don't.
 
@@ -627,10 +627,10 @@ def talk_mouths(m):
 
 # ---------------------------------------------------------------- the people
 
-def p_bartender(lay, st):
-    # the lifer: twenty-five years behind the bar. Her age in the lines that don't go away: crow's
-    # feet, two lines down from her nose to past her mouth, the ones under her eyes, a crease in
-    # her chin, the forehead she's frowned with
+def p_jim(lay, st):
+    # Jim, the lifer: twenty-five years behind the bar. His age in the lines that don't go away:
+    # crow's feet, two lines down from his nose to past his mouth, the ones under his eyes, a
+    # crease in his chin, the forehead he's frowned with (most of it under the cap's band)
     skin = st['skin_col']
     lc = darker(skin, 0.62)
     lay.soft([('ell', -0.4, -0.12, 0.18, 0.1), ('ell', 0.4, -0.12, 0.18, 0.1)], darker(skin, 0.86), 0.6, 0.04)
@@ -739,14 +739,15 @@ def p_amanda(lay, st):
 
 
 PEOPLE = {
-    # the lifer: hard, knowing, flat. Heavy lids, grey-green eyes, straight steel brows, a long
-    # upper lip and the mouth turned down. Her smile is rare and goes up one side; her anger is
-    # cold, the lids come down and the mouth goes thin; she's never really surprised
-    'bartender': dict(
-        skin='skin', base=p_bartender,
-        eye=dict(x=0.4, z=0.05, s=0.2, up=0.56, lo=0.4, peak=0.04, tilt=-0.04, lash=0.17, lo_w=0.07, fold=0.26,
+    # Jim, the lifer: hard, knowing, flat. Heavy lids, grey-green eyes, straight steel-grey brows
+    # heavier than they were when he was drawn as a woman, hardly a lash, a long upper lip and the
+    # mouth turned down. His smile is rare and goes up one side; his anger is cold, the lids come
+    # down and the mouth goes thin; he's never really surprised
+    'jim': dict(
+        skin='skin', base=p_jim,
+        eye=dict(x=0.4, z=0.05, s=0.2, up=0.56, lo=0.4, peak=0.04, tilt=-0.04, lash=0.05, lo_w=0.07, fold=0.26,
                  iris=0.5, iris_col=(76, 92, 78)),
-        brow=dict(x=0.4, z=0.33, s=0.23, w=0.06, arch=0.1, angle=-0.18, col=(52, 52, 56), kind='straight'),
+        brow=dict(x=0.4, z=0.31, s=0.24, w=0.078, arch=0.08, angle=-0.16, col=(66, 66, 70), kind='straight'),
         mouth=dict(z=-0.62, s=0.25, curve=-0.25, crook=-0.15, line_w=0.055),
         expr={
             'neutral': {'eye': {'open': 0.72}},

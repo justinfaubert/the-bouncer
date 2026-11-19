@@ -1,6 +1,6 @@
 extends "res://tests/shots_styles.gd"
 # The people as masks (PROPOSED, Hutch's pick of 18 November 2026; tools/masks.py builds them,
-# tools/faces.py draws their faces, game/face.gd lays a face together): the bartender, the team
+# tools/faces.py draws their faces, game/face.gd lays a face together): Jim the bartender, the team
 # jacket, the big man and Amanda, each on the masks proportions with their own spin, printed, on
 # twos, feeling things.
 #   xvfb-run -a -s "-screen 0 1920x1080x24" godot --rendering-driver opengl3 --resolution 1280x720 \
@@ -10,20 +10,20 @@ extends "res://tests/shots_styles.gd"
 # changing), close (each one close, talking), walk (the four walking), turn (each one standing,
 # turned round: the whole figure from five sides), swing (each one walking, seen from behind and to
 # the side: the hair and clothes moving), heights (prints how tall each one stands), quick (a look
-# at a change: the four at mid shot, then her face and the bartender's close), room (in the pub
-# itself, on a new night: the bartender and Amanda at the bar, the big man at the pool table with
+# at a change: the four at mid shot, then her face and Jim's close), room (in the pub
+# itself, on a new night: Jim and Amanda at the bar, the big man at the pool table with
 # Amanda crossing in front of it, the team jacket at table 28 with Amanda come to the table; each
 # a still, then talking, then he turns his head to her. Add still to skip the talking, or bar,
 # floor or t28 for one of them). who: one or more of them. A talk is 24 pictures to the second:
 # the room holds each pose for two of them, Amanda moves on every one (ONES).
 
 const MASKS := "res://models/masks/"
-const WHO := ["bartender", "team_jacket", "bigman", "amanda"]
+const WHO := ["jim", "team_jacket", "bigman", "amanda"]
 
 # the masks template (shots_styles.gd's "masks") and what each one changes in it
 const SPIN := {
-	# slight and wiry, fifties: a long face on a longer neck, narrow, thin arms, hands that work
-	"bartender": {"neck_01": {"len": 1.15}, "Head": {"len": 0.62, "s": 1.7}, "spine_03": {"len": 0.9, "s": 0.95},
+	# Jim, slight and wiry, fifties: a long face on a longer neck, narrow, thin arms, hands that work
+	"jim": {"neck_01": {"len": 1.15}, "Head": {"len": 0.62, "s": 1.7}, "spine_03": {"len": 0.9, "s": 0.95},
 		"upperarm_l": {"s": 0.85}, "upperarm_r": {"s": 0.85}, "lowerarm_l": {"len": 1.0}, "lowerarm_r": {"len": 1.0},
 		"hand_l": {"len": 1.0, "s": 1.3}, "hand_r": {"len": 1.0, "s": 1.3}, "calf_l": {"len": 0.8}, "calf_r": {"len": 0.8}},
 	# the loudest at table 28: the biggest head of them, no neck, short legs under the belly
@@ -55,12 +55,12 @@ const SPIN := {
 const SIZE := {"bigman": 1.1}
 # how each one carries themselves, over whatever the clip is doing: turns in the model's own frame
 # (degrees about its left, its up and its front: x pitches forward, z rolls toward its right), the
-# body before what hangs from it. The bartender leans in with her shoulders up, wound tight; the
+# body before what hangs from it. Jim leans in with his shoulders up, wound tight; the
 # team jacket leans back behind his belly, chin up; the big man rounds his shoulders and pushes his
 # head forward, level, like something that charges; Amanda stands straight and easy, shoulders
 # back, her feet close and her arms in, her head a little to one side
 const CARRY := {
-	"bartender": {"spine_02": Vector3(4, 0, 0), "clavicle_l": Vector3(0, 0, 5), "clavicle_r": Vector3(0, 0, -5),
+	"jim": {"spine_02": Vector3(4, 0, 0), "clavicle_l": Vector3(0, 0, 5), "clavicle_r": Vector3(0, 0, -5),
 		"neck_01": Vector3(6, 0, 0), "Head": Vector3(-4, 0, 0)},
 	"team_jacket": {"spine_01": Vector3(-5, 0, 0), "spine_03": Vector3(2, 0, 0), "Head": Vector3(-6, 0, 0)},
 	"bigman": {"spine_03": Vector3(7, 0, 0), "clavicle_l": Vector3(0, -8, 0), "clavicle_r": Vector3(0, 8, 0),
@@ -71,19 +71,21 @@ const CARRY := {
 # who moves on ones, every frame of the 24, while the room holds each pose for two: her
 const ONES := ["amanda"]
 # how open each one's hands hang, whatever the clip has them doing: 0 as the clip has them, 1 flat
-# as the rig was made. The idle makes fists; hers hang open and a little curled
-const OPEN := {"amanda": 0.55}
+# as the rig was made. The idle makes fists; hers hang open and a little curled, and Jim's are
+# loosened, a barman's at rest
+const OPEN := {"amanda": 0.55, "jim": 0.4}
 const FINGERS := ["index", "middle", "ring", "pinky", "thumb"]
 # what each one goes through while they talk, a quarter of the clip each
 const SCRIPT := {
-	"bartender": ["neutral", "suspicious", "angry", "eyeroll"],
+	"jim": ["neutral", "suspicious", "angry", "eyeroll"],
 	"team_jacket": ["neutral", "laugh", "sad", "drunk"],
 	"bigman": ["neutral", "menace", "surprised", "laugh"],
 	"amanda": ["knowing", "tease", "laugh", "far"],
 }
 # the mouths in turn as they talk, a held pose each: 0 shut, 1 a little open, 2 wide, 3 round
 const TALK := [1, 2, 1, 0, 3, 2, 1, 0, 2, 1, 3, 0]
-const HAIR := ["hair_grey", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey"]
+# (and the cap: a dome with a shine on it prints as a pale helmet too)
+const HAIR := ["hair_grey", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey", "cap_navy"]
 # She has a light of her own (a layer only she's on): a soft spot from just over his eyes, turned
 # where he looks. Whoever he looks at, the light from his eyes is on them a little (the game's own,
 # view.gd); when he looks at her, she warms and the strokes go off her skin. The anima is a
@@ -129,8 +131,10 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 				mat.set_shader_parameter("albedo_tex", face.tex)
 				mat.set_shader_parameter("specular", 0.25)
 			elif key in HAIR:
-				# hardly any shine: dark hair caught by the lamp prints pale, a helmet, not hair
-				mat = main.pub.mat(c, 0.95, 0.0, 4, Vector3.UP, 3.5, 0.5)
+				# hardly any shine: dark hair caught by the lamp prints pale, a helmet, not hair. And
+				# its strokes run the way hair is combed, front to back over the top and down the back
+				# (round the head, the way the skin's go, they read as stripes from across the room)
+				mat = main.pub.mat(c, 0.95, 0.0, 4, Vector3.RIGHT, 3.5, 0.5)
 				mat.set_shader_parameter("specular", 0.0)
 			elif key.begins_with("flannel"):
 				# the big man's shirt: a plaid, printed in the strokes like the rest
@@ -396,7 +400,7 @@ func _run() -> void:
 				for k in 8:
 					top = maxf(top, (m.global_transform * bb.get_endpoint(k)).y)
 			print("height ", p[3], " ", snappedf(top - AT.y, 0.01))
-	# a look at a change: the four in a row at mid shot, then her face and the bartender's close
+	# a look at a change: the four in a row at mid shot, then her face and Jim's close
 	if _want("quick"):
 		var people := _row("Idle_Talking_Loop")
 		for p in people:
@@ -411,7 +415,7 @@ func _run() -> void:
 		var bt: Array = people[0]
 		hp = _head_pos(bt)
 		await _look(hp + Vector3(0.3, 0.02, -1.3), hp + Vector3(0, -0.06, 0), 34.0)
-		await _grab("quick_bartender")
+		await _grab("quick_jim")
 	# the four across the room, every expression at once
 	if _want("far"):
 		var people := _row("Idle_Talking_Loop")
@@ -488,7 +492,7 @@ func _run() -> void:
 			await _look(Vector3(0.0, 1.0, -3.3), Vector3(0, 0.92, 0), 40.0)
 			await _talk([p], "swing_" + who, FRAMES)
 	# in the room itself, under its own lights, from where he is: a night started, the stage's own
-	# people put away and the masks where they'd be. The bar, across from the bartender with Amanda
+	# people put away and the masks where they'd be. The bar, across from Jim with Amanda
 	# come behind it for an order; the floor, the big man at the pool table and Amanda crossing in
 	# front of it; table 28, the team jacket on his stool and Amanda come to the table
 	if _want("room"):
@@ -512,7 +516,7 @@ func _run() -> void:
 			var paths := {}
 			match scene:
 				"bar":
-					cast.append(_mask("bartender", Vector3(1.15, 0, 4.8), PI / 2.0))
+					cast.append(_mask("jim", Vector3(1.15, 0, 4.8), PI / 2.0))
 					cast.append(_mask("amanda", Vector3(1.3, 0, 4.15), atan2(2.68 - 1.3, 5.0 - 4.15)))
 				"floor":
 					cast.append(_mask("bigman", Pub.POOL + Vector3(1.8, 0, 1.0), atan2(-1.8, -1.0)))

@@ -297,6 +297,15 @@ Update this file at the end of every session: add a session entry, move items be
 - Tried and dropped: printing her without strokes (she looked pasted in from another programme); her light on her face alone (a pale mask on a tan body); her light falling off with distance like a lamp's (from his stool it hardly reached her).
 - What's still wrong, from Claude's pass over the renders: her face is the smallest in the room, so from across it her expressions read least, the price of her proportions (her colour and her light carry her there); under the studio's amber side lamp a dark mark on one side of a face prints brown instead of black (one of her brows, the big man's stubble), which the pub's lights don't do; cast shadows still print solid black, on her skirt now; from far off, the strokes on the big man's bare head and the bartender's bun read as stripes; from behind, the team jacket's few hairs read as a white band round his head; her walk's hands are still the clip's. Pictures and clips in the project's `next-phase/people/masks/v3/`.
 
+### 2026-11-19 (Thursday afternoon), the game taken apart, and Jim
+
+- Hutch on round three: "Yes, you're understanding." The people look like Grim Fandango (1998) and other games from the early years of 3D; Hutch wants their visual quality raised "a decade or two", not to AAA, by clever methods, and the people brought "a little more to life". The bartender reads as a man, so he is one: Jim, in a ball cap "for now", who will be rewritten to take Paige's place (DECIDED, in the register). And before more of that: "take the whole game apart and play each piece out on the table", find how to raise the design and production value of each piece, and do the same for the experience as a whole, "to really understand what kind of experience we're offering players and how to be generous to them with our design." Writing still needs refining. The split on sound: Hutch does some of the music, the sound and the effects; the world's sound design and the spatial audio are Claude's.
+- The teardown is a doc, "The Bouncer, taken apart" (https://claude.ai/artifact/FFYznsEg8BETC9FU51cCX4): the experience, then the people, the room and town, the look, his body, the writing, talk and choices, the systems, sound and the frame, each as where it stands, what holds it back, the methods (each marked S, M or L), how far to push and who; then five bets and the order of work. The five bets: the people come alive; the door becomes the game; the print goes as deep as wood engraving; a room you can hear with your eyes shut; a night you keep. One scene first, at final quality, as the bible has always said: the door at ten to eight, the kid in the hood.
+- What the teardown measured. A Wednesday is 12,800 to 14,500 words of reading and 189 to 204 choices a run (three bot runs), about an hour and a half a night. The consequence audit finds all 677 choices change something read later, apart from five ways out of a room. The tics are where November left them (nobody 144, the way 134, looked at 111, somebody 97, something 90). Every sound is still a placeholder. The door isn't hands-on. Godot 4.7 has spring bones, look-at and the new IK nodes built in, and the cloud can now run the Forward+ renderer on a software Vulkan (installed for the session; a new container needs `apt-get update && apt-get install mesa-vulkan-drivers`).
+- Jim's first model (PROPOSED): the lifer's long face and hard mouth on a man's body, 1.70 m; grey hair cropped short under a dark ball cap with a pale patch on its front, six seams to a button, a D-shaped brim curved down at its sides and the strap's arch at the back; a pencil behind his right ear; the black shirt with its sleeves rolled, the long canvas apron and the bar towel over his shoulder; his brows heavier and hardly a lash; his hands loosened at rest from the idle clip's fists. Tried and changed: a brim pitched further down read as a bucket hat and hid his brows, and half of what his face does is with them; a pencil further forward crossed his temple like a scar.
+- Hair's strokes now run the way hair is combed, front to back over the top and down the back, instead of round the head, where they read as stripes from across the room. The cap takes the same strokes, which run with its panels.
+- What's still wrong: front to back, the strokes ring round the sides of a head in a small target over each ear; from straight in front the cap's crown is a dome a little too tall; the face shots still frame for the old bun, so they sit low.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -333,7 +342,7 @@ Update this file at the end of every session: add a session entry, move items be
   - The game opens with a job interview with the boss, Gary Van Dusen, "who is never around in the bar itself, only rarely", and "the game should open up as a POV of the boss". His office isn't in the Sovereign's building. The game can end right there if the player goes out of their way to be a dick: "it should be hard not to get hired but not impossible."
   - Stats: the classic six, and "Gut brain" for Intuition, running from 1 to 10. They move as the skeleton has it, and there are opportunities to train on purpose, at a cost.
   - The lost-and-found box: "excellent plan." Handling matters: the player looks at a thing in his hand and chooses what to do with it and what to think about it. The items' moral consequences are good, and there are more temptations, like pouring himself a beer when the bartender isn't looking, or asking her and implicating her.
-  - The head bartender is Paige: "Beautiful, fierce but sweet, no mary sue character...very flawed and full of negative idiosyncrasies like everyone else, but overall a solid individual." Every person is drawn that way: "not everyone is good, not everyone is evil..some push to the extremes though."
+  - The head bartender is Paige: "Beautiful, fierce but sweet, no mary sue character...very flawed and full of negative idiosyncrasies like everyone else, but overall a solid individual." Every person is drawn that way: "not everyone is good, not everyone is evil..some push to the extremes though." (The head bartender became Jim on 2026-11-19; below.)
   - Every object he can see is reachable (the jukebox wasn't).
   - The town is generated once a game, on predetermined streets: detailed, "a real living little town, nothing fluffed off." About four hundred people may be just right. Not every peripheral story happens in every game, for replayability. The province's minors test stays: it happened to Hutch behind the bar.
   - Fights: several ways to deal with an altercation, each visually interesting and informative; the fight in seconds, each second a choice; and he can build a rapport, or an enmity, with at least one police officer.
@@ -346,6 +355,8 @@ Update this file at the end of every session: add a session entry, move items be
   - His deaths depend on the death: where and when he starts again is context-aware, sometimes back in time and sometimes "a hallucination(or was it?) that starts you on the next day instead of the previous".
 - The dice tray goes down only where the dice would hit the ground. Off the ledge by the door, the bar, table 28, the felt and the kitchen's steel they land as they always have. Hutch's pick on a card, 2026-10-14 ("Ground only").
 - The night's clock stays still while he stands and watches the room: the room goes on in real time around him, but the clock only moves with what he does. Hutch's pick on a card, 2026-10-24 ("Keep it still").
+- The head bartender is a man, Jim, in a ball cap "for now". Hutch, 2026-11-19: "Looking at the model it really looks like a man, so It'll be a man I think. Call him Jim, put a ball cap on him for now and we'll rewrite him to replace Paige in the game." The rewrite is Hutch's, with Claude; until then the Ink's bartender is still written as her.
+- Production value comes first, before more of the game: the whole game taken apart piece by piece, and the experience as a whole, for how to raise each and how to be generous to players (Hutch, 2026-11-19; the doc is "The Bouncer, taken apart"). The world's sound design and the spatial audio are Claude's; Hutch does some of the music, the sound and the effects.
 
 ### PROPOSED (waiting on Hutch)
 
@@ -705,9 +716,9 @@ Proposed with the masks, round three (2026-11-19), from Hutch's note (she isn't 
 
 1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
 2. **The bar.** Drafted in `06_THE_HOTEL.md`; waiting on Hutch's cuts and the name.
-3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED); he gets this job in Gary Van Dusen's interview (DECIDED, 2026-10-14). Open: why he left the last one, what people call him, and whether he has a name the player hears (Paige would say it once he's lasted a week).
+3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED); he gets this job in Gary Van Dusen's interview (DECIDED, 2026-10-14). Open: why he left the last one, what people call him, and whether he has a name the player hears (the bartender would say it once he's lasted a week).
 4. **The voices on day 1.** Who are the first five in the room?
-5. **The head bartender.** A lifer, and she's Paige (DECIDED). Open: her age (the draft has her in her fifties) and her worst habit.
+5. **The head bartender.** A lifer (DECIDED), and since 2026-11-19 a man, Jim, in Paige's place (DECIDED). Open: his age (the model is in his fifties), his worst habit, and the rewrite, which is Hutch's. The bartender speaks more than anyone in a Wednesday (63 lines in one run), so the rewrite is a big one.
 6. **The rats.** Structure DECIDED (doubling, recurring parley with the Rat King, extermination at a cost). The Rat King is both the knot and a man (DECIDED). Open: who the man is; the first parley.
 
 ### Soon
@@ -717,11 +728,11 @@ Proposed with the masks, round three (2026-11-19), from Hutch's note (she isn't 
 12. AI disclosure: the game itself acknowledges that an AI built it (DECIDED, 2026-10-14), and the draft puts it at the very end. Open: what the store page says, and whether any AI images ship.
 18. His death on the last night: does it stay a death, an ending the teller tells like the others? (The draft says yes. The rest of his deaths are DECIDED, 2026-10-14.)
 20. Gary's office: where it is in town, and what's in it (the draft, as built 17 October: the front room of his mother's house on the old main street).
-21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed).
+21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed). Now the bartender is called Jim (2026-11-19): is that a nod to the same friend, and does the old soldier still need a name of his own?
 22. Music on Saturdays: a band, and a dance floor?
 23. A First Nation beside the town: in the game or not, and how. Hutch's call, and people from a Nation should have a say in it.
 
 ### Later
 
 14. The empire, the city, the factions and the politics.
-15. A title check before any store page.
+15. A title check before any store page. The Bouncer is a 2001 Square game; the teardown (2026-11-19) puts the name first among Hutch's decisions, since the store page, the capsule art and the trailer carry it.
