@@ -742,13 +742,14 @@ def dress(spec, name, bodyob, arm, pts):
             out.append(sheet(f'{name}_skirt_band', args[0], [r0, r1], True, 0.005, arm, lambda co: {'pelvis': 0.7, 'spine_01': 0.3}))
             under['skirt'] = (rings, cy, angs, swing_w)
         elif kind == 'apron_half' and 'skirt' in under:
-            # a white half apron lying over the front of the skirt, shorter than it, a pocket on it for
-            # the order pad; its band round her waist, tied in a bow at the back
+            # a white half apron lying over the front of the skirt, a pocket on it for the order pad; its
+            # band round her waist, tied in a bow at the back. Small, so the skirt's black shows round
+            # it: it's the brightest white on her, and a big one pulled the eye to her lap, not her face
             rings, cy, angs, w = under['skirt']
-            front = [i for i, g in enumerate(angs) if abs(math.remainder(g + math.pi / 2, 2 * math.pi)) < 1.1]
+            front = [i for i, g in enumerate(angs) if abs(math.remainder(g + math.pi / 2, 2 * math.pi)) < 0.8]
             front.sort(key=lambda i: math.remainder(angs[i] + math.pi / 2, 2 * math.pi))
             ar = []
-            for r in rings[1:11]:
+            for r in rings[1:9]:
                 row = []
                 for i in front:
                     d = Vector((r[i].x, r[i].y - cy, 0.0))
