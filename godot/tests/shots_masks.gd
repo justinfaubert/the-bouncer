@@ -543,10 +543,13 @@ func _run() -> void:
 			await _grab("room_" + scene)
 			if not _want("still"):
 				await _talk(cast, "room_" + scene, FRAMES, main.view.eye_pos, paths, Vector3.ZERO)
-			# then he turns his head to her, and the light from his eyes comes up on her
+			# then he turns his head to her, and the light from his eyes comes up on her; she meets
+			# his look, knowing
 			for p in cast:
 				if p[3] == "amanda":
 					main.view.look_at_point(_head_pos(p) + AT)
 					await _frames(120)
+					(p[2] as DrawnFace).wear("knowing", 0, false, _gaze_at(p, main.view.cam.global_position))
+					await _frames(2)
 					await _grab("room_" + scene + "_her")
 	quit()
