@@ -269,6 +269,13 @@ Update this file at the end of every session: add a session entry, move items be
 - Claude's calls here are under PROPOSED, "Proposed with the things in the room (2026-10-30)". The daughter back for the coat has a HUTCH prompt (36 prompts now).
 - Delivered on 30 October (fd36bab): `releases/The-Bouncer-2026-10-30.zip` to play on Linux, the Godot web build at its link (version 20; version 19 only carried the first half of the new files), and the browser build at its link (version 14). That's the polish Hutch asked for on 23 October, all four steps; M4, the town, waits on branch `m4-town` for Hutch's go.
 
+### 2026-11-19 (Thursday), the Big One
+
+- Hutch set the brief for the Big One (the project thread "Brainstorm what the Big One is"): Canada where he lives, and the hyperconnected West, an alternate timeline, a dream and a reflection of ours; decline in every form, told with Toynbee and today's geopolitics made digestible; its origin vague and stranger than any one theory; the player learns more about it than anyone round him, through people, events, objects and the rat king; the bar is touched by it while he isn't there, and he comes face to face with it. The game is now called *Last Call*.
+- Round one (a Claude Doc, https://claude.ai/artifact/1P5CYpq2DKzTUXw38JbjKe): five candidates. Hutch picked the Listener as "the calibre of idea that I want", and asked for the touchstones taken literally, as things the player sees and does.
+- Round two (https://claude.ai/artifact/5CpyENe1PsJE48dAC581yW): five proposals with sample scenes, week by week. Hutch: the Listener is the direction, to grow into detailed lore the player uncovers; a flat black sphere loses its impact in low-poly 3D, so its look has to be worked out; and small meaningful animations for the events.
+- Round three, the sphere's look, rendered in the game: `godot/look/listener.gdshader` (a sphere traced per pixel, so its outline is exact at any distance, with seven looks) and `godot/tests/shots_listener.gd` (it on the strait off the seawall, at night and in the grey daylight, stills and films). The press got one addition, printed twice (`godot/look/press.gdshader`): a second hit of the night ink, used only by the sphere's body, so it's blacker than the dark strait round it. Claude's pick and fourteen small animations, from the light on day 1 to face to face, are under PROPOSED, "Proposed with the Listener's look (2026-11-19)".
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -642,6 +649,11 @@ Proposed with the things in the room (2026-10-30), from Hutch's note that there 
 - **The butts:** three in the can at twenty to eight, one more every eighteen minutes, thirty at most.
 - **The colours:** the big man's coat canvas 8a6a44 with a corduroy collar 4a3a28 in the room (5c4630 in his hand, darker than the last doorman's); the wallet 6a4630; the extinguisher a brick 8a5a3a that prints in the earth, never the red; the bucket and the sign d8a428, in the lamp ink. The jukebox's red light doesn't reach the back hall's things through the wall.
 - **The big TV's pictures:** the hockey, the late news with the light over the strait, the game again, the curling from the prairies, and off.
+
+Proposed with the Listener's look (2026-11-19), from Hutch's note that a flat black sphere loses its impact in low-poly 3D. Rendered, not yet in a night:
+
+- **The sphere:** its body printed twice, the only black in the game with no paper in it, its edge cut pale against the water. A window at its heart, rimmed in white: far off it's one white light (the Esso kid's light on day 1); narrowed on, it's the Sov's room upside down, the way a glass ball shows what's behind it. The Sov as it is right now until day 29; on day 29, the frozen bar of the last night. Penrose tiles under the black that come up from the window only when it hears something, as far as it's hearing, and flip a ribbon at a time. Its glass gives back the light at its rim. Printed clean only face to face. Seven looks rendered and compared in `godot/tests/shots_listener.gd`.
+- **Its events, as small animations:** the light's tear in the cloud staying open round it (day 1); Jim's glasses creeping a pencil width a night, one moving once while watched (Gut Brain 8); the knot turning to the strait, every tail twitching once under the torch; the black ball as a small one of the same black, frost and a wet ring under it, its tiles up when the jukebox plays, the rats' tracks in sugar circling it, water in its heart; Jim's straws at fifty a minute, and the print's heartbeat drifting to fifty by day 29; the radio's dial light out at the end of the sentence; the copy on the flats facing him only when he narrows his eyes; the visitor's breath that doesn't fog, his pint that doesn't go down, his footprints that don't dry; the payphone's receiver jumping in its cradle; the clicker ticking over with the door still; the silence taking the colour plates off one at a time until every plate slips at once; the rising, with the bright lip and the rings; the frozen bar's glasses in rows, the clean ring where the ball sat; face to face, its tiles flipping with the syllables.
 
 ### REJECTED
 
