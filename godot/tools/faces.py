@@ -713,7 +713,8 @@ def p_bigman(lay, st):
 def p_amanda(lay, st):
     # fewer marks than anyone: the hollow under each high cheekbone and its top in the light, a
     # little colour there, the sides of a straight nose, the groove above her lip, the shadow under
-    # it, her chin lit. No lines and no beauty mark: nothing on her face has happened to it yet
+    # it, her chin lit. No lines: nothing on her face has happened to it yet. One beauty mark, over
+    # the corner of her mouth on her left (round four, PROPOSED: Hutch wants Holli Would's heat)
     skin = st['skin_col']
     for sx in (-1, 1):
         # the plane under the cheekbone, short, from by the ear down toward the mouth: cut clean
@@ -736,6 +737,7 @@ def p_amanda(lay, st):
     lay.soft([('line', [(0.0, -0.355), (0.0, -0.44)], 0.036)], darker(skin, 0.88), 0.35, 0.012)
     lay.soft([('ell', 0, -0.78, 0.14, 0.035)], darker(skin, 0.82), 0.5, 0.02)
     lay.soft([('ell', 0, -0.9, 0.12, 0.05)], mixc(skin, (255, 244, 230), 0.3), 0.3, 0.03)
+    lay.soft([('ell', 0.25, -0.45, 0.017, 0.017)], (46, 28, 24), 0.95, 0.004)
 
 
 PEOPLE = {
@@ -807,21 +809,23 @@ PEOPLE = {
         }),
     # the new server, from Germany, her features a little like Disney's Pocahontas (she isn't
     # Native). Long almond eyes lifted at the outer corners, dark and warm, with amber round the
-    # pupil and the light caught in them twice; a strong level brow with a soft lift; a straight
-    # nose; a full mouth the deep rose of her dress, a little higher at one corner. Her resting face
-    # already knows something ("knowing", the Mona Lisa's, Khnopff's women's); sometimes she looks
-    # past him at something behind him ("far"). She's funny too: she teases, sticks out her tongue,
-    # rolls her eyes, winks
+    # pupil and the light caught in them twice; a straight nose. Round four (PROPOSED), from pretty
+    # to knowing, because Hutch found her "cute but no Holli Would": heavier lids and a sidelong look
+    # at rest, a smoky shadow and a longer wing, brows lower and sharper, a darker red mouth with a
+    # fuller lower lip that sets higher at one corner, a beauty mark. Her resting face already knows
+    # something ("knowing", the Mona Lisa's, Khnopff's women's); sometimes she looks past him at
+    # something behind him ("far"). She's funny too: she teases, sticks out her tongue, rolls her
+    # eyes, winks
     'amanda': dict(
         skin='skin_olive', base=p_amanda, soft_marks=True,
-        eye=dict(x=0.39, z=0.06, s=0.25, up=0.46, lo=0.24, peak=0.06, tilt=0.17, lash=0.23, lo_w=0.045, crease=0.42,
-                 shadow=(104, 70, 58), shadow_a=0.5, lashes=4, lash_len=1.1, lash_w=0.42, wing=True, wing_len=0.75, wing_w=0.75,
+        eye=dict(x=0.39, z=0.06, s=0.25, up=0.46, lo=0.24, peak=0.06, tilt=0.2, lash=0.26, lo_w=0.05, crease=0.42,
+                 shadow=(84, 48, 52), shadow_a=0.72, lashes=5, lash_len=1.25, lash_w=0.46, wing=True, wing_len=1.05, wing_w=0.9,
                  iris=0.6, iris_col=(62, 40, 28), iris_ring=(214, 150, 62), catch=2),
-        brow=dict(x=0.41, z=0.365, s=0.27, w=0.07, arch=0.3, angle=0.05, col=(14, 10, 10)),
-        mouth=dict(z=-0.58, s=0.27, curve=0.1, crook=0.12, line_w=0.042,
-                   lips=dict(col=(146, 44, 52), upper=0.07, lower=0.1)),
+        brow=dict(x=0.41, z=0.34, s=0.27, w=0.072, arch=0.36, angle=-0.03, col=(14, 10, 10)),
+        mouth=dict(z=-0.58, s=0.27, curve=0.06, crook=0.24, line_w=0.042,
+                   lips=dict(col=(120, 22, 38), upper=0.075, lower=0.135)),
         expr={
-            'neutral': {'eye': {'open': 0.7}},
+            'neutral': {'eye': {'open': 0.6, 'squint': 0.18}, 'gaze': (0.32, -0.03)},
             'knowing': {'brow': {'l': {'raise': -0.01}, 'r': {'raise': 0.03, 'arch': 0.06}}, 'eye': {'open': 0.6, 'lid_out': 0.06},
                         'mouth': {'curve': 0.32, 'crook': 0.42, 'width': 0.95}, 'gaze': (0.0, 0.0)},
             'far': {'brow': {'raise': 0.025, 'angle': 0.08}, 'eye': {'open': 0.8}, 'mouth': {'curve': 0.0, 'crook': 0.0, 'open': 0.06, 'width': 0.95},

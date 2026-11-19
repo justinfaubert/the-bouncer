@@ -55,6 +55,7 @@ Nothing moves from PROPOSED to DECIDED without Hutch's explicit OK.
 - The systems, the narrator, the engine and the art direction are PROPOSED and waiting on Hutch.
 - Wednesday is written in Ink (`content/ink/`) and plays in the browser (`prototype/web/`, published as a private artifact), with director mode for editing it while playing. The folder is a git repo. (Updated 2026-09-26.)
 - The skeleton of the game as an RPG is the direction (DECIDED, 14 October: "this is fantastic. All of it."). Hutch's calls are in it: the opening in Gary Van Dusen's office, seven stats from 1 to 10 with Gut Brain, the fight in seconds, looking and going, deaths by context, and the Big One with the sky in it. The rest of `11_SKELETON.md` is Claude's draft, PROPOSED. Hutch's stories from the door are in `12_FROM_THE_DOOR.md`. (Updated 2026-10-14.)
+- The play length is DECIDED: thirty days at three speeds, six long nights and the morning after, ten short shifts of about half an hour, and days off that are the player's own, for about 16 hours a first run. The plan for the pace, the toys and the adult edge is the doc "Last Call: pace, length and edge" (https://claude.ai/artifact/GEV8TQd4D2P4TTUYg8Q8Sz), PROPOSED item by item in `05_LOG.md`, and the edge is tested on two scenes in `content/revisions/edge_pass_sample.md`. (Updated 2026-11-19.)
 
 ## Next steps (linked session)
 

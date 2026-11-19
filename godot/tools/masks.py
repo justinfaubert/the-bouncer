@@ -112,17 +112,19 @@ PEOPLE = {
     # a long face, high broad cheekbones, a strong level brow, long dark eyes lifted at the outer
     # corners, a full mouth, a defined chin; olive skin; black hair parted in the middle and drawn
     # back into a braid that hangs to the backs of her thighs, a strand loose at each temple; pearl
-    # drops. A crimson dress out of an old European film: a boat neck, sleeves to the elbow, a narrow
-    # black belt, a full skirt to below the knee; a server's black pouch at her hip, dark stockings,
-    # low black heels. The one person in the room printed in the sign's red, and drawn closer to the
-    # human than the rest (her proportions, her light and her motion: tests/shots_masks.gd)
+    # drops. A crimson dress she chose for the room (round four, PROPOSED: Hutch wants Holli Would's
+    # heat, where round three's dress out of an old European film read cosy): a scoop neck, short
+    # sleeves, fitted through the waist and hips to a skirt that only just flares, to the knee; a
+    # narrow black belt; a server's black pouch at her hip, dark stockings, low black heels. The
+    # one person in the room printed in the sign's red, and drawn closer to the human than the rest
+    # (her proportions, her light and her motion: tests/shots_masks.gd)
     'amanda': dict(
         base='female', smooth=6,
-        body=[('spine_03', (0.07, 0.09, 0.03), 0.08, 0.006), ('spine_03', (-0.07, 0.09, 0.03), 0.08, 0.006),
-              ('spine_01', (0.125, 0.0, 0.08), 0.075, -0.012), ('spine_01', (-0.125, 0.0, 0.08), 0.075, -0.012),
-              ('pelvis', (0.165, 0.0, 0.0), 0.1, 0.008), ('pelvis', (-0.165, 0.0, 0.0), 0.1, 0.008)],
-        paint=dict(top=('dress_red', 'elbow'), bottom='tights', shoes='shoe_black', heels=14, neckline=1.425, boat=True),
-        wear=['shell:dress_red:0.003', 'swing:dress_red:-0.07:0.14', 'sash:belt_black', 'pouch:apron_black'],
+        body=[('spine_03', (0.07, 0.09, 0.03), 0.08, 0.009), ('spine_03', (-0.07, 0.09, 0.03), 0.08, 0.009),
+              ('spine_01', (0.125, 0.0, 0.08), 0.075, -0.016), ('spine_01', (-0.125, 0.0, 0.08), 0.075, -0.016),
+              ('pelvis', (0.165, 0.0, 0.0), 0.1, 0.011), ('pelvis', (-0.165, 0.0, 0.0), 0.1, 0.011)],
+        paint=dict(top=('dress_red', 'short'), bottom='tights', shoes='shoe_black', heels=14, neckline=1.355),
+        wear=['shell:dress_red:0.003', 'swing:dress_red:0.0:0.14:0.22', 'sash:belt_black', 'pouch:apron_black'],
         head=dict(w=0.09, d=0.1, h=0.13, jaw=0.75, chin=0.014, crown=1.0, cheeks=1.05, flat=0.85),
         nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_black'), beard=None, skin='skin_olive',
         things=['pearls', 'wisps', 'parted'], braid=dict(length=1.05, bones=8)),
@@ -727,6 +729,8 @@ def dress(spec, name, bodyob, arm, pts):
             # hem (from the knee) and its waist (from the pelvis) can be given
             top = pelvis_z + (float(args[2]) if len(args) > 2 else 0.1)
             hem = knee_z + (float(args[1]) if len(args) > 1 else 0.03)
+            # how far it flares by the hem (0.62 a full swing skirt; less, and it's fitted)
+            flare = float(args[3]) if len(args) > 3 else 0.62
             hip_z = pelvis_z - 0.05
             angs = [2 * math.pi * i / 64 for i in range(64)]
             cy, _ = slice_ring(pts, top, ('pelvis', 'spine_01'), angs, 0.012)
@@ -744,7 +748,7 @@ def dress(spec, name, bodyob, arm, pts):
                     for g, p in zip(angs, r_hip):
                         d = Vector((p.x, p.y - cy, 0.0))
                         # wider to the sides than to the front and back, and folding as it falls
-                        grow = 1.0 + (0.62 - 0.14 * abs(math.sin(g))) * u ** 1.25
+                        grow = 1.0 + flare * (1.0 - 0.226 * abs(math.sin(g))) * u ** 1.25
                         fold = 1.0 + 0.05 * u * math.sin(9 * g + 0.4)
                         q = d * grow * fold
                         r.append(Vector((q.x, cy + q.y, z)))
