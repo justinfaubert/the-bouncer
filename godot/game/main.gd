@@ -1,4 +1,4 @@
-# The Bouncer: Wednesday, the test shift, through his eyes, printed.
+# Last Call: Wednesday, the test shift, through his eyes, printed.
 #
 # The game: boots the night, reads it into the column as it happens, and keeps the room in step
 # with it. Everything the night says comes from the engine (engine/game.gd, the browser build's
@@ -806,7 +806,7 @@ func _end_action(what: String) -> void:
 
 
 func _transcript() -> String:
-	var out: Array = ["THE BOUNCER. Wednesday, the test shift.", ""]
+	var out: Array = ["LAST CALL. Wednesday, the test shift.", ""]
 	var st := game.status()
 	if bool(st.get("statsSet", false)):
 		var bits: Array = []

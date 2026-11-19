@@ -14,7 +14,7 @@ Everything else in this bible serves these words. From the session of 25 Septemb
 
 ## The premise
 
-- **Working title: The Bouncer.** [DECIDED] The name is already on a Square game from 2001; see Legal in `04_PRODUCTION.md`.
+- **The name: Last Call.** [DECIDED 2026-11-19] "The name should be Last Call. There is a game from 2000 with that name but we can add to it later if need be." The working title, *The Bouncer*, is on a Square game from 2001; see Legal in `04_PRODUCTION.md`.
 - **The protagonist is the new bouncer.** [DECIDED] Disco's cop had a badge and no self. A doorman has judgment and no badge, and his whole job is deciding who gets in.
 - **His head works like his door.** [PROPOSED] He collects many voices, but only five fit in the room at once, so letting one in means throwing one out. Jung's *Seven Sermons to the Dead* opens with the dead at his door, back from Jerusalem, asking to be let in.
 - **Implicated, never absolved.** [PROPOSED] He lets in the man who does the damage, and he puts people out into the rain. The job implicates him every night, and the game never lets him off.

@@ -55,13 +55,14 @@ const SPIN := {
 const SIZE := {"bigman": 1.1}
 # how each one carries themselves, over whatever the clip is doing: turns in the model's own frame
 # (degrees about its left, its up and its front: x pitches forward, z rolls toward its right), the
-# body before what hangs from it. Jim leans in with his shoulders up, wound tight; the
+# body before what hangs from it. Jim, meek, takes up less room than he has: his shoulders round
+# forward and drop a little, his arms keep in, his head comes a little forward and down; the
 # team jacket leans back behind his belly, chin up; the big man rounds his shoulders and pushes his
 # head forward, level, like something that charges; Amanda stands straight and easy, shoulders
 # back, her feet close and her arms in, her head a little to one side
 const CARRY := {
-	"jim": {"spine_02": Vector3(4, 0, 0), "clavicle_l": Vector3(0, 0, 5), "clavicle_r": Vector3(0, 0, -5),
-		"neck_01": Vector3(6, 0, 0), "Head": Vector3(-4, 0, 0)},
+	"jim": {"spine_02": Vector3(3, 0, 0), "spine_03": Vector3(2, 0, 0), "clavicle_l": Vector3(0, -6, -2), "clavicle_r": Vector3(0, 6, 2),
+		"upperarm_l": Vector3(0, 0, -4), "upperarm_r": Vector3(0, 0, 4), "neck_01": Vector3(3, 0, 0), "Head": Vector3(-5, 0, 0)},
 	"team_jacket": {"spine_01": Vector3(-5, 0, 0), "spine_03": Vector3(2, 0, 0), "Head": Vector3(-6, 0, 0)},
 	"bigman": {"spine_03": Vector3(7, 0, 0), "clavicle_l": Vector3(0, -8, 0), "clavicle_r": Vector3(0, 8, 0),
 		"upperarm_l": Vector3(0, 0, 4), "upperarm_r": Vector3(0, 0, -4), "neck_01": Vector3(10, 0, 0), "Head": Vector3(-12, 0, 0)},
@@ -85,7 +86,7 @@ const SCRIPT := {
 # the mouths in turn as they talk, a held pose each: 0 shut, 1 a little open, 2 wide, 3 round
 const TALK := [1, 2, 1, 0, 3, 2, 1, 0, 2, 1, 3, 0]
 # (and the cap: a dome with a shine on it prints as a pale helmet too)
-const HAIR := ["hair_grey", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey", "cap_navy"]
+const HAIR := ["hair_grey", "hair_steel", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey", "cap_navy"]
 # She has a light of her own (a layer only she's on): a soft spot from just over his eyes, turned
 # where he looks. Whoever he looks at, the light from his eyes is on them a little (the game's own,
 # view.gd); when he looks at her, she warms and the strokes go off her skin. The anima is a

@@ -16,7 +16,7 @@ face changes (game/face.gd) and puts each iris where they're looking, clipped to
 so the eyes can follow someone, slide away from them, or drift apart when they're drunk.
 
 Every face has the same expressions, so the game can ask anyone to look afraid, and each draws
-them in their own way: Jim's anger is cold and his smile rare and crooked, the team
+them in their own way: Jim's brows rise at the least thing and his smile looks away, the team
 jacket's laugh takes over his whole head and his sorrow cries, the big man does everything with
 one brow, and Amanda's resting face already knows something you don't.
 
@@ -630,7 +630,7 @@ def talk_mouths(m):
 def p_jim(lay, st):
     # Jim, the lifer: twenty-five years behind the bar. His age in the lines that don't go away:
     # crow's feet, two lines down from his nose to past his mouth, the ones under his eyes, a
-    # crease in his chin, the forehead he's frowned with (most of it under the cap's band)
+    # crease in his chin, and the forehead he raises his brows with (most of it under the cap's band)
     skin = st['skin_col']
     lc = darker(skin, 0.62)
     lay.soft([('ell', -0.4, -0.12, 0.18, 0.1), ('ell', 0.4, -0.12, 0.18, 0.1)], darker(skin, 0.86), 0.6, 0.04)
@@ -739,26 +739,35 @@ def p_amanda(lay, st):
 
 
 PEOPLE = {
-    # Jim, the lifer: hard, knowing, flat. Heavy lids, grey-green eyes, straight steel-grey brows
-    # heavier than they were when he was drawn as a woman, hardly a lash, a long upper lip and the
-    # mouth turned down. His smile is rare and goes up one side; his anger is cold, the lids come
-    # down and the mouth goes thin; he's never really surprised
+    # Jim (Hutch, 19 November 2026: "a drummer in cover bands, meek, reliable, very ocd"): a face
+    # that gives way easily and puts itself back together. Grey-green eyes a little open, their
+    # outer corners down; straight steel-grey brows that lift in the middle at the least thing;
+    # hardly a lash; a long upper lip and a small mouth that presses shut. His smile is small and
+    # looks down and away; his anger stays behind his teeth and his eyes go somewhere else; his
+    # shout comes out half alarm; a startle is the biggest thing his face does. Counting, he looks
+    # down and his lips move
     'jim': dict(
         skin='skin', base=p_jim,
-        eye=dict(x=0.4, z=0.05, s=0.2, up=0.56, lo=0.4, peak=0.04, tilt=-0.04, lash=0.05, lo_w=0.07, fold=0.26,
-                 iris=0.5, iris_col=(76, 92, 78)),
-        brow=dict(x=0.4, z=0.31, s=0.24, w=0.078, arch=0.08, angle=-0.16, col=(66, 66, 70), kind='straight'),
-        mouth=dict(z=-0.62, s=0.25, curve=-0.25, crook=-0.15, line_w=0.055),
+        eye=dict(x=0.4, z=0.05, s=0.2, up=0.56, lo=0.4, peak=0.04, tilt=-0.08, lash=0.05, lo_w=0.07, fold=0.22,
+                 iris=0.54, iris_col=(76, 92, 78)),
+        brow=dict(x=0.4, z=0.25, s=0.24, w=0.072, arch=0.1, angle=0.12, col=(66, 66, 70), kind='straight'),
+        mouth=dict(z=-0.62, s=0.22, curve=-0.08, crook=0.0, line_w=0.05),
         expr={
-            'neutral': {'eye': {'open': 0.72}},
-            'smile': {'eye': {'open': 0.7, 'squint': 0.35}, 'mouth': {'curve': 0.6, 'crook': 0.55}},
-            'laugh': {'mouth': {'curve': 0.7, 'open': 0.6, 'width': 0.95}, 'head': (1.03, 0.97)},
-            'angry': {'eye': {'open': 0.6, 'lid_in': 0.3}, 'mouth': {'curve': -0.25, 'width': 0.75}, 'marks': ['furrow', 'glare']},
-            'surprised': {'brow': {'l': {'raise': 0.03}, 'r': {'raise': 0.13, 'arch': 0.25}}, 'eye': {'open': 1.05}, 'mouth': {'shape': 'normal', 'open': 0.25, 'curve': -0.2, 'width': 0.8},
-                          'head': (0.98, 1.03), 'marks': ['forehead']},
-            'sly': {'mouth': {'curve': 0.45, 'crook': 0.7}},
-            'tired': {'eye': {'open': 0.35}},
-            'eyeroll': {'brow': {'raise': 0.06, 'angle': 0.1}, 'eye': {'open': 0.62}, 'mouth': {'curve': -0.3, 'crook': -0.5, 'width': 0.85}, 'gaze': (0.4, 1.0)},
+            'neutral': {'eye': {'open': 0.82}},
+            'smile': {'brow': {'angle': 0.1}, 'eye': {'open': 0.74, 'squint': 0.3}, 'mouth': {'curve': 0.5, 'crook': 0.3, 'width': 0.85},
+                      'gaze': (0.3, -0.35)},
+            'laugh': {'mouth': {'curve': 0.7, 'open': 0.5, 'width': 0.9, 'tongue': False}, 'head': (1.02, 0.98), 'gaze': (0.2, -0.4)},
+            'angry': {'brow': {'angle': -0.38, 'raise': -0.03}, 'eye': {'open': 0.8, 'lid_in': 0.2, 'squint': 0.1},
+                      'mouth': {'curve': -0.3, 'width': 0.65}, 'gaze': (0.45, -0.15)},
+            'shout': {'brow': {'angle': 0.35, 'raise': 0.07}, 'eye': {'open': 1.15, 'lid_in': 0.0}, 'mouth': {'curve': -0.35, 'open': 0.8, 'width': 0.9},
+                      'marks': ['worry']},
+            'surprised': {'eye': {'open': 1.35}, 'head': (0.94, 1.08)},
+            'suspicious': {'eye': {'open': 0.7, 'squint': 0.3}, 'mouth': {'curve': -0.15, 'crook': -0.35, 'width': 0.72}},
+            'sly': {'brow': {'l': {'raise': 0.0}, 'r': {'raise': 0.04, 'arch': 0.1}}, 'eye': {'open': 0.68},
+                    'mouth': {'curve': 0.35, 'crook': 0.45, 'width': 0.85}, 'gaze': (0.45, -0.3)},
+            'tired': {'eye': {'open': 0.45}},
+            'counting': {'brow': {'angle': 0.05, 'raise': -0.01}, 'eye': {'open': 0.62}, 'mouth': {'curve': -0.05, 'open': 0.08, 'width': 0.7},
+                         'gaze': (-0.2, -0.85)},
         }),
     # table 28's loudest, drunk and happy: eyes always half laughing, high arched brows, red-brown
     # cheeks, a huge grin, jowls. His laugh takes over his whole head; his sorrow cries; his

@@ -22,6 +22,7 @@ The small words gave them away most: five people said "Fine." and four said "Goo
 | Who | Yes / fine | No | To him |
 |---|---|---|---|
 | THE BARTENDER | *Yep.* *Mm.* | *Nope.* *No.* | *Door* |
+| JIM (the bartender to come) | *Yeah, no, yeah.* *Okay. Okay.* | *Sorry, no.* | *Door*, carefully |
 | THE COOK | *Heard.* *Yeah yeah.* | *Not a chance.* | *Security* |
 | THE OWNER | *Good. Good man.* *Fine, fine.* | *That's not a thing.* | *buddy* |
 | TERRY | *Oh, sure, sure.* *You bet.* | *Oh, no no.* | *pal* |
@@ -50,6 +51,22 @@ The lifer. Fifties. A server here at nineteen, thirty-one years behind this bar,
 - **She answers her own questions** ("How long? Thirty-one years."). She swears flatly, as punctuation, never at anyone ("the fuckin' card machine"). She never explains anything twice.
 - **Never:** pep talks, wisecracks, or advice dressed up as advice. Advice from her is an order about the bar.
 - *Was:* "Table 28 doesn't get cut off. Owner's rule." *Now:* "Table 28 don't get cut off. That's Junior's rule, so don't look at me."
+
+### JIM, the bartender to come [PROPOSED 2026-11-19]
+Hutch: "a drummer in cover bands, meek, reliable, very ocd." He takes the bartender's place above when Hutch rewrites her; until then the Ink is hers. This is a first sheet for that rewrite, from those four things and what the night already asks of the bartender, who says more than anyone on a Wednesday (63 lines in one run, 223 in the Ink; every one is listed in `content/revisions/jim_groundwork.md`). Everything here is Hutch's to cut.
+- **He keeps time for other people's songs.** Thirty years of covers, played the way the record goes, and he's proud of exactly that. The bar is the same job: he's the one who's always there and knows where everything is, and nobody claps. Both are places he can be good at something without being looked at. The sticks in his back pocket go everywhere with him.
+- **Counts out loud, quietly.** The lifer's counting stays and gets exact: how many on the rail, how many tickets up, how many nights since the card machine last went down. He finishes the count before he answers ("Fourteen, fifteen. Sorry. Yeah?"). Numbers are where he's sure of himself.
+- **Starts with sorry and ends on a question.** *Sorry*, *I mean*, *just*, *if that's okay*, *or not*. An order comes out as a question ("Could you maybe walk, though?"), and he doesn't wait for the answer.
+- **Puts things back.** The OCD is habits the player sees and hears, never a joke: bottles faced label out, the till counted twice, the towel folded in thirds, the pencil back behind his ear. A line can break off for one ("Hang on." He turns the Jameson a quarter so it faces out. "Okay."). It costs him: an interrupted count starts again from one, and checking the till is why he's last out every night. While something's out of place he doesn't hear what you said.
+- **Drums on everything.** Two fingers on the bar top, the rim of the ice well, the till drawer. He counts songs in under his breath. The jukebox matters to him more than to anyone: he knows who played on every record in it, and which ones are the wrong version.
+- **Names:** customers are *folks*, or nothing. The doorman is *Door*, carefully, because it's what staff call the door and he doesn't presume; after the week, his name, said like he's practised it. Whether he calls the owner *Junior* behind his back, as the lifer did, is the rewrite's call: a meek man might keep that one bite.
+- **Bar talk,** as hers: *eighty-sixed*, *comped*, *the well*, *the rail*, *walk-in*, *due backs*, *last call*. And the band's, where it slips out: *the pocket*, *count it in*, *the bridge*, *a fill*, *the last song* (last call is the last song).
+- **Never:** raises his voice (when he does, it cracks, and he's mortified), tells anyone off to their face, says what he wants, takes a compliment. His anger comes out as care: he wipes a clean spot again.
+- **Under it:** reliable is the whole of what he thinks he is, and being needed by the bar holds him together. He's a lifer who drinks (DECIDED), and he drinks the way he does everything, at the same time every night, the same count.
+- **One at a time.** The rules above hold: one tic, used where it lands. Most of his lines are just the job. The *sorry* is the tic; the counting and the putting back come out when there's something to count or put back.
+- **A band on Saturdays** (open question 22) could be his cover band, which puts him on the other side of the bar once a week, and the bouncer on the door for it.
+- *Hers:* "Door. You don't run on my floor. Half the room just looked round for the fight." *His, as a start:* "Door? Sorry. Could you, um. Walk? Half the room just looked round for the fight."
+- *Hers:* "Table 28 don't get cut off. That's Junior's rule, so don't look at me." *His:* "Table 28 doesn't get cut off. Owner's rule. Sorry. I know."
 
 ### THE COOK
 Props the kitchen door because the fryer runs hot, and the inspector costs him shifts.

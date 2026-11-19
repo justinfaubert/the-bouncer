@@ -1,6 +1,6 @@
-# The Bouncer: start here
+# Last Call: start here
 
-*Working title. Bible v0.1, written 25 September 2026.*
+*Named Last Call on 19 November 2026; The Bouncer was the working title. Bible v0.1, written 25 September 2026.*
 
 A narrative RPG in the tradition of Disco Elysium, taken somewhere else. You play a new bouncer at a rowdy bar during the last thirty days of an empire. The voices in his head come from the people he learns from, and from books, pamphlets and the stories patrons retell. The job is the door and the floor: deciding who gets in, reading the room, and stepping into violence or stopping it. A narrator, telling the story years later, foreshadows an event that changes everything. Every choice changes the world, and the ending reflects the whole playthrough.
 

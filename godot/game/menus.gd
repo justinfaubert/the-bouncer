@@ -128,7 +128,7 @@ func title() -> void:
 	main.view.look_at_point(Vector3(3.45, 1.35, 10.1))
 	_gap(40)
 	box.add_child(UiBits.label("WEDNESDAY, THE TEST SHIFT", "ui_b", 18, Look.MUTED, 4))
-	var t := UiBits.label("THE BOUNCER", "display", 108, Look.INK, 2)
+	var t := UiBits.label("LAST CALL", "display", 108, Look.INK, 2)
 	box.add_child(t)
 	_para("The Sovereign Hotel, on the island's east coast. A pub on the ground floor, rooms upstairs, a gravel lot and the strait beyond it. It's raining, and you're on the door.", 23)
 	_gap(24)

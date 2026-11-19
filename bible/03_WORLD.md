@@ -14,6 +14,8 @@ Three routes:
 
 Whatever the route, a failing currency fits (Weimar in 1923, Russia in 1992). So does a dated public end that everyone counts down to.
 
+[DECIDED 2026-11-19] Nearest the third route, and stranger: "Canada, right where i am, but also the West in a way that is only possible in our hyperconnected time in history. an alternate timeline, or a dream, or a reflection of this timeline, all three probably" (Hutch). The rest of his answers are in the register in `05_LOG.md`.
+
 ## The bar
 
 - Rowdy, dingy, lived in. [DECIDED]
@@ -105,7 +107,7 @@ The Rat King is both: a real rat king, rats with their tails knotted together, l
 
 ### Roles proposed so far [PROPOSED]
 
-- **The head bartender:** his partner and witness, the game's Kim Kitsuragi. A lifer, and drinks: no one makes it out of the life unscathed. [DECIDED]
+- **The head bartender:** his partner and witness, the game's Kim Kitsuragi. A lifer, and drinks: no one makes it out of the life unscathed. [DECIDED] He's Jim, in Paige's place: a drummer in cover bands, meek, reliable, very OCD, in a ball cap for now. [DECIDED 2026-11-19] The rewrite is Hutch's; a first voice sheet is in `10_VOICES.md`. [PROPOSED]
 - **The owner:** runs on the money code.
 - **Other staff:** cook, barback, servers.
 - **Strangers at the door:** many of them, with portraits assembled from parts.

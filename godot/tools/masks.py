@@ -44,12 +44,12 @@ FINGERS = ('hand', 'thumb', 'index', 'middle', 'ring', 'pinky')
 
 COLOURS = {
     'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
-    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c',
+    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
     'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
     'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
     'top_red': '#a3222a', 'tie_red': '#a3222a', 'skirt_black': '#1e1c20', 'tights': '#2a2628', 'apron_white': '#ece6d8',
-    'apron_canvas': '#4f4436', 'towel': '#e4ddcc', 'pencil': '#d8a428', 'pencil_wood': '#d9b88a', 'graphite': '#2a2a2a',
+    'apron_canvas': '#4f4436', 'towel': '#e4ddcc', 'pencil': '#d8a428', 'pencil_wood': '#d9b88a', 'graphite': '#2a2a2a', 'stick_wood': '#cfb185',
     'gold': '#d4ac52', 'sole': '#2a2420',
     'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
     'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
@@ -71,18 +71,20 @@ COLOURS = {
 #         material); beard; things: what's in the hair or the ears
 PEOPLE = {
     # Jim, the bartender (Hutch, 19 November 2026: the model read as a man, so he is one, in a ball
-    # cap "for now", and he takes Paige's place in the story): the lifer, slight and wiry, fifties,
-    # a long face and a hard mouth; grey hair cropped short under a dark cap with a pale patch on
-    # its front, a pencil behind his ear; his black shirt's sleeves rolled, a long canvas apron, a
-    # bar towel thrown over his shoulder, black work shoes. Printed in the night's ink, like the
-    # bar itself
+    # cap "for now", and he takes Paige's place in the story; who he is: "a drummer in cover
+    # bands, meek, reliable, very ocd"): the lifer, slight and wiry, fifties, a long face; grey
+    # steel-grey hair cropped short under a dark cap with a pale patch on its front, a pencil
+    # behind his ear; his black shirt's sleeves rolled, a long canvas apron, a bar towel thrown
+    # over his shoulder, black work shoes, and his drumsticks in his back pocket. Printed in the
+    # night's ink, like the bar itself
     'jim': dict(
         base='male', smooth=12,
         body=[('spine_02', (0, 0.06, 0.02), 0.14, -0.012)],
         paint=dict(top=('shirt_dark', 'rolled'), bottom='trousers', shoes='shoe_black'),
-        wear=['shell:shirt_dark:0.004', 'collar:shirt_dark', 'rolls:shirt_dark', 'apron_long:apron_canvas', 'towel_shoulder:towel_white'],
+        wear=['shell:shirt_dark:0.004', 'collar:shirt_dark', 'rolls:shirt_dark', 'apron_long:apron_canvas', 'towel_shoulder:towel_white',
+              'sticks_pocket:stick_wood'],
         head=dict(w=0.088, d=0.105, h=0.135, jaw=0.86, chin=0.014, crown=0.95, cheeks=0.25),
-        nose=('long', 1.05), ears=0.95, hair=('short', 'hair_grey'), beard=None, skin='skin', things=['cap', 'pencil_ear']),
+        nose=('long', 1.05), ears=0.95, hair=('short', 'hair_steel'), beard=None, skin='skin', things=['cap', 'pencil_ear']),
     # table 28's loudest: old, a round belly under the same team jacket every day (bottle green,
     # gold trim: it prints in the cold ink, the television's), a few hairs combed over, a big soft
     # drinker's face
@@ -922,6 +924,42 @@ def dress(spec, name, bodyob, arm, pts):
                 v.co.y += 0.01 * math.sin((v.co.x - x) * 60) + 0.12 * (v.co.x - x) ** 2 / 0.07
             ob = to_object(bm, f'{name}_towel', ['towel'], 0.006)
             out.append(skin_to(ob, arm, lambda co: {'pelvis': 0.6, 'thigh_r': 0.4} if co.z < z - 0.1 else {'pelvis': 1.0}))
+        elif kind == 'sticks_pocket':
+            # his drumsticks, a pair, standing up out of his right back pocket: the butts down in
+            # it, a hand's width and more of each showing, the tips up and a little apart, leaning
+            # back clear of the apron's band; the pocket a patch of the trousers over them
+            def back_at(x, z, r=0.025):
+                near = [q.y for q, d in pts if abs(q.x - x) < r and abs(q.z - z) < r
+                        and not d.startswith(('upperarm', 'lowerarm') + FINGERS)]
+                return max(near) if near else 0.1
+
+            zt = pelvis_z - 0.03                       # the pocket's mouth
+            px0, px1, pz0 = -0.155, -0.035, zt - 0.12
+            bm = bmesh.new()
+            grid = []
+            for i in range(7):
+                x = px0 + (px1 - px0) * i / 6
+                grid.append([bm.verts.new(Vector((x, back_at(x, pz0 + (zt - pz0) * j / 5) + 0.017, pz0 + (zt - pz0) * j / 5)))
+                             for j in range(6)])
+            for i in range(6):
+                for j in range(5):
+                    bm.faces.new((grid[i][j], grid[i][j + 1], grid[i + 1][j + 1], grid[i + 1][j]))
+            ob = to_object(bm, f'{name}_pocket', ['trousers'], 0.003)
+            out.append(skin_to(ob, arm, lambda co: {'pelvis': 1.0 - 0.4 * smoothstep(zt, pz0, co.z),
+                                                    'thigh_r': 0.4 * smoothstep(zt, pz0, co.z)}))
+            bm = bmesh.new()
+            for x, lean, show in ((-0.075, 0.07, 0.215), (-0.108, -0.13, 0.195)):
+                base = Vector((x, back_at(x, zt - 0.03) + 0.009, zt - 0.06))
+                ly = 0.08
+                for zb in (pelvis_z + 0.05, pelvis_z + 0.075):
+                    ly = max(ly, (back_at(x + lean * (zb - base.z), zb) + 0.042 - base.y) / (zb - base.z))
+                a = Vector((lean, ly, 1.0)).normalized()
+                L = 0.06 + show
+                ts = [0.0, L - 0.11, L - 0.06, L - 0.024, L - 0.017, L - 0.011, L - 0.005, L]
+                rs = [0.0072, 0.0072, 0.006, 0.0042, 0.0032, 0.0052, 0.0044, 0.0006]
+                tube(bm, [base + a * t for t in ts], rs, 10)
+            ob = to_object(bm, f'{name}_sticks', ['stick_wood'])
+            out.append(skin_to(ob, arm, one('pelvis')))
     return out
 
 
@@ -1264,11 +1302,11 @@ def head(spec, name):
                 # the band's height, from the back (f -1) to the front (1): over the brows in front,
                 # high enough that they show under the brim (lower, the brim hid them, and half of
                 # what his face does with them)
-                return 0.36 + 0.18 * f
+                return 0.41 + 0.18 * f
 
             def k_at(d):
                 f, z = -d.y, d.z
-                return 1.085 + 0.03 * max(f, 0.0) * smoothstep(0.3, 0.9, z) + 0.008 * max(z - 0.55, 0.0)
+                return 1.085 + 0.02 * max(f, 0.0) * smoothstep(0.3, 0.9, z) + 0.008 * max(z - 0.55, 0.0)
 
             def on_cap(d, lift=0.0):
                 d = d.normalized()

@@ -306,12 +306,21 @@ Update this file at the end of every session: add a session entry, move items be
 - Hair's strokes now run the way hair is combed, front to back over the top and down the back, instead of round the head, where they read as stripes from across the room. The cap takes the same strokes, which run with its panels.
 - What's still wrong: front to back, the strokes ring round the sides of a head in a small target over each ear; from straight in front the cap's crown is a dome a little too tall; the face shots still frame for the old bun, so they sit low.
 
+### 2026-11-19 (Thursday evening), Last Call, and who Jim is
+
+- Hutch named the game: "The name should be Last Call. There is a game from 2000 with that name but we can add to it later if need be." It's on the title screen, the window and the build now. The save folder keeps the old name, so nights already saved are still found, and the repo and the bible's file names keep theirs.
+- Who Jim is, from Hutch: "Jim's backstory is that he's a drummer in cover bands, meek, reliable, very ocd. Two Jim's is fine. There will be a James added on a later day." The first model had the lifer's hard face and her carriage, both written for Paige.
+- Hutch answered the empire's five questions the same evening (in the register). What the Big One is stays open, "something stranger", and it's being brainstormed in its own thread from his touchstones.
+- Jim's look, from who he is (PROPOSED). He carries himself meek now: his shoulders rounded forward and a little dropped, his arms in, his head a little forward (the lifer's "wound tight", shoulders up, is gone). His face gives way easily: brows that lift in the middle, set lower so the cap's brim doesn't hide them, eyes more open with their outer corners down, a smaller mouth, nearly level. His smile is small and looks down and away; his anger stays behind his teeth while his eyes go somewhere else; his shout comes out half alarm; a startle is the biggest thing his face does; and a new expression, counting, looks down with the lips parted. The lifer's eye-roll is gone (nothing in the game asked for it). His drumsticks stand in his right back pocket, a pair, tips up and a little apart, leaning back clear of the apron's band. His hair is a darker steel grey, so from behind it reads as hair under the cap rather than a white grille, and the cap sits a little higher with a lower crown.
+- Tried and dropped: a pair of drumsticks crossed on the cap's patch. From any distance it read as an X in a box, and a black X on a white patch on a black cap is a famous cap of its own.
+- For the rewrite, which is Hutch's: a first voice sheet for Jim (PROPOSED, `10_VOICES.md`), and the groundwork in `content/revisions/jim_groundwork.md`, which lists all 223 of the bartender's lines by file, the one *hon*, and 104 places where the narration may call the bartender *she*, to check one by one.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
 
 - A collaborative worldbuilding, writing and game project that takes Disco Elysium's framework somewhere else. It starts small and grows as far as it wants.
-- Working title *The Bouncer*; the protagonist is the new bouncer.
+- Working title *The Bouncer*; the protagonist is the new bouncer. (The game is called *Last Call* since 2026-11-19; below.)
 - Voices come from people, books, pamphlets, and memories retold by patrons.
 - Setting: a contentious time at the end of an empire; a rowdy, dingy, lived-in bar; debauchery as it really is and no more.
 - Thirty days. A narrator foreshadows an event that changes everything.
@@ -357,6 +366,14 @@ Update this file at the end of every session: add a session entry, move items be
 - The night's clock stays still while he stands and watches the room: the room goes on in real time around him, but the clock only moves with what he does. Hutch's pick on a card, 2026-10-24 ("Keep it still").
 - The head bartender is a man, Jim, in a ball cap "for now". Hutch, 2026-11-19: "Looking at the model it really looks like a man, so It'll be a man I think. Call him Jim, put a ball cap on him for now and we'll rewrite him to replace Paige in the game." The rewrite is Hutch's, with Claude; until then the Ink's bartender is still written as her.
 - Production value comes first, before more of the game: the whole game taken apart piece by piece, and the experience as a whole, for how to raise each and how to be generous to players (Hutch, 2026-11-19; the doc is "The Bouncer, taken apart"). The world's sound design and the spatial audio are Claude's; Hutch does some of the music, the sound and the effects.
+- The game is called *Last Call*. Hutch, 2026-11-19: "The name should be Last Call. There is a game from 2000 with that name but we can add to it later if need be."
+- Jim, the head bartender, is "a drummer in cover bands, meek, reliable, very ocd" (Hutch, 2026-11-19). "Two Jim's is fine": the bartender keeps the name though the old soldier comes from Hutch's friend Jim. "There will be a James added on a later day."
+- The empire, in Hutch's answers of 2026-11-19:
+  - Where: "Canada, right where i am, but also the West in a way that is only possible in our hyperconnected time in history. an alternate timeline, or a dream, or a reflection of this timeline, all three probably".
+  - What kind of end: all of it, collapse, war, money and the uncanny. "All of the above. I suggest using today's geopolitical and societal situations with lessons from toynbee and others like him that if made properly digestible can illuminate what happens to empires and help guide how to write the story while increasing immersion".
+  - The Big One: "undecided as of yet but for me should be in the category of "something stranger"", its origin left vague: "was it aliens? Some kind of secret weapon? Did something happen at CERN we don't know about? ASI singularity? HAARP?" Brainstormed next, in its own thread.
+  - "The player should find out more about it than anyone around him by investigating it through people, events, objects, the rat king etc. That gives it the DE, Mulder and twin peaks feel and a broader driving purpose for the player."
+  - "Eventually the bar is touched by it in some profound way, but the player isnt there. And comes face to face with it."
 
 ### PROPOSED (waiting on Hutch)
 
@@ -714,11 +731,11 @@ Proposed with the masks, round three (2026-11-19), from Hutch's note (she isn't 
 
 ### Blocking Wednesday
 
-1. **The empire.** Place decided. Open: what the empire is, and how its end shows in modern technology (card machines, network, prices).
+1. **The empire.** Hutch answered on 2026-11-19 (in the register): Canada, where he lives, and the hyperconnected West; an alternate timeline, a dream and a reflection of ours; an end made of all of it. Open: what the Big One is (being brainstormed in its own thread), and how the end shows in modern technology (card machines, network, prices).
 2. **The bar.** Drafted in `06_THE_HOTEL.md`; waiting on Hutch's cuts and the name.
 3. **The bouncer's first-day facts.** Experienced, an individual (DECIDED); he gets this job in Gary Van Dusen's interview (DECIDED, 2026-10-14). Open: why he left the last one, what people call him, and whether he has a name the player hears (the bartender would say it once he's lasted a week).
 4. **The voices on day 1.** Who are the first five in the room?
-5. **The head bartender.** A lifer (DECIDED), and since 2026-11-19 a man, Jim, in Paige's place (DECIDED). Open: his age (the model is in his fifties), his worst habit, and the rewrite, which is Hutch's. The bartender speaks more than anyone in a Wednesday (63 lines in one run), so the rewrite is a big one.
+5. **The head bartender.** A lifer who drinks (DECIDED), and since 2026-11-19 a man, Jim, in Paige's place: a drummer in cover bands, meek, reliable, very OCD (DECIDED). Open: his age (the model is in his fifties), and the rewrite, which is Hutch's. The bartender speaks more than anyone in a Wednesday (63 lines in one run), and the lines were written for a hard woman, so a meek man changes most of them. A first voice sheet for him is in `10_VOICES.md` (PROPOSED).
 6. **The rats.** Structure DECIDED (doubling, recurring parley with the Rat King, extermination at a cost). The Rat King is both the knot and a man (DECIDED). Open: who the man is; the first parley.
 
 ### Soon
@@ -728,11 +745,11 @@ Proposed with the masks, round three (2026-11-19), from Hutch's note (she isn't 
 12. AI disclosure: the game itself acknowledges that an AI built it (DECIDED, 2026-10-14), and the draft puts it at the very end. Open: what the store page says, and whether any AI images ship.
 18. His death on the last night: does it stay a death, an ending the teller tells like the others? (The draft says yes. The rest of his deaths are DECIDED, 2026-10-14.)
 20. Gary's office: where it is in town, and what's in it (the draft, as built 17 October: the front room of his mother's house on the old main street).
-21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed). Now the bartender is called Jim (2026-11-19): is that a nod to the same friend, and does the old soldier still need a name of his own?
+21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed). Hutch, 2026-11-19: "Two Jim's is fine," so the bartender keeps his name whatever the old soldier is called.
 22. Music on Saturdays: a band, and a dance floor?
 23. A First Nation beside the town: in the game or not, and how. Hutch's call, and people from a Nation should have a say in it.
 
 ### Later
 
 14. The empire, the city, the factions and the politics.
-15. A title check before any store page. The Bouncer is a 2001 Square game; the teardown (2026-11-19) puts the name first among Hutch's decisions, since the store page, the capsule art and the trailer carry it.
+15. A title check before any store page. The game is *Last Call* (DECIDED, 2026-11-19). A game from 2000 has the name, as Hutch said, and so does Zachtronics' *Last Call BBS* (2022) on Steam; he can add a subtitle later.
