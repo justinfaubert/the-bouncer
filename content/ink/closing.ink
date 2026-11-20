@@ -179,7 +179,7 @@
 - x == inc_hurt:
     {hurt > 0:Injured on the premises: the doorman{fam ? pool_fight:, and others, at the pool table}.|Injured on the premises: a patron.}
 - x == inc_drugs:
-    A patron using drugs in the men's washroom.
+    A patron using drugs in the men's washroom.{lines_taken > 0: The doorman did one with him.}
 - x == inc_office:
     In the office in the keg room, on the desk: a mirror, a straw cut down to two inches, and a white dust in one corner of the mirror.
 - x == inc_after:
@@ -668,7 +668,10 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
 }
 { not hotel_door:
     The hotel door was locked. He unlocked it for {slippers_upstairs:her|them} and held it, and {slippers_upstairs:she|they} went up, and he locked it again behind {slippers_upstairs:her|them}.
-    { terry_asked:
+    {
+    - at_hall.night_clerk.lever_terry:
+        On the other side, at the desk, Terry was watching the game on his phone. He didn't look up.
+    - terry_asked:
         On the other side, at the desk, Terry was watching the game on his phone. He lifted a hand without looking up.
     }
     WRONGMAN: Every door you lock, you end up holding open for somebody.
@@ -967,6 +970,10 @@ She didn't say anything, which from her was a lot.
 # screen: log
 The incident log was a hardback ledger that lived under the till with the binder. Every doorman before him had written in it, in nine different hands, going back further than the owner.
 The bartender pushed it along the bar to him with a pen.
+// He wrote on the wall by the payphone (hall.ink).
+{ wall_wrote:
+    It was the second thing he'd written in the building tonight. The first was on the wall by the payphone.
+}
 // HUTCH: What does a real incident log look like? The book, the wording, what gets written down and what never does.
 { LIST_COUNT(incident) == 0:
     Nothing had happened. He wrote the date and NOTHING TO REPORT, and she read it upside down.
@@ -987,7 +994,7 @@ The bartender pushed it along the bar to him with a pen.
 {inc_name(x)}
 + [Write it down the way it happened.]
     ~ logged += x
-    { x == inc_drinking || x == inc_hurt:
+    { x == inc_drinking || x == inc_hurt || (x == inc_drugs && lines_taken > 0):
         ~ cocoon--
     }
     { x == inc_office:
@@ -1865,9 +1872,17 @@ The voices went back over the night, the way they did. The Father last.
 - ev_wife_inside.let_her:
     FATHER: Thirty years, she said, and not one of you ever stopped him at the door.
     FATHER: I'd have hated any man who tried. I'd have gone home, though.
+- lines_taken > 0:
+    FATHER: You did one with that boy, off his phone. On a first night. You'll want one on the second.
 - last_glass == 3:
     FATHER: You pushed it back. I never pushed one back in my life. I just stopped picking them up.
-- at_hall.payphone.left_receiver && drinks >= 2:
+- wall_wrote == 1:
+    FATHER: Me too, you wrote. Under always. I know what that's the answer to.
+- wall_wrote == 2:
+    FATHER: Go home, you wrote. On the wall of a bar. That's the job, the whole of it.
+- wall_wrote == 3:
+    FATHER: A man asks who's still here at two, and you give him the hours.
+- at_hall.payphone_up.left_receiver && drinks >= 2:
     FATHER: Tuesdays at seven. You looked at that one longer than you looked at the phone numbers.
 - knows ? aa_wall && not picked_receiver:
     FATHER: Tuesdays at seven. I wonder if it's still the same coffee.

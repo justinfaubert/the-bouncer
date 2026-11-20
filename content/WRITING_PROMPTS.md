@@ -46,9 +46,9 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/hall.ink
 
-20. **at_hall** (`content/ink/hall.ink:159`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
-21. **at_hall** (`content/ink/hall.ink:269`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
-22. **at_hall** (`content/ink/hall.ink:453`): What's written on the wall around a dead payphone in a bar like yours?
+20. **at_hall** (`content/ink/hall.ink:176`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
+21. **at_hall** (`content/ink/hall.ink:286`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
+22. **at_hall** (`content/ink/hall.ink:469`): What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
 
 ## content/ink/deck.ink
 
@@ -59,11 +59,11 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/closing.ink
 
 26. **last_call** (`content/ink/closing.ink:247`): Last call at the Sov. What really happens in a room like this when the bell goes?
-27. **incident_log** (`content/ink/closing.ink:970`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-28. **after_hours** (`content/ink/closing.ink:1063`): The song she puts on for the count. Yours to pick, or to write.
-29. **after_hours** (`content/ink/closing.ink:1107`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-30. **keg_parley** (`content/ink/closing.ink:1408`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-31. **go_upstairs** (`content/ink/closing.ink:1743`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+27. **incident_log** (`content/ink/closing.ink:977`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+28. **after_hours** (`content/ink/closing.ink:1070`): The song she puts on for the count. Yours to pick, or to write.
+29. **after_hours** (`content/ink/closing.ink:1114`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+30. **keg_parley** (`content/ink/closing.ink:1415`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+31. **go_upstairs** (`content/ink/closing.ink:1750`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 
 ## content/ink/things.ink
 

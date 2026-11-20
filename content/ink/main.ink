@@ -276,6 +276,8 @@ VAR cardigan_go = 0         // he told the one in the cardigan to go to Calgary 
 VAR cardigan_secret = false // the one in the cardigan asked him not to tell the table he was out on the deck
 VAR how_doing = 0           // times he's asked table 28 how everybody's doing
 VAR picked_receiver = false // he picked up the dead payphone in the back hall
+VAR wall_wrote = 0          // what he wrote under ALWAYS on the payphone wall: 1 ME TOO, 2 GO HOME, 3 DOOR'S ON TILL 2
+VAR lines_taken = 0         // lines he took on shift (hall.ink, the boyfriend in the men's)
 VAR secret_kept = 0         // at close table 28 asked where the one in the cardigan had been: 1 he kept it, -1 he told them
 
 // ------------------------------------------------------------------ the end of the night

@@ -52,6 +52,8 @@
     -> single_empty
 * [Read the wall around the payphone.]
     -> payphone
+* {payphone && not payphone_up} [Read the rest of the wall.]
+    -> payphone_up
 // The inspector's on the fourteenth (room.ink).
 * [Look at the extinguisher at the end of the hall.]
     -> extinguisher
@@ -77,18 +79,23 @@
     -> vape_line
 }
 { stopping:
-- The men's was a trough urinal from when the hotel was built, and two stalls, one without a door. Empty. Somebody had written a phone number on the condom machine and somebody else had scratched it out with a key.
+- The men's was a steel trough from when the hotel was built, a pink cake in the drain older than some of the staff, and two stalls, one without a door. Empty. The mirror on the condom machine had been punched into a spiderweb, and somebody had written on the machine, in careful capitals: THIS GUM TASTES FUNNY. Low in the partition between the stalls somebody had drilled a hole, a long time ago, and somebody had stopped it with a wine cork.
 - The one from table 28 with the hearing aid was at the trough, taking his time. He nodded to the doorman in the mirror the way you nod to a man on a ferry.
-- A man he'd let in earlier was asleep sitting up in the stall with no door, jeans up, fine. He woke him. The man said "Yep," and went back out to the bar as if he'd been sent for.
-- Empty. The floor wet. The hand dryer had been broken so long that somebody had wired a roll of paper towel to it.
+    HEARING_AID: Prostate. Don't get old. Old!
+- A man he'd let in earlier was asleep on the seat in the stall with no door, jeans round his boots, his phone still lit in his hand on a dating app, his thumb on some woman's face. He woke him. The man said "Yep," stood up, hiked his jeans and went back out to the bar as if he'd been sent for.
+- Empty. The floor wet, and not with water. The hand dryer had been broken so long that somebody had wired a roll of paper towel to it. On the dryer, in marker: PUSH BUTTON FOR A MESSAGE FROM THE PRIME MINISTER.
+- Empty. On the inside of the stall door, at sitting height, in pencil: THE MILL ISN'T CLOSING. Under it, in ballpoint: READ THE NOTICE. Under that: CAN'T READ. WORK AT THE MILL.
 - Empty.
 }
 -> h_opts
 
+// The edge pass (Hutch, 2026-11-20): the line is on the page, on her face, and he can take one.
 = vape_line
-The stall with no door. The boyfriend, the one with the vape, with his phone flat on the lid of the toilet tank and a rolled-up bill in his hand. He looked up. He didn't stop.
+The stall with no door. The boyfriend, the one with the vape, bent over the toilet tank with his phone flat on the lid and a line chopped out on the screen, across the face in his lock-screen photo, which was his girlfriend's. A rolled-up twenty in his hand, the plastic kind that won't stay rolled. He looked up. He didn't stop.
 VAPE: bro
-VAPE: my guy it's not even MINE. i'm holding it for somebody
+VAPE: bro. knock
+VAPE: it's not even MINE. i'm holding it for a guy
+VAPE: you want one? it's actually good. like actually
 ~ incident += inc_drugs
 FIGHTER: He's the one who'll swing. Now he'll swing harder.
 MANUAL: The licensee must not permit the use of illicit drugs on the premises. Remove the person. Record the incident.
@@ -113,10 +120,19 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ pass(2)
     ~ heat(1)
     ~ rep(rep_kids, 1)
-    He held his hand out. The boyfriend looked at it for a long time and then put the little bag in it, and the doorman dropped it in the bowl and flushed, and they both watched it go.
+    He held his hand out. The boyfriend looked at it for a long time and then put the little bag in it, and the doorman dropped it in the bowl and flushed, and they both watched it go round.
     VAPE: that was SIXTY bucks
-    VAPE: bro. that was sixty bucks. you owe me sixty bucks
+    VAPE: bro. that was sixty fucking bucks. you owe me sixty bucks
     FATHER: Now he's broke and angry instead of high and angry. That's your call. It's not a good one or a bad one. It's just yours.
+// He can take one: it pays with the kids, and it's in the log if he writes the log true (closing.ink).
+* [Take one.]
+    ~ pass(1)
+    ~ heat(1)
+    ~ lines_taken += 1
+    ~ rep(rep_kids, 2)
+    He bent and took it off the phone, off her face. The boyfriend laughed and slapped him on the back and said "my GUY," and for about a minute the hall outside was the best hall he'd ever stood in.
+    MANUAL: A security worker impaired on shift loses his licence. Not the night. The licence.
+    FATHER: I know that feeling. It's the one that tells you you've got this.
 * ["Not in here. Not tonight." Walk away.]
     ~ pass(1)
     ~ heat(2)
@@ -142,7 +158,8 @@ He knocked and pushed the door open a hand's width and said "Door staff," to the
 }
 { stopping:
 - Nobody answered. Two stalls, both doors open. A sign on the mirror in the bartender's handwriting: PLEASE DO NOT FLUSH ANYTHING. WE MEAN ANYTHING.
-- Nobody. A tap was running. He went in and turned it off.
+- Nobody. A tap was running. He went in and turned it off. On the inside of a stall door a list had been going for years, a man's first name and the first letter of his last, and one word after each. MARRIED. LIAR. HITS. CRIES AFTER. NICE BUT BROKE. TYLER, with a heart, and RIP under the heart in another pen. At the bottom, in fresh marker: NEW DOORMAN?
+- Empty. On the back of the door, where you'd see it from the sink, a poster: ASK FOR ANGELA. IF YOUR DATE ISN'T WHO YOU THOUGHT, ASK AT THE BAR FOR ANGELA AND WE'LL GET YOU HOME SAFE. Under it, in eyeliner: ANGELA'S NEVER WORKED HERE.
 - Empty.
 }
 -> h_opts
@@ -179,7 +196,7 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
 ~ pass(2)
 { stopping:
 - The single washroom was empty. It smelled of bleach, and under the bleach, of whatever the bleach was for. A lock that worked, a mirror bolted to the wall, and a shelf over the sink that somebody had wiped clean recently, which in a bar washroom is its own kind of evidence.
-- Empty. The shelf wiped clean again.
+- Empty. The shelf wiped clean again, and in the bin a till receipt rolled into a tube.
 - Empty.
 }
 -> h_opts
@@ -448,19 +465,48 @@ FATHER: He went. I wouldn't have.
 // ------------------------------------------------------------------ the payphone
 
 = payphone
-~ pass(3)
+~ pass(2)
+// HUTCH: What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
+The payphone had been dead since before anyone stopped needing it. The wall around it had kept on talking.
+FOR A GOOD TIME CALL SHELLEY, and a number, and under it in another pen, SHE'S NOT THAT GOOD, and under that, in the first pen, FUCK YOU DARREN.
+A cab company that had closed years ago. TRUCK FOR SALE, RUNS, NO TIRE KICKERS. Somebody had drawn a cock and balls with real care, shading and all, and somebody else had given it a little top hat.
+FIGHTER: Steady hand. He was sober for that.
+KAYLA M IS A SLUT, and under it in purple gel pen, KAYLA M HAS A JOB AND A CAR. WHAT DO YOU HAVE.
+A swastika, small, that somebody had boxed into a window with four panes and drawn curtains on.
+EAT THE RICH. Under it: WHAT RICH.
+WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's pencil, SAYS THE KID IN HIS MOM'S BASEMENT.
+* [Read on, up the wall.]
+    -> payphone_up
+* [Leave the wall.]
+    -> h_opts
+
+// Higher up, where it gets older: the ones who are still here at two, and the card pinned over
+// them. The Father has something to say about the wall at night (closing.ink).
+= payphone_up
+~ pass(2)
 ~ knows += aa_wall
-// HUTCH: What's written on the wall around a dead payphone in a bar like yours?
-The payphone had been dead since before anyone stopped needing it. The wall around it was covered in ink: phone numbers with names, phone numbers without names, a cab company that had closed years ago, TRUCK FOR SALE, a heart with two sets of initials, and a third set scratched in later and scratched out again.
-High up, where you'd have to reach, in faded marker: TUESDAYS 7 PM. UNITED CHURCH HALL. YOU ARE NOT THE ONLY ONE.
+IT'S SO OVER. Under it, WE'RE SO BACK. Under that, in a third hand, IT'S SO OVER.
+WRONGMAN: In the story the doorman's name was up there by the end of the first week.
+RIP TYLER. Under it: HE OWED ME 20. Under that, in a third hand: KEEP IT.
+JUNIOR'S DAD WAS A BETTER MAN.
+WHO'S STILL HERE AT 2 AM, in pencil. Under it: ME. ME. ALWAYS. An arrow ran from ALWAYS up the wall to a card in a plastic sleeve, pinned higher than a drunk could reach, the marker gone brown: TUESDAYS 7 PM. UNITED CHURCH HALL. YOU ARE NOT THE ONLY ONE.
 FATHER: I went to those.
 FATHER: For a year. Then I stopped going and kept on not drinking, and everybody said that was worse. They were probably right.
 It was more than his father had said about it in the whole of his life.
 * [Pick up the receiver.]
     ~ picked_receiver = true
     Nothing. Not even the hum. He held it to his ear anyway, longer than there was any reason to, and then he put it back.
-// The Father has something to say about the wall at night, if he left the phone alone (closing.ink).
 * (left_receiver) [Leave it.]
+// His hand on the wall. What he writes is read at the incident log and at night (closing.ink).
+* (wrote_wall) [Take the stub of pencil off the top of the phone, and write under ALWAYS.]
+    He wrote it small, under the three of them.
+    ** [ME TOO.]
+        ~ wall_wrote = 1
+    ** [GO HOME.]
+        ~ wall_wrote = 2
+    ** [DOOR'S ON TILL 2.]
+        ~ wall_wrote = 3
+    -- He put the pencil back on top of the phone.
 - -> h_opts
 
 
@@ -495,6 +541,13 @@ He went through the hotel door. On the other side was the front desk, a counter 
     ~ terry_asked = true
     ~ rep(rep_staff, -1)
     FATHER: She told you not to tell him she told you. You told him.
+// He watched the hotel's door from the seawall at six (walk.ink): the woman on the stairs.
+* (lever_terry) {knows ? hotel_watched} ["The woman on your stairs, and the car with its lights off. I could start counting those."]
+    TERRY: Oh. Oh, no no, pal. She doesn't come through the bar. Not ever. She uses the stairs.
+    He got down off his stool and came round the desk, and shut the door himself, and stood with his hand flat on it.
+    TERRY: There. It's shut. You don't need to be counting anybody on my side, eh.
+    He didn't ask the score.
+    ~ terry_asked = true
 * (never_mind) [Never mind.]
     TERRY: Okay, pal. You know where I am.
 - { terry_asked:

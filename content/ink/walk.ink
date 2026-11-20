@@ -200,7 +200,7 @@ TERRY: Terry. Night desk. I come on at five and I'm on till the bread truck. Gar
     TERRY: Oh, no no, he wouldn't. Gary wouldn't.
     He closed the book, and looked at the hockey.
 - TERRY: Second floor, end of the hall, over the deck. Eleven's the mill boys, they play cards, they're good as gold. Six is Lorraine. Lorraine's forty-six and she pays by the week, cash, and whoever goes up to see Lorraine, you never seen him, eh. That's the hotel. The bar's the bar.
-TERRY: Nine's empty since March. Paramedics. Nice fella, nine.
+TERRY: Seven's empty since March. Paramedics. Nice fella, seven.
 He went up two flights that smelled of other people's cooking, and along the second floor to the end. A TV going behind eleven, and men laughing at it. Behind six, a radio, turned low.
 A bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The radiator was on full and the knob had come off it a long time ago, so somebody had opened the window two inches and it wouldn't go any further.
 - (twelve_hub)
