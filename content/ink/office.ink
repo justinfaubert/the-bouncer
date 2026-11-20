@@ -26,17 +26,19 @@
 NARRATOR: He started on a Wednesday. The Sov tried out doormen on Wednesdays, on a night slow enough that a mistake would only hurt a little.
 NARRATOR: Of the thirty days, it was the one nobody else remembered.
 NARRATOR: Except Gary. Gary was there first, and Gary told it for years, so it starts with Gary.
-Four in the afternoon, and the lamp already on. VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street, across the road from the bank that had been a cafe for eleven years.
+Four in the afternoon, and the lamp already on. VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street, across from the bank that had been a cafe for eleven years. Her china dogs were still on the mantel, beside a box of T-shirts and a calendar from the beer rep with a girl in a bikini straddling a keg.
 The rain had been at the window since noon. At the other desk the bookkeeper entered invoices with one finger, out of a mug from the bank.
-Somebody came up the porch steps and filled the glass in the door, behind the gold letters, which from in here read SGNIDLOH NESUD NAV, the way they'd read for twenty years.
+On Gary's laptop the town's Facebook group was open, Island Rants and Raves, on a photo of a rat beside the Sov's dumpster. Two hundred and fourteen comments. He'd read all of them.
+Somebody came up the porch steps and filled the glass in the door, behind the gold letters, which from in here had read SGNIDLOH NESUD NAV for twenty years.
 TILL: Here's twenty an hour.
 -> arrive
 
 = arrive
 # sfx: door
 He had to duck a little, coming in, and didn't make anything of it. #portrait: him
-A big man. Not the kind they make on the mainland out of powder in a tub: big the way a fridge is big, all the way through. The long side of thirty. Hair to his shoulders, dark, wet from the walk. A string of wooden beads round his neck with a tassel on it. A work jacket, open, over a black T-shirt somebody had ironed.
-SENIOR: Ironed a T-shirt.
+A big man. Not the kind they make on the mainland out of powder in a tub and needles in the gym toilet: big like a fridge is big, all the way through. The long side of thirty. Hair to his shoulders, dark, wet from the walk. A string of wooden beads round his neck with a tassel on it. A work jacket, open, over a black T-shirt somebody had ironed.
+SENIOR: Hair like a girl's. In my day we'd have called him a fairy and given him the door.
+SENIOR: Ironed his T-shirt, though.
 TILL: Long hair. That's a complaint a week.
 SENIOR: Your mother ironed yours till you were thirty, Junior.
 OWNER: Come in, come in. Gary. Grab a seat.
@@ -44,13 +46,13 @@ OWNER: Come in, come in. Gary. Grab a seat.
     ~ sat_how = 1
     ~ stat_up(stat_cha)
     ~ stat_up(stat_con)
-    He sat, and the chair said something about it. He sat the way a man sits who's sat across a lot of desks and expected nothing from any of them.
+    He sat, and the chair said something about it. He'd sat across a lot of desks and expected nothing from any of them, and it showed.
     TILL: Doesn't fidget. Fidgeters steal.
 * [Look round the room first.]
     ~ sat_how = 2
     ~ stat_up(stat_gut)
     ~ stat_up(stat_int)
-    He didn't sit. He looked at the room first: the window, the bookkeeper, the box in the corner, the photo on the wall behind Gary's head, the way you'd look at a bar before you went into it. Then he sat.
+    He didn't sit. He looked at the room first: the window, the bookkeeper, the box in the corner, the girl on the keg, the photo on the wall behind Gary's head. A man looking at a bar before he goes into it. Then he sat.
     SENIOR: He's casing it.
     TILL: Or pricing it.
 * [Lift the chair back a foot, and turn it. Then sit.]
@@ -71,7 +73,7 @@ SENIOR: Six. I charged the last one four, and he still left.
 OWNER: You got your licence on you? The security one.
 * [Hand it to him.]
     ~ licence_how = 1
-    He took it out of his wallet and held it out across the desk, the way you hand a man something you expect back.
+    He took it out of his wallet and held it out across the desk, like something he expected back.
 * [Put it on the desk.]
     ~ licence_how = 2
     He put it on the desk, face up, and slid it the last few inches with two fingers, and left it for Gary to pick up.
@@ -82,7 +84,7 @@ OWNER: You got your licence on you? The security one.
 = licence_look
 Gary did what he'd watched a hundred doormen do. He looked at the card, and at him, and at the card. #prop: his_licence
 SECURITY WORKER, it said, with a seal in the corner, a number, a photo, and a name under Gary's thumb.
-In the photo his hair was cropped short, the way they do it in the army, or after something.
+In the photo his hair was cropped to the skin, army short, or prison short.
 SENIOR: Short hair, then. Something happened between that and this.
 TILL: Good till next October. That's a year I don't pay for a course.
 -> where_before
@@ -152,6 +154,7 @@ OWNER: And why'd you leave?
 - -> fights
 
 = fights
+OWNER: You on anything? Gear? Ha. I don't care what you put in your ass, buddy. I care what goes through my window.
 OWNER: You been in fights?
 SENIOR: Look at his hands.
 Gary looked at his hands. The knuckles had been split and healed and split again, white over the bone.
@@ -204,7 +207,7 @@ TILL: Forty pounds at fourteen a pound.
     ~ call_did = 1
     ~ stat_up(stat_wis)
     ~ stat_up(stat_con)
-    He waited the way big men learn to, without taking up any more of the room than he already did.
+    He waited, without taking up any more of the room than he already did. Big men learn it young.
     SENIOR: Patient. The last one wasn't.
 * [Look at the photo behind Gary.]
     ~ call_did = 2
@@ -227,7 +230,7 @@ TILL: Forty pounds at fourteen a pound.
     ~ knows += notice_read
     ~ stat_up(stat_int)
     ~ stat_up(stat_gut)
-    His eyes went down to the papers on the desk and read them upside down, the way you read a licence across a ledge. Gary watched him do it.
+    His eyes went down to the papers on the desk and read them upside down, as he'd read a licence across a ledge. Gary watched him do it.
     The top one was from the health authority. NOTICE OF ROUTINE INSPECTION. The fourteenth, and one word further down circled twice in pen: PEST.
     TILL: Reading my desk.
     SENIOR: Let him. It's his problem from tonight.
@@ -308,7 +311,7 @@ He poured two fingers in each and pushed one across.
 // Table 28 don't get cut off: Junior's rule (bible/10_VOICES.md, the bartender), and his father's.
 = the_rule
 OWNER: Okay. Table 28.
-OWNER: Five guys in the front window, every day but Sunday, since about the Flood. They don't get cut off. That's the rule.
+OWNER: Five guys in the front window, every day but Sunday, since about the Flood. Two of them have had the stroke already. They don't get cut off. That's the rule.
 SENIOR: That's my rule.
 OWNER: That's my dad's rule. So one of them's had enough. More than. What do you do?
 * ["Water. And I sit with him a while."]
@@ -356,7 +359,7 @@ OWNER: Questions? Anything?
 * ["When do I get paid?"]
     ~ asked_pay = true
     BOOKKEEPER: Fridays. By cheque. The first one's prorated.
-    She said it the way she'd said things across a counter at the bank, to people who'd come in hoping for something else.
+    She said it as she'd said things across the counter at the bank, for thirty years, to people who'd come in hoping for something else.
     TILL: Asks about money. Good. You know where you are with that.
 * (no_questions) ["No."]
     OWNER: Good. Good man.
@@ -373,7 +376,7 @@ OWNER: You'll see a note.
 
 = the_deal
 OWNER: Okay. Here's what it is.
-OWNER: Twenty an hour. Tonight's cash, it's a test. After that it's Wednesday to Saturday, and the room comes off the top.
+OWNER: Twenty an hour. Tonight's cash, it's a test. After that it's Wednesday to Saturday, on the books, and the room comes off the top.
 BOOKKEEPER: Six hundred and fifty. A month. With the hydro.
 She read it off what she'd written, slowly, a number at a time, as if he might want to count along.
 TILL: Hydro's fifty. Hydro was always fifty.
@@ -448,6 +451,21 @@ OWNER: Twelve. End of the hall, over the deck. Terry's got the other key. Terry'
 ~ stow(room_key, in_jeans)
 OWNER: Seven-thirty, quarter to eight. She'll show you. She was my dad's.
 SENIOR: She was mine.
+OWNER: And one more thing. Don't fuck the staff.
+OWNER: Or do, I'm not your mother. Just don't make it my problem. The last time it was my problem it was my problem for a year.
+The bookkeeper's finger went on with the invoices.
+* (staff_wasnt) ["Wasn't planning on it."]
+    ~ staff_warned = 1
+    OWNER: Nobody plans on it, buddy. Ha.
+* (staff_who) ["Who's the staff?"]
+    ~ staff_warned = 2
+    OWNER: Ha! You'll see. Ha. Jesus.
+    SENIOR: That's how your mother came to work for me, Junior. Behind that bar.
+* (staff_quiet) [Pick up the key.]
+    ~ staff_warned = 3
+    He picked up the key and put it in his jeans, and that was his answer.
+    TILL: Doesn't promise. Doesn't cost.
+-
 ~ stats_done()
 // What Gary will say about him, once, as the door shuts: the owner's code is the money.
 ~ temp g = 0
@@ -501,7 +519,7 @@ SENIOR: She was mine.
 }
 TILL: Twenty an hour, saved.
 SENIOR: Christ, Junior.
-The rain kept on at the window, the way it does.
+The rain kept on at the window.
 NARRATOR: I didn't get the job. That's it. That's the story.
 NOT HIRED #class: end
 -> END

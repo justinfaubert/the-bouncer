@@ -38,6 +38,8 @@ Everything else in this bible serves these words. From the session of 25 Septemb
 
 ## Writing rules
 
+- **Respect the player, in all the ways that entails.** The hard rule. Hutch, 2026-11-20: "Not watered down and never glorified or condemned, that kind of way of approaching these things is how Disco elysium became what it was, it respected life and wasn't biased or cartoonish about political and philosophical beliefs but instead stated everything plainly without preaching and infantilizing the player." [DECIDED]
+- **The edge, harder where it fits, and always meaningful.** "Seediness, vulgarity, sexuality, distasteful ideas, politically incorrect ideas etc is a part of life like everything else and we're shooting for maximum immersion", with "some 4chan buffoonery and memesterism in places in the dialogue or in passing in other ways." It should "make the player reflect upon times where they've read or heard or seen those kinds of things/people." [DECIDED 2026-11-20] Claude's limits stand, in `05_LOG.md`: nothing sexual involving minors, sex itself off the page, sexual violence never for heat, slurs only in a character's mouth when the scene is about them.
 - **Debauchery as it really is, and no more.** The boredom, the sticky floors, the same songs every night. [DECIDED]
 - **No one makes it out of the life unscathed.** Nobody who works in the bar gets to be the clean exception; the sober-bartender trope is out. [DECIDED 2026-09-26]
 - **Stakes.** The writing has to make it feel like something is at risk. [DECIDED]

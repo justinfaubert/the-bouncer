@@ -488,6 +488,15 @@ OWNER: How is it tonight?
 { ext_how == 1 || ext_how == 2:
     -> owner_ext ->
 }
+// What Gary told him in the office about the staff (office.ink, the_key).
+{ staff_warned:
+- 1:
+    OWNER: And hey. What you said, about the staff. Keep not planning on it. Ha.
+- 2:
+    OWNER: You meet the staff yet? Ha. Wait till Friday, buddy.
+- 3:
+    OWNER: And what I said about the staff. You didn't say anything. I noticed that. Ha.
+}
 OWNER: Good. Good. Put her back on, my food's here.
 He handed the phone back. She listened, said "Yep," and "Yep," and hung up.
 ~ pass(4)

@@ -81,6 +81,7 @@ VAR asked_pay = false       // he asked when he gets paid
 VAR shirt = 0               // Gary's SECURITY shirt: 1 took it, 2 "I've got my own"
 VAR shirt_on = false        // he's wearing it
 VAR pay_how = 0             // the bookkeeper's form: 1 filled it in, 2 asked for cash, 3 read it first
+VAR staff_warned = 0        // Gary's "don't fuck the staff": 1 wasn't planning on it, 2 who's the staff, 3 just took the key (he brings it up at midnight)
 // What he claimed in the office. Gary tells the bartender all of it on the phone at quarter past
 // five (walk.ink), and she holds him to it at close (closing.ink, door_story).
 LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry

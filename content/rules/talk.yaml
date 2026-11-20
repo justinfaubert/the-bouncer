@@ -23,29 +23,36 @@
 # any of them, cut them, or put your own in. Talk overheard in a bar is the thing you've heard more
 # of than anyone. The game's text rules hold here too: no dashes, no ellipses; a sentence that
 # trails off just stops.
+#
+# The edge (Hutch, 2026-11-20): the room talks the way a roadhouse does, crude, unfair, funny and
+# sad, and nobody steps in to say so. Nothing here is glorified or condemned; it's said, and the
+# room laughs or doesn't.
 
 # ---------------------------------------------------------------- table 28
 
 - id: t28_diesel
   lines:
-    - team_jacket: A dollar ninety-one for diesel at the Esso. A dollar ninety-one!
-    - hearing_aid: Ninety-one.
+    - team_jacket: A dollar ninety-one for diesel. That's Ottawa's hand in your pocket, that is.
     - scratch: It'll come down. It's due.
-    - team_jacket: Due, he says! It's due!
+    - team_jacket: Due, he says! It's been due since Expo!
+    - hearing_aid: Expo.
   then: laugh
 
 - id: t28_mill
   lines:
     - cardigan: When the mill ran three shifts, you couldn't get a table in here on a Wednesday.
-    - team_jacket: You couldn't get in the door! We had this one, mind.
-    - hearing_aid: This one.
+    - team_jacket: Couldn't get in the door! Dancers upstairs on Thursdays. Remember Candy?
+    - scratch: Candy with the snake.
+    - hearing_aid: Snake.
+    - cardigan: Her boy was in my daughter's class. He's a dentist now, on the mainland.
   then: laugh
 
 - id: t28_eggs
   lines:
-    - team_jacket: Back in the day you got a pickled egg and a slap on the back for a dollar.
-    - scratch: A dollar ten.
-    - team_jacket: A dollar ten! He's counting my eggs now!
+    - team_jacket: Back in the day you could smoke in here, drive home pissed and pinch the waitress. On a Wednesday!
+    - scratch: You never pinched anybody.
+    - team_jacket: I was married! I had a lot of time on my hands!
+    - hearing_aid: Hands.
   then: laugh
 
 - id: t28_new_kid
@@ -53,7 +60,8 @@
   lines:
     - team_jacket: So. The new kid. What do we think?
     - scratch: He's big. Big's a good sign on a door.
-    - cardigan: He said good evening to me. I can't remember the last one who did that.
+    - team_jacket: Hair like a woman, though. Like Jesus on a calendar.
+    - cardigan: He said good evening to me. I can't remember the last one who did.
     - team_jacket: Give him a week. A week, tops!
 
 - id: t28_new_kid_good
@@ -69,22 +77,61 @@
   lines:
     - team_jacket: That one on the door. Not one of ours, that one.
     - scratch: I don't like his numbers.
-    - team_jacket: Ten doormen since spring. Ten! We'll see the eleventh by Friday.
+    - team_jacket: Ten doormen since spring! The last one cried in the walk-in. Cried!
+    - hearing_aid: Cried.
 
 - id: t28_dennis
   when: [t28_rounds >= 4]
   lines:
     - glasses: My wife says to me, she says, Dennis. She says, you're.
     - team_jacket: We know what she says, Dennis. The whole island knows what she says.
+    - scratch: The fella at Canadian Tire knows.
     - glasses: Thirty years. Thirty years, and she still.
   then: laugh
+
+- id: t28_cant_say
+  lines:
+    - team_jacket: You can't say anything anymore. Not a thing. They'll have you on the news.
+    - scratch: You say everything. You've said everything twice.
+    - team_jacket: And look where it got me! Table 28!
+  then: laugh
+
+- id: t28_clinic
+  lines:
+    - team_jacket: Four hours at the walk-in. Half the room needed a translator, and so did the doctor!
+    - scratch: You needed a translator. You were half cut.
+    - team_jacket: Half cut in English, mind!
+  then: laugh
+
+- id: t28_blue
+  when: [t28_rounds >= 4]
+  lines:
+    - scratch: Doc's got me on the little blue ones. Says no grapefruit with them.
+    - team_jacket: Who's eating grapefruit at a time like that!
+    - hearing_aid: Grapefruit.
+    - cardigan: I take mine for the heart. My wife's been gone four years.
+
+- id: t28_phones
+  lines:
+    - team_jacket: Look at them over there. Faces in the phone. A whole generation with a crick in its neck.
+    - cardigan: My grandson tells me he's depressed. He's twelve.
+    - scratch: Twelve's lucky.
+    - cardigan: He doesn't think so.
 
 - id: t28_toast
   when: [t28_rounds >= 5]
   lines:
     - team_jacket: To the Sov! And to the ones who aren't here to see it!
-    - table28: Hear, hear!
+    - scratch: To Barry's liver!
+    - table28: To Barry's liver!
   then: clink
+
+- id: t28_last_of
+  when: [clock >= 1380]
+  lines:
+    - cardigan: Do you ever think we're the last of something?
+    - team_jacket: The last of the rye, at this rate. Another round over here!
+  then: laugh
 
 # ---------------------------------------------------------------- the pool table
 
@@ -102,6 +149,14 @@
     - bigman: Shoot your ball.
     - buddy: Yeah yeah. No. Shooting.
 
+- id: pool_kayla
+  lines:
+    - buddy: Kayla from the Tim's liked my post. Bud. Kayla. She liked it.
+    - bigman: She likes everybody's post.
+    - buddy: She doesn't like yours.
+    - bigman: I don't post.
+  then: laugh
+
 # ---------------------------------------------------------------- along the bar
 
 - id: endbar_tide
@@ -116,6 +171,14 @@
     - slippers: Room nine has had that drip since August. Since the long weekend.
     - slippers_b: You should tell Terry.
     - slippers: I told Terry. Terry tells the drip.
+  then: laugh
+
+- id: slippers_eleven
+  lines:
+    - slippers_b: The one in eleven has a girl up every night. Every night.
+    - slippers: I hear them through the vent, dear. She's faking it.
+    - slippers_b: How would you know?
+    - slippers: Thirty-eight years married, dear. I'd know.
   then: laugh
 
 - id: slippers_door
@@ -140,7 +203,7 @@
     - hivis: How's she goin'.
     - a: Can't complain. You on at the mill?
     - hivis: Contract. Six weeks. I'm in room eleven, so.
-    - a: Upstairs here? Christ.
+    - a: Upstairs here? Christ. Bring your own sheets.
     - hivis: Fair enough.
 
 - id: goodshoes_gary
@@ -184,7 +247,7 @@
 
 # ---------------------------------------------------------------- the room
 # (the talk at the bar, bible/11_SKELETON.md: a real thing with a leap on the end of it, never
-# settled, never explained)
+# settled, never explained; and the memes, which are how half the room says what it means)
 
 - id: haarp
   when: [clock >= 1290]
@@ -227,7 +290,10 @@
   lines:
     - a: They're saying two shifts at the mill again by spring.
     - b: They said that in March.
-    - a: Now they're saying it in November.
+    - a: Gord says the Chinese bought it. A numbered company in Richmond.
+    - b: Gord says the moon landing was in Nevada.
+    - a: Gord's been to Nevada.
+  then: laugh
 
 - id: ferry
   lines:
@@ -248,3 +314,68 @@
     - a: Did you see that? By the jukebox. Something went under.
     - b: There's no rats in here.
     - a: I never said rats.
+
+- id: npc
+  lines:
+    - a: Look at that guy. Same stool every night, same beer. NPC.
+    - b: We're on the same stools every night.
+    - a: Yeah, but we're main characters.
+    - b: Are we, though.
+
+- id: crypto
+  lines:
+    - a: I'm down eleven grand on the coin.
+    - b: So sell it.
+    - a: If I sell it, it's real.
+
+- id: onlyfans
+  lines:
+    - a: Kayla M's got an OnlyFans now. Swear to God.
+    - b: You subscribe?
+    - a: Nine ninety-nine. It's mostly her cat.
+    - b: Ten bucks a month for a cat, bro.
+  then: laugh
+
+- id: glowies
+  when: [sister_at has s_truck, clock >= 1200]
+  lines:
+    - a: That pickup's been sitting out there with its engine running. Glowies.
+    - b: It's a Ford with a kid in it.
+    - a: That's what a glowie would drive.
+  then: laugh
+
+- id: crickets
+  lines:
+    - a: Fifteen-minute cities. They want us all in a box eating crickets.
+    - b: You live in a box. You eat Pizza Pops.
+    - a: By choice, bro. By choice.
+  then: laugh
+
+- id: boomers
+  lines:
+    - a: The window table. Five boomers, combined age about four hundred.
+    - b: They own houses, though.
+    - a: They own houses. That's the whole joke.
+
+# ---------------------------------------------------------------- the kids
+
+- id: kids_aura
+  lines:
+    - vape: bro the bouncer has aura. like NEGATIVE aura but aura
+    - hoodie: thats not how aura works
+    - vape: thats EXACTLY how it works
+
+- id: vape_unc
+  lines:
+    - vape: unc. unc. how old are you
+    - a: Forty-one.
+    - vape: forty one and still out on a wednesday. respect. thats lore
+    - a: Get away from me, kid.
+  then: laugh
+
+- id: kids_over
+  lines:
+    - driver: Mom's called me nine times since eight.
+    - hoodie: its so over
+    - driver: Don't. I mean it.
+    - hoodie: im not doing anything im just saying its over

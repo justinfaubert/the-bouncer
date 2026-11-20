@@ -658,6 +658,11 @@
   speaker: manual
   text: Sightings of vermin are to be reported to the licensee, who will be glad to hear it.
 
+- id: ears_kids_over
+  on: ears:kids_over
+  speaker: father
+  text: That's not a joke. That's a kid telling his sister, the only way he can.
+
 # ---------------------------------------------------------------- the hand
 #
 # The voices and the player. While the player has a hand on a choice (the pointer resting on it, a
