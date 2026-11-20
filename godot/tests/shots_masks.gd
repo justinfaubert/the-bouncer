@@ -100,7 +100,7 @@ const HAIR := ["hair_grey", "hair_steel", "hair_white", "hair_dark", "hair_rust"
 const HER_LAYER := 5
 const HER_LIGHT := 2.2
 const HER_GLOW := Color("f4dcc0")
-const HER_PARTS := ["_mask", "_nose", "_ears", "_hair", "_wisps", "_combed", "_pearl", "_body"]
+const HER_PARTS := ["_mask", "_nose", "_ears", "_hair", "_wisps", "_combed", "_pearl", "_body", "_eye"]
 # and she's engraved where they're cut: finer strokes, cleaner lines
 const HER_PRINT := [3.2, 0.85]
 
@@ -121,7 +121,7 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 	var n: Node3D = main.pub.model(MASKS + who + ".glb", pos, set_node)
 	n.rotation.y = yaw
 	n.scale = Vector3.ONE * float(SIZE.get(who, 1.0))
-	var face := DrawnFace.open(MASKS, who)
+	var face: DrawnFace = SculptedFace.open(MASKS, who) if SculptedFace.is_sculpted(MASKS, who) else DrawnFace.open(MASKS, who)
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D
 		for i in m.mesh.get_surface_count():
@@ -133,6 +133,12 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 				mat = main.pub.mat(Color(1, 1, 1), 0.9, 0.0, 4, Vector3.UP, 4.5, 0.7)
 				mat.set_shader_parameter("albedo_tex", face.tex)
 				mat.set_shader_parameter("specular", 0.25)
+			elif key.begins_with("eye_"):
+				# a sculpted head's eyeballs: no strokes, the white bare paper, the iris solid, and a
+				# wet shine on the cornea
+				mat = main.pub.mat(Color(1, 1, 1), 0.25, 0.0, 3, Vector3.UP, 5.0, 0.5)
+				mat.set_shader_parameter("albedo_tex", _png_tex(MASKS + who + "_eye.png"))
+				mat.set_shader_parameter("specular", 0.9)
 			elif key in HAIR:
 				# hardly any shine: dark hair caught by the lamp prints pale, a helmet, not hair. And
 				# its strokes run the way hair is combed, front to back over the top and down the back
@@ -165,6 +171,9 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 	ap.add_animation_library(&"", _lib())
 	ap.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	var sk: Skeleton3D = n.find_children("*", "Skeleton3D", true, false)[0]
+	if face is SculptedFace:
+		for mi in n.find_children("*_mask*", "MeshInstance3D", true, false):
+			(face as SculptedFace).fit(mi, sk)
 	var hair: HairChain = HairChain.new(sk) if sk.find_bone("braid_00") >= 0 else null
 	if hair != null and who == "amanda":
 		# a breeze nobody else is in, from her left: the braid stirs when she's standing still
@@ -174,6 +183,16 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 
 
 var _plaid_tex: ImageTexture
+var _pngs := {}
+
+
+func _png_tex(path: String) -> ImageTexture:
+	if not _pngs.has(path):
+		var img := Image.new()
+		img.load_png_from_buffer(FileAccess.get_file_as_bytes(path))
+		img.generate_mipmaps()
+		_pngs[path] = ImageTexture.create_from_image(img)
+	return _pngs[path]
 
 
 func _plaid() -> ImageTexture:
@@ -362,7 +381,7 @@ func _run() -> void:
 	var whom := WHO.filter(func(w): return _want(w))
 	if whom.is_empty():
 		whom = WHO
-	var only_who := whom.size() < WHO.size() and not (_want("heights") or _want("quick") or _want("room") or _want("faces") or _want("far") or _want("talk") or _want("close") or _want("walk") or _want("turn") or _want("swing"))
+	var only_who := whom.size() < WHO.size() and not (_want("heights") or _want("quick") or _want("room") or _want("faces") or _want("portrait") or _want("far") or _want("talk") or _want("close") or _want("walk") or _want("turn") or _want("swing"))
 	# each one close, straight on, every expression
 	if _want("faces") or only_who:
 		for who in whom:
@@ -380,12 +399,41 @@ func _run() -> void:
 			var hp := _head_pos(p)
 			await _look(hp + Vector3(0.0, 0.04, -1.25), hp + Vector3(0, -0.02, 0), 30.0)
 			for ex in face.data.expressions:
+				# EXPRS=neutral,knowing,... for a few of them
+				if OS.has_environment("EXPRS") and not ex in OS.get_environment("EXPRS").split(","):
+					continue
 				(p[1] as Skeleton3D).reset_bone_poses()
 				(p[0] as AnimationPlayer).advance(0.0)
 				face.wear(ex)
 				_pose(p, 0.0)
 				await _frames(2)
 				await _grab("faces_%s_%s" % [who, ex])
+	# a portrait: her head close, straight on and turned three-quarters, a few expressions (round
+	# five: the sculpted face is meant to hold up this close)
+	if _want("portrait"):
+		for who in whom:
+			_new_set()
+			_room(2.5)
+			var p := _mask(who, Vector3.ZERO, PI)
+			(p[0] as AnimationPlayer).play(&"Idle_Talking_Loop")
+			(p[0] as AnimationPlayer).advance(0.0)
+			_light(Vector3(-0.9, 2.4, -1.2), Color("f3ead8"), 1.3, 7.0)
+			_light(Vector3(1.4, 1.2, -0.6), Look.LAMP, 0.6, 5.0)
+			var face: DrawnFace = p[2]
+			face.wear("neutral")
+			_pose(p, 0.0)
+			await _frames(2)
+			var hp := _head_pos(p)
+			var exprs := OS.get_environment("EXPRS").split(",") if OS.has_environment("EXPRS") else PackedStringArray(["neutral", "knowing", "laugh"])
+			for view in [["front", Vector3(0.0, 0.02, -0.62)], ["three", Vector3(0.36, 0.03, -0.5)]]:
+				await _look(hp + (view[1] as Vector3), hp + Vector3(0, -0.01, 0), 30.0)
+				for ex in exprs:
+					(p[1] as Skeleton3D).reset_bone_poses()
+					(p[0] as AnimationPlayer).advance(0.0)
+					face.wear(ex)
+					_pose(p, 0.0)
+					await _frames(2)
+					await _grab("portrait_%s_%s_%s" % [who, view[0], ex])
 	# how tall each one stands, to the top of the head
 	if _want("heights"):
 		var people := _row("Idle_Loop")

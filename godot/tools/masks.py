@@ -53,7 +53,7 @@ COLOURS = {
     'gold': '#d4ac52', 'sole': '#2a2420',
     'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
     'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
-    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2',
+    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2', 'mouth_inside': '#2a0c0e',
 }
 
 # Who they are.
@@ -127,7 +127,7 @@ PEOPLE = {
         wear=['shell:dress_red:0.003', 'swing:dress_red:0.0:0.14:0.22', 'sash:belt_black', 'pouch:apron_black'],
         head=dict(w=0.09, d=0.1, h=0.13, jaw=0.75, chin=0.014, crown=1.0, cheeks=1.05, flat=0.85),
         nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_black'), beard=None, skin='skin_olive',
-        things=['pearls', 'wisps', 'parted'], braid=dict(length=1.05, bones=8)),
+        things=['pearls', 'wisps'], braid=dict(length=1.05, bones=8), sculpt='amanda'),
 }
 
 
@@ -1476,6 +1476,169 @@ def head(spec, name):
     return parts
 
 
+# ---------------------------------------------------------------- a sculpted head (round five)
+
+def mesh_object(name, V, F, mats):
+    """An object from the sculptor's vertices (x, f, z) and triangles."""
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([(float(x), float(-f), float(z)) for x, f, z in V], [], [tuple(int(i) for i in t) for t in F])
+    for mt in mats:
+        me.materials.append(material(mt) if isinstance(mt, str) else mt)
+    ob = link(bpy.data.objects.new(name, me))
+    return ob
+
+
+def applied(ob, mod):
+    dg = bpy.context.evaluated_depsgraph_get()
+    me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg), preserve_all_data_layers=True, depsgraph=dg)
+    ob.modifiers.remove(mod)
+    ob.data = me
+
+
+def decimated(ob, tris):
+    n = len(ob.data.polygons)
+    if n > tris:
+        mod = ob.modifiers.new('fewer', 'DECIMATE')
+        mod.ratio = tris / n
+        applied(ob, mod)
+    for p in ob.data.polygons:
+        p.use_smooth = True
+
+
+def xfz(ob):
+    """An object's vertices as the sculptor's (x, f, z)."""
+    co = np.empty(len(ob.data.vertices) * 3)
+    ob.data.vertices.foreach_get('co', co)
+    co = co.reshape(-1, 3)
+    return np.stack([co[:, 0], -co[:, 1], co[:, 2]], 1)
+
+
+def sculpted(spec, name, arm, head_at):
+    """The head sculpted (tools/sculpt.py), with the shapes the face makes, eyeballs on bones of
+    their own, hair combed into locks, and what she wears in her ears. Everything placed and
+    bound to the skeleton here."""
+    sys.path.insert(0, HERE)
+    import sculpt
+    H = sculpt.HEADS[spec['sculpt']]
+    at = np.array([head_at.x, -head_at.y, head_at.z])
+
+    # the head, fewer triangles where it's flat (the decimation keeps the creases), then its shapes
+    V, F = sculpt.head_mesh(H)
+    ob = mesh_object(f'{name}_mask', V, F, [f'face_{name}', 'mouth_inside', spec['hair'][1] if spec.get('hair') else 'hair'])
+    decimated(ob, spec.get('tris', 60000))
+    # the brows and the lashes, hair by hair, in the same mesh, so the lids and the brows carry them
+    bm = bmesh.new()
+    for pts, radii in sculpt.hairs(H):
+        tube(bm, [Vector((p[0], -p[1], p[2])) for p in pts], radii, 4)
+    hb = to_object(bm, f'{name}_hairs', [spec['hair'][1] if spec.get('hair') else 'hair'])
+    for p in hb.data.polygons:
+        p.material_index = 0
+    bpy.ops.object.select_all(action='DESELECT')
+    hb.select_set(True)
+    ob.select_set(True)
+    bpy.context.view_layer.objects.active = ob
+    bpy.ops.object.join()
+    V = xfz(ob)
+    # inside the mouth: what's behind the lips, dark
+    m = H['mouth']
+    inside = (np.abs(V[:, 0]) < m['w'] * 0.95) & (np.abs(V[:, 2] - m['z']) < 0.009) & (V[:, 1] < m['f'] - 0.0075)
+    for p in ob.data.polygons:
+        if all(inside[i] for i in p.vertices):
+            p.material_index = 1
+    uv = sculpt.uv_of(H, V)
+    lay = ob.data.uv_layers.new(name='UVMap')
+    for p in ob.data.polygons:
+        us = [uv[ob.data.loops[li].vertex_index] for li in p.loop_indices]
+        wrap = max(u[0] for u in us) - min(u[0] for u in us) > 0.5
+        for li, u in zip(p.loop_indices, us):
+            lay.data[li].uv = (u[0] + (1.0 if wrap and u[0] < 0.5 else 0.0), u[1])
+    shapes = sculpt.shapes(H, V)
+    ob.shape_key_add(name='Basis')
+    for k, X in shapes.items():
+        sk = ob.shape_key_add(name=k, from_mix=False)
+        co = np.stack([X[:, 0] + at[0], -(X[:, 1] + at[1]), X[:, 2] + at[2]], 1)
+        sk.data.foreach_set('co', co.ravel())
+    co = np.stack([V[:, 0] + at[0], -(V[:, 1] + at[1]), V[:, 2] + at[2]], 1)
+    ob.data.vertices.foreach_set('co', co.ravel())
+    ob.data.shape_keys.key_blocks['Basis'].data.foreach_set('co', co.ravel())
+    ob.data.update()
+    # the head moves with the head bone, the bottom of the neck with the neck's
+    def neck_weights(c):
+        t = smoothstep(head_at.z - 0.09, head_at.z - 0.135, c.z)
+        return {'Head': 1.0 - t, 'neck_01': t}
+    skin_to(ob, arm, neck_weights)
+
+    # the picture on the skin, and the eyes' picture
+    sk_img = sculpt.paint(H, 2048)
+    sk_img.save(os.path.join(OUT, f'{name}_skin.png'))
+    sculpt.eye_picture(H).save(os.path.join(OUT, f'{name}_eye.png'))
+    ob.data.materials[0].name = f'face_{name}'
+
+    # the eyeballs, each on a bone of its own so the game can turn it to look
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.mode_set(mode='EDIT')
+    eb = arm.data.edit_bones
+    for (c, r), tag in zip(sculpt.eyeballs(H), ('l', 'r')):
+        w = Vector((c[0] + at[0], -(c[1] + at[1]), c[2] + at[2]))
+        b = eb.new(f'eye_{tag}')
+        b.head = w
+        b.tail = w + Vector((0, -0.02, 0))
+        b.parent = eb['Head']
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for (c, r), tag in zip(sculpt.eyeballs(H), ('l', 'r')):
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=24, radius=r)
+        bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.pi / 2, 4, 'X'))
+        # the cornea: the front of the eye a little proud, where the light catches
+        for v in bm.verts:
+            if v.co.y < 0:
+                k = max(-v.co.y / r - 0.75, 0.0) / 0.25
+                v.co.y -= 0.0009 * k * k
+        eo = to_object(bm, f'{name}_eye_{tag}', [f'eye_{name}'])
+        uvl = eo.data.uv_layers.new(name='UVMap')
+        for p in eo.data.polygons:
+            for li in p.loop_indices:
+                v = eo.data.vertices[eo.data.loops[li].vertex_index].co
+                uvl.data[li].uv = (0.5 + v.x / (2 * r), 0.5 + v.z / (2 * r)) if v.y < 0 else (0.02, 0.5)
+        for v in eo.data.vertices:
+            v.co += Vector((c[0] + at[0], -(c[1] + at[1]), c[2] + at[2]))
+        skin_to(eo, arm, lambda co, t=tag: {f'eye_{t}': 1.0})
+
+    # the hair
+    if H.get('hair'):
+        hv, hf = sculpt.hair_mesh(H)
+        ho = mesh_object(f'{name}_hair', hv + at, hf, [spec['hair'][1]])
+        decimated(ho, spec.get('hair_tris', 30000))
+        on_bone(ho, arm, 'Head')
+
+    # what she wears: pearls at her lobes, strands loose at her temples
+    er = H['ear']
+    for thing in spec.get('things', []):
+        if thing == 'pearls':
+            bm, hook = bmesh.new(), bmesh.new()
+            for sx in (-1, 1):
+                lobe = Vector((sx * (er['x'] + 0.002) + at[0], -(er['f'] + 0.004 + at[1]), er['z'] - 0.027 + at[2]))
+                tube(hook, [lobe, lobe + Vector((0, 0, -0.011))], [0.0008, 0.0008], 5)
+                blob(bm, lobe + Vector((0, 0, -0.017)), (0.0048, 0.0048, 0.006), segs=14, rings=10)
+            on_bone(to_object(hook, f'{name}_pearl_hooks', ['gold']), arm, 'Head')
+            on_bone(to_object(bm, f'{name}_pearls', ['pearl']), arm, 'Head')
+        elif thing == 'wisps':
+            # strands come loose from the part and fall at her temples: on her right three, past the
+            # cheekbone in a slow S, out beside the face, not across it; on her left one, short
+            bm = bmesh.new()
+            for sx, n, ln in ((-1, 3, 1.0), (1, 1, 0.45)):
+                for k in range(n):
+                    o = 0.003 * k
+                    pts = [(0.022 + o, 0.074, 0.084), (0.044 + o, 0.068, 0.060), (0.058 + o, 0.058, 0.025),
+                           (0.062 + o, 0.050, -0.010), (0.060 + o * 1.5, 0.046, -0.045), (0.066 + o * 2, 0.040, -0.075)]
+                    pts = [(x, max(f, sculpt.on_face(H, sx * x, z)[1] + 0.0028), z) for x, f, z in pts]
+                    pts = [Vector((sx * x + at[0], -(f + at[1]), z + at[2])) for x, f, z in pts]
+                    cp = curve(pts, 8)
+                    cp = cp[:max(int(len(cp) * ln * (1 - 0.15 * k)), 4)]
+                    tube(bm, cp, [0.0011 * (1 - 0.8 * i / (len(cp) - 1)) + 0.0002 for i in range(len(cp))], 5)
+            on_bone(to_object(bm, f'{name}_wisps', [spec['hair'][1]]), arm, 'Head')
+
+
 # ---------------------------------------------------------------- the braid
 
 def braid(spec, name, arm, pts, head_at):
@@ -1630,9 +1793,13 @@ def build(name):
     for o in list(bpy.data.objects):
         if o.type == 'MESH' and any(m and m.name == 'flannel' for m in o.data.materials):
             plaid_uvs(o, arm)
-    for p in head(spec, name):
-        p.location = head_at
-        on_bone(p, arm, 'Head')
+    if spec.get('sculpt'):
+        # a sculpted head (round five): its eyes level with the borrowed body's
+        sculpted(spec, name, arm, Vector((0.0, 0.007, arm.data.bones['Head'].head_local.z + 0.086)))
+    else:
+        for p in head(spec, name):
+            p.location = head_at
+            on_bone(p, arm, 'Head')
     if spec.get('braid'):
         braid(spec, name, arm, pts, head_at)
     os.makedirs(OUT, exist_ok=True)
