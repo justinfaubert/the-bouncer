@@ -28,7 +28,6 @@ NARRATOR: Of the thirty days, it was the one nobody else remembered.
 NARRATOR: Except Gary. Gary was there first, and Gary told it for years, so it starts with Gary.
 Four in the afternoon, and the lamp already on. VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street, across from the bank that had been a cafe for eleven years. Her china dogs were still on the mantel, beside a box of T-shirts and a calendar from the beer rep with a girl in a bikini straddling a keg.
 The rain had been at the window since noon. At the other desk the bookkeeper entered invoices with one finger, out of a mug from the bank.
-On Gary's laptop the town's Facebook group was open, Island Rants and Raves, on a photo of a rat beside the Sov's dumpster. Two hundred and fourteen comments. He'd read all of them.
 Somebody came up the porch steps and filled the glass in the door, behind the gold letters, which from in here had read SGNIDLOH NESUD NAV for twenty years.
 TILL: Here's twenty an hour.
 -> arrive
@@ -38,9 +37,8 @@ TILL: Here's twenty an hour.
 He had to duck a little, coming in, and didn't make anything of it. #portrait: him
 A big man. Not the kind they make on the mainland out of powder in a tub and needles in the gym toilet: big like a fridge is big, all the way through. The long side of thirty. Hair to his shoulders, dark, wet from the walk. A string of wooden beads round his neck with a tassel on it. A work jacket, open, over a black T-shirt somebody had ironed.
 SENIOR: Hair like a girl's. In my day we'd have called him a fairy and given him the door.
-SENIOR: Ironed his T-shirt, though.
 TILL: Long hair. That's a complaint a week.
-SENIOR: Your mother ironed yours till you were thirty, Junior.
+SENIOR: Ironed his T-shirt. Your mother ironed yours till you were thirty, Junior.
 OWNER: Come in, come in. Gary. Grab a seat.
 * [Sit down.]
     ~ sat_how = 1
@@ -52,7 +50,7 @@ OWNER: Come in, come in. Gary. Grab a seat.
     ~ sat_how = 2
     ~ stat_up(stat_gut)
     ~ stat_up(stat_int)
-    He didn't sit. He looked at the room first: the window, the bookkeeper, the box in the corner, the girl on the keg, the photo on the wall behind Gary's head. A man looking at a bar before he goes into it. Then he sat.
+    He didn't sit. He looked at the room first: the window, the bookkeeper, the box in the corner, the girl on the keg, the photo on the wall behind Gary's head, and Gary's laptop, open on the town's Facebook group, Island Rants and Raves, and a photo of a rat beside the Sov's dumpster. Two hundred and fourteen comments. Gary had read every one. A man looking at a bar before he goes into it. Then he sat.
     SENIOR: He's casing it.
     TILL: Or pricing it.
 * [Lift the chair back a foot, and turn it. Then sit.]

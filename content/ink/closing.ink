@@ -422,6 +422,10 @@ The buddy went out ahead of them both with his collar up{knows ? transmission: a
     He didn't go to the pickup.
 }
 He went to his own truck, a work truck with a toolbox across the bed, parked nose-in by the beer store. He got his keys out, and dropped them in the gravel, and picked them up.
+// He went along the trucks at twenty to eight (prologue.ink).
+{ knows ? lot_trucks:
+    The doorman knew the truck. The school photo in the visor, and the mickey in the door, which would be empty now, or in the big man's coat.
+}
 { family_in_lot && not kid_was_in && not sis_was_in:
     Across the lot the pickup's headlights came on full. The driver's door opened, and his daughter got out and stood in the rain and didn't come any closer.
 }
@@ -1717,9 +1721,20 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 }
 // He may have been up already, before the shift (walk.ink, twelve).
 { from_room:
-    His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
+    { knows ? heard_phone:
+        His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
+    - else:
+        His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift with the pillow over his head, while the bartender told Gary about him through two inches of window.
+    }
     { in_twelve ? gary_shirt:
         Gary's shirt was on the chair where he'd left it, folded, the word inside.
+    }
+    // What the last doormen left in twelve (walk.ink, twelve).
+    { knows ? twelve_hole:
+        In the light from the lot, the face round the hole behind the door still had its mouth open.
+    }
+    { knows ? twelve_foil:
+        He didn't open the drawer.
     }
 - else:
     His room was at the end of the second floor, over the deck. It came with the job.

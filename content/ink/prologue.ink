@@ -19,7 +19,7 @@
     NARRATOR: Of the thirty days, it was the one nobody else remembered.
     The rain had come across the strait with the last ferry and hadn't let up. It hit the gravel lot hard enough to bounce.
 }
-{ not (knows ? sov_watched):
+{ not (knows ? sov_watched) && not from_room:
     On the roof the sign said SOVEREIGN in red neon with the second E dead. Under it, HOTEL, all five letters working.
     Three storeys of old wood, painted a red that had faded to the colour of brick. The cold beer and wine store at one end with its lights on. Trucks parked nose-in along the front, wipers stopped where they'd been switched off. The highway behind him, and past the highway, the water.
 }
@@ -38,6 +38,17 @@ It told him Wednesday. #pause
 { ate == -1:
     He hadn't eaten since the morning. It was a long way to two.
 }
+// What he looks at before he goes in: the trucks, which are how they all go home (closing.ink,
+// the big man's keys), or the window, where table 28 see him first (the room, below).
+* [Go along the trucks.]
+    ~ knows += lot_trucks
+    He went along the trucks. A mill pickup with a hard hat on the dash and a two-four of empties on the passenger side. A Silverado with a wet flag on a pole in the bed that said FUCK and then the prime minister's name. A minivan with WASH ME in the dirt on the back window, and under it, in somebody else's finger, a cock and balls.
+    By the beer store, a work truck with a toolbox across the bed, a school photo of a girl tucked in the visor, and a mickey of rye in the door pocket, half gone.
+    FATHER: Every one of them drove here. Every one of them's driving home.
+* [Look in the front window.]
+    ~ knows += t28_window
+    Through the glass, past the neon in it, five men at a round table looked back out at him. One of them raised his glass to him. One of them gave him the finger, and laughed, and the rest laughed with him.
+-
 { shirt == 1 && not from_room:
     -> vestibule
 }
@@ -79,8 +90,22 @@ It was taped to the till in black marker. RATS. DEAL WITH IT. INSPECTOR ON THE 1
     So those were the few things.
 }
 # task: past :: Anybody who gets in without coming past him: find out how, before he goes home.
+// Ask her first, or look first: either way he looks before he sits (before_eight).
+* ["Where do you want me?"]
+    ~ pass(4)
+    -> where_want
+* [Turn round and look at the room.]
+    -> first_look
+
+= first_look
 He turned around and looked at the room.
 Five men at a round table in the front window, with the best view of the door and the TV. They were talking about the price of diesel, all at once, in one voice. The table had a number screwed to its edge: 28.
+{
+- knows ? t28_puke:
+    The one in the team jacket was the one he'd watched throw up between the trucks at twenty to seven. He looked fine.
+- knows ? t28_window:
+    The one who'd given him the finger through the window gave it to him again, friendlier.
+}
 At the pool table, a big man and a smaller one were playing for money, the bills tucked under the rail.
 Two women in slippers at the near end of the bar with a bottle of white wine between them. An old man at the far end, by the trapdoor, with a glass he wasn't drinking.
 // The old man from the wharf (walk.ink): nobody sees him go between the two.
@@ -97,8 +122,9 @@ WRONGMAN: It was a slow night in the story too. The man who told it said his bro
 -> before_eight
 
 = before_eight
+{ not first_look: -> first_look }
 { clock >= 1190: -> the_truck }
-* ["Where do you want me?"]
+* {not where_want} ["Where do you want me?"]
     ~ pass(4)
     -> where_want
 * [Count the room.]
@@ -117,6 +143,9 @@ BARTENDER: They're all locked at night.
 She cut another lime in half.
 BARTENDER: Mostly.
 FATHER: Four doors, and one of them's yours. That's three you're answerable for and can't see.
+{ knows ? hotel_watched:
+    He thought of the woman on the hotel's stairs, and the car with its lights off.
+}
 ~ knows += coaster
 ~ knows += kitchen_gap
 ~ knows += hotel_gap
