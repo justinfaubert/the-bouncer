@@ -361,6 +361,12 @@ Update this file at the end of every session: add a session entry, move items be
 - Fixed on the way: the drawer's "All true. I told you." lost its setup when table 28's scene changed, so the Father now says "I had him down for a thief" (or, if the doorman took the money, "Now you're the doorman who took the float"). The churches on the walk and in the things he can look at agree now, and so does the old man's jacket on the wharf, at the bar and in the keg room. The bookkeeper's thirty years at the bank are gone (she's had forty-one with the Van Dusens).
 - Unchanged: the bartender's lines and the narration about her (for Jim), every `// HUTCH:` prompt, and the door's verdict choices (the next-phase thread is tagging them for the hand gestures). The audit is at 0; the bots reach 300 of 301 knots and stitches (ev_sister.sister_lie, as before); nothing between choices passes 300 words except the office opening (318), which waits on Hutch; Godot runs with no script errors on seeds 3, 7 and 11.
 
+### 2026-11-21 (Saturday), the door by hand
+
+- The first piece of the second bet in the teardown, the door becomes the game. At the door, the verdict can now be made with his hand as well as with the words: a sweep of the open hand toward the room lets them in, the palm up says no, the hand thrown out past them at the lot sends them for the card, the hand low and flat says in on terms. His left hand rests on his knee at the bottom of the view while a verdict is on offer; the player takes it and drags. Short of the mark it goes back to his knee. While it's dragged, the choice's words come up by the hand, its row lights in the column, a voice can lean in, and the room goes quiet under it. Past the mark the room answers first: the door swings, the kid walks back out to the truck or past him into the room, and the column follows 1.2 seconds later. (PROPOSED.)
+- Every arrival's verdicts carry the tag, eighteen in all (`#door: in|out|fetch|terms` in `content/ink/door.ink`). The words in the column still work the same way. No prose changed.
+- Still to come for the door loop: the queue, a new check each shift, the read getting harder with drink, and choices only the hand can make (keeping the licence, the stamp, letting the door swing shut on someone).
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -789,6 +795,8 @@ Proposed with pace, length and edge (2026-11-19), from Hutch's note ("no monoton
 - **Amanda, round four:** from pretty to knowing (in the log above).
 - **Wednesday at the harder dial (2026-11-21):** the whole night rewritten in the Ink, with twelve new choices and what reads each, three of them to keep every stretch under 300 words (in the log above). New to the world: Lorraine in six, seven empty since March, the payphone wall and the women's stall in full, the Facebook soldier on the phone at table 28, the cardigan's dead (Les and Bob), Gary's call from somewhere with slot machines. The style test's welcome at table 28 is in the game with it.
 - **Wednesday reads human (2026-11-21):** the prose pass after Hutch's "still reads AI" (in the log above), the voices' new registers, and `13_STYLE.md`'s What reads like a machine.
+
+- **The door by hand (2026-11-21):** the verdict at the door made with his hand (in the log above).
 
 ### REJECTED
 

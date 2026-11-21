@@ -33,6 +33,7 @@ var spots: Hotspots
 var going: Going
 var dice: Dice
 var props: Props
+var door_hand: DoorHand
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -53,6 +54,7 @@ var clock_shown := -1
 var _clock_to := -1
 var _tick := 0.0
 var _quit_asked := false
+var answering := false         # a verdict made by hand: the room answers before the column (choose_by_hand)
 
 
 func _ready() -> void:
@@ -136,6 +138,9 @@ func _ready() -> void:
 	props = Props.new()
 	add_child(props)
 	props.setup(self)
+	door_hand = DoorHand.new()
+	add_child(door_hand)
+	door_hand.setup(self)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -381,7 +386,7 @@ func back_to_title() -> void:
 
 # the player's choice, by its place among the visible choices
 func choose(i: int) -> void:
-	if not in_game or pending != null or rolling != null or game.ended or menus.is_open():
+	if not in_game or pending != null or rolling != null or game.ended or menus.is_open() or answering:
 		return
 	var list := game.visible_choices()
 	if i < 0 or i >= list.size():
@@ -400,11 +405,44 @@ func choose(i: int) -> void:
 	show(res, true)
 
 
+# A verdict at the door made with his hand (game/door_hand.gd). The choice is made at once and saved,
+# but the room answers first: the people are put where the choice puts them (the kid walks in past
+# him, or turns back across the gravel) and the room's quiet holds, and only after ANSWER seconds
+# does the column say what happened. After a choice that matters, a face changes, someone moves,
+# then the words.
+const ANSWER := 1.2
+
+func choose_by_hand(i: int, _verdict: String) -> void:
+	if not in_game or pending != null or rolling != null or game.ended or menus.is_open() or answering:
+		return
+	var list := game.visible_choices()
+	if i < 0 or i >= list.size():
+		return
+	var considered := hand.leave(i)
+	var res := game.choose(i, {"considered": considered})
+	if res.is_empty():
+		return
+	persist()
+	marks.fade_all()
+	column.clear_choices()
+	spots.clear()
+	answering = true
+	stage.sync(game, false)
+	audio.weigh = 0.6
+	await get_tree().create_timer(ANSWER).timeout
+	answering = false
+	audio.weigh = 0.0
+	if not in_game:
+		return
+	audio.sfx("choose", 0.6)
+	show(res, true)
+
+
 # Handling a thing between choices (Game.toy). If a choice was waiting for it, the night moves on
 # from that choice as from any other; if not, what it changed goes quietly into the head, and
 # anything said about it goes in above the choices. Returns "chose", "said" or "".
 func toy(id: String, what: String) -> String:
-	if not in_game or pending != null or rolling != null or game.ended:
+	if not in_game or pending != null or rolling != null or game.ended or answering:
 		return ""
 	var res := game.toy(id, what)
 	if res.is_empty():
@@ -837,6 +875,8 @@ func _transcript() -> String:
 # ---------------------------------------------------------------- input
 
 func _on_world_input(e: InputEvent) -> void:
+	if e is InputEventMouseButton and door_hand.took(e.pressed):
+		return
 	if e is InputEventMouseButton and not e.pressed and e.button_index == MOUSE_BUTTON_LEFT and view.was_click():
 		if dice.wants_click():
 			return
