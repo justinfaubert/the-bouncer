@@ -25,7 +25,10 @@ const DEFAULTS := {
 	"master": 0.8, "amb": 0.6, "sfx": 0.8, "music": 0.6, "voice": 0.9,
 	"look_speed": 1.0,    # turning his head with the mouse
 	"invert": false,
-	"fov": 58.0,
+	"fov": 70.0,          # wider than it was (58): the room has air round it
+	"keys_walk": true,
+	"wide_walk": true,    # the picture takes the whole screen while he walks, the page slides back when he stops    # W A S D walk him (game/feet.gd); off, they turn his head
+	"settings_v": 2,
 	"fullscreen": false,
 	"render": 1.0,        # the share of the screen's pixels the world is drawn at
 	"slot": 1,            # the night last played
@@ -46,6 +49,11 @@ func _init() -> void:
 				settings[k] = float(got[k])
 			elif DEFAULTS.has(k) and (DEFAULTS[k] is int) and (got[k] is float):
 				settings[k] = int(got[k])
+		# settings from before his own feet: the old narrow view goes to the new default
+		if int(got.get("settings_v", 1)) < 2:
+			if absf(float(got.get("fov", 58.0)) - 58.0) < 0.5:
+				settings["fov"] = DEFAULTS["fov"]
+			settings["settings_v"] = DEFAULTS["settings_v"]
 
 
 func save_settings() -> void:

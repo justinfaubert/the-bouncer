@@ -37,6 +37,7 @@ signal ran                        # he ran across the bar's floor, in front of e
 signal settled                    # he's come to a post he sits or leans at, and his weight's gone onto it
 
 const WORLD_W := 0.655
+var world_w := WORLD_W            # the share of the screen the picture has now: all of it while he walks (game/main.gd, _widen)
 const MASK_LAYER := 20
 const LOOK_EASE := 14.0
 const PITCH_MIN := -1.25
@@ -109,6 +110,11 @@ var _dragged := 0.0
 var pointer := Vector2(-1, -1)    # the pointer over the world's picture, in its pixels; -1 off it
 var t := 0.0
 var keys_turn := Vector2.ZERO
+var keys_feet := Vector2.ZERO     # W A S D, when they turn his head instead of walking him (game/feet.gd)
+var stroll := false               # walking on his own feet, by the keys (game/feet.gd)
+var stroll_v := 0.0
+var lean_off := 0.0               # leaning round something: how far his head's out to the side
+var lean_roll := 0.0
 var turned_t := -INF              # when the player last turned his head themselves
 var _walk_t0 := 0.0               # when he set off
 var _look_after = null            # a look asked for on the way (someone there), taken when he's there: a point, or who (a Callable giving where their head is by then)
@@ -144,7 +150,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	eye.audio_listener_enable_3d = true
 	add_child(eye)
 	cam = Camera3D.new()
-	cam.fov = 58.0
+	cam.fov = 70.0
 	cam.near = 0.03
 	cam.far = 900.0
 	cam.environment = env
@@ -260,11 +266,16 @@ func resize() -> void:
 	# screen: the strokes come out the same on a laptop, a 4K screen and a phone, and fullscreen
 	# costs no more than a window
 	var k := clampf(float(settings.get("render", 1.0)), 0.4, 1.0) * minf(1.0, PRINT_H / win.y)
-	var size := Vector2i(maxi(64, roundi(win.x * WORLD_W * k)), maxi(64, roundi(win.y * k)))
+	var size := Vector2i(maxi(64, roundi(win.x * world_w * k)), maxi(64, roundi(win.y * k)))
 	eye.size = size
 	mask.size = size
 	press.set_shader_parameter("view_px", Vector2(size))
 	press.set_shader_parameter("print_k", clampf(float(settings.get("print", 1.0)), 0.0, 1.0))
+
+
+# his steps, walking on his own feet (game/feet.gd)
+func add_stride(d: float) -> void:
+	_stride += d
 
 
 # ---------------------------------------------------------------- where he is
@@ -792,10 +803,11 @@ func on_screen(p: Vector3) -> Vector3:
 func _process(dt: float) -> void:
 	t += dt
 	# the arrow keys, and the keys by them
-	if keys_turn != Vector2.ZERO:
+	var kt := (keys_turn + keys_feet).clamp(Vector2(-1, -1), Vector2(1, 1))
+	if kt != Vector2.ZERO:
 		turned_t = t
-		want_yaw -= keys_turn.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom
-		want_pitch = clampf(want_pitch + keys_turn.y * dt * 1.2 * zoom, PITCH_MIN, PITCH_MAX)
+		want_yaw -= kt.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom
+		want_pitch = clampf(want_pitch + kt.y * dt * 1.2 * zoom, PITCH_MIN, PITCH_MAX)
 	if walking:
 		_walking(dt)
 	var k := 1.0 - exp(-dt * LOOK_EASE)
@@ -828,16 +840,16 @@ func _apply() -> void:
 	# his steps: down at each footfall, up over the foot, and a little from side to side, as much as
 	# he's going
 	var side := 0.0
-	if walking and not _path.is_empty():
-		var k := clampf(_v / PACE, 0.0, 1.3)
+	if (walking and not _path.is_empty()) or stroll:
+		var k := clampf((stroll_v if stroll else _v) / PACE, 0.0, 1.3)
 		var ph := _stride / STEP * PI
 		dy = (absf(sin(ph)) - 0.64) * 0.018 * k
 		side = sin(ph) * 0.012 * k
 		roll += sin(ph) * 0.004 * k
-	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll))
+	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll + lean_roll))
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
-	cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy, 0) + right * side)
-	var base := float(settings.get("fov", 58.0))
+	cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
+	var base := float(settings.get("fov", 70.0))
 	var f := base * zoom
 	if focus_fov > 0.0:
 		f = focus_fov

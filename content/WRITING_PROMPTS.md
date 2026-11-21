@@ -53,8 +53,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/deck.ink
 
 23. **at_deck** (`content/ink/deck.ink:20`): The smoking deck. What happens out there that doesn't happen inside?
-24. **at_deck** (`content/ink/deck.ink:107`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
-25. **ev_deck_kids** (`content/ink/deck.ink:202`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
+24. **at_deck** (`content/ink/deck.ink:111`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
+25. **ev_deck_kids** (`content/ink/deck.ink:206`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
 
 ## content/ink/closing.ink
 

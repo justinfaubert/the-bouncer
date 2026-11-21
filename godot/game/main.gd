@@ -31,6 +31,7 @@ var sketch: Sketch
 var hand: Hand
 var spots: Hotspots
 var going: Going
+var feet: Feet
 var dice: Dice
 var props: Props
 var door_hand: DoorHand
@@ -129,6 +130,7 @@ func _ready() -> void:
 	add_child(spots)
 	spots.setup(self)
 	going = Going.new(self)
+	feet = Feet.new(self)
 	hand = Hand.new()
 	add_child(hand)
 	hand.setup(self)
@@ -221,6 +223,8 @@ func _frame_for(where: String) -> String:
 		return "stand"
 	if where != "lot":
 		return ""
+	if _choices_from("at_front"):
+		return "step"
 	var v: Dictionary = game.vars()
 	if int(BUtil.js_int(v.get("clock", 0))) < 1190:
 		return "arrive"
@@ -479,6 +483,7 @@ func overheard(id: String) -> void:
 
 
 func show(res: Dictionary, live: bool) -> void:
+	_still_t = WIDE_HOLD
 	column.clear_choices()
 	spots.clear()
 	read_chars = 0
@@ -900,7 +905,16 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _key(e: InputEventKey) -> void:
 	var k := e.physical_keycode
-	# looking round: the arrow keys and the keys by the left hand
+	# his feet: W A S D walk him where he's free to walk, and turn his head where he isn't; Shift
+	# hurries him and Alt leans (game/feet.gd)
+	if not e.echo and (k in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_SHIFT, KEY_ALT]) and not menus.is_open():
+		if feet.key(k, e.pressed) or k in [KEY_SHIFT, KEY_ALT]:
+			get_viewport().set_input_as_handled()
+			return
+	elif e.echo and k in [KEY_W, KEY_A, KEY_S, KEY_D] and feet.on():
+		get_viewport().set_input_as_handled()
+		return
+	# looking round: the arrow keys and the keys by the left hand (when his feet aren't using them)
 	var turn := {KEY_LEFT: Vector2(-1, 0), KEY_A: Vector2(-1, 0), KEY_RIGHT: Vector2(1, 0), KEY_D: Vector2(1, 0),
 		KEY_UP: Vector2(0, 1), KEY_W: Vector2(0, 1), KEY_DOWN: Vector2(0, -1), KEY_S: Vector2(0, -1)}
 	if turn.has(k) and not menus.is_open():
@@ -965,7 +979,7 @@ func _key(e: InputEventKey) -> void:
 		get_viewport().set_input_as_handled()
 		if props.holding():
 			props.key(k)
-		else:
+		elif not feet.use():
 			spots.use()
 		return
 	if k == KEY_Q or k == KEY_R:
@@ -1090,6 +1104,42 @@ func _process(dt: float) -> void:
 			clock_shown += 1
 			column.show_clock(clock_shown)
 	going.process(dt)
+	feet.process(dt)
+	_widen(dt)
+
+
+# While he walks on his own feet the picture takes the whole screen and the page slides off to the
+# right; it slides back a moment after he stops, or at once when the night has something to say
+# (show()). Settings > "The whole screen while he walks".
+const WIDE_HOLD := 1.0        # seconds stopped before the page comes back
+const WIDE_SPEED := 1.4       # of the screen's width a second
+var _still_t := WIDE_HOLD
+
+func _widen(dt: float) -> void:
+	if view.stroll:
+		_still_t = 0.0
+	else:
+		_still_t += dt
+	var wide: bool = bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
+		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding()
+	var to := 1.0 if wide else WORLD_W
+	if is_equal_approx(view.world_w, to):
+		return
+	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)
+	view.world_w = w
+	lay_out(w)
+
+
+func lay_out(w: float) -> void:
+	view.sheet.anchor_right = w
+	talk.anchor_right = w
+	marks.anchor_right = w
+	column.anchor_left = w
+	column.anchor_right = 1.0 + (w - WORLD_W)
+	feet.hint.anchor_right = w
+	spots.overlay.anchor_right = w
+	props.hint.anchor_right = w
+	view.resize()
 
 
 # the caches are static and outlive the scene; let go of them before the servers shut down,
@@ -1109,5 +1159,7 @@ func _notification(what: int) -> void:
 		get_tree().quit()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		hand.away(true)
+		if feet != null:
+			feet.clear()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		hand.away(false)

@@ -49,6 +49,11 @@
 + {fam ? kids_waiting && not fam_done && not truck_gone} [Go out to the pickup in the lot. #loc: lot]
     ~ pass(2)
     -> at_lot
+// Out the front for the air, any time the pickup isn't what's out there (deck.ink, at_front). The
+// stool's empty while he's out, and door_away counts it.
++ {not pickup_waiting()} [Step out front. #loc: lot]
+    ~ pass(1)
+    -> at_front
 // Walking about the room, in the 3D build (godot/game/going.gd): not to a place, just to somewhere
 // else on the floor he can see. A walk across the room costs a minute, and whatever's due happens
 // while he's at it. Only his legs make this (#unlisted): the browser build has no floor to walk.
@@ -88,6 +93,8 @@
     -> walk(from, -> at_deck, 2)
 + {fam ? kids_waiting && not fam_done && not truck_gone} [The pickup in the lot #loc: lot #class: move]
     -> walk(from, -> at_lot, 3)
++ {from != lot && not pickup_waiting()} [Out front #loc: lot #class: move]
+    -> walk(from, -> at_front, 2)
 - -> DONE
 
 === walk(from, -> to, m) ===
@@ -101,6 +108,9 @@
 === carry_on ===
 { in_room(here): -> hub.choose }
 -> hub
+
+=== function pickup_waiting()
+~ return fam ? kids_waiting && not fam_done && not truck_gone
 
 === function in_room(p)
 ~ return p == floor || p == door || p == bar || p == t28 || p == pool

@@ -367,6 +367,19 @@ Update this file at the end of every session: add a session entry, move items be
 - Every arrival's verdicts carry the tag, eighteen in all (`#door: in|out|fetch|terms` in `content/ink/door.ink`). The words in the column still work the same way. No prose changed.
 - Still to come for the door loop: the queue, a new check each shift, the read getting harder with drink, and choices only the hand can make (keeping the licence, the stamp, letting the door swing shut on someone).
 
+### 2026-11-21 (Saturday), his own feet, and the air
+
+- Hutch: "Movement in the world is limited which feels a bit claustrophobic." Four remedies went to him (his own feet, walk and talk, air, the building deeper); he picked his own feet and the air first.
+- W A S D walk him wherever the night has him free to walk: the bar's floor and the vestibule, and the deck and the lot once he's out there. Shift hurries him, and the room sees him run. A walk across the room still costs its minute, taken when he stops (or every ten metres if he keeps going). His steps are heard. He never walks through a table, a wall or a person. Click-to-go stays. (PROPOSED.)
+- Doorways are the ways: walking through the deck door takes him out on the deck, and the same goes for the back hall, the kitchen and the front door. A place in the room (the stool, the bar, table 28, the pool table) is walked up to, its name comes up at the foot of the picture, and E settles him there. Holding a key at a place gets him up and out onto the floor in that direction.
+- While he walks, the picture takes the whole screen and the page slides off to the right. It comes back a second after he stops, or as soon as someone speaks.
+- Alt with A or D leans him round a doorway or a shoulder (Thief, 1998).
+- The field of view goes from 58° to 70° (settings from before are moved to it), and the slider now goes up to 90°.
+- Out front is always open: "Step out front." on the floor, "Out front" from anywhere (`deck.ink`, `at_front`). He stands under the sign with the highway, the seawall, the strait and his breath, and can walk the lot. Six small things happen while he stands in the air, among them the Esso kid looking up at the sky after midnight. The stool stays empty while he's out, and `door_away` counts it. The deck can be walked about too.
+- Settings > Looking: "The keys walk him" and "The whole screen while he walks", both on by default.
+- Checks: `tests/feet.gd` (real key presses, pictures with --out). The bots reached 303 of 304 knots and stitches in 400 runs.
+- Next: walk and talk, so a scene stops freezing his feet; then the building deeper (stairs, his room, the roof, the keg room on foot).
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -431,6 +444,8 @@ Update this file at the end of every session: add a session entry, move items be
 - The edge goes harder where it's appropriate, and it's always meaningful: "make the player reflect upon times where they've read or heard or seen those kinds of things/people." Seediness, vulgarity, sexuality, distasteful and politically incorrect ideas are part of life, for maximum immersion, and there's "some 4chan buffoonery and memesterism in places in the dialogue or in passing in other ways" (Hutch, 2026-11-20, on the edge sample: "on the right track").
 
 ### PROPOSED (waiting on Hutch)
+
+- His own feet (2026-11-21): W A S D walk him where he's free to; doorways are the ways; places walked up to and settled at with E; the whole screen while he walks; Alt leans; a 70° view; out front always open. Loosens October's "no keys to steer by".
 
 - Immersion as learning: drinking with a group is how he earns their voices and reads them; the cost lands on the body, judgment and the next shift. The father's voice opposes it.
 - The hotel draft in `06_THE_HOTEL.md`: the Sovereign Hotel ("the Sov"), the four doors, table 28's window, the rats in the wall behind it, the bouncer's room as leverage.

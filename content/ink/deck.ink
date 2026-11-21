@@ -42,6 +42,10 @@
     -> vape_back
 + [Stand in the air a minute.]
     -> air
+// Walking about the deck on his own feet (godot/game/feet.gd): only his legs make this.
++ [Walk about the deck. #toy: legs walk #unlisted]
+    ~ pass(1)
+    -> d_opts
 + {deck_door} [Pull the coaster out of the latch.]
     ~ pass(1)
     ~ deck_door = false
@@ -257,6 +261,52 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 
 
 // ------------------------------------------------------------------ the pickup in the lot
+
+// Out the front, under the sign, for the air: the lot, the highway, the seawall across it and the
+// strait past that. Walked about on his own feet in the 3D build (godot/game/feet.gd). While he's
+// out here nobody's on the stool, and door_away counts it (sim.ink).
+=== at_front ===
+~ here = lot
+{ due(): -> hub }
+# amb: rain_lot
+{ at_front == 1:
+    He went out through the vestibule and stood under the sign, and the door swung shut on the room behind him. The rain had gone to a mist that hung in the light off the roof. Across the highway, the seawall, and past it the strait, and past that nothing at all. Up the road the Esso's canopy was the brightest thing for a mile.
+    His breath went out white. He hadn't known how loud it was in there until it stopped.
+- else:
+    {shuffle:
+    - He stood out front under the sign. Up on the roof it buzzed, one letter a beat behind the others.
+    - Out front the mist hung in the sign's light. Red, then not, then red.
+    - Out front it was quiet. The room was a bass line through the wall and nothing else.
+    - He stood out front. Somebody had written CALL ME DADDY in the dirt on the beer store's window, and under it, in a different hand, NO.
+    }
+}
+-> f_opts
+
+= f_opts
+{ due(): -> hub }
+<- moves(lot)
++ [Stand in the air a minute.]
+    -> f_air
++ [Walk about the lot. #toy: legs walk #unlisted]
+    ~ pass(1)
+    -> f_opts
+
+= f_air
+~ pass(3)
+{ stopping:
+- A pickup went by on the highway with a man standing up in the bed, holding the roll bar, shouting at the sea. It went round the bend and took the shouting with it.
+    FATHER: Nobody's on the stool.
+- Two kids were sitting on the hood of a Civic at the far end of the lot, passing a vape back and forth and filming each other doing nothing. One of them saw him and put the phone face down on his leg, like a hand of cards.
+- A couple were arguing in a car with the windows up and the dome light on, a play with the sound off. She hit the dashboard twice with the flat of her hand. He looked at his phone until she stopped.
+- Somebody had been sick against the dumpster earlier, and the rain hadn't got all of it. A gull was seeing to the rest.
+- A woman came out of the Esso with a two-four on her shoulder and walked straight across the highway without looking either way. Nothing hit her. She didn't look like she'd expected anything to.
+- {clock >= 1440:Up the road the Esso kid was out by the pumps with his head back, looking at the sky over the strait. By the time he looked up too, there was only the cloud.|He stood in the mist. A truck went by, and the wet came up off the road behind it like a sheet shaken out.}
+- He stood in the mist and let the cold get in under the jacket.
+}
+{ drinks >= 3 && f_air == 1:
+    Out here the drink was louder than the room had been.
+}
+-> f_opts
 
 === at_lot ===
 ~ here = lot
