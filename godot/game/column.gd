@@ -175,7 +175,13 @@ var _head_place := ""
 # night's as he walks and as the lines come in: game/main.gd), where he is, and what's on him
 func set_status(st: Dictionary, shown_clock := -1) -> void:
 	var day: String = Look.DAY_NAMES.get(int(st.get("day", 1)), "Day %d" % int(st.get("day", 1)))
+	var d := int(st.get("day", 1))
 	var part := "the interview" if str(st.get("here", "")) == "office" else ("before the shift" if int(st.clock) < 1180 else "the test shift")
+	# the days after: his own day till the doors open (Thursday he's off), then the shift
+	if d == 2:
+		part = "his day off" if int(st.clock) < 1260 else "the evening"
+	elif d > 2:
+		part = "before the shift" if int(st.clock) < 1180 else "the shift"
 	head_day.text = (day + ", " + part).to_upper()
 	_head_place = str(Look.PLACE.get(str(st.here), "")).to_upper()
 	show_clock(int(st.clock) if shown_clock < 0 else shown_clock)
@@ -722,8 +728,8 @@ func show_end(stamped: bool) -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 14)
 	if not stamped:
-		v.add_child(UiBits.label("END OF THE TEST SHIFT", "ui_b", 30, Look.INK, 3))
-	var p := UiBits.para([["read", size_px, Look.INK_2, "Friday comes next, and it is not written yet. This night stays saved the way it ended until you start Wednesday over."]])
+		v.add_child(UiBits.label("END OF THE FIRST FRIDAY", "ui_b", 30, Look.INK, 3))
+	var p := UiBits.para([["read", size_px, Look.INK_2, "Saturday comes next, and it is not written yet. This game stays saved the way it ended until you start Wednesday over."]])
 	v.add_child(p)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 26)

@@ -362,3 +362,37 @@ bm_coat:
   heat: None, unless somebody's been in the pockets.
   does: Keeps his phone, and the rain off him, when he's wearing it.
   worth: To his daughter at two in the morning, the phone in it.
+
+# Thursday, day 2 (content/ink/days.ink). Claude's drafts, PROPOSED.
+napkin:
+  kind: thing
+  shape: mat
+  name: Terry's napkin
+  front: ["~ HWY", "~ SOV  X", "~ ESSO  HOT DOGS OK", "~ THRIFT   HARDWARE", "~ (a square shaded till the pen went through)"]
+  back: ["~ DONT GO TO THE LEGION"]
+  whose: Terry drew it at the desk with a pen from a bank, on Thursday.
+  heat: None.
+  does: The strip, as Terry sees it. The Legion is the shaded square.
+  worth: Nothing. Terry would be hurt if he threw it out.
+
+shoreline:
+  kind: thing
+  shape: book
+  name: The Shoreline
+  front: [THE SHORELINE, "Serving the Island since 1911", "Thursday, November 5", "MILL TALKS PRODUCTIVE, SAYS UNION"]
+  back: ["TIDES", "THU  LOW 0.3 m  11:52", "WED  (blank)"]
+  whose: The coffee can on the end of Terry's desk. Two dollars, honour system.
+  heat: None.
+  does: Last week's news, a week late. Next Wednesday's tide is missing.
+  worth: Two dollars, if he paid.
+
+key_seven:
+  kind: thing
+  shape: key
+  name: A key on a brass fob
+  front: ["SOVEREIGN HOTEL", "7"]
+  whose: Caught in the wire of the old man's crab trap, Thursday at dusk, on his rope.
+  heat: Seven's been empty since March. Terry has every key but this one.
+  does: Room seven, if he tries it.
+  worth: It never warms up.
+

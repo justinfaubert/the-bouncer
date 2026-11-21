@@ -922,7 +922,7 @@ func _light_step(dt: float, force := false) -> void:
 func _put_light(c: float) -> void:
 	var key: DirectionalLight3D = pub.town.key if pub.town != null else null
 	pub.dusk(c, place)
-	if c >= NIGHT_FROM or c < float(DAY[0][0]) - 60.0:
+	if c >= NIGHT_FROM or c < 420.0:
 		env.background_color = _night.sky
 		# the room's own light goes colder after midnight (pub.set_clock does its lamps)
 		env.ambient_light_color = (_night.ambient as Color).lerp(LATE_AMBIENT,

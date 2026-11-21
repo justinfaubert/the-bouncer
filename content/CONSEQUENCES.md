@@ -788,3 +788,98 @@ Written by `node tools/audit.mjs --map` from the Ink. Each choice, where it is, 
 | 791 | ev_wallet | "Come back tomorrow, when the owner's in." | to carry_on; wallet_back, rep_owner |
 | 815 | short_count | Give him the fifty back. | fifty_how, owned_it, cash |
 | 822 | short_count | "That's what was in it." | fifty_how, cocoon, rep_owner |
+
+## days.ink
+
+| Line | Where | Choice | Changes |
+|---|---|---|---|
+| 48 | dawn | Go up to twelve. | d2_done:d2_boots |
+| 51 | dawn | Sit on the back step till it's light. | d2_done:d2_step |
+| 82 | thursday | Look out the window. | d2_done:d2_window |
+| 96 | thursday | The sink. | d2_done:d2_mirror; (mirror) is read |
+| 112 | thursday | Lie back down. | to desk; d2_done:d2_slept |
+| 118 | thursday | Go down. | to desk |
+| 134 | desk | Put a toonie in the can and take a paper. | to paper_read_it; cash, d2_done:d2_paid, d2_done:d2_paper |
+| 140 | desk | Take a paper. | to paper_read_it; d2_done:d2_paper |
+| 145 | desk | "Where do I get something to eat round here?" | d2_done:d2_napkin |
+| 152 | desk | Go out. | to strip |
+| 161 | paper_read_it | The front page. | paper_read:pp_front |
+| 167 | paper_read_it | The police blotter. | paper_read:pp_blotter |
+| 175 | paper_read_it | The obituaries. | paper_read:pp_obit |
+| 181 | paper_read_it | The classifieds. | paper_read:pp_ads |
+| 189 | paper_read_it | The letters. | paper_read:pp_letter |
+| 195 | paper_read_it | The tide table. | paper_read:pp_tide |
+| 201 | paper_read_it | Fold it into his back pocket. | to desk.desk_hub |
+| 225 | strip | Down to the wharf. | to wharf_day |
+| 227 | strip | Back to the wharf, to haul the trap. | to haul |
+| 229 | strip | Up to the Esso. | to esso_day |
+| 231 | strip | Into the Sov by the front. Table 28 will be in. | to t28_day |
+| 233 | strip | Back up to twelve. | to twelve_day |
+| 235 | strip | Cross to the seawall and watch the sign come on. | to the_sign |
+| 261 | wharf_day | Lower the trap over the rail. | trap_in, d2_done:d2_trap |
+| 267 | wharf_day | "Do it yourself." | trap_in |
+| 283 | haul | Keep the key. | knows:key_seven |
+| 286 | haul | Leave it in the trap for the old man. | key_left |
+| 298 | esso_day | Something to eat. | d2_done:d2_ate, ate, cash |
+| 303 | esso_day | The kid's coming on shift. | d2_done:d2_esso |
+| 331 | t28_day | Have one. Sit down. | d2_done:d2_t28, drinks, rep_t28 |
+| 342 | t28_day | "I'm off tonight. Another time." | rep_t28 |
+| 368 | twelve_day.lorraine | Light her cigarette. | lorraine_how |
+| 373 | twelve_day.lorraine | "Maybe Friday." | lorraine_how |
+| 378 | twelve_day.lorraine | Shut the door. | lorraine_how |
+| 385 | twelve_day.twelve_rest | Sleep till the light goes. | to strip; d2_done:d2_slept |
+| 390 | twelve_day.twelve_rest | Go back out. | to strip |
+| 406 | the_sign | Count the letters. | d2_done:d2_sign |
+| 411 | the_sign | Watch the lot fill instead. | d2_done:d2_lot |
+| 424 | evening | Knock on eleven. | to crib |
+| 426 | evening | An early night. Friday's everybody. | to thursday_close; d2_done:d2_early, d2_done:d2_crib |
+| 448 | evening.crib | Play to win. | crib_won, cash, hangover |
+| 453 | evening.crib | Lose a few. | crib_won, cash, hangover |
+| 458 | evening.crib | One beer and go. | crib_won |
+
+## friday.ink
+
+| Line | Where | Choice | Changes |
+|---|---|---|---|
+| 37 | friday | Go down at four. | to cheque |
+| 58 | cheque | Sign the book and take it. | cheque_how, cash |
+| 63 | cheque | "Eleven-dollar shirt." | cheque_how, cash |
+| 75 | cheque | Open it and count it in front of her. | cheque_how, cash |
+| 93 | rib | Eat. | rib_how, ate |
+| 97 | rib | Hold a slice up to the light. | rib_how, knows:prime_thin |
+| 104 | rib | Take it back to the board. "Is this a staff cut, or is this the cut?" | rib_how, knows:prime_thin, rep_cook |
+| 127 | jim | "What are you counting?" | knows:jim_count |
+| 131 | jim | Leave him to it. | a way out: the clock |
+| 148 | preacher | Take one. | preacher_how |
+| 152 | preacher | Read the top one where he stands. | preacher_how |
+| 158 | preacher | "Not in here." | preacher_how |
+| 202 | big_man_friday.twenty | Take it. | cash |
+| 206 | big_man_friday.twenty | Push it back. "Have your one." | bigman_ease |
+| 273 | the_line.mill | "In you go." | wave_in:w_mill, count_in |
+| 278 | the_line.mill | Card them anyway. | wave_in:w_mill, count_in |
+| 291 | the_line.girl | "Thanks." | wave_in:w_girl, count_in, let_wrong |
+| 298 | the_line.girl | Look at the card. | check manual 11; to girl_choose; knows:girl_card |
+| 308 | the_line.girl | "What's your birthday?" | check father:cha 9; to girl_choose; knows:girl_card |
+| 320 | the_line.girl_choose | "In you go." | wave_in:w_girl, count_in, let_wrong |
+| 324 | the_line.girl_choose | "Tell your sister she's prettier than her picture." | rep_kids |
+| 328 | the_line.girl_choose | "Not tonight." | rep_kids |
+| 338 | the_line.suit | "In." | suit_how, wave_in:w_suit, count_in |
+| 344 | the_line.suit | "Whose wedding?" | suit_how, wave_in:w_suit, count_in |
+| 352 | the_line.suit | "Not dressed like that." | suit_how |
+| 371 | the_line.shoes | Hand it over. | wallet_back, wallet_how |
+| 384 | the_line.shoes | "Come back tomorrow. Day girl's got it." | wallet_back |
+| 401 | the_line.legion | "Go ahead." | wave_in:w_legion, count_in, let_wrong |
+| 408 | the_line.legion | Watch him let go of the frame. | check father 9; to legion_choose |
+| 417 | the_line.legion | Ask him his name. | check wrongman 10; to legion_choose |
+| 429 | the_line.legion_choose | "Come on in, Doug." | wave_in:w_legion, count_in, let_wrong |
+| 433 | the_line.legion_choose | "I'll call you a cab." | rep_t28 |
+| 436 | the_line.legion_choose | "Not tonight, sir." | rep_t28 |
+| 449 | the_line.couple | "Just you, then." | wave_in:w_couple, count_in |
+| 456 | the_line.couple | "Both of you. Sort it out inside." | wave_in:w_couple, count_in, let_wrong |
+| 461 | the_line.couple | "Neither. Go home." | rep_owner |
+| 504 | wave_end.girl_found | Walk her out. | rep_staff, incident:inc_no_id |
+| 508 | wave_end.girl_found | Leave it. It's Friday. | cocoon, rep_staff |
+| 556 | close_friday.lorraine_friday | Go up with her. | to friday_end; lorraine_how, cash |
+| 562 | close_friday.lorraine_friday | "Not tonight." | lorraine_how |
+| 577 | close_friday.seven | Try the key. | to friday_end; seven_how |
+| 583 | close_friday.seven | Put the key back in his pocket. | seven_how |

@@ -833,3 +833,12 @@ Proposed with pace, length and edge (2026-11-19), from Hutch's note ("no monoton
 
 14. The empire, the city, the factions and the politics.
 15. A title check before any store page. The game is *Last Call* (DECIDED, 2026-11-19). A game from 2000 has the name, as Hutch said, and so does Zachtronics' *Last Call BBS* (2022) on Steam; he can add a subtitle later.
+
+## 2026-11-21 (Saturday), the next days: Thursday and Friday
+
+Hutch: "We need to start building the next few days out." Show, don't tell; less text at each step. Claude's drafts, PROPOSED.
+
+- **The month runs on.** closing.ink's last line goes to `dawn` (days.ink) and on through Thursday into Friday (friday.ink). `new_day()` resets what's in his blood and the door's counts; everything else carries. `pass()` runs Wednesday's room only on day 1.
+- **Thursday, day 2, his day off.** Daylight is the clock (sunset 4:48). The Shoreline (front, blotter with the light over the strait, Irene Pelletier's obituary, the WANTED ad still running, the bank clock eleven minutes slow, next Wednesday's tide box blank), Terry's napkin (don't go to the Legion), the old man's crab trap and the key to seven in it, the Esso kid at four, table 28 by day, Lorraine in six for a light, the sign coming on with eight letters, crib in eleven.
+- **Friday, day 3, the first real shift.** The cheque, 96 crossed out to 72. Prime rib you can see through. Jim on the bar counting out loud. The Preacher (Ray) with APOCALYPSE MEANS UNCOVERING. The wave: a line behind the glass, every slow read adds two, at ten some give up for the Legion; the girl with her sister's card, the wedding suit, Doug from the Legion, GOOD SHOES for his wallet, a couple. Jim's count against his. Close: the cook's foil packages, Lorraine's "maybe Friday", room seven and the black record with no label.
+- **Godot:** daylight before 4 pm (clocks under 7 am are night), Thursday and Friday casts in stage.gd, day labels, frames for the wharf and the Esso by day. Pictures: tests/shots_days.gd.

@@ -159,3 +159,42 @@ ballcap:
   label: BALL CAP
   look: {age: young, build: slight, hat: cap, hair: short, top: hoodie, mood: flat}
   note: Never in the bar on Wednesday. His licence is in the last doorman's jacket (drawer.ink), eighteen, nineteen on 2 January; she put him in the binder for three months on 2 October, the Friday the last doorman went (props.yaml, binder, sleeve 8). Draft (PROPOSED), and the name on his licence is a placeholder.
+
+# The days after Wednesday (content/ink/days.ink, friday.ink). Claude's drafts, PROPOSED.
+jim:
+  portrait: jim
+  label: JIM
+  standing: staff
+  look: {build: slight, hat: cap, hair: short, top: tee, extra: [cloth], mood: nervous}
+  note: On the bar with her on Fridays and Saturdays. Drums in cover bands. Meek, reliable, very particular; turns the labels out and counts out loud, and writes the counts on his hand. Hutch's (DECIDED, 19 November); his lines are Hutch's to rewrite.
+lorraine:
+  portrait: lorraine
+  label: LORRAINE
+  look: {build: medium, sex: f, hair: bun, top: robe, extra: [cigarette], mood: amused}
+  note: Room six. Fifties, a satin robe, a clip in her hair. Staff rate's half. Comes to twelve's door for a light on Thursday (days.ink).
+preacher:
+  portrait: preacher
+  label: THE PREACHER
+  look: {build: medium, hair: buzz, top: windbreaker, extra: [bag], mood: kind}
+  note: Ray. A lay preacher from the church on the highway, in on Fridays with tracts; buys the drunks coffee. Sat in the sixth chair at table 28 before he quit (bible/11_SKELETON.md, the six eccentrics; his voice to leave is THE TRACT).
+mill:
+  label: MILL
+  note: Two from the mill in their work jackets, in the Friday wave.
+girl:
+  label: THE GIRL
+  look: {age: young, build: slight, sex: f, hair: long, top: puffer, mood: bright}
+  note: The girl in the white puffer with her sister's card (friday.ink, the wave). Grade eleven, says Jim.
+suit:
+  label: THE WEDDING SUIT
+  look: {build: medium, hair: parted, top: suit, extra: [rose], mood: flat}
+  note: The man in a wedding suit, alone, three Fridays running (the returning deck). The first one is day 3.
+legion:
+  label: DOUG
+  look: {age: old, build: slight, hair: thin, top: windbreaker, mood: polite}
+  note: Doug from the Legion, in the Legion windbreaker, when the other place has closed on him. Terry's napkin warns about him.
+woman:
+  label: THE WIFE
+  note: A woman with her shoes in her hand, in the Friday wave, not going home with him.
+man:
+  label: THE HUSBAND
+  note: Behind her, still talking.

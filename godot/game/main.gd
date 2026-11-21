@@ -207,9 +207,15 @@ func _frame_for(where: String) -> String:
 	if where == "street":
 		if _choices_from("dusk.highway"):
 			return "highway"
+		if _choices_from("wharf_day") or _choices_from("haul"):
+			return "wharf"
+		if _choices_from("strip"):
+			return "highway"
 		return "wharf" if _choices_from("dusk.wharf") else ""
 	if where == "esso":
 		var kn: Array = game.vars().get("knows", [])
+		if _choices_from("esso_day") and int(BUtil.js_int(game.vars().get("clock", 0))) >= 960:
+			return "kid"
 		if _choices_from("dusk.kid_rater") or (_choices_from("dusk.esso_lot") and ("esso_sky" in kn or "esso_rater" in kn)):
 			return "kid"
 		return ""

@@ -100,7 +100,7 @@ func dusk(c: float, where: String) -> void:
 		_as_built = {"neon": M.neon.get_shader_parameter("emission_energy"), "sodium": M.sodium.get_shader_parameter("emission_energy"),
 			"far": M.far.get_shader_parameter("emission_energy"), "sign": (lights.sign as Light3D).light_energy,
 			"roof_sign": (lights.roof_sign as Light3D).light_energy, "sodium_l": (lights.sodium as Light3D).light_energy}
-	var night := c >= Town.NIGHT or c < 900.0
+	var night := c >= Town.NIGHT or c < 420.0
 	var lit := night or c >= 990.0
 	var warm := 1.0 if night else clampf((c - 1000.0) / 15.0, 0.0, 1.0)
 	var dark := 1.0 if night else clampf((c - 975.0) / 85.0, 0.0, 1.0)
@@ -700,8 +700,8 @@ func set_clock(clock: int) -> void:
 	if dial != null:
 		dial.rotation.z = deg_to_rad(-130.0 if full else (-20.0 if some else 95.0))
 	# warm at eight, the lamps as built by eleven, paler from midnight on
-	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 900 else 0.0
-	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 900 else 1.0
+	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 420 else 0.0
+	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 420 else 1.0
 	for l in lamps:
 		var li := l as Light3D
 		if not li.has_meta("base"):

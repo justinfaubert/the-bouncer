@@ -10,6 +10,10 @@
 { here != door:
     ~ door_away += m
 }
+// Wednesday's room runs only on Wednesday. The later days keep their own clocks (days.ink, friday.ink).
+{ day > 1:
+    ~ return
+}
 
 // People drift in while the main door is unwatched: one every 45 unwatched minutes after 8:30, four at most on a Wednesday.
 // Not once the front door's locked for the night.
