@@ -60,9 +60,18 @@ const COMES_FROM := [Vector3(4.6, 0, 13.4), Vector3(6.4, 0, 15.6), Vector3(2.6, 
 const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot",
 	"lobby": "hall", "keg": "keg", "upstairs": "upstairs", "office": "office", "town": "street"}
 # the men's on the back hall, for whoever goes: in front of its door, and inside it, past the door
+# walking: a door opens this far ahead of a walker, so it's open before they're where it swings (the
+# front door swings out at them, coming in), and swings to this far behind them, once they're past
+# where it would
+const DOOR_AHEAD := 2.0
+const DOOR_PAST := 1.8
+const APART := 0.5                   # how close a walker comes to someone in the way before stopping
+const LOOK_AHEAD := 0.35             # how far along the way they're going that's looked at for it
+const YIELD_FOR := 0.8               # how long a walker waits for someone to move off before going round
+const GIVE_WAY := 5.0                # waited this long in all with no way round, they're there in the blink of an eye
 const WC_DOOR := "wc_men"
 const WC_FRONT := Vector3(7.47, 0, -0.8)
-const WC_IN := Vector3(7.47, 0, -1.8)
+const WC_IN := Vector3(7.65, 0, -2.1)       # past the reach of the door as it swings in (hinged at x 7.1, 0.74 wide)
 
 var pub: Pub
 var content: Dictionary
@@ -140,7 +149,8 @@ func _spots() -> void:
 	s["stand_bar"] = {"pos": Vector3(3.15, 0, 2.9), "face": Vector3(0.0, 0, 3.1), "zone": "room"}
 	s["stand_window"] = {"pos": Vector3(11.7, 0, 9.35), "face": Vector3(9.4, 0, 8.1), "zone": "room"}
 	s["vest_wait"] = {"pos": Vector3(3.85, 0, 9.35), "face": Vector3(2.0, 0, 9.0), "zone": "vest"}
-	s["vest_behind"] = {"pos": Vector3(3.55, 0, 10.0), "face": eye, "zone": "vest"}
+	# behind whoever's at the door, inside the glass: not in it (the leaves shut at z 10.1)
+	s["vest_behind"] = {"pos": Vector3(3.62, 0, 9.66), "face": eye, "zone": "vest"}
 	s["vest_stand"] = {"pos": Vector3(3.3, 0, 9.7), "face": Vector3(6.0, 0, 7.0), "zone": "vest"}
 	# on the upturned keg in the aisle between the rows, facing the way down
 	s["keg_parley"] = {"pos": Vector3(3.42, Pub.KEG_Y, 1.25), "face": Vector3(3.42, Pub.KEG_Y, 4.35), "zone": "keg", "y": -0.16}
@@ -724,6 +734,9 @@ func _walk_off(id: String) -> bool:
 			return false
 		else:
 			from = node.global_position
+			if _seated(f.spot):
+				# up off the seat and out from behind it first: not through the stool or the table
+				from = _beside_seat(f.spot, id)
 	elif w.is_empty():
 		return false
 	# back out of the washroom: from in front of its door (and through it, below)
@@ -743,9 +756,7 @@ func _walk_off(id: String) -> bool:
 			to = s.pos
 			if _seated(w[0]):
 				# up to the seat from behind it: the sitting down's in the blink of taking the pose
-				var away := Vector3(s.pos.x - s.face.x, 0.0, s.pos.z - s.face.z)
-				if away.length() > 0.01:
-					to = s.pos + away.normalized() * 0.32
+				to = _beside_seat(w[0], id)
 		else:
 			return false
 	if from == Vector3.INF:
@@ -844,6 +855,24 @@ func _walk_on(dt: float) -> void:
 		var left: float = wk.len - wk.s
 		var v := minf(float(wk.v) + 1.6 * dt, float(wk.pace))
 		v = minf(v, sqrt(2.0 * 1.2 * maxf(left, 0.0)) + 0.1)
+		# someone in the way, close: he slows and stops short of them rather than walk into them, and
+		# if they don't move off, finds a way round them
+		if wk.get("gone", false):
+			continue
+		var cross := _in_the_way(id, wk)
+		if cross > 0.0:
+			wk.waited = float(wk.get("waited", 0.0)) + dt
+			if float(wk.waited) > GIVE_WAY:
+				_give_up(id, wk)
+				continue
+			v = maxf(0.0, minf(v, float(wk.v) - 4.0 * dt))
+			wk.held = float(wk.get("held", 0.0)) + dt
+			if float(wk.held) > YIELD_FOR:
+				wk.held = 0.0
+				_round_them(id, wk)
+				left = wk.len - wk.s
+		else:
+			wk.held = 0.0
 		wk.v = v
 		wk.s = minf(float(wk.s) + v * dt, float(wk.len))
 		var here: Vector3 = Nav.at(wk.path, wk.s)[0]
@@ -854,14 +883,98 @@ func _walk_on(dt: float) -> void:
 		if wk.anim != null:
 			(wk.anim as AnimationPlayer).speed_scale = v / float(wk.stride)
 		for d in wk.doors:
-			if d[2] == 0 and wk.s >= float(d[1]) - 1.0:
+			if d[2] == 0 and wk.s >= float(d[1]) - DOOR_AHEAD:
 				pub.swing_door(d[0], true)
 				d[2] = 1
-			elif d[2] == 1 and wk.s >= float(d[1]) + 1.0:
+			elif d[2] == 1 and wk.s >= float(d[1]) + DOOR_PAST:
 				pub.swing_door(d[0], false)
 				d[2] = 2
 		if wk.s >= float(wk.len) - 0.001:
 			_walked(id)
+
+
+# How close the nearest body ahead of a walker is getting (0 if none's in the way): anyone standing
+# or walking on the ground floor, and him, a little way along the way they're going and nearer
+# there than where they are now.
+func _in_the_way(id: String, wk: Dictionary) -> float:
+	var here: Vector3 = Nav.at(wk.path, wk.s)[0]
+	var ahead: Vector3 = Nav.at(wk.path, minf(float(wk.s) + LOOK_AHEAD, float(wk.len)))[0]
+	if Vector2(ahead.x - here.x, ahead.z - here.z).length() < 0.02:
+		return 0.0
+	var worst := 0.0
+	var start: Vector3 = wk.get("from", wk.path[0])
+	var end: Vector3 = wk.path[wk.path.size() - 1]
+	for o in _bodies(id):
+		var p: Vector3 = o[0]
+		# one beside where they set off from or are going to (the spot next to theirs) is come only
+		# as close to as that: the way was found that close to them (world/nav.gd)
+		var room: float = minf(float(o[1]), minf(Vector2(start.x - p.x, start.z - p.z).length(), Vector2(end.x - p.x, end.z - p.z).length()) - 0.05)
+		if room < 0.1:
+			continue
+		var d_ahead := Vector2(ahead.x - p.x, ahead.z - p.z).length()
+		var d_here := Vector2(here.x - p.x, here.z - p.z).length()
+		if d_ahead < room and d_ahead < d_here:
+			worst = maxf(worst, room - d_ahead)
+	return worst
+
+
+# everyone else's body on the ground floor, as [where, how close a walker comes to them]
+func _bodies(id: String) -> Array:
+	var out: Array = []
+	for o in figures:
+		if o == id:
+			continue
+		var n := figures[o].node as Node3D
+		if n == null or n.get_parent() != self or not n.visible:
+			continue
+		var sp := str(figures[o].spot)
+		if not walkers.has(o) and sp != "" and (_seated(sp) or not str(SPOTS[sp].zone) in WALKABLE or SPOTS[sp].get("in", "") != ""):
+			continue
+		out.append([n.global_position, APART])
+	if view != null and view.on_floor == "":
+		out.append([Vector3(view.eye_pos.x, 0.0, view.eye_pos.z), APART + Nav.BODY - Nav.SLIGHT])
+	return out
+
+
+# a walker held up too long: a new way from where they are, round whoever's in it, if there is one
+# (not with a door open on the way: it's theirs to shut)
+func _round_them(id: String, wk: Dictionary) -> void:
+	for d in wk.doors:
+		if d[2] == 1 or not d[0] in Posts.DOORWAYS:
+			return
+	var here: Vector3 = Nav.at(wk.path, wk.s)[0]
+	var to: Vector3 = wk.path[wk.path.size() - 1]
+	var others: Array = []
+	for o in _bodies(id):
+		others.append(o[0])
+	var path := _nav.way(here, to, others)
+	if path.size() < 2:
+		return
+	if not wk.has("from"):
+		wk.from = wk.path[0]
+	wk.path = path
+	wk.len = Nav.length_of(path)
+	wk.s = 0.0
+	wk.doors = Posts.doors_on(path)
+
+
+# Someone who's waited and waited with no way round who's in it: where they were going in a blink
+# of his (or, out of his sight, just there), not walked through anyone.
+func _give_up(id: String, wk: Dictionary) -> void:
+	wk.gone = true
+	var here: Vector3 = Nav.at(wk.path, wk.s)[0] + Vector3(0, 1.2, 0)
+	if _blinking or view == null or not in_sight(here, Hotspots.zone_of(here)):
+		_walked(id)
+		return
+	_blinking = true
+	var tw := create_tween()
+	tw.tween_property(view, "flash", 0.92, 0.07)
+	tw.tween_callback(func():
+		if walkers.has(id):
+			_walked(id))
+	tw.tween_interval(0.05)
+	tw.tween_property(view, "flash", 0.0, 0.22)
+	tw.tween_callback(func(): _blinking = false)
 
 
 func _walked(id: String) -> void:
@@ -921,10 +1034,43 @@ func _truck_door(spot: String) -> Vector3:
 
 # where someone coming to the door comes from: out in the lot, the nearest place he can't see
 func _comes_from() -> Vector3:
+	# and not where someone else has just set off from: two coming at once come from two places
+	for p in COMES_FROM:
+		if not in_sight(p + Vector3(0, 1.2, 0), "lot") and not _someone_at(p):
+			return p
 	for p in COMES_FROM:
 		if not in_sight(p + Vector3(0, 1.2, 0), "lot"):
 			return p
 	return COMES_FROM[COMES_FROM.size() - 1]
+
+
+# Where someone stands to sit down on a seat, or stands up from it to: behind it, or if someone's
+# standing there (behind the stool at table 28), round to one side of it.
+func _beside_seat(spot: String, id: String) -> Vector3:
+	var s: Dictionary = SPOTS[spot]
+	var away := Vector3(s.pos.x - s.face.x, 0.0, s.pos.z - s.face.z)
+	if away.length() < 0.01:
+		return s.pos
+	var best: Vector3 = s.pos + away.normalized() * 0.32
+	var best_d := -1.0
+	for turn in [0.0, 1.0, -1.0, 1.6, -1.6]:
+		var p: Vector3 = s.pos + away.normalized().rotated(Vector3.UP, turn) * 0.32
+		var d := 9.0
+		for o in _bodies(id):
+			d = minf(d, Vector2(p.x - o[0].x, p.z - o[0].z).length())
+		if d >= APART:
+			return p
+		if d > best_d:
+			best_d = d
+			best = p
+	return best
+
+
+func _someone_at(p: Vector3) -> bool:
+	for o in _bodies(""):
+		if Vector2(p.x - o[0].x, p.z - o[0].z).length() < APART + 0.3:
+			return true
+	return false
 
 
 # Put a figure where it's wanted, now.

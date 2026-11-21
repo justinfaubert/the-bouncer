@@ -116,6 +116,7 @@ godot --headless --path godot -s res://tests/reach.gd -- --seeds 1-12 --steps 40
 godot --headless --path godot -s res://tests/looks.gd        # what each thing he can look at says
 godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
 godot --headless --path godot -s res://tests/walks.gd        # every walk, from every post to every other
+godot --headless --path godot -s res://tests/clipping.gd -- --seed 2 --steps 200   # nobody through anything: doors, furniture, each other
 godot --headless --path godot -s res://tests/going.gd -- --seed 3   # going where he looks, clicked
 godot --headless --path godot -s res://tests/column_player.gd -- --seed 3   # a night by the column alone
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn

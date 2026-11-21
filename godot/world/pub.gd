@@ -592,6 +592,9 @@ func spot(pos: Vector3, target: Vector3, c: Color, e: float, r: float, angle: fl
 	return l
 
 
+var _held := {}             # door -> how many have it open now (swing_door)
+
+
 # A door he's going through swings open ahead of him and falls to behind him.
 func swing_door(which: String, open: bool, now := false) -> void:
 	var list: Array = []
@@ -606,6 +609,17 @@ func swing_door(which: String, open: bool, now := false) -> void:
 			list = [[dyn.hotel_door, -86.0]]
 		"wc_men", "wc_women", "wc_single":
 			list = [[dyn[which], 80.0]]           # into the washroom
+	# held open while anyone's in it: a door one walker's done with doesn't swing shut on the next
+	# (nor on him, walking through behind them)
+	# (shut at once is a walk cut short: the page has turned, and nobody's in it any more)
+	var held := int(_held.get(which, 0)) + (1 if open else -1)
+	if now and not open:
+		held = 0
+	_held[which] = maxi(0, held)
+	if not open and held > 0:
+		return
+	if open and held > 1:
+		return
 	for pair in list:
 		var n: Node3D = pair[0]
 		_still(n)
@@ -618,8 +632,9 @@ func swing_door(which: String, open: bool, now := false) -> void:
 		if open:
 			tw.tween_property(n, "rotation:y", deg_to_rad(pair[1]), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		else:
+			# the closer takes it to and it settles, not past the jamb into whoever's just come through
 			tw.tween_interval(0.5)
-			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 0.9).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 # a door's swing stopped where it is, for the next one (or the prop) to take it from there
@@ -1194,6 +1209,55 @@ func set_stool(spot: String, how: int) -> void:
 		# over toward the room, its legs to the bar
 		n.rotation = Vector3(0.0, 0.0, -PI / 2.0)
 		n.position = home + Vector3(-0.02, 0.211, 0.0)
+	# where it's not where the walk map has it, what's walked round instead
+	if how == 0:
+		Nav.things.erase("stool_" + spot)
+	else:
+		Nav.things["stool_" + spot] = footprint(n)
+
+
+# What a thing takes up on the floor, as it stands now: circles along the long way of what's drawn
+# of it, seen from above, [Vector3 middle, radius] (world/nav.gd walks round them).
+static func footprint(n: Node3D) -> Array:
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	var meshes: Array = n.find_children("*", "MeshInstance3D", true, false)
+	if n is MeshInstance3D:
+		meshes.append(n)
+	for m in meshes:
+		var mi := m as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		var box := mi.get_aabb()
+		var xf := mi.global_transform if mi.is_inside_tree() else n.transform * _rel(n, mi)
+		for k in 8:
+			var p := xf * box.get_endpoint(k)
+			lo = Vector2(minf(lo.x, p.x), minf(lo.y, p.z))
+			hi = Vector2(maxf(hi.x, p.x), maxf(hi.y, p.z))
+	if lo.x == INF:
+		return []
+	var size := hi - lo
+	var r := minf(size.x, size.y) / 2.0
+	var long := maxf(size.x, size.y)
+	var along := Vector2(1, 0) if size.x >= size.y else Vector2(0, 1)
+	var count := maxi(1, ceili((long - 2.0 * r) / maxf(r, 0.05)) + 1)
+	var out: Array = []
+	var mid := (lo + hi) / 2.0
+	for i in count:
+		var t := 0.0 if count == 1 else (float(i) / (count - 1) - 0.5) * (long - 2.0 * r)
+		var c := mid + along * t
+		out.append([Vector3(c.x, 0.0, c.y), r])
+	return out
+
+
+static func _rel(top: Node3D, n: Node3D) -> Transform3D:
+	var xf := Transform3D.IDENTITY
+	var at: Node = n
+	while at != null and at != top:
+		if at is Node3D:
+			xf = (at as Node3D).transform * xf
+		at = at.get_parent()
+	return xf
 
 
 func _keep_stool(spot: String, n: Node3D) -> void:
