@@ -23,19 +23,18 @@
 ~ stats_base()
 # amb: office
 // HUTCH: These opening lines are the first thing anyone reads. Rewrite them in the voice of whoever turns out to be telling this story, years later, at a bar.
-NARRATOR: He started on a Wednesday. The Sov tried out doormen on Wednesdays, on a night slow enough that a mistake would only hurt a little.
-NARRATOR: Of the thirty days, it was the one nobody else remembered.
-NARRATOR: Except Gary. Gary was there first, and Gary told it for years, so it starts with Gary.
-Four in the afternoon, and the lamp already on. VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street, across from the bank that had been a cafe for eleven years. Her china dogs were still on the mantel, beside a box of T-shirts and a calendar from the beer rep with a girl in a bikini straddling a keg.
-The rain had been at the window since noon. At the other desk the bookkeeper entered invoices with one finger, out of a mug from the bank.
-Somebody came up the porch steps and filled the glass in the door, behind the gold letters, which from in here had read SGNIDLOH NESUD NAV for twenty years.
+NARRATOR: He started on a Wednesday. Gary tried doormen out on Wednesdays because it was dead, and if a new guy screwed up there'd be nobody in to see it.
+NARRATOR: Gary told this part for years after, to anyone who'd sit still for it. He got a lot of it wrong. But he was there first, so we'll start with Gary.
+VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street. Across the road was the bank, which had been a cafe for eleven years. It was four in the afternoon and the lamp was on. His mother's china dogs were still on the mantel, next to a box of T-shirts and the beer rep's calendar, a girl in a bikini straddling a keg.
+It had been raining since noon. The bookkeeper sat at the other desk typing invoices with one finger. Her mug was from the bank.
+Somebody came up the porch steps and filled the glass in the door. From inside, the gold letters on it read SGNIDLOH NESUD NAV.
 TILL: Here's twenty an hour.
 -> arrive
 
 = arrive
 # sfx: door
-He had to duck a little, coming in, and didn't make anything of it. #portrait: him
-A big man. Not the kind they make on the mainland out of powder in a tub and needles in the gym toilet: big like a fridge is big, all the way through. The long side of thirty. Hair to his shoulders, dark, wet from the walk. A string of wooden beads round his neck with a tassel on it. A work jacket, open, over a black T-shirt somebody had ironed.
+He ducked, coming in. #portrait: him
+He was big. Gary had watched the gym kind come off the ferry every summer, built out of powder in a tub and needles in the toilet stall, with zits all over their backs. This one was big all the way through, like a fridge. Thirty-five, maybe more. His hair was dark and down to his shoulders, wet from the walk. He had a string of wooden beads round his neck with a tassel on the end, and a work jacket open over a black T-shirt that somebody had ironed.
 SENIOR: Hair like a girl's. In my day we'd have called him a fairy and given him the door.
 TILL: Long hair. That's a complaint a week.
 SENIOR: Ironed his T-shirt. Your mother ironed yours till you were thirty, Junior.
@@ -44,20 +43,20 @@ OWNER: Come in, come in. Gary. Grab a seat.
     ~ sat_how = 1
     ~ stat_up(stat_cha)
     ~ stat_up(stat_con)
-    He sat, and the chair said something about it. He'd sat across a lot of desks and expected nothing from any of them, and it showed.
+    He sat. The chair creaked. He put his hands on his knees and waited for Gary to start.
     TILL: Doesn't fidget. Fidgeters steal.
 * [Look round the room first.]
     ~ sat_how = 2
     ~ stat_up(stat_gut)
     ~ stat_up(stat_int)
-    He didn't sit. He looked at the room first: the window, the bookkeeper, the box in the corner, the girl on the keg, the photo on the wall behind Gary's head, and Gary's laptop, open on the town's Facebook group, Island Rants and Raves, and a photo of a rat beside the Sov's dumpster. Two hundred and fourteen comments. Gary had read every one. A man looking at a bar before he goes into it. Then he sat.
+    He stood and looked at the room first: the window, the bookkeeper, the box in the corner, the girl on the keg, the photo on the wall behind Gary's head. Then Gary's laptop. It was open on Island Rants and Raves, the town's Facebook group, on a picture of a rat beside the Sov's dumpster. Two hundred and fourteen comments. Gary had read all of them. He shut the laptop, and the big man sat down.
     SENIOR: He's casing it.
     TILL: Or pricing it.
 * [Lift the chair back a foot, and turn it. Then sit.]
     ~ sat_how = 3
     ~ stat_up(stat_wis)
     ~ stat_up(stat_str)
-    He picked the chair up by one arm, a solid oak thing, and set it down a foot back and turned a quarter, without a sound on Gary's mother's floor, so the door was in the side of his eye. Then he sat.
+    The chair was solid oak. He picked it up by one arm and put it down a foot further back, turned so he could see the door, and sat. It hadn't made a sound on Gary's mother's floor.
     SENIOR: Lifted it. Didn't drag it.
     TILL: That floor's eight thousand dollars.
 - -> the_room
@@ -66,24 +65,24 @@ OWNER: Come in, come in. Gary. Grab a seat.
 = the_room
 OWNER: So. First thing. There's a room.
 OWNER: Upstairs at the Sov, end of the second floor, over the deck. Comes with the job. Six a month, and it comes off the top.
-The bookkeeper wrote something down without being asked.
+The bookkeeper wrote it down.
 SENIOR: Six. I charged the last one four, and he still left.
 OWNER: You got your licence on you? The security one.
 * [Hand it to him.]
     ~ licence_how = 1
-    He took it out of his wallet and held it out across the desk, like something he expected back.
+    He took it out of his wallet and held it out across the desk, and kept hold of it a second after Gary took it.
 * [Put it on the desk.]
     ~ licence_how = 2
-    He put it on the desk, face up, and slid it the last few inches with two fingers, and left it for Gary to pick up.
+    He put it face up on the desk and slid it the last few inches with two fingers.
     SENIOR: Makes you reach for it.
 - -> licence_look
 
 // The door, turned round: Gary does to him what he'll do to everyone (bible/11_SKELETON.md).
 = licence_look
-Gary did what he'd watched a hundred doormen do. He looked at the card, and at him, and at the card. #prop: his_licence
+Gary looked at the card, then at him, then at the card again, the way he'd seen it done. #prop: his_licence
 SECURITY WORKER, it said, with a seal in the corner, a number, a photo, and a name under Gary's thumb.
-In the photo his hair was cropped to the skin, army short, or prison short.
-SENIOR: Short hair, then. Something happened between that and this.
+In the photo his head was shaved to the skin. Army, Gary thought. Or jail.
+SENIOR: That's a jail haircut.
 TILL: Good till next October. That's a year I don't pay for a course.
 -> where_before
 
@@ -101,20 +100,20 @@ OWNER: So where were you before this?
     ~ stat_up(stat_con)
     ~ stat_up(stat_wis)
     OWNER: Where up island?
-    He named a town. Gary had driven through it once, and not stopped.
+    He named a town. Gary knew it from the highway, a gas station and a sign for the ferry.
     TILL: Up island wages. He'll take twenty and say thanks.
 * ["Around."]
     ~ told_gary += tg_around
     ~ stat_up(stat_dex)
     ~ stat_up(stat_gut)
     OWNER: Around. Okay. Around.
-    SENIOR: Around is a place you leave in the night.
+    SENIOR: Around means he owes money.
 * ["My father worked doors. I worked them with him."]
     ~ told_gary += tg_father
     ~ stat_up(stat_wis)
     ~ stat_up(stat_cha)
     OWNER: Yeah? Where?
-    Up island, he said, a long time ago, and nothing after it.
+    Up island, he said, when he was a kid.
     SENIOR: His father taught him.
     SENIOR: I taught you to count a till, Junior. That's what I taught you.
 - -> why_left
@@ -134,10 +133,10 @@ OWNER: And why'd you leave?
     ~ told_gary += tg_something
     ~ stat_up(stat_gut)
     ~ stat_up(stat_con)
-    He didn't say what. Gary held up a hand before he could.
+    Gary put a hand up before he could say what.
     OWNER: I don't need the how.
-    TILL: Something happened is a lawyer.
-    SENIOR: Something happened to all of them. Something happened to me.
+    TILL: The last time something happened it was eleven thousand dollars.
+    SENIOR: I had a doorman in '64 say that to me. He'd put a fellow through the front window of the Legion.
 * ["Long story."]
     ~ told_gary += tg_long
     ~ stat_up(stat_wis)
@@ -147,7 +146,7 @@ OWNER: And why'd you leave?
     ~ told_gary += tg_quiet
     ~ stat_up(stat_con)
     ~ stat_up(stat_str)
-    He looked at Gary and didn't say anything, for long enough that the bookkeeper stopped typing.
+    He looked at Gary. The bookkeeper stopped typing.
     TILL: Fine. Cheaper.
 - -> fights
 
@@ -155,28 +154,28 @@ OWNER: And why'd you leave?
 OWNER: You on anything? Gear? Ha. I don't care what you put in your ass, buddy. I care what goes through my window.
 OWNER: You been in fights?
 SENIOR: Look at his hands.
-Gary looked at his hands. The knuckles had been split and healed and split again, white over the bone.
+Gary looked. There was an old scar on every knuckle, white and shiny.
 * ["Plenty."]
     ~ stat_up(stat_str)
     ~ stat_up(stat_con)
     OWNER: Plenty. Okay. Not in my bar, plenty.
-    TILL: Plenty is a lawsuit.
+    TILL: Plenty. There goes the insurance.
 * ["When I have to."]
     ~ stat_up(stat_wis)
     ~ stat_up(stat_dex)
     OWNER: Good. Good man.
-    SENIOR: That's the answer. Nobody means it.
+    SENIOR: They all say that. Ask him how often he has to.
 * ["I stop them."]
     ~ stat_up(stat_cha)
     ~ stat_up(stat_dex)
     OWNER: That's what I'm paying for. Stopping them.
-    TILL: Twenty an hour to stop them. Thirty to start them, in the city.
+    TILL: Twenty an hour to stop them. The detachment's forty minutes out.
 * ["Never."]
     ~ told_gary += tg_never
     ~ lies_caught++
-    Gary looked at the knuckles again, and then at him, and laughed once through his nose.
+    Gary looked at the knuckles again and laughed through his nose.
     OWNER: Never. Okay.
-    SENIOR: A terrible liar. Good. It's the good ones that cost you.
+    SENIOR: He can't lie. Good. Your mother's brother could lie, and he took me for nine thousand dollars in 1971.
 * ["Want to find out?"]
     ~ threat = 1
     He said it quietly. The bookkeeper's finger stopped over the keyboard.
@@ -187,7 +186,7 @@ Gary looked at his hands. The knuckles had been split and healed and split again
 
 = threat_two
 * ["I'm kidding."]
-    He let it go out of his face, and Gary let himself laugh, too loud.
+    He smiled, and Gary laughed, too loud.
     OWNER: Ha. Okay. Ha. Jesus.
     -> the_call
 * [Hold his eye.]
@@ -205,7 +204,7 @@ TILL: Forty pounds at fourteen a pound.
     ~ call_did = 1
     ~ stat_up(stat_wis)
     ~ stat_up(stat_con)
-    He waited, without taking up any more of the room than he already did. Big men learn it young.
+    He waited. He looked at the calendar for a while, and then at the rain.
     SENIOR: Patient. The last one wasn't.
 * [Look at the photo behind Gary.]
     ~ call_did = 2
@@ -214,21 +213,21 @@ TILL: Forty pounds at fourteen a pound.
     ~ stat_up(stat_wis)
     He looked past Gary at the wall behind him, and kept looking.
     SENIOR: He's looking at me.
-    It was the Sov in 1958, three storeys of new paint, SOVEREIGN on the roof with every letter lit. A man in a hat stood in front of the door with his hands behind his back, as if he'd paid cash for all of it, which he had.
+    It was the Sov in 1958, three storeys of new paint, SOVEREIGN on the roof with every letter lit. A man in a hat stood in front of the door with his hands behind his back. He'd paid cash for the place that spring.
 * [Say something to the bookkeeper.]
     ~ call_did = 3
     ~ stat_up(stat_cha)
     ~ stat_up(stat_int)
     He turned in the chair and asked her how long she'd been doing Gary's books.
     BOOKKEEPER: His father's, and then his. Forty-one years in March. Before that I was at the bank.
-    She looked at him over her glasses, properly, for the first time.
+    She looked at him over her glasses.
     BOOKKEEPER: Across the road. When it was a bank.
 * [Read Gary's desk upside down.]
     ~ call_did = 4
     ~ knows += notice_read
     ~ stat_up(stat_int)
     ~ stat_up(stat_gut)
-    His eyes went down to the papers on the desk and read them upside down, as he'd read a licence across a ledge. Gary watched him do it.
+    He read the papers on Gary's desk upside down, and Gary watched him do it.
     The top one was from the health authority. NOTICE OF ROUTINE INSPECTION. The fourteenth, and one word further down circled twice in pen: PEST.
     TILL: Reading my desk.
     SENIOR: Let him. It's his problem from tonight.
@@ -249,7 +248,7 @@ OWNER: Where you going?
 * [Sit back down.]
     ~ call_did = 6
     He sat back down, and Gary watched him for the rest of the call.
-    TILL: Changed his mind. They do.
+    TILL: Changed his mind.
 * ["Forget it."]
     -> not_hired
 - -> the_call.call_done
@@ -260,16 +259,16 @@ OWNER: You drink?
     ~ stat_up(stat_con)
     ~ stat_up(stat_cha)
     OWNER: Good. Good man. Not on my till.
-    TILL: Honest. Costs me.
+    TILL: There's his shift beer. Four nights a week.
 * ["Depends who's buying."]
     ~ stat_up(stat_cha)
     ~ stat_up(stat_int)
     OWNER: Ha! Not me, buddy.
-    SENIOR: That one's funny. Watch the funny ones.
+    SENIOR: A comedian. My last comedian drank the float.
 * ["Not on a shift."]
     ~ stat_up(stat_wis)
     ~ stat_up(stat_con)
-    SENIOR: That's the right answer. Nobody means that one either.
+    SENIOR: Not on a shift. After it, in my bar, on the house.
 * ["No."]
     ~ told_gary += tg_dry
     ~ lies_caught++
@@ -287,13 +286,13 @@ He poured two fingers in each and pushed one across.
 * [Drink it.]
     ~ gary_rye = 1
     He drank it in one, and put the glass back down where it had been.
-    TILL: Drinks it like water.
+    TILL: Three dollars of rye, gone.
     SENIOR: I'd have hired him for that.
 * [Hold it, and don't drink it.]
     ~ gary_rye = 2
-    He held the glass, and didn't drink from it, and didn't put it down.
+    He held the glass and didn't drink.
     SENIOR: Holds it like the old fellow at the end of the bar.
-    SENIOR: He held his like that in my day, too.
+    SENIOR: He held his like that in 1958.
 * [Push it back.]
     ~ gary_rye = 3
     He pushed it back across the desk with one finger.
@@ -317,13 +316,13 @@ OWNER: That's my dad's rule. So one of them's had enough. More than. What do you
     ~ stat_up(stat_cha)
     ~ stat_up(stat_wis)
     OWNER: Water. Okay. Water doesn't go through the till, buddy.
-    TILL: Water's free. Free costs.
+    TILL: Water. That's a stool for three hours at nothing an hour.
 * ["Whatever they want."]
     ~ scenario = 2
     ~ stat_up(stat_int)
     ~ stat_up(stat_con)
     OWNER: Good. Good man.
-    SENIOR: That's what I said. I buried two of them, saying it.
+    SENIOR: That's what I said. I went to two of their funerals.
 * ["How's he getting home?"]
     ~ scenario = 3
     ~ stat_up(stat_wis)
@@ -335,11 +334,11 @@ OWNER: That's my dad's rule. So one of them's had enough. More than. What do you
     ~ stat_up(stat_str)
     ~ stat_up(stat_dex)
     OWNER: Whoa. No. No no. That's not a thing.
-    SENIOR: Put one out and they all go, and the money goes with them.
+    SENIOR: Put one out and the other four go with him. They did it to me in '87. A month at the Legion.
 * (rude_gary) ["Must be nice. Owning a bar you never set foot in."]
     ~ rude++
-    TILL: There it is.
-    Gary's smile stayed where it was a second longer than a smile should.
+    SENIOR: He's not wrong, Junior.
+    Gary laughed, a second late.
     OWNER: I'm there. I'm there when I'm there, buddy.
 - -> any_questions
 
@@ -357,11 +356,10 @@ OWNER: Questions? Anything?
 * ["When do I get paid?"]
     ~ asked_pay = true
     BOOKKEEPER: Fridays. By cheque. The first one's prorated.
-    She said it as she'd said things across the counter at the bank, for thirty years, to people who'd come in hoping for something else.
-    TILL: Asks about money. Good. You know where you are with that.
+    TILL: Asks about the money. Good.
 * (no_questions) ["No."]
     OWNER: Good. Good man.
-    TILL: No questions. No questions is cheap.
+    TILL: No questions. The ones with questions want a raise by Christmas.
 - -> the_deal
 
 // The note on the till (prologue.ink) says what Gary won't say to his face.
@@ -376,13 +374,13 @@ OWNER: You'll see a note.
 OWNER: Okay. Here's what it is.
 OWNER: Twenty an hour. Tonight's cash, it's a test. After that it's Wednesday to Saturday, on the books, and the room comes off the top.
 BOOKKEEPER: Six hundred and fifty. A month. With the hydro.
-She read it off what she'd written, slowly, a number at a time, as if he might want to count along.
+She read it off her pad.
 TILL: Hydro's fifty. Hydro was always fifty.
 // A passive read (bible/11_SKELETON.md): past a threshold, he notices without being asked.
 { stat_int >= 5:
     He heard it. Gary saw him hear it.
 - else:
-    If he heard it, he didn't show it. Most of them didn't.
+    He didn't seem to notice.
 }
 * {stat_int >= 5} ["Six, you said."]
     ~ rent_called = true
@@ -392,7 +390,7 @@ TILL: Hydro's fifty. Hydro was always fifty.
     SENIOR: He counts. Watch him.
 * (rude_bk) ["Was anybody talking to you?"]
     ~ rude++
-    The bookkeeper looked at him over her glasses, and smiled, which was worse.
+    The bookkeeper looked at him over her glasses and smiled.
     BOOKKEEPER: Thank you so much.
     { rude >= 2: -> not_hired }
     TILL: That's his first cheque.
@@ -406,11 +404,11 @@ TILL: Hydro's fifty. Hydro was always fifty.
 OWNER: And wear this.
 He reached over to the box in the corner and came up with a black T-shirt, and shook it out so he could see the back. SECURITY, in white letters a hand high.
 TILL: Eleven dollars a shirt. Forty-eight shirts.
-SENIOR: Nobody on this island ever wore a shirt that said what he was.
+SENIOR: Put SECURITY on a man in this town and they'll line up to have a go at him.
 * [Take it.]
     ~ shirt = 1
     ~ stow(gary_shirt, in_inside)
-    He took it, and folded it in four, and put it inside his jacket.
+    He folded it in four and put it inside his jacket.
     OWNER: Good. Good man. Professional.
 * ["I've got my own."]
     ~ shirt = 2
@@ -434,7 +432,7 @@ She held a form out across the gap between the desks, to Gary, without looking a
 * [Read it first.]
     ~ pay_how = 3
     ~ knows += form_uniform
-    He read it first, both sides, which nobody did. Near the bottom, in the small print: UNIFORM, TO BE DEDUCTED FROM FIRST PAY, $24.00. # task: uniform :: Twenty-four dollars off Friday's cheque, for the shirt.
+    He turned it over and read both sides. Near the bottom, in the small print: UNIFORM, TO BE DEDUCTED FROM FIRST PAY, $24.00. # task: uniform :: Twenty-four dollars off Friday's cheque, for the shirt.
     { shirt == 1:
         TILL: Twenty-four dollars. Eleven-dollar shirt.
     - else:
@@ -461,8 +459,8 @@ The bookkeeper's finger went on with the invoices.
     SENIOR: That's how your mother came to work for me, Junior. Behind that bar.
 * (staff_quiet) [Pick up the key.]
     ~ staff_warned = 3
-    He picked up the key and put it in his jeans, and that was his answer.
-    TILL: Doesn't promise. Doesn't cost.
+    He picked up the key and put it in his jeans.
+    SENIOR: That's a yes, Junior.
 -
 ~ stats_done()
 // What Gary will say about him, once, as the door shuts: the owner's code is the money.
@@ -488,12 +486,13 @@ The bookkeeper's finger went on with the invoices.
 }
 {
 - rude > 0 || threat > 0 || lies_caught > 1:
-    Gary watched him go down the porch steps into the rain and gave it a week. He was wrong about that, and about most of it.
+    Gary watched him go down the porch steps into the rain, and gave him a week.
 - call_did == 1 || call_did == 6:
-    Gary watched him go down the porch steps into the rain and thought: he'll sit there. He'll sit there all night if you let him. He was right about that, and wrong about most of the rest.
+    Gary watched him go down the porch steps into the rain and thought, he'll sit. Put him on a stool and he'll sit there all night.
 - else:
-    Gary watched him go down the porch steps into the rain and thought: he'll do. He was right about that, and wrong about most of the rest.
+    Gary watched him go down the porch steps into the rain and thought, he'll do.
 }
+Then he went back to his laptop, and the picture of the rat by the Sov's dumpster. Two hundred and twenty-one comments.
 { g != 0:
     ~ rep(rep_owner, g)
 }
@@ -505,11 +504,11 @@ The bookkeeper's finger went on with the invoices.
 = not_hired
 {
 - threat == 2:
-    He held Gary's eye, and didn't say anything, and didn't need to. The bookkeeper picked up the phone on her desk and didn't dial it, and held it.
+    He held Gary's eye. The bookkeeper picked up the phone on her desk and held it. She didn't dial.
     OWNER: Okay, buddy. Okay. I think we're done.
 - rude >= 2:
     OWNER: Okay, buddy.
-    He said it to the desk. The interview had been over a while before Gary said so.
+    He said it to the desk.
     BOOKKEEPER: Thank you so much.
 - else:
     OWNER: Yeah. Okay. Suit yourself, buddy.
@@ -517,8 +516,7 @@ The bookkeeper's finger went on with the invoices.
 }
 TILL: Twenty an hour, saved.
 SENIOR: Christ, Junior.
-The rain kept on at the window.
-NARRATOR: I didn't get the job. That's it. That's the story.
+NARRATOR: So I didn't get the job.
 NOT HIRED #class: end
 -> END
 

@@ -15,26 +15,26 @@
 ~ clock = 1000
 # amb: street
 // What the interview made of him (office.ink), printed once, where the camera becomes his.
-NARRATOR: That was how Gary told it. From the porch steps on, it goes the way the doorman told it, which was less often. #stats
-The rain had eased off to the kind you could only see under a lamp, and the lamps were coming on down the old main street, one and then the next, as if somebody were walking ahead of him switching them on.
+NARRATOR: That's how Gary told it. From the porch steps on it's the doorman's story, and he hardly ever told it. #stats
+The rain had eased off to the kind you only see under a streetlight. They were coming on down the old main street ahead of him, one after another.
 // The first thing in his own head all day: his father, who was in the office with him, and kept
 // quiet, and saw how he sat.
 {
 - sat_how == 1:
-    FATHER: You sat with your back to his door. Never sit with your back to a door.
+    FATHER: You sat with your back to his door. Ray Sinclair did that in '88 and got a pool cue across the back of the head.
 - sat_how == 3:
-    FATHER: You turned his chair so you could see his door. Good. Somebody's always coming through it.
+    FATHER: You turned his chair to face his door. Good. You got that from me.
 - licence_how == 2:
-    FATHER: You made him reach for your licence. Good. Make them reach.
+    FATHER: You made him reach for it. Your mother did that with the cheque, every month.
 - else:
     FATHER: You looked at his room before you sat down in it. Good.
 }
-The Legion, where he'd closed the bar last night, with a field gun out front pointed at the bank. Somebody had sprayed HONK HONK on its plinth, and somebody had painted over it in a grey that didn't match, so it still said it.
-The drugstore sold weed. In the doorway of the video store, under the posters from the year it shut, a man was asleep with his shoes beside him, side by side.
+He passed the Legion, where he'd closed the bar last night. It had a field gun out front, pointed at the bank. Somebody had sprayed HONK HONK on the plinth, and somebody else had painted over it in a grey that didn't match, so you could still read it.
+The drugstore sold weed. In the doorway of the video store, under posters from the year it shut, a man was asleep with his shoes off and lined up beside him.
 FIGHTER: Shoes off. This street doesn't scare him.
-A white wooden church at the top, its sign saying SIGN BROKEN, COME INSIDE FOR MESSAGE, and a grey stone one at the bottom with a realtor's board on the lawn.
-Across the highway the government wharf ran out into the strait, a light coming on at the end of it.
-FATHER: Walk to a new door, the first time. See what they walk past to get to you.
+There was a white wooden church at the top of the street. Its sign said SIGN BROKEN, COME INSIDE FOR MESSAGE. The grey stone one at the bottom had a realtor's board on the lawn.
+Across the highway the government wharf ran out into the strait, with a light just coming on at the end.
+FATHER: Walk it. The first night at a new door, walk there, and see what they walk past to get to you.
 * [Cross over to the wharf.]
     -> wharf
 * [Go along the highway.]
@@ -44,17 +44,17 @@ FATHER: Walk to a new door, the first time. See what they walk past to get to yo
 // 7:40, and nobody sees him go between them (prologue.ink).
 = wharf
 ~ knows += endbar_wharf
-He went down and across the highway between two log trucks, and out along the wharf. The planks were wet, and the tide was in, high enough to hear it underneath, working at the pilings.
-At the end, under the light, an old man stood at the rail in a jacket that had been good a long time ago, and no coat over it, and didn't seem to mind the rain. No rod, no dog, no boat. #portrait: endbar
+He went down and across the highway between two log trucks, and out along the wharf. The planks were wet. The tide was in, and he could hear it underneath, against the pilings.
+At the end, under the light, an old man stood at the rail in a tweed jacket with leather on the elbows and no coat. He had no rod with him, and no dog. The rain didn't seem to bother him. #portrait: endbar
 ENDBAR: Good evening.
 ENDBAR: One hears the Sovereign has a doorman again.
-He didn't look round to say it. He was looking down at the pilings, where the water went in and out between them, as if he were counting something.
+He didn't look round to say it. He was looking down at the pilings, where the water went in and out, and his lips were moving.
 { stat_gut >= 5:
-    He had the feeling, which he'd learn to trust and never to explain, that the old man had been out there a while waiting for him, and had known how long he'd be.
+    He was sure, with no reason to be, that the old man had been out here waiting for him, and had known how long he'd be.
 }
 * ["Word gets around."]
     ~ wharf_how = 1
-    ENDBAR: Everything gets around, in a town on pilings. It is all underneath, going back and forth.
+    ENDBAR: In a town on pilings, Doorman, everything gets around. Underneath.
 * ["Who's asking?"]
     ~ wharf_how = 2
     ENDBAR: Nobody is asking, Doorman. I am telling you I heard.
@@ -69,7 +69,7 @@ He didn't look round to say it. He was looking down at the pilings, where the wa
 ~ clock = MAX(clock, 1012)
 He walked north along the shoulder with the water on his right and the trucks throwing it up off the road, toward the Sov's sign a long way down, small and red, the second E dead even from here.
 At the bend there was a white cross at the side of the road, with plastic flowers, and a hockey sweater zip-tied to it that the rain had turned grey.
-The Esso came first, on the left. A canopy lit white from underneath, two islands of pumps, the store behind them with LOTTO MAX and WE ID UNDER 25 in the window and a cardboard woman holding out a slushie, and a kid in a toque and the Esso's vest sitting on the ice freezer by the door with his phone. #portrait: essokid
+The Esso came first, on the left: a canopy lit white from underneath, two islands of pumps, and the store behind them with LOTTO MAX and WE ID UNDER 25 in the window. A cardboard woman held out a slushie. A kid in a toque and an Esso vest sat on the ice freezer by the door with his phone. #portrait: essokid
 He hadn't eaten since the morning.
 * [Stop at the Esso.]
     -> esso_lot
@@ -83,13 +83,13 @@ He hadn't eaten since the morning.
 ~ here = esso
 ~ clock = MAX(clock, 1015)
 # amb: esso
-Under the canopy the light was white and flat and made everything look like a photo of itself. There was a clock over the till inside, a clock on the screen of every pump, and the one on his phone, and none of them agreed.
+Under the canopy the light was white and flat. There was a clock over the till inside, one on the screen of every pump, and one on his phone. They all said different times.
 FATHER: Eat. You won't get the chance after.
 - (esso_hub)
 * {ate == 0} [Get something to eat.]
     ~ ate = 1
     ~ cash -= 9
-    He got two hot dogs off the roller, which by the look of them had been going round since about noon, and a coffee, nine dollars, and ate standing up under the canopy.
+    He got two hot dogs off the roller and a coffee, nine dollars. The hot dogs had been going round since about noon. He ate them standing up under the canopy.
     -> esso_hub
 * [Ask the kid what he's looking at.]
     -> kid_sky
@@ -110,9 +110,9 @@ ESSOKID: That one. Over the mainland.
 There was a light low over the water, where the cloud had torn. One light, white, not doing anything.
 ESSOKID: Planes blink. Satellites move. It was there last night, same place, same time. Stars don't stay in the same place, man. That's like the whole thing about stars.
 ESSOKID: Rants and Raves says drones. The Discord says glowies, but the Discord says glowies about everything. It's not Venus. Venus is over there.
-He pointed somewhere else entirely, without looking.
+He pointed somewhere else, without looking.
 { stat_gut >= 5:
-    He looked at it for longer than he meant to. It didn't blink. He had the feeling, and couldn't have said where it came from, that it wasn't the only thing out there doing the looking.
+    He watched it until his neck hurt. It didn't blink, and it didn't move. When he looked down the kid was watching him instead of it.
 }
 ESSOKID: I filmed it. You can't see anything on the video. You never can.
 -> esso_hub
@@ -156,8 +156,8 @@ Across the highway from it the seawall ran along the water, wide enough to sit o
 // the night (prologue.ink, door.ink, hall.ink).
 = watching
 ~ knows += sov_watched
-He sat on the seawall with the water at his back and watched the Sov the way you'd watch a door.
-FATHER: Watch it from outside before you work it. Once you're in it, you're part of what you're watching.
+He sat on the seawall with the water at his back and watched the Sov.
+FATHER: Watch it from outside first. Once you're in there you can't see a thing.
 At quarter past five a woman in an apron came out onto the deck at the side with a phone to her ear, and smoked, and talked, and laughed once, not happily, and went back in. #look: deck
 At twenty to six a mill pickup pulled in and three men in hi-vis got out and went in at the hotel's end of the building, in no hurry, carrying their lunch kits. One of them already had a can open.
 At six somebody propped the deck door open with something small and folded, and went back in.
@@ -173,8 +173,8 @@ At six somebody propped the deck door open with something small and folded, and 
     At twenty past six a woman came down the hotel's outside stairs in a short skirt and a man's work jacket, and stood under the light at the corner of the building, looking at her phone. A car at the back of the lot that had been sitting there with its lights off flashed them once. She went over and got in, and it went south.
     At quarter to seven one of the hi-vis came out on the stairs in his socks and smoked a cigarette in four pulls, and went back up.
     At seven the car came back and she got out with a bag from the Esso, and went up the stairs, and the car sat a minute in the dark, and went.
-    FATHER: Everybody watches the front. Watch the doors people use when they don't want to be counted.
-- The lights went on in the windows upstairs, one at a time, and in the bar the TV came on, blue. Nobody went in or out of the front who looked like trouble, or like anything much.
+    FATHER: There's your trouble. Not the front door. That one.
+- The lights went on in the windows upstairs, one at a time, and in the bar the TV came on, blue. Nobody who went in or out of the front looked like trouble.
 At half past seven the rain came back across the strait, as hard as it had been all afternoon. He sat in it another five minutes, because he'd said quarter to eight to himself, and then he went across.
 -> cross
 
@@ -193,7 +193,7 @@ It was on the TV in front of him.
 TERRY: Terry. Night desk. I come on at five and I'm on till the bread truck. Gary give you twelve? You'll want to sign for it, pal. Here. Nobody signs. I like people to sign.
 * [Sign for it.]
     ~ terry_signed = 1
-    He signed the book, under a column of names nobody had written in since August.
+    He signed the book, under a column of names. The last one was from August.
     TERRY: Oh, sure, sure. You bet. That's how it's supposed to go.
 * ["Gary didn't say anything about signing."]
     ~ terry_signed = -1
@@ -201,8 +201,8 @@ TERRY: Terry. Night desk. I come on at five and I'm on till the bread truck. Gar
     He closed the book, and looked at the hockey.
 - TERRY: Second floor, end of the hall, over the deck. Eleven's the mill boys, they play cards, they're good as gold. Six is Lorraine. Lorraine's forty-six and she pays by the week, cash, and whoever goes up to see Lorraine, you never seen him, eh. That's the hotel. The bar's the bar.
 TERRY: Seven's empty since March. Paramedics. Nice fella, seven.
-He went up two flights that smelled of other people's cooking, and along the second floor to the end. A TV going behind eleven, and men laughing at it. Behind six, a radio, turned low.
-A bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The radiator was on full and the knob had come off it a long time ago, so somebody had opened the window two inches and it wouldn't go any further.
+He went up two flights. The stairs smelled of fried onions and wet carpet. Along the second floor there was a TV going behind eleven, and men laughing at it, and behind six a radio, turned low.
+Twelve had a bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The radiator was on full. Its knob had come off years ago, so somebody had opened the window two inches, and it wouldn't go any further.
 - (twelve_hub)
 * [The wall behind the door.]
     ~ knows += twelve_hole
@@ -229,8 +229,8 @@ BARTENDER: He's what? Long hair? Christ, Junior.
     ~ knows += heard_phone
     -> phone_rest
 * (call_pillow) [Put the pillow over your head.]
-    He put the pillow over his head, and the rain and the highway and her voice went into one sound, and he let them.
-    WRONGMAN: In the story, the doorman didn't hear what they said about him the first night. He spent thirty nights guessing.
+    He put the pillow over his head, and the rain and the highway and her voice went into one sound.
+    WRONGMAN: In the story, the doorman put a pillow over his head the first night. Or a towel. The drunk wasn't sure. Anyway he never found out what they said about him.
     -> after_call
 
 = phone_rest
@@ -330,7 +330,7 @@ BARTENDER: He's what? Long hair? Christ, Junior.
 BARTENDER: Yep. Seven-thirty. I'll show him.
 BARTENDER: No. No, Junior. I'll show him. Nine doormen, I've shown.
 The deck door banged, and the smoke came up past the window without her.
-WRONGMAN: In the story, the doorman heard them talking about him the first night. He should have shut the window.
+WRONGMAN: In the story, the doorman heard them talking about him through a window the first night. The drunk said that was where it started to go wrong. Then he said it was later.
 -> after_call
 
 = after_call
@@ -347,7 +347,7 @@ Gary's shirt was still folded in four inside his jacket. He sat up and took it o
 * [Put it on, over the black one.]
     ~ shirt_on = true
     ~ unstow(gary_shirt)
-    He put it on. It was a size too small across the shoulders, the way they always are.
+    He put it on. It was a size too small across the shoulders.
 * [Leave it on the chair.]
     ~ shirt_on = false
     ~ stow(gary_shirt, in_twelve)
@@ -355,7 +355,7 @@ Gary's shirt was still folded in four inside his jacket. He sat up and took it o
 - -> lie_down
 
 = lie_down
-He lay on the bed and didn't sleep. The game went on downstairs on Terry's TV, and the room got dark, and the radiator ticked, and along the hall somebody laughed at something on a phone, a long time, on their own.
+He lay on the bed and didn't sleep. The room got dark. The radiator ticked. Down the hall a man was watching videos on his phone and laughing at them on his own, the same laugh every few seconds.
 At twenty to eight he went down past Terry, who asked him the score, and out the hotel's door into the rain, and round the front to the bar's door, because that was the door he'd be working.
 -> cross
 

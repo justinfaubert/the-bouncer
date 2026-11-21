@@ -10,14 +10,14 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/prologue.ink
 
-2. **prologue** (`content/ink/prologue.ink:79`): The lifer's first words to a new doorman. What does she actually say, and what does she not bother saying?
+2. **prologue** (`content/ink/prologue.ink:78`): The lifer's first words to a new doorman. What does she actually say, and what does she not bother saying?
 
 ## content/ink/door.ink
 
 3. **ev_sister** (`content/ink/door.ink:396`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
 4. **ev_sister** (`content/ink/door.ink:427`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-5. **door_banned** (`content/ink/door.ink:849`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-6. **door_wife** (`content/ink/door.ink:1049`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+5. **door_banned** (`content/ink/door.ink:846`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+6. **door_wife** (`content/ink/door.ink:1045`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 

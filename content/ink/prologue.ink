@@ -15,20 +15,19 @@
 - else:
     // The opening lines from Gary's office (office.ink, interview), for a night started here without it.
     // Hutch's prompt for them is there, where they're read first now.
-    NARRATOR: He started on a Wednesday. The Sov tried out doormen on Wednesdays, on a night slow enough that a mistake would only hurt a little.
-    NARRATOR: Of the thirty days, it was the one nobody else remembered.
+    NARRATOR: He started on a Wednesday. Gary tried doormen out on Wednesdays because it was dead, and if a new guy screwed up there'd be nobody in to see it.
     The rain had come across the strait with the last ferry and hadn't let up. It hit the gravel lot hard enough to bounce.
 }
 { not (knows ? sov_watched) && not from_room:
     On the roof the sign said SOVEREIGN in red neon with the second E dead. Under it, HOTEL, all five letters working.
-    Three storeys of old wood, painted a red that had faded to the colour of brick. The cold beer and wine store at one end with its lights on. Trucks parked nose-in along the front, wipers stopped where they'd been switched off. The highway behind him, and past the highway, the water.
+    The building was three storeys of old wood, painted a red that had faded to brick, with the cold beer and wine store at one end and its lights on. Trucks were parked nose-in along the front, their wipers stopped wherever they'd been switched off. Behind him was the highway, and past the highway, the water.
 }
 { knows ? sov_watched:
-    FATHER: Two hours and a half. It's told you all it's going to from out there.
+    FATHER: Two and a half hours on a wall. Go in.
 - else:
-    FATHER: Look at a building before you go into it. It'll tell you what kind of night it has.
+    FATHER: Look at a building before you go in it.
 }
-It told him Wednesday. #pause
+He counted eleven trucks, and the beer store's van. #pause
 // Gary's two at four o'clock (office.ink, do_you_drink): one of them's still in him.
 { gary_rye == 4:
     ~ drinks = 1
@@ -42,9 +41,9 @@ It told him Wednesday. #pause
 // the big man's keys), or the window, where table 28 see him first (the room, below).
 * [Go along the trucks.]
     ~ knows += lot_trucks
-    He went along the trucks. A mill pickup with a hard hat on the dash and a two-four of empties on the passenger side. A Silverado with a wet flag on a pole in the bed that said FUCK and then the prime minister's name.
-    By the beer store, a work truck with a toolbox across the bed, a school photo of a girl tucked in the visor, and a mickey of rye in the door pocket, half gone.
-    FATHER: Every one of them drove here. Every one of them's driving home.
+    He went along the trucks. There was a mill pickup with a hard hat on the dash and a two-four of empties on the passenger seat, and a Silverado with a wet flag on a pole in the bed that said FUCK and then the prime minister's name.
+    By the beer store was a work truck with a toolbox across the bed. It had a school photo of a girl tucked in the visor and a mickey of rye in the door pocket, half gone.
+    FATHER: All of these are driving home tonight.
 * [Look in the front window.]
     ~ knows += t28_window
     Through the glass, past the neon in it, five men at a round table looked back out at him. One of them raised his glass to him. One of them gave him the finger, and laughed, and the rest laughed with him.
@@ -63,7 +62,7 @@ In the vestibule, between the two doors, he took Gary's shirt out of his jacket.
 * [Put it on, over the black one.]
     ~ shirt_on = true
     ~ unstow(gary_shirt)
-    He put it on. It was a size too small across the shoulders, the way they always are.
+    He put it on. It was a size too small across the shoulders.
 * [Leave it in the jacket.]
     ~ shirt_on = false
     He left it where it was.
@@ -115,9 +114,9 @@ Two women in slippers at the near end of the bar with a bottle of white wine bet
 { knows ? sov_watched:
     He'd watched the front of the building from across the highway since ten past five. Nobody like that had gone in at any door he could see.
 }
-FATHER: Count the room before it counts you. Those five in the window already think they own you.
+FATHER: Count them. Those five in the window think they own you already.
 FIGHTER: Big one at the pool table. Watch his left hand.
-MANUAL: The licensee's duty of care begins at the threshold. You are the threshold.
+MANUAL: The licensee's duty of care begins at the threshold (see Section 4, Premises).
 WRONGMAN: It was a slow night in the story too. The man who told it said his brother didn't even look up when the wrong one came in.
 -> before_eight
 
@@ -142,7 +141,7 @@ BARTENDER: Deck door's for the smokers. Kitchen door, the cook props that open, 
 BARTENDER: They're all locked at night.
 She cut another lime in half.
 BARTENDER: Mostly.
-FATHER: Four doors, and one of them's yours. That's three you're answerable for and can't see.
+FATHER: Four doors. You can see one.
 { knows ? hotel_watched:
     He thought of the woman on the hotel's stairs, and the car with its lights off.
 }
