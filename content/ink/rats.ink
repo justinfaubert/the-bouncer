@@ -36,6 +36,8 @@
     // HUTCH: The cook. What's a pub kitchen like on a Wednesday where you've worked? The menu, the heat, what the cook complains about, what he says to a new doorman standing in his kitchen.
     COOK: Security, eh? Behind you. Behind!
     COOK: Don't lean on anything. It's all hot or it's all wet, and that flat-top's a bastard, it'll have your hand off.
+    COOK: Hundred wings. Junior's idea. Junior read on the internet that wing night brings in the young people.
+    COOK: What young people? The young ones are in Alberta, or they're on the fent. Or they're you, standing in my kitchen.
 - else:
     {shuffle:
     - The heat met him in the doorway again.

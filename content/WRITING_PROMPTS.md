@@ -42,7 +42,7 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/rats.ink
 
 18. **at_kitchen** (`content/ink/rats.ink:36`): The cook. What's a pub kitchen like on a Wednesday where you've worked? The menu, the heat, what the cook complains about, what he says to a new doorman standing in his kitchen.
-19. **at_kitchen** (`content/ink/rats.ink:77`): How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
+19. **at_kitchen** (`content/ink/rats.ink:79`): How does a bar really deal with rats? Who gets called, what gets put down, what the inspector looks for, and what the staff do in the meantime.
 
 ## content/ink/hall.ink
 

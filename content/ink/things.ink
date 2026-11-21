@@ -26,7 +26,7 @@
     ~ return
 }
 {stopping:
-- The dartboard on the east wall, in its cabinet with the doors open, and the line on the carpet where you stood to throw. Three darts in the board, in nothing much. Nobody had played tonight.
+- The dartboard on the east wall, in its cabinet with the doors open, and the line on the carpet where you stood to throw. Three darts in the board, in nothing much. Nobody had played tonight. Taped inside one of the cabinet doors, a wedding photo with the bride's face darted down to the cork, and the groom's left alone.
 - The three darts, where they'd been.
 }
 

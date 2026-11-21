@@ -415,6 +415,7 @@ BARTENDER: It's Junior. For you. #look: bartender
 // how busy is it, how much money am I making. What the doorman tells him, the till tells him too in
 // the morning. (Worked in by Claude.)
 OWNER: How is it tonight?
+Behind him a slot machine was paying out, and a woman laughed at something he'd said.
 { owner_missed:
     OWNER: Somebody rang me from the bar phone at {q_words(owner_missed)}. I'm at dinner here.
 }
