@@ -120,8 +120,8 @@ HEADS = {
         # mouth in dark red, plum shadow and a wing of liner, fine brows with a lifted arch, a
         # beauty mark at her mouth's left corner
         paint=dict(skin='#b88a68', warm='#bd7658', flush=0.5, contour=1.0, lips='#701020', shadow='#5a3a3c', shadow_k=0.55,
-                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0025, brow_w=0.62, brow_inner=0.002, liner_k=0.5, mark=(0.031, -0.054), iris='#3a2414',
-                   iris_r=0.6),
+                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0012, brow_w=0.95, brow_drop=0.0022, brow_inner=0.002, brow_lift=True, liner_k=0.5, mark=(0.031, -0.054), iris='#4a3018',
+                   iris_r=0.7),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
         hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
     ),
@@ -693,6 +693,12 @@ def normal_at(H, q):
 
 def brow_curve(H, side):
     b, pk = H['brow'], H['paint']
+    if pk.get('brow_lift'):
+        # a lifted brow: low and full at the start, rising to its arch two thirds out, the tail
+        # tapering but ending above where it began (a tail lower than the start reads as sorrow)
+        bx = [0.012, 0.022, 0.034, 0.044, 0.052]
+        bz = [b['z'] - 0.001, b['z'] + 0.0015, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.0035, b['z'] + 0.0005]
+        return bx, [z - pk.get('brow_drop', 0.0) for z in bz]
     bx = [0.013, 0.024, 0.036, 0.046, 0.052]
     bz = [b['z'] + pk.get('brow_inner', -0.004), b['z'] + 0.0005, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.001, b['z'] - 0.004]
     return bx, bz
@@ -749,9 +755,17 @@ def teeth(H):
     rows = []
     for top, bot, back in ((m['z'] + 0.006, m['z'] - 0.0028, 0.0105), (m['z'] - 0.0012, m['z'] - 0.0075, 0.0118)):
         band = []
-        for x in np.linspace(-m['w'] * 0.68, m['w'] * 0.68, 15):
-            t = x / (m['w'] * 0.68)
-            f = m['f'] - back - 0.011 * t * t - (0.0022 if H.get('surface') else 0.0)   # a modelled head's lips are thicker
+        tw = m['w'] * (0.84 if H.get('surface') else 0.68)
+        for x in np.linspace(-tw, tw, 17):
+            t = x / tw
+            if H.get('surface'):
+                # a modelled head: the teeth follow the lips' own curve, a lip's thickness behind
+                # them all the way round (a fixed arc left the middle ones deep in the dark and
+                # read as a gap)
+                lz = m['z'] + (0.003 if top > m['z'] else -0.004)
+                f = on_face(H, x * 1.05, lz)[1] - back * 0.62
+            else:
+                f = m['f'] - back - 0.011 * t * t
             band.append(((x, f, top), (x, f, bot)))
         rows.append(band)
     return rows
@@ -773,7 +787,15 @@ def hair_field(H, p):
         base = ellipsoid(p, (0, -0.012, 0.026), sk)
         base = smin(base, ellipsoid(p, (0, 0.042, 0.048), (0.060, 0.050, 0.050)), 0.02)
         base = smin(base, ellipsoid(mirror(p), (0.064, -0.004, -0.004), (0.008, 0.024, 0.032)), 0.02)   # over the ears' tops
-    out = base - hp['lift'] * (0.6 + 0.4 * smoothstep(-0.02, 0.08, p[:, 2]))
+    lift = hp['lift'] * (0.6 + 0.4 * smoothstep(-0.02, 0.08, p[:, 2]))
+    if H.get('surface'):
+        # thinning to nothing at the hairline over the face, so it grows out of the skin instead
+        # of standing on it in a ledge, like a cap
+        c = p - np.array([0.0, -0.01, 0.0])
+        nn = c / np.maximum(length(c)[:, None], 1e-9)
+        line = hp['line'] + 0.05 * np.exp(-(nn[:, 0] / 0.1) ** 2) - 0.4 * nn[:, 0] ** 2
+        lift = lift * (0.15 + 0.85 * np.where(nn[:, 1] > 0.1, smoothstep(0.0, 0.12, nn[:, 2] - line), 1.0))
+    out = base - lift
     if H.get('surface'):
         # drawn back, but hair, not paint: it stands a little off the head at the crown and sweeps
         # out over the temples and the tops of the ears, and parts down the middle

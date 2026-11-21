@@ -44,7 +44,7 @@ FINGERS = ('hand', 'thumb', 'index', 'middle', 'ring', 'pinky')
 
 COLOURS = {
     'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
-    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#241c19',
+    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#201916',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
     'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
     'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
@@ -1890,9 +1890,18 @@ def sculpted(spec, name, arm, head_at):
                     pts = [(0.022 + o, 0.074, 0.084), (0.044 + o, 0.068, 0.060), (0.058 + o, 0.058, 0.025),
                            (0.062 + o, 0.050, -0.010), (0.060 + o * 1.5, 0.046, -0.045), (0.066 + o * 2, 0.040, -0.075)]
                     pts = [(x, max(f, sculpt.on_face(H, sx * x, z)[1] + 0.0028), z) for x, f, z in pts]
-                    pts = [Vector((sx * x + at[0], -(f + at[1]), z + at[2])) for x, f, z in pts]
-                    cp = curve(pts, 8)
+                    cp = curve([Vector((sx * x, f, z)) for x, f, z in pts], 8)
                     cp = cp[:max(int(len(cp) * ln * (1 - 0.15 * k)), 4)]
+                    if H.get('surface'):
+                        # every point of the strand kept off the skin, not only the ones it was
+                        # drawn through: pushed out along the skin's normal to lie just on it
+                        P = np.array([[c.x, c.y, c.z] for c in cp])
+                        for _ in range(3):
+                            d = H['surface'].sdf(P)
+                            n = np.array([H['surface'].normal(p) for p in P])
+                            P = P + n * np.maximum(0.0, 0.0024 + 0.001 * k - d)[:, None]
+                        cp = [Vector(p) for p in P]
+                    cp = [Vector((c.x + at[0], -(c.y + at[1]), c.z + at[2])) for c in cp]
                     tube(bm, cp, [0.0011 * (1 - 0.8 * i / (len(cp) - 1)) + 0.0002 for i in range(len(cp))], 5)
             on_bone(to_object(bm, f'{name}_wisps', [spec.get('brows') or spec['hair'][1]]), arm, 'Head')
 

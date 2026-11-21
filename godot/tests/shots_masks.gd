@@ -429,8 +429,18 @@ func _run() -> void:
 			await _frames(2)
 			var hp := _head_pos(p)
 			var exprs := OS.get_environment("EXPRS").split(",") if OS.has_environment("EXPRS") else PackedStringArray(["neutral", "knowing", "laugh"])
-			for view in [["front", Vector3(0.0, 0.02, -0.62)], ["three", Vector3(0.36, 0.03, -0.5)]]:
-				await _look(hp + (view[1] as Vector3), hp + Vector3(0, -0.01, 0), 30.0)
+			# a portrait looks her in the eye: at her eyes' height, the way her face is turned (the
+			# idle tips her head down; from the old fixed spot the camera looked down on her crown)
+			var sk: Skeleton3D = p[1]
+			var aim := hp + Vector3(0, -0.01, 0)
+			var turn := Basis.IDENTITY
+			if sk.find_bone("eye_l") >= 0:
+				var hb := sk.find_bone("Head")
+				var gb := sk.global_transform.basis.orthonormalized()
+				turn = (gb * (sk.get_bone_global_pose(hb).basis * sk.get_bone_global_rest(hb).basis.inverse()).orthonormalized() * gb.inverse()).orthonormalized()
+				aim = (sk.global_transform * sk.get_bone_global_pose(sk.find_bone("eye_l")).origin + sk.global_transform * sk.get_bone_global_pose(sk.find_bone("eye_r")).origin) / 2.0 - AT + turn * Vector3(0, -0.025, 0)
+			for view in [["front", Vector3(0.0, 0.0, -0.62)], ["three", Vector3(0.36, 0.0, -0.5)]]:
+				await _look(aim + turn * (view[1] as Vector3), aim, 30.0)
 				for ex in exprs:
 					(p[1] as Skeleton3D).reset_bone_poses()
 					(p[0] as AnimationPlayer).advance(0.0)
