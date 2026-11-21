@@ -50,8 +50,10 @@
     ~ count_in += 2
     ~ room_count += 2
 - A woman came in to buy smokes from the machine by the door and went out again without looking at anybody.
+- A woman on her way back from the washroom stopped at the stool and asked him if he was single. At her table her friend put her face in her hands. He said he was working. She said that wasn't what she'd asked, and went back to her friend.
 - The door swung in and nobody came through it. Wind.
-- A man he'd let in an hour ago went out to his truck, sat in it with the engine running for ten minutes, and came back in. He let him past without counting him again. Once in is once in.
+- Somebody at the bar told the one about the prime minister and the goat, and table 28 laughed until one of them had to go out on the deck and cough.
+- A man he'd let in an hour ago went out to his truck, sat in it with the engine running for ten minutes, and came back in sniffing, brighter than he'd gone out. He let him past without counting him again. Once in is once in.
 - {truck_gone:The lot was empty. Where the pickup had sat all night there was a dry patch on the gravel, going dark in the rain.|The lot was empty except for the pickup at the edge of it{fam ? kids_waiting:, still there with its engine running}.}
 - { door_still() }
 }
@@ -86,12 +88,14 @@
     {shuffle:
     - Headlights swung across the lot, stopped, and went away again. Somebody deciding against it.
     - A couple came as far as the vestibule, read the room through the glass, and went back out to their car.
+    - A truck slowed on the highway and somebody leaned out of the passenger window and screamed one long word at the Sov, and the truck sped up again.
     - In the black of the front window he could see the whole room behind him, backwards, with himself in the middle of it.
     }
 - clock < 1440:
     {shuffle:
     - The highway had gone quiet. Every few minutes a truck, and the long hiss of it on the wet road after it had gone.
     - A cab pulled into the lot and sat there with its light on, and left with nobody in it.
+    - At the edge of the lot a hatchback rocked on its springs with the windows fogged. After a while the passenger door opened, and a man got out and walked home along the shoulder in the rain.
     - In the black of the front window he could see the whole room behind him, backwards, with himself in the middle of it.
     }
 - else:
@@ -99,6 +103,7 @@
     - Past midnight the door went the other way. Everybody who came through it now was going out.
     - The rain had eased off to the kind you only see under the light over the door.
     - Somebody's phone was ringing in a coat on a hook, and nobody went to it.
+    - A man came out past him, pissed against the wall where the light didn't reach, said "Evening," and went back in.
     }
 }
 
@@ -305,8 +310,16 @@ The passenger door opened and shut. The truck didn't leave.
 { read.took && not read.swiped:
     He gave the phone back. #prop: hoodie_phone back
 }
-The kid went back across the lot. The driver's window came down. There was a conversation, short, with a lot of hand in it from the driver's side. The window went up.
-He came back with a wet wallet and held out a licence, the real one. The scanner gave it a green light. #sfx: scanner_ok #prop: hoodie_card
+The kid went back across the lot. The driver's window came down.
+// What he watches while the kid's gone: the truck (hall.ink, the men's) or the room (pool.ink).
+* [Watch the truck.]
+    ~ knows += vape_bump
+    There was a conversation, short, with a lot of hand in it from the driver's side. In the back seat the boyfriend sat up long enough to do something off the end of a key, and lay back down.
+    FIGHTER: Back seat. He's awake now.
+* [Watch the room, in the black of the glass.]
+    ~ knows += bigman_looked
+    In the black of the front window the room sat behind him, backwards. At the pool table the big man had straightened up from a shot and was looking at the door, and the truck past it. Then he bent to the shot again, and missed it.
+- The window went up. He came back with a wet wallet and held out a licence, the real one. The scanner gave it a green light. #sfx: scanner_ok #prop: hoodie_card
 MANUAL: Valid. Nineteen. Thank you. #pause
 He gave the card back. The kid put it in the wallet and the wallet in his pouch. #prop: hoodie_card back
 He went past into the room and stood by the jukebox with his hood still up, dripping on the carpet. He didn't order.
@@ -385,9 +398,13 @@ DRIVER: Shut up, Kyle.
 
 = sister_opts
 // Only the player's hands make this one: holding her licence up by her face.
-* [Look from the card to her face. #toy: driver_card look #unlisted]
+* (card_face) [Look from the card to her face. #toy: driver_card look #unlisted]
     ~ pass(1)
     MOFFAT, KAYLA DAWN. Twenty-two, as advertised{knows ? kid_legal:, and the same surname as the kid's}. In the photo she had her hair pulled back, and without it in the way you could see the jaw.
+    // The wall by the payphone (hall.ink): KAYLA M, in two pens.
+    { at_hall.payphone:
+        KAYLA M. He'd read it tonight already, on the wall by the payphone, in two different pens.
+    }
     { at_pool:
         He'd seen that jaw already tonight, at the pool table, bent over a cue.
         ~ knows += bigman_dad
@@ -647,6 +664,7 @@ He was steady on his feet. Mostly. He had the careful, deliberate walk of someon
     ~ pass(2)
     HI-VIS: Up the stairs, eventually. Room eleven. Crew's on the mill contract.
     HI-VIS: Last one, sounds like. Nobody's saying it. You can tell when nobody's saying it.
+    HI-VIS: Six weeks on, one off. Used to be I went home for the one.
     ~ knows += hivis_room
     ~ knows += hivis_upstairs
     ~ knows += mill_closing

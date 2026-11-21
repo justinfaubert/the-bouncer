@@ -14,10 +14,10 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/door.ink
 
-3. **ev_sister** (`content/ink/door.ink:383`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
-4. **ev_sister** (`content/ink/door.ink:410`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
-5. **door_banned** (`content/ink/door.ink:831`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
-6. **door_wife** (`content/ink/door.ink:1031`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
+3. **ev_sister** (`content/ink/door.ink:396`): The sister is the one who came to get their father out of a bar. You've seen family come in to fetch someone. How does that actually go at the door?
+4. **ev_sister** (`content/ink/door.ink:427`): Draft reason. Replace with whatever you've actually seen bring family into a bar after someone.
+5. **door_banned** (`content/ink/door.ink:849`): What did he do? The draft only says the bartender wrote NOT EVER under his photo. Decide what it was, or leave it unsaid.
+6. **door_wife** (`content/ink/door.ink:1049`): The wife coming to get one of table 28. Covering for a regular is part of the job and so is not covering for him. How does it go?
 
 ## content/ink/table28.ink
 
@@ -28,8 +28,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:753`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:785`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:757`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:789`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
@@ -46,9 +46,9 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/hall.ink
 
-20. **at_hall** (`content/ink/hall.ink:176`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
-21. **at_hall** (`content/ink/hall.ink:286`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
-22. **at_hall** (`content/ink/hall.ink:469`): What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
+20. **at_hall** (`content/ink/hall.ink:179`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
+21. **at_hall** (`content/ink/hall.ink:289`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
+22. **at_hall** (`content/ink/hall.ink:472`): What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
 
 ## content/ink/deck.ink
 

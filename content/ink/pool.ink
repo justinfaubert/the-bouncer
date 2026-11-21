@@ -54,6 +54,10 @@
         He'd seen it already, on the kid's phone, from the lot: the lamp, the green, the left hand flat on the rail.
     }
     His buddy was small and quick and kept looking at the door.
+    // From the door, while the kid went for his card (door.ink, fetch).
+    { knows ? bigman_looked:
+        The big man didn't look at the door. He'd looked once, when the kid went back out to the truck.
+    }
 - fam ? dad_stayed:
     The big man was playing on his own now, both ends of the table. The buddy racked for him and didn't say anything.
 - pool_heat >= 6 && not fam_done:

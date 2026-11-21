@@ -92,6 +92,9 @@
 // The edge pass (Hutch, 2026-11-20): the line is on the page, on her face, and he can take one.
 = vape_line
 The stall with no door. The boyfriend, the one with the vape, bent over the toilet tank with his phone flat on the lid and a line chopped out on the screen, across the face in his lock-screen photo, which was his girlfriend's. A rolled-up twenty in his hand, the plastic kind that won't stay rolled. He looked up. He didn't stop.
+{ knows ? vape_bump:
+    The key from the back seat of the truck was on the lid beside the phone.
+}
 VAPE: bro
 VAPE: bro. knock
 VAPE: it's not even MINE. i'm holding it for a guy
@@ -472,6 +475,10 @@ FOR A GOOD TIME CALL SHELLEY, and a number, and under it in another pen, SHE'S N
 A cab company that had closed years ago. TRUCK FOR SALE, RUNS, NO TIRE KICKERS. Somebody had drawn a cock and balls with real care, shading and all, and somebody else had given it a little top hat.
 FIGHTER: Steady hand. He was sober for that.
 KAYLA M IS A SLUT, and under it in purple gel pen, KAYLA M HAS A JOB AND A CAR. WHAT DO YOU HAVE.
+// The girl at the door with her keys (door.ink, the sister): he's had her licence in his hand.
+{ ev_sister.sister_opts.card_face:
+    MOFFAT, KAYLA DAWN. He'd had her licence in his hand at the door.
+}
 A swastika, small, that somebody had boxed into a window with four panes and drawn curtains on.
 EAT THE RICH. Under it: WHAT RICH.
 WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's pencil, SAYS THE KID IN HIS MOM'S BASEMENT.

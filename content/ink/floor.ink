@@ -149,12 +149,14 @@
     - Early. The TV on mute, the pool table clicking, table 28 loud about nothing in particular.
     - The jukebox between songs. Somebody at table 28 telling a story everyone at the table already knew the end of.
     - Rain on the front window. The ice machine. Wednesday.
+    - Somebody at the bar was showing somebody a video on his phone with the sound all the way up, a fight in a parking lot somewhere, and the two of them said "Oh!" in the same places.
     }
 - clock < 1380:
     {shuffle:
     - The hockey had started. Table 28 had opinions about the refereeing, all of them the same opinion.
     - Glasses on the bar, the till drawer, the TV. A slow night filling up slowly.
     - Somebody had put money in the jukebox and picked the same song twice.
+    - A man at the bar was telling a woman who hadn't asked how the country had gone soft. She was letting him. He was buying.
     }
 - clock < LAST_CALL:
     // The late news on the big TV sets them off (room.ink): the light over the strait, in fragments.
@@ -168,6 +170,7 @@
         {shuffle:
         - Late. The room had gone warm and loud the way it does, and the carpet had started to stick.
         - Table 28 were {num(t28_rounds)} rounds in and sounded it.
+        - Somebody put a song on the jukebox that table 28 booed on principle, all five of them, without turning round.
         - {tv_words()}
         }
     }
