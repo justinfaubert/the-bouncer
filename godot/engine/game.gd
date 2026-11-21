@@ -1045,6 +1045,9 @@ func _read_choices() -> Array:
 			if BUtil.js_truthy(tv.get("unlisted")):
 				ch["unlisted"] = true
 				ch["hidden"] = true
+		# "#door: in": a verdict at the door (in, out, fetch, terms), made with his hand (game/door_hand.gd)
+		if BUtil.js_truthy(tv.get("door")) and not (tv.door is bool):
+			ch["door"] = BUtil.js_trim(BUtil.js_str(tv.door))
 		if BUtil.js_truthy(tv.get("check")):
 			var spec = Checks.parse_spec(tv.check)
 			if spec != null:

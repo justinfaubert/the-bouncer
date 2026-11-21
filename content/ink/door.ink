@@ -240,13 +240,13 @@ WRONGMAN: It was raining in the story too. The drunk was very sure about the rai
         MANUAL: The scanner keeps a record of every card it is shown, with the time. It now has two of these.
     }
     -> read
-+ ["In you go."]
++ ["In you go." #door: in]
     -> admit
-+ ["Not without the card."]
++ ["Not without the card." #door: out]
     -> refuse
-+ {door_reads > 1 || knows ? card_in_truck} ["Go get the card. I'll be here."]
++ {door_reads > 1 || knows ? card_in_truck} ["Go get the card. I'll be here." #door: fetch]
     -> fetch
-+ {door_reads > 2} ["You can come in. On conditions."]
++ {door_reads > 2} ["You can come in. On conditions." #door: terms]
     -> conditions
 
 = admit
@@ -451,15 +451,15 @@ DRIVER: Shut up, Kyle.
 // He told the big man he'd say he wasn't here (pool.ink). This is where he finds out what that costs.
 + {promised_bigman && not fam_done} ["He's not here."]
     -> sister_lie
-+ ["You can go in. He can't."]
++ ["You can go in. He can't." #door: terms]
     -> sister_alone
 + ["I'll go get him for you."]
     -> sister_fetch
-+ {fam ? hoodie_refused} ["All three of you, in. Find him and go."]
++ {fam ? hoodie_refused} ["All three of you, in. Find him and go." #door: in]
     -> sister_all
-+ {fam !? hoodie_refused} ["Both of you, in. Find him and go."]
++ {fam !? hoodie_refused} ["Both of you, in. Find him and go." #door: in]
     -> sister_all
-+ ["Nobody else tonight."]
++ ["Nobody else tonight." #door: out]
     -> sister_no
 
 = sister_lie
@@ -676,7 +676,7 @@ He was steady on his feet, mostly. He came in carefully, putting each boot down 
         FATHER: Then he can take it upstairs through the hotel door. Like he'd do anyway if you weren't here.
     }
     -> hv
-+ ["Go on in."]
++ ["Go on in." #door: in]
     ~ arrivals += hivis_in
     ~ count_in++
     ~ room_count++
@@ -690,7 +690,7 @@ He was steady on his feet, mostly. He came in carefully, putting each boot down 
         ~ rep(rep_staff, -1)
     }
     -> at_door
-+ ["Leave the beer with me and go on in."]
++ ["Leave the beer with me and go on in." #door: terms]
     ~ arrivals += hivis_in
     ~ arrivals += hivis_cond
     ~ count_in++
@@ -700,7 +700,7 @@ He was steady on his feet, mostly. He came in carefully, putting each boot down 
     He set the case down by the stool. The doorman pushed it behind the door with his foot.
     ~ rep(rep_staff, 1)
     -> at_door
-+ {knows ? hivis_upstairs} ["Take it up to your room. You can come down after."]
++ {knows ? hivis_upstairs} ["Take it up to your room. You can come down after." #door: fetch]
     ~ arrivals += hivis_out
     ~ pass(1)
     HI-VIS: Yeah. Yeah, all right.
@@ -709,7 +709,7 @@ He was steady on his feet, mostly. He came in carefully, putting each boot down 
         FATHER: And he'll come down the back stairs through the hotel door and you'll never know. Unless you lock it.
     }
     -> at_door
-+ ["Not tonight. You've had enough."]
++ ["Not tonight. You've had enough." #door: out]
     ~ arrivals += hivis_out
     ~ knows += hivis_upstairs
     ~ incident += inc_hivis
@@ -809,7 +809,7 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
     }
 * {knows ? eighty_six} [Hold the licence up by his face. #toy: goodshoes_card look #unlisted]
     -> recognised
-+ ["Go ahead."]
++ ["Go ahead." #door: in]
     -> let_in
 + {knows ? eighty_six} ["Give me a second." Go check the binder.]
     ~ pass(3)
@@ -860,13 +860,13 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
     ~ here = door
     He came back.
     -> gk
-+ ["Not tonight. Not any night."]
++ ["Not tonight. Not any night." #door: out]
     -> turn_away
 + {knows ? eighty_six || knows ? banned_face} ["The binder says no. The binder wins."]
     -> turn_away
 + {knows !? eighty_six && knows !? banned_face} ["I hear she'd have you shot. So, no."]
     -> turn_away
-+ ["One drink. You sit where I can see you."]
++ ["One drink. You sit where I can see you." #door: terms]
     ~ arrivals += banned_in
     ~ banned_one = clock
     ~ count_in++
@@ -880,7 +880,7 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
     She didn't look at the doorman for the rest of the night.
     FATHER: One. You said one. He heard you, and so did she.
     -> at_door
-+ ["Go ahead."]
++ ["Go ahead." #door: in]
     -> let_in
 
 = let_in
@@ -1053,7 +1053,7 @@ They'd heard her from the window. They said it all together, and then they laugh
     }
     RAINCOAT: The one pretending he can't see me.
     -> wf
-+ ["He's not here."]
++ ["He's not here." #door: out]
     ~ arrivals += wife_lied
     ~ knows += dennis
     ~ rep(rep_t28, 2)
@@ -1077,7 +1077,7 @@ They'd heard her from the window. They said it all together, and then they laugh
     He went. Table 28 were talking about something else before the door shut behind him.
     ~ rep(rep_t28, -1)
     -> carry_on
-+ ["Go on in. He's by the window."]
++ ["Go on in. He's by the window." #door: in]
     ~ arrivals += wife_in
     ~ knows += dennis
     ~ incident += inc_wife

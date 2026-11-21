@@ -352,6 +352,12 @@ Update this file at the end of every session: add a session entry, move items be
 - Where it may be too far, for Hutch: the flag in the lot, the boxed-in swastika, taking a line off the boyfriend's phone, table 28 on who bought the houses, the Newfie joke, the cook's fent.
 - Still Hutch's: table 28's talk and each man's quirk; the four stories of the last doorman (table 28's "woman" is Lorraine now, as a rumour; who the ferry tickets in the jacket were for stays his); the cook; last call; the deck; the payphone wall from his own bars; the daughter at two in the morning and how her mother is.
 
+### 2026-11-21 (Saturday), the door by hand
+
+- The first piece of the second bet in the teardown, the door becomes the game. At the door, the verdict can now be made with his hand as well as with the words: a sweep of the open hand toward the room lets them in, the palm up says no, the hand thrown out past them at the lot sends them for the card, the hand low and flat says in on terms. His left hand rests on his knee at the bottom of the view while a verdict is on offer; the player takes it and drags. Short of the mark it goes back to his knee. While it's dragged, the choice's words come up by the hand, its row lights in the column, a voice can lean in, and the room goes quiet under it. Past the mark the room answers first: the door swings, the kid walks back out to the truck or past him into the room, and the column follows 1.2 seconds later. (PROPOSED.)
+- Every arrival's verdicts carry the tag, eighteen in all (`#door: in|out|fetch|terms` in `content/ink/door.ink`). The words in the column still work the same way. No prose changed.
+- Still to come for the door loop: the queue, a new check each shift, the read getting harder with drink, and choices only the hand can make (keeping the licence, the stamp, letting the door swing shut on someone).
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -779,6 +785,8 @@ Proposed with pace, length and edge (2026-11-19), from Hutch's note ("no monoton
 - **The edge sample:** the payphone wall and the men's room rewritten (`content/revisions/edge_pass_sample.md`), with writing on the wall and taking the line as new choices.
 - **Amanda, round four:** from pretty to knowing (in the log above).
 - **Wednesday at the harder dial (2026-11-21):** the whole night rewritten in the Ink, with twelve new choices and what reads each, three of them to keep every stretch under 300 words (in the log above). New to the world: Lorraine in six, seven empty since March, the payphone wall and the women's stall in full, the Facebook soldier on the phone at table 28, the cardigan's dead (Les and Bob), Gary's call from somewhere with slot machines. The style test's welcome at table 28 is in the game with it.
+
+- **The door by hand (2026-11-21):** the verdict at the door made with his hand (in the log above).
 
 ### REJECTED
 

@@ -120,6 +120,7 @@ godot --headless --path godot -s res://tests/going.gd -- --seed 3   # going wher
 godot --headless --path godot -s res://tests/column_player.gd -- --seed 3   # a night by the column alone
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
 godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
+godot --headless --path godot -s res://tests/door_hand.gd    # the verdict at the door, dragged by hand
 ```
 
 `reach.gd` checks every choice's pin, and every thing he can look at, from every post with a line

@@ -103,6 +103,7 @@ var _cut: Tween
 var _to := {}                     # the post the walk ends at
 var _to_where := ""
 var _drag := false
+var hand_drag := false            # the drag has his hand (game/door_hand.gd), not his head
 var _drag_from := Vector2.ZERO
 var _dragged := 0.0
 var pointer := Vector2(-1, -1)    # the pointer over the world's picture, in its pixels; -1 off it
@@ -740,7 +741,7 @@ func _on_sheet_input(e: InputEvent) -> void:
 		if _drag:
 			var k := 0.0042 * float(settings.get("look_speed", 1.0)) * zoom
 			_dragged += e.relative.length()
-			if _dragged > 6.0:
+			if _dragged > 6.0 and not hand_drag:
 				turned_t = t
 				want_yaw -= e.relative.x * k
 				want_pitch = clampf(want_pitch - e.relative.y * k * (-1.0 if settings.get("invert", false) else 1.0), PITCH_MIN, PITCH_MAX)

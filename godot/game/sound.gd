@@ -128,6 +128,7 @@ var sting_player: AudioStreamPlayer
 var voice_player: AudioStreamPlayer       # the teller and the voices in his head, all round him
 var voice_spot: AudioStreamPlayer3D       # a person, from their head
 var _said := {}                 # who -> when they last barked or whispered (seconds)
+var weigh := 0.0                # a verdict at the door being made by hand: the room goes quiet under it (game/door_hand.gd)
 var duck := 1.0                 # the room, lowered under a voice or the score
 var reverb: AudioEffectReverb
 var _now := 0.0
@@ -660,6 +661,7 @@ func _process(dt: float) -> void:
 		want_duck = 0.55
 	elif score_level > 0.05:
 		want_duck = 1.0 - 0.25 * score_level
+	want_duck = minf(want_duck, 1.0 - 0.7 * clampf(weigh, 0.0, 1.0))
 	duck = lerpf(duck, want_duck, 1.0 - exp(-dt * 3.0))
 	var amb := _vol("amb") * duck
 	var k := 1.0 - exp(-dt * (0.9 if unlocked else 0.4))
