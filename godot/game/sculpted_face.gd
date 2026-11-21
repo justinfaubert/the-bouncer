@@ -13,7 +13,7 @@ extends DrawnFace
 # Each expression as a mix of shapes, 0..1. A name without _l or _r is both sides. gaze: where the
 # eyes rest (-1..1, across to their left, and up), added to where they're told to look.
 const LOOKS := {
-	"neutral": {"blink": 0.08},
+	"neutral": {},
 	"smile": {"smile": 0.7, "squint": 0.35, "blink": 0.04},
 	"laugh": {"smile": 1.0, "jaw": 0.45, "squint": 0.65, "brow_up": 0.3, "blink": 0.08},
 	"sad": {"brow_in": 0.9, "frown": 0.5, "blink": 0.12, "gaze": Vector2(0.0, -0.4)},

@@ -120,7 +120,7 @@ HEADS = {
         # mouth in dark red, plum shadow and a wing of liner, fine brows with a lifted arch, a
         # beauty mark at her mouth's left corner
         paint=dict(skin='#b88a68', warm='#bd7658', flush=0.5, contour=1.0, lips='#701020', shadow='#5a3a3c', shadow_k=0.55,
-                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0025, brow_w=0.75, brow_inner=0.0008, mark=(0.031, -0.054), iris='#3a2414',
+                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0025, brow_w=0.62, brow_inner=0.002, liner_k=0.5, mark=(0.031, -0.054), iris='#3a2414',
                    iris_r=0.6),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
         hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
@@ -606,7 +606,7 @@ def paint(H, size=2048):
             * (1 - smoothstep(1.0, 1.35, t)) * (0.55 + 0.45 * smoothstep(0.3, 1.0, t))
         col = lay(col, hexc(pk['shadow']), shadow * pk.get('shadow_k', 0.8))
         # the line along the upper lashes, thickening outward into a wing past the corner
-        thick = 0.09 + 0.13 * smoothstep(0.2, 1.0, t)
+        thick = (0.09 + 0.13 * smoothstep(0.2, 1.0, t)) * pk.get('liner_k', 1.0)
         opening = aperture(H, u, v) < 0.005
         liner = near * (v > top - 0.03) * smoothstep(thick + 0.03, thick - 0.01, v - top) * (t > 0.04) * (t < 1.0) * ~opening
         # the wing: a tapering stroke out and up from the outer corner
