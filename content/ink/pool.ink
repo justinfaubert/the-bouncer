@@ -139,6 +139,7 @@ FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #
 - The buddy won again. The big man paid him again.
 - The big man went to the bar for another cola with nothing in it you'd want to call cola.
 - They were playing slower now. The big man took a long time over every shot, looking at the table like it had asked him something.
+- The buddy was telling the big man about a woman from an app, in Courtenay, what she'd sent him and what she'd do. The big man said "Yeah" in the gaps and played the shot.
 }
 {
 - sister_at == s_rail && not fam_done:
@@ -478,9 +479,15 @@ BIGMAN: Who asked you.
     He said it too quietly. The buddy laughed, not at that, at something else, and the big man put his hand flat on the rail.
 - indoors(vape_at):
     It started the way they start: afterward nobody could have told you how.
-    The boyfriend had drifted over from the bar to watch, and said something about the big man's last shot that he thought was funny, and then said it again louder. The big man put his hand flat on the rail.
+    The boyfriend had drifted over from the bar to watch. The big man missed a shot.
+    VAPE: skill issue
+    The big man missed the next one too.
+    VAPE: old man's COOKED
+    He said it for the room, and looked round to see who'd laughed. The big man put his hand flat on the rail.
 - else:
-    It was the money. The buddy picked up the twenties from under the rail, all of them, and said something about the big man throwing games like he was stupid, and the big man put his hand flat on the rail.
+    It was the money. The buddy picked up the twenties from under the rail, all of them, and held them up.
+    BUDDY: You think I don't know? Twenty at a time, like I'm a fucking charity?
+    The big man put his hand flat on the rail.
 }
 -> fight
 
@@ -758,7 +765,7 @@ WRONGMAN: In the story the police came too. Forty minutes after. Everybody had g
     On a Wednesday at the Sov it played about forty songs, and table 28 had paid for most of them.
 - else:
     {shuffle:
-    - The jukebox cycled through its screens: albums, then the ad for the jukebox, then albums.
+    - The jukebox cycled through its screens: albums, then the ad for the jukebox, then a lawyer in Nanaimo who'd get you paid if you'd been hurt at work, then albums.
     - Up next on the jukebox: table 28's, table 28's, and one somebody had paid extra to put at the front.
     - The jukebox between songs, the screen asking for a card.
     }

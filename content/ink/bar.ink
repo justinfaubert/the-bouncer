@@ -342,7 +342,12 @@ BARTENDER: And there she goes.
 BARTENDER: Network's down, third time this week. Cash only, folks. Cash only.
 TABLE28: Cash is king!
 They'd never paid any other way. Table 28 thought cards were a fad.
-{ here != bar:
+// From the door he can choose: the bar, where the arguing will be, or the door, which lets people
+// in while it isn't watched (sim.ink). From anywhere else he goes over.
+{
+- here == door:
+    -> go_over ->
+- here != bar:
     ~ here = bar
     He went and stood in the gap in the stools, where the arguments would come. #look: bartender
 }
@@ -360,11 +365,18 @@ SLIPPERS: I never have cash. My husband always carried the cash.
 - (card)
 * (lent) [Lend her twenty.]
     ~ cash -= 20
+    { here != bar:
+        ~ here = bar
+        He went over.
+    }
     She took it and looked at it like she'd forgotten what they looked like.
     SLIPPERS: I'm in nine, dear. I'll get it to you. I will.
     FATHER: You'll never see it again.
     WRONGMAN: Or you will, and it'll be the worst twenty you ever got back.
 * ["Can she run a tab till it's back up?"]
+    { here != bar:
+        He said it from the door, over the room.
+    }
     BARTENDER: She can run a tab till the day she dies, and she will.
     She started one on a napkin.
     ~ rep(rep_staff, 1)
@@ -376,6 +388,15 @@ SLIPPERS: I never have cash. My husband always carried the cash.
     WRONGMAN: Twenty dollars. In the story it was always about twenty dollars, once you got to the bottom of it.
 - ~ pass(3)
 -> carry_on
+
+= go_over
+* [Go and stand at the bar, where the arguing will be.]
+    ~ here = bar
+    He went and stood in the gap in the stools. #look: bartender
+* [Stay on the door.]
+    ~ here = door
+    He stayed on the stool. From there he could see both machines with their screens dead, and the lot.
+- ->->
 
 
 // ------------------------------------------------------------------ midnight: the owner calls

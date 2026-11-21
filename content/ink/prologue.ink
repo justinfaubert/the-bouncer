@@ -42,7 +42,7 @@ It told him Wednesday. #pause
 // the big man's keys), or the window, where table 28 see him first (the room, below).
 * [Go along the trucks.]
     ~ knows += lot_trucks
-    He went along the trucks. A mill pickup with a hard hat on the dash and a two-four of empties on the passenger side. A Silverado with a wet flag on a pole in the bed that said FUCK and then the prime minister's name. A minivan with WASH ME in the dirt on the back window, and under it, in somebody else's finger, a cock and balls.
+    He went along the trucks. A mill pickup with a hard hat on the dash and a two-four of empties on the passenger side. A Silverado with a wet flag on a pole in the bed that said FUCK and then the prime minister's name.
     By the beer store, a work truck with a toolbox across the bed, a school photo of a girl tucked in the visor, and a mickey of rye in the door pocket, half gone.
     FATHER: Every one of them drove here. Every one of them's driving home.
 * [Look in the front window.]

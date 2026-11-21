@@ -22,14 +22,14 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/table28.ink
 
 7. **at_t28** (`content/ink/table28.ink:23`): Table 28 is yours. What do they actually talk about on a Wednesday at eight? What's the first thing they say to a new doorman? Give each of the five one quirk from life (changed enough).
-8. **at_t28** (`content/ink/table28.ink:75`): The father's name is open. When you pick it, this is where it's said out loud for the first time.
-9. **at_t28** (`content/ink/table28.ink:144`): The rumour system in miniature: every version of the last doorman in circulation. Keep them or replace them with the kind of stories your regulars actually tell.
-10. **at_t28** (`content/ink/table28.ink:177`): What do they call the rat, and how long have they been feeding it? "Walter" is a placeholder.
+8. **at_t28** (`content/ink/table28.ink:79`): The father's name is open. When you pick it, this is where it's said out loud for the first time.
+9. **at_t28** (`content/ink/table28.ink:158`): The rumour system in miniature: every version of the last doorman in circulation. Keep them or replace them with the kind of stories your regulars actually tell.
+10. **at_t28** (`content/ink/table28.ink:192`): What do they call the rat, and how long have they been feeding it? "Walter" is a placeholder.
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:757`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:789`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:764`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:796`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
@@ -53,8 +53,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/deck.ink
 
 23. **at_deck** (`content/ink/deck.ink:20`): The smoking deck. What happens out there that doesn't happen inside?
-24. **at_deck** (`content/ink/deck.ink:105`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
-25. **ev_deck_kids** (`content/ink/deck.ink:200`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
+24. **at_deck** (`content/ink/deck.ink:107`): The quiet one at table 28, away from the table. What does one of the hive say when he's on his own?
+25. **ev_deck_kids** (`content/ink/deck.ink:202`): The family came in the back after the door said no. What does she say to the doorman who turned her brother away?
 
 ## content/ink/closing.ink
 

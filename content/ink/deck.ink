@@ -16,7 +16,7 @@
 # amb: deck
 { at_deck == 1:
     He went out through the deck door. {deck_door:A folded coaster was wedged in the latch so it wouldn't lock behind anyone.|It was locked. He let himself out with the key on his ring.}
-    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
+    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Under one of the chairs, a pink lighter and the torn foil off a condom. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
     // HUTCH: The smoking deck. What happens out there that doesn't happen inside?
 - else:
     {shuffle:
@@ -86,6 +86,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     ~ smokers_at = clock
     A man smoking by the steps was watching the lot.
     SMOKER: That pickup's been sitting there since eight with the engine going. Somebody's waiting on somebody.
+    SMOKER: Last time a truck sat out there like that it was Darlene's husband, with his rifle on the seat. He was only going to scare her, he said.
     ~ knows += truck
 - knows !? mill_closing:
     ~ deck_smokers = 3
@@ -93,6 +94,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     Two of the mill crew were smoking at the far end of the deck, one of them still in his vest.
     SMOKER: They're saying the mill's done at Christmas. My brother-in-law says Christmas.
     SMOKER: They've been saying Christmas for six years.
+    SMOKER: Forty-five percent the Yanks are charging on a board now. And the logs go out raw off the dock in Nanaimo, on a Chinese boat, past the mill. I've watched them go.
     ~ knows += mill_closing
 }
 -> d_opts
@@ -110,7 +112,7 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
     CARDIGAN: Now there's five. Four, some days.
     -> cg
 * (four) ["What happened to the other four?"]
-    CARDIGAN: What always happens. Two of them died. One is in the home in town and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not once. As if he'd died, except he hadn't.
+    CARDIGAN: What always happens. Two of them died. Les went off the road past the Esso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not once. As if he'd died, except he hadn't.
     CARDIGAN: The table closed up the gap. It always does.
     He looked at the end of his cigarette.
     CARDIGAN: My daughter wants me in Calgary.
