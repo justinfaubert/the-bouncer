@@ -14,7 +14,7 @@
   const BUSY_FROM = 1350;    // 10:30 pm: the room gets loud
   const LAST_CALL = 1530;    // 1:30 am
   const MIDNIGHT = 1440;
-  const DAY_NAMES = { 1: 'Wednesday', 2: 'Thursday', 3: 'Friday' };
+  const DAY_NAMES = { 1: 'Wednesday', 2: 'Thursday', 3: 'Friday', 4: 'Saturday' };
   const HURT_WORDS = ['', 'Knocked about', 'Hurt', 'Badly hurt'];
   const PLACE = {
     door: 'On the door', floor: 'On the floor', t28: 'At table 28', pool: 'By the pool table', bar: 'At the bar',
@@ -1158,11 +1158,11 @@
     const d = document.createElement('div');
     d.className = 'end-card';
     const h = document.createElement('h2');
-    h.textContent = 'End of the test shift';
+    h.textContent = 'End of the first Friday';
     // the stamp at the bottom of the tape says it already
     if (app.game.log.some(function (it) { return it.cls === 'end'; })) h.className = 'sr';
     const p = document.createElement('p');
-    p.textContent = 'Friday comes next, and it is not written yet. This night stays saved the way it ended until you start Wednesday over.';
+    p.textContent = 'Saturday comes next, and it is not written yet. This game stays saved the way it ended until you start Wednesday over.';
     const row = document.createElement('div');
     row.className = 'btn-row';
     row.append(

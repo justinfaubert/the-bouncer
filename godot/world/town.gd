@@ -222,7 +222,7 @@ func show_for(where: String, clock: int, frame := "") -> void:
 # is lit; at the Sov then, none of it is out.
 func by_clock(c: float, where: String) -> void:
 	var away := Posts.away(where)
-	var night := c >= NIGHT or c < 900.0
+	var night := c >= NIGHT or c < 420.0
 	near.visible = away or not night
 	far.visible = away
 	for l in _lamps:

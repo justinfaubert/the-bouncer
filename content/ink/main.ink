@@ -25,6 +25,7 @@ INCLUDE things.ink
 INCLUDE hand.ink
 INCLUDE drawer.ink
 INCLUDE room.ink
+INCLUDE days.ink
 
 -> interview
 
@@ -161,7 +162,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen, t28_puke, hotel_watched, twelve_hole, twelve_foil, lot_trucks, t28_window, vape_bump, bigman_looked
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen, t28_puke, hotel_watched, twelve_hole, twelve_foil, lot_trucks, t28_window, vape_bump, bigman_looked, key_seven, prime_thin, girl_card, jim_count
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 

@@ -2393,4 +2393,4 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 }
 Friday is two nights away. Friday's everybody.
 END OF THE TEST SHIFT #class: end
--> END
+-> dawn

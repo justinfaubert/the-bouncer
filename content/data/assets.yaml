@@ -114,3 +114,6 @@ portraits:
   bookkeeper: { file: art/portraits/bookkeeper.png }
   essokid: { file: art/portraits/essokid.png }
   him: { file: art/portraits/him.png }
+  jim: { file: art/portraits/jim.png }
+  lorraine: { file: art/portraits/lorraine.png }
+  preacher: { file: art/portraits/preacher.png }

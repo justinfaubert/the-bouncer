@@ -202,6 +202,10 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 	if here_as == "" and view != null and Posts.away(view.place):
 		here = view.place
 	var out := {}
+	# the days after Wednesday have their own room (content/ink/days.ink, friday.ink)
+	if int(BUtil.js_int(v.get("day", 1))) > 1:
+		pickup_here = false
+		return _cast_day(game, v, clock, here)
 	var fam := func(item: String) -> bool: return _has(v, "fam", item)
 	var arr := func(item: String) -> bool: return _has(v, "arrivals", item)
 	var cleared := func(item: String) -> bool: return _has(v, "cleared", item)
@@ -397,6 +401,62 @@ func _cast(game: Game, here_as := "") -> Dictionary:
 
 
 var pickup_here := false
+
+
+# Thursday and Friday (Claude's draft, PROPOSED). Thursday he's off: the Sov by day has table 28 from
+# two, the bartender, Terry on doubles; the old man at the wharf rail till the light goes; the kid on
+# the Esso's freezer from four. Friday's the whole bar: Jim on with her (in the ball cap, for now),
+# every table taken from eight, and during the wave a line out into the lot.
+func _cast_day(game: Game, v: Dictionary, clock: int, here: String) -> Dictionary:
+	var day := int(BUtil.js_int(v.get("day", 1)))
+	var out := {}
+	out.bartender = ["bar_back_mid", "bartender"]
+	out.terry = ["desk_stool", "terry"]
+	if clock >= 840 and clock < 1560:
+		out.team_jacket = ["t28_0", "team_jacket"]
+		out.hearing_aid = ["t28_1", "hearing_aid"]
+		out.scratch = ["t28_2", "scratch"]
+		out.cardigan = ["t28_3", "cardigan"]
+		out.glasses = ["t28_5", "glasses"]
+	if day == 2:
+		if clock < 1008:
+			out.endbar = ["wharf_rail", "endbar_wharf"]
+		if clock >= 960 and here == "esso":
+			out.essokid = ["esso_freezer", "essokid_freezer"]
+		return _only_made(out)
+	# Friday
+	if clock < 1380:
+		out.cook = ["kitchen_fryer", "cook"]
+	out.jim = ["bar_back_far", "ballcap_cap"]
+	if clock >= Town.NIGHT and clock < 1530:
+		out.endbar = ["bar_s0", "endbar"]
+	if clock >= 1200 and clock < 1560:
+		var fillers := [["crew_b", "table_d_0"], ["patron_a", "table_d_1"], ["patron_e", "bar_s1"], ["patron_b", "table_c_1"],
+			["patron_f", "table_c_0"], ["crew_a", "table_a_2"]]
+		for f in fillers:
+			out[f[0]] = [f[1], f[0]]
+		out.slippers = ["bar_s5", "slippers_a"]
+		# the line: whoever's at the front of it in the vestibule, the rest out in the rain
+		var in_line := int(BUtil.js_int(v.get("in_line", 0)))
+		if _scene(game) == "the_line" or str(_scene(game)).begins_with("the_line"):
+			out.patron_c = ["door_front", "patron_c"]
+			if in_line > 1:
+				out.patron_d = ["door_step", "patron_d"]
+			if in_line > 3:
+				out.hivis = ["lot_walk", "hivis_door"]
+			if in_line > 5:
+				out.raincoat = ["lot_truck", "raincoat"]
+		else:
+			out.patron_c = ["pool_watch", "patron_c"]
+			out.patron_d = ["stand_bar", "patron_d"]
+	return _only_made(out)
+
+
+func _only_made(out: Dictionary) -> Dictionary:
+	for id in out.keys():
+		if not _exists(out[id][1]):
+			out.erase(id)
+	return out
 
 
 # where one of the three is: the one item of their spot list ("s_jukebox"), or "" if none
