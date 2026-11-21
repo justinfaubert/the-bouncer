@@ -114,12 +114,12 @@ HEADS = {
         jaw=dict(x=0.043, f=-0.002, z=-0.066, chin=(0.0, 0.076, -0.102), chin_r=(0.016, 0.015, 0.015)),
         nose=dict(root=(0.078, 0.012), tip=(0.0995, -0.026), r=(0.0046, 0.0056), tip_r=(0.0056, 0.0064, 0.0060),
                   ala=(0.0086, 0.092, -0.030), ala_r=(0.0052, 0.0064, 0.0052)),
-        mouth=dict(z=-0.062, f=0.0925, w=0.0268, upper=0.0052, lower=0.0068, bow=0.0017, curve=0.012),
+        mouth=dict(z=-0.062, f=0.0885, w=0.0268, upper=0.0058, lower=0.0070, bow=0.0019, curve=0.012),
         ear=dict(x=0.069, f=-0.006, z=-0.004, r=(0.0075, 0.016, 0.029)),
         # what's on her skin: olive, warm at the cheeks; a mouth in dark red, plum shadow and a long
         # wing of liner, brows strong and level with a low arch, a beauty mark at her mouth's left
         # corner (round four's face, now on a face)
-        paint=dict(skin='#a97f58', warm='#b5704f', flush=0.55, contour=1.0, lips='#86202f', shadow='#543034', shadow_k=0.75,
+        paint=dict(skin='#a97f58', warm='#b5704f', flush=0.55, contour=1.0, lips='#701020', shadow='#543034', shadow_k=0.75,
                    liner='#140c0a', wing=0.008, brow='#1a1310', arch=0.001, mark=(0.031, -0.054), iris='#3a2010', iris_r=0.6),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
         hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
@@ -184,7 +184,7 @@ def head_field(H, p):
     d = smin(d, ellipsoid(P, (0.040, 0.024, -0.042), (0.019, 0.044, 0.042)), 0.024)            # the side of the face
     # the muzzle the mouth sits on
     m = H['mouth']
-    d = smin(d, ellipsoid(p, (0, 0.064, m['z'] + 0.001), (0.027, 0.024, 0.022)), 0.016)
+    d = smin(d, ellipsoid(p, (0, 0.060, m['z'] + 0.002), (0.028, 0.024, 0.018)), 0.014)
     # the brow: a ridge over each eye, and the sockets under it
     b = H['brow']
     d = smin(d, cone(P, (-0.006, b['f'], b['z'] - 0.002), (b['w'], b['f'] - 0.016, b['z'] + b['arch']), b['r'], b['r'] * 0.8), 0.016)
@@ -221,6 +221,10 @@ def head_field(H, p):
                         + 0.001 * t * t))
             radii.append(rr * (1.0 - t * t) ** 0.6 + 0.0005)
         return chain(p, pts, radii)
+    n0 = H['nose']
+    for sx in (-1, 1):
+        d = smin(d, cone(p, (sx * 0.0035, n0['ala'][1] - 0.004, n0['ala'][2] - 0.008), (sx * 0.0052, m['f'] - 0.0035, m['z'] + 0.0085),
+                         0.0011, 0.0013), 0.006)
     up = lip(m['z'] + 0.0042, m['f'] - 0.0035, m['upper'], m['bow'])
     lo = lip(m['z'] - 0.0058, m['f'] - 0.0055, m['lower'], 0.0)
     # the corners of the mouth melt into the cheeks; the middle of the lips stands proud
@@ -518,6 +522,9 @@ def paint(H, size=2048):
     # the skin's mottle, and its warmth where the blood's near the surface: the cheeks, the nose,
     # the ears, the chin; cooler and a little darker under the jaw and round the eyes
     col *= (1.0 + 0.035 * noise(P, 0.012, 1) + 0.02 * noise(P, 0.004, 2))[..., None]
+    # pores and the skin's fine grain, more over the nose and the cheeks
+    pores = np.clip(noise(P, 0.0006, 11) * 1.6, -1, 0) * (0.5 + 0.5 * gauss(np.abs(P) * [1, 1, 1], (0.02, 0.09, -0.03), (0.03, 0.03, 0.03)))
+    col *= (1.0 + 0.05 * pores + 0.012 * noise(P, 0.0015, 12))[..., None]
     warm = hexc(pk['warm'])
     e, m, b = H['eye'], H['mouth'], H['brow']
     mp = P.copy()
@@ -527,6 +534,14 @@ def paint(H, size=2048):
     col = lay(col, warm, flush * pk.get('flush', 1.0))
     shade = 0.10 * gauss(mp, (0.03, 0.075, -0.012), (0.016, 0.02, 0.006)) + 0.08 * smoothstep(-0.11, -0.13, P[..., 2]) \
         + 0.10 * gauss(mp, (0.05, 0.05, -0.05), (0.012, 0.03, 0.016)) * pk.get('contour', 1.0)
+    # the folds a face lives in: from the nose's wings down past the mouth, under the eyes, the
+    # little hollow under the lower lip
+    n_ = H['nose']
+    fold, fa = curve_dist(mp, [(n_['ala'][0] + 0.006, n_['ala'][1] - 0.004, n_['ala'][2] + 0.002), (0.024, 0.080, -0.052),
+                               (H['mouth']['w'] + 0.004, 0.078, -0.07)])
+    shade = shade + 0.09 * smoothstep(0.004, 0.0, fold) * (1 - fa * 0.5) * pk.get('folds', 1.0)
+    shade = shade + 0.07 * gauss(mp, (0.03, 0.078, -0.012), (0.012, 0.012, 0.004))
+    shade = shade + 0.08 * gauss(mp, (0.0, 0.085, H['mouth']['z'] - 0.016), (0.012, 0.012, 0.004))
     col *= (1.0 - shade)[..., None]
     # the lips, the line between them darkest, a light on the lower
     up = [(x, m['f'] - 0.0035 - m.get('curve', 0.016) * (x / m['w']) ** 2, m['z'] + 0.0042 + m['bow'] * (math.exp(-((abs(x / m['w']) - 0.22) / 0.16) ** 2)
@@ -570,6 +585,9 @@ def paint(H, size=2048):
         # the lower lashes, smudged, in the outer half
         low = near * smoothstep(0.08, 0.0, np.abs(v - bot + 0.02)) * smoothstep(0.35, 0.9, t) * (t < 1.02) * ~opening
         col = lay(col, hexc(pk['liner']), low * 0.6)
+        # the wet rim of the lower lid
+        rim = near * smoothstep(0.025, 0.0, np.abs(v - bot - 0.012)) * ~opening * (t > 0.08) * (t < 0.95)
+        col = lay(col, hexc('#c48a7c'), rim * 0.7)
         # inside the lids, where the eyeball doesn't reach (the corners): wet pink skin, not ink
         inner = mine & (r < e['r'] + e['lid'] + 0.004) & opening
         col = np.where(inner[..., None], hexc('#b07468') * 0.9, col)
@@ -610,6 +628,9 @@ def eye_picture(H, size=512):
     col = np.where((r < ir)[..., None], ic, col)
     col = lay(col, iris * 0.25, smoothstep(ir - 0.08, ir, r) * (r < ir + 0.01))
     col = lay(col, hexc('#0b0807'), smoothstep(ir * 0.42, ir * 0.36, r))
+    # the light caught on the wet of the eye, up and to one side of the pupil
+    col = lay(col, hexc('#fbf6ee'), smoothstep(0.075, 0.045, np.hypot(x + 0.16, y - 0.18)))
+    col = lay(col, hexc('#fbf6ee'), smoothstep(0.03, 0.015, np.hypot(x - 0.12, y + 0.14)) * 0.6)
     from PIL import Image
     return Image.fromarray((np.clip(col, 0, 1) * 255).astype(np.uint8))
 
