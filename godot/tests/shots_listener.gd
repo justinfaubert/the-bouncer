@@ -56,6 +56,14 @@ const LOOKS := {
 	"listener_strokes": {"look": 6, "cut": 4, "hear": 1.0, "twice": true},
 	"listener_once": {"look": 6, "cut": 3},
 	"listener_clean": {"look": 6, "cut": 5, "hear": 1.0},
+	# the second pass (look 7): obsidian with no line round it, the room growing at its heart, the
+	# tiles packed toward the nexus, and the mirror it turns into
+	"obsidian": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 0.14},
+	"obsidian_hears": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 0.14, "hear": 1.0},
+	"grown_half": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 0.5, "hear": 0.6},
+	"grown_full": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 1.0, "hear": 0.6},
+	"polishing": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 0.14, "polish": 0.55},
+	"polished": {"look": 7, "cut": 4, "twice": true, "lines": 0.0, "grown": 0.14, "polish": 1.0},
 }
 # where it is and how big, and how he's looking at it (his eyes on the seawall, turned to the water)
 const PLACES := {
@@ -75,9 +83,18 @@ const LOOPS := {
 	"tiles_turning": {"look": "tiles", "place": "near", "n": 72, "dt": 1.0 / 6.0},
 	"point_turning": {"look": "point", "place": "near", "n": 48, "dt": 1.0 / 12.0},
 	"waves_turning": {"look": "waves", "place": "near", "n": 48, "dt": 1.0 / 12.0},
+	# the second pass: it hears the jukebox and packs it in; the room growing over the weeks, in eight
+	# seconds; the mirror coming in from the rim and going again; and it coming up out of the water
+	"packing_near": {"look": "obsidian", "place": "near", "n": 96, "dt": 1.0 / 12.0, "hear": "swell"},
+	"packing_close": {"look": "obsidian", "place": "close", "n": 96, "dt": 1.0 / 12.0, "hear": "swell"},
+	"growing_near": {"look": "obsidian", "place": "near", "n": 108, "dt": 1.0 / 12.0, "hear": "steady", "grow": [0.04, 1.0]},
+	"mirroring_near": {"look": "obsidian", "place": "near", "n": 108, "dt": 1.0 / 12.0, "polish": true},
+	"mirroring_close": {"look": "obsidian", "place": "close", "n": 108, "dt": 1.0 / 12.0, "polish": true},
+	"rising_obsidian_near": {"look": "obsidian", "place": "near", "n": 108, "dt": 1.0 / 12.0, "rise": true},
 }
 const ORDER := ["black", "black_twice", "point", "inside", "tiles", "tiles_strokes", "mirror", "waves", "inside_clean",
-	"listener", "listener_hears", "listener_strokes", "listener_once", "listener_clean"]
+	"listener", "listener_hears", "listener_strokes", "listener_once", "listener_clean",
+	"obsidian", "obsidian_hears", "grown_half", "grown_full", "polishing", "polished"]
 
 # the rings it makes in the water where it breaks the surface; the eye's only, like a lamp's pool
 const RIPPLES := """shader_type spatial;
@@ -259,11 +276,14 @@ func _look(name: String) -> void:
 	mat.set_shader_parameter("cut", l.cut)
 	mat.set_shader_parameter("hear", l.get("hear", 0.0))
 	mat.set_shader_parameter("twice", l.get("twice", false))
+	mat.set_shader_parameter("lines", l.get("lines", 1.0))
+	mat.set_shader_parameter("grown", l.get("grown", 0.12))
+	mat.set_shader_parameter("polish", l.get("polish", 0.0))
 	var reflects: bool = l.look != 0
 	mat.set_shader_parameter("has_cube", reflects)
 	for cb in cubes:
 		(cb[0] as SubViewport).render_target_update_mode = SubViewport.UPDATE_ALWAYS if reflects else SubViewport.UPDATE_DISABLED
-	var room: bool = l.look == 2 or l.look == 6
+	var room: bool = l.look == 2 or l.look == 6 or l.look == 7
 	inside.render_target_update_mode = SubViewport.UPDATE_ALWAYS if room else SubViewport.UPDATE_DISABLED
 
 
@@ -307,6 +327,7 @@ func _run() -> void:
 			ripples.visible = false
 			mat.set_shader_parameter("t", 12.0)
 			mat.set_shader_parameter("phase", 12.0)
+			mat.set_shader_parameter("pack", 0.37)
 			await _frames(8)
 			await _grab(out.path_join(name + ".png"))
 	for name in LOOPS:
@@ -318,6 +339,8 @@ func _run() -> void:
 		var dir := out.path_join(name)
 		DirAccess.make_dir_recursive_absolute(dir)
 		var phase := 12.0
+		var pack := 0.37
+		var l: Dictionary = LOOKS[lp.look]
 		var p: Dictionary = PLACES[lp.place]
 		var r: float = p.r
 		var top: float = (p.c as Vector3).y
@@ -326,10 +349,25 @@ func _run() -> void:
 			var hear := 0.0
 			if lp.get("hear", "") == "swell":
 				hear = _swell(s)
+			elif lp.get("hear", "") == "steady":
+				hear = 0.6
 			phase += float(lp.dt) * (1.0 + 4.0 * hear)
+			# the packing runs on slowly while it's quiet, and fast while it hears
+			pack += float(lp.dt) * (0.05 + 0.4 * hear)
 			mat.set_shader_parameter("t", 12.0 + s)
 			mat.set_shader_parameter("hear", hear)
 			mat.set_shader_parameter("phase", phase)
+			mat.set_shader_parameter("pack", pack)
+			if l.look == 7:
+				# the room breathes a little with what it hears; or grows, over the weeks
+				var g: float = l.get("grown", 0.12) + 0.03 * hear
+				if lp.has("grow"):
+					var k := smoothstep(0.5, float(lp.n) * float(lp.dt) - 0.5, s)
+					g = lerpf(lp.grow[0], lp.grow[1], k)
+				mat.set_shader_parameter("grown", g)
+				if lp.get("polish", false):
+					# the mirror comes in from the rim, holds, and the black comes back out of the middle
+					mat.set_shader_parameter("polish", smoothstep(0.8, 3.6, s) * (1.0 - smoothstep(5.6, 8.4, s)))
 			if lp.get("rise", false):
 				# up out of the water, slowing as it comes, the last of it hanging; the rings
 				# start as it breaks the surface and die away

@@ -22,7 +22,14 @@
 //   look 5  the waves: standing waves under the glass, five at once at the Penrose angles, their
 //           still lines bright, the way sand gathers on a plate that's sung to
 //   look 6  the eye: the tiles for an iris, and in the middle, where a pupil would be, the world
-//           inside. Far off it's one warm light on the water; near, the tiles; narrowed on, the room
+//           inside. Far off it's one white light on the water; near, the tiles; narrowed on, the room
+//   look 7  the Listener (second pass, from Hutch's notes on look 6): obsidian, black glass lit by
+//           lights that aren't in the world, so its form comes from what it gives back, not from a
+//           line round it. The room grows inside it from the nexus at its heart (grown, 0 a point
+//           of light, 1 the whole ball), in a glass ball of its own. The tiles are ghosts of lines,
+//           packed toward the nexus, smaller and smaller forever, and what it hears runs in along
+//           them. And polish takes it to the full mirror: the mirror comes in from the rim, the
+//           black drawing back into the nexus ahead of it
 // and how the press cuts it:
 //   cut 3   solid or clean away, nothing between (like the lights)
 //   cut 4   strokes wrapped round it, level with the strait (like the people)
@@ -67,10 +74,20 @@ uniform sampler2D cube_nz : source_color, filter_linear;
 uniform bool has_cube = false;
 uniform float mirror = 0.82;
 uniform bool twice = false;              // its body printed twice (look/press.gdshader)
+// look 7
+uniform float grown = 0.12;              // how much of it across the room fills: 0 a point, 1 all of it
+uniform float polish = 0.0;              // 0 obsidian, 1 the full mirror
+uniform float pack = 0.0;                // how far the packing's gone, in octaves (the script runs it
+                                         // on, faster while it hears)
+uniform float light_energy = 22.0;       // the hidden lights, before the obsidian gives back its share
+uniform float ghost = 1.0;               // the tiles' strength while it's quiet, as a share of hearing
+uniform float tile_k = 4.0;              // how big the packed tiles are at its rim
+uniform float mirror_gain = 1.0;         // look 7's mirror: how much brighter than the world it gives it back
 
 const uint MASK_LAYER = 524288u;
 const vec2 D5[5] = {vec2(1.0, 0.0), vec2(0.309017, 0.951057), vec2(-0.809017, 0.587785),
 	vec2(-0.809017, -0.587785), vec2(0.309017, -0.951057)};
+const float PHI2 = 2.6180340;            // the golden ratio, squared: one octave of the packing
 
 global uniform float cut_scale;
 
@@ -232,6 +249,178 @@ vec3 window(vec2 q) {
 	return texture(inside_tex, clamp(uv, vec2(0.0), vec2(1.0))).rgb * inside_energy;
 }
 
+float lum(vec3 c) {
+	return dot(c, vec3(0.2126, 0.7152, 0.0722));
+}
+
+// The strokes round its form for the press (cut 4): level with the water, pushed along where it
+// turns away, a set distance apart on the screen however near it is
+float strokes(vec3 P, vec3 C, vec3 N) {
+	float hh = dot(P - C, vec3(0.0, 1.0, 0.0)) / radius;
+	float nd = N.y;
+	float fs = hh + 0.018 * nd - 0.012 * (1.0 - abs(nd));
+	float px_apart = cut_px * max(cut_scale, 0.25);
+	float fw = max(length(vec2(dFdx(fs), dFdy(fs))), 1e-6);
+	float l = log2(fw * px_apart);
+	float s0 = exp2(floor(l));
+	return mix(tri(fs / s0), tri(fs / (2.0 * s0)), fract(l));
+}
+
+// The hidden lights (look 7). They light it for whoever's looking, the way a film lights a face,
+// and they're nowhere in the world: a four-pane window behind him, up and to his left, that it
+// gives back as the catchlight a painter puts in an eye to make it look back, and a big dim soft
+// box behind it on his right, so its edge comes up out of the dark there without a line. v is the
+// reflected ray in his frame (x his right, y up, z toward him); vpx how much v turns across a pixel.
+float hidden(vec3 v, float vpx) {
+	float s = 0.0;
+	vec3 L = normalize(vec3(-0.55, 0.6, 0.58));
+	float d = dot(v, L);
+	if (d > 0.2) {
+		vec3 lr = normalize(cross(vec3(0.0, 1.0, 0.0), L));
+		vec3 lu = cross(L, lr);
+		vec2 p = vec2(dot(v, lr), dot(v, lu)) / d;
+		float aa = vpx / d;
+		vec2 q = abs(p) - vec2(0.17, 0.22) + 0.025;
+		float sd = length(max(q, vec2(0.0))) + min(max(q.x, q.y), 0.0) - 0.025;
+		float pane = 1.0 - smoothstep(-aa, aa, sd);
+		float mb = 0.016;
+		float bar = max(1.0 - smoothstep(mb - aa, mb + aa, abs(p.x)), 1.0 - smoothstep(mb - aa, mb + aa, abs(p.y)));
+		s += pane * (1.0 - bar);
+	}
+	vec3 S = normalize(vec3(0.8, 0.25, -0.55));
+	float d2 = dot(v, S);
+	if (d2 > 0.1) {
+		vec3 sr = normalize(cross(vec3(0.0, 1.0, 0.0), S));
+		vec3 su = cross(S, sr);
+		vec2 p = vec2(dot(v, sr), dot(v, su)) / d2;
+		float sd = length(max(abs(p) - vec2(0.35, 0.6), vec2(0.0)));
+		s += 0.08 * exp(-sd * sd / 0.18);
+	}
+	return s;
+}
+
+// The room in a glass ball of its own, Rr across, at its heart (look 7): the ray from P along I1.
+// Upside down and wrapped round, the way a glass ball shows a place; its edge goes soft, the room
+// fading into the black, not ringed. dc: how near the ray passes the middle, for the glow round it
+vec3 room(vec3 P, vec3 I1, vec3 C, float Rr, vec3 f, vec3 r, vec3 u, out float dc) {
+	vec3 o = P - C;
+	float b = dot(o, I1);
+	float c2 = max(dot(o, o) - b * b, 0.0);
+	dc = sqrt(c2);
+	float h = Rr * Rr - c2;
+	if (h <= 0.0) {
+		return vec3(0.0);
+	}
+	vec3 Q1 = P + I1 * (-b - sqrt(h));
+	vec3 N1 = (Q1 - C) / Rr;
+	vec3 J = refract(I1, N1, 1.0 / 1.5);
+	vec3 P2 = Q1 + J * (-2.0 * dot(J, N1) * Rr);
+	vec3 N2 = (P2 - C) / Rr;
+	vec3 I2 = refract(J, -N2, 1.5);
+	if (dot(I2, I2) < 0.01) {
+		I2 = reflect(J, -N2);
+	}
+	vec3 lp = vec3(dot(I2, r), dot(I2, u), dot(I2, -f));
+	vec3 col = vec3(0.0);
+	if (lp.z > 0.05) {
+		vec2 sc = lp.xy / lp.z / tan(radians(inside_fov) * 0.5);
+		vec2 uv = vec2(0.5 + 0.5 * sc.x, 0.5 - 0.5 * sc.y);
+		if (uv.x > 0.0 && uv.x < 1.0 && uv.y > 0.0 && uv.y < 1.0) {
+			col = texture(inside_tex, uv).rgb * inside_energy;
+			col *= smoothstep(0.0, 0.08, min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)));
+		}
+	}
+	return col * (1.0 - smoothstep(0.6, 1.0, dc / Rr));
+}
+
+// The tiles packed toward the nexus (look 7): ghosts of lines. The tiling's far reaches are folded
+// into the middle (an inversion), so the tiles get smaller toward its heart and never end, and the
+// packing runs them in: the tiling at two sizes an octave apart, one fading up as the other packs
+// away into the middle, so it runs in forever. What it's hearing runs in along the lines, a spiral,
+// a needle in a groove.
+float packed(vec2 dsk, float hearing) {
+	float rho = max(length(dsk), 1e-4);
+	float spin = t * 0.021;
+	vec2 dir = dsk / rho;
+	dir = mat2(vec2(cos(spin), sin(spin)), vec2(-sin(spin), cos(spin))) * dir;
+	vec2 ph = vec2(cos(phase * 0.11), sin(phase * 0.083)) * 0.4;
+	float z = fract(pack);
+	float sum = 0.0;
+	for (int k = 0; k < 2; k++) {
+		float o = z + float(k);
+		float wgt = sin(PI * 0.5 * o);
+		wgt *= wgt;
+		vec2 X = dir * (tile_k / (pow(PHI2, o) * rho));
+		vec4 tl = penrose(X, ph);
+		float px = max(length(fwidth(X)), 1e-4);
+		float w = max(0.026, px * 1.1);
+		float core = exp(-(tl.x * tl.x) / (w * w));
+		float haze = exp(-tl.x / (w * 3.0)) * 0.08;
+		float fade = smoothstep(0.045, 0.16, px);
+		float ln = mix(core + haze, 0.02, fade);
+		float about = (1.0 - smoothstep(0.0, 0.06, tl.z)) * (1.0 - fade);
+		float flick = 0.7 + 0.3 * sin(t * 1.3 + tl.w * 40.0);
+		// the brighter of the two sizes, not both: where they cross they don't build up into thorns
+		sum = max(sum, wgt * (ln * flick + about * 0.18));
+	}
+	// they come in from short of the rim, so its edge stays clean black glass
+	sum *= smoothstep(0.97, 0.72, rho);
+	float zeta = log(rho);
+	float th = atan(dsk.y, dsk.x);
+	float g = fract(zeta * 1.3 + th / TAU + t * 0.7);
+	float run = exp(-pow((g - 0.5) * 5.0, 2.0));
+	return sum * (ghost * 0.1 + 0.25 * smoothstep(0.0, 0.6, hearing) + run * hearing * 1.1);
+}
+
+// Look 7 whole, for the eye and the press alike: its colour; how bright what its surface gives
+// back is (sheen) and what comes from inside it (inner); and how far the mirror's come in (mir)
+vec3 listener7(vec3 P, vec3 N, vec3 I, vec3 C, vec3 f, vec3 r, vec3 u, out float sheen, out float inner, out float mir) {
+	// inside: the tiles' shell, a little in, and the room at the heart
+	vec3 I1 = refract(I, N, 1.0 / 1.25);
+	float rin = 0.86 * radius;
+	vec3 o2 = P - C;
+	float b2 = dot(o2, I1);
+	float h2 = b2 * b2 - (dot(o2, o2) - rin * rin);
+	float tl = 0.0;
+	if (h2 > 0.0) {
+		vec3 q = (P + I1 * (-b2 - sqrt(h2)) - C) / rin;
+		tl = packed(vec2(dot(q, r), dot(q, u)), hear);
+	}
+	float Rr = max(grown, 0.03) * radius * 0.97;
+	float dc = 0.0;
+	vec3 rm = room(P, I1, C, Rr, f, r, u, dc);
+	float pxw = max(fwidth(dc), 1e-4);
+	float in_room = 1.0 - smoothstep(Rr * 0.85, Rr * 1.02, dc);
+	// from far off the room's a light: a glow round it never smaller than a few pixels
+	float halo = exp(-max(dc - Rr, 0.0) / max(pxw * 2.0, Rr * 0.16)) * (1.0 - in_room);
+	vec3 white = vec3(1.0, 0.95, 0.86) * inside_energy;
+	vec3 interior = rm + white * halo * 0.45 + glow * glow_energy * tl * mix(1.0, 0.45, in_room);
+	// and while the room's only a few pixels across (far off, or the first days) it's one white
+	// light, the light the Esso kid points at on day 1, not doing anything
+	float far_light = 1.0 - smoothstep(8.0, 24.0, Rr / pxw);
+	float core = 1.0 - smoothstep(Rr * 0.55, Rr * 1.1, dc);
+	interior += white * far_light * (core * 1.4 + halo * 0.6);
+	// the surface: black glass, what it gives back of the world and of the hidden lights
+	float cosv = clamp(dot(N, -I), 0.0, 1.0);
+	float F = 0.04 + 0.96 * pow(1.0 - cosv, 5.0);
+	vec3 R = reflect(I, N);
+	vec3 v = vec3(dot(R, r), dot(R, u), dot(R, f));
+	float hl = hidden(v, max(length(fwidth(v)), 1e-4));
+	vec3 env = world(R);
+	vec3 lc = vec3(0.96, 0.97, 1.0);
+	vec3 surf_o = F * (env + lc * hl * light_energy);
+	vec3 surf_m = env * mirror * mirror_gain + lc * hl * light_energy * 0.05;
+	// the mirror coming in from the rim, and the tiles flaring along the front of it
+	float rs = length(vec2(dot(N, r), dot(N, u)));
+	float e0 = 1.0 - polish * 1.15;
+	mir = smoothstep(e0, e0 + 0.15, rs);
+	float front = exp(-pow((rs - e0 - 0.075) / 0.04, 2.0)) * step(0.001, polish) * step(polish, 0.999);
+	vec3 obs = interior * (1.0 - F) * (1.0 + 2.5 * front) + surf_o;
+	sheen = lum(mix(surf_o, surf_m, mir));
+	inner = lum(interior * (1.0 - F) * (1.0 + 2.5 * front)) * (1.0 - mir);
+	return mix(obs, surf_m, mir);
+}
+
 void fragment() {
 	// the ray from his eye through this pixel, and where it meets the true sphere
 	vec3 eye = CAMERA_POSITION_WORLD;
@@ -261,7 +450,30 @@ void fragment() {
 	vec3 r = normalize(cross(-f, vec3(0.0, 1.0, 0.0)));
 	vec3 u = cross(r, -f);
 
-	if ((CAMERA_VISIBLE_LAYERS & MASK_LAYER) != 0u) {
+	if ((CAMERA_VISIBLE_LAYERS & MASK_LAYER) != 0u && look == 7) {
+		// the obsidian, cut: the room and the tiles take their picture solid or clean away; and
+		// the black, obsidian or mirror, is printed twice where it gives back nothing, breaking
+		// into strokes where the hidden lights and the world come up on it: the second hit going
+		// to lines first, then the lines thinning to the paper. So by night the mirror's a black
+		// disc with the town's lights in it, and by day it holds the whole town
+		float sheen = 0.0;
+		float inner = 0.0;
+		float mir = 0.0;
+		listener7(P, N, I, C, f, r, u, sheen, inner, mir);
+		float tms = strokes(P, C, N);
+		float red = tms * 0.9;
+		if (cut == 5) {
+			red = 1.0;
+		} else if (inner > 0.05) {
+			red = 0.45;
+		} else if (twice) {
+			float w = smoothstep(0.025, 0.16, sheen);
+			if (tms < 1.0 - w) {
+				red = 0.95;
+			}
+		}
+		ALBEDO = mask_out(vec3(red, lines, 0.0));
+	} else if ((CAMERA_VISIBLE_LAYERS & MASK_LAYER) != 0u) {
 		float tm = 0.5;
 		if (cut == 5) {
 			tm = 1.0 / 0.9;
@@ -417,6 +629,11 @@ void fragment() {
 			col = under * (1.0 - fres) + refl * fres * shell;
 		} else if (look == 4) {
 			col = refl * mirror;
+		} else if (look == 7) {
+			float sheen = 0.0;
+			float inner = 0.0;
+			float mir = 0.0;
+			col = listener7(P, N, I, C, f, r, u, sheen, inner, mir);
 		}
 		ALBEDO = col;
 	}
