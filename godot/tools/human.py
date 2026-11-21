@@ -24,31 +24,34 @@ CACHE = os.path.expanduser('~/.cache/lastcall-makehuman')
 # gender and age, and sum to 1); body: the mix of build (muscle and weight; the plain average if
 # left out); face: target name -> weight
 RECIPES = {
-    # Amanda: German, olive, a face "a bit like pocahontas", "strikingly beautiful". Lean (the
+    # Amanda: German, and the game's measure of a beautiful face (Hutch: "very objectively
+    # beautiful and more european looking"; the first mix of forebears read South Asian). Lean (the
     # fat off her face shows the bones), a long oval narrowing to a defined chin, high cheekbones
     # with a hollow under them, long eyes lifted at the outer corners and larger than life, a
     # straight fine nose with a neat tip, full lips with a clear bow, a long slim neck (Hutch, on
     # the first of her: "eyes a little bigger, lips a little fuller")
     'amanda': dict(
-        race={'caucasian': 0.55, 'asian': 0.2, 'african': 0.25},
+        race={'caucasian': 1.0, 'asian': 0.0, 'african': 0.0},
         body={'averagemuscle-minweight': 0.7, 'averagemuscle-averageweight': 0.3},
         face={'head/head-oval': 0.5, 'head/head-invertedtriangular': 0.5,
-              'cheek/l-cheek-bones-incr': 0.5, 'cheek/r-cheek-bones-incr': 0.5,
+              'cheek/l-cheek-bones-incr': 0.65, 'cheek/r-cheek-bones-incr': 0.65,
               'cheek/l-cheek-volume-decr': 0.3, 'cheek/r-cheek-volume-decr': 0.3,
               'cheek/l-cheek-trans-up': 0.4, 'cheek/r-cheek-trans-up': 0.4,
               'eyes/l-eye-scale-incr': 1.0, 'eyes/r-eye-scale-incr': 1.0,
               'eyes/l-eye-height2-incr': 0.6, 'eyes/r-eye-height2-incr': 0.6,
-              'eyes/l-eye-corner2-up': 0.7, 'eyes/r-eye-corner2-up': 0.7,
-              'nose/nose-scale-horiz-decr': 0.3, 'nose/nose-scale-vert-decr': 0.4, 'nose/nose-trans-forward': 0.3,
+              'eyes/l-eye-corner2-up': 0.45, 'eyes/r-eye-corner2-up': 0.45,
+              'nose/nose-scale-horiz-decr': 0.45, 'nose/nose-scale-vert-decr': 0.4, 'nose/nose-trans-forward': 0.3,
               'nose/nose-point-width-decr': 0.6, 'nose/nose-nostrils-width-decr': 0.5,
-              'nose/nose-point-up': 0.2, 'nose/nose-hump-decr': 0.5,
+              'nose/nose-point-up': 0.4, 'nose/nose-hump-decr': 0.5,
               'mouth/mouth-trans-up': 0.4, 'mouth/mouth-scale-horiz-incr': 0.3,
-              'mouth/mouth-lowerlip-volume-incr': 0.8, 'mouth/mouth-upperlip-volume-incr': 0.85,
+              'mouth/mouth-lowerlip-volume-incr': 1.0, 'mouth/mouth-upperlip-volume-incr': 1.0,
               'mouth/mouth-cupidsbow-incr': 0.6, 'mouth/mouth-angles-up': 0.3,
-              'chin/chin-prominent-incr': 0.35, 'chin/chin-height-decr': 0.5, 'chin/chin-width-decr': 0.3,
+              'chin/chin-prominent-incr': 0.35, 'chin/chin-height-decr': 0.5, 'chin/chin-width-decr': 0.4,
               'head/head-age-decr': 0.2,
               'nose/nose-volume-decr': 0.3,
-              'neck/neck-scale-horiz-decr': 0.4, 'eyebrows/eyebrows-angle-up': 0.2}),
+              'eyes/l-eye-trans-out': 0.3, 'eyes/r-eye-trans-out': 0.3,
+              'eyes/l-eye-eyefold-angle-up': 0.3, 'eyes/r-eye-eyefold-angle-up': 0.3,
+              'neck/neck-scale-horiz-decr': 0.4}),
 }
 
 

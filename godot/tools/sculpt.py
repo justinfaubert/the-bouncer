@@ -116,11 +116,12 @@ HEADS = {
                   ala=(0.0086, 0.092, -0.030), ala_r=(0.0052, 0.0064, 0.0052)),
         mouth=dict(z=-0.062, f=0.0885, w=0.0268, upper=0.0058, lower=0.0070, bow=0.0019, curve=0.012),
         ear=dict(x=0.069, f=-0.006, z=-0.004, r=(0.0075, 0.016, 0.029)),
-        # what's on her skin: olive, warm at the cheeks; a mouth in dark red, plum shadow and a long
-        # wing of liner, brows strong and level with a low arch, a beauty mark at her mouth's left
-        # corner (round four's face, now on a face)
-        paint=dict(skin='#a97f58', warm='#b5704f', flush=0.55, contour=1.0, lips='#701020', shadow='#543034', shadow_k=0.75,
-                   liner='#140c0a', wing=0.008, brow='#1a1310', arch=0.001, mark=(0.031, -0.054), iris='#3a2010', iris_r=0.6),
+        # what's on her skin: a light warm olive (a European's, sun on it), warm at the cheeks; a
+        # mouth in dark red, plum shadow and a wing of liner, fine brows with a lifted arch, a
+        # beauty mark at her mouth's left corner
+        paint=dict(skin='#b88a68', warm='#bd7658', flush=0.5, contour=1.0, lips='#701020', shadow='#5a3a3c', shadow_k=0.55,
+                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0025, brow_w=0.75, brow_inner=0.0008, mark=(0.031, -0.054), iris='#3a2414',
+                   iris_r=0.6),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
         hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
     ),
@@ -625,11 +626,10 @@ def paint(H, size=2048):
         inner = mine & (r < e['r'] + e['lid'] + 0.004) & opening
         col = np.where(inner[..., None], hexc('#b07468') * 0.9, col)
         # the brow: hairs laid at a slant along a curve over the eye, thick at the inner end
-        bx = [0.013, 0.024, 0.036, 0.046, 0.052]
-        bz = [b['z'] - 0.004, b['z'] + 0.0005, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.001, b['z'] - 0.004]
+        bx, bz = brow_curve(H, side)
         bp = [on_face(H, side * x, zz) + np.array([0, 0.001, 0]) for x, zz in zip(bx, bz)]
         db, ab = curve_dist(P, bp)
-        bw = 0.0036 * (1 - 0.72 * ab) + 0.0007
+        bw = pk.get('brow_w', 1.0) * (0.0036 * (1 - 0.72 * ab) + 0.0007)
         hairs = 0.75 + 0.25 * np.sin((P[..., 0] * side * 3800 + P[..., 2] * 5200) + 4 * noise(P, 0.0012, 7))
         edge = smoothstep(bw * 1.1, bw * 0.35, db + 0.0004 * noise(P, 0.0008, 8))
         brow = edge * mine * np.clip(hairs + 0.5 * smoothstep(bw * 0.8, 0.0, db), 0, 1)
@@ -694,7 +694,7 @@ def normal_at(H, q):
 def brow_curve(H, side):
     b, pk = H['brow'], H['paint']
     bx = [0.013, 0.024, 0.036, 0.046, 0.052]
-    bz = [b['z'] - 0.004, b['z'] + 0.0005, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.001, b['z'] - 0.004]
+    bz = [b['z'] + pk.get('brow_inner', -0.004), b['z'] + 0.0005, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.001, b['z'] - 0.004]
     return bx, bz
 
 
@@ -711,7 +711,7 @@ def hairs(H, seed=3):
             t = rng.uniform(0, 1) ** 1.3
             x = np.interp(t, np.linspace(0, 1, len(bx)), bx)
             zc = np.interp(t, np.linspace(0, 1, len(bz)), bz)
-            w = 0.0036 * (1 - 0.72 * t) + 0.0007
+            w = pk.get('brow_w', 1.0) * (0.0036 * (1 - 0.72 * t) + 0.0007)
             z = zc + rng.uniform(-0.5, 0.5) * w
             ang = np.radians(np.interp(t, [0, 0.18, 0.5, 1.0], [80, 40, 12, -18]) + rng.normal(0, 8))
             ln = rng.uniform(0.0035, 0.006) * (1.0 if t > 0.15 else 0.75)
