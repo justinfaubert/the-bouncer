@@ -182,7 +182,9 @@ def body(obj, arm, spec):
     dom = doms()
 
     # the head goes: the mask sits on the neck
-    gone = [bm.verts[i] for i, d in enumerate(dom) if d == 'Head' or (d == 'neck_01' and bm.verts[i].co.z > head_z - 0.015)]
+    # (a modelled head brings its own neck, down into the shoulders: the body's goes)
+    cut = head_z - (0.2 if modelled(spec) else 0.015)
+    gone = [bm.verts[i] for i, d in enumerate(dom) if d == 'Head' or (d == 'neck_01' and bm.verts[i].co.z > cut)]
     bmesh.ops.delete(bm, geom=gone, context='VERTS')
     bm.verts.ensure_lookup_table()
     dom = doms()
@@ -1505,6 +1507,13 @@ def decimated(ob, tris):
         p.use_smooth = True
 
 
+def modelled(spec):
+    """Whether the person's head is a modelled one (tools/human.py), not hand-sculpted."""
+    sys.path.insert(0, HERE)
+    import human
+    return spec.get('sculpt') in human.RECIPES
+
+
 def xfz(ob):
     """An object's vertices as the sculptor's (x, f, z)."""
     co = np.empty(len(ob.data.vertices) * 3)
@@ -1513,19 +1522,216 @@ def xfz(ob):
     return np.stack([co[:, 0], -co[:, 1], co[:, 2]], 1)
 
 
+class Surface:
+    """Questions asked of a modelled head's surface (the sculptor's asks of its field): the point
+    on the face in front of (x, z), the way the skin faces, how far a point is outside it, and
+    where each texel of the skin's picture lies."""
+
+    def __init__(self, V, F):
+        from mathutils.bvhtree import BVHTree
+        self.bvh = BVHTree.FromPolygons([Vector((float(x), float(-f), float(z))) for x, f, z in V], [list(map(int, p)) for p in F])
+
+    def on_face(self, x, z):
+        loc, n, i, d = self.bvh.ray_cast(Vector((float(x), -0.25, float(z))), Vector((0, 1, 0)))
+        return np.array([x, -loc.y, z]) if loc is not None else np.array([x, 0.0, z])
+
+    def normal(self, p):
+        loc, n, i, d = self.bvh.find_nearest(Vector((float(p[0]), float(-p[1]), float(p[2]))))
+        return np.array([n.x, -n.y, n.z])
+
+    def sdf(self, P):
+        out = np.empty(len(P))
+        fn = self.bvh.find_nearest
+        for k, p in enumerate(P):
+            q = Vector((p[0], -p[1], p[2]))
+            loc, n, i, d = fn(q)
+            out[k] = d if (q - loc).dot(n) >= 0 else -d
+        return out
+
+    def texels(self, H, size):
+        n = size
+        u = (np.arange(n) + 0.5) / n
+        v = 1.0 - (np.arange(n) + 0.5) / n
+        th = 2.0 * np.arcsin(np.clip(2.0 * u - 1.0, -1, 1))
+        z0, z1 = H['chin_z'] - 0.06, H['crown'] + 0.006
+        out = np.zeros((n, n, 3))
+        rc = self.bvh.ray_cast
+        for j in range(n):
+            z = z0 + v[j] * (z1 - z0)
+            for i in range(n):
+                s, c = math.sin(th[i]), math.cos(th[i])
+                loc, nn, k, d = rc(Vector((s * 0.2, -c * 0.2, z)), Vector((-s, c, 0.0)))
+                out[j, i] = (loc.x, -loc.y, loc.z) if loc is not None else (s * 0.05, c * 0.05, z)
+        return out
+
+
+def human_head(spec, name, mats):
+    """A head from MakeHuman's human by the person's recipe, smoothed once, in the sculptor's
+    frame (its eyes where the sculpted heads' are), and its measures for the sculptor."""
+    import human
+    import sculpt
+    X, F, G = human.build(spec['sculpt'])
+    V, Fh, eyes = human.head_part(X, F, G, neck=spec.get('neck', 0.19))
+    mid = (eyes[0] + eyes[1]) / 2
+    shift = np.array([0.0, 0.07, 0.004]) - mid
+    V = V + shift
+    ob = mesh_object(f'{name}_mask', V, [], mats)
+    me = ob.data
+    me.from_pydata([], [], [])
+    bm = bmesh.new()
+    vs = [bm.verts.new((float(x), float(-f), float(z))) for x, f, z in V]
+    for p in Fh:
+        try:
+            bm.faces.new([vs[i] for i in p])
+        except ValueError:
+            pass
+    bm.to_mesh(me)
+    bm.free()
+    for p in me.polygons:
+        p.use_smooth = True
+    mod = ob.modifiers.new('smooth', 'SUBSURF')
+    mod.levels = spec.get('subdiv', 2)
+    applied(ob, mod)
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bmesh.ops.triangulate(bm, faces=bm.faces)
+    bm.to_mesh(ob.data)
+    bm.free()
+    for p in ob.data.polygons:
+        p.use_smooth = True
+    V = xfz(ob)
+    F = [list(p.vertices) for p in ob.data.polygons]
+    surf = Surface(V, F)
+    H = dict(sculpt.HEADS[spec['sculpt']]) if spec['sculpt'] in sculpt.HEADS else {}
+    H = {k: (dict(v) if isinstance(v, dict) else v) for k, v in H.items()}
+    H['surface'] = surf
+    e = dict(x=float(eyes[0][0] + shift[0]), f=0.07, z=0.004)
+    # the eyeball just inside the lids: the nearest skin in front of the eye's middle
+    q = V - np.array([e['x'], e['f'], e['z']])
+    r = np.linalg.norm(q, axis=1)
+    fr = (q[:, 1] > 0.004) & (np.abs(q[:, 0]) < 0.02)
+    skin = np.sort(r[fr])[:20].mean()
+    e.update(r=float(skin - 0.0014), lid=0.0014, tilt=0.0)
+    H['eye'] = e
+    H['crown'] = float(V[:, 2].max())
+    front = (np.abs(V[:, 0]) < 0.006) & (V[:, 1] > 0.03)
+    H['chin_z'] = float(V[front, 2].min())
+    # the mouth: where the lips meet, the sharp dip between the lips' two crests, read off the
+    # outside of the face (the inside of the mouth is behind it); its corners where the dip fades
+    zs = np.arange(-0.095, -0.025, 0.0002)
+
+    def prof(x):
+        return np.array([surf.on_face(x, z)[1] for z in zs])
+
+    def slit(p, lo, hi):
+        # the sharpest notch: the most below both of its sides within 3 mm
+        best = (0, -1.0)
+        for k in np.where((zs > lo) & (zs < hi))[0]:
+            d = min(p[(zs > zs[k]) & (zs < zs[k] + 0.003)].max(), p[(zs < zs[k]) & (zs > zs[k] - 0.003)].max()) - p[k]
+            if d > best[1]:
+                best = (k, d)
+        return best
+
+    p0 = prof(0.0)
+    # the lips' crests: the two highest bumps below the nose's tip
+    tip = zs[np.argmax(np.where(zs > -0.045, p0, -1))]
+    k, dip = slit(p0, -0.075, tip - 0.018)
+    mz = float(zs[k])
+    mf = float(p0[(zs > mz - 0.008) & (zs < mz + 0.008)].max())
+    w, z_at = 0.024, mz
+    # and the lips' own outline, measured across: the slit, the upper lip's border at its crest
+    # (the most forward of it, where the red meets the skin), the lower's where it falls away
+    # into the hollow above the chin
+    line = []
+
+    def borders(p, ks):
+        zk = zs[ks]
+        up = np.where((zs > zk) & (zs < zk + 0.011))[0]
+        top = zs[up[np.argmax(p[up])]] + 0.0004
+        dn = np.where((zs < zk) & (zs > zk - 0.016))[0]
+        crest = dn[np.argmax(p[dn])]
+        below = np.where((zs < zs[crest]) & (zs > zk - 0.018))[0]
+        low = p[below].min()
+        fall = below[p[below] < p[crest] - 0.3 * (p[crest] - low)]
+        bot = zs[fall.max()] if len(fall) else zs[crest] - 0.004
+        return float(top), float(bot)
+
+    line.append((0.0, mz) + borders(p0, k))
+    for x in np.arange(0.002, 0.035, 0.001):
+        p = prof(x)
+        kk, d = slit(p, z_at - 0.004, z_at + 0.004)
+        if d < 0.00035:
+            w = float(x)
+            break
+        z_at = zs[kk]
+        line.append((float(x), float(z_at)) + borders(p, kk))
+    line.append((w, float(z_at), float(z_at), float(z_at)))
+    L = np.array(line)
+    # the measures fade where the lips thin to the corners: no taller there than a lip's own
+    # taper from its middle's height
+    t = np.clip(L[:, 0] / w, 0, 1)
+    hu, hl = L[0, 2] - L[0, 1], L[0, 1] - L[0, 3]
+    L[:, 2] = L[:, 1] + np.minimum(L[:, 2] - L[:, 1], 1.08 * hu * (1 - t ** 2) ** 0.55)
+    L[:, 3] = L[:, 1] - np.minimum(L[:, 1] - L[:, 3], 1.0 * hl * (1 - t ** 2.2) ** 0.7)
+    H['lip_line'] = L
+    curve = (surf.on_face(0.0, mz + 0.004)[1] - surf.on_face(0.8 * w, mz + 0.004)[1]) / 0.64
+    m = dict(H.get('mouth', {}))
+    m.update(z=mz, f=mf, w=w, curve=float(max(curve, 0.004)))
+    m.setdefault('upper', 0.0055)
+    m.setdefault('lower', 0.0068)
+    m.setdefault('bow', 0.0017)
+    H['mouth'] = m
+    # under the nose: the deepest point between its tip and the lip
+    up = (zs > mz + 0.006) & (zs < tip)
+    j = np.where(up)[0]
+    sub = float(zs[j[np.argmin(p0[j])]])
+    H['nose'] = dict(ala=(0.0095, surf.on_face(0.0095, sub + 0.004)[1] - 0.003, sub + 0.004))
+    bz = e['z'] + 0.021
+    H['brow'] = dict(f=float(surf.on_face(0.03, bz)[1]), z=bz, w=0.046, r=0.005, arch=0.003)
+    # the ear: the lowest point of it, the lobe, and where the pearls hang from
+    hd = V[:, 2] > -0.06
+    earv = hd & (np.abs(V[:, 0]) > np.abs(V[hd, 0]).max() - 0.012) & (V[:, 1] < 0.03) & (V[:, 1] > -0.04)
+    lobe = V[earv][np.argmin(V[earv][:, 2])]
+    H['ear'] = dict(x=float(abs(lobe[0]) - 0.002), f=float(lobe[1] - 0.004), z=float(lobe[2] + 0.029), r=(0.0075, 0.016, 0.029))
+    # the lids: which ways from the eye's middle the eyeball shows (a ray in from outside meets
+    # the eyeball before any skin)
+    ug, vg = np.linspace(-1.7, 1.7, 69), np.linspace(-1.0, 1.0, 81)
+    shows = np.zeros((len(ug), len(vg)), bool)
+    for side in (1,):
+        for i, u in enumerate(ug):
+            for j, v in enumerate(vg):
+                d = np.array([side * math.sin(u) * math.cos(v), math.cos(u) * math.cos(v), math.sin(v)])
+                c = np.array([side * e['x'], e['f'], e['z']])
+                o = c + d * 0.03
+                loc, n, k, dist = surf.bvh.ray_cast(Vector((o[0], -o[1], o[2])), Vector((-d[0], d[1], -d[2])), 0.03)
+                shows[i, j] = loc is None or dist > 0.03 - e['r'] - 0.0004
+    sculpt.lid_tables(H, ug, vg, shows)
+    # the hairline: across the forehead this high over the eyes, as the hair's own measure (the
+    # height of the way to it from the middle of the head)
+    hl = surf.on_face(0.0, e['z'] + spec.get('hairline', 0.056)) - np.array([0.0, -0.01, 0.0])
+    H['hair'] = dict(H['hair'], line=float(hl[2] / np.linalg.norm(hl)), lift=spec.get('hair_lift', 0.008))
+    print('measures', {k: H[k] for k in ('eye', 'mouth', 'nose', 'brow', 'ear', 'chin_z', 'crown')}, 'slit', dip, 'tip', tip)
+    return H, ob
+
+
 def sculpted(spec, name, arm, head_at):
     """The head sculpted (tools/sculpt.py), with the shapes the face makes, eyeballs on bones of
     their own, hair combed into locks, and what she wears in her ears. Everything placed and
     bound to the skeleton here."""
     sys.path.insert(0, HERE)
     import sculpt
-    H = sculpt.HEADS[spec['sculpt']]
+    import human
     at = np.array([head_at.x, -head_at.y, head_at.z])
-
-    # the head, fewer triangles where it's flat (the decimation keeps the creases), then its shapes
-    V, F = sculpt.head_mesh(H)
-    ob = mesh_object(f'{name}_mask', V, F, [f'face_{name}', 'mouth_inside', spec['hair'][1] if spec.get('hair') else 'hair'])
-    decimated(ob, spec.get('tris', 60000))
+    mats = [f'face_{name}', 'mouth_inside', spec['hair'][1] if spec.get('hair') else 'hair']
+    if spec['sculpt'] in human.RECIPES:
+        # a modelled head (MakeHuman's, CC0) made her own: tools/human.py
+        H, ob = human_head(spec, name, mats)
+    else:
+        # the hand-sculpted head, fewer triangles where it's flat (the decimation keeps the creases)
+        H = sculpt.HEADS[spec['sculpt']]
+        V, F = sculpt.head_mesh(H)
+        ob = mesh_object(f'{name}_mask', V, F, mats)
+        decimated(ob, spec.get('tris', 60000))
     # the brows and the lashes, hair by hair, in the same mesh, so the lids and the brows carry them
     bm = bmesh.new()
     for pts, radii in sculpt.hairs(H):
@@ -1550,6 +1756,23 @@ def sculpted(spec, name, arm, head_at):
     # inside the mouth: what's behind the lips, dark
     m = H['mouth']
     inside = (np.abs(V[:, 0]) < m['w'] * 0.95) & (np.abs(V[:, 2] - m['z']) < 0.009) & (V[:, 1] < m['f'] - 0.0075)
+    if H.get('surface'):
+        # a modelled head has its mouth's inside: whatever is well behind the face's outside
+        near = np.where((np.abs(V[:, 0]) < m['w'] * 1.3) & (np.abs(V[:, 2] - m['z']) < 0.02))[0]
+        inside = np.zeros(len(V), bool)
+        for i in near:
+            inside[i] = V[i, 1] < H['surface'].on_face(V[i, 0], V[i, 2])[1] - 0.0025
+        # and what tears open between the lips when the jaw drops: every face across their line
+        L = H['lip_line']
+        zs = np.interp(np.abs(V[:, 0]), L[:, 0], L[:, 1])
+        above = V[:, 2] > zs + 0.0001
+        for p in ob.data.polygons:
+            vs = list(p.vertices)
+            if p.material_index == 0 and np.abs(V[vs, 0]).max() < L[-1, 0] and len(set(above[vs])) == 2 and V[vs, 1].min() > m['f'] - 0.016:
+                for i in vs:
+                    inside[i] = inside[i] or V[i, 1] < m['f'] - 0.002
+                if all(V[i, 1] < m['f'] - 0.001 for i in vs):
+                    p.material_index = 1
     for p in ob.data.polygons:
         if p.material_index == 0 and all(inside[i] for i in p.vertices):
             p.material_index = 1
@@ -1592,7 +1815,8 @@ def sculpted(spec, name, arm, head_at):
     # the head moves with the head bone, the bottom of the neck with the neck's
     def neck_weights(c):
         t = smoothstep(head_at.z - 0.09, head_at.z - 0.135, c.z)
-        return {'Head': 1.0 - t, 'neck_01': t}
+        s = smoothstep(head_at.z - 0.15, head_at.z - 0.19, c.z)
+        return {'Head': 1.0 - t, 'neck_01': t * (1.0 - s), 'spine_03': s}
     skin_to(ob, arm, neck_weights)
 
     # the picture on the skin, and the eyes' picture

@@ -13,23 +13,23 @@ extends DrawnFace
 # Each expression as a mix of shapes, 0..1. A name without _l or _r is both sides. gaze: where the
 # eyes rest (-1..1, across to their left, and up), added to where they're told to look.
 const LOOKS := {
-	"neutral": {"blink": 0.2},
-	"smile": {"smile": 0.7, "squint": 0.35, "blink": 0.1},
-	"laugh": {"smile": 1.0, "jaw": 0.45, "squint": 0.65, "brow_up": 0.3, "blink": 0.2},
-	"sad": {"brow_in": 0.9, "frown": 0.5, "blink": 0.3, "gaze": Vector2(0.0, -0.4)},
+	"neutral": {"blink": 0.08},
+	"smile": {"smile": 0.7, "squint": 0.35, "blink": 0.04},
+	"laugh": {"smile": 1.0, "jaw": 0.45, "squint": 0.65, "brow_up": 0.3, "blink": 0.08},
+	"sad": {"brow_in": 0.9, "frown": 0.5, "blink": 0.12, "gaze": Vector2(0.0, -0.4)},
 	"angry": {"brow_down": 1.0, "squint": 0.45, "press": 0.6, "frown": 0.3},
 	"shout": {"brow_down": 0.8, "jaw": 0.85, "sneer": 0.4, "squint": 0.3},
 	"surprised": {"brow_up": 1.0, "jaw": 0.4},
 	"afraid": {"brow_in": 0.8, "brow_up": 0.5, "jaw": 0.2, "frown": 0.35},
 	"suspicious": {"squint": 0.7, "brow_down_l": 0.6, "brow_up_r": 0.3, "press": 0.3, "gaze": Vector2(0.5, 0.0)},
 	"disgust": {"sneer_l": 0.9, "brow_down": 0.5, "squint": 0.4, "frown": 0.3},
-	"sly": {"smile_l": 0.6, "blink": 0.35, "brow_up_l": 0.3, "gaze": Vector2(0.5, 0.0)},
-	"tired": {"blink": 0.55, "brow_in": 0.2, "frown": 0.1},
-	"knowing": {"blink": 0.24, "smile_l": 0.35, "brow_down_r": 0.2, "brow_up_l": 0.25, "gaze": Vector2(0.35, -0.05)},
-	"far": {"blink": 0.25, "jaw": 0.05, "gaze": Vector2(0.25, 0.2)},
+	"sly": {"smile_l": 0.6, "blink": 0.14, "brow_up_l": 0.3, "gaze": Vector2(0.5, 0.0)},
+	"tired": {"blink": 0.22, "brow_in": 0.2, "frown": 0.1},
+	"knowing": {"blink": 0.1, "smile_l": 0.35, "brow_down_r": 0.2, "brow_up_l": 0.25, "gaze": Vector2(0.35, -0.05)},
+	"far": {"blink": 0.1, "jaw": 0.05, "gaze": Vector2(0.25, 0.2)},
 	"wink": {"blink_r": 1.0, "smile_r": 0.4, "smile_l": 0.3, "squint_r": 0.5},
-	"tease": {"smile_l": 0.5, "smile_r": 0.2, "pucker": 0.25, "brow_up_l": 0.5, "blink": 0.2, "gaze": Vector2(-0.2, 0.0)},
-	"eyeroll": {"blink": 0.2, "brow_up": 0.3, "press": 0.3, "gaze": Vector2(0.2, 1.0)},
+	"tease": {"smile_l": 0.5, "smile_r": 0.2, "pucker": 0.25, "brow_up_l": 0.5, "blink": 0.08, "gaze": Vector2(-0.2, 0.0)},
+	"eyeroll": {"blink": 0.08, "brow_up": 0.3, "press": 0.3, "gaze": Vector2(0.2, 1.0)},
 }
 # the mouths for talking, over the expression's own: a little open, wide, round
 const TALKING := [{}, {"jaw": 0.22}, {"jaw": 0.5}, {"jaw": 0.3, "pucker": 0.8}]

@@ -145,6 +145,9 @@ def aperture(H, u, v, opening=1.0):
     """How far a direction from the eye's middle is outside its opening, in radians (negative
     inside): an almond, the outer corner lifted, the upper lid's arc fuller than the lower's."""
     e = H['eye']
+    if H.get('lids'):
+        top, bot = lid_line(H, u, 1), lid_line(H, u, -1)
+        return np.maximum(np.maximum(v - top, bot - v), np.maximum(-e['inner'] - u, u - e['outer']))
     u0, u1 = -e['inner'], e['outer']
     t = np.clip((u - u0) / (u1 - u0), 0.0, 1.0)         # 0 the inner corner, 1 the outer
     mid = e['tilt'] * (t - 0.35)                          # the line between the corners, lifted outward
@@ -312,6 +315,10 @@ def from_eye(H, side, u, v, r):
 def lid_line(H, u, which):
     """The upper (which=1) or lower (-1) lid's margin, as a height (radians) at u."""
     e = H['eye']
+    if H.get('lids'):
+        # measured off a modelled head (tools/human.py): the margins as tables over u
+        ug, top, bot = H['lids']
+        return np.interp(u, ug, top if which > 0 else bot)
     u0, u1 = -e['inner'], e['outer']
     t = np.clip((u - u0) / (u1 - u0), 0.0, 1.0)
     mid = e['tilt'] * (t - 0.35)
@@ -353,7 +360,7 @@ def shapes(H, V):
         bc = np.array([side * b['w'] * 0.55, b['f'] - 0.004, b['z'] + 0.004])
         wb = gauss(V, bc, (0.03, 0.03, 0.022)) * mine * smoothstep(e['z'] - 0.002, e['z'] + 0.014, V[:, 2])
         X = V.copy()
-        X[:, 2] += 0.0055 * wb
+        X[:, 2] += 0.0075 * wb
         out[f'brow_up_{tag}'] = X
         wi = gauss(V, (side * 0.012, b['f'], b['z'] + 0.002), (0.016, 0.03, 0.02)) * mine * smoothstep(e['z'] - 0.002, e['z'] + 0.012, V[:, 2])
         X = V.copy()
@@ -388,6 +395,14 @@ def shapes(H, V):
     # the jaw: everything under the line of the lips turned down about a hinge in front of the ears
     hinge = np.array([0.0, -0.004, -0.018])
     below = smoothstep(m['z'] + 0.0005, m['z'] - 0.0035, V[:, 2] + 0.0006 * (V[:, 0] / m['w']) ** 2)
+    if H.get('lip_line') is not None:
+        # a modelled head's lips meet along a line, sealed by the mouth's inside behind them:
+        # torn open there, everything under the line going with the jaw and nothing above it
+        L = H['lip_line']
+        zs = np.interp(np.abs(V[:, 0]), L[:, 0], L[:, 1])
+        sharp = smoothstep(zs + 0.0002, zs - 0.0004, V[:, 2])
+        lips = 1.0 - smoothstep(L[-1, 0] - 0.002, L[-1, 0] + 0.006, np.abs(V[:, 0]))
+        below = lips * sharp + (1.0 - lips) * below
     front = smoothstep(-0.01, 0.03, V[:, 1])
     wj = below * front * (1.0 - smoothstep(H['chin_z'] + 0.006, H['chin_z'] - 0.018, V[:, 2]))
     wj *= 1.0 - smoothstep(0.045, 0.07, np.abs(V[:, 0]))
@@ -429,6 +444,8 @@ def uv_of(H, V):
 def texel_points(H, size):
     """Where on the head each texel of the skin's picture lies: rays in from outside toward the
     upright axis, each stopped where it first meets the head."""
+    if H.get('surface'):
+        return H['surface'].texels(H, size)
     n = size
     u = (np.arange(n) + 0.5) / n
     v = 1.0 - (np.arange(n) + 0.5) / n
@@ -502,6 +519,8 @@ def curve_dist(P, pts):
 
 def on_face(H, x, z, f0=0.12):
     """The point on the face straight in front of (x, z)."""
+    if H.get('surface'):
+        return H['surface'].on_face(x, z)
     o = np.array([[x, f0, z]])
     t = 0.0
     for _ in range(80):
@@ -547,19 +566,33 @@ def paint(H, size=2048):
     up = [(x, m['f'] - 0.0035 - m.get('curve', 0.016) * (x / m['w']) ** 2, m['z'] + 0.0042 + m['bow'] * (math.exp(-((abs(x / m['w']) - 0.22) / 0.16) ** 2)
            - 0.5 * math.exp(-(x / m['w'] / 0.08) ** 2))) for x in np.linspace(-m['w'], m['w'], 25)]
     lo = [(x, m['f'] - 0.0055 - m.get('curve', 0.016) * (x / m['w']) ** 2, m['z'] - 0.0058) for x in np.linspace(-m['w'], m['w'], 25)]
-    du, au = curve_dist(P, up)
-    dl, al = curve_dist(P, lo)
+    Pl = P
+    if H.get('surface'):
+        # on a modelled head the lips are where they are: their outline is drawn across the face,
+        # not round a tube of our own
+        Pl = P.copy()
+        Pl[..., 1] = m['f'] - 0.0035 - m.get('curve', 0.016) * (np.clip(P[..., 0] / m['w'], -1.2, 1.2)) ** 2
+    du, au = curve_dist(Pl, up)
+    dl, al = curve_dist(Pl, lo)
     ru = m['upper'] * (1 - (2 * au - 1) ** 2) ** 0.6 + 0.0014
     rlw = m['lower'] * (1 - (2 * al - 1) ** 2) ** 0.6 + 0.0014
     front = smoothstep(0.06, 0.075, P[..., 1])
     lips = np.maximum(smoothstep(ru + 0.0009, ru + 0.0001, du), smoothstep(rlw + 0.0009, rlw + 0.0001, dl)) * front
+    if H.get('lip_line') is not None:
+        # measured off a modelled head: between the borders, across to the corners
+        L = H['lip_line']
+        ax = np.abs(P[..., 0])
+        zt, zb = np.interp(ax, L[:, 0], L[:, 2]), np.interp(ax, L[:, 0], L[:, 3])
+        lips = smoothstep(zt + 0.0004, zt - 0.0002, P[..., 2]) * smoothstep(zb - 0.0004, zb + 0.0002, P[..., 2]) \
+            * smoothstep(L[-1, 0] + 0.0005, L[-1, 0] - 0.001, ax) * front
     lipc = hexc(pk['lips'])
     col = lay(col, lipc, lips * 0.92)
     col = lay(col, lipc * 0.45, lips * smoothstep(0.0022, 0.0, np.abs(P[..., 2] - m['z'])) * 0.8)
     col = lay(col, np.minimum(lipc * 1.5, 1), lips * gauss(P, (0.004, m['f'], m['z'] - 0.006), (0.008, 0.02, 0.0018)) * 0.5)
     # inside the nostrils
     n = H['nose']
-    col = lay(col, skin * 0.25, gauss(mp, (n['ala'][0] * 0.55, n['ala'][1] + 0.004, n['ala'][2] - 0.006), (0.0028, 0.006, 0.0018)))
+    if not H.get('surface'):
+        col = lay(col, skin * 0.25, gauss(mp, (n['ala'][0] * 0.55, n['ala'][1] + 0.004, n['ala'][2] - 0.006), (0.0028, 0.006, 0.0018)))
     for side in (1, -1):
         mine = (side * P[..., 0]) > 0.003
         u, v, r = eye_frame(H, P.reshape(-1, 3), side)
@@ -601,6 +634,18 @@ def paint(H, size=2048):
         edge = smoothstep(bw * 1.1, bw * 0.35, db + 0.0004 * noise(P, 0.0008, 8))
         brow = edge * mine * np.clip(hairs + 0.5 * smoothstep(bw * 0.8, 0.0, db), 0, 1)
         col = lay(col, hexc(pk['brow']), brow * 0.95)
+    # the hairline isn't a hard edge: fine short hairs and the dark of the roots under the skin,
+    # thinning out over a few millimetres below where the hair starts
+    if H.get('surface') and H.get('hair'):
+        hp = H['hair']
+        c = P - np.array([0.0, -0.01, 0.0])
+        n = c / np.maximum(np.linalg.norm(c, axis=-1, keepdims=True), 1e-9)
+        x, f, z = n[..., 0], n[..., 1], n[..., 2]
+        line = hp['line'] + 0.05 * np.exp(-(x / 0.1) ** 2) - 0.4 * x * x
+        below = line - z
+        fine = 0.6 + 0.4 * np.sin(x * 900 + 3 * noise(P, 0.001, 21))
+        band = smoothstep(0.045, 0.0, below) * (below > -0.01) * (f > 0.1) * fine
+        col = lay(col, hexc(pk['brow']) * 1.4, np.clip(band, 0, 1) * 0.55)
     # a beauty mark
     if pk.get('mark'):
         mx, mz = pk['mark']
@@ -637,6 +682,8 @@ def eye_picture(H, size=512):
 
 def normal_at(H, q):
     q = np.atleast_2d(np.asarray(q, float))
+    if H.get('surface'):
+        return np.array([H['surface'].normal(p) for p in q])
     e = 0.0003
     g = np.stack([head_field(H, q + [e, 0, 0]) - head_field(H, q - [e, 0, 0]),
                   head_field(H, q + [0, e, 0]) - head_field(H, q - [0, e, 0]),
@@ -704,7 +751,7 @@ def teeth(H):
         band = []
         for x in np.linspace(-m['w'] * 0.68, m['w'] * 0.68, 15):
             t = x / (m['w'] * 0.68)
-            f = m['f'] - back - 0.011 * t * t
+            f = m['f'] - back - 0.011 * t * t - (0.0022 if H.get('surface') else 0.0)   # a modelled head's lips are thicker
             band.append(((x, f, top), (x, f, bot)))
         rows.append(band)
     return rows
@@ -717,13 +764,18 @@ def hair_field(H, p):
     """Hair as a thick skin over the skull, cut to its line, combed into locks: grooves that run
     from the hairline back to where it's gathered at the nape."""
     hp = H['hair']
-    sk = H['skull']
-    base = ellipsoid(p, (0, -0.012, 0.026), sk)
-    base = smin(base, ellipsoid(p, (0, 0.042, 0.048), (0.060, 0.050, 0.050)), 0.02)
-    base = smin(base, ellipsoid(mirror(p), (0.064, -0.004, -0.004), (0.008, 0.024, 0.032)), 0.02)   # over the ears' tops
+    if H.get('surface'):
+        base = H['surface'].sdf(p)
+        er = H['ear']
+        base = smin(base, ellipsoid(mirror(p), (er['x'] - 0.004, er['f'], er['z'] + 0.006), (0.008, 0.022, 0.026)), 0.012)
+    else:
+        sk = H['skull']
+        base = ellipsoid(p, (0, -0.012, 0.026), sk)
+        base = smin(base, ellipsoid(p, (0, 0.042, 0.048), (0.060, 0.050, 0.050)), 0.02)
+        base = smin(base, ellipsoid(mirror(p), (0.064, -0.004, -0.004), (0.008, 0.024, 0.032)), 0.02)   # over the ears' tops
     out = base - hp['lift'] * (0.6 + 0.4 * smoothstep(-0.02, 0.08, p[:, 2]))
     # combed: the angle round an axis from the front of the part to the nape
-    a = np.array([0.0, 0.07, 0.10])
+    a = np.array([0.0, 0.07, 0.10]) if not H.get('surface') else np.array([0.0, 0.08, H['crown'] - 0.025])
     g = np.array([0.0, -0.095, -0.03])
     ax = (a - g) / np.linalg.norm(a - g)
     q = p - g
@@ -751,6 +803,32 @@ def hair_mesh(H, step=0.0008):
     lo = (-0.1, -0.13, H['chin_z'] + 0.02)
     hi = (0.1, 0.12, H['crown'] + 0.02)
     return mesh(lambda q: hair_field(H, q), lo, hi, step)
+
+
+def lid_tables(H, ug, vg, open_):
+    """The lids' margins off a modelled head: open_[i, j] says whether the eyeball shows in the
+    direction (ug[i] across, vg[j] up) from the eye's middle. For each angle across, the highest
+    and lowest it shows. Sets H['lids'] and the eye's corners and opening."""
+    e = H['eye']
+    cols = np.where(open_.sum(1) >= 2)[0]
+    i0, i1 = cols.min(), cols.max()
+    top = np.full(len(ug), np.nan)
+    bot = np.full(len(ug), np.nan)
+    for i in cols:
+        js = np.where(open_[i])[0]
+        top[i], bot[i] = vg[js.max()], vg[js.min()]
+    u = ug[i0:i1 + 1]
+    t_, b_ = top[i0:i1 + 1], bot[i0:i1 + 1]
+    ok = ~np.isnan(t_)
+    t_, b_ = np.interp(u, u[ok], t_[ok]), np.interp(u, u[ok], b_[ok])
+    # the corners, where the lids meet, half a step past the last that shows
+    du = ug[1] - ug[0]
+    uu = np.concatenate([[u[0] - du / 2], u, [u[-1] + du / 2]])
+    m0, m1 = (t_[0] + b_[0]) / 2, (t_[-1] + b_[-1]) / 2
+    H['lids'] = (uu, np.concatenate([[m0], t_, [m1]]), np.concatenate([[m0], b_, [m1]]))
+    e['inner'], e['outer'] = float(-uu[0]), float(uu[-1])
+    e['open'] = float(np.max(t_ - b_) * 0.6)
+    return H['lids']
 
 
 # ---------------------------------------------------------------- a quick look
