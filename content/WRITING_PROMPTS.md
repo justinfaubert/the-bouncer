@@ -47,8 +47,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 ## content/ink/hall.ink
 
 20. **at_hall** (`content/ink/hall.ink:179`): The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
-21. **at_hall** (`content/ink/hall.ink:289`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
-22. **at_hall** (`content/ink/hall.ink:472`): What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
+21. **at_hall** (`content/ink/hall.ink:288`): The kid talks, for once. THE KID voice comes out of this scene. How do nineteen-year-olds you've known actually talk when they finally do?
+22. **at_hall** (`content/ink/hall.ink:471`): What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
 
 ## content/ink/deck.ink
 
