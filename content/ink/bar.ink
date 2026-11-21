@@ -90,9 +90,9 @@ Page three was a man in his fifties with a good haircut, photographed off his dr
         He went through it twice. Forty faces, most of them the same man in bad light. They'd blur by ten o'clock. He knew that about himself.
     }
 * [Just page three. #toy: binder page3]
-    He looked at page three for a long time.
+    He stayed on page three.
     ~ knows += banned_face
-    FATHER: The ones they write NOT EVER about, they come back. They always come back. That's why somebody wrote it.
+    FATHER: The ones they write NOT EVER under come back. I had one come back after eleven years.
 - She took the binder back and put it under the till.
 -> opts
 
@@ -106,7 +106,7 @@ BARTENDER: And when the card machine goes down, and it will, it's cash, and if t
 ~ knows += hotel_gap
 ~ knows += kitchen_gap
 ~ knows += terry
-FATHER: Every bar's got its rules and none of them are written down. The written ones are for the inspector.
+FATHER: The written rules are for the inspector.
 -> opts
 
 = who_endbar
@@ -118,7 +118,7 @@ BARTENDER: Don't ask me his name. Thirty-one years and I never got it. Buys one 
 BARTENDER: He's no trouble.
 She wiped the bar where it didn't need wiping.
 BARTENDER: He's the only one in here who's never been any trouble.
-WRONGMAN: Everybody said that about somebody, in the story.
+WRONGMAN: In the story they said that about the wrong man too. No trouble at all, they said.
 -> opts
 
 = rats_talk
@@ -128,7 +128,7 @@ BARTENDER: Table 28 feed one, under the table. They think I don't know.
 BARTENDER: They come up through the keg room. Trapdoor's behind me, and mind the third step, it's rotten.
 ~ knows += keg_hole
 BARTENDER: Me, I want a quiet night. Deal with them however you want, but don't do it in front of the customers.
-FATHER: That's the job. Not dealing with it. Not being seen to.
+FATHER: She means don't let anybody see you do it.
 -> opts
 
 = how_long
@@ -178,14 +178,14 @@ BARTENDER: Nobody's been through the pockets. I never wanted to know.
     ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
-    FATHER: Two. Two is how it starts. One is a drink and two is a decision.
+    FATHER: Two. I used to say two and mean nine.
 - drinks - drinks_before == 2:
     She looked at him. Then she poured it, because she was a bartender and he was a grown man, and she'd seen nine doormen. #sfx: glass
     ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
     FIGHTER: Loose. Good. You're better loose.
-    FATHER: I stopped. You know I stopped. You know what it cost me to stop.
+    FATHER: I stopped. It took me four tries and your mother leaving.
 - else:
     BARTENDER: No.
     {stopping:
@@ -297,14 +297,14 @@ He went, and she poured their round, and when she'd done it she looked down the 
 ~ pass(5)
 {
 - at_bar.endbar == 1:
-    He went and stood by the old man at the end of the bar, near the trapdoor. Up close he was older than he'd looked{knows ? endbar_wharf: on the wharf}, and cleaner, in a jacket that had been good fifty years ago{knows ? endbar_wharf:, and dry}. The glass in front of him was full to the brim. Nothing had been drunk out of it. #portrait: endbar
+    He went and stood by the old man at the end of the bar, near the trapdoor. Up close he was older than he'd looked{knows ? endbar_wharf: on the wharf}, and cleaner. His tweed jacket had leather on the elbows{knows ? endbar_wharf:, and it was dry}. The glass in front of him was full to the brim. Nothing had been drunk out of it. #portrait: endbar
     // HUTCH: The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
     // On the wharf at dusk (walk.ink), he'd heard the Sov had a doorman before anyone told him.
     {
     - wharf_how == 1:
         ENDBAR: Word gets around, you said, on the wharf. It does. Underneath.
     - wharf_how == 2:
-        ENDBAR: You asked me on the wharf who was asking. It is the right question at a door. It is the wrong one on a wharf.
+        ENDBAR: You asked me on the wharf who was asking. Nobody has asked me that since 1974.
     - wharf_how == 3:
         ENDBAR: You looked at the water with me, on the wharf. Very few do. They look at their phones, or at me.
     - else:
@@ -341,7 +341,7 @@ The card machine beeped three times and its screen went blank. Then the one at t
 BARTENDER: And there she goes.
 BARTENDER: Network's down, third time this week. Cash only, folks. Cash only.
 TABLE28: Cash is king!
-They'd never paid any other way. Table 28 thought cards were a fad.
+They'd never paid any other way.
 // From the door he can choose: the bar, where the arguing will be, or the door, which lets people
 // in while it isn't watched (sim.ink). From anywhere else he goes over.
 {
@@ -351,14 +351,14 @@ They'd never paid any other way. Table 28 thought cards were a fad.
     ~ here = bar
     He went and stood in the gap in the stools, where the arguments would come. #look: bartender
 }
-The TV over the bar had cut to a panel of men in suits talking in front of a map. The sound was off. The banner under them said something about the capital that nobody in the bar read.
+The TV over the bar had cut to a panel of men in suits talking in front of a map. The sound was off. The banner under them said EMERGENCY SESSION, and nobody in the bar read the rest.
 // Hutch, in director mode (27 Sept), on what stops working first in a town like his: it's an island, so
 // it's the shipments from the mainland. When diesel's too dear for the trucks to make sense, things
 // start disappearing off the shelves, slowly, and then all at once. (Worked in by Claude.)
 The limes had come in short again. She was cutting them into eighths instead of quarters, and there was a strip of cardboard taped over one of the taps with NO MORE TIL TUES on it in marker.
 BARTENDER: Truck didn't come off the ferry with half my order. Again.
 TABLE28: It's the diesel!
-They'd been saying it since two o'clock. It was the first thing they'd said all day that everyone in the room agreed with.
+They'd been saying it since two o'clock.
 SLIPPERS: Cash? I haven't got cash.
 One of the two women from upstairs, with an empty wine glass, standing at the bar in her slippers.
 SLIPPERS: I never have cash. My husband always carried the cash.
@@ -369,10 +369,10 @@ SLIPPERS: I never have cash. My husband always carried the cash.
         ~ here = bar
         He went over.
     }
-    She took it and looked at it like she'd forgotten what they looked like.
+    She took it and held it in both hands.
     SLIPPERS: I'm in nine, dear. I'll get it to you. I will.
     FATHER: You'll never see it again.
-    WRONGMAN: Or you will, and it'll be the worst twenty you ever got back.
+    WRONGMAN: There was a twenty in the story too. The drunk could never remember who owed it to who.
 * ["Can she run a tab till it's back up?"]
     { here != bar:
         He said it from the door, over the room.
@@ -385,7 +385,7 @@ SLIPPERS: I never have cash. My husband always carried the cash.
     ~ room_count--
     BARTENDER: Sorry, hon.
     The woman went back upstairs in her slippers. Her friend stayed with the bottle.
-    WRONGMAN: Twenty dollars. In the story it was always about twenty dollars, once you got to the bottom of it.
+    WRONGMAN: Twenty dollars. The drunk said the whole story started over twenty dollars. Then he said it was a woman.
 - ~ pass(3)
 -> carry_on
 
@@ -492,7 +492,7 @@ Behind him a slot machine was paying out, and a woman laughed at something he'd 
 // Learned when GOOD SHOES got in without him (door.ink): "The owner didn't write it. I did."
 * {knows ? binder_hers} ["She wrote it. Not you."]
     OWNER: She writes a lot of things.
-    There was a long breath at the other end, the sound of a man deciding what a thing was going to cost him.
+    There was a long breath at the other end.
     OWNER: Put her on.
     ~ rep(rep_owner, -2)
     ~ rep(rep_staff, 2)

@@ -30,7 +30,7 @@
 { due(): -> hub }
 { not cook_here(): -> dark }
 { at_kitchen == 1:
-    He pushed through the swing door at the end of the bar, and the heat met him in the doorway like a hand on his chest.
+    He pushed through the swing door at the end of the bar, and the heat met him in the doorway.
     A fryer, a flat-top, a steel prep table, the walk-in humming at the back. {kitchen_door:The back door to the alley was propped open with a milk crate, and the steam went out through it and the rain came in.|The back door to the alley was shut, and the kitchen was hotter for it.}
     The cook was a man about forty in a t-shirt soaked dark down the back, shaking a basket of wings over the fryer. Wednesday was wing night. He'd made a hundred and sold thirty. #portrait: cook
     // HUTCH: The cook. What's a pub kitchen like on a Wednesday where you've worked? The menu, the heat, what the cook complains about, what he says to a new doorman standing in his kitchen.
@@ -41,13 +41,13 @@
 - else:
     {shuffle:
     - The heat met him in the doorway again.
-    - The kitchen. The fryer, the cook, the heat.
+    - The cook had the radio on, a call-in show about the ferries.
     - The cook looked up, saw who it was, and went back to the wings.
     }
 }
 { reprops ? rp_kitchen && kitchen_door:
     ~ reprops -= rp_kitchen
-    The milk crate was back in the alley door. The cook didn't look at him about it, which was looking at him about it.
+    The milk crate was back in the alley door. The cook kept his eyes on the fryer.
 }
 -> k_opts
 
@@ -72,7 +72,7 @@
 ~ pass(4)
 ~ knows += kitchen_gap
 ~ knows += keg_hole
-The cook didn't stop working to answer. He didn't stop working for anything.
+The cook didn't stop working to answer.
 COOK: Dealt with. Dealt with! Sure.
 COOK: Pipe chase behind the walk-in, up from the keg room. Every morning, droppings on my prep table, every morning I'm bleaching the son of a bitch before I've had a coffee.
 COOK: Inspector finds one dropping, he shuts the kitchen. Kitchen's shut, I don't get paid, and I've got a, never mind. So yeah. Dealt with would be nice.
@@ -151,7 +151,6 @@ The lid had been propped open with a brick.
 - { cook_here():
     The cook was on the back step when he came in, smoking in the rain with his apron on.
     COOK: Thanks, Security.
-    It sounded like he didn't say it much.
 }
 -> k_opts
 
@@ -161,7 +160,7 @@ The lid had been propped open with a brick.
     The kitchen was dark. The cook had cleaned down and gone home. The fryer ticked as it cooled, and the only light was the little green one on the walk-in.
     { kitchen_door:
         The back door was still propped with the milk crate. The cook had gone out that way and left it the way he'd found it.
-        FATHER: That's how everybody leaves a door. The way they found it.
+        FATHER: Cooks. Every one of them.
     }
 }
 - (d_opts)
@@ -189,7 +188,7 @@ The lid had been propped open with a brick.
     He lifted the trapdoor behind the bar. The bartender stepped around the hole without looking down, the way you step around a sleeping dog.
     BARTENDER: Third step.
     The third step was soft. So was the fourth.
-    A stone foundation, sweating. Kegs on pallets in two rows, the beer lines going up through the ceiling to the taps. The compressor ticking over. It smelled of wet stone and old beer and, under that, something sweet and stale that he knew from other cellars.
+    A stone foundation, sweating. Kegs on pallets in two rows, the beer lines going up through the ceiling to the taps. The compressor ticking over. It smelled of wet stone and old beer and, under that, rat piss, which he knew from other cellars.
     Past the last row of kegs the concrete gave out to dirt, and the foundation ran on into the dark toward the front of the building, over the black stumps of old pilings.
     In the corner by the stairs somebody had built a room out of plywood, with a door that locked and a desk lamp left on that you could see through the gap at the top. The office.
 - else:
@@ -257,12 +256,12 @@ The lid had been propped open with a brick.
 * {not office_wiped} [Note it. It goes in the book.]
     ~ incident += inc_office
     He looked at it long enough to be able to say what it was, and left it where it was.
-    WRONGMAN: Somebody always writes it down, in the story. Then everybody knows who.
+    WRONGMAN: In the story somebody wrote it down, and by Friday the whole town knew whose it was.
     -> office_opts
 * {incident !? inc_office} [Wipe the mirror clean.]
     ~ office_wiped = true
     He wiped it with the side of his hand until it was only a mirror, and picked up the straw. #prop: straw
-    FATHER: Now it's yours. That's what wiping it does.
+    FATHER: Now you're in it.
     -> straw_held
 + {not poison} [Take the bait.]
     -> lay_poison
@@ -311,13 +310,13 @@ MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can
     -> carry_up ->
     He waited until table 28 were watching the hockey and put two blocks into the hole in the baseboard where Walter went in and out, and pushed them in with the side of his boot.
     Nobody saw. That was the idea.
-    WRONGMAN: Somebody always sees. In the story it was the one nobody was watching.
+    WRONGMAN: In the story there was a woman at the bar who saw everything, and told all of it after church on Sunday.
 + (lid_back) [Put the lid back on.]
     He put the lid back on the bucket and pushed it back under the schedule with his foot.
     { lid_back == 1:
         ~ rat_favour++
         ~ rats_heard += h_lid
-        Past the kegs, in the dark, the scratching stopped, for about as long as it takes to notice something.
+        Past the kegs, in the dark, the scratching stopped for a second.
     }
     -> office_opts
 - ~ poison = true
@@ -329,7 +328,7 @@ MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can
 }
 # done: bait
 FIGHTER: Good. Finish it.
-FATHER: Poison's how you do it when you don't want to be there when it happens.
+FATHER: Poison. Your grandfather put strychnine down on the farm, on everything. The dog got into it.
 { poison_at ? keg:
     -> kg_opts
 }
@@ -417,7 +416,7 @@ He went past the last keg and got down on his hands and knees on the dirt. The f
 { passed:
     -> knot
 }
-The sound was everywhere and nowhere, and then it stopped all at once, the way a room goes quiet when you walk in.
+The sound was all around him, and then it stopped all at once.
 He cracked his head on a joist backing out, and came up the stairs with dirt on his knees and nothing to show for it.
 BARTENDER: Find anything?
 * ["No."]
@@ -432,13 +431,13 @@ BARTENDER: Find anything?
 ~ knows += keg_hole
 Under the front of the building, where the outside wall came down onto the old foundation, the sound was coming out of the wall itself, through a gap where a stone had fallen out.
 He put the flashlight into the gap.
-There was a hollow in the wall, between the studs, and they were in it. Rats, more than a dozen, packed together in a ring with their heads out and their tails in the middle. The tails were knotted. Not tangled. Knotted, into one cord, pulled tight, with filth and hair worked into it, like a rope that has been wet for years.
+There was a hollow in the wall, between the studs, and they were in it. Rats, more than a dozen, packed together in a ring with their heads out and their tails in the middle. The tails were knotted into one cord, pulled tight, with filth and hair worked into it, like a rope that has been wet for years.
 They were alive. They didn't run. They couldn't. The ring turned a little in the light, all of it together, like one animal trying to find him.
 Around it, other rats, coming and going. Bringing things. A fry. A crust.
 And through the floor over his head, as clear as if he were sitting with them, table 28.
 MANUAL: There is no section for this.
 FATHER: A man on the docks told me he'd seen one, once. We all said he was drunk. He was drunk.
-WRONGMAN: Don't tell anyone. Nobody believes the one who saw it.
+WRONGMAN: Don't tell anyone. In the story the one who saw it told everybody, and they took his keys off him.
 The Fighter didn't say anything. There was nothing in it to hit.
 - (kn)
 * [Put the light out and listen to the floor.]
@@ -446,9 +445,9 @@ The Fighter didn't say anything. There was nothing in it to hit.
 * [Reach into the gap. #check: fighter:dex 13]
     { passed:
         He got his hand into the gap and closed it on the cord of tails, and felt the whole ring pull against him at once, like a rope with a boat on the other end of it.
-        He let go. He didn't know why. His hand decided before he did.
+        He let go. He didn't know why.
         FIGHTER: You had it.
-        FATHER: No. It had you.
+        FATHER: Get out of there.
     - else:
         Something in the ring turned faster than he did, and teeth went through the web of his thumb. #sfx: hit
         ~ hurt++
@@ -464,7 +463,7 @@ The Fighter didn't say anything. There was nothing in it to hit.
 
 = listen_t28
 ~ pass(5)
-He put the light out. The dark was total. The ring breathed.
+He put the light out. He couldn't see his hand. The ring breathed.
 Over him, a foot from his face, boots on the floor. Table 28.
 {
 - claims ? said_city_line:
@@ -497,7 +496,7 @@ Over him, a foot from his face, boots on the floor. Table 28.
 - else:
     TEAM_JACKET: Give him a week.
 }
-HEARING_AID: Week.
+HEARING_AID: I'll take that.
 In the wall the ring turned toward the sound of them. It had been listening to table 28 for longer than he'd been alive.
 // The informant double meaning (bible/06_THE_HOTEL.md): the rats hear everything table 28 says.
 -> knot.kn
@@ -509,17 +508,17 @@ In the wall the ring turned toward the sound of them. It had been listening to t
 ~ rat_favour++
 He put the basket on the third step, the soft one, and went back up.
 WRONGMAN: You're feeding them now.
-FATHER: You're paying them. There's a difference, and they know it.
+FATHER: You're paying them.
 -> hub
 
 = fries_gone
-The basket was still on the third step, and it was empty. Not a crumb. It had been pushed back square to the middle of the step, the way you'd leave a plate you'd finished with.
+The basket was still on the third step, and it was empty. Not a crumb. It had been pushed back square to the middle of the step.
 WRONGMAN: Manners.
 -> kg_opts
 
 = check_bait
 ~ pass(3)
-The blocks he'd put along the foundation were gone. Every one. Not scattered. Gone, and the dust where they'd been had been swept by something dragging.
+The blocks he'd put along the foundation were gone, every one, and the dust where they'd been had drag marks in it.
 MANUAL: Bait uptake indicates an active population. Replenish.
 FATHER: They took it home. That's where they'll die, in the walls where you can't get at them. Then you'll smell it.
 -> kg_opts
@@ -540,7 +539,7 @@ FATHER: One. Out of however many there are.
 * [Leave it where it is.]
     ~ rat_favour--
     ~ rats_heard += h_left_trap
-    WRONGMAN: Leave it where the others can see it. In the story that's a message. Nobody ever says what it means.
+    WRONGMAN: In the story somebody left one out like that, for the others to see. The drunk never knew what it was supposed to say.
 - -> kg_opts
 
 = change_keg
@@ -549,7 +548,7 @@ FATHER: One. Out of however many there are.
 The lager was the keg at the end of the first row. He rocked it and it was light. He twisted the coupler off, rolled a full one into its place, put the coupler on and pulled the handle down, the way he'd done it at his last door, and the one before that.
 BARTENDER: Lager's back.
 She said it to the customers, but she'd said it down the hole first.
-FATHER: Do the job that's in front of you. The rest comes to you.
+FATHER: First useful thing you've done all night.
 -> kg_opts
 
 
@@ -562,16 +561,16 @@ FATHER: Do the job that's in front of you. The rest comes to you.
 -> bold
 
 = bold
-Something came out from under the bar rail and crossed the carpet in three quick runs, stopping under the stools between runs, the way they do. #look: bar
+Something came out from under the bar rail and crossed the carpet in three quick runs, stopping under the stools between runs. #look: bar
 A rat. {knows ? t28_rat:Not Walter. A young one, thin, with a torn ear.|A young one, thin, with a torn ear.} Out in the light at half past nine, with the room half full.
-{slippers_upstairs:The woman in slippers, the one who'd stayed with the bottle,|One of the women in slippers} lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it. Yet.
+{slippers_upstairs:The woman in slippers, the one who'd stayed with the bottle,|One of the women in slippers} lifted her feet onto the rung of her stool and didn't make a sound. Nobody else had seen it.
 FIGHTER: Now. While it's in the open.
 FATHER: Whatever you do, do it like it's nothing.
 * [Stamp on it. #check: fighter:dex 11]
     ~ pass(1)
     ~ here = floor
     { passed:
-        He was quicker than it was. It was over under his boot, with a sound he felt more than heard.
+        He was quicker than it was. It was over under his boot. He felt it through the sole.
         ~ rats_killed++
         ~ incident += inc_rat
         ~ go_to_war()
@@ -587,7 +586,7 @@ FATHER: Whatever you do, do it like it's nothing.
     - else:
         His boot came down on carpet. The rat went under table 28 at a flat run, and table 28 lifted their feet, all five, together, like they'd practised it.
         TABLE28: Walter!
-        It wasn't Walter. They didn't care. Every rat was Walter to table 28.
+        It wasn't Walter.
         ~ knows += t28_rat
     }
 * [Drop a pint glass over it. #check: fighter:dex 12]
@@ -626,10 +625,10 @@ FATHER: Whatever you do, do it like it's nothing.
     }
 * [Let it go.]
     ~ pass(1)
-    He let it go. It went along the baseboard, past the jukebox, and into the hole behind table 28 as if it had somewhere to be.
+    He let it go. It went along the baseboard, past the jukebox, and into the hole behind table 28.
     The one scratching lottery tickets dropped a fry under the table without looking down.
     ~ knows += t28_rat
-    WRONGMAN: Every rat in the building knows that table.
+    WRONGMAN: There were rats in the story too. Or the drunk was mixing it up with a different story.
     FIGHTER: You let it walk.
 - -> carry_on
 
@@ -637,7 +636,7 @@ FATHER: Whatever you do, do it like it's nothing.
 * [Take it out the back and let it go in the alley.]
     ~ pass(4)
     ~ here = kitchen
-    He carried it through the kitchen and out the back door and lifted the glass in the alley. The rat sat on the coaster for a second, as if to show him it could, and then went up the alley toward the dumpster.
+    He carried it through the kitchen and out the back door and lifted the glass in the alley. The rat sat on the coaster for a second, and then went up the alley toward the dumpster.
     { cook_here():
         COOK: You're kidding me. You're kidding me, right?
         ~ rep(rep_cook, -1)
@@ -647,7 +646,7 @@ FATHER: Whatever you do, do it like it's nothing.
     ~ rats_killed++
     ~ go_to_war()
     ~ here = kitchen
-    He took it into the kitchen and put the glass mouth down in the mop bucket and held it there. It took longer than he expected. Everything like that does.
+    He took it into the kitchen and put the glass mouth down in the mop bucket and held it there. It took longer than he expected.
     { cook_here():
         ~ rep(rep_cook, 1)
     }
@@ -669,7 +668,7 @@ FATHER: Whatever you do, do it like it's nothing.
 // Walter only comes out like this once the bait's had its days (Friday on). Tonight's is a stranger.
 ~ temp is_walter = day >= 3 && walter == 3
 A rat came out from under the bar rail and walked across the middle of the carpet, in the light. #look: pool
-Rats don't do that. It was walking wrong, slow, its back end swinging, and it stopped in the open by the pool table and sat there as if it had forgotten where it was going.
+Rats don't do that. It was walking wrong, slow, its back end swinging, and it stopped in the open by the pool table and sat there.
 MANUAL: Anticoagulant bait causes internal bleeding over several days. Affected animals become lethargic, disoriented and thirsty, and may be seen in the open.
 { day < 3:
     MANUAL: Several days. This one ate bait somebody put down before you came.
@@ -720,9 +719,9 @@ The whole room was looking at it now. The woman in slippers had both hands over 
     He knelt and put a bar towel over Walter and picked him up.
     ~ here = t28
     He carried him to table 28, and put him in the lap of the man who'd been feeding him fries for years.
-    The man held him. Nobody at the table said anything. After a while he took Walter out onto the deck, in the towel, and he didn't come back in for a long time.
+    The man held him. Nobody at the table said anything. After a while he took Walter out onto the deck, in the towel, and smoked three cigarettes out there before he came back in.
     ~ rep(rep_t28, 1)
-    WRONGMAN: In the story, the doorman carried the body out himself. He never forgot the weight. This one's lighter.
+    WRONGMAN: The doorman in the story carried somebody out too. The drunk said he was heavier than he looked.
 * [Leave it. It won't be long.]
     ~ pass(1)
     ~ incident += inc_rat
@@ -749,10 +748,10 @@ Nobody at the bar said anything. The bartender looked at the kitchen door, and t
 * ["Owner's orders."]
     ~ rep(rep_t28, -2)
     TEAM_JACKET: The owner's never met Walter.
-    FATHER: Now it's the owner's rat and your hand. Tables remember the hand.
+    FATHER: The owner's not here. You are.
 * [Say nothing.]
     ~ rep(rep_t28, -3)
-    They worked it out. It didn't take them long. Table 28 had worked out every doorman they'd ever had.
+    They worked it out. It took them about a minute.
 - ->->
 
 
@@ -782,5 +781,5 @@ He didn't need to ask. He was looking at the doorman.
     ~ rep(rep_t28, -5)
     Nobody at table 28 said anything else to him for the rest of the night.
 - The one who fed him wrapped Walter in a bar towel, trap and all, and took him out onto the deck, and he was gone twenty minutes. When he came back he sat down and ordered a round, and nobody at the table mentioned it again.
-FATHER: They won't mention it. That's not the same as forgetting it.
+FATHER: Twenty years from now they'll still call you the one who killed Walter.
 -> carry_on

@@ -42,7 +42,7 @@ VAR book_seen = false       // he's had the paperback out from under the glove
 ~ pass(1)
 { the_drawer == 1:
     She pulled the drawer out from under the till for him, and went back to {clock < CLOSE_TIME:her taps|the twenties}. #look: bartender
-    Three winters of toques and phone chargers. A single glove, a pair of reading glasses, a baby's shoe, a lanyard from the mill, a phone with a cracked screen that nobody had come back for. Everything the night leaves.
+    Three winters of toques and phone chargers. A single glove, a pair of reading glasses, a baby's shoe, a lanyard from the mill, a phone with a cracked screen that nobody had come back for.
     At the bottom, folded under all of it, a man's work jacket, brown canvas, the elbows gone pale.
 - else:
     The lost-and-found drawer under the till: the toques, the chargers, the glove{in_drawer ? last_jacket:, and the jacket folded at the bottom}.
@@ -100,7 +100,7 @@ On the back of the tape, in pencil: four hundred, less ninety-six, less ninety-s
 * [Take the money.]
     ~ float_how = 3
     ~ cash += 208
-    He took the money out of the bag and put it in his wallet, and put the bag back in the pocket, with the tape in it, and the sum.
+    He took the money out of the bag and put it in his wallet, and put the bag back in the pocket with the tape in it.
     She had her back to him. In the back-bar mirror, between the bottles, a big man was going through another man's jacket.
 - -> left_pocket
 
@@ -108,9 +108,9 @@ On the back of the tape, in pencil: four hundred, less ninety-six, less ninety-s
 = left_pocket
 ~ knows += mat_seen
 In the left pocket was a Sov beer mat, gone soft with carrying. On the back, in the same pencil, a column: the end of July, four. August, nine, and seventeen. The middle of September, thirty-five, with a ring round it. #prop: beer_mat
-Under the column, drawn slowly, the way you'd draw a clock, a ring of rats with their heads out and their tails in the middle, knotted. Under the drawing: BEHIND 28.
+Under the column, gone over and over in places, a ring of rats with their heads out and their tails in the middle, knotted. Under the drawing: BEHIND 28.
 { knows ? knot_seen:
-    He'd had his flashlight on that, under the front of the building. The drawing had it right.
+    He'd had his flashlight on that, under the front of the building. The last doorman had got the knot right.
 }
 - (mt)
 <- reads_mat(-> mt)
@@ -143,12 +143,12 @@ In the inside pocket were two ferry tickets, the paper kind from the machine at 
     He put them back in the jacket.
 - -> licence
 
-// The one he let in: CARDIGAN's "I think he let somebody in that he shouldn't have." He held the
+// The one he let in: CARDIGAN's "I think he let somebody in he shouldn't have." He held the
 // boy's card at the door, the way some doormen do, and let him in on it. The bartender put the boy
 // in the binder for three months, which runs out on his nineteenth birthday (content/data/props.yaml:
 // binder, sleeve 8).
 = licence
-Behind the tickets was a licence. A real one, not a photocopy: a boy with his hair flat where a cap had been, the cap off for the photo the way they make you. The birthday made him eighteen, and nineteen in January. #prop: minor_card
+Behind the tickets was a driver's licence: a boy with his hair flat from a cap they'd made him take off for the photo. The birthday made him eighteen, nineteen in January. #prop: minor_card
 { knows ? eighty_six:
     He knew the face. Page eight of the binder, and under it, in her marker: THREE MONTHS.
 }
@@ -156,7 +156,7 @@ Behind the tickets was a licence. A real one, not a photocopy: a boy with his ha
 <- reads_card(-> lc)
 * [Keep it.]
     ~ pocket(minor_card)
-    He put it in his own inside pocket, where a card that isn't yours should never be.
+    He put it in his own inside pocket.
 * [Put it back.]
     ~ stow(minor_card, in_jacket)
     He put it back behind the tickets.
@@ -169,16 +169,18 @@ Behind the tickets was a licence. A real one, not a photocopy: a boy with his ha
 - -> jacket_back
 
 = jacket_back
+That was all of it.
 { knows ? doorman_stories:
-    That was all of it. Four stories, three pockets.
-    FATHER: All true. I told you.
-- else:
-    That was all of it.
+    { float_how == 3:
+        FATHER: Now you're the doorman who took the float.
+    - else:
+        FATHER: I had him down for a thief.
+    }
 }
-WRONGMAN: In the story, they find his jacket. They never find him.
+WRONGMAN: In the story somebody found the jacket too. The drunk couldn't remember if they ever found the man.
 * [Fold it and put it back at the bottom of the drawer.]
     ~ jacket_how = 1
-    He folded it the way it had been, creases and all, and put it back at the bottom with everything on top of it.
+    He folded it along the old creases and put it back at the bottom with everything on top of it.
 * [Take it up to twelve, after.]
     ~ jacket_how = 2
     ~ stow(last_jacket, in_twelve)
@@ -199,10 +201,10 @@ Under the glove was a paperback with the cover half off: a man in white with his
 <- reads_book(-> bk)
 * [Keep it.]
     ~ pocket(aikido_book)
-    He put it in the inside pocket of his jacket. It fit as if the pocket had been made for it.
+    He put it in the inside pocket of his jacket. It stuck out an inch.
 * [Leave it under the glove.]
     ~ stow(aikido_book, in_drawer)
-    He put it back under the glove, where whoever lost it could find it.
+    He put it back under the glove.
 - -> dr_opts
 
 

@@ -22,7 +22,7 @@
 ~ here = hall
 { due(): -> hub }
 { at_hall == 1:
-    The back hall ran from the end of the pool table to the hotel door. The men's, the women's, and a single washroom with a lock that worked, which was the one that mattered. A payphone on the wall with no dial tone, and around it, in pen and marker, forty years of phone numbers.
+    The back hall ran from the end of the pool table to the hotel door. The men's, the women's, and a single washroom with a lock that worked. A payphone on the wall with no dial tone, and around it, in pen and marker, forty years of phone numbers.
 - else:
     {shuffle:
     - The back hall. Bleach, and the payphone.
@@ -64,7 +64,7 @@
     ~ hotel_door = false
     ~ hotel_shut_at = clock
     He kicked the wedge out. The door eased shut on its closer and latched. On the other side, somebody who'd been watching the hockey through the gap said one word to nobody.
-    WRONGMAN: The night clerk will wedge it again the minute you're gone. That's every door.
+    WRONGMAN: In the story there was a night clerk too. Or a night manager. Somebody with a key, anyway.
     -> h_opts
 // The bartender told him the night clerk's name, and why he props it (bar.ink). Don't tell him I told you.
 * {knows ? terry && not terry_asked} [Go through and ask Terry to leave the door shut.]
@@ -80,8 +80,8 @@
 }
 { stopping:
 - The men's was a steel trough from when the hotel was built, a pink cake in the drain older than some of the staff, and two stalls, one without a door. Empty. The mirror on the condom machine had been punched into a spiderweb, and somebody had written on the machine, in careful capitals: THIS GUM TASTES FUNNY. Low in the partition between the stalls somebody had drilled a hole, a long time ago, and somebody had stopped it with a wine cork.
-- The one from table 28 with the hearing aid was at the trough, taking his time. He nodded to the doorman in the mirror the way you nod to a man on a ferry.
-    HEARING_AID: Prostate. Don't get old. Old!
+- The one from table 28 with the hearing aid was at the trough, taking his time. He nodded to the doorman in the mirror.
+    HEARING_AID: Prostate. Don't get old.
 - A man he'd let in earlier was asleep on the seat in the stall with no door, jeans round his boots, his phone still lit in his hand on a dating app, his thumb on some woman's face. He woke him. The man said "Yep," stood up, hiked his jeans and went back out to the bar as if he'd been sent for.
 - Empty. The floor wet, and not with water. The hand dryer had been broken so long that somebody had wired a roll of paper towel to it. On the dryer, in marker: PUSH BUTTON FOR A MESSAGE FROM THE PRIME MINISTER.
 - Empty. On the inside of the stall door, at sitting height, in pencil: THE MILL ISN'T CLOSING. Under it, in ballpoint: READ THE NOTICE. Under that: CAN'T READ. WORK AT THE MILL.
@@ -110,7 +110,7 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ vape_seen = false
     ~ move(vape_at, s_lot)
     ~ heat(-2)
-    He took him by the back of the hoodie and walked him down the hall, past the pool table and the jukebox, and out the front door onto the gravel, and the boyfriend talked the whole way and none of it was words. #sfx: door
+    He took him by the back of the hoodie and walked him down the hall, past the pool table and the jukebox, and out the front door onto the gravel, and the boyfriend talked the whole way, mostly "bro". #sfx: door
     { sister_at == s_rail:
         His girlfriend watched it happen from the rail by the pool table. She didn't go after him.
         DRIVER: Thank you.
@@ -123,10 +123,10 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ pass(2)
     ~ heat(1)
     ~ rep(rep_kids, 1)
-    He held his hand out. The boyfriend looked at it for a long time and then put the little bag in it, and the doorman dropped it in the bowl and flushed, and they both watched it go round.
+    He held his hand out. The boyfriend looked at it, and then put the little bag in it, and the doorman dropped it in the bowl and flushed, and they both watched it go round.
     VAPE: that was SIXTY bucks
     VAPE: bro. that was sixty fucking bucks. you owe me sixty bucks
-    FATHER: Now he's broke and angry instead of high and angry. That's your call. It's not a good one or a bad one. It's just yours.
+    FATHER: Now he's broke and angry instead of high and angry.
 // He can take one: it pays with the kids, and it's in the log if he writes the log true (closing.ink).
 * [Take one.]
     ~ pass(1)
@@ -134,20 +134,20 @@ MANUAL: The licensee must not permit the use of illicit drugs on the premises. R
     ~ lines_taken += 1
     ~ rep(rep_kids, 2)
     He bent and took it off the phone, off her face. The boyfriend laughed and slapped him on the back and said "my GUY," and for about a minute the hall outside was the best hall he'd ever stood in.
-    MANUAL: A security worker impaired on shift loses his licence. Not the night. The licence.
-    FATHER: I know that feeling. It's the one that tells you you've got this.
+    MANUAL: A security worker impaired on shift is liable to suspension of his licence (Part 6).
+    FATHER: I know that one. It lasts about an hour.
 * ["Not in here. Not tonight." Walk away.]
     ~ pass(1)
     ~ heat(2)
     ~ rep(rep_kids, 1)
     VAPE: yeah yeah yeah. ok chief
     He was still doing it when the door swung shut.
-    FATHER: You just left a lit match in the room.
+    FATHER: He'll be out on the floor in an hour, looking for somebody to hit.
 * [Say nothing and walk out.]
     ~ pass(1)
     ~ heat(3)
     ~ incident -= inc_drugs
-    WRONGMAN: In the story he saw it too, and said nothing too. That's how the story starts.
+    WRONGMAN: In the story he saw something in the toilets too, and kept walking. The drunk wasn't sure what.
 - -> h_opts
 
 
@@ -179,7 +179,6 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
 // HUTCH: The sister in the women's. What does someone say to a doorman when she's been sent to get her father out of a bar and he won't come?
 * ["Want me to tell him?"]
     DRIVER: Would you.
-    It wasn't really a question. It was a thing she'd stopped expecting from anyone.
     ~ fam += sister_fetched
     # task: fetch :: Tell the big man at the pool table about his wife.
 * ["Give him a minute."]
@@ -198,7 +197,7 @@ DRIVER: He saw me. He looked right at me, and went back to his shot.
 = single_empty
 ~ pass(2)
 { stopping:
-- The single washroom was empty. It smelled of bleach, and under the bleach, of whatever the bleach was for. A lock that worked, a mirror bolted to the wall, and a shelf over the sink that somebody had wiped clean recently, which in a bar washroom is its own kind of evidence.
+- The single washroom was empty. It smelled of bleach, and under the bleach, of whatever the bleach was for. A lock that worked, a mirror bolted to the wall, and a shelf over the sink that somebody had wiped clean. Nothing else in there was clean.
 - Empty. The shelf wiped clean again, and in the bin a till receipt rolled into a tube.
 - Empty.
 }
@@ -248,16 +247,16 @@ WRONGMAN: That's an invitation. In the story nobody ever got one.
 * [Stay where you are.]
     ~ pass(5)
     ~ pull_kid++
-    He stayed where he was. After another while the kid spoke through the door, low, close to it, as if he was sitting on the floor on the other side of it too.
+    He stayed where he was. After another while the kid spoke through the door, low. He sounded like he was sitting on the floor on the other side.
 * [Go in.]
     ~ kid_ease--
-    He went in and shut the door behind him. The kid was sitting on the closed lid of the toilet with his hood up and his phone face down on his knee. He wasn't doing anything. That was the thing about him. He never seemed to be doing anything.
+    He went in and shut the door behind him. The kid was sitting on the closed lid of the toilet with his hood up and his phone face down on his knee. He wasn't doing anything.
 - -> kid_talk
 
 = two_minutes
 ~ pass(2)
 HOODIE: ok
-Two minutes later, to the second, the lock clicked and the kid came out past him without a word and went back to the jukebox. His eyes were red. He hadn't been doing anything in there. That was the thing about him.
+Two minutes later, to the second, the lock clicked and the kid came out past him and went back to the jukebox. His eyes were red.
 ~ kid_out = true
 ~ move(kid_at, s_jukebox)
 ~ rep(rep_kids, -1)
@@ -267,7 +266,7 @@ FATHER: Good. Rules.
 = coin
 ~ pass(1)
 ~ rep(rep_kids, -2)
-He turned the lock from the outside with a dime, the way every doorman learns in his first month, and opened the door.
+He turned the lock from the outside with a dime and opened the door.
 The kid was sitting on the closed lid with his hood up and his phone face down on his knee. He wasn't doing anything.
 HOODIE: what the fuck man
 MANUAL: Staff may enter a locked washroom where there is reasonable concern for a patron's safety.
@@ -279,7 +278,7 @@ HOODIE: i'm not doing anything. i'm sitting
     ~ move(kid_at, s_jukebox)
     -> h_opts
 * [Stay. Lean on the sink.]
-    He leaned on the sink. The kid looked at him, and then at his phone, and then at the floor, and seemed to decide that the doorman was going to be there whether he liked it or not, like weather.
+    He leaned on the sink. The kid looked at him, and then at his phone, and then at the floor, and gave up waiting for him to leave.
     -> kid_talk
 
 = kid_talk
@@ -300,9 +299,9 @@ HOODIE: everybody thinks i'm high. i just haven't slept
     HOODIE: she was bad all night. we called the ambulance at like six. then we were at the hospital all day. they don't tell you anything. you just sit there
     ~ knows += kid_why
     { father_misread:
-        The Father had looked this kid in the eye at the door and said he was on something. The Father had been sure.
-        The Father didn't say anything now.
-        WRONGMAN: The wrong man was the one doing the reading.
+        At the door his father had looked this kid in the eye and said he was on something.
+        His father didn't say anything now.
+        WRONGMAN: In the story it was the doorman who got it wrong. The drunk always said that part quietly.
     }
     -> kt
 * [{knows ? kid_why:"How's your mom?"|"What's going on?"}]
@@ -333,7 +332,7 @@ HOODIE: everybody thinks i'm high. i just haven't slept
 * {fries == 1} [Give him the fries.]
     ~ fries = 2
     ~ pull_kid++
-    He gave him the basket. The kid looked at it, and then ate every one of them, fast, without looking up, the way you eat when you'd forgotten you were hungry until there's food in front of you.
+    He gave him the basket. The kid looked at it, and then ate every one of them, fast, without looking up.
     HOODIE: thanks
     -> kt
 * {pull_kid >= 2} ["What do you want to do?"]
@@ -347,7 +346,7 @@ HOODIE: everybody thinks i'm high. i just haven't slept
 = own_father
 ~ pass(4)
 ~ pull_kid++
-He hadn't meant to say it. It came out the way things come out in bathrooms.
+He hadn't meant to say it.
 HOODIE: like drank drank?
 * ["Twenty years. Then he stopped."]
     ~ claims += said_father_stopped
@@ -357,7 +356,7 @@ HOODIE: like drank drank?
         HOODIE: that's something i guess
     * * ["No."]
         ~ claims += said_didnt_help
-        The kid nodded like that was the answer he'd been expecting his whole life.
+        The kid nodded. He'd expected that one.
     * * ["I don't know. He died before I worked it out."]
         ~ claims += said_father_dead
         HOODIE: sorry
@@ -373,7 +372,7 @@ HOODIE: like drank drank?
     * * ["I'm trying not to be."]
         ~ claims += said_trying_not
         HOODIE: same
-    - - FATHER: ...
+    - - His father didn't say anything.
 - -> kid_talk.kt
 
 = kid_decides
@@ -404,7 +403,7 @@ HOODIE: i want to go home and sleep. i want my mom to not be in the hospital. i 
     - else:
         He went out the front, with his hood up, the long way round the room so he wouldn't have to walk past the pool table, and across the lot to the pickup.
     }
-    The pickup didn't leave. Home was a word. His sister had the keys.
+    The pickup didn't leave. His sister had the keys.
     -> h_opts
 
 = kid_tells(with)
@@ -417,7 +416,7 @@ The big man was lining up a shot. The kid stood at the end of the table, in the 
 HOODIE: mom's in the hospital
 He said it too quietly, and then he said it again, loud enough. The buddy stopped chalking his cue.
 { with || pool_heat < 5:
-    The big man looked at his son for a long time. Then he laid his cue down across the table, in the middle of the game, which is a thing people don't do.
+    The big man looked at his son. Then he laid his cue down across the balls, in the middle of the game.
     BIGMAN: Where.
     HOODIE: in town. since this morning. we've been trying to call you
     The big man took out his phone and looked at it and put it away again, without saying anything about what he saw on it.
@@ -428,7 +427,7 @@ BIGMAN: I'll come by after, bud.
 The kid stood there. Then he reached over and took the cue out of his father's hands, and laid it down across the balls.
 { pull_kid >= 3:
     HOODIE: now
-    The big man looked at the cue on the table, and then at his son, as if he'd never seen either of them before. Then he went.
+    The big man looked at the cue on the table, and then at his son. Then he went.
     -> kid_leave
 }
 BIGMAN: Don't.
@@ -470,7 +469,7 @@ FATHER: He went. I wouldn't have.
 = payphone
 ~ pass(2)
 // HUTCH: What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
-The payphone had been dead since before anyone stopped needing it. The wall around it had kept on talking.
+The payphone had been dead for years. People had kept writing on the wall around it.
 FOR A GOOD TIME CALL SHELLEY, and a number, and under it in another pen, SHE'S NOT THAT GOOD, and under that, in the first pen, FUCK YOU DARREN.
 A cab company that had closed years ago. TRUCK FOR SALE, RUNS, NO TIRE KICKERS. Somebody had drawn a cock and balls with real care, shading and all, and somebody else had given it a little top hat.
 FIGHTER: Steady hand. He was sober for that.
@@ -522,7 +521,7 @@ It was more than his father had said about it in the whole of his life.
 // Terry, at the front desk on the other side of the hotel door, with the hockey on.
 = night_clerk
 ~ pass(4)
-He went through the hotel door. On the other side was the front desk, a counter with a bell on it and a key board with most of the keys still on their hooks, and the night clerk on a stool behind it with his chin on his fist, {hotel_door:watching the bar's TV through the gap where the door had been propped|looking at the shut door the way you'd look at a TV somebody had switched off}. #portrait: terry
+He went through the hotel door. On the other side was the front desk, a counter with a bell on it and a key board with most of the keys still on their hooks, and the night clerk on a stool behind it with his chin on his fist, {hotel_door:watching the bar's TV through the gap where the door had been propped|looking at the shut door where the TV used to be}. #portrait: terry
 {
 - terry_signed == 1:
     TERRY: Oh, hey, twelve. You signed. Something wrong? What's the score?
@@ -569,7 +568,7 @@ He went through the hotel door. On the other side was the front desk, a counter 
 
 = hivis_stairs
 ~ pass(2)
-The hotel door opened and HI-VIS came through it in his sock feet, without the vest, with a can of his own beer in his hand, the way a man comes down to his own kitchen.
+The hotel door opened and HI-VIS came through it in his sock feet, without the vest, with a can of his own beer in his hand.
 HI-VIS: Oh. It's you.
 HI-VIS: You said I could come down after. It's after.
 * ["Leave the can and go round the front. I'll let you in."]
