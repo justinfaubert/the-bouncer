@@ -88,7 +88,7 @@ const SCRIPT := {
 # the mouths in turn as they talk, a held pose each: 0 shut, 1 a little open, 2 wide, 3 round
 const TALK := [1, 2, 1, 0, 3, 2, 1, 0, 2, 1, 3, 0]
 # (and the cap: a dome with a shine on it prints as a pale helmet too)
-const HAIR := ["hair_grey", "hair_steel", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey", "cap_navy"]
+const HAIR := ["hair_raven", "hair_grey", "hair_steel", "hair_white", "hair_dark", "hair_rust", "hair_black", "hair", "hair_red", "beard_grey", "cap_navy"]
 # She has a light of her own (a layer only she's on): a soft spot from just over his eyes, turned
 # where he looks. Whoever he looks at, the light from his eyes is on them a little (the game's own,
 # view.gd); when he looks at her, she warms and the strokes go off her skin. The anima is a

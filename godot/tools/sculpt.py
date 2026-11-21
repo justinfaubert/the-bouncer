@@ -774,6 +774,14 @@ def hair_field(H, p):
         base = smin(base, ellipsoid(p, (0, 0.042, 0.048), (0.060, 0.050, 0.050)), 0.02)
         base = smin(base, ellipsoid(mirror(p), (0.064, -0.004, -0.004), (0.008, 0.024, 0.032)), 0.02)   # over the ears' tops
     out = base - hp['lift'] * (0.6 + 0.4 * smoothstep(-0.02, 0.08, p[:, 2]))
+    if H.get('surface'):
+        # drawn back, but hair, not paint: it stands a little off the head at the crown and sweeps
+        # out over the temples and the tops of the ears, and parts down the middle
+        mp = mirror(p)
+        out = out - 0.006 * gauss(mp, (0.065, -0.005, 0.03), (0.03, 0.06, 0.035)) \
+            - 0.004 * gauss(p, (0.0, -0.03, H['crown'] - 0.01), (0.06, 0.06, 0.04))
+        part = np.exp(-(p[:, 0] / 0.0025) ** 2) * smoothstep(-0.03, 0.02, p[:, 1]) * smoothstep(0.03, 0.06, p[:, 2])
+        out = out + 0.004 * part
     # combed: the angle round an axis from the front of the part to the nape
     a = np.array([0.0, 0.07, 0.10]) if not H.get('surface') else np.array([0.0, 0.08, H['crown'] - 0.025])
     g = np.array([0.0, -0.095, -0.03])

@@ -44,7 +44,7 @@ FINGERS = ('hand', 'thumb', 'index', 'middle', 'ring', 'pinky')
 
 COLOURS = {
     'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
-    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c',
+    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#201a18',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
     'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
     'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
@@ -53,7 +53,7 @@ COLOURS = {
     'gold': '#d4ac52', 'sole': '#2a2420',
     'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
     'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
-    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2', 'mouth_inside': '#2a0c0e', 'teeth': '#e6dfd2', 'teeth_low': '#e6dfd2',
+    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2', 'mouth_inside': '#151111', 'teeth': '#e6dfd2', 'teeth_low': '#e6dfd2',
 }
 
 # Who they are.
@@ -126,7 +126,7 @@ PEOPLE = {
         paint=dict(top=('dress_red', 'short'), bottom='tights', shoes='shoe_black', heels=14, neckline=1.355),
         wear=['shell:dress_red:0.003', 'swing:dress_red:0.0:0.14:0.22', 'sash:belt_black', 'pouch:apron_black'],
         head=dict(w=0.09, d=0.1, h=0.13, jaw=0.75, chin=0.014, crown=1.0, cheeks=1.05, flat=0.85),
-        nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_black'), beard=None, skin='skin_olive',
+        nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_raven'), brows='hair_black', beard=None, skin='skin_olive',
         things=['pearls', 'wisps'], braid=dict(length=1.05, bones=8), sculpt='amanda'),
 }
 
@@ -1709,7 +1709,7 @@ def human_head(spec, name, mats):
     # the hairline: across the forehead this high over the eyes, as the hair's own measure (the
     # height of the way to it from the middle of the head)
     hl = surf.on_face(0.0, e['z'] + spec.get('hairline', 0.056)) - np.array([0.0, -0.01, 0.0])
-    H['hair'] = dict(H['hair'], line=float(hl[2] / np.linalg.norm(hl)), lift=spec.get('hair_lift', 0.008))
+    H['hair'] = dict(H['hair'], line=float(hl[2] / np.linalg.norm(hl)), lift=spec.get('hair_lift', 0.008), groove=0.0007, locks=60)
     print('measures', {k: H[k] for k in ('eye', 'mouth', 'nose', 'brow', 'ear', 'chin_z', 'crown')}, 'slit', dip, 'tip', tip)
     return H, ob
 
@@ -1736,7 +1736,7 @@ def sculpted(spec, name, arm, head_at):
     bm = bmesh.new()
     for pts, radii in sculpt.hairs(H):
         tube(bm, [Vector((p[0], -p[1], p[2])) for p in pts], radii, 4)
-    hb = to_object(bm, f'{name}_hairs', [spec['hair'][1] if spec.get('hair') else 'hair'])
+    hb = to_object(bm, f'{name}_hairs', [spec.get('brows') or (spec['hair'][1] if spec.get('hair') else 'hair')])
     # the teeth behind the lips, seen when she smiles wide, laughs or talks
     tos = []
     for band, mt in zip(sculpt.teeth(H), ('teeth', 'teeth_low')):
@@ -1760,19 +1760,26 @@ def sculpted(spec, name, arm, head_at):
         # a modelled head has its mouth's inside: whatever is well behind the face's outside
         near = np.where((np.abs(V[:, 0]) < m['w'] * 1.3) & (np.abs(V[:, 2] - m['z']) < 0.02))[0]
         inside = np.zeros(len(V), bool)
-        for i in near:
-            inside[i] = V[i, 1] < H['surface'].on_face(V[i, 0], V[i, 2])[1] - 0.0025
-        # and what tears open between the lips when the jaw drops: every face across their line
         L = H['lip_line']
         zs = np.interp(np.abs(V[:, 0]), L[:, 0], L[:, 1])
-        above = V[:, 2] > zs + 0.0001
-        for p in ob.data.polygons:
-            vs = list(p.vertices)
-            if p.material_index == 0 and np.abs(V[vs, 0]).max() < L[-1, 0] and len(set(above[vs])) == 2 and V[vs, 1].min() > m['f'] - 0.016:
-                for i in vs:
-                    inside[i] = inside[i] or V[i, 1] < m['f'] - 0.002
-                if all(V[i, 1] < m['f'] - 0.001 for i in vs):
-                    p.material_index = 1
+        for i in near:
+            # near the lips' line, any skin a millimetre behind the face is the lips' inside
+            depth = 0.001 if abs(V[i, 2] - zs[i]) < 0.006 and abs(V[i, 0]) < L[-1, 0] else 0.0025
+            inside[i] = V[i, 1] < H['surface'].on_face(V[i, 0], V[i, 2])[1] - depth
+        # and what tears when the jaw drops: the skin sealing the lips (a face whose corners the
+        # jaw moves apart) goes, so the mouth opens on its inside and the teeth
+        jd = np.linalg.norm(sculpt.shapes(H, V)['jaw'] - V, axis=1)
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        bm.faces.ensure_lookup_table()
+        def tears(f):
+            vs = [v.index for v in f.verts]
+            return f.material_index == 0 and np.abs(V[vs, 0]).max() < L[-1, 0] - 0.0005 \
+                and np.abs(V[vs, 2] - zs[vs]).max() < 0.004 and np.ptp(jd[vs]) > 0.0015
+        torn = [f for f in bm.faces if tears(f)]
+        bmesh.ops.delete(bm, geom=torn, context='FACES_ONLY')
+        bm.to_mesh(ob.data)
+        bm.free()
     for p in ob.data.polygons:
         if p.material_index == 0 and all(inside[i] for i in p.vertices):
             p.material_index = 1
@@ -1887,7 +1894,7 @@ def sculpted(spec, name, arm, head_at):
                     cp = curve(pts, 8)
                     cp = cp[:max(int(len(cp) * ln * (1 - 0.15 * k)), 4)]
                     tube(bm, cp, [0.0011 * (1 - 0.8 * i / (len(cp) - 1)) + 0.0002 for i in range(len(cp))], 5)
-            on_bone(to_object(bm, f'{name}_wisps', [spec['hair'][1]]), arm, 'Head')
+            on_bone(to_object(bm, f'{name}_wisps', [spec.get('brows') or spec['hair'][1]]), arm, 'Head')
 
 
 # ---------------------------------------------------------------- the braid
