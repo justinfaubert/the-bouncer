@@ -44,7 +44,7 @@ FINGERS = ('hand', 'thumb', 'index', 'middle', 'ring', 'pinky')
 
 COLOURS = {
     'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
-    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#201a18',
+    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#241c19',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
     'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
     'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',

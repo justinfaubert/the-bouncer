@@ -27,35 +27,42 @@ RECIPES = {
     # Amanda: German, and the game's measure of a beautiful face (Hutch: "very objectively
     # beautiful and more european looking"; the first mix of forebears read South Asian). A long
     # face, the skull not tall or round over it (Hutch: "too conical", "like a grey alien head"),
-    # narrow at the temples, high prominent cheekbones, a jaw with a line to it rather than a
-    # point; almond eyes, "beautiful and beguiling", lifted at the outer corners, larger than life; a
+    # narrow at the temples, high prominent cheekbones, a light jaw (neither a point nor heavy); almond eyes, "beautiful and beguiling", lifted at the outer corners, larger than life; a
     # straight fine nose with a neat tip, full lips with a clear bow, a long slim neck (Hutch, on
     # the first of her: "eyes a little bigger, lips a little fuller")
+    # The weights are fitted (tools/fit_face.py) to measurements of beautiful faces: the 3D
+    # anthropometry of the 2010 Miss Italia contestants (Galantucci et al., J Craniofac Surg 2016),
+    # a little past their means where beauty leans (fuller lips, a lighter jaw), and Pallett, Link
+    # and Lee's "golden ratios" (Vision Research 2010)
     'amanda': dict(
         race={'caucasian': 1.0, 'asian': 0.0, 'african': 0.0},
         body={'averagemuscle-minweight': 0.7, 'averagemuscle-averageweight': 0.3},
         face={'head/head-oval': 0.6, 'head/head-scale-vert-incr': 0.4,
               'head/head-back-scale-depth-decr': 0.4, 'head/head-age-incr': 0.15,
+              'head/head-invertedtriangular': 0.662,
               'forehead/forehead-scale-vert-decr': 0.5, 'forehead/forehead-temple-decr': 0.6,
-              'cheek/l-cheek-bones-incr': 0.9, 'cheek/r-cheek-bones-incr': 0.9,
               'cheek/l-cheek-volume-decr': 0.3, 'cheek/r-cheek-volume-decr': 0.3,
               'cheek/l-cheek-trans-up': 0.7, 'cheek/r-cheek-trans-up': 0.7,
-              'eyes/l-eye-scale-incr': 1.0, 'eyes/r-eye-scale-incr': 1.0,
+              'cheek/l-cheek-bones-incr': 0.9, 'cheek/r-cheek-bones-incr': 0.9,
               'eyes/l-eye-height2-incr': 0.35, 'eyes/r-eye-height2-incr': 0.35,
               'eyes/l-eye-corner2-up': 0.65, 'eyes/r-eye-corner2-up': 0.65,
-              'eyes/l-eye-trans-out': 0.3, 'eyes/r-eye-trans-out': 0.3,
               'eyes/l-eye-eyefold-angle-up': 0.5, 'eyes/r-eye-eyefold-angle-up': 0.5,
               'eyes/l-eye-corner1-down': 0.4, 'eyes/r-eye-corner1-down': 0.4,
               'eyes/l-eye-height3-decr': 0.4, 'eyes/r-eye-height3-decr': 0.4,
+              'eyes/l-eye-scale-incr': 1.0, 'eyes/r-eye-scale-incr': 1.0,
+              'eyes/l-eye-trans-out': 0.162, 'eyes/r-eye-trans-out': 0.162,
               'eyes/l-eye-push1-in': 0.3, 'eyes/r-eye-push1-in': 0.3,
-              'nose/nose-scale-horiz-decr': 0.45, 'nose/nose-scale-vert-decr': 0.4,
+              'eyes/l-eye-push2-out': 0.101, 'eyes/r-eye-push2-out': 0.101,
               'nose/nose-trans-forward': 0.3, 'nose/nose-point-width-decr': 0.6,
               'nose/nose-nostrils-width-decr': 0.5, 'nose/nose-point-up': 0.4,
               'nose/nose-hump-decr': 0.5, 'nose/nose-volume-decr': 0.3,
-              'mouth/mouth-trans-up': 0.4, 'mouth/mouth-scale-horiz-incr': 0.3,
-              'mouth/mouth-lowerlip-volume-incr': 1.0, 'mouth/mouth-upperlip-volume-incr': 1.0,
+              'nose/nose-scale-horiz-decr': 0.161, 'nose/nose-scale-vert-decr': 0.392,
+              'nose/nose-trans-up': 0.337,
               'mouth/mouth-cupidsbow-incr': 0.6, 'mouth/mouth-angles-up': 0.3,
-              'chin/chin-prominent-incr': 0.35, 'chin/chin-height-decr': 0.2,
+              'mouth/mouth-scale-horiz-incr': 0.389, 'mouth/mouth-trans-up': 0.587,
+              'mouth/mouth-lowerlip-volume-incr': 1.0, 'mouth/mouth-upperlip-volume-incr': 0.742,
+              'chin/chin-height-decr': 0.109, 'chin/chin-bones-decr': 0.354,
+              'chin/chin-prominent-incr': 0.42,
               'neck/neck-scale-horiz-decr': 0.4}),
 }
 
