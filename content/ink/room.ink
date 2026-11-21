@@ -32,7 +32,7 @@
 ~ ledge_at = clock
 ~ bussed++
 ~ here = bar
-He stacked the empties off the rail, {num(n)} of them, one inside the next the way you carry glasses when there are more of them than hands, and took them over to the bar and set them down by the glass washer. #sfx: glass #look: bartender
+He stacked the empties off the rail, {num(n)} of them, one inside the next, and took them over to the bar and set them down by the glass washer. #sfx: glass #look: bartender
 { bussed:
 - 1:
     She looked at the glasses, and at him.
@@ -40,7 +40,7 @@ He stacked the empties off the rail, {num(n)} of them, one inside the next the w
     She racked them anyway, and ran the washer, and when it was going she said the rest of it to the steam.
     BARTENDER: Nine doormen. Not one of them ever carried a glass.
     ~ rep(rep_staff, 1)
-    FATHER: Glasses off the rail. Every one you carry is one nobody throws.
+    FATHER: Keep the rail clear. Glasses get thrown.
 - 2:
     TABLE28: Busboy!
     TEAM_JACKET: Atta boy! Bring us one back while you're over there!
@@ -61,7 +61,7 @@ He stacked the empties off the rail, {num(n)} of them, one inside the next the w
 ~ rack_locked = true
 ~ bigman_ease--
 ~ here = pool
-There was a chain through the four house cues in the rack, and a padlock hanging open on the end of it, the way it had hung open since the key went on her ring. He snapped it shut.
+There was a chain through the four house cues in the rack, and a padlock hanging open on the end of it. He snapped it shut.
 The big man watched him do it over his cue, and straightened up.
 BIGMAN: Expecting company, bud?
 FIGHTER: Four clubs on the wall. Now there's none.
@@ -103,7 +103,7 @@ BARTENDER: There was a league, Thursdays. Then there wasn't.
 === function reach_line()
 ~ temp r = within_reach()
 { LIST_COUNT(r) == 0:
-    FIGHTER: Rail's clear. Rack's locked. Board's empty. Nothing in that corner but hands.
+    FIGHTER: Nothing on the rail, the rack's locked and the board's empty. It'll be fists.
 - else:
     FIGHTER: {reach_words(r)}. Count them before they do.
 }
@@ -157,9 +157,9 @@ BARTENDER: There was a league, Thursdays. Then there wasn't.
 - used ? r_glass:
     Somebody had one of the empties off the rail. It went on the corner of the table and came up in two pieces, and somebody put an arm up, and there was blood on the felt, a line of it, before anybody had decided anything.
 - used ? r_cue:
-    Somebody had a house cue off the wall by the thin end. It came round once and broke across somebody's back, and it was the noise of it breaking that stopped the room.
+    Somebody had a house cue off the wall by the thin end. It came round once and broke across somebody's back. The crack of it stopped the room.
 - used ? r_darts:
-    Somebody had the darts out of the board, all three, in a fist with the points out, and stood there with them as if he'd only just found out what he was holding. The doorman had to take them off him one at a time.
+    Somebody had the darts out of the board, all three, in a fist with the points out, and then didn't do anything with them. The doorman had to take them off him one at a time.
 }
 
 // Something got picked up. She doesn't ask him this time (pool.ink, after_fight).
@@ -172,9 +172,9 @@ She didn't ask him this time.
 BARTENDER: Somebody picked something up, Door. That's not mine to sit on, and it's not yours.
 MANUAL: Where a weapon is used on licensed premises, police are called. There is no discretion.
 { at_pool > 0:
-    FATHER: You saw it lying there. You left it lying there.
+    FATHER: You walked past it all night.
 - else:
-    FATHER: You never went near that corner to see what was lying in it.
+    FATHER: You never once went over to that corner.
 }
 -> ev_pool.sort_out
 
@@ -205,11 +205,11 @@ MANUAL: Where a weapon is used on licensed premises, police are called. There is
 - tv_on == 1:
     ~ return "The late news on the big TV: the rainfall warning, and the light over the strait again."
 - tv_on == 2:
-    ~ return "The game on again from the start, and table 28 watching it as if it might come out different."
+    ~ return "The game on again from the start, and table 28 calling the plays before they happened."
 - tv_on == 3:
-    ~ return "The big TV off, a dark square over the back wall, and table 28 talking to each other for want of it."
+    ~ return "The big TV off, a dark square over the back wall, and table 28 having to talk to each other."
 - tv_on == 4:
-    ~ return "Curling on the big TV, and table 28 watching it in the silence of men in church."
+    ~ return "Curling on the big TV, and table 28 quiet for once."
 }
 ~ return "The same four songs again. The TV showing the goals from the game everybody had just watched."
 
@@ -227,7 +227,7 @@ MANUAL: Where a weapon is used on licensed premises, police are called. There is
     ~ remote_how = -1
     BARTENDER: Nope.
     She didn't look up. The remote stayed under the rag, under her hand.
-    FATHER: You haven't earned her remote. You haven't earned her ice.
+    FATHER: She's had you figured since seven.
     -> at_bar.opts
 }
 ~ remote_how = 1
@@ -259,26 +259,26 @@ He found it, the game from the start, the anthem and the same faces lined up alo
     ~ rep(rep_t28, 1)
 - else:
     TABLE28: The game!
-    They watched it again from the anthem on, as if they didn't know how it came out.
+    They watched it again from the anthem on, and cheered the first goal.
 }
-FATHER: Give a room something to look at, and it won't look at you.
+FATHER: We put the boxing on at the Legion Friday nights. Nobody ever started one during the boxing.
 -> remote_back
 
 = curling
 ~ tv_on = 4
 ~ t28_off = 0
-He went through the channels till he found the curling: a bonspiel on the prairies somewhere, eight men in sweaters, and a stone going down the ice as slow as a ferry. #look: t28
+He went through the channels till he found the curling: a bonspiel on the prairies somewhere, eight men in sweaters, and a stone taking its time down the ice. #look: t28
 She looked at the TV, and at him, and didn't say anything, because she'd said it already.
-Table 28 went quiet. Not the quiet of men who've stopped talking. The quiet of men in church.
+Table 28 went quiet for the first time since two o'clock.
 TEAM_JACKET: Now that's a sport.
-HEARING_AID: Sport.
+HEARING_AID: Is that Saskatoon?
 -> remote_back
 
 = news
 { tv_on == 1:
     ~ pass(5)
     ~ pull_table++
-    He stood at the end of the bar with the remote in his hand and watched it with them: the rainfall warning, the ferry cancellations, and the light over the strait, somebody's phone from the deck of the evening sailing, a white point in the dark that didn't blink and didn't move. A man from the Air Force said it was a weather balloon. Table 28 said a great many things.
+    He stood at the end of the bar with the remote in his hand and watched it with them: the rainfall warning, the ferry cancellations, and the light over the strait, somebody's phone from the deck of the evening sailing, a white point in the dark that didn't blink and didn't move. A man from the Air Force said it was a weather balloon.
     TABLE28: He's one of us! He wants to know!
 - else:
     ~ tv_on = 1
@@ -287,7 +287,7 @@ HEARING_AID: Sport.
     He found the news. The rainfall warning, and then the light over the strait, somebody's phone from the deck of the evening sailing, a white point in the dark that didn't blink. #look: t28
     TABLE28: There it is!
     TEAM_JACKET: Two nights! Two nights, same place!
-    And they were off, all of them at once, and somebody signalled the bar for a round to argue it over.
+    They all started at once, and somebody signalled the bar for a round to argue it over.
 }
 -> remote_back
 
@@ -298,8 +298,8 @@ HEARING_AID: Sport.
 He turned it off. The big TV over the back wall went to a black square with the room in it, small. #look: t28
 TABLE28: Boo!
 TEAM_JACKET: Forty years that TV's been on! Forty years!
-They turned their chairs back round to the table and talked to each other instead, louder, because there was nothing to talk over.
-FATHER: TV off is how you close a room. It's not how you keep one.
+They turned their chairs back round to the table and talked to each other instead, louder, with nothing to talk over.
+FATHER: You turn the TV off at last call. Not before.
 -> remote_back
 
 = remote_back
@@ -326,12 +326,12 @@ He gave it back. She put it under the rag without asking what he'd done with it.
     ~ t28_extra++
     SCRATCH: That's what they say. That's exactly what they'd say.
     TABLE28: Boo!
-    It went round the table again and came back bigger, and somebody signalled the bar for another round to argue it over.
+    It went round the table again and came back bigger, and the one in the team jacket waved at the bar for another round.
 * ["Who's got the score from the game?" #check: father:cha 11]
     { passed:
         ~ t28_off = 0
         ~ rep(rep_t28, 1)
-        It was the right question asked the right way, and it went through them like a spoon on a glass.
+        Every one of them had the score.
         TEAM_JACKET: Two to one! And that second goal was offside!
         TABLE28: Offside!
         By the time the light over the strait came round on the news again, nobody at the table was looking at it.
@@ -342,9 +342,9 @@ He gave it back. She put it under the rag without asking what he'd done with it.
 * [Pull a chair up and hear it out.]
     ~ pass(10)
     ~ pull_table++
-    He pulled a chair up. They gave him all of it at once: HAARP, and the cloud seeding, and the Air Force, and a man up island who'd filmed it and had his phone taken off him at the ferry, and none of it went anywhere, and none of it stopped.
+    He pulled a chair up. They gave him all of it at once: HAARP, and the cloud seeding, and the Air Force, and a man up island who'd filmed it and had his phone taken off him at the ferry. It went on for ten minutes.
     TABLE28: He's one of us! He wants to know!
-    FATHER: Never take a side at a table. You'll be sitting at it for life.
+    FATHER: I pulled up a chair at the Legion in '79 and sat there eleven years.
 - -> carry_on
 
 
@@ -368,7 +368,7 @@ He gave it back. She put it under the rag without asking what he'd done with it.
 }
 ~ wet_seen = wet()
 { wet() >= 3:
-    The tiles inside the door were one long puddle with boot prints in it. The mat had given up an hour ago.
+    The tiles inside the door were one long puddle with boot prints in it. The mat was soaked through.
 - else:
     The tiles inside the door had gone grey with the wet, tracked in on everybody's boots, and there was a skid in it where somebody's heel had gone.
 }
@@ -379,18 +379,18 @@ He gave it back. She put it under the rag without asking what he'd done with it.
 ~ in_at_mop = count_in + walk_ins
 ~ wet_seen = 0
 ~ here = door
-He got the mop out of the bucket in the corner of the vestibule and wrung it, and did the tiles from the inner door out, the way you mop a floor you don't want to walk back across.
+He got the mop out of the bucket in the corner of the vestibule and wrung it, and did the tiles from the inner door out to the street.
 { mop == 1:
     TABLE28: Look at him go!
-    TEAM_JACKET: The last one never mopped! Never mopped a thing!
+    TEAM_JACKET: The last one never mopped once!
     BARTENDER: That's not your job, Door.
     She watched him do it anyway, across the room, between pours.
     BARTENDER: Thanks.
     ~ rep(rep_staff, 1)
-    FATHER: The floor inside the door is the door's. Anybody goes down on it, they went down on you.
+    FATHER: The floor inside the door is the door's. Somebody falls on it, it's yours.
 - else:
     {shuffle:
-    - The tiles again. The rain kept coming in on people's boots, and he kept taking it back out.
+    - The tiles again. He wrung the mop out into the street.
     - He did the tiles again, and stood the mop back in the bucket where he could reach it.
     }
 }
@@ -401,7 +401,7 @@ He got the mop out of the bucket in the corner of the vestibule and wrung it, an
 ~ wet_sign = true
 ~ here = door
 He unfolded the yellow sign from behind the bucket and stood it on the tiles: a little man falling over backwards, and CAUTION WET FLOOR under him in two languages.
-MANUAL: A hazard that cannot be removed must be marked. Marking a hazard is not removing it.
+MANUAL: A hazard that cannot be removed must be marked until it is removed (see Section 4, Premises).
 -> door_quiet
 
 // GOOD SHOES, coming in at half past ten (door.ink, door_banned), when the tiles are at their worst
@@ -410,15 +410,15 @@ MANUAL: A hazard that cannot be removed must be marked. Marking a hazard is not 
 ~ slip = 1
 ~ incident += inc_slip
 ~ pass(1)
-His good shoes went out from under him on the wet tiles, both at once, the way it happens on ice, and he sat down hard in the vestibule with the umbrella still half shut. #sfx: hit
-For a second he sat there in his good coat on the wet floor, and nobody in the room breathed, and then table 28 did.
+His good shoes went out from under him on the wet tiles, both at once, and he sat down hard in the vestibule with the umbrella still half shut. #sfx: hit
+For a second he sat there in his good coat on the wet floor.
 TABLE28: Oh-ho!
 * (helped_up) [Help him up.]
-    He got him under the arm and up in one go, the way you'd lift a sack you had some respect for. The man was heavier than he looked, and steadier on his feet than he'd been a second ago.
+    He got him under the arm and up in one go. The coat was cashmere, and wet through at the seat.
     GOOD SHOES: Thank you, friend. Very kind.
     GOOD SHOES: You'll want to get a sign out on those. Somebody could be hurt.
 * (let_up) [Let him get up on his own.]
-    He let him get up on his own. It took a while, and the man did it with dignity, the way he did everything, and brushed off the back of his good coat with the flat of his hand.
+    He let him get up on his own. It took a while. The man brushed off the back of his good coat with the flat of his hand.
     GOOD SHOES: Thank you so much for your help.
 - FATHER: He's got one on you now. Watch him spend it.
 ->->
@@ -443,9 +443,9 @@ TABLE28: Oh-ho!
 ~ slip = 2
 ~ incident += inc_slip
 ~ rep(rep_t28, -1)
-At the door the one with the hearing aid went on the wet tiles, both feet at once, and the one in the team jacket had him by the back of the coat before he was all the way down, the way he must have had him by the back of the coat a thousand times.
+At the door the one with the hearing aid went on the wet tiles, both feet at once, and the one in the team jacket had him by the back of the coat before he was all the way down.
 TEAM_JACKET: Forty years I've been walking out that door, son. Never once on my backside.
-HEARING_AID: Backside.
+HEARING_AID: Who fell?
 
 
 // ------------------------------------------------------------------ the extinguisher in the back hall
@@ -460,7 +460,7 @@ HEARING_AID: Backside.
 The extinguisher hung on its bracket at the end of the hall, across from the payphone and its forty years of phone numbers. The tag on its neck had a box for every month, and every box was punched for one year, and the year was two years ago. Somebody had held the pin in with a twist tie off a bread bag.
 The needle on the gauge was in the green. Or it had stuck there.
 MANUAL: Portable extinguishers are inspected monthly and serviced annually by a certified technician. The tag is the record.
-FATHER: Nobody reads those till the night they need one.
+FATHER: I pulled one off the wall at the Legion once and nothing came out.
 -> at_hall.h_opts
 
 // He tells her (bar.ink). She keeps the owner's list in the frame of the back-bar mirror.
@@ -510,7 +510,7 @@ The house lights were on a dimmer on the wall inside the front door, a brass pla
         BARTENDER: My lights, Door. You ask me first.
         ~ rep(rep_staff, -1)
     }
-    FATHER: Lights up, music down. Nobody stays in a room they can see.
+    FATHER: Lights up, music off. Then stand where they can see you.
 * [Ask her to bring them up.]
     ~ lights = 2
     ~ rep(rep_staff, 1)
@@ -519,7 +519,7 @@ The house lights were on a dimmer on the wall inside the front door, a brass pla
     At quarter to she went and turned the dial up herself without looking at it, the way she'd done it every night for thirty-one years.
 * [Leave them low.]
     ~ lights = -1
-    He left them where they were. In the low light the room looked like it could go on for hours, and table 28 looked at it like that too.
+    He left them where they were. Table 28 ordered another round.
 - ->->
 
 // How table 28 take "Drink up" at close (closing.ink, close_t28): the house lights, the TV, and
@@ -601,7 +601,7 @@ The big man had his back to it. He'd had his back to it all night.
         ~ heat(1)
         He had his hand in the jacket when the big man turned round.
         BIGMAN: That's my coat, bud.
-        He said it quietly, the way you'd tell a dog no, and the buddy stopped with his cue halfway back.
+        He said it quietly, and the buddy stopped with his cue halfway back.
         FIGHTER: Hand out of the coat. Slow. Now.
         -> at_pool.opts
     }
@@ -629,7 +629,7 @@ The big man had his back to it. He'd had his back to it all night.
 === take_coat ===
 ~ pass(1)
 ~ here = pool
-He lifted the jacket off the hook. It was heavier than it looked, still wet across the shoulders from whenever he'd last come in out of the rain{cell_how != 3:, and heavier on the one side, where the phone was}. #prop: bm_coat
+He lifted the jacket off the hook. It was still wet across the shoulders from whenever he'd last come in out of the rain{cell_how != 3:, and heavier on the one side, where the phone was}. #prop: bm_coat
 - (tc)
 <- reads_coat(-> tc)
 * [Take it behind the bar, to the lost-and-found.]
@@ -643,7 +643,7 @@ He lifted the jacket off the hook. It was heavier than it looked, still wet acro
     -> at_bar.opts
 * [Hang it back on its hook.]
     ~ coat_how = -1
-    He hung it back on the hook by its loop, the way he'd found it.
+    He hung it back on the hook by its loop.
     -> carry_on
 
 // After close, if they went to the hospital without it and his phone was still in it. A tunnel from
@@ -660,7 +660,7 @@ DRIVER: The hospital keeps calling it, and he hasn't got it, and he won't use mi
 * (asked_mom) ["How's your mom?"]
     ~ rep(rep_kids, 1)
     DRIVER: They're keeping her.
-    She said it to the glass of the inside door, not to him.
+    She said it to the glass of the inside door.
 * (just_coat) [Go and get the jacket.]
 -
 // In the drawer, it's safe. On the hook, it's as safe as the door was: whoever came in past the
@@ -670,7 +670,7 @@ DRIVER: The hospital keeps calling it, and he hasn't got it, and he won't use mi
     ~ unstow(bm_coat)
     ~ rep(rep_kids, 1)
     {coat_how == 1:He got it out of the lost-and-found from under the toques.|He got it off its hook by the dartboard.} The phone was in the pocket, where it had been all night.
-    She checked it was there before she said anything. Then she said it.
+    She checked the phone was there before she said anything.
     DRIVER: Thank you.
     // HUTCH: The daughter, back for her father's jacket at two in the morning, and how her mother is. The draft keeps the mother in hospital, unexplained.
     {
@@ -679,14 +679,14 @@ DRIVER: The hospital keeps calling it, and he hasn't got it, and he won't use mi
     - just_coat:
         She didn't say how her mother was, and he hadn't asked.
     }
-    FATHER: He went. That's the part they'll remember.
+    FATHER: So he went.
 - else:
     ~ back_for = 2
     ~ rep(rep_kids, -1)
     He went and got it off its hook by the dartboard. It was lighter than it should have been. The inside pocket was empty.
     DRIVER: It was in the pocket.
     DRIVER: It was in that pocket all night. I called it twenty-six times.
-    She looked at him the way she'd looked at him at the door, as if he was something she'd walked into.
+    She waited for him to say something.
     DRIVER: Okay.
     She took the jacket and went.
     { the_cell.cell_left:
@@ -768,7 +768,7 @@ GOOD SHOES: I believe it's under my stool.
 - wallet_how == 2:
     It was in the lost-and-found drawer, under the toques.
 - else:
-    It was still on the carpet by the stool. The bartender hadn't touched it. Nobody had.
+    It was still on the carpet by the stool. The bartender hadn't touched it.
 }
 * [{wallet_how == 3:Give it to him.|Get it, and hand it out to him.}]
     ~ wallet_back = 1
@@ -794,13 +794,13 @@ GOOD SHOES: I believe it's under my stool.
     GOOD SHOES: Of course. I completely understand.
     GOOD SHOES: I'll call Gary tonight, then, and he can bring it out to me himself.
     He smiled, and opened the golf umbrella in the vestibule again, and went.
-    FATHER: He'll call. That kind always calls.
+    FATHER: He'll call. And Gary'll drive it out to him.
     -> carry_on
 - { wallet_cash > 0:
     He opened it there in the vestibule and counted it, twice, without hurrying, under the light over the door.
     -> short_count ->
 - else:
-    He looked into it without counting, the way a man does who knows what's in it, and put it away inside his coat.
+    He looked into it without counting and put it away inside his coat.
 }
 { the_wallet.looked:
     Behind the cards, he knew, the woman and the girl on the beach, squinting, and the same haircut.
@@ -811,14 +811,14 @@ He opened the umbrella in the vestibule, which was bad luck, and went out to his
 // He counts it, the way he does everything, in front of you. Only if the doorman had a fifty out of it.
 === short_count ===
 GOOD SHOES: There were four hundred and sixty dollars in here, friend. There are four hundred and ten.
-He said it pleasantly, the way you'd tell someone the time.
+He said it pleasantly.
 * [Give him the fifty back.]
     ~ fifty_how = 1
     ~ owned_it++
     ~ cash -= 50
     He took the fifty out of his own pocket and held it out. GOOD SHOES took it, and smoothed it, and put it back with the others, facing the same way.
     GOOD SHOES: I completely understand. It's a long night, and they don't pay you what you're worth. I'll say nothing to Gary.
-    FATHER: Now he owns a piece of you. Fifty dollars' worth.
+    FATHER: He'll hold that over you till Christmas.
 * ["That's what was in it."]
     ~ fifty_how = -1
     ~ cocoon++
@@ -826,5 +826,5 @@ He said it pleasantly, the way you'd tell someone the time.
     GOOD SHOES: Of course it was.
     He put the wallet away inside his good coat.
     GOOD SHOES: I'll mention it to Gary. He likes to know who he's got on his door.
-    FATHER: Fifty dollars. That's what you cost.
+    FATHER: For fifty dollars.
 - ->->
