@@ -35,6 +35,16 @@ vec3 mask_out(vec3 v) {
 #endif
 }
 
+// what the surfaces drew, as they meant it: Compatibility hands the screen back as it was stored,
+// the others hand it back linear, so it's encoded again before it's read or passed on
+vec3 mask_in(vec3 v) {
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	return v;
+#else
+	return mix(v * 12.92, 1.055 * pow(max(v, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(vec3(0.0031308), v));
+#endif
+}
+
 // The nearest thing in a ring round the pixel: its depth, and whether it wants an outline (its
 // line weight, in the mask's green). Eyes, say, don't: an eyeball ringed in white reads as a
 // goggle.
@@ -46,7 +56,7 @@ vec2 nearest_ring(vec2 uv, vec2 e, mat4 inv_proj) {
 		vec2 q = uv + ring[i] * e;
 		float z = depth_at(q, inv_proj);
 		if (z < best.x) {
-			best = vec2(z, texture(mask_tex, q).g);
+			best = vec2(z, mask_in(texture(mask_tex, q).rgb).g);
 		}
 	}
 	return best;
@@ -55,7 +65,7 @@ vec2 nearest_ring(vec2 uv, vec2 e, mat4 inv_proj) {
 void fragment() {
 	vec2 e = px / VIEWPORT_SIZE;
 	float c = depth_at(SCREEN_UV, INV_PROJECTION_MATRIX);
-	vec4 m = texture(mask_tex, SCREEN_UV);
+	vec3 m = mask_in(texture(mask_tex, SCREEN_UV).rgb);
 	// an edge: something nearer close by, so the line runs just outside the nearer thing's
 	// outline. The bigger the drop behind it, the wider the line: an outline against the far
 	// wall is bolder than one against the table it sits on.

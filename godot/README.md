@@ -20,8 +20,10 @@ Download the build for your machine from the thread (or export it yourself, belo
 
 Or open this folder in Godot 4.7 and press Play.
 
-It runs on OpenGL 3.3 (the Compatibility renderer), so any graphics card from the last ten years
-does. The settings have the print's detail, the grain, the field of view, the sway when he's
+The desktop builds run on Vulkan (the Forward+ renderer), for the light (`world/lighting.gd`):
+occlusion in the corners, light bounced off the walls, haze under the lamps, soft shadows and the
+wet lot's reflections. Where there's no Vulkan they fall back to OpenGL 3.3 (Compatibility) on
+their own, and the browser build always runs there: the same room, lit the older, flatter way. The settings have the print's detail, the grain, the field of view, the sway when he's
 drunk, and fullscreen.
 
 ### Hands on

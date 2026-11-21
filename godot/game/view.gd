@@ -244,6 +244,7 @@ func _environment() -> void:
 	env.fog_enabled = true
 	env.fog_light_color = Color("16181e")
 	env.fog_density = 0.01
+	Lighting.environment(env)
 	_night = {"sky": env.background_color, "ambient": env.ambient_light_color, "ambient_e": env.ambient_light_energy,
 		"fog": env.fog_light_color, "fog_d": env.fog_density, "exposure": env.tonemap_exposure}
 
@@ -926,10 +927,10 @@ func _put_light(c: float) -> void:
 		# the room's own light goes colder after midnight (pub.set_clock does its lamps)
 		env.ambient_light_color = (_night.ambient as Color).lerp(LATE_AMBIENT,
 			clampf((c - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0))
-		env.ambient_light_energy = _night.ambient_e
+		env.ambient_light_energy = _night.ambient_e * (Lighting.AMBIENT_K if Lighting.rich else 1.0)
 		env.fog_light_color = _night.fog
 		env.fog_density = _night.fog_d
-		env.tonemap_exposure = _night.exposure
+		env.tonemap_exposure = _night.exposure * (Lighting.EXPOSURE_K if Lighting.rich else 1.0)
 		press.set_shader_parameter("lift", null)
 		press.set_shader_parameter("levels_in", null)
 		if key != null:
@@ -938,10 +939,10 @@ func _put_light(c: float) -> void:
 	var r := _day_row(c)
 	env.background_color = r[0]
 	env.ambient_light_color = r[1]
-	env.ambient_light_energy = r[2] * (INDOORS if place == "office" else 1.0)
+	env.ambient_light_energy = r[2] * (INDOORS if place == "office" else 1.0) * (Lighting.AMBIENT_K if Lighting.rich else 1.0)
 	env.fog_light_color = r[3]
 	env.fog_density = r[4]
-	env.tonemap_exposure = r[5]
+	env.tonemap_exposure = r[5] * (Lighting.EXPOSURE_K if Lighting.rich else 1.0)
 	press.set_shader_parameter("lift", r[7])
 	press.set_shader_parameter("levels_in", Vector2(0.0, r[8]))
 	if key != null:

@@ -119,7 +119,8 @@ void fragment() {
 	// is pressed into a band first, the way a cutter works: the light left bare, the deep shadow
 	// left solid, and strokes only in the half-tones between, where the form turns
 	const float aa = 0.14;
-	float tone = smoothstep(band.x, band.y, cn);
+	float tone = clamp((cn - band.x) / (band.y - band.x), 0.0, 1.0);
+	tone = tone * tone * (1.5 - 0.5 * tone);   // eased into the light only: the deep end stays open
 	float T = clamp(m.r / 0.9 + (g.r - 0.5) * 0.18 - pulse * 0.07, 0.0, 1.0);
 	T = aa + T * (1.0 - 2.0 * aa);
 	float key = smoothstep(T - aa, T + aa, tone);
@@ -132,8 +133,10 @@ void fragment() {
 	float dark = separate(around * 0.25).r;
 	// the gouge skips now and then
 	float line = m.b * smoothstep(0.08, 0.3, m.b * (0.75 + 0.5 * g.b));
-	key = max(key, line * (1.0 - smoothstep(0.45, 0.7, dark)));
-	key *= 1.0 - line * smoothstep(0.55, 0.8, dark);
+	// one side or the other, never a grey that's neither: a line that half prints and half cuts
+	// loses the figure against what's behind it
+	float cut_out = smoothstep(0.56, 0.64, dark);
+	key = mix(max(key, line), key * (1.0 - line), cut_out);
 
 	// the colour plates: flat tints in a few steps, the edges between steps grainy, the ink a
 	// little uneven
