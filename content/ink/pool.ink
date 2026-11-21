@@ -49,7 +49,7 @@
 {
 - at_pool == 1:
     The table had a lean to it that the regulars played. The cloth was burned in two places. Four twenties were tucked under the rail at the big man's end.
-    The big man played left-handed, and badly, the way a good player plays badly: on purpose, and only on the shots that mattered. #sfx: balls #portrait: bigman
+    The big man played left-handed, and badly, but only on the shots that mattered. #sfx: balls #portrait: bigman
     { knows ? kid_photo:
         He'd seen it already, on the kid's phone, from the lot: the lamp, the green, the left hand flat on the rail.
     }
@@ -66,7 +66,7 @@
     {shuffle:
     - The big man was lining up a shot he meant to miss.
     - The buddy was racking. The big man chalked his cue and watched the door.
-    - The click of the balls, the lean of the table, the twenties under the rail.
+    - The buddy took a shot and swore at it.
     }
 }
 // The room's things (room.ink): the empties gathering on the rail, and the phone in his coat.
@@ -117,16 +117,15 @@
 He leaned on the wall by the dartboard and watched a game and a half.
 The big man missed the shots he needed and made the ones that didn't matter. Every time he missed, his left hand went flat on the rail and stayed there a second too long. When the buddy won, the big man paid him from the bills under the rail, and neither of them looked at the money.
 ~ knows += pool_lefty
-FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #mark: pool.lefthand
+FIGHTER: Left hand. Flat on the rail when he misses. Watch it. #mark: pool.lefthand
 // easier if he's seen the big man play when nobody was watching (the jukebox, below)
 * [Read the game. #check: father 12 {pool_seen_mod()}]
     { passed:
         ~ knows += pool_hustle
-        FATHER: He's not losing. He's paying. That's a debt, going across the rail twenty at a time, so neither of them has to say what it's for.
+        FATHER: He's paying him. Twenty at a time across the rail, so neither of them has to say what for.
         FATHER: And he's drinking doubles out of a pint of cola so it looks like one drink. I did that for six years.
     - else:
-        FATHER: He's bad at pool.
-        The Father had never been interested in pool.
+        FATHER: He's bad at pool. Pool's for men who don't work.
     }
 // Reading the game, or just being seen to watch it: they play more carefully with somebody watching.
 * [Leave it.]
@@ -137,15 +136,15 @@ FIGHTER: Left hand. Flat on the rail. That's where it comes from, if it comes. #
 = watch_again
 { shuffle:
 - The buddy won again. The big man paid him again.
-- The big man went to the bar for another cola with nothing in it you'd want to call cola.
-- They were playing slower now. The big man took a long time over every shot, looking at the table like it had asked him something.
+- The big man went to the bar for another cola, with a double in it.
+- They were playing slower now. The big man stood over every shot a long time before he took it.
 - The buddy was telling the big man about a woman from an app, in Courtenay, what she'd sent him and what she'd do. The big man said "Yeah" in the gaps and played the shot.
 }
 {
 - sister_at == s_rail && not fam_done:
-    His daughter was at the rail, a cue's length from him. He hadn't looked at her once. That took effort. You could see it take effort.
+    His daughter was at the rail, a cue's length from him. He hadn't looked at her once, and he was working at it.
 - kid_at == s_jukebox && not fam_done:
-    The big man hadn't looked at the jukebox once. That took effort. You could see it take effort.
+    The big man hadn't looked at the jukebox once.
 }
 -> opts
 
@@ -161,11 +160,11 @@ BIGMAN: Lot of doors in this old place for one fella.
 * {knows ? pool_hustle} ["You're paying him, not playing him."]
     ~ knows += transmission
     ~ heat(1)
-    The big man looked at him for the first time, properly.
+    The big man straightened up and looked at him.
     BIGMAN: Now that's between me and him.
     BUDDY: No no no, it's nothing, pal. He owes me for a transmission, is all.
     BIGMAN: Me and him.
-    FIGHTER: Now they're both looking at you. That's what saying it out loud costs.
+    FIGHTER: Now they're both looking at you.
     -> tk
 * [Ask how his night's going. #check: father:cha 12 {asked_regular:1|0}]
     { passed:
@@ -174,7 +173,7 @@ BIGMAN: Lot of doors in this old place for one fella.
         BIGMAN: Family stuff. You know how it is.
         He didn't say anything else about it. He put the chalk down.
         BIGMAN: Do me a favour, eh. Anybody comes in here looking for me tonight, I'm not here. You never saw me.
-        FATHER: There it is.
+        FATHER: I asked that of every doorman I ever drank in front of.
         ~ knows += bigman_dad
         -> favour
     - else:
@@ -193,11 +192,11 @@ BIGMAN: Lot of doors in this old place for one fella.
     He went back to the table.
 * [Say nothing.]
     ~ promised_bigman = true
-    He didn't say anything. The big man took that for a yes, the way men like him take most things.
+    He didn't say anything. The big man took it for a yes.
 * ["Depends who's asking."]
     ~ bigman_ease--
     BIGMAN: Sure. Forget I asked, then.
-    He bent over the table again. He didn't forget he'd asked. Neither did the doorman.
+    He bent over the table again.
 - -> talk.tk
 
 = play
@@ -209,7 +208,7 @@ BIGMAN: Rack 'em, then. You any good?
         He ran four balls, missed, and then the big man handed him the eight, deliberately, the way he'd been handing the buddy games all night.
         ~ tip(20)
         FIGHTER: He threw it.
-        FATHER: He throws everything. Watch what he's keeping.
+        FATHER: He's been throwing games all night. He's buying something.
     - else:
         He was not good. The table had a lean he didn't know. The big man took his twenty and tucked it under the rail with the others.
         ~ cash -= 20
@@ -236,7 +235,7 @@ BIGMAN: You got kids yourself?
     He broke. The balls went everywhere and none of them dropped.
 - ~ knows += bigman_dad
 { kid_at == s_jukebox && fam !? kid_opened:
-    He didn't look at the jukebox. The kid at the jukebox didn't look at him. Two people not looking at each other across twenty feet of carpet.
+    He didn't look at the jukebox. The kid at the jukebox didn't look at him.
     FATHER: That's his.
 }
 -> opts
@@ -248,7 +247,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
 {
 - kid_ease > 0:
     HOODIE: hey
-    He moved over a little, as if there was a queue for the jukebox and the doorman was in it.
+    He moved over a little to make room at the jukebox.
 - kid_ease < 0:
     HOODIE: i'm not doing anything
     He said it before the doorman had said anything, and turned a shoulder to him.
@@ -258,7 +257,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
 * [Stand next to him and say nothing.]
     ~ pass(3)
     { kid_ease < 0:
-        He stood there. The kid stood there with his shoulder turned, and after a while he went down the back hall without a word. The single washroom door shut and locked.
+        He stood there. The kid stood there with his shoulder turned, and after a while he went off down the back hall. The single washroom door shut and locked.
         ~ fam += kid_found
         ~ move(kid_at, s_single)
         FATHER: He's had enough of you for one night. You did that at the door.
@@ -266,7 +265,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
     }
     He stood there. The kid stood there. After a while the kid took the other earbud out.
     HOODIE: that's my dad
-    He didn't point. He didn't have to.
+    He didn't point.
     ~ knows += bigman_dad
     ~ pull_kid++
     HOODIE: i'm supposed to tell him something. well my sister's supposed to. she sent me in cause she thought he wouldn't make a scene with me or whatever
@@ -281,7 +280,7 @@ The kid was standing by the jukebox with one earbud in, not choosing anything. T
     ~ move(kid_at, s_single)
 * ["That your dad?" #check: wrongman 12 {kid_mod()}]
     { passed:
-        WRONGMAN: Ask it like you already know. People answer what you already know.
+        WRONGMAN: Ask like you know. The doorman in the story did that, and it worked, mostly.
         HOODIE: yeah. i mean yeah
         ~ knows += bigman_dad
         ~ pull_kid++
@@ -326,17 +325,17 @@ FATHER: Not in front of his friend. Never tell a man anything in front of his fr
 ~ pass(3)
 {
 - public == 2:
-    He held the phone out, lit, between the big man and the table. The big man read it without taking it, all the way down to the morning. He stood very still.
+    He held the phone out, lit, between the big man and the table. The big man read it without taking it, all the way down to the morning.
 - public == 1:
-    He said it at the table, in front of the buddy. The big man stood very still.
+    He said it at the table, in front of the buddy. The big man put his chalk down.
 - else:
-    He said it at the end of the bar, low, with his back to the room. The big man stood very still.
+    He said it at the end of the bar, low, with his back to the room. The big man looked at the floor.
 }
 { knows ? kid_why && public != 2:
     BIGMAN: Since when.
     He told him since when.
 }
-The big man put his cue on the table, across the balls, in the middle of a game, which is a thing people don't do.
+The big man laid his cue down across the balls, in the middle of the game.
 { public == 2:
     He took the phone out of the doorman's hand without looking at him.
 }
@@ -346,7 +345,7 @@ BIGMAN: Where are they.
 # done: fetch
 {
 - in_truck(sister_at) || sister_at == s_vestibule:
-    He went out the front door into the rain without his jacket. Through the glass the doorman saw the driver's door of the pickup open and his daughter get out and stand there, and then the big man had his arms around her, in the rain, in the lot, with the headlights on them both.
+    He went out the front door into the rain without his jacket. Through the glass the doorman saw the driver's door of the pickup open and his daughter get out and stand there, and then the big man had his arms around her in the headlights.
     {
     - kid_at == s_single:
         The kid came out of the single washroom at the end of the back hall and went past the doorman and out to them.
@@ -359,12 +358,12 @@ BIGMAN: Where are they.
 - sister_at == s_rail:
     He crossed the room to where they were. He said something to his daughter nobody else heard.
     { indoors(kid_at):
-        He put a hand on the back of his son's neck, the way you'd hold a dog you'd found on the highway, and the three of them went out the front door together{indoors(vape_at):, and the boyfriend after them, late, holding the door}.
+        He put a hand on the back of his son's neck, and the three of them went out the front door together{indoors(vape_at):, and the boyfriend after them, late, holding the door}.
     - else:
         The two of them went out the front door together{indoors(vape_at):, and the boyfriend after them, late, holding the door}.
     }
 - else:
-    He crossed the room {kid_at == s_single:to the single washroom and knocked once, and said his son's name through the door, and the lock clicked|to the jukebox}. He put a hand on the back of his son's neck, the way you'd hold a dog you'd found on the highway, and the two of them went out the front door together, toward the pickup in the lot.
+    He crossed the room {kid_at == s_single:to the single washroom and knocked once, and said his son's name through the door, and the lock clicked|to the jukebox}. He put a hand on the back of his son's neck, and the two of them went out the front door together, toward the pickup in the lot.
 }
 ~ family_gone()
 ~ room_count--
@@ -372,7 +371,7 @@ BIGMAN: Where are they.
 ~ rep(rep_staff, 1)
 The pickup's lights came on and it pulled out onto the highway, going toward town. #sfx: door
 BUDDY: He left it. He left the money.
-Four twenties under the rail. The buddy looked at them for a long time and then put them in the tip jar at the bar, all four, and left too.
+Four twenties under the rail. The buddy looked at them, and then put them in the tip jar at the bar, all four, and left too.
 ~ room_count--
 { knows ? transmission:
     WRONGMAN: A transmission. In a tip jar.
@@ -466,19 +465,16 @@ BIGMAN: Who asked you.
 # sfx: balls #look: bigman
 {
 - sister_at == s_rail:
-    It started the way they start: afterward nobody could have told you how.
     The sister had gone to the pool table. She was standing at the big man's elbow saying something with her hands in fists at her sides. The big man was looking at the table.
     BUDDY: No no, not now, sweetheart. Your dad's working, okay? He's working.
     { indoors(vape_at):
         VAPE: the fuck did you just CALL her
     }
 - kid_at == s_jukebox:
-    It started the way they start: afterward nobody could have told you how.
     The kid had come away from the jukebox and was standing at the end of the pool table, in the way of a shot, with his earbuds out.
     HOODIE: mom's in the hospital
     He said it too quietly. The buddy laughed, not at that, at something else, and the big man put his hand flat on the rail.
 - indoors(vape_at):
-    It started the way they start: afterward nobody could have told you how.
     The boyfriend had drifted over from the bar to watch. The big man missed a shot.
     VAPE: skill issue
     The big man missed the next one too.
@@ -519,7 +515,7 @@ FIGHTER: Now. Now, now, now.
         ~ vape_returned = false
         ~ vape_seen = false
         ~ move(vape_at, s_lot)
-        FIGHTER: The one who's going to swing. Always the one who's going to swing.
+        FIGHTER: Always take the one who's going to swing.
         -> after_fight(false)
     - else:
         ~ here = pool
@@ -531,9 +527,9 @@ FIGHTER: Now. Now, now, now.
 * ["Everybody stop." #check: father:cha 14 {reach_mod()}]
     ~ pass(1)
     { passed:
-        He didn't shout it. He said it the way the Father used to say it, from the chest, so it went under the music and came up everywhere at once.
+        He didn't shout it. He said it from the chest, the way his father used to, low enough to go under the music.
         The room stopped.
-        FATHER: That's the voice. You've got it or you haven't.
+        FATHER: That's my voice. Where'd you get that.
         -> after_fight(false)
     - else:
         He said it. Nobody heard it. The jukebox was on the chorus.
@@ -546,10 +542,10 @@ FIGHTER: Now. Now, now, now.
 * [Wait one more second to see who starts it. #check: wrongman 12 {reach_mod()}]
     ~ pass(1)
     { passed:
-        WRONGMAN: The wrong man's never the one you're watching.
+        WRONGMAN: In the story it was the quiet one. Watch the quiet one.
         It was the buddy. The buddy had a pool ball in his hand, down by his leg, where nobody was looking.
         ~ here = pool
-        He took it off him. Just took it, like taking keys off a drunk, and the buddy let him, and that was the end of it.
+        He took it off him, and the buddy let him.
         -> after_fight(false)
     - else:
         He waited one second. That was the second it happened in. The big man's left hand came off the rail. #sfx: hit
@@ -559,7 +555,7 @@ FIGHTER: Now. Now, now, now.
             The buddy went down against the jukebox and stayed down, holding his face.
         }
         ~ incident += inc_hurt
-        WRONGMAN: That's the story. You waited to see. Everyone in the story waited to see.
+        WRONGMAN: In the story the doorman waited to see who'd start it, too.
         -> after_fight(true)
     }
 
@@ -567,9 +563,9 @@ FIGHTER: Now. Now, now, now.
 { bad:
     // somebody picks up whatever was in reach (room.ink)
     { reach_used() }
-    It was over in the time it takes to say it. It always is. Then it's the long part.
+    It was over in four seconds.
 - else:
-    It was over before it started, which is the only kind of fight a doorman wins.
+    It was over before it started.
 }
 { used:
     Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in her hand, and she was dialling.
@@ -611,14 +607,14 @@ BARTENDER: Door. Do I call it or not?
     - kids_count() > 0:
         The kids went out after him. In the lot, in the rain, they stood by the pickup and argued, and then the big man got into the passenger side, and the truck pulled out toward town.
         ~ fam += dad_went
-        FATHER: Sometimes you throw a man out and it's the kindest thing anybody's done for him all year.
+        FATHER: A doorman put me out of the Legion in Campbell River once, and drove me home after. I never thanked him.
     - else:
         He went out into the rain without his jacket and stood in the lot, and didn't go to the pickup. He walked off along the shoulder of the highway toward town. After a minute the pickup pulled out after him with its hazards on and followed him at a walking pace, all the way to the bend.
         ~ fam += dad_walked
         FATHER: They'll follow him all the way home like that. Kids do. I know.
     }
     ~ family_gone()
-    The buddy took the twenties off the rail, all of them, and his jacket off the hook, and went out after him without a word to anybody.
+    The buddy took the twenties off the rail, all of them, and his jacket off the hook, and went out after him.
     ~ room_count--
     ~ rep(rep_t28, 1)
     -> carry_on
@@ -630,7 +626,7 @@ BARTENDER: Door. Do I call it or not?
     ~ rep(rep_kids, -3)
     ~ here = door
     { she_was:
-        He walked them out. The sister didn't fight it. At the door she looked at him the way you look at a wall you've walked into.
+        He walked them out. The sister didn't fight it. At the door she looked at him.
         DRIVER: We didn't hit anybody. He did.
     - else:
         He walked them out. Nobody fought it.
@@ -648,12 +644,12 @@ BARTENDER: Door. Do I call it or not?
     ~ rep(rep_staff, 1)
     ~ here = door
     { kids_count() > 0:
-        He put them all out: the big man, the buddy, the kids. Out in the lot, the family stood around the pickup in the rain for a long time. Then they all got in it, the big man too, and it went.
+        He put them all out: the big man, the buddy, the kids. Out in the lot the family stood around the pickup in the rain, arguing. Then they all got in it, the big man too, and it went.
     - else:
         He put them both out, the big man and the buddy. Out in the lot the buddy went to his own car, and the big man stood in the rain by the pickup until the passenger door opened, and then he got in, and it went.
     }
     ~ family_gone()
-    FATHER: Fair. Fair's not the same as right.
+    FATHER: Everybody out. That's what I'd have done.
     -> carry_on
 * {fam !? dad_ejected} [Sit the big man down and get him a coffee. #check: father:cha 12 {bigman_mod()}]
     ~ pass(5)
@@ -669,7 +665,7 @@ BARTENDER: Door. Do I call it or not?
         The buddy sat on at the pool table on his own for a while, and then he went too.
         ~ room_count--
     - else:
-        He sat him down. The big man sat for about as long as it took the doorman to turn around, and then he was back at the pool table with the cue in his hand, as if none of it had happened.
+        He sat him down. The big man sat for about as long as it took the doorman to turn around, and then he was back at the pool table with the cue in his hand.
         ~ fam += dad_stayed
         ~ fam_done = true
         // Whoever of his family saw that goes out to the pickup, and the pickup waits (closing.ink).
@@ -712,7 +708,7 @@ BARTENDER: Door. Do I call it or not?
     CONSTABLE: Okay. So. We had a call about a fight.
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands.
     { pool_still():
-        At the pool table the big man was racking, as if none of it had been about him.
+        At the pool table the big man was racking the balls.
     - else:
         The pool table was empty. Whoever she'd come for had gone home.
     }
@@ -721,18 +717,18 @@ BARTENDER: Door. Do I call it or not?
     ~ pass(8)
     ~ told_police = 1
     ~ rep(rep_staff, 1)
-    He told her the way it happened, in order, with the names he had and without the ones he didn't. She wrote it in a notebook with a pencil, the way they did out here, where the laptops didn't get signal.
+    He told her the way it happened, in order, with the names he had and without the ones he didn't. She wrote it in a notebook with a pencil. The laptops didn't get signal out here.
     { hurt > 0:
         CONSTABLE: Got it. And the eye, sir?
         He told her about the eye.
     }
     CONSTABLE: Alright. First time I've had one in order from a doorman.
-    FATHER: You told it straight to a cop. Remember what it felt like. You won't always.
+    FATHER: Straight to a cop. I never did that once.
 * [Tell her less than that.]
     ~ pass(4)
     ~ told_police = -1
     ~ cocoon++
-    He told her it was a disagreement over a game, and it had sorted itself out, which was true as far as it went.
+    He told her it was a disagreement over a game, and it had sorted itself out.
     She looked at him for a while, and then at the chalk on the carpet.
     CONSTABLE: Sorted itself out.
     She wrote down sorted itself out.
@@ -742,8 +738,8 @@ BARTENDER: Door. Do I call it or not?
     ~ told_police = 2
     ~ rep(rep_staff, -1)
     He pointed his chin at the bartender. The constable went over, and the bartender told her, {lock_up:counting the till the whole time|wiping the bar the whole time} and not once looking at him.
-    FATHER: You gave her the hard part. She'll remember whose part it was.
-- She took the doorman's name and spelled it back to him, and went out to the car, and sat in it for a long time with the dome light on, writing. Then she went.
+    FATHER: You gave her the hard part.
+- She took the doorman's name and spelled it back to him, and went out to the car, and sat in it with the dome light on, writing, for twenty minutes. Then she went.
 WRONGMAN: In the story the police came too. Forty minutes after. Everybody had gone home by then.
 ->->
 
@@ -791,10 +787,10 @@ WRONGMAN: In the story the police came too. Forty minutes after. Everybody had g
 = most_played
 ~ pass(2)
 ~ knows += juke_top
-He went through to the list it kept of what had been played most in the building. It went back years. It was table 28's list, songs older than he was, the same ones over and over, the way a table orders the same round.
+He went through to the list it kept of what had been played most in the building. It went back years. It was table 28's list, songs older than he was, the same ones over and over.
 At the top, by a long way, was one he'd never once seen anybody choose.
 // HUTCH: The song at the top. It's the one the bartender puts on at close, every night.
-WRONGMAN: Somebody plays that when there's nobody here to see them play it. In the story, that's the one you want to know about.
+WRONGMAN: Somebody plays that when there's nobody here. There was a song in the story too. The drunk sang a bit of it, wrong.
 -> j_opts
 
 // With it down he hears the pool table start before it starts (floor.ink).
@@ -818,7 +814,7 @@ He caught the bartender's eye across the room and turned a hand down, flat, twic
 ~ pass(5)
 He stood at the jukebox with his back half to the room and went through albums he didn't want, and when the screen went dark between them he watched the room in it.
 { pool_still():
-    In the dark glass the big man ran three balls clean, one after the other, the way you can't by accident. Then he missed an easy one, as if he'd remembered something.
+    In the dark glass the big man ran three balls clean, one after the other. Then he missed an easy one.
     ~ knows += pool_seen
 - else:
     In the dark glass, small, the room behind him: table 28, the bar, the door, and him in the middle of it with his back to all of it.

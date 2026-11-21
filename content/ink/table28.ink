@@ -24,15 +24,15 @@
 TABLE28: Here he is!
 TABLE28: Look at the size of him!
 SCRATCH: Junior's gone and bought a fridge.
-// Gary's shirt (office.ink): nobody on this island ever wore a shirt that said what he was.
+// Gary's shirt (office.ink): put SECURITY on a man in this town and they'll line up to have a go at him.
 { shirt_on:
     TEAM_JACKET: It says SECURITY on him, boys. In case we were wondering what he was.
     TABLE28: Security!
-    HEARING_AID: Security.
+    HEARING_AID: What's it say?
     ~ rep(rep_t28, -1)
 }
 TEAM_JACKET: They're getting bigger, the doormen. The last one was a big lad too, and a lot of good it did him.
-HEARING_AID: Him.
+HEARING_AID: Who?
 TABLE28: Where'd they dig you up?
 -> where_from
 
@@ -63,14 +63,13 @@ TABLE28: Where'd they dig you up?
     ~ claims += said_around
     TABLE28: Around!
     TEAM_JACKET: He's from Around. I've been to Around. Terrible place. They charge you for the ketchup.
-    TABLE28: For the ketchup!
     All of them laughed on the same beat, except the one with the hearing aid, who laughed a beat late and at something else.
 * ["My father worked doors."]
     ~ claims += said_father
     ~ rats_heard += h_father
     FATHER: Don't.
     TABLE28: Ah.
-    Something went round the table. The one in the team jacket put his glass down.
+    The one in the team jacket put his glass down.
     CARDIGAN: Here? On the island, I mean.
     * * ["Up island. A long time ago."]
         CARDIGAN: What was his name? If you don't mind my asking.
@@ -78,11 +77,11 @@ TABLE28: Where'd they dig you up?
             ~ father_named = true
             // HUTCH: The father's name is open. When you pick it, this is where it's said out loud for the first time.
             He told them.
-            Nobody at the table knew it. The one in the cardigan said it once more, to himself, quietly, like he was putting it somewhere he could find it again.
+            Nobody at the table knew it. The one in the cardigan said it over once, to himself.
             FATHER: Now it's out.
             ~ rep(rep_t28, 2)
         * * * ["Doesn't matter."]
-            CARDIGAN: I think it always matters. To somebody.
+            CARDIGAN: Fair enough. Mine was Harold. Nobody remembers him either.
             ~ rep(rep_t28, 1)
     * * ["All over."]
         TABLE28: A travelling man!
@@ -108,7 +107,7 @@ TABLE28: Where'd they dig you up?
 ~ pass(10)
 ~ pull_table++
 ~ rep(rep_t28, 1)
-He sat down. The chair was too small for him. Everything at the Sov was too small for him.
+He sat down. The chair was too small for him.
 TEAM_JACKET: Get the big fella a rye.
 Nobody moved, and a rye arrived anyway. The bartender put it down in front of him without a word and went back.
 FATHER: You know what that is.
@@ -124,7 +123,7 @@ FIGHTER: It's a drink. Drink it. They'll trust you or they won't.
 * [Nurse it.]
     ~ nursed = true
     ~ rat_favour++
-    He held it and didn't drink it. They noticed. They noticed everything; they'd had forty years of practice at a table in a window.
+    He held it and didn't drink it. All five of them watched him not drink it.
     SCRATCH: He's savouring it. Let him. It's bad luck to rush the first one.
     { knows ? endbar_seen:
         Down at the end of the bar the old man was holding his own glass the same way, full, not drinking it, and for a second he seemed to be looking at the doorman's.
@@ -138,7 +137,7 @@ FIGHTER: It's a drink. Drink it. They'll trust you or they won't.
 
 = stories
 ~ pass(8)
-They talked. Table 28 talked the way the rain came down: all at once, from everywhere, without stopping to see if anyone wanted it.
+They talked, all of them, at once.
 // The edge pass (Hutch, 2026-11-20): what a table like this says, said plainly, and nobody at it wins.
 TEAM_JACKET: Two-eleven a litre for diesel. Two dollars and eleven cents! We should join the States and be done with it. At least down there you can fill a truck.
 TABLE28: Fifty-first!
@@ -147,8 +146,8 @@ TEAM_JACKET: Your father never paid two-eleven for diesel.
 SCRATCH: My grandson's in Fort Mac on eighteen hundred a week, and he still can't buy a house down here.
 TEAM_JACKET: Nobody can buy a house. The Chinese bought them all, with cash, in hockey bags. It was on the news.
 TABLE28: Hockey bags!
-HEARING_AID: Bags.
-The mill was on its last contract. They all knew it, and none of them said it.
+HEARING_AID: Who's playing?
+Nobody mentioned the mill.
 FATHER: Let them talk. A man who's on about diesel isn't fighting anybody.
 ~ knows += old_doorman
 - (topics)
@@ -161,9 +160,9 @@ FATHER: Let them talk. A man who's on about diesel isn't fighting anybody.
     HEARING_AID: Woman.
     TABLE28: A woman!
     TEAM_JACKET: Lorraine, in six. He went up to ask her to keep it down and came back an hour later with his shirt on inside out.
-    CARDIGAN: I think he let somebody in that he shouldn't have. That's all it was. It happens to all of them, sooner or later.
+    CARDIGAN: I think he let somebody in he shouldn't have. A friend of somebody's.
     WRONGMAN: Now that's a story.
-    FATHER: They're all true. That's how a place like this works. Every story's true and none of them happened.
+    FATHER: The one about the float. That's the one I'd believe. Doormen steal.
     -> topics
 * {knows !? t28_rat} [Something moves under the table.]
     -> walter_intro
@@ -215,7 +214,7 @@ FIGHTER: One boot.
 * [Put a boot on him. #check: fighter:dex 12]
     ~ rats_heard += h_boot
     { passed:
-        He was quick for a big man. It was quick for the rat, too.
+        He was quick. The boot came down on Walter's back.
         ~ walter = 0
         ~ rats = war
         ~ rep(rep_t28, -4)
@@ -252,7 +251,7 @@ FIGHTER: One boot.
 }
 {
 - at_t28.another == 1:
-    The talk went round. He stopped hearing it as five men and started hearing it as one thing that happened to be sitting in five chairs. It had views. It was sure. It had been here first.
+    The talk went round. After a while he stopped hearing five men and heard one, in five chairs, sure about everything.
 - at_t28.another == 2:
     The talk went round again, and this time he went round with it.
     TEAM_JACKET: How do you sink a Newfie submarine?
@@ -297,7 +296,7 @@ FIGHTER: Count the fingers on the salute.
 * ["Happy birthday, sir."]
     ~ t28_slop = 2
     ~ rep(rep_t28, 1)
-    He said it to the phone. The one with the lottery tickets nodded, as if it would be passed on.
+    He said it to the phone. The one with the lottery tickets nodded, and put the phone away carefully.
     SCRATCH: There. That's all he wanted.
     TABLE28: Happy birthday!
 * [Push the phone back across the table.]
@@ -343,7 +342,7 @@ TEAM_JACKET: For looking after us.
 He stood at the end of the table with his arms folded. They talked around him, and at him, and about him while he was standing there.
 TABLE28: He's a stander.
 TEAM_JACKET: The last one was a leaner. Leaned on the jukebox all night. We liked him.
-HEARING_AID: Liked him.
+HEARING_AID: He owed me twenty.
 SCRATCH: Look at him. Stands like he's got a pool cue up his arse.
 HEARING_AID: Arse.
 - (st)
@@ -369,7 +368,7 @@ HEARING_AID: Arse.
 ~ pass(3)
 { passed:
     MANUAL: A licensee must not permit a person to become intoxicated on the premises. They were intoxicated at two o'clock.
-    He said it. The table went quiet, and then it laughed, all five, together, for a long time.
+    He said it. The table went quiet, and then all five of them laughed.
 - else:
     He said it, and it came out wrong, like a question.
 }
@@ -409,7 +408,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
 - rep_t28 >= 3:
     TEAM_JACKET: {stopping:Sit, sit. You're one of us now, God help you.|Sit, sit.}
 - rep_t28 <= -2:
-    They went on talking as if he wasn't there, which at table 28 was the same as a shout.
+    They went on talking and didn't look up.
 }
 - (t_opts)
 <- moves(t28)
@@ -439,7 +438,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     ~ rat_favour++
     ~ rep(rep_t28, 2)
     He put the basket down on the carpet under the table, by the hole in the baseboard, without saying anything about it.
-    The one who scratched lottery tickets looked at him, and then looked at the table, and didn't say anything either. Table 28 had never had a doorman who fed Walter.
+    The one who scratched lottery tickets looked at him, and then at the table, and didn't say anything either.
     TABLE28: Look at that. Look at that.
     -> again_loop
 + ["How's everybody doing?"]
@@ -480,7 +479,6 @@ FATHER: The rule is whoever pays for the carpet. I told you.
     He bent down by the big glasses and said it quietly, the way she'd said it: the dog's been sick on the bed.
     Dennis didn't say anything for a second. Then he put his coat on, and finished his drink with it half on, and went.
     SCRATCH: That dog's been dead since the flood.
-    The table didn't seem to think it needed explaining.
     # done: dog
     -> again_loop
 
@@ -540,13 +538,13 @@ Nobody had been on the door.
         He was halfway there when she looked at him. #look: raincoat
     }
     RAINCOAT: Don't.
-    It wasn't rude. It was the voice of someone who'd done this before, in this room, before he was born.
+    She'd been coming in here after Dennis since before he was born.
     He stopped.
 * (let_her) [Leave it. She's not trouble.]
     ~ pass(1)
 - The one in the big glasses put his coat on, finishing his drink with it half on, and followed her out. Table 28 went on talking over the place where he'd been sitting.
 { not wife_stopped:
-    At the door she stopped beside the empty stool and looked at the doorman, as if she was going to say something about it, and then she did.
+    At the door she stopped beside the empty stool and looked at the doorman.
     RAINCOAT: Thirty years he's sat at that table. You'd think one of you would stop him at the door.
 }
 TABLE28: Where was the door?
