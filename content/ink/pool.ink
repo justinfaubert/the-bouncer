@@ -168,7 +168,7 @@ BIGMAN: Lot of doors in this old place for one fella.
     -> tk
 * [Ask how his night's going. #check: father:cha 12 {asked_regular:1|0}]
     { passed:
-        He asked it the way the Father used to, like it didn't matter, and it got an answer.
+        He asked it the way his father used to, like it didn't matter, and it got an answer.
         BIGMAN: Ah, it's been a week, bud. One of them weeks.
         BIGMAN: Family stuff. You know how it is.
         He didn't say anything else about it. He put the chalk down.

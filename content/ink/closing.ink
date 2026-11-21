@@ -1731,16 +1731,16 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 * {cash >= 3} [Stop at the card game.]
     ~ pass(10)
     ~ cash -= 3
-    Somebody hooked a chair out for him with a foot. Crib, a dollar a hole. Between hands they went through the women on a dating app on somebody's phone, reading them out to each other, and arguing over which of them had been with which of the women.
+    Somebody hooked a chair out for him with a foot. Crib, a dollar a hole. Between hands they went through the women on somebody's dating app, reading them out, and arguing over which of them had been with which.
     He lost three dollars{arrivals !? hivis_in && arrivals !? hivis_hotel:, and HI-VIS fell asleep in his chair with the can still upright in his hand}.
 * [Leave them to their cards.]
 -
 // He may have been up already, before the shift (walk.ink, twelve).
 { from_room:
     { knows ? heard_phone:
-        His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
+        His room was over the deck, where he'd lain before the shift and heard the bartender tell Gary about him through two inches of window.
     - else:
-        His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift with the pillow over his head, while the bartender told Gary about him through two inches of window.
+        His room was over the deck, where he'd lain before the shift with the pillow over his head while the bartender told Gary about him through two inches of window.
     }
     { in_twelve ? gary_shirt:
         Gary's shirt was on the chair where he'd left it, folded, the word inside.

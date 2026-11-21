@@ -82,7 +82,7 @@
 - The men's was a steel trough from when the hotel was built, a pink cake in the drain older than some of the staff, and two stalls, one without a door. Empty. The mirror on the condom machine had been punched into a spiderweb, and somebody had written on the machine, in careful capitals: THIS GUM TASTES FUNNY. Low in the partition between the stalls somebody had drilled a hole, a long time ago, and somebody had stopped it with a wine cork.
 - The one from table 28 with the hearing aid was at the trough, taking his time. He nodded to the doorman in the mirror.
     HEARING_AID: Prostate. Don't get old.
-- A man he'd let in earlier was asleep on the seat in the stall with no door, jeans round his boots, his phone still lit in his hand on a dating app, his thumb on some woman's face. He woke him. The man said "Yep," stood up, hiked his jeans and went back out to the bar as if he'd been sent for.
+- A man he'd let in earlier was asleep on the seat in the stall with no door, jeans round his boots, his phone still lit in his hand on a dating app, his thumb on some woman's face. He woke him. The man said "Yep," stood up, hiked his jeans and went back out to the bar and ordered.
 - Empty. The floor wet, and not with water. The hand dryer had been broken so long that somebody had wired a roll of paper towel to it. On the dryer, in marker: PUSH BUTTON FOR A MESSAGE FROM THE PRIME MINISTER.
 - Empty. On the inside of the stall door, at sitting height, in pencil: THE MILL ISN'T CLOSING. Under it, in ballpoint: READ THE NOTICE. Under that: CAN'T READ. WORK AT THE MILL.
 - Empty.
