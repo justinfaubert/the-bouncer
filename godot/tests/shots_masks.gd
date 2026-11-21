@@ -133,6 +133,10 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 				mat = main.pub.mat(Color(1, 1, 1), 0.9, 0.0, 4, Vector3.UP, 4.5, 0.7)
 				mat.set_shader_parameter("albedo_tex", face.tex)
 				mat.set_shader_parameter("specular", 0.25)
+				if face is SculptedFace:
+					# a sculpted face draws its own forms: its creases take a light line, or a nose
+					# and a mouth come out ringed like a diagram
+					mat.set_shader_parameter("lines", 0.35)
 			elif key.begins_with("eye_"):
 				# a sculpted head's eyeballs: no strokes, the white bare paper, the iris solid, and a
 				# wet shine on the cornea
@@ -159,7 +163,7 @@ func _mask(who: String, pos: Vector3, yaw: float) -> Array:
 				mat = main.pub.mat(c, 0.9, 0.0, 4, Vector3.UP, 4.5, 0.7)
 			if who == "amanda" and int(mat.get_shader_parameter("cut")) == 4:
 				mat.set_shader_parameter("cut_px", HER_PRINT[0] * (0.78 if key in HAIR else 1.0))
-				mat.set_shader_parameter("lines", HER_PRINT[1] * (0.7 if key in HAIR else 1.0))
+				mat.set_shader_parameter("lines", float(mat.get_shader_parameter("lines")) * HER_PRINT[1] / 0.7)
 			m.set_surface_override_material(i, mat)
 		# the light from his eyes, as in the game (pub.gd puts the people on its layer)
 		m.set_layer_mask_value(Pub.PEOPLE_LAYER, true)

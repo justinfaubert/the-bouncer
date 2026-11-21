@@ -53,7 +53,7 @@ COLOURS = {
     'gold': '#d4ac52', 'sole': '#2a2420',
     'dress_red': '#861c26', 'apron_black': '#1a191c', 'belt_black': '#141315', 'pearl': '#ece6da',
     'beard_grey': '#5e5650', 'towel_white': '#e8e2d2',
-    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2', 'mouth_inside': '#2a0c0e',
+    'cap_navy': '#252b3b', 'cap_patch': '#ddd5c2', 'mouth_inside': '#2a0c0e', 'teeth': '#e6dfd2', 'teeth_low': '#e6dfd2',
 }
 
 # Who they are.
@@ -1531,10 +1531,18 @@ def sculpted(spec, name, arm, head_at):
     for pts, radii in sculpt.hairs(H):
         tube(bm, [Vector((p[0], -p[1], p[2])) for p in pts], radii, 4)
     hb = to_object(bm, f'{name}_hairs', [spec['hair'][1] if spec.get('hair') else 'hair'])
-    for p in hb.data.polygons:
-        p.material_index = 0
+    # the teeth behind the lips, seen when she smiles wide, laughs or talks
+    tos = []
+    for band, mt in zip(sculpt.teeth(H), ('teeth', 'teeth_low')):
+        tb = bmesh.new()
+        vs = [(tb.verts.new((x0, -f0, z0)), tb.verts.new((x1, -f1, z1))) for (x0, f0, z0), (x1, f1, z1) in band]
+        for (a0, b0), (a1, b1) in zip(vs, vs[1:]):
+            tb.faces.new((a0, a1, b1, b0))
+        tos.append(to_object(tb, f'{name}_{mt}', [mt], 0.0015))
     bpy.ops.object.select_all(action='DESELECT')
     hb.select_set(True)
+    for to in tos:
+        to.select_set(True)
     ob.select_set(True)
     bpy.context.view_layer.objects.active = ob
     bpy.ops.object.join()
@@ -1543,7 +1551,7 @@ def sculpted(spec, name, arm, head_at):
     m = H['mouth']
     inside = (np.abs(V[:, 0]) < m['w'] * 0.95) & (np.abs(V[:, 2] - m['z']) < 0.009) & (V[:, 1] < m['f'] - 0.0075)
     for p in ob.data.polygons:
-        if all(inside[i] for i in p.vertices):
+        if p.material_index == 0 and all(inside[i] for i in p.vertices):
             p.material_index = 1
     uv = sculpt.uv_of(H, V)
     lay = ob.data.uv_layers.new(name='UVMap')
@@ -1553,6 +1561,25 @@ def sculpted(spec, name, arm, head_at):
         for li, u in zip(p.loop_indices, us):
             lay.data[li].uv = (u[0] + (1.0 if wrap and u[0] < 0.5 else 0.0), u[1])
     shapes = sculpt.shapes(H, V)
+    # the teeth go with the skull or the jaw, never with the lips' movements
+    idx = {mt.name: i for i, mt in enumerate(ob.data.materials) if mt}
+    if 'teeth' in idx:
+        upper = np.zeros(len(V), bool)
+        lower = np.zeros(len(V), bool)
+        for p in ob.data.polygons:
+            if p.material_index == idx['teeth']:
+                upper[list(p.vertices)] = True
+            elif p.material_index == idx.get('teeth_low', -1):
+                lower[list(p.vertices)] = True
+        for k, X in shapes.items():
+            X[upper] = V[upper]
+            if k != 'jaw':
+                X[lower] = V[lower]
+        hinge = np.array([0.0, -0.004, -0.018])
+        a = math.radians(14.0)
+        q = V[lower] - hinge
+        shapes['jaw'][lower] = np.stack([V[lower][:, 0], hinge[1] + q[:, 1] * math.cos(a) + q[:, 2] * math.sin(a),
+                                         hinge[2] - q[:, 1] * math.sin(a) + q[:, 2] * math.cos(a)], 1)
     ob.shape_key_add(name='Basis')
     for k, X in shapes.items():
         sk = ob.shape_key_add(name=k, from_mix=False)

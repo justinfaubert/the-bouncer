@@ -58,7 +58,7 @@ def chain(p, pts, radii):
 
 
 def smin(a, b, k):
-    if k <= 0:
+    if np.isscalar(k) and k <= 0:
         return np.minimum(a, b)
     h = np.clip(0.5 + 0.5 * (b - a) / k, 0.0, 1.0)
     return b + (a - b) * h - k * h * (1.0 - h)
@@ -106,21 +106,21 @@ HEADS = {
     # cheekbones and the mouth a little more than life, the nose a little less
     'amanda': dict(
         skull=(0.071, 0.092, 0.088),         # half-sizes of the cranium
-        crown=0.112, chin_z=-0.124,          # the top of the head, the bottom of the chin
+        crown=0.112, chin_z=-0.118,          # the top of the head, the bottom of the chin
         eye=dict(x=0.0318, f=0.070, z=0.004, r=0.0128, lid=0.0014, open=0.56, tilt=0.26, inner=1.0, outer=1.16,
                  heavy=0.0),
         brow=dict(f=0.088, z=0.026, w=0.046, r=0.0052, arch=0.003),
         cheek=dict(x=0.050, f=0.056, z=-0.012, r=(0.024, 0.020, 0.016)),
-        jaw=dict(x=0.043, f=-0.002, z=-0.066, chin=(0.0, 0.078, -0.108), chin_r=(0.017, 0.016, 0.016)),
-        nose=dict(root=(0.080, 0.012), tip=(0.1015, -0.028), r=(0.0052, 0.0062), tip_r=(0.0060, 0.0072, 0.0064),
-                  ala=(0.0090, 0.093, -0.033), ala_r=(0.0056, 0.0070, 0.0056)),
-        mouth=dict(z=-0.062, f=0.0935, w=0.0252, upper=0.0054, lower=0.0071, bow=0.0017),
+        jaw=dict(x=0.043, f=-0.002, z=-0.066, chin=(0.0, 0.076, -0.102), chin_r=(0.016, 0.015, 0.015)),
+        nose=dict(root=(0.078, 0.012), tip=(0.0995, -0.026), r=(0.0046, 0.0056), tip_r=(0.0056, 0.0064, 0.0060),
+                  ala=(0.0086, 0.092, -0.030), ala_r=(0.0052, 0.0064, 0.0052)),
+        mouth=dict(z=-0.062, f=0.0925, w=0.0268, upper=0.0052, lower=0.0068, bow=0.0017, curve=0.012),
         ear=dict(x=0.069, f=-0.006, z=-0.004, r=(0.0075, 0.016, 0.029)),
         # what's on her skin: olive, warm at the cheeks; a mouth in dark red, plum shadow and a long
         # wing of liner, brows strong and level with a low arch, a beauty mark at her mouth's left
         # corner (round four's face, now on a face)
-        paint=dict(skin='#a97f58', warm='#b5704f', flush=0.55, contour=1.0, lips='#7a1d27', shadow='#543034', shadow_k=0.75,
-                   liner='#140c0a', wing=0.008, brow='#1a1310', arch=0.001, mark=(0.031, -0.054), iris='#3a2010', iris_r=0.47),
+        paint=dict(skin='#a97f58', warm='#b5704f', flush=0.55, contour=1.0, lips='#86202f', shadow='#543034', shadow_k=0.75,
+                   liner='#140c0a', wing=0.008, brow='#1a1310', arch=0.001, mark=(0.031, -0.054), iris='#3a2010', iris_r=0.6),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
         hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
     ),
@@ -165,20 +165,21 @@ def head_field(H, p):
     d = ellipsoid(p, (0, -0.012, 0.026), sk)
     d = smin(d, ellipsoid(p, (0, 0.042, 0.048), (0.060, 0.050, 0.050)), 0.02)            # the forehead
     d = smin(d, ellipsoid(p, (0, 0.030, -0.032), (0.050, 0.052, 0.072)), 0.024)          # the midface
-    d = smin(d, ellipsoid(p, (0, 0.028, -0.079), (0.040, 0.05, 0.040)), 0.026)           # the lower face
+    d = smin(d, ellipsoid(p, (0, 0.028, -0.076), (0.040, 0.05, 0.038)), 0.026)           # the lower face
     d = smin(d, ellipsoid(p, (0, 0.072, 0.002), (0.011, 0.011, 0.018)), 0.012)              # between the eyes
     # the temples a little hollow, behind the brow's corners
     d = carve(d, ellipsoid(P, (0.075, 0.040, 0.020), (0.006, 0.016, 0.016)), 0.014)
     # the jaw: a bar from under each ear to the chin, and the chin itself
     j = H['jaw']
     cx, cf, cz = j['chin']
-    d = smin(d, cone(P, (j['x'], j['f'], j['z']), (0.016, cf - 0.006, cz + 0.004), 0.010, 0.010), 0.03)
+    d = smin(d, cone(P, (j['x'], j['f'], j['z']), (0.016, cf - 0.006, cz + 0.004), 0.010, 0.010), 0.036)
     d = smin(d, ellipsoid(p, j['chin'], j['chin_r']), 0.014)
     # the cheekbones and the arch back from each to the ear
     c = H['cheek']
     d = smin(d, ellipsoid(P, (c['x'], c['f'], c['z']), c['r']), 0.02)
     d = smin(d, cone(P, (c['x'] + 0.006, c['f'] - 0.012, c['z'] + 0.002), (0.064, 0.0, 0.0), 0.007, 0.005), 0.018)
     d = smin(d, ellipsoid(P, (0.040, 0.052, -0.040), (0.020, 0.022, 0.022)), 0.02)          # the cheeks' flesh
+    d = smin(d, ellipsoid(P, (0.033, 0.070, -0.028), (0.017, 0.013, 0.014)), 0.016)         # the apples of the cheeks
     # under the cheekbone, the face falls in a little toward the mouth
     d = smin(d, ellipsoid(P, (0.040, 0.024, -0.042), (0.019, 0.044, 0.042)), 0.024)            # the side of the face
     # the muzzle the mouth sits on
@@ -216,15 +217,18 @@ def head_field(H, p):
         pts, radii = [], []
         for x in xs:
             t = x / m['w']
-            pts.append((x, f0 - 0.016 * t * t - 0.004 * t ** 4, z0 + bow * (math.exp(-((abs(t) - 0.22) / 0.16) ** 2) - 0.5 * math.exp(-(t / 0.08) ** 2))
+            pts.append((x, f0 - m.get('curve', 0.016) * t * t - 0.004 * t ** 4, z0 + bow * (math.exp(-((abs(t) - 0.22) / 0.16) ** 2) - 0.5 * math.exp(-(t / 0.08) ** 2))
                         + 0.001 * t * t))
-            radii.append(rr * (1.0 - t * t) ** 0.6 + 0.0012)
+            radii.append(rr * (1.0 - t * t) ** 0.6 + 0.0005)
         return chain(p, pts, radii)
     up = lip(m['z'] + 0.0042, m['f'] - 0.0035, m['upper'], m['bow'])
     lo = lip(m['z'] - 0.0058, m['f'] - 0.0055, m['lower'], 0.0)
-    d = smin(d, smin(up, lo, 0.002), 0.0065)
-    slit = np.maximum(np.abs(p[:, 2] - (m['z'] - 0.0004 * (p[:, 0] / m['w']) ** 2)) - 0.0006,
-                      np.maximum(np.abs(p[:, 0]) - m['w'] * 0.96, m['f'] - 0.022 - p[:, 1]))
+    # the corners of the mouth melt into the cheeks; the middle of the lips stands proud
+    xc = np.clip(np.abs(p[:, 0]) / m['w'], 0.0, 1.0)
+    d = smin(d, smin(up, lo, 0.0025), 0.0075 + 0.007 * xc ** 3)
+    xw = np.clip(np.abs(p[:, 0]) / m['w'], 0.0, 1.0)
+    slit = np.maximum(np.abs(p[:, 2] - (m['z'] - 0.0004 * xw ** 2)) - 0.0006 * (1.0 - xw ** 3) + 0.0002 * xw ** 3,
+                      np.maximum(np.abs(p[:, 0]) - m['w'] * 0.98, m['f'] - 0.022 - p[:, 1]))
     d = carve(d, slit, 0.0008)
     d = carve(d, ellipsoid(p, (0, m['f'] - 0.022, m['z']), (m['w'] * 0.85, 0.01, 0.006)), 0.002)
     # the ears, tilted back, a bowl cut into each
@@ -362,8 +366,8 @@ def shapes(H, V):
         wc = gauss(V, corner, (0.016, 0.02, 0.012)) * mine
         wk = gauss(V, (side * 0.034, 0.07, -0.03), (0.02, 0.03, 0.018)) * mine
         X = V.copy()
-        X[:, 2] += 0.0055 * wc + 0.0028 * wk
-        X[:, 0] += side * 0.0032 * wc
+        X[:, 2] += 0.0065 * wc + 0.0032 * wk
+        X[:, 0] += side * 0.0045 * wc
         X[:, 1] -= 0.0025 * wc
         X[:, 1] += 0.0018 * wk
         out[f'smile_{tag}'] = X
@@ -525,9 +529,9 @@ def paint(H, size=2048):
         + 0.10 * gauss(mp, (0.05, 0.05, -0.05), (0.012, 0.03, 0.016)) * pk.get('contour', 1.0)
     col *= (1.0 - shade)[..., None]
     # the lips, the line between them darkest, a light on the lower
-    up = [(x, m['f'] - 0.0035 - 0.016 * (x / m['w']) ** 2, m['z'] + 0.0042 + m['bow'] * (math.exp(-((abs(x / m['w']) - 0.22) / 0.16) ** 2)
+    up = [(x, m['f'] - 0.0035 - m.get('curve', 0.016) * (x / m['w']) ** 2, m['z'] + 0.0042 + m['bow'] * (math.exp(-((abs(x / m['w']) - 0.22) / 0.16) ** 2)
            - 0.5 * math.exp(-(x / m['w'] / 0.08) ** 2))) for x in np.linspace(-m['w'], m['w'], 25)]
-    lo = [(x, m['f'] - 0.0055 - 0.016 * (x / m['w']) ** 2, m['z'] - 0.0058) for x in np.linspace(-m['w'], m['w'], 25)]
+    lo = [(x, m['f'] - 0.0055 - m.get('curve', 0.016) * (x / m['w']) ** 2, m['z'] - 0.0058) for x in np.linspace(-m['w'], m['w'], 25)]
     du, au = curve_dist(P, up)
     dl, al = curve_dist(P, lo)
     ru = m['upper'] * (1 - (2 * au - 1) ** 2) ** 0.6 + 0.0014
@@ -554,7 +558,8 @@ def paint(H, size=2048):
         col = lay(col, hexc(pk['shadow']), shadow * pk.get('shadow_k', 0.8))
         # the line along the upper lashes, thickening outward into a wing past the corner
         thick = 0.09 + 0.13 * smoothstep(0.2, 1.0, t)
-        liner = near * (v > top - 0.03) * smoothstep(thick + 0.03, thick - 0.01, v - top) * (t > -0.03) * (t < 1.0)
+        opening = aperture(H, u, v) < 0.005
+        liner = near * (v > top - 0.03) * smoothstep(thick + 0.03, thick - 0.01, v - top) * (t > 0.04) * (t < 1.0) * ~opening
         # the wing: a tapering stroke out and up from the outer corner
         cx = np.array([side * e['x'], e['f'], e['z']])
         corner = from_eye(H, side, np.array([e['outer']]), np.array([lid_line(H, np.array([e['outer']]), 1)[0]]), np.array([e['r'] + e['lid']]))[0]
@@ -563,14 +568,17 @@ def paint(H, size=2048):
         wing = smoothstep(0.0016 * (1 - aw) + 0.0003, 0.0001, dw) * mine
         col = lay(col, hexc(pk['liner']), np.maximum(liner, wing))
         # the lower lashes, smudged, in the outer half
-        low = near * smoothstep(0.08, 0.0, np.abs(v - bot + 0.02)) * smoothstep(0.35, 0.9, t) * (t < 1.02)
+        low = near * smoothstep(0.08, 0.0, np.abs(v - bot + 0.02)) * smoothstep(0.35, 0.9, t) * (t < 1.02) * ~opening
         col = lay(col, hexc(pk['liner']), low * 0.6)
+        # inside the lids, where the eyeball doesn't reach (the corners): wet pink skin, not ink
+        inner = mine & (r < e['r'] + e['lid'] + 0.004) & opening
+        col = np.where(inner[..., None], hexc('#b07468') * 0.9, col)
         # the brow: hairs laid at a slant along a curve over the eye, thick at the inner end
         bx = [0.013, 0.024, 0.036, 0.046, 0.052]
         bz = [b['z'] - 0.004, b['z'] + 0.0005, b['z'] + 0.003 + pk.get('arch', 0.0), b['z'] + 0.001, b['z'] - 0.004]
         bp = [on_face(H, side * x, zz) + np.array([0, 0.001, 0]) for x, zz in zip(bx, bz)]
         db, ab = curve_dist(P, bp)
-        bw = 0.0042 * (1 - 0.72 * ab) + 0.0008
+        bw = 0.0036 * (1 - 0.72 * ab) + 0.0007
         hairs = 0.75 + 0.25 * np.sin((P[..., 0] * side * 3800 + P[..., 2] * 5200) + 4 * noise(P, 0.0012, 7))
         edge = smoothstep(bw * 1.1, bw * 0.35, db + 0.0004 * noise(P, 0.0008, 8))
         brow = edge * mine * np.clip(hairs + 0.5 * smoothstep(bw * 0.8, 0.0, db), 0, 1)
@@ -635,7 +643,7 @@ def hairs(H, seed=3):
             t = rng.uniform(0, 1) ** 1.3
             x = np.interp(t, np.linspace(0, 1, len(bx)), bx)
             zc = np.interp(t, np.linspace(0, 1, len(bz)), bz)
-            w = 0.0042 * (1 - 0.72 * t) + 0.0008
+            w = 0.0036 * (1 - 0.72 * t) + 0.0007
             z = zc + rng.uniform(-0.5, 0.5) * w
             ang = np.radians(np.interp(t, [0, 0.18, 0.5, 1.0], [80, 40, 12, -18]) + rng.normal(0, 8))
             ln = rng.uniform(0.0035, 0.006) * (1.0 if t > 0.15 else 0.75)
@@ -649,7 +657,7 @@ def hairs(H, seed=3):
             out.append((pts, [0.00042, 0.0003, 0.0001]))
         rl = e['r'] + e['lid']
         for i in range(pk.get('lashes', 46)):
-            t = (i + rng.uniform(0, 0.8)) / pk.get('lashes', 46)
+            t = 0.08 + 0.92 * (i + rng.uniform(0, 0.8)) / pk.get('lashes', 46)
             u = -e['inner'] * 0.85 + t * (e['outer'] * 0.98 + e['inner'] * 0.85)
             v = lid_line(H, np.array([u]), 1)[0]
             base = from_eye(H, side, np.array([u]), np.array([v + 0.02]), np.array([rl + 0.0003]))[0]
@@ -664,6 +672,21 @@ def hairs(H, seed=3):
             p2 = p1 + (d0 * 0.5 + up * 0.7 + outw * 0.25 * t) / np.linalg.norm(d0 * 0.5 + up * 0.7) * ln * 0.55
             out.append(([base, p1, p2], [0.00045, 0.0003, 0.00008]))
     return out
+
+
+def teeth(H):
+    """The teeth, upper and lower, as two bands curved round behind the lips: (upper rows,
+    lower rows), each a list of rows of points (x, f, z) from one end to the other."""
+    m = H['mouth']
+    rows = []
+    for top, bot, back in ((m['z'] + 0.006, m['z'] - 0.0028, 0.0105), (m['z'] - 0.0012, m['z'] - 0.0075, 0.0118)):
+        band = []
+        for x in np.linspace(-m['w'] * 0.68, m['w'] * 0.68, 15):
+            t = x / (m['w'] * 0.68)
+            f = m['f'] - back - 0.011 * t * t
+            band.append(((x, f, top), (x, f, bot)))
+        rows.append(band)
+    return rows
 
 
 # ---------------------------------------------------------------- the hair
