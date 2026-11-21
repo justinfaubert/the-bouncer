@@ -9,12 +9,26 @@ class_name Lighting
 static var rich := RenderingServer.get_current_rendering_method() != "gl_compatibility"
 
 # with bounced light doing its work, the flat ambient that stood in for it drops to this share
-const AMBIENT_K := 0.7
+const AMBIENT_K := 0.15
 # and the lamps come up a little, so their pools print in the lamp ink, not the earth (the exposure
 # stays: raising it turned the jukebox's red and the balls on the felt to white)
-const LAMP_K := 1.2
+const LAMP_K := 1.1
+# the hanging lamps over the tables and the bar: tighter cones, so brighter in them
+const SPOT_K := 2.0
 const EXPOSURE_K := 1.0
-const SATURATION := 1.35
+# the press's lift at night (look/press.gdshader, 0.72 on Compatibility): nearer 1 keeps the dark dark
+const LIFT := 0.78
+# the light from his own eyes on the people (game/view.gd, 0.45 on Compatibility): with it at full,
+# the kid at the door printed pale as paper
+const EYE_FILL := 0.15
+
+# Old incandescent bulbs, all of them: about 2700 K, amber and a little orange, nothing near white.
+# Every warm lamp paler than that is pulled most of the way there (the table lamps' ffb865 already is
+# one); the pool lamp's white goes a little warm. Redder than this, and lit wood prints in the
+# earth ink instead of the lamp's.
+const INCANDESCENT := Color("ffb25e")
+const BULB_K := 0.55
+const SATURATION := 1.0
 
 
 # for side-by-sides: LAST_CALL_LIGHT_OFF=ssao,ssil,sdfgi,fog in the environment turns those off
@@ -69,7 +83,7 @@ const SHADOW_REACH := 13.0
 # By name (world/pub.gd's `lights`): how much each lamp lights the haze, and how big its bulb is,
 # in metres, which is how soft its shadows come out. A pool lamp's long tube throws soft shadows,
 # a bare bulb hard ones.
-const HAZE := {"pool": 2.6, "door_lamp": 1.6, "sodium": 2.4, "sign": 1.2, "roof_sign": 1.0, "keg": 1.3,
+const HAZE := {"pool": 2.6, "door_lamp": 0.3, "sodium": 2.4, "sign": 1.2, "roof_sign": 1.0, "keg": 1.3,
 	"deck": 1.4, "upstairs": 1.0, "hall": 0.7, "kitchen": 0.7, "juke": 0.3, "tv": 0.8, "back_bar": 0.0,
 	"store": 1.2, "desk_lamp": 0.6, "lobby": 0.4, "heat_lamp": 0.8}
 const SIZE := {"pool": 0.15, "door_lamp": 0.06, "sodium": 0.15, "sign": 0.5, "keg": 0.03, "deck": 0.04,
@@ -77,14 +91,18 @@ const SIZE := {"pool": 0.15, "door_lamp": 0.06, "sodium": 0.15, "sign": 0.5, "ke
 
 
 # haze pockets: [half size, density], hung just under the lamp
-const POCKETS := {"pool": [Vector3(1.6, 1.0, 1.0), 0.05], "door_lamp": [Vector3(1.4, 1.5, 1.4), 0.035],
+const POCKETS := {"pool": [Vector3(1.6, 1.0, 1.0), 0.05],
 	"sodium": [Vector3(6.0, 4.0, 6.0), 0.03], "deck": [Vector3(2.0, 1.4, 2.0), 0.035],
 	"upstairs": [Vector3(1.6, 1.0, 1.6), 0.02]}
 
 
 # lamps that run hot with the exposure up and nothing flat to hide them: the back bar's lamp, close
 # over the bottles, burnt the top shelf to bare paper
-const ENERGY_K := {"back_bar": 0.4, "juke": 0.75}
+const ENERGY_K := {"back_bar": 0.4, "juke": 0.75, "door_lamp": 0.6, "pool": 1.6}
+# the vestibule's second lamp has no name; anything this near the door is turned down with it
+# the lights out of doors keep their reach: a sodium lamp lights the whole lot
+const OUTDOORS := ["sodium", "sign", "roof_sign", "store"]
+const DOOR := Vector3(2.3, 2.0, 8.6)
 
 
 static func _haze(pub: Node, li: Light3D, half: Vector3, density: float) -> void:
@@ -117,6 +135,16 @@ static func dress(pub: Node) -> void:
 			var e := float(g.get_shader_parameter("emission_energy"))
 			if e > GLOW_CAP:
 				g.set_shader_parameter("emission_energy", GLOW_CAP + (e - GLOW_CAP) * 0.15)
+	# the bulbs and shades themselves glow amber
+	for k in ["lamp", "bulb", "shade", "window_lit", "far"]:
+		var gm: ShaderMaterial = pub.M.get(k)
+		if gm != null:
+			var ev = gm.get_shader_parameter("emission")
+			if not ev is Color:
+				continue
+			var ec: Color = ev
+			gm.set_shader_parameter("emission", ec.lerp(INCANDESCENT, 0.55))
+			gm.set_shader_parameter("albedo", ec.lerp(INCANDESCENT, 0.55))
 	for k in RED_GLOW:
 		var m: ShaderMaterial = pub.M.get(k)
 		if m != null:
@@ -131,12 +159,29 @@ static func dress(pub: Node) -> void:
 			continue
 		var n: String = named.get(li, "")
 		if li.has_meta("fill"):
-			# the fills over the room's middle stood in for the light off the walls; that's real now
-			li.light_energy *= 0.35
-			li.light_volumetric_fog_energy = 0.0
+			# the fills over the room's middle lit every square inch; the room keeps its dark now
+			li.light_energy = 0.0
+			li.visible = false
+			li.set_meta("base", 0.0)
+			li.set_meta("tint", li.light_color)
 			continue
+		# pools, not washes: the light falls off fast, and a lamp's cone has a hard enough edge
+		# that the floor between two tables is dark
+		var c := li.light_color
+		if n == "pool":
+			# the felt stays green: the pool lamp's tube only warms a little
+			li.light_color = c.lerp(INCANDESCENT, 0.25)
+		elif c.r > c.b + 0.08 and c.g / c.r > 0.74 and n != "sodium" and n != "sign" and n != "roof_sign" and n != "juke":
+			li.light_color = c.lerp(INCANDESCENT, BULB_K)
+		if li is OmniLight3D and n not in OUTDOORS:
+			(li as OmniLight3D).omni_attenuation = maxf((li as OmniLight3D).omni_attenuation, 1.9)
+		elif li is SpotLight3D:
+			(li as SpotLight3D).spot_attenuation = 1.8
+			(li as SpotLight3D).spot_angle_attenuation = 3.2
 		var built := li.light_energy
-		li.light_energy *= ENERGY_K.get(n, LAMP_K)
+		li.light_energy *= ENERGY_K.get(n, SPOT_K if li is SpotLight3D else LAMP_K)
+		if n == "" and li.global_position.distance_to(DOOR) < 1.6:
+			li.light_energy *= 0.4
 		li.light_volumetric_fog_energy = HAZE.get(n, 0.9 if li is SpotLight3D else 0.5)
 		li.light_size = SIZE.get(n, 0.08 if li is SpotLight3D else 0.05)
 		li.shadow_blur = 1.0

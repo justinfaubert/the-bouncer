@@ -155,7 +155,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	# them, their eyes went to two holes in the dark
 	var fill := OmniLight3D.new()
 	fill.light_color = Color("efe4d4")
-	fill.light_energy = 0.45
+	fill.light_energy = Lighting.EYE_FILL if Lighting.rich else 0.45
 	fill.omni_range = 8.0
 	fill.omni_attenuation = 1.4
 	fill.light_cull_mask = 1 << (Pub.PEOPLE_LAYER - 1)
@@ -931,7 +931,7 @@ func _put_light(c: float) -> void:
 		env.fog_light_color = _night.fog
 		env.fog_density = _night.fog_d
 		env.tonemap_exposure = _night.exposure * (Lighting.EXPOSURE_K if Lighting.rich else 1.0)
-		press.set_shader_parameter("lift", null)
+		press.set_shader_parameter("lift", Lighting.LIFT if Lighting.rich else null)
 		press.set_shader_parameter("levels_in", null)
 		if key != null:
 			key.visible = false

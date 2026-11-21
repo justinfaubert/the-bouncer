@@ -97,9 +97,9 @@ const float SPREAD = 1.5;             // the strokes stand this much further apa
 
 // one pass of the cut, as a threshold: its strokes start at tone `from` on their spines (x 0) and
 // widen until, at tone from + span, they cover half the gap; the rest of the gap waits for the
-// deepest tone (0.92 and on), so a shadow keeps its strokes and its form
+// deepest tone (0.86 and on), so a shadow keeps its strokes and its form
 float pass(float x, float from, float span) {
-	return x < 0.5 ? from + span * (x / 0.5) : mix(0.92, 1.0, (x - 0.5) / 0.5);
+	return x < 0.5 ? from + span * (x / 0.5) : mix(0.86, 1.0, (x - 0.5) / 0.5);
 }
 
 // a set of strokes along f, px_apart pixels apart on the screen at any distance, 0 on a stroke's
