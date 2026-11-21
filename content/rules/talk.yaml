@@ -35,7 +35,7 @@
     - team_jacket: A dollar ninety-one for diesel. That's Ottawa's hand in your pocket, that is.
     - scratch: It'll come down. It's due.
     - team_jacket: Due, he says! It's been due since Expo!
-    - hearing_aid: Expo.
+    - hearing_aid: What about Expo?
   then: laugh
 
 - id: t28_mill
@@ -43,7 +43,7 @@
     - cardigan: When the mill ran three shifts, you couldn't get a table in here on a Wednesday.
     - team_jacket: Couldn't get in the door! Dancers upstairs on Thursdays. Remember Candy?
     - scratch: Candy with the snake.
-    - hearing_aid: Snake.
+    - hearing_aid: Candy who?
     - cardigan: Her boy was in my daughter's class. He's a dentist now, on the mainland.
   then: laugh
 
@@ -52,7 +52,7 @@
     - team_jacket: Back in the day you could smoke in here, drive home pissed and pinch the waitress. On a Wednesday!
     - scratch: You never pinched anybody.
     - team_jacket: I was married! I had a lot of time on my hands!
-    - hearing_aid: Hands.
+    - hearing_aid: Whose hands?
   then: laugh
 
 - id: t28_new_kid
@@ -78,7 +78,7 @@
     - team_jacket: That one on the door. Not one of ours, that one.
     - scratch: I don't like his numbers.
     - team_jacket: Ten doormen since spring! The last one cried in the walk-in. Cried!
-    - hearing_aid: Cried.
+    - hearing_aid: In the walk-in clinic?
 
 - id: t28_dennis
   when: [t28_rounds >= 4]
@@ -108,7 +108,7 @@
   lines:
     - scratch: Doc's got me on the little blue ones. Says no grapefruit with them.
     - team_jacket: Who's eating grapefruit at a time like that!
-    - hearing_aid: Grapefruit.
+    - hearing_aid: I like a grapefruit.
     - cardigan: I take mine for the heart. My wife's been gone four years.
 
 - id: t28_phones
@@ -186,7 +186,7 @@
   lines:
     - slippers: My husband would have had that door shut by nine. Nine, and not a minute after.
     - slippers_b: Your husband had a temper.
-    - slippers: He had standards, dear. It looked like temper from the outside.
+    - slippers: He had standards, dear. He also had a temper.
 
 - id: slippers_wine
   lines:
@@ -235,7 +235,7 @@
   when: [tv_on == 4]
   lines:
     - team_jacket: Look at him sweep. Look at that.
-    - hearing_aid: Sweep.
+    - hearing_aid: Who's winning?
     - scratch: He's got it. He's got it. He hasn't got it.
 
 - id: t28_tv_off
@@ -355,7 +355,7 @@
   lines:
     - a: The window table. Five boomers, combined age about four hundred.
     - b: They own houses, though.
-    - a: They own houses. That's the whole joke.
+    - a: Two each.
 
 # ---------------------------------------------------------------- the kids
 
