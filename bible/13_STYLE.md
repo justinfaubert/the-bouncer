@@ -34,6 +34,55 @@ The short version, for every line written from now on. The sources follow, with 
 
 ---
 
+## What reads like a machine
+
+*Hutch, 21 November 2026, after the harder-dial rewrite of Wednesday: "better, the writing still reads AI too much though overall". This section is what came of it: the tells, how many there were and how many are left, and how each voice gets out of them. [PROPOSED]*
+
+Nobody notices one tell. They notice the same move made a hundred times, and after that they stop trusting the page. Each move below is fine once in a scene.
+
+### The tells, counted
+
+`python3 tools/tells.py` counts them over the Ink's narration, lines and choices (`--show 'the way'` lists the lines). Wednesday before and after the pass of 21 November, 52,652 words before and 50,746 after:
+
+| Tell | Before | After | The kind that went |
+|---|---|---|---|
+| "the way" | 122 | 58 | "the way you'd tell someone the time". Nearly all of the 58 left are literal (all the way, on the way, the way it happened) or in the narration about the bartender |
+| "as if", "as though" | 36 | 5 | "as if he'd only just found out what he was holding" |
+| "Not X. Y.", "It wasn't X. It was Y." | 39 | 25 | "Not the quiet of men who've stopped talking. The quiet of men in church." Most left are in people's mouths |
+| "for a long time", "for a moment" | 36 | 26 | the stock pause |
+| ", which" | 45 | 27 | the wry aside: ", which was worse than if he'd shouted" |
+| "That's how/what/all/the" | 69 | 42 | "That's the whole job, done backwards." |
+| "always" | 50 | 33 | "That kind always calls." |
+| "nobody", "no one" | 145 | 122 | "Nobody counts the ones who come in while nobody's counting." |
+| lists of three | 414 | 386 | the tidy triple; most left are real lists |
+
+What's left is mostly the bartender's lines and the narration about her, which wait for her rewrite as Jim.
+
+### The narrator
+
+- **End on the last concrete thing.** Cut the line that comments on it: "Then he sat.", "He didn't need to.", "That was the thing about him", "Table 28 said a great many things."
+- **No simile tails.** A concrete detail usually does the job: "the way you'd lift a sack you had some respect for" became "The coat was cashmere, and wet through at the seat."
+- **No stated takeaways.** "Nearly a day late, somebody told him" became what he told him: the hospital, since the morning, her heart.
+- **No stock body reports:** "for a long moment", "stood very still", "without a word", "a sound he felt more than heard", "his face said he'd remember that". Say what the body did: "The big man stood in the rain with his hands at his sides."
+- **When a voice reads someone wrong, the narrator doesn't correct it.** He puts down the detail that contradicts it: "The boyfriend's knuckles were scabbed over, both hands."
+- **Repeats across files read as a template.** "Heavier than he looked" was in three scenes and "the way a drunk man drives when he knows he's drunk" in two. Search before reusing an image.
+
+### The voices
+
+The worst of it was the voices talking in aphorisms, lines that would fit on a mug. Real people mostly don't talk like that. Each voice has its own way out:
+
+- **THE FATHER remembers instead of pronouncing.** Specific, petty, and usually against himself: "Ray Sinclair used to tip me fifty. I let him drive home three times I shouldn't have." "I never touched that. I had the rye. Rye's legal." A few plain door rules stay, said like a man giving instructions ("Right pocket, every door I ever worked"). His places so far: the Legion, Campbell River, Courtenay, the Fraser boys. The doorman's mother comes up, but not every time.
+- **SENIOR** (Gary's dead father) is petty, with years and dollar amounts: "Your mother's brother could lie, and he took me for nine thousand dollars in 1971."
+- **THE TILL** gives numbers, not opinions: "Three dollars of rye, gone."
+- **THE MANUAL** is binder text with section numbers, never wise and never sarcastic. If it's funny, it doesn't know it. Sections so far: 2 The Door, 3 Service, 4 Premises, 5 Liability, 7 Use of Force, Part 6 (suspension and offences), and Module 3, on the Saturday.
+- **THE WRONG MAN** is a drunk's story, retold. He's never sure of it, he contradicts himself, or somebody contradicts him: "The drunk said the keys were still in it. Then he said they weren't." "The drunk's wife said it was him that never came." Never a moral.
+- **THE FIGHTER** reads bodies, weights and distances: "A hundred and forty pounds, maybe. You could carry him out under one arm."
+- **THE TABLE and table 28** shout, and echo half as often as they did. A callback beats a repeated word: "A woman! Lorraine, in six!"
+- **The one with the hearing aid** mishears instead of echoing: "What about Expo?", "In the walk-in clinic?", "Who fell?" He gets one "Arse."
+- **THE KID** writes in lowercase and talks about his family. No "that's the thing".
+
+---
+
 ## The sources
 
 Each source gets: what it does, where that goes in The Bouncer (writing, structure, picture, sound), and what not to take. The "where" is the point. A technique with no place in the game is trivia.
@@ -219,6 +268,8 @@ Before a scene goes in, read it against this:
 - [ ] If something strange happens, do two voices read it two ways?
 - [ ] Is someone we think is wrong given their best case?
 - [ ] Is there a quip? Cut it. Humour is people being funny, never the writing winking.
+- [ ] Run `python3 tools/tells.py` on the file. Every "as if", "Not X. Y." or simile tail left in the narration needs a reason.
+- [ ] Would any voice's line fit on a mug? Make it a memory, a number, a section of the binder, or a rumour somebody got wrong.
 - [ ] Read it aloud. Hutch will be voicing the teller.
 
 ## The test

@@ -40,7 +40,7 @@
     }
 - tv_on == 2:
     {stopping:
-    - The game again from the start, on the sports channel's night replay. Table 28 watched it as if they didn't know how it came out.
+    - The game again from the start, on the sports channel's night replay. Table 28 cheered the first goal again.
     - The game again. Still nothing in it.
     }
 - tv_on == 3:

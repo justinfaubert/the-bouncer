@@ -24,7 +24,7 @@
 # amb: office
 // HUTCH: These opening lines are the first thing anyone reads. Rewrite them in the voice of whoever turns out to be telling this story, years later, at a bar.
 NARRATOR: He started on a Wednesday. Gary tried doormen out on Wednesdays because it was dead, and if a new guy screwed up there'd be nobody in to see it.
-NARRATOR: Gary told this part for years after, to anyone who'd sit still for it. He got a lot of it wrong. But he was there first, so we'll start with Gary.
+NARRATOR: Gary told this part for years, to anyone who'd sit still for it, and got a lot of it wrong. But he was there first.
 VAN DUSEN HOLDINGS was the front room of Gary Van Dusen's mother's house on the old main street. Across the road was the bank, which had been a cafe for eleven years. It was four in the afternoon and the lamp was on. His mother's china dogs were still on the mantel, next to a box of T-shirts and the beer rep's calendar, a girl in a bikini straddling a keg.
 It had been raining since noon. The bookkeeper sat at the other desk typing invoices with one finger. Her mug was from the bank.
 Somebody came up the porch steps and filled the glass in the door. From inside, the gold letters on it read SGNIDLOH NESUD NAV.
@@ -34,7 +34,7 @@ TILL: Here's twenty an hour.
 = arrive
 # sfx: door
 He ducked, coming in. #portrait: him
-He was big. Gary had watched the gym kind come off the ferry every summer, built out of powder in a tub and needles in the toilet stall, with zits all over their backs. This one was big all the way through, like a fridge. Thirty-five, maybe more. His hair was dark and down to his shoulders, wet from the walk. He had a string of wooden beads round his neck with a tassel on the end, and a work jacket open over a black T-shirt that somebody had ironed.
+He was big. Gary had watched the gym kind come off the ferry every summer, built out of powder and needles, with zits all over their backs. This one was big all the way through, like a fridge. Thirty-five, maybe more. His hair was dark and down to his shoulders, wet from the walk. He had a string of wooden beads round his neck with a tassel on the end, and a work jacket open over a black T-shirt that somebody had ironed.
 SENIOR: Hair like a girl's. In my day we'd have called him a fairy and given him the door.
 TILL: Long hair. That's a complaint a week.
 SENIOR: Ironed his T-shirt. Your mother ironed yours till you were thirty, Junior.
@@ -79,7 +79,7 @@ OWNER: You got your licence on you? The security one.
 
 // The door, turned round: Gary does to him what he'll do to everyone (bible/11_SKELETON.md).
 = licence_look
-Gary looked at the card, then at him, then at the card again, the way he'd seen it done. #prop: his_licence
+Gary looked at the card, then at him, then at the card again. #prop: his_licence
 SECURITY WORKER, it said, with a seal in the corner, a number, a photo, and a name under Gary's thumb.
 In the photo his head was shaved to the skin. Army, Gary thought. Or jail.
 SENIOR: That's a jail haircut.

@@ -298,7 +298,7 @@
     ~ last_count = clock
     // what it should be: the thirteen, and everyone he let in, less everyone he saw go
     ~ temp says = room_count - uncounted
-    He counted from the door clockwise, the way the Father had taught him, and didn't count anyone twice. He got {num(room_count)}.
+    He counted from the door clockwise, the way his father had taught him, and didn't count anyone twice. He got {num(room_count)}.
     {
     - says < room_count:
         The thirteen who'd been here when he came on, and the ones he'd let in, less the ones he'd seen go, made {num(says)}. {room_count - says == 1:One more in the room than had come past him.|{Num(room_count - says)} more in the room than had come past him.}

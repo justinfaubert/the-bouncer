@@ -352,6 +352,15 @@ Update this file at the end of every session: add a session entry, move items be
 - Where it may be too far, for Hutch: the flag in the lot, the boxed-in swastika, taking a line off the boyfriend's phone, table 28 on who bought the houses, the Newfie joke, the cook's fent.
 - Still Hutch's: table 28's talk and each man's quirk; the four stories of the last doorman (table 28's "woman" is Lorraine now, as a rumour; who the ferry tickets in the jacket were for stays his); the cook; last call; the deck; the payphone wall from his own bars; the daughter at two in the morning and how her mother is.
 
+### 2026-11-21 (Saturday), Wednesday reads human
+
+- Hutch on Wednesday at the harder dial: "yes its better, the writing still reads AI too much though overall and needs to be improved, but there are many things that are left to be done, please refer back to all the recent docs and artifacts where we laid out our future plans and get to work". The prose pass is below. The future plans are going ahead in their own thread.
+- The pass is in five commits on the branch ("Wednesday reads human", parts one to five): every Ink file in the order it plays, then the voices' barks and the talk he overhears. Same story, same choices, same state; plainer text. What went and why is in `13_STYLE.md`, What reads like a machine, with the counts before and after ("the way" 122 to 58, "as if" 36 to 5; 52,652 words before, 50,746 after). The counter is `tools/tells.py`.
+- The voices changed most, because they'd been talking in aphorisms. THE FATHER remembers instead; SENIOR gets years and dollar amounts; THE TILL gives numbers; THE MANUAL is binder text with section numbers and no sass; THE WRONG MAN is a drunk's retelling and never sure of it; THE FIGHTER reads bodies; table 28 echo half as much; the one with the hearing aid mishears instead of echoing.
+- New to the world, all PROPOSED, mostly the Father's past and the binder: Ray Sinclair (a pool cue across the head in '88; he tipped the Father fifty and was let drive home); a doorman Senior had in '64 who put a man through the Legion's front window; Gary's mother's brother, who took Senior for nine thousand dollars in 1971; Senior put one of table 28 out in '87 and all of them drank at the Legion for a month; a doorman who put the Father out of the Legion in Campbell River and drove him home; the Father stopped on the fourth try, after the doorman's mother left; the grandfather's strychnine on the farm, and the dog; the Fraser boys; the boxing at the Legion on Friday nights; a mickey in the Legion's cistern; '79, and eleven years at a table; Harold, the cardigan's doorman nobody remembers; the old man at the end of the bar in a tweed jacket with leather on the elbows, whom nobody has asked who he is since 1974; EMERGENCY SESSION under the panel on the TV; the binder's sections (2 The Door, 3 Service, 4 Premises, 5 Liability, 7 Use of Force, Part 6, and Module 3, on the Saturday).
+- Fixed on the way: the drawer's "All true. I told you." lost its setup when table 28's scene changed, so the Father now says "I had him down for a thief" (or, if the doorman took the money, "Now you're the doorman who took the float"). The churches on the walk and in the things he can look at agree now, and so does the old man's jacket on the wharf, at the bar and in the keg room. The bookkeeper's thirty years at the bank are gone (she's had forty-one with the Van Dusens).
+- Unchanged: the bartender's lines and the narration about her (for Jim), every `// HUTCH:` prompt, and the door's verdict choices (the next-phase thread is tagging them for the hand gestures). The audit is at 0; the bots reach 300 of 301 knots and stitches (ev_sister.sister_lie, as before); nothing between choices passes 300 words except the office opening (318), which waits on Hutch; Godot runs with no script errors on seeds 3, 7 and 11.
+
 ## Decisions register
 
 ### DECIDED (Hutch)
@@ -779,6 +788,7 @@ Proposed with pace, length and edge (2026-11-19), from Hutch's note ("no monoton
 - **The edge sample:** the payphone wall and the men's room rewritten (`content/revisions/edge_pass_sample.md`), with writing on the wall and taking the line as new choices.
 - **Amanda, round four:** from pretty to knowing (in the log above).
 - **Wednesday at the harder dial (2026-11-21):** the whole night rewritten in the Ink, with twelve new choices and what reads each, three of them to keep every stretch under 300 words (in the log above). New to the world: Lorraine in six, seven empty since March, the payphone wall and the women's stall in full, the Facebook soldier on the phone at table 28, the cardigan's dead (Les and Bob), Gary's call from somewhere with slot machines. The style test's welcome at table 28 is in the game with it.
+- **Wednesday reads human (2026-11-21):** the prose pass after Hutch's "still reads AI" (in the log above), the voices' new registers, and `13_STYLE.md`'s What reads like a machine.
 
 ### REJECTED
 
@@ -808,7 +818,7 @@ Proposed with pace, length and edge (2026-11-19), from Hutch's note ("no monoton
 21. The old soldier's name in the game (Hutch's friend Jim from story 10, renamed). Hutch, 2026-11-19: "Two Jim's is fine," so the bartender keeps his name whatever the old soldier is called.
 22. Music on Saturdays: a band, and a dance floor? If it's Jim's band, it moves the door on day 18 ("I'm with the drummer") and his band practice into the days off.
 23. A First Nation beside the town: in the game or not, and how. Hutch's call, and people from a Nation should have a say in it.
-24. The edge: answered 2026-11-20 (harder where it fits, always meaningful, respect the player; in the register). Open: Hutch's verdict on Wednesday rewritten at that dial (2026-11-21, in the log), and the six places it may be too far.
+24. The edge: answered 2026-11-20 (harder where it fits, always meaningful, respect the player; in the register). Hutch on Wednesday at that dial (2026-11-21): better, but it still reads AI; the prose pass that followed is in the log. Open: his verdict on the pass, and the six places it may be too far.
 25. Anything Hutch remembers off the walls of his own bars' washrooms, and a song he'd want the cigarette machine to know.
 
 ### Later
