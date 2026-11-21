@@ -1,4 +1,4 @@
-# The Bouncer: Wednesday, the test shift, through his eyes, printed.
+# Last Call: Wednesday, the test shift, through his eyes, printed.
 #
 # The game: boots the night, reads it into the column as it happens, and keeps the room in step
 # with it. Everything the night says comes from the engine (engine/game.gd, the browser build's
@@ -101,6 +101,7 @@ func _ready() -> void:
 	talk.setup(view, stage, content.get("talk", []), func(n): return game.get_var(n), func(): return game.psyche,
 		func(): return in_game and pending == null and rolling == null and not game.ended)
 	talk.finished.connect(overheard)
+	talk.said.connect(func(role, id, text): audio.line({"role": "dialogue", "speaker": role, "text": text}, stage.head_of(id)))
 
 	marks = Marks.new()
 	marks.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -546,6 +547,10 @@ func render_items(items: Array, live: bool) -> Control:
 				if live and it.get("role") == "dialogue":
 					talk.interrupt(str(it.get("speaker", "")))
 					stage.speaking(str(it.get("speaker", "")), str(it.get("text", "")))
+				if live:
+					# its recording, a bark or a whisper (game/sound.gd), from the speaker's head if they're here
+					var who := str(it.get("speaker", ""))
+					audio.line(it, stage.head_of(who) if it.get("role") == "dialogue" and stage.present(who) else Vector3.INF)
 			"chosen":
 				# his legs (a walk across the room, game/going.gd) aren't a choice anyone reads
 				if str(it.get("toy", "")) != "legs":
@@ -801,7 +806,7 @@ func _end_action(what: String) -> void:
 
 
 func _transcript() -> String:
-	var out: Array = ["THE BOUNCER. Wednesday, the test shift.", ""]
+	var out: Array = ["LAST CALL. Wednesday, the test shift.", ""]
 	var st := game.status()
 	if bool(st.get("statsSet", false)):
 		var bits: Array = []

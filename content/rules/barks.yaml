@@ -33,7 +33,7 @@
   on: teach:check
   speaker: manual
   always: true
-  text: A choice with a voice's name on it is a check. That voice makes the call, and two dice have to reach the number beside it. The odds are printed. Read them.
+  text: A choice with a voice's name on it is a check. That voice makes the call, and two dice have to reach the number beside it. The odds are printed under it.
 
 - id: teach_tension
   on: teach:tension
@@ -45,7 +45,7 @@
   on: teach:word
   speaker: manual
   always: true
-  text: Every group on the premises keeps its own opinion of staff, by its own rules. You will not be told what they think. You will hear what they say.
+  text: Every group on the premises keeps its own opinion of staff, by its own rules, and shows it in what it says to you.
 
 - id: teach_room
   on: teach:room
@@ -65,21 +65,21 @@
   on: visit:door
   speaker: father
   when: [door_away >= 60]
-  text: An hour off the door. The door doesn't care that you had reasons.
+  text: An hour off the door. I got fired for less.
   mark: door.empty
 
 - id: door_uncounted
   on: visit:door
   speaker: wrongman
   when: [uncounted >= 2]
-  text: People in you never saw. In the story it only took one.
+  text: People in you never saw. In the story it was just the one, the drunk said. Or two.
   mark: door.mat ?
 
 - id: door_first_quiet
   on: visit:door
   speaker: manual
   when: [clock >= 1260, count_in <= 1]
-  text: Maintain a visible presence at the point of entry. Visible means sitting up.
+  text: Maintain a visible presence at the point of entry (see Section 2, The Door).
   mark: door.stool POST
 
 # ---------------------------------------------------------------- the pool table
@@ -114,14 +114,14 @@
   on: visit:pool
   speaker: manual
   when: [pool_heat >= 7, fam_done == false]
-  text: De-escalation is most effective before physical contact. Before is now.
+  text: De-escalation is most effective before physical contact.
   mark: pool.bigman A; pool.buddy B
 
 - id: pool_kid_photo
   on: visit:pool
   speaker: wrongman
   when: [knows has kid_photo, fam_done == false]
-  text: The man in the kid's photo. Left hand on the rail, same as the picture.
+  text: The man in the kid's photo. In the story there was a photo too, and nobody looked at it till after.
   mark: pool.lefthand
 
 # ---------------------------------------------------------------- table 28
@@ -137,14 +137,14 @@
   on: visit:t28
   speaker: manual
   when: [t28_rounds >= 7]
-  text: Nobody has ever been refused service at this table. There is no section for that.
+  text: Staff must refuse service to a patron who shows signs of intoxication (Section 3, Service).
   mark: t28.table TABLE 28
 
 - id: t28_walter
   on: visit:t28
   speaker: wrongman
   when: [knows has walter_name, walter == 1]
-  text: In the story it was a dog under the table. Everybody fed it. Same thing.
+  text: In the story it was a dog under the table, the drunk said. Everybody fed it. Then he said it was a cat.
   mark: t28.under ?
 
 # ---------------------------------------------------------------- the bar
@@ -168,14 +168,14 @@
 - id: hall_intervals
   on: visit:hall
   speaker: manual
-  text: Check washrooms at regular intervals and record the time. You have not been recording the time.
+  text: Check washrooms at regular intervals and record the time in the log.
   mark: hall.signs TIME ____
 
 - id: hall_locked
   on: visit:hall
   speaker: wrongman
   when: [fam has kid_found, kid_at has s_single]
-  text: A locked door with a kid behind it. That's a story nobody wants to finish.
+  text: In the story there was a kid locked in a can too. The drunk always stopped there and ordered another.
   mark: hall.single ?
 
 - id: kitchen_propped
@@ -201,7 +201,7 @@
 - id: deck_story
   on: visit:deck
   speaker: wrongman
-  text: This is where it always starts. Somebody out for a smoke, and the door left open behind them.
+  text: In the story somebody went out for a smoke and left a door open behind him. That was the start of it, the drunk said.
   mark: deck.door ?
 
 - id: keg_head
@@ -213,7 +213,7 @@
   on: visit:keg
   speaker: wrongman
   when: [knows has knot_seen]
-  text: You've seen it now. You can't go back to not having seen it.
+  text: In the story the doorman who saw it went down every night after, with a light, to see if it was still there.
   mark: keg.dark
 
 - id: keg_stations
@@ -226,7 +226,7 @@
 - id: lot_remember
   on: visit:lot
   speaker: father
-  text: The ones who wait in the lot are the ones who remember you.
+  text: A man waited for me in the lot at the Legion once. He'd been waiting since June.
   mark: lot.truck
 
 # ---------------------------------------------------------------- drink
@@ -241,13 +241,13 @@
   on: drink
   speaker: manual
   when: [drinks >= 3]
-  text: Staff shall not consume alcohol while on duty. You will be the one writing the log.
+  text: Staff shall not consume alcohol while on duty (Part 6).
 
 - id: drink_story
   on: drink
   speaker: wrongman
   when: [drinks >= 4]
-  text: The doorman in the story was sober. It didn't help him either.
+  text: The doorman in the story was sober, the drunk said. He was the only one.
 
 # ---------------------------------------------------------------- the clock
 
@@ -267,13 +267,13 @@
   on: hour
   speaker: wrongman
   when: [clock >= 1440, clock < 1500]
-  text: Midnight. In the story it was always after midnight.
+  text: Midnight. In the story it was after midnight, the drunk said, because the game was over.
 
 - id: hour_one
   on: hour
   speaker: father
   when: [clock >= 1500, clock < 1530]
-  text: Half an hour to last call. Everything you let slide comes back now.
+  text: Half an hour to last call. Start with the ones who are standing.
 
 # ---------------------------------------------------------------- the room in his head
 
@@ -307,7 +307,7 @@
 - id: fail_manual
   on: check_fail:manual
   speaker: manual
-  text: This was covered on the Saturday. You were at the back.
+  text: This was covered in Module 3, on the Saturday.
 
 - id: pass_wrongman_fighter
   on: check_pass:wrongman
@@ -325,7 +325,7 @@
   on: answer:father
   speaker: fighter
   when: [odds father]
-  text: Thirty years of doors and he still thinks it's in the eyes. It's in the feet.
+  text: Thirty years of doors and he still watches the eyes. Watch the feet.
 
 - id: ans_fighter_father_2
   on: answer:father
@@ -349,19 +349,19 @@
   on: answer:father
   speaker: wrongman
   when: [ally father]
-  text: He knew the story. Every doorman knows the story.
+  text: He heard the story too. The drunk told it in every bar on the island.
 
 - id: ans_wrongman_father_2
   on: answer:father
   speaker: wrongman
   when: [ally father]
-  text: Listen to him. The one in the story had nobody to listen to.
+  text: Listen to him. The doorman in the story didn't have a father, the drunk said. Or he did and they didn't talk.
 
 - id: ans_father_fighter_1
   on: answer:fighter
   speaker: father
   when: [odds fighter]
-  text: He got paid to fight. You get paid so there isn't one.
+  text: He fought for free. You're on eighteen an hour not to.
 
 - id: ans_father_fighter_2
   on: answer:fighter
@@ -373,25 +373,25 @@
   on: answer:fighter
   speaker: manual
   when: [odds fighter]
-  text: Force must be reasonable, necessary and proportionate. He has not read those words.
+  text: Force must be reasonable, necessary and proportionate (Section 7, Use of Force).
 
 - id: ans_manual_fighter_2
   on: answer:fighter
   speaker: manual
   when: [odds fighter]
-  text: Physical intervention is last on the list. It is last for a reason.
+  text: Physical intervention is the last option on the list (Section 7, Use of Force).
 
 - id: ans_wrongman_fighter_1
   on: answer:fighter
   speaker: wrongman
   when: [odds fighter]
-  text: The doorman in the story was ready for a fight. That isn't what came in.
+  text: The doorman in the story was ready for a fight. The drunk never said what came in instead.
 
 - id: ans_wrongman_fighter_2
   on: answer:fighter
   speaker: wrongman
   when: [odds fighter]
-  text: The wrong man is never the one squaring up to you.
+  text: In the story the wrong man never squared up to anybody. He was very polite, the drunk said.
 
 - id: ans_father_manual_1
   on: answer:manual
@@ -403,7 +403,7 @@
   on: answer:manual
   speaker: father
   when: [ally manual]
-  text: Listen to it. I didn't, and I learned all of it the long way.
+  text: Listen to it. I didn't, and I lost my licence twice.
 
 - id: ans_fighter_manual_1
   on: answer:manual
@@ -427,7 +427,7 @@
   on: answer:manual
   speaker: wrongman
   when: [odds manual]
-  text: There's no page in there for what came through that door.
+  text: The drunk said the doorman in the story had a binder too. He used it to prop the door.
 
 - id: ans_father_wrongman_1
   on: answer:wrongman
@@ -439,7 +439,7 @@
   on: answer:wrongman
   speaker: father
   when: [ally wrongman]
-  text: Every door I worked had a story like that. Every one of them was true somewhere.
+  text: Every door I worked had a story like that. At the Legion it was a man in the walk-in.
 
 - id: ans_fighter_wrongman_1
   on: answer:wrongman
@@ -463,7 +463,7 @@
   on: answer:wrongman
   speaker: manual
   when: [odds wrongman]
-  text: The incident log has no field for a feeling.
+  text: Incident log entries record observed facts, with the time, the place, the persons involved and the action taken.
 
 # ---------------------------------------------------------------- toys
 # The player playing with things between choices (content/ink/toys.ink). Each rule is tried every
@@ -486,12 +486,12 @@
 - id: toy_driver_card_tilt
   on: toy:driver_card:tilt
   speaker: father
-  text: It's real. They mostly are. Now hold it up by her face. The card was never the question.
+  text: It's real. They mostly are. Now hold it up by her face.
 
 - id: toy_goodshoes_card_tilt
   on: toy:goodshoes_card:tilt
   speaker: manual
-  text: Genuine. The scanner agrees. Neither the hologram nor the scanner has read the binder under the till.
+  text: Genuine. The scanner agrees. Check the barred list under the till (Section 2, The Door).
 
 - id: toy_card_flip
   on: toy:card:flip
@@ -537,7 +537,7 @@
 - id: look_dartboard
   on: toy:dartboard:look
   speaker: father
-  text: Darts are fine till somebody's drinking. Then they're three knives and a reason.
+  text: Pull the darts after ten. I saw a man lose an eye at the Legion.
 
 - id: look_cues
   on: toy:cues:look
@@ -547,23 +547,23 @@
 - id: look_bottles
   on: toy:bottles:look
   speaker: wrongman
-  text: In the story the doorman watched the whole room in the mirror behind the bar, and never once looked at himself in it.
+  text: In the story the doorman watched the room in the mirror behind the bar. The drunk said that's how he missed it.
 
 - id: look_tape
   on: toy:tape:look
   speaker: manual
-  text: Staff are advised to work out the date at the start of each shift. Arithmetic at the door is a leading cause of error.
+  text: Staff are advised to work out the cut-off date of birth at the start of each shift.
 
 - id: look_id_sign
   on: toy:id_sign:look
   speaker: father
-  text: Every door's got its exceptions. They're just not on the sign.
+  text: We had that sign at the Legion. Somebody drew a dick on it.
 
 # the room's things (content/ink/room.ink)
 - id: look_empties
   on: toy:empties:look
   speaker: fighter
-  text: A pint glass is a weapon with the beer gone out of it.
+  text: Empties. Get them off the rail before the pool table gets loud.
 
 - id: look_mop
   on: toy:mop:look
@@ -583,7 +583,7 @@
 - id: look_coat_hook
   on: toy:coat_hook:look
   speaker: wrongman
-  text: In the story there was a coat on a hook all night. Everybody saw it. Nobody wondered whose.
+  text: In the story somebody left a coat on a hook all night. The drunk said the phone in it never stopped.
 
 - id: look_wallet
   on: toy:wallet:look
@@ -595,7 +595,7 @@
 - id: legs_ran_father
   on: toy:legs:ran
   speaker: father
-  text: Never run on the floor. A doorman running tells the whole room there's trouble, and then the room goes looking for it.
+  text: Never run on the floor. Run and the whole room gets up to see where.
 
 - id: legs_ran_manual
   on: toy:legs:ran
@@ -621,27 +621,27 @@
 - id: ears_new_kid_bad
   on: ears:t28_new_kid_bad
   speaker: wrongman
-  text: In the story, the table that's turned on you never says it to your face. It says it to the table.
+  text: In the story the table turned on the doorman, and the drunk said they never once said it to his face.
 
 - id: ears_dennis
   on: ears:t28_dennis
   speaker: father
-  text: That's not a funny drunk. That's a drunk they're used to.
+  text: Every bar's got a Dennis. At the Legion it was me.
 
 - id: ears_pool_quiet
   on: ears:pool_quiet
   speaker: fighter
-  text: Shoulders up round his ears and he's not looking at the ball. That's not a man playing pool.
+  text: Shoulders up round his ears, and he's not looking at the ball.
 
 - id: ears_goodshoes
   on: ears:goodshoes_gary
   speaker: father
-  text: A man who says the owner's name twice wants you to hear it once.
+  text: He's said Gary's name twice. Gary's never once said his.
 
 - id: ears_haarp
   on: ears:haarp
   speaker: manual
-  text: Staff are reminded that the ionosphere is outside the licensed premises.
+  text: Staff are not to engage patrons in political or religious discussion.
 
 - id: ears_light
   on: ears:the_light
@@ -656,7 +656,12 @@
 - id: ears_rat
   on: ears:rat_seen
   speaker: manual
-  text: Sightings of vermin are to be reported to the licensee, who will be glad to hear it.
+  text: Sightings of vermin are to be reported to the licensee the same day.
+
+- id: ears_kids_over
+  on: ears:kids_over
+  speaker: father
+  text: He's telling his sister. I told your aunt about your grandmother with a joke, too.
 
 # ---------------------------------------------------------------- the hand
 #
@@ -758,7 +763,7 @@
 - id: hand_shade_wrongman
   on: hand:shade
   speaker: wrongman
-  text: The log in the story read fine. That was the trouble with it.
+  text: In the story the log read fine. The drunk said the cops read it twice.
 
 - id: hand_shade_fighter
   on: hand:shade
@@ -768,7 +773,7 @@
 - id: hand_omit_father
   on: hand:omit
   speaker: father
-  text: What you leave out, you carry.
+  text: I left things out for thirty years. It all came out at the Legion anyway.
 
 - id: hand_omit_manual
   on: hand:omit
@@ -778,7 +783,7 @@
 - id: hand_omit_wrongman
   on: hand:omit
   speaker: wrongman
-  text: He left one thing out of his log, in the story. Guess which.
+  text: In the story the doorman left one thing out of his log. The drunk would never say what.
 
 - id: hand_resisted_shade
   on: hand:resisted:shade
@@ -811,7 +816,7 @@
   on: hand:check:fighter
   speaker: wrongman
   when: [odds fighter]
-  text: In the story the doorman won the fight. He still let the wrong man in.
+  text: In the story the doorman won the fight, the drunk said. It was after that the wrong man came in.
 
 - id: hand_check_father_own
   on: hand:check:father
@@ -844,7 +849,7 @@
 - id: hand_check_wrongman_own
   on: hand:check:wrongman
   speaker: wrongman
-  text: I know how this one goes.
+  text: I think I know how this one goes.
 
 - id: hand_check_wrongman_manual
   on: hand:check:wrongman
@@ -870,7 +875,7 @@
 - id: hand_out_wrongman
   on: hand:room_out:wrongman
   speaker: wrongman
-  text: You'll still let him in. You just won't know it's him.
+  text: You'll still let him in, the drunk would say. He said it to everybody.
 
 - id: hand_out_table
   on: hand:room_out:table
@@ -880,7 +885,7 @@
 - id: hand_in_table_father
   on: hand:room_in:table
   speaker: father
-  text: They'll sit in your head the way they sit in those chairs. For good.
+  text: Table 28 never leave anywhere. Ask Gary.
 
 - id: hand_in_kid_fighter
   on: hand:room_in:kid
@@ -931,12 +936,12 @@
   on: hand:loc:keg
   speaker: wrongman
   when: [knows has knot_seen]
-  text: You know what's behind that wall now.
+  text: In the story there was something behind a wall too. The drunk said he heard it once, through the floor of the men's.
 
 - id: hand_loc_keg
   on: hand:loc:keg
   speaker: manual
-  text: Nobody asked you to go back there.
+  text: Staff do not enter storage areas without the licensee's instruction.
 
 - id: hand_loc_lot
   on: hand:loc:lot
@@ -1000,7 +1005,7 @@
 - id: hand_reread_wrongman
   on: hand:reread
   speaker: wrongman
-  text: It happened the way it happened. Reading it again won't change it.
+  text: The drunk read the story out of the paper once. It was different in the paper.
 
 - id: hand_reread_manual
   on: hand:reread

@@ -26,7 +26,7 @@
     ~ return
 }
 {stopping:
-- The dartboard on the east wall, in its cabinet with the doors open, and the line on the carpet where you stood to throw. Three darts in the board, in nothing much. Nobody had played tonight.
+- The dartboard on the east wall, in its cabinet with the doors open, and the line on the carpet where you stood to throw. Three darts in the board, in nothing much. Nobody had played tonight. Taped inside one of the cabinet doors, a wedding photo with the bride's face darted down to the cork, and the groom's left alone.
 - The three darts, where they'd been.
 }
 
@@ -40,24 +40,24 @@
     }
 - tv_on == 2:
     {stopping:
-    - The game again from the start, on the sports channel's night replay. Table 28 watched it as if they didn't know how it came out.
+    - The game again from the start, on the sports channel's night replay. Table 28 cheered the first goal again.
     - The game again. Still nothing in it.
     }
 - tv_on == 3:
     The TV over the back wall, off: a dark square with the room in it, small.
 - tv_on == 4:
     {stopping:
-    - The curling, from the prairies somewhere: a stone going down the ice as slow as a ferry, and two men sweeping in front of it as if their lives depended on it.
+    - The curling, from the prairies somewhere: a stone going down the ice, slow, and two men sweeping hard in front of it.
     - The curling. Another end.
     }
 - clock < 1380:
     {stopping:
-    - The TV over the back wall, on the hockey with the sound off: home two, away one, in the second. Table 28 watched it the way they watched the door, all of them at once, and only when something happened.
+    - The TV over the back wall, on the hockey with the sound off: home two, away one, in the second. Table 28 watched it all at once, and only when something happened.
     - Still two to one.
     }
 - else:
     {stopping:
-    - The game was over. They were showing the goals again, each one from three angles, and table 28 watched as if one of them might come out different.
+    - The game was over. They were showing the goals again, each one from three angles, and table 28 watched every one.
     - The goals, again.
     }
 }
@@ -105,7 +105,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 
 === function toy_t28(what)
 {stopping:
-- Table 28, the big round one in the front window, {num(t28_rounds)} rounds in. Somebody at it was always talking and nobody was ever listening, and none of them ever missed a word.
+- Table 28, the big round one in the front window, {num(t28_rounds)} rounds in. The one in the team jacket was talking. The rest were waiting to.
 - Table 28, {num(t28_rounds)} rounds in.
 }
 
@@ -125,7 +125,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 === function toy_bottles(what)
 // HUTCH: What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
 {stopping:
-- The back bar: three shelves of bottles against the mirror, the rail stuff on the bottom where she could reach it without looking, and up top the good scotch, dusty at the shoulders.{here != hall: In the mirror, between the bottles, the room, and him in it, bigger than he ever thought of himself.}
+- The back bar: three shelves of bottles against the mirror, the rail stuff on the bottom where she could reach it without looking, and up top the good scotch, dusty at the shoulders.{here != hall: In the mirror, between the bottles, the room, and him in it.}
 - The bottles{here != hall:, and him in the mirror behind them}.
 }
 
@@ -253,7 +253,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 
 === function toy_pilings(what)
 {stopping:
-- Past the last of the kegs the concrete gave out to dirt, and the old pilings stood up out of it in no kind of order, black, the way they'd been driven into the beach before there was any building on it. The dirt was damp. The water wasn't far.
+- Past the last of the kegs the concrete gave out to dirt, and the old pilings stood up out of it in no kind of order, black, where they'd been driven into the beach before there was any building on it. The dirt was damp. The water wasn't far.
 - The pilings, in the dark past the bulb.
 }
 
@@ -393,8 +393,8 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 
 === function toy_street_church(what)
 {stopping:
-- The white church, wooden, its spire going up into the rain, and the board on its lawn: ST. ANDREW'S, SUNDAY SERVICE 10:30 AM, ALL WELCOME. The other church, the stone one further up, didn't say.
-- St. Andrew's. All welcome.
+- The white church at the top of the street, wooden, its spire going up into the rain, and its sign: SIGN BROKEN, COME INSIDE FOR MESSAGE. The stone one at the bottom had a realtor's board on the lawn.
+- SIGN BROKEN.
 }
 
 === function toy_street_wharf(what)
@@ -411,7 +411,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 
 === function toy_esso_canopy(what)
 {stopping:
-- The canopy, lit white from underneath, over two islands of pumps and nobody at them. Under it the rain stopped and the light didn't, so it was noon there and nowhere else.
+- The canopy, lit white from underneath, over two islands of pumps and nobody at them. Under it there was no rain and too much light.
 - The canopy, lit.
 }
 

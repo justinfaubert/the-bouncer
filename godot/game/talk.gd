@@ -14,6 +14,7 @@ class_name Talk
 extends Control
 
 signal finished(id: String)
+signal said(role: String, id: String, text: String)    # a line of it out loud (its recording, game/sound.gd)
 
 const EARSHOT := 7.5              # metres, in an empty room; a full one takes a third off it
 const TOGETHER := 3.8             # as far apart as the ones in one conversation can be
@@ -166,6 +167,7 @@ func _run(now: float) -> void:
 			for id in on.cast[r]:
 				stage.life.listen(id, first, end)
 	_slip(role, first, text, now + 0.06, end, _middle())
+	said.emit(role, first, text)
 	on.k = k + 1
 	on.at = end + randf_range(BEAT.x, BEAT.y)
 

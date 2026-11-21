@@ -16,12 +16,12 @@
 # amb: deck
 { at_deck == 1:
     He went out through the deck door. {deck_door:A folded coaster was wedged in the latch so it wouldn't lock behind anyone.|It was locked. He let himself out with the key on his ring.}
-    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
+    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Under one of the chairs, a pink lighter and the torn foil off a condom. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
     // HUTCH: The smoking deck. What happens out there that doesn't happen inside?
 - else:
     {shuffle:
     - Out on the deck the rain came off the awning in ropes.
-    - The deck. Wet plastic chairs, the coffee can, the lights of the far shore.
+    - Somebody had left a full beer on the deck rail, in the rain.
     - It was cold on the deck after the room.
     }
 }
@@ -62,7 +62,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
 ~ pass(5)
 { stopping:
 - He stood at the rail. Out on the strait {clock < 1320:the last ferry was going across, lit up like a building on its side|a tug was pushing a barge up the dark with one light at each end}.
-    NARRATOR: He'd stand out there most nights for the next month. That was the first time.
+    NARRATOR: He stood out there most nights after that.
 - He stood at the rail. A car went by on the highway, slow, and its lights went along the seawall.
 - He stood at the rail and let the cold get into him. Behind him, through the glass, table 28 laughed at something, together.
 - He stood at the rail. The rain.
@@ -76,7 +76,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
 - arrivals !? banned_done && knows !? ardagh && clock >= 1230:
     ~ deck_smokers = 1
     ~ smokers_at = clock
-    Two women were smoking under the awning by the steps, talking the way people talk in front of a doorman.
+    Two women were smoking under the awning by the steps. They didn't lower their voices for him.
     SMOKER: Graham Ardagh's back. I saw his car at the Esso.
     SMOKER: She'd have him shot. She'd do it herself, with the soda gun.
     They both looked through the glass at the bartender, and then didn't.
@@ -86,6 +86,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     ~ smokers_at = clock
     A man smoking by the steps was watching the lot.
     SMOKER: That pickup's been sitting there since eight with the engine going. Somebody's waiting on somebody.
+    SMOKER: Last time a truck sat out there like that it was Darlene's husband, with his rifle on the seat. He was only going to scare her, he said.
     ~ knows += truck
 - knows !? mill_closing:
     ~ deck_smokers = 3
@@ -93,6 +94,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     Two of the mill crew were smoking at the far end of the deck, one of them still in his vest.
     SMOKER: They're saying the mill's done at Christmas. My brother-in-law says Christmas.
     SMOKER: They've been saying Christmas for six years.
+    SMOKER: Forty-five percent the Yanks are charging on a board now. And the logs go out raw off the dock in Nanaimo, on a Chinese boat, past the mill. I've watched them go.
     ~ knows += mill_closing
 }
 -> d_opts
@@ -110,15 +112,15 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
     CARDIGAN: Now there's five. Four, some days.
     -> cg
 * (four) ["What happened to the other four?"]
-    CARDIGAN: What always happens. Two of them died. One is in the home in town and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not once. As if he'd died, except he hadn't.
-    CARDIGAN: The table closed up the gap. It always does.
+    CARDIGAN: What always happens. Two of them died. Les went off the road past the Esso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not a Christmas card.
+    CARDIGAN: We moved the chairs round.
     He looked at the end of his cigarette.
     CARDIGAN: My daughter wants me in Calgary.
     -> cg
 * {four} ["Will you go?"]
     CARDIGAN: I don't know.
-    CARDIGAN: If I go, they'll close up the gap. If I stay, I'll die at that table. Those are the choices. Everyone at that table has had them.
-    FATHER: He's asking you. He doesn't know he's asking you.
+    CARDIGAN: If I go, they'll move the chairs round. If I stay, I'll die at that table, like Bob.
+    FATHER: He wants you to tell him.
     * * ["Go."]
         ~ cardigan_go = 1
         CARDIGAN: It's easy for you to say, I suppose.
@@ -141,7 +143,7 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
 The boyfriend had come up the deck steps in the rain and was rattling the door he'd have walked straight through an hour ago, if the coaster had still been in it. He'd come round the building from the lot. When he saw the doorman through the glass he tried to look like he'd been out here smoking the whole time.
 VAPE: bro. i was just out here
 VAPE: i've been out here the WHOLE time my guy
-FIGHTER: The ones you put out the front come in the back. Every time.
+FIGHTER: He's been round the whole building in the rain for this.
 * ["Go sit in the truck."]
     { in_truck(sister_at):
         VAPE: she's not gonna let me in
@@ -214,7 +216,6 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
         ~ fam += sister_fetched
         # task: fetch :: Tell the big man at the pool table about his wife.
         DRIVER: Okay.
-        She said it the way you say it when you've stopped expecting anything and something happens anyway.
     * * ["Wait in the truck."]
         ~ fam += told_wait
         ~ rep(rep_kids, -1)
@@ -231,7 +232,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ uncounted -= kids_in
     ~ rep(rep_kids, 2)
     ~ here = floor
-    He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him for almost a whole second.
+    He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him.
     MANUAL: For the record, one of them has no identification.
     FIGHTER: Watch the boyfriend.
     -> carry_on
@@ -338,7 +339,7 @@ She went in past him, into the room, and straight to the pool table.
 === ev_vape_back ===
 ~ vape_seen = true
 { vape_backs > 1:
-    The boyfriend was at the bar again. Again. Wet to the knees this time, and grinning, as if it had become a game between them and he was winning it. #look: vape
+    The boyfriend was at the bar again, wet to the knees this time, and grinning at him. #look: vape
 - else:
     The boyfriend was at the bar again, dripping, with his hood up, trying to get served. He hadn't come past the stool. There were wet sneaker prints on the carpet from the deck door. #look: vape
 }
@@ -373,7 +374,7 @@ FIGHTER: The ones you put out the front come in the back. Every time.
     { vape_backs > 1:
         He walked him out the front again. Neither of them said anything this time. On the gravel the boyfriend stood and looked at the deck, all the way round the side of the building, and then at the doorman, and went and sat on the step of the beer store instead. #sfx: door
     - else:
-        He walked him out the front again. The boyfriend laughed the whole way, as if they both knew how this went. #sfx: door
+        He walked him out the front again. The boyfriend laughed the whole way. #sfx: door
     }
 * [Leave him. He's back. Watch him.]
     ~ pass(1)

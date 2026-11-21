@@ -21,6 +21,21 @@
 # floor, from the keg room. The rain on the roof and outside, the sea, and the room's own hum are
 # all round him. The room's own sounds come from where they happen the same way (at): a glass set
 # down at table 28, their laugh, a ball struck on the pool table (world/doings.gd).
+#
+# Past the placeholders, four systems wait for Hutch's own recordings, and stay silent until they
+# come (docs/SOUNDS.md has every name):
+# - The jukebox (juke_*): with songs in, the jukebox plays them one after another from the machine,
+#   with a gap between, instead of the amb_juke loop. After the last-call bell the bartender's song
+#   (juke_close) is next, and it plays out even once the jukebox is off.
+# - The score (score_*, sting_*): the Ink's #music: score_sky brings a cue in under the room and
+#   lowers the room a little; #music: score_none lets it go. #music: sting_turn is a one-shot. The
+#   teller's theme (score_teller) comes in by itself under the teller's lines and goes after them.
+# - Voices (vo_*, bark_*, whisper_*): a recorded line (vo_<who>_<8 letters>, from
+#   tools/vo_script.py, which writes docs/VOICE_SCRIPT.md) plays when its line appears, the teller's
+#   all round him, a person's from their head; the room ducks under it. Without one, a person's
+#   bark (bark_<who>: a laugh, a "here he is") now and then, and a voice in his head its whisper.
+# - The room's echo: what he hears in the bar, the back hall, the keg room and the lot rings like
+#   each (SPACE), on its own bus; the menus' clicks stay dry.
 class_name Sound
 extends Node
 
@@ -61,6 +76,18 @@ const DIFFUSE := 0.35
 # what's between two parts of the building dulls a sound to below about this (Hz): the buses made
 # for it, from a doorway to a floor
 const DULL := [["Doorway", 2200.0], ["Wall", 800.0], ["Floor", 280.0]]
+# How each part of the building rings: the reverb's room size, its damping (how soon the highs die)
+# and how much of it is heard. Tiles and concrete ring; carpet, coats and people soak it up; outside
+# there's next to nothing.
+const SPACE := {
+	"room": [0.42, 0.6, 0.12], "vest": [0.18, 0.35, 0.14], "hall": [0.32, 0.2, 0.24],
+	"kitchen": [0.28, 0.25, 0.18], "keg": [0.62, 0.12, 0.34], "lobby": [0.36, 0.45, 0.16],
+	"upstairs": [0.28, 0.65, 0.09], "office": [0.24, 0.7, 0.07], "deck": [0.2, 0.75, 0.04],
+	"lot": [0.12, 0.85, 0.02], "town": [0.12, 0.85, 0.02],
+}
+const SONG_GAP := Vector2(2.5, 7.0)   # seconds between one song and the next on the jukebox
+const BARK_EVERY := 30.0              # at most one bark from the same person this often, seconds
+const WHISPER_EVERY := 20.0
 
 var settings: Dictionary
 var view: View                  # where he is, so the room comes from round him
@@ -83,6 +110,27 @@ var where := "door"
 var doors := {"deck": true, "kitchen": true, "hotel": true}
 var unlocked := false
 var _last := {}                 # name -> when it last played, so the same take isn't used twice running
+# the jukebox
+var songs: Array = []           # paths of Hutch's songs (juke, juke_2, juke_roadhouse...), shuffled
+var song_i := 0
+var song_now := ""              # the path playing, or ""
+var song_gap := 0.0
+var close_next := false         # the bell's gone: her song is next
+var closing_song := false       # her song is on, and plays out
+# the score
+var score_player: AudioStreamPlayer
+var score_now := ""
+var score_level := 0.0
+var score_target := 0.0
+var score_hold := 0.0           # the teller's theme: how long it stays after his last line
+var sting_player: AudioStreamPlayer
+# voices
+var voice_player: AudioStreamPlayer       # the teller and the voices in his head, all round him
+var voice_spot: AudioStreamPlayer3D       # a person, from their head
+var _said := {}                 # who -> when they last barked or whispered (seconds)
+var duck := 1.0                 # the room, lowered under a voice or the score
+var reverb: AudioEffectReverb
+var _now := 0.0
 
 
 func setup(s: Dictionary) -> void:
@@ -125,6 +173,24 @@ func setup(s: Dictionary) -> void:
 			sources[layer] = list
 			level_at[layer] = 0.0
 			target_at[layer] = 0.0
+	score_player = AudioStreamPlayer.new()
+	score_player.volume_db = -80.0
+	add_child(score_player)
+	sting_player = AudioStreamPlayer.new()
+	add_child(sting_player)
+	voice_player = AudioStreamPlayer.new()
+	voice_player.bus = &"Space"
+	add_child(voice_player)
+	voice_spot = AudioStreamPlayer3D.new()
+	voice_spot.max_db = 3.0
+	voice_spot.unit_size = 2.0
+	voice_spot.max_distance = 30.0
+	voice_spot.bus = &"Space"
+	add_child(voice_spot)
+	for name in files:
+		if (name == "juke" or name.begins_with("juke_")) and name != "juke_close":
+			songs.append_array(files[name])
+	songs.shuffle()
 	place("door", 1260)
 
 
@@ -143,13 +209,29 @@ func _looping(st):
 
 # The buses a sound from the next room goes through, each cut above its frequency.
 func _buses() -> void:
+	# the room's echo, which everything heard in the world goes through
+	if AudioServer.get_bus_index("Space") < 0:
+		var j := AudioServer.bus_count
+		AudioServer.add_bus(j)
+		AudioServer.set_bus_name(j, "Space")
+		AudioServer.set_bus_send(j, "Master")
+		reverb = AudioEffectReverb.new()
+		reverb.room_size = 0.42
+		reverb.damping = 0.6
+		reverb.wet = 0.12
+		reverb.dry = 1.0
+		reverb.spread = 0.8
+		reverb.predelay_msec = 12.0
+		AudioServer.add_bus_effect(j, reverb)
+	else:
+		reverb = AudioServer.get_bus_effect(AudioServer.get_bus_index("Space"), 0) as AudioEffectReverb
 	for d in DULL:
 		if AudioServer.get_bus_index(d[0]) >= 0:
 			continue
 		var i := AudioServer.bus_count
 		AudioServer.add_bus(i)
 		AudioServer.set_bus_name(i, d[0])
-		AudioServer.set_bus_send(i, "Master")
+		AudioServer.set_bus_send(i, "Space")
 		var lp := AudioEffectLowPassFilter.new()
 		lp.cutoff_hz = d[1]
 		lp.resonance = 0.4
@@ -188,7 +270,10 @@ func _stream(name: String, take: int):
 	var list: Array = files.get(name, [])
 	if list.is_empty():
 		return null
-	var path: String = list[take % list.size()]
+	return _load(list[take % list.size()])
+
+
+func _load(path: String):
 	if cache.has(path):
 		return cache[path]
 	var st: AudioStream = null
@@ -234,6 +319,8 @@ func _take(name: String):
 # One of the small sounds, by its own name or the Ink's.
 func sfx(id: String, gain := 1.0, pitch := 1.0) -> void:
 	var name: String = INK.get(id, id)
+	if name == "bell" and files.has("juke_close"):
+		close_next = true
 	if not files.has(name):
 		return
 	var v := _vol("sfx") * gain * float(LEVEL.get(name, 0.75))
@@ -279,8 +366,95 @@ func at(id: String, pos: Vector3, gain := 1.0, reach := 1.5, pitch := 1.0) -> vo
 
 # The #music tag: the jukebox (someone's card in it early, the late songs, off after hours).
 func track(id: String) -> void:
+	if id.begins_with("score_"):
+		score(id)
+		return
+	if id.begins_with("sting_"):
+		sting(id)
+		return
 	music = id
 	_mix()
+
+
+# A cue of the score under the room: score_none (or a name with no file) lets the one playing go.
+func score(id: String) -> void:
+	if id == "score_none" or not files.has(id):
+		score_target = 0.0
+		return
+	score_hold = 0.0
+	if id == score_now and score_player.playing:
+		score_target = 1.0
+		return
+	score_now = id
+	score_player.stream = _looping(_take(id))
+	score_player.volume_db = -80.0
+	score_level = 0.0
+	score_target = 1.0
+	score_player.play()
+
+
+func sting(id: String) -> void:
+	var v := _vol("music")
+	if not files.has(id) or v <= 0.001:
+		return
+	sting_player.stream = _take(id)
+	sting_player.volume_db = linear_to_db(v)
+	sting_player.play()
+
+
+# ---------------------------------------------------------------- voices
+
+# A line as it appears in the column (game/main.gd): its recording if Hutch has made one, or now
+# and then a bark from whoever said it, or the whisper of the voice in his head. head: where the
+# speaker's head is, if they're in the room (Vector3.INF if not).
+func line(it: Dictionary, head := Vector3.INF) -> void:
+	var role := str(it.get("role", ""))
+	var who := "teller" if role == "teller" else str(it.get("speaker", ""))
+	if who == "" or bool(it.get("suppressed", false)):
+		return
+	var key := vo_key(who, str(it.get("text", "")))
+	if role == "teller":
+		_teller_theme()
+	if files.has(key):
+		_say(key, head if role == "dialogue" else Vector3.INF)
+		return
+	if role == "dialogue" and files.has("bark_" + who) and _now - float(_said.get(who, -999.0)) > BARK_EVERY and randf() < 0.6:
+		_said[who] = _now
+		_say("bark_" + who, head, 0.7)
+	elif role == "voice" and files.has("whisper_" + who) and _now - float(_said.get(who, -999.0)) > WHISPER_EVERY and randf() < 0.5:
+		_said[who] = _now
+		_say("whisper_" + who, Vector3.INF, 0.6)
+
+
+# The file name a recorded line goes under: who says it and the first 8 letters of a fingerprint
+# of the words (tools/vo_script.py makes the same, so a line rewritten needs recording again).
+static func vo_key(who: String, text: String) -> String:
+	var t := " ".join(text.strip_edges().split(" ", false))
+	return "vo_%s_%s" % [who, t.sha1_text().left(8)]
+
+
+func _say(name: String, head: Vector3, gain := 1.0) -> void:
+	var v := _vol("voice") * gain
+	var st = _take(name)
+	if st == null or v <= 0.001:
+		return
+	if head != Vector3.INF:
+		voice_spot.stream = st
+		voice_spot.position = head
+		voice_spot.volume_db = linear_to_db(v)
+		voice_spot.play()
+	else:
+		voice_player.stream = st
+		voice_player.volume_db = linear_to_db(v)
+		voice_player.play()
+
+
+# the teller's theme comes in under his lines, and goes a while after the last
+func _teller_theme() -> void:
+	if not files.has("score_teller") or (score_now != "" and score_now != "score_teller" and score_target > 0.0):
+		return
+	score("score_teller")
+	score_hold = 25.0
 
 
 # The #amb tag, where it was said.
@@ -376,7 +550,7 @@ func _through(src: String, mine: String) -> Vector2:
 # the bus for a sound cut off at hz: straight out, or through a doorway, a wall, the floor
 func _bus(hz: float) -> StringName:
 	if hz >= 20000.0:
-		return &"Master"
+		return &"Space"
 	for d in DULL:
 		if hz >= float(d[1]) - 1.0:
 			return StringName(d[0])
@@ -407,6 +581,8 @@ func _mix() -> void:
 			juke = 0.0
 	if clock >= 1560:           # past last call the card runs out
 		juke *= 0.4
+	if closing_song:            # her song, at close: it plays out
+		juke = maxf(juke, 0.6)
 	var talk := 1.0
 	match ink_amb:
 		"room_quiet":
@@ -477,13 +653,28 @@ func _mix() -> void:
 
 
 func _process(dt: float) -> void:
-	var amb := _vol("amb")
+	_now += dt
+	# the room goes down a little under a voice, and under the score
+	var want_duck := 1.0
+	if voice_player.playing or voice_spot.playing:
+		want_duck = 0.55
+	elif score_level > 0.05:
+		want_duck = 1.0 - 0.25 * score_level
+	duck = lerpf(duck, want_duck, 1.0 - exp(-dt * 3.0))
+	var amb := _vol("amb") * duck
 	var k := 1.0 - exp(-dt * (0.9 if unlocked else 0.4))
 	var mine := _mine()
 	var room_th := _through("room", mine)
+	_ring(dt)
+	_score(dt)
+	var jukebox := not songs.is_empty()
+	if jukebox:
+		_jukebox(dt, amb, k, mine)
 	for layer in LAYERS:
+		if jukebox and layer == "juke":
+			continue
 		var want: float = target.get(layer, 0.0)
-		var bus := &"Master"
+		var bus := &"Space"
 		if layer in ROOM_FLAT:
 			want *= room_th.x
 			bus = _bus(room_th.y)
@@ -508,6 +699,8 @@ func _process(dt: float) -> void:
 		elif p.playing:
 			p.stop()
 	for layer in sources:
+		if jukebox and layer == "juke":
+			continue
 		var th := _through(str(FROM[layer][1]), mine)
 		var want: float = target_at.get(layer, 0.0) * th.x * (1.0 - DIFFUSE) * amb
 		level_at[layer] = lerpf(level_at[layer], want, k)
@@ -524,3 +717,102 @@ func _process(dt: float) -> void:
 					p3.play(randf() * maxf(p3.stream.get_length() - 1.0, 0.0))
 			elif p3.playing:
 				p3.stop()
+
+
+# The room's echo, eased towards the part of the building he's in.
+func _ring(dt: float) -> void:
+	if reverb == null:
+		return
+	var zone := "room"
+	if view != null:
+		zone = Hotspots.zone_of(view.eye_pos)
+	elif where in ["office", "street", "esso", "seawall"]:
+		zone = "office" if where == "office" else "town"
+	var want: Array = SPACE.get(zone, SPACE.room)
+	var e := 1.0 - exp(-dt * 2.0)
+	reverb.room_size = lerpf(reverb.room_size, float(want[0]), e)
+	reverb.damping = lerpf(reverb.damping, float(want[1]), e)
+	reverb.wet = lerpf(reverb.wet, float(want[2]), e)
+
+
+func _score(dt: float) -> void:
+	if score_hold > 0.0:
+		score_hold -= dt
+		if score_hold <= 0.0 and score_now == "score_teller":
+			score_target = 0.0
+	score_level = lerpf(score_level, score_target, 1.0 - exp(-dt * 0.5))
+	if score_player.stream == null:
+		return
+	var v := score_level * _vol("music")
+	if v > 0.003:
+		score_player.volume_db = linear_to_db(v)
+		if not score_player.playing:
+			score_player.play()
+	elif score_target <= 0.0 and score_player.playing:
+		score_player.stop()
+		score_now = ""
+
+
+# Hutch's songs on the jukebox, from the machine: the same mix as the loop it replaces, but one song
+# after another, with a gap, and her song next once the bell's gone.
+func _jukebox(dt: float, amb: float, k: float, mine: String) -> void:
+	var th := _through(str(FROM.juke[1]), mine)
+	var bus := _bus(th.y)
+	var want_at: float = target_at.get("juke", 0.0) * th.x * (1.0 - DIFFUSE) * amb
+	var want_fill: float = target_at.get("juke", 0.0) * th.x * DIFFUSE * amb
+	level_at["juke"] = lerpf(level_at["juke"], want_at, k)
+	level["juke"] = lerpf(level["juke"], want_fill, k)
+	var p: AudioStreamPlayer = loops["juke"]
+	var on: bool = level_at["juke"] > 0.004
+	if not on:
+		if p.playing:
+			p.stop()
+			for q in sources["juke"]:
+				(q as AudioStreamPlayer3D).stop()
+		return
+	if p.playing:
+		p.volume_db = linear_to_db(maxf(level["juke"], 0.0001))
+		p.bus = bus
+		for q in sources["juke"]:
+			var p3: AudioStreamPlayer3D = q
+			p3.volume_db = linear_to_db(level_at["juke"])
+			p3.bus = bus
+		return
+	# between songs
+	if song_now != "":
+		if closing_song:
+			closing_song = false
+			song_now = ""
+			_mix()
+			return
+		song_now = ""
+		song_gap = randf_range(SONG_GAP.x, SONG_GAP.y)
+	song_gap -= dt
+	if song_gap > 0.0:
+		return
+	var path: String
+	if close_next and files.has("juke_close"):
+		path = files["juke_close"][0]
+		close_next = false
+		closing_song = true
+	else:
+		path = songs[song_i % songs.size()]
+		song_i += 1
+	var st = _load(path)
+	if st == null:
+		return
+	if st is AudioStreamWAV:
+		(st as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_DISABLED
+	elif "loop" in st:
+		st.loop = false
+	song_now = path
+	p.stream = st
+	p.volume_db = linear_to_db(maxf(level["juke"], 0.0001))
+	p.bus = bus
+	p.play()
+	for q in sources["juke"]:
+		var p3: AudioStreamPlayer3D = q
+		p3.stream = st
+		p3.volume_db = linear_to_db(level_at["juke"])
+		p3.bus = bus
+		p3.play()

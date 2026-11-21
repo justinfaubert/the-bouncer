@@ -137,7 +137,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	settings = s
 	_environment()
 	eye = SubViewport.new()
-	eye.msaa_3d = Viewport.MSAA_4X
+	eye.msaa_3d = Viewport.MSAA_DISABLED   # the strokes and the grain cover the edges; 4x cost a lot at fullscreen
 	eye.positional_shadow_atlas_size = 4096
 	eye.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	eye.audio_listener_enable_3d = true
@@ -248,15 +248,22 @@ func _environment() -> void:
 		"fog": env.fog_light_color, "fog_d": env.fog_density, "exposure": env.tonemap_exposure}
 
 
+const PRINT_H := 1080.0
+
+
 func resize() -> void:
 	var win := Vector2(DisplayServer.window_get_size())
 	if win.x < 8 or win.y < 8:
 		win = Vector2(1920, 1080)
-	var k := clampf(float(settings.get("render", 1.0)), 0.4, 1.0)
+	# the world is printed at a fixed size, no taller than PRINT_H, and scaled up smooth to the
+	# screen: the strokes come out the same on a laptop, a 4K screen and a phone, and fullscreen
+	# costs no more than a window
+	var k := clampf(float(settings.get("render", 1.0)), 0.4, 1.0) * minf(1.0, PRINT_H / win.y)
 	var size := Vector2i(maxi(64, roundi(win.x * WORLD_W * k)), maxi(64, roundi(win.y * k)))
 	eye.size = size
 	mask.size = size
 	press.set_shader_parameter("view_px", Vector2(size))
+	press.set_shader_parameter("print_k", clampf(float(settings.get("print", 1.0)), 0.0, 1.0))
 
 
 # ---------------------------------------------------------------- where he is

@@ -179,7 +179,7 @@
 - x == inc_hurt:
     {hurt > 0:Injured on the premises: the doorman{fam ? pool_fight:, and others, at the pool table}.|Injured on the premises: a patron.}
 - x == inc_drugs:
-    A patron using drugs in the men's washroom.
+    A patron using drugs in the men's washroom.{lines_taken > 0: The doorman did one with him.}
 - x == inc_office:
     In the office in the keg room, on the desk: a mirror, a straw cut down to two inches, and a white dust in one corner of the mirror.
 - x == inc_after:
@@ -240,7 +240,8 @@
 The bartender reached up and rang the brass bell over the till, twice. #sfx: bell
 BARTENDER: Last call!
 TABLE28: Two each!
-Everybody who was going to leave started thinking about leaving. Table 28 ordered.
+Coats came off the backs of chairs. Table 28 ordered.
+At the bar a man who'd been talking at the same woman since nine put a hand on the back of her stool and asked if she wanted to get out of here. She let him buy her the last one. Her friend was already holding her coat.
 { dennis_gone():
     The one in the team jacket ordered two for Dennis, too, out of respect, and lined them up in front of the empty chair, and drank them himself.
 }
@@ -256,7 +257,7 @@ Everybody who was going to leave started thinking about leaving. Table 28 ordere
 - kid_locked_in():
     The single washroom in the back hall was still locked.
 - kid_at == s_jukebox:
-    By the jukebox the kid hadn't moved, waiting for something that wasn't the bell.
+    By the jukebox the kid hadn't moved. He was watching the pool table.
 }
 { in_truck(sister_at) && pool_still():
     Out in the lot the pickup was still there with its engine running. It had been there all night.
@@ -264,9 +265,9 @@ Everybody who was going to leave started thinking about leaving. Table 28 ordere
 { banned_still():
     {
     - banned_held == 2:
-        GOOD SHOES was still at the bar with the last one in front of him, and it was still the last one.
+        GOOD SHOES was still at the bar with the second of his one drink in front of him.
     - banned_held == -1:
-        GOOD SHOES was at the bar on his sixth, pleasant to everyone. One drink, it had been, once.
+        GOOD SHOES was at the bar on his sixth, buying for the stools either side of him.
     - banned_one > 0:
         GOOD SHOES had had his one drink. He'd had it for a while.
     - else:
@@ -292,7 +293,7 @@ FATHER: Last call's easy. It's the half hour after it that's the job.
     - else:
         BARTENDER: That's two, folks! Drink 'em up.
     }
-    MANUAL: Licensed hours end at two. Every minute after that is the licensee's problem, and yours.
+    MANUAL: Liquor service ends at the close of licensed hours. Patrons must be off the premises within thirty minutes.
 }
 { left_to_clear() == 0:
     -> lock_up
@@ -319,7 +320,7 @@ FATHER: Last call's easy. It's the half hour after it that's the job.
 ~ here = pool
 ~ pass(3)
 { fam ? dad_stayed:
-    The big man was still at the pool table. He'd said he'd go after. It was after.
+    The big man was still at the pool table. He'd said he'd go after this game, three games ago.
 - else:
     The big man had the rack off and was chalking his cue for the break.
 }
@@ -351,26 +352,26 @@ BIGMAN: One more.
     ~ fam += dad_told
     { passed:
         { knows ? kid_why:
-            He told him, low, at the end of the table. Nearly a day late, somebody told him.
+            He told him, low, at the end of the table: the hospital, since the morning, her heart.
         - else:
-            He said it, low, at the end of the table, and the big man heard what he wasn't saying.
+            He said it, low, at the end of the table.
         }
         The big man put the cue down across the balls, in the middle of the game.
         -> the_lot(true)
     }
-    He told him. The big man heard it the way you hear the weather.
+    He told him. The big man kept chalking his cue.
     BIGMAN: I know, bud. I know she is.
     BIGMAN: And do what, eh. Sit there.
 * ["We're closed. Time to go."]
     ~ pass(2)
     ~ bigman_ease++
     BIGMAN: One more.
-    The doorman said it again, the same way, as if it was the first time. The big man put the cue in the rack on the wall as if it weighed a lot.
+    The doorman said it again, the same way. The big man put the cue in the rack on the wall.
 * [Take the cue out of his hands. #check: fighter:dex 11]
     { passed:
-        He took it, gently, the way you'd take something off a table in someone else's house, and put it in the rack on the wall. The big man looked at his empty hands.
+        He took it out of his hands and put it in the rack on the wall. The big man looked at his empty hands.
     - else:
-        The big man held on. For a second they both had it. Then he let go, and his face said he'd remember that.
+        The big man held on. For a second they both had it. Then he let go, and didn't look at the doorman again.
         ~ bigman_ease--
         ~ rep(rep_kids, -1)
     }
@@ -412,7 +413,7 @@ The buddy went out ahead of them both with his collar up{knows ? transmission: a
     The boyfriend was sitting on the step of the beer store out of the rain, where he'd been since he was put out, watching.
 }
 { cleared !? cl_t28:
-    Table 28 watched through the front window, all of them, the way they watched the hockey.
+    Table 28 watched through the front window, all of them.
 }
 { to_them:
     He didn't go to his own truck. He went across the gravel to the pickup and stood by the passenger door in the rain, and waited for somebody to open it.
@@ -422,6 +423,10 @@ The buddy went out ahead of them both with his collar up{knows ? transmission: a
     He didn't go to the pickup.
 }
 He went to his own truck, a work truck with a toolbox across the bed, parked nose-in by the beer store. He got his keys out, and dropped them in the gravel, and picked them up.
+// He went along the trucks at twenty to eight (prologue.ink).
+{ knows ? lot_trucks:
+    The doorman knew the truck. The school photo in the visor, and the mickey in the door, which would be empty now, or in the big man's coat.
+}
 { family_in_lot && not kid_was_in && not sis_was_in:
     Across the lot the pickup's headlights came on full. The driver's door opened, and his daughter got out and stood in the rain and didn't come any closer.
 }
@@ -433,13 +438,13 @@ He went to his own truck, a work truck with a toolbox across the bed, parked nos
     BIGMAN: Thanks, bud.
     FATHER: There. I told you he would.
 }
-FATHER: I drove home drunk for twenty years. Nobody ever took my keys. I used to think that was respect.
+FATHER: I drove home drunk for twenty years.
 * [Take his keys. #check: father:cha 12 {bigman_mod()}]
     { passed:
-        He went across the gravel and stood in front of him and held out his hand. The big man looked at the hand for a long time. Then he put the keys in it.
+        He went across the gravel and stood in front of him and held out his hand. The big man looked at the hand while the rain came down on both of them. Then he put the keys in it.
         -> keys
     - else:
-        He held out his hand. The big man looked at it and said no. He said it quietly, which was worse than if he'd shouted.
+        He held out his hand. The big man looked at it and said no, quietly.
         -> keys_refused
     }
 * {family_in_lot} [Walk him to his daughter's truck.]
@@ -461,7 +466,7 @@ FATHER: I drove home drunk for twenty years. Nobody ever took my keys. I used to
 }
 * [Take them anyway. #check: fighter 11]
     { passed:
-        He took the big man's wrist and opened his hand and took the keys out of it, and the big man let him, the way a man lets you when he's glad somebody finally did.
+        He took the big man's wrist and opened his hand and took the keys out of it, and the big man let him.
         -> keys
     - else:
         The big man's elbow came round, a shove more than a swing, and the doorman went back a step into a puddle, and the keys went into the big man's pocket. #sfx: hit
@@ -485,7 +490,7 @@ He put a hand flat on the big man's back, between the shoulders, and walked him 
 }
 ~ fam += dad_walked
 # done: fetch
-The big man stood there in the rain without his keys. Then he started walking, along the shoulder of the highway toward town, and the doorman watched him until the dark had him.
+The big man stood there in the rain without his keys. Then he started walking, along the shoulder of the highway toward town, and the doorman watched him till he was past the last streetlight.
 There was no cab to call. The cab company on the wall by the payphone had closed years ago.
 -> hold_keys(false) ->
 { keys_how == 1:
@@ -508,7 +513,7 @@ A Ford key and a house key on a ring, and a rabbit's foot gone grey with handlin
     ~ rep(rep_kids, 1)
     He went round to the driver's door and held them out. She looked at them, and at him.
     DRIVER: Thank you.
-    She said it hard, the way she said everything, and put them in her coat with her own.
+    She said it hard, and put them in her coat with her own.
 * [Behind the bar, in the lost-and-found drawer.]
     ~ keys_how = 1
     ~ drawer_seen = true
@@ -537,7 +542,7 @@ The pickup pulled out of the lot, slowly, onto the highway toward town.
     FATHER: Nobody ever did that for me.
     FATHER: I'd have hit anybody who tried.
 - close_pool.walk_him:
-    FATHER: You walked him to it. That's more than carrying a message.
+    FATHER: A doorman walked me to a car once, in Courtenay. I took a swing at him.
 - else:
     FATHER: He went. You said it, and he went. I wouldn't have.
 }
@@ -546,13 +551,13 @@ The pickup pulled out of the lot, slowly, onto the highway toward town.
 = drives
 ~ fam += dad_drove
 # done: fetch
-He got into the work truck. It took him three tries to get the door shut. The lights came on and it backed out, slowly, the way a drunk man drives when he knows he's drunk, and turned onto the highway toward town.
+He got into the work truck. It took him three tries to get the door shut. The lights came on and it backed out, too slowly, and turned onto the highway toward town.
 { family_in_lot:
     The pickup pulled out after him and followed a hundred yards back, all the way to the bend.
 }
 ~ family_gone()
-MANUAL: A licensee who knowingly allows an intoxicated patron to drive may be held liable.
-WRONGMAN: Everybody in the story drove home. Everybody always does, until the one who doesn't.
+MANUAL: A licensee who knowingly allows an intoxicated patron to drive may be held liable (see Section 5, Liability).
+WRONGMAN: In the story he drove home too. The drunk could never get to the end of that part.
 -> clear
 
 
@@ -568,7 +573,7 @@ WRONGMAN: Everybody in the story drove home. Everybody always does, until the on
 - banned_one > 0 && banned_held == 0:
     GOOD SHOES had made the one drink last. It was still the one drink, or he said it was.
 - else:
-    GOOD SHOES had had six drinks, and they'd changed him the way drink changes men like that. He'd got more polite.
+    GOOD SHOES had had six drinks. He'd got more polite with every one.
 }
 He was telling {cleared ? cl_res || slippers_both:the bartender|the woman in slippers} about property values.
 // "That's the last one, then" (door.ink): he holds to it, to the letter, and makes sure everyone sees him do it.
@@ -576,7 +581,7 @@ He was telling {cleared ? cl_res || slippers_both:the bartender|the woman in sli
     GOOD SHOES: The last one. As agreed.
     He finished it, and stood, and got into his good coat without any help.
     GOOD SHOES: A man of his word, your doorman. I'll mention it to the owner.
-    WRONGMAN: The last one. He made it last four hours. In the story there was always one who did that.
+    WRONGMAN: In the story somebody made one drink last all night too. The drunk thought it might have been him.
     -> clear
 }
 GOOD SHOES: One more, I think. For the road. And one for the lady, of course, and one for the staff.
@@ -586,7 +591,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
 - (cb)
 * ["You heard her." #check: father:cha 11]
     { passed:
-        He said it the way you'd tell someone the time. GOOD SHOES looked at him and did the arithmetic again, the same as at the door, and got the same answer.
+        He said it flat. GOOD SHOES looked at him and did the arithmetic again, the same as at the door, and got the same answer.
         GOOD SHOES: Goodnight, then. Goodnight, all.
         He put a twenty on the bar for the bartender. She left it there.
     - else:
@@ -596,7 +601,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
 * [Walk him out. #check: fighter:dex 10]
     ~ here = door
     { passed:
-        He took the coat off the stool and held it open for him, which is a thing a man can't refuse without looking like a fool, and walked him to the door in it. #sfx: door
+        He took the coat off the stool and held it open for him, and GOOD SHOES had to turn round and put his arms in it, and he walked him to the door in it. #sfx: door
     - else:
         GOOD SHOES: Please take your hand off me. I'm a friend of the owner's.
         He said it loudly enough that table 28 turned round. The doorman walked him out anyway, with the man talking the whole way, and it took three times as long as it should have. #sfx: door
@@ -631,7 +636,7 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
         He put the case on the card table. Nobody said thank you. Somebody opened it.
     }
     { knows ? mill_closing:
-        Nobody at the table was talking about Christmas. You could tell from the way nobody was talking about it.
+        Nobody at the table said anything about the mill.
     }
 * [Wake him and point him at the stairs.]
     ~ pass(2)
@@ -664,10 +669,13 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
 }
 { not hotel_door:
     The hotel door was locked. He unlocked it for {slippers_upstairs:her|them} and held it, and {slippers_upstairs:she|they} went up, and he locked it again behind {slippers_upstairs:her|them}.
-    { terry_asked:
+    {
+    - at_hall.night_clerk.lever_terry:
+        On the other side, at the desk, Terry was watching the game on his phone. He didn't look up.
+    - terry_asked:
         On the other side, at the desk, Terry was watching the game on his phone. He lifted a hand without looking up.
     }
-    WRONGMAN: Every door you lock, you end up holding open for somebody.
+    WRONGMAN: In the story somebody left the hotel door unlocked, and that's how the wrong man got up the stairs. Or down them.
 - else:
     The hotel door was still wedged open, and {slippers_upstairs:she|they} went up through it.
     // He went through to ask Terry about the door, earlier, and then didn't (hall.ink).
@@ -681,7 +689,7 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
 === close_endbar ===
 ~ here = bar
 ~ pass(1)
-The glass was still at the end of the bar, full to the brim. Nobody had seen the old man go. Nobody had seen him come, either.
+The glass was still at the end of the bar, full to the brim. Nobody had seen the old man go.
 The bartender picked the glass up and poured it down the sink without looking at it, the way she'd done every night for thirty-one years, by the look of it.
 { knows ? endbar_invite:
     WRONGMAN: After, he said. When it's quiet.
@@ -692,12 +700,12 @@ The bartender picked the glass up and poured it down the sink without looking at
 ~ cleared += cl_t28
 ~ here = t28
 ~ pass(5)
-Table 28 did not hurry for last call. Table 28 had never hurried for anything. They had their two each lined up in front of them and they were working through them at the speed of conversation.
+Table 28 had their two each lined up in front of them and were working through them one story at a time.
 { dennis_gone():
-    Four of them. The gap where Dennis sat was still a gap.
+    Four of them, and Dennis's chair pushed in.
 }
 { walter == 0:
-    They didn't talk to him. They talked in front of him.
+    They talked about him with him standing there.
 }
 { walter == 3:
     -> t28_find_bait ->
@@ -725,7 +733,7 @@ Table 28 did not hurry for last call. Table 28 had never hurried for anything. T
 // He stood at the end of their table, earlier, and never did sit (table28.ink).
 { at_t28.standing.left_standing && not at_t28.sit:
     TEAM_JACKET: Here's the stander. Never did sit down with us, did you, big fella.
-    HEARING_AID: Stander.
+    HEARING_AID: Who's he?
 }
 - (tt)
 // RAINCOAT's message, if he never passed it on (door.ink). It's late now, by however long he sat on it.
@@ -744,7 +752,7 @@ Table 28 did not hurry for last call. Table 28 had never hurried for anything. T
 // The house lights, the TV and the news count here (room.ink, t28_close_mod).
 * ["Drink up, gentlemen." #check: father:cha 11 {t28_close_mod()}]
     { passed:
-        He said it the way the Father used to say it, like a favour to them, and they drank up and stood and got their coats, in the order they always did, and went out together into the rain.
+        He said it the way his father used to, like he was doing them a favour, and they drank up and got their coats in the order they always did, and went out together into the rain.
         ~ rep(rep_staff, 1)
     - else:
         TABLE28: Drink up, gentlemen!
@@ -754,19 +762,19 @@ Table 28 did not hurry for last call. Table 28 had never hurried for anything. T
 * ["Take your time."]
     ~ rep(rep_t28, 1)
     ~ pass(25 + t28_linger())
-    They took it{tv_on == 4:, and the curling with it, to the last stone and the one after}. The bartender put the chairs up on the tables around them and they didn't notice, or noticed and didn't care, and at {q_words(clock)} they went, together, the way they'd come.
+    They took it{tv_on == 4:, and the curling with it, to the last stone and the one after}. The bartender put the chairs up on the tables around them, and at {q_words(clock)} they went, together.
 * {walter != 0 || rep_t28 >= 0} [Sit down with them for the last one. #hand: drink]
     ~ pass(15)
     ~ pull_table++
     ~ drink()
     ~ rep(rep_t28, 1)
-    He sat down. Somebody pushed a rye at him. The talk went round, and he let it go through him, and for a minute he couldn't have told you where table 28 stopped and he started.
+    He sat down. Somebody pushed a rye at him. The talk went round, the mill and the diesel and Walter, and he laughed in the right places.
     TABLE28: He's all right, the new kid! Isn't he? He's all right!
 * ["Now. All of you."]
     ~ rep(rep_t28, -2)
     ~ rep(rep_staff, 1)
     TEAM_JACKET: The last one said that. Word for word.
-    They went, slowly, to make the point. At the door the one in the team jacket stopped and patted him twice on the arm, the way you'd pat a horse that wasn't yours.
+    They went, slowly, to make the point. At the door the one in the team jacket stopped and patted him twice on the arm.
 - { cardigan_secret:
     -> secret
 }
@@ -781,14 +789,14 @@ The one in the cardigan didn't look at the doorman.
 * [Say nothing.]
     ~ secret_kept = 1
     TABLE28: A medical event!
-    They let it go. They'd let worse go.
+    They let it go.
 * ["He was out on the deck with me."]
     ~ secret_kept = -1
     ~ rep(rep_t28, 1)
     TABLE28: The deck!
     TEAM_JACKET: Smoking! He quit!
     CARDIGAN: I've quit a good many times.
-    They gave him a hard time about it all the way to the door, and loved it, and he took it.
+    They gave him a hard time about it all the way to the door.
     FATHER: He asked you one thing.
 - -> t28_out
 
@@ -797,7 +805,7 @@ The one in the cardigan didn't look at the doorman.
 - secret_kept == -1:
     The one in the cardigan went out in the middle of them, being given a hard time, and didn't look back at the doorman.
 - cardigan_go == 1:
-    The one in the cardigan went out last. At the door he nodded to the doorman, once, as if they'd agreed on something.
+    The one in the cardigan went out last. At the door he nodded to the doorman, once.
 - cardigan_go == -1:
     The one in the cardigan went out in the middle of them, where he always went. He'd be in his chair on Thursday.
 - cardigan_go == 2:
@@ -807,7 +815,7 @@ The one in the cardigan didn't look at the doorman.
 }
 // The tiles at their worst on the way out (room.ink).
 { hearing_aid_slip() }
-They went out to their trucks, and all of them drove. Everybody drove, out here.
+They went out to their trucks, and all of them drove.
 { knows ? t28_nine:
     There had been nine of them once, the one in the cardigan had said. You couldn't get a chair.
 }
@@ -817,7 +825,7 @@ FATHER: {took_keys:You took one set of keys tonight. }You can't take {dennis_gon
 
 // Bait in Walter's hole. Scratch finds what's left of it when he leaves the last fry.
 === t28_find_bait ===
-The one who scratched lottery tickets bent down to put the last fry of the night by the hole in the baseboard, the way he must have done a thousand nights. He stayed down there longer than it took.
+The one who scratched lottery tickets bent down to put the last fry of the night by the hole in the baseboard. He stayed down there longer than it took.
 He came up with something green between his finger and thumb. Half a block of bait, gnawed down to the hole in the middle.
 SCRATCH: That's poison.
 SCRATCH: That was in Walter's door.
@@ -933,16 +941,16 @@ She didn't say anything, which from her was a lot.
     - walk_ins > 0 && walk_ins_seen > 0:
         {arrivals ? banned_inside:So had whoever left the wet prints on the mat he'd come back to.|Whoever left the wet prints on the mat he'd come back to had come in the front while he was somewhere else.}
     - walk_ins > 0:
-        {arrivals ? banned_inside:And others, maybe.|Somebody had come in the front while he was away, maybe. More than one.} Nobody counts the ones who come in while nobody's counting.
+        {arrivals ? banned_inside:And others, maybe.|Somebody had come in the front while he was away, maybe. More than one.}
     }
-    FATHER: A door's only a door when somebody's standing in it.
+    FATHER: I went for a leak at the Legion once, and that was the night the Fraser boys came in.
     -> s
 * {walk_ins > 0} [The single washroom.]
     ~ pass(3)
     ~ found_why += why_sleeper
     A man he'd never seen before was asleep on the floor of the single washroom, with his head on a roll of paper towel. He'd never passed the door. Nobody knew him, and he didn't know where he was.
     He woke him and walked him out to the lot and pointed him at the highway.
-    WRONGMAN: The one you didn't count. It's always the one you didn't count.
+    WRONGMAN: In the story they found one asleep in the can too. The drunk said that was him.
     -> s
 + [That's enough. Write the log.]
     { search_missed():
@@ -963,6 +971,10 @@ She didn't say anything, which from her was a lot.
 # screen: log
 The incident log was a hardback ledger that lived under the till with the binder. Every doorman before him had written in it, in nine different hands, going back further than the owner.
 The bartender pushed it along the bar to him with a pen.
+// He wrote on the wall by the payphone (hall.ink).
+{ wall_wrote:
+    It was the second thing he'd written in the building tonight. The first was on the wall by the payphone.
+}
 // HUTCH: What does a real incident log look like? The book, the wording, what gets written down and what never does.
 { LIST_COUNT(incident) == 0:
     Nothing had happened. He wrote the date and NOTHING TO REPORT, and she read it upside down.
@@ -983,7 +995,7 @@ The bartender pushed it along the bar to him with a pen.
 {inc_name(x)}
 + [Write it down the way it happened.]
     ~ logged += x
-    { x == inc_drinking || x == inc_hurt:
+    { x == inc_drinking || x == inc_hurt || (x == inc_drugs && lines_taken > 0):
         ~ cocoon--
     }
     { x == inc_office:
@@ -1072,7 +1084,7 @@ She'd poured two. She pushed the other one along the bar to him without looking 
     ~ last_glass = 2
     He left it where it was, full, on the bar. She didn't say anything about it.
     { knows ? endbar_seen:
-        It looked like the old man's glass, down at the end. It looked exactly like it.
+        It looked like the old man's glass, down at the end.
     }
 * [Push it back.]
     ~ last_glass = 3
@@ -1311,13 +1323,13 @@ BIGMAN: Bud. Bud. My keys.
 // The voice whose read of the keys he kept at close has the last word on them (hand.ink, reads_keys).
 { kept_read("truck_keys"):
 - "father":
-    FATHER: Not tonight, I said. It's still tonight.
+    FATHER: I said his girl. That's not his girl.
 - "manual":
-    MANUAL: Keys held by staff are held for the licensee. The patron's condition is assessed at the time of return.
+    MANUAL: Keys are returned only to a patron fit to drive. The patron's condition is assessed at the time of return.
 - "fighter":
     FIGHTER: Keep the glass between you. He's wet through, and angry, and he's walked a mile to stand there.
 - "wrongman":
-    WRONGMAN: In the story, the doorman opened the door. In the story, the doorman always opens the door.
+    WRONGMAN: In the story he came back for his keys too. The drunk said the doorman gave them to him. Then it was the hill road.
 - "table":
     TABLE: Two in the morning! Told you! Every time!
 - "kid":
@@ -1327,15 +1339,15 @@ BIGMAN: Bud. Bud. My keys.
     ~ keys_back = 1
     ~ unstow(truck_keys)
     ~ rep(rep_staff, -1)
-    He unlocked the door and held them out, and the big man took them the way you take your change.
+    He unlocked the door and held them out, and the big man took them and put them in his pocket.
     BIGMAN: Thanks, bud.
-    He went across the gravel to his work truck, and dropped the keys, and picked them up. It started on the third go. Its lights went off along the highway toward town, slowly, the way a drunk man drives when he knows he's drunk.
-    FATHER: Twenty years nobody took my keys. The one night somebody did, I'd have walked back for them too.
+    He went across the gravel to his work truck, and dropped the keys, and picked them up. It started on the third go. Its lights went off along the highway toward town, well under the limit.
+    FATHER: I'd have walked back for them too.
 * (said_noon) [Through the glass: {from_drawer:"She'll have them for you at noon."|"Noon. You'll get them at noon."}]
     ~ keys_back = -1
     ~ rep(rep_staff, 1)
-    He said it through the glass, so it came as much from his face as his voice.
-    The big man stood in the rain and looked at him a long time.
+    He said it through the glass.
+    The big man stood in the rain with his hands at his sides.
     BIGMAN: Yeah, okay.
     He went back out to the highway the way he'd come, along the shoulder, toward town.
 - ->->
@@ -1398,12 +1410,12 @@ BARTENDER: Go on up. Get some sleep, Door.
 She locked up and went out the front, and he heard her car start in the lot and go. #sfx: door
 He waited until the building was quiet. The coolers. The rain. Then he lifted the trapdoor.
 The light at the bottom of the stairs was on. He hadn't left it on.
-The old man from the end of the bar was sitting on an upturned keg between the rows, in his old good jacket, with the full glass on the floor beside his shoe. #portrait: endbar
+The old man from the end of the bar was sitting on an upturned keg between the rows, in his tweed jacket, with the full glass on the floor beside his shoe. #portrait: endbar
 ENDBAR: You came down, Doorman.
 Past the last keg, in the dark toward the front of the building, a sound like a lot of hands being rubbed together. It stopped when the old man lifted one finger. #sfx: scratch
 // HUTCH: The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
 FATHER: Go back up.
-WRONGMAN: This is the story. This is the one they'll tell about you.
+WRONGMAN: There was an old man in the story too. The drunk said he was the one who told it to him.
 -> terms
 
 // What the old man has to say about the night comes first: the war, the bait, Walter, and the
@@ -1482,7 +1494,7 @@ WRONGMAN: This is the story. This is the one they'll tell about you.
     ~ knows += endbar_dock
     ENDBAR: I am the one who comes down.
     ENDBAR: I was coming in here before she started. Before the owner's father owned it. Before it was a hotel, I was on the dock they built it on.
-    He didn't look old enough for that. He didn't look young enough for anything else.
+    He didn't look much over seventy.
     -> t
 * (want) ["What do they want?"]
     ENDBAR: What anyone wants. To eat, and not be killed.
@@ -1593,13 +1605,13 @@ ENDBAR: Everything you said tonight where there was a floor under you or a wall 
 ~ parley = 2
 ~ rats = truce
 ENDBAR: Very good.
-He didn't offer his hand. He picked the full glass up off the floor, looked at it, and put it down again, which seemed to be the same thing.
+He didn't offer his hand. He picked the full glass up off the floor, looked at it, and put it down again.
 { poison:
     # task: terms :: Your terms with the rats: food on the third step every night you're on, the kitchen door on the latch after the cook goes, and the poison taken up.
 - else:
     # task: terms :: Your terms with the rats: food on the third step every night you're on, and the kitchen door on the latch after the cook goes.
 }
-FATHER: Every bar I worked had an arrangement with somebody. The owner, the cops, the bikers. This is the first one I'd have trusted to keep it.
+FATHER: Every bar I worked had an arrangement with somebody. The cops, the bikers, the Fraser boys. Never rats.
 FIGHTER: You made a deal with rats.
 -> after_parley
 
@@ -1614,7 +1626,7 @@ FIGHTER: You made a deal with rats.
     - else:
         # task: terms :: Your terms with the rats: food on the third step every night you're on, and no poison.
     }
-    WRONGMAN: You bargained with it. In the story nobody bargained. That's why it's a story.
+    WRONGMAN: In the story the doorman made a deal with somebody down in the cellar too. The drunk never would say who.
 - else:
     ENDBAR: Then no terms. Not tonight.
     ENDBAR: Come down again when you are ready to talk like somebody who needs something.
@@ -1628,7 +1640,7 @@ FIGHTER: You made a deal with rats.
 ENDBAR: Then it is the long way.
 He stood up. His knees cracked. He left the full glass on the floor.
 ENDBAR: It is always the long way, the first time.
-When the doorman looked back from the stairs, the light was off, and the keg was only a keg.
+When the doorman looked back from the stairs, the light was off and there was nobody on the keg.
 FIGHTER: Good.
 -> after_parley
 
@@ -1640,12 +1652,12 @@ ENDBAR: Then you will burn the hotel down with them. They are in every wall. The
 He stood up, slowly, and picked up the full glass, and poured it out on the dirt, all of it, and set the empty glass on the keg.
 ENDBAR: That is the first time I have done that.
 When the doorman looked back from the stairs, the light was off.
-FATHER: You shouldn't have said that. Not because it was wrong. Because you meant it, and now it knows.
+FATHER: I said that to a man once, at the Legion. He waited two years.
 -> after_parley
 
 = think
 ~ parley = 1
-ENDBAR: Think, then. They will not wait for you. They will double while you think. They always do.
+ENDBAR: Think, then. They will double while you think.
 -> after_parley
 
 // Terms that include the kitchen door start tonight: the cook's gone home.
@@ -1663,10 +1675,10 @@ The kitchen was dark. {kitchen_door:The milk crate was still in the back door, w
     ~ terms_kept = 1
     ~ kitchen_door = true
     He went through the dark kitchen and set the back door on the latch, so it would give to a push from the alley, and left it like that.
-    FATHER: Every door you leave open, something comes in. This time you know what.
+    FATHER: Check it in the morning. If it's open wider, something pushed it.
 * [Leave it. Go up.]
     ~ terms_kept = -1
-    WRONGMAN: Day one. In the story the deal was broken on day one, too. That's how you knew it was a deal.
+    WRONGMAN: In the story the doorman broke the deal the first night too. The drunk said that was where the bad part started.
 - -> go_upstairs
 
 
@@ -1696,7 +1708,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
     He said it to the dark room. There was nobody in it to say it to.
 * (stepped_over) [Step over him.]
     He stepped over him. HI-VIS said "Night," without waking up.
-    MANUAL: The licensee's duty of care ends at the door of the licensed premises. You are past it.
+    MANUAL: The licensee's duty of care ends at the door of the licensed premises (see Section 4, Premises).
 - -> crew
 
 // The mill crew's card game on the second floor, which HI-VIS may or may not have made it back to.
@@ -1707,7 +1719,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 - arrivals !? hivis_in && arrivals !? hivis_hotel:
     Along the second floor the mill crew's doors were open, and a card game was going in one of them with the TV on and nobody watching it. HI-VIS was at the card table in his socks, with a can of his own beer. He lifted it an inch at the doorman going past.
     { incident ? inc_hivis:
-        It could have meant no hard feelings. It could have meant all of them.
+        He couldn't tell what it meant.
     }
 - else:
     Along the second floor the mill crew's doors were open, and a card game was going in one of them with the TV on and nobody watching it.
@@ -1715,11 +1727,30 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 { knows ? mill_closing:
     Somebody at the table said Christmas, and somebody else said they'd been saying Christmas for six years, and somebody dealt.
 }
+// The game, if he stops for it: the crew at three in the morning, six weeks from home.
+* {cash >= 3} [Stop at the card game.]
+    ~ pass(10)
+    ~ cash -= 3
+    Somebody hooked a chair out for him with a foot. Crib, a dollar a hole. Between hands they went through the women on somebody's dating app, reading them out, and arguing over which of them had been with which.
+    He lost three dollars{arrivals !? hivis_in && arrivals !? hivis_hotel:, and HI-VIS fell asleep in his chair with the can still upright in his hand}.
+* [Leave them to their cards.]
+-
 // He may have been up already, before the shift (walk.ink, twelve).
 { from_room:
-    His room was at the end of the second floor, over the deck, where he'd lain on the bed before the shift and listened to the bartender tell Gary about him through two inches of window.
+    { knows ? heard_phone:
+        His room was over the deck, where he'd lain before the shift and heard the bartender tell Gary about him through two inches of window.
+    - else:
+        His room was over the deck, where he'd lain before the shift with the pillow over his head while the bartender told Gary about him through two inches of window.
+    }
     { in_twelve ? gary_shirt:
         Gary's shirt was on the chair where he'd left it, folded, the word inside.
+    }
+    // What the last doormen left in twelve (walk.ink, twelve).
+    { knows ? twelve_hole:
+        In the light from the lot, the face round the hole behind the door still had its mouth open.
+    }
+    { knows ? twelve_foil:
+        He didn't open the drawer.
     }
 - else:
     His room was at the end of the second floor, over the deck. It came with the job.
@@ -1775,12 +1806,12 @@ There was somebody new in his head, talking over the others.
     { knows ? t28_nine:
         TABLE: We were nine, once. There's a chair. #always
     }
-    It wasn't one of them. It was all five at once, sure of everything, and it had come in with the rye.
+    It was all five of table 28 at once, sure of everything, and it had come in with the rye.
 }
 { wants_kid():
     KID: i'm not high #always
     KID: i just haven't slept #always
-    It was the kid in the washroom. It didn't say much. What it said, it said about things the others couldn't see.
+    It was the kid from the washroom. It didn't say much.
 }
 FATHER: Don't let that in.
 - (vs)
@@ -1799,12 +1830,12 @@ FATHER: Don't let that in.
 // The voices go back over the night, one thing each, the Father last. A voice that isn't in the room
 // doesn't get to say it (content/ink/README.md).
 === night_talk ===
-The voices went back over the night, the way they did. The Father last.
+The voices went back over the night. His father last.
 {
 - hurt > 0:
     FIGHTER: The eye'll close by morning. Ice it. Or don't, and let them see it on Friday.
 - fam ? pool_fight:
-    FIGHTER: You were first. That's all it ever is. Be first.
+    FIGHTER: You hit first. Keep doing that.
 - rats_killed > 0:
     FIGHTER: {Num(rats_killed)}. Out of how many.
 - else:
@@ -1812,29 +1843,29 @@ The voices went back over the night, the way they did. The Father last.
 }
 {
 - LIST_COUNT(incident) == 0:
-    MANUAL: Nothing to report. The manual has no section on how that feels.
+    MANUAL: A shift with no incidents is recorded as NOTHING TO REPORT, with the date and the security worker's signature.
 - LIST_COUNT(left_out) > 0:
     MANUAL: The incident log is a legal document. {Num(LIST_COUNT(left_out))} {LIST_COUNT(left_out) == 1:incident is|incidents are} not in it.
 - LIST_COUNT(shaded) > 0:
-    MANUAL: The incident log is a legal document. It now contains {num(LIST_COUNT(shaded))} {LIST_COUNT(shaded) == 1:statement|statements} that {LIST_COUNT(shaded) == 1:is|are} not quite true.
+    MANUAL: The incident log is a legal document. A false entry in it is an offence (Part 6).
 - else:
-    MANUAL: The incident log is a legal document. Every entry in it is accurate. This is rarer than you would think.
+    MANUAL: The incident log is a legal document. Entries are to be accurate, legible and signed.
 }
 {
 - uncounted > 0 && search_missed():
-    WRONGMAN: Somebody got in tonight you never saw. In the story there was always one.
+    WRONGMAN: Somebody got in tonight you never saw. The drunk said that happened in the story too, but he said that about everything.
 - knows ? knot_seen:
-    WRONGMAN: Nobody believes the one who saw it. So don't say.
+    WRONGMAN: In the story the one who saw it never told anybody. Then he told the drunk.
 - parley > 0:
-    WRONGMAN: You went down. In the story he went down too. Nobody remembered what he said down there, only that he came back up.
+    WRONGMAN: You went down. In the story he went down too, and came back up, and the drunk never found out what was said down there. He asked.
 - after_hours.didnt_ask:
-    WRONGMAN: You didn't ask her which story was true. Good. In the story, the one who asks is the next one gone.
+    WRONGMAN: You didn't ask her which one was true. In the story somebody asked, and the drunk said he was gone by Christmas. Or it was Easter.
 - else:
-    WRONGMAN: Wednesday. Nothing happens on a Wednesday. That's what they'll say.
+    WRONGMAN: The drunk always said the story happened on a Wednesday. Nothing happens on a Wednesday, he said.
 }
 {
 - knows ? endbar_dock && knows ? knot_seen:
-    FATHER: The man on the docks, who told me he'd seen one. He had a good jacket too. I never asked his name either.
+    FATHER: A man on the docks told me he'd seen one, once. Leather on his elbows. I never asked his name either.
 - claims ? said_father_dead:
     FATHER: You told that kid I died before you worked it out.
     FATHER: Worked what out?
@@ -1844,15 +1875,23 @@ The voices went back over the night, the way they did. The Father last.
 - picked_receiver:
     FATHER: The phone in the hall. There's nobody on the other end of that. I used to pick it up anyway.
 - fam ? dad_drove:
-    FATHER: He drove. Lie there and listen for the sirens. I'll listen with you. I owe somebody that.
+    FATHER: He drove. Lie there and listen for the sirens. I'll listen with you.
 - claims ? said_helped_others:
     FATHER: It helped everybody else, you told him. That's the nicest thing you ever said about me, and you said it to a stranger in a toilet.
 - ev_wife_inside.let_her:
     FATHER: Thirty years, she said, and not one of you ever stopped him at the door.
     FATHER: I'd have hated any man who tried. I'd have gone home, though.
+- lines_taken > 0:
+    FATHER: You did one with that boy, off his phone. On a first night. You'll want one on the second.
 - last_glass == 3:
     FATHER: You pushed it back. I never pushed one back in my life. I just stopped picking them up.
-- at_hall.payphone.left_receiver && drinks >= 2:
+- wall_wrote == 1:
+    FATHER: Me too, you wrote. Under always. I know what that's the answer to.
+- wall_wrote == 2:
+    FATHER: Go home, you wrote. On the wall of a bar. I'd have read that and ordered another.
+- wall_wrote == 3:
+    FATHER: A man asks who's still here at two, and you give him the hours.
+- at_hall.payphone_up.left_receiver && drinks >= 2:
     FATHER: Tuesdays at seven. You looked at that one longer than you looked at the phone numbers.
 - knows ? aa_wall && not picked_receiver:
     FATHER: Tuesdays at seven. I wonder if it's still the same coffee.
@@ -1944,9 +1983,9 @@ The room held five, and it had five. Somebody would have to go.
 - cocoon >= 3:
     NARRATOR: That was Wednesday. The way he tells it now, nothing much happened.
 - cocoon <= -1:
-    NARRATOR: That was Wednesday. The one nobody else remembers. He remembers all of it.
+    NARRATOR: That was Wednesday. Nobody else remembers it. He could tell you what everybody drank.
 - else:
-    NARRATOR: That was Wednesday. The one nobody else remembers.
+    NARRATOR: That was Wednesday. Nobody else remembers it.
 }
 # screen: ledger
 THE SOVEREIGN HOTEL #class: head
@@ -2012,7 +2051,7 @@ The door: {count_in} in past the stool #class: row
     Nothing that won't heal by Friday. #class: sub
 - hurt == 2:
     Hurt: his hand, his face #class: row
-    Friday will know about it. #class: sub
+    It'll show on Friday. #class: sub
 - hurt >= 3:
     Hurt: badly #class: row
 }
@@ -2119,6 +2158,17 @@ The door: {count_in} in past the stool #class: row
     Dennis got the message about the dog{close_t28.dog_late:, late}.
 - arrivals ? wife_lied:
     Dennis never got the message about the dog.
+}
+// What he said to the soldier on the phone at table 28 (table28.ink, the_phone).
+{
+- t28_slop == 1:
+    He told the one with the lottery tickets that his soldier wasn't real. #class: sub
+- t28_slop == 2:
+    He wished a soldier on a phone at table 28 a happy hundredth birthday. #class: sub
+}
+// The line in the men's (hall.ink, vape_line).
+{ lines_taken > 0:
+    He did a line in the men's on shift, with the boyfriend, off his girlfriend's face on his lock screen. #class: sub
 }
 {
 - used ? r_glass:
@@ -2237,7 +2287,7 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
     The kid at the Esso gets four cents an answer for saying which of a machine's sounds more like a person. {rated == 3:He said neither.|It's getting hard to tell, he says.} #class: sub
 }
 { owned_it > 0:
-    He told somebody he was wrong. That isn't nothing.
+    He told somebody he was wrong.
 }
 { LIST_COUNT(claims) > 0:
     WHAT HE'S SAID, WHICH IS TRUE NOW

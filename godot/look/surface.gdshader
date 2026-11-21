@@ -77,6 +77,24 @@ float tri(float x) {
 	return abs(fract(x) - 0.5) * 2.0;     // 0 on the stroke's spine, 1 halfway to the next
 }
 
+// a slow, smooth wander in space, -1..1: the hand that cut the block. Strokes laid perfectly even
+// beat against each other and against the screen's pixels (moire); a hand never cuts them even.
+float hash3(vec3 p) {
+	p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
+	p *= 17.0;
+	return fract(p.x * p.y * p.z * (p.x + p.y + p.z)) * 2.0 - 1.0;
+}
+
+float wander(vec3 p) {
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(hash3(i), hash3(i + vec3(1, 0, 0)), f.x), mix(hash3(i + vec3(0, 1, 0)), hash3(i + vec3(1, 1, 0)), f.x), f.y),
+		mix(mix(hash3(i + vec3(0, 0, 1)), hash3(i + vec3(1, 0, 1)), f.x), mix(hash3(i + vec3(0, 1, 1)), hash3(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+
+const float SPREAD = 1.5;             // the strokes stand this much further apart than cut_px says
+
 void fragment() {
 	if (alpha_scissor > 0.0 && texture(albedo_tex, UV).a < alpha_scissor) {
 		discard;
@@ -111,11 +129,19 @@ void fragment() {
 			}
 			// keep the strokes cut_px apart on the screen at any distance: pick the two nearest
 			// octaves of spacing and blend them, the way an engraver adds a line between two
-			float px_apart = cut_px * max(cut_scale, 0.25);
+			float px_apart = cut_px * SPREAD * max(cut_scale, 0.25);
 			float fw = max(length(vec2(dFdx(f), dFdy(f))), 1e-6);
 			float l = log2(fw * px_apart);
 			float s0 = exp2(floor(l));
-			t = mix(tri(f / s0), tri(f / (2.0 * s0)), fract(l));
+			// the hand: each stroke drifts off its line by up to a quarter of the gap, slowly along
+			// its length, and swells and thins where the hand leaned
+			vec3 wp = rest_uv > 0 ? vec3(rest * 4.0, 0.5) : (cut >= 2 ? local_pos : world_pos) * 3.1;
+			float drift = wander(wp) * 0.25 + wander(wp * 2.7 + vec3(5.2)) * 0.08;
+			float lean = wander(wp * 0.7 + vec3(11.7)) * 0.16;
+			// two spacings blend only in a narrow band as the distance changes, so two sets of
+			// strokes are seldom on the screen at once (laid over each other, they make the moire)
+			t = mix(tri(f / s0 + drift), tri(f / (2.0 * s0) + drift * 0.5), smoothstep(0.3, 0.7, fract(l)));
+			t = clamp(t + lean, 0.0, 1.0);
 		}
 		ALBEDO = vec3(0.0);
 		SPECULAR = 0.0;

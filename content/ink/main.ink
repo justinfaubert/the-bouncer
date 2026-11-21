@@ -81,6 +81,7 @@ VAR asked_pay = false       // he asked when he gets paid
 VAR shirt = 0               // Gary's SECURITY shirt: 1 took it, 2 "I've got my own"
 VAR shirt_on = false        // he's wearing it
 VAR pay_how = 0             // the bookkeeper's form: 1 filled it in, 2 asked for cash, 3 read it first
+VAR staff_warned = 0        // Gary's "don't fuck the staff": 1 wasn't planning on it, 2 who's the staff, 3 just took the key (he brings it up at midnight)
 // What he claimed in the office. Gary tells the bartender all of it on the phone at quarter past
 // five (walk.ink), and she holds him to it at close (closing.ink, door_story).
 LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry
@@ -160,7 +161,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen, t28_puke, hotel_watched, twelve_hole, twelve_foil, lot_trucks, t28_window, vape_bump, bigman_looked
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 
@@ -275,6 +276,9 @@ VAR cardigan_go = 0         // he told the one in the cardigan to go to Calgary 
 VAR cardigan_secret = false // the one in the cardigan asked him not to tell the table he was out on the deck
 VAR how_doing = 0           // times he's asked table 28 how everybody's doing
 VAR picked_receiver = false // he picked up the dead payphone in the back hall
+VAR wall_wrote = 0          // what he wrote under ALWAYS on the payphone wall: 1 ME TOO, 2 GO HOME, 3 DOOR'S ON TILL 2
+VAR lines_taken = 0         // lines he took on shift (hall.ink, the boyfriend in the men's)
+VAR t28_slop = 0            // what he said to Scratch's soldier on the phone (table28.ink, the_phone): 1 not real, 2 happy birthday, 3 pushed it back
 VAR secret_kept = 0         // at close table 28 asked where the one in the cardigan had been: 1 he kept it, -1 he told them
 
 // ------------------------------------------------------------------ the end of the night
