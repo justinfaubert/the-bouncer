@@ -391,8 +391,10 @@ vec3 listener7(vec3 P, vec3 N, vec3 I, vec3 C, vec3 f, vec3 r, vec3 u, out float
 	vec3 rm = room(P, I1, C, Rr, f, r, u, dc);
 	float pxw = max(fwidth(dc), 1e-4);
 	float in_room = 1.0 - smoothstep(Rr * 0.85, Rr * 1.02, dc);
-	// from far off the room's a light: a glow round it never smaller than a few pixels
-	float halo = exp(-max(dc - Rr, 0.0) / max(pxw * 2.0, Rr * 0.16)) * (1.0 - in_room);
+	// while it's small the room's a light: a glow round it never smaller than a few pixels. Grown,
+	// it has none, or the glow would pile up on its rim into the line it doesn't have
+	float halo = exp(-max(dc - Rr, 0.0) / max(pxw * 2.0, Rr * 0.16)) * (1.0 - in_room)
+		* (1.0 - smoothstep(0.2, 0.45, grown));
 	vec3 white = vec3(1.0, 0.95, 0.86) * inside_energy;
 	vec3 interior = rm + white * halo * 0.45 + glow * glow_energy * tl * mix(1.0, 0.45, in_room);
 	// and while the room's only a few pixels across (far off, or the first days) it's one white
