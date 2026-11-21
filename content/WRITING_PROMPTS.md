@@ -58,12 +58,12 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/closing.ink
 
-26. **last_call** (`content/ink/closing.ink:247`): Last call at the Sov. What really happens in a room like this when the bell goes?
-27. **incident_log** (`content/ink/closing.ink:977`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-28. **after_hours** (`content/ink/closing.ink:1070`): The song she puts on for the count. Yours to pick, or to write.
-29. **after_hours** (`content/ink/closing.ink:1114`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
-30. **keg_parley** (`content/ink/closing.ink:1415`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
-31. **go_upstairs** (`content/ink/closing.ink:1750`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
+26. **last_call** (`content/ink/closing.ink:248`): Last call at the Sov. What really happens in a room like this when the bell goes?
+27. **incident_log** (`content/ink/closing.ink:978`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
+28. **after_hours** (`content/ink/closing.ink:1071`): The song she puts on for the count. Yours to pick, or to write.
+29. **after_hours** (`content/ink/closing.ink:1115`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
+30. **keg_parley** (`content/ink/closing.ink:1416`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
+31. **go_upstairs** (`content/ink/closing.ink:1759`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 
 ## content/ink/things.ink
 
@@ -77,5 +77,5 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/room.ink
 
-36. **back_for_coat** (`content/ink/room.ink:669`): The daughter, back for her father's jacket at two in the morning, and how her mother is. The draft keeps the mother in hospital, unexplained.
+36. **back_for_coat** (`content/ink/room.ink:675`): The daughter, back for her father's jacket at two in the morning, and how her mother is. The draft keeps the mother in hospital, unexplained.
 

@@ -29,7 +29,7 @@ The rain had eased off to the kind you could only see under a lamp, and the lamp
 - else:
     FATHER: You looked at his room before you sat down in it. Good.
 }
-The library, one window lit. The Legion, where he'd closed the bar last night, with a field gun out front pointed at the bank. Somebody had sprayed HONK HONK on its plinth, and somebody had painted over it in a grey that didn't match, so it still said it.
+The Legion, where he'd closed the bar last night, with a field gun out front pointed at the bank. Somebody had sprayed HONK HONK on its plinth, and somebody had painted over it in a grey that didn't match, so it still said it.
 The drugstore sold weed. In the doorway of the video store, under the posters from the year it shut, a man was asleep with his shoes beside him, side by side.
 FIGHTER: Shoes off. This street doesn't scare him.
 A white wooden church at the top, its sign saying SIGN BROKEN, COME INSIDE FOR MESSAGE, and a grey stone one at the bottom with a realtor's board on the lawn.

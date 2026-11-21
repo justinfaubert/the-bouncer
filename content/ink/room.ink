@@ -656,6 +656,13 @@ Headlights came into the empty lot, and the pickup pulled up in front of the doo
 He let her in as far as the vestibule.
 DRIVER: He left his jacket. His phone's in it.
 DRIVER: The hospital keeps calling it, and he hasn't got it, and he won't use mine. So.
+// Whether he asks after her mother before he goes for it, or just goes for it.
+* (asked_mom) ["How's your mom?"]
+    ~ rep(rep_kids, 1)
+    DRIVER: They're keeping her.
+    She said it to the glass of the inside door, not to him.
+* (just_coat) [Go and get the jacket.]
+-
 // In the drawer, it's safe. On the hook, it's as safe as the door was: whoever came in past the
 // empty stool tonight (walk_ins, sim.ink) had all night to see it.
 { coat_how == 1 || walk_ins == 0:
@@ -665,8 +672,13 @@ DRIVER: The hospital keeps calling it, and he hasn't got it, and he won't use mi
     {coat_how == 1:He got it out of the lost-and-found from under the toques.|He got it off its hook by the dartboard.} The phone was in the pocket, where it had been all night.
     She checked it was there before she said anything. Then she said it.
     DRIVER: Thank you.
-    DRIVER: She's okay. They're keeping her. It's not her heart, they think now. They don't know what it is.
     // HUTCH: The daughter, back for her father's jacket at two in the morning, and how her mother is. The draft keeps the mother in hospital, unexplained.
+    {
+    - asked_mom:
+        DRIVER: It's not her heart, they think now. They don't know what it is.
+    - just_coat:
+        She didn't say how her mother was, and he hadn't asked.
+    }
     FATHER: He went. That's the part they'll remember.
 - else:
     ~ back_for = 2

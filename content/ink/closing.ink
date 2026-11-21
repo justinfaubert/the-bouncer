@@ -241,6 +241,7 @@ The bartender reached up and rang the brass bell over the till, twice. #sfx: bel
 BARTENDER: Last call!
 TABLE28: Two each!
 Everybody who was going to leave started thinking about leaving. Table 28 ordered.
+At the bar a man who'd been talking at the same woman since nine put a hand on the back of her stool and asked if she wanted to get out of here. She let him buy her the last one. Her friend was already holding her coat.
 { dennis_gone():
     The one in the team jacket ordered two for Dennis, too, out of respect, and lined them up in front of the empty chair, and drank them himself.
 }
@@ -1726,6 +1727,14 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
 { knows ? mill_closing:
     Somebody at the table said Christmas, and somebody else said they'd been saying Christmas for six years, and somebody dealt.
 }
+// The game, if he stops for it: the crew at three in the morning, six weeks from home.
+* {cash >= 3} [Stop at the card game.]
+    ~ pass(10)
+    ~ cash -= 3
+    Somebody hooked a chair out for him with a foot. Crib, a dollar a hole. Between hands they went through the women on a dating app on somebody's phone, reading them out to each other, and arguing over which of them had been with which of the women.
+    He lost three dollars{arrivals !? hivis_in && arrivals !? hivis_hotel:, and HI-VIS fell asleep in his chair with the can still upright in his hand}.
+* [Leave them to their cards.]
+-
 // He may have been up already, before the shift (walk.ink, twelve).
 { from_room:
     { knows ? heard_phone:
@@ -2149,6 +2158,17 @@ The door: {count_in} in past the stool #class: row
     Dennis got the message about the dog{close_t28.dog_late:, late}.
 - arrivals ? wife_lied:
     Dennis never got the message about the dog.
+}
+// What he said to the soldier on the phone at table 28 (table28.ink, the_phone).
+{
+- t28_slop == 1:
+    He told the one with the lottery tickets that his soldier wasn't real. #class: sub
+- t28_slop == 2:
+    He wished a soldier on a phone at table 28 a happy hundredth birthday. #class: sub
+}
+// The line in the men's (hall.ink, vape_line).
+{ lines_taken > 0:
+    He did a line in the men's on shift, with the boyfriend, off his girlfriend's face on his lock screen. #class: sub
 }
 {
 - used ? r_glass:

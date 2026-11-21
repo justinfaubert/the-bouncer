@@ -161,7 +161,7 @@ He knocked and pushed the door open a hand's width and said "Door staff," to the
 }
 { stopping:
 - Nobody answered. Two stalls, both doors open. A sign on the mirror in the bartender's handwriting: PLEASE DO NOT FLUSH ANYTHING. WE MEAN ANYTHING.
-- Nobody. A tap was running. He went in and turned it off. On the inside of a stall door a list had been going for years, a man's first name and the first letter of his last, and one word after each. MARRIED. LIAR. HITS. CRIES AFTER. NICE BUT BROKE. TYLER, with a heart, and RIP under the heart in another pen. At the bottom, in fresh marker: NEW DOORMAN?
+- Nobody. A tap was running. He went in and turned it off. On the inside of a stall door a list had been going for years, a man's first name and the first letter of his last, and one word after each. MARRIED. LIAR. HITS. CRIES AFTER. NICE BUT BROKE. COLTON, with a heart, and RIP under the heart in another pen. At the bottom, in fresh marker: NEW DOORMAN?
 - Empty. On the back of the door, where you'd see it from the sink, a poster: ASK FOR ANGELA. IF YOUR DATE ISN'T WHO YOU THOUGHT, ASK AT THE BAR FOR ANGELA AND WE'LL GET YOU HOME SAFE. Under it, in eyeliner: ANGELA'S NEVER WORKED HERE.
 - Empty.
 }
@@ -494,7 +494,7 @@ WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's penci
 ~ knows += aa_wall
 IT'S SO OVER. Under it, WE'RE SO BACK. Under that, in a third hand, IT'S SO OVER.
 WRONGMAN: In the story the doorman's name was up there by the end of the first week.
-RIP TYLER. Under it: HE OWED ME 20. Under that, in a third hand: KEEP IT.
+RIP COLTON. Under it: HE OWED ME 20. Under that, in a third hand: KEEP IT.
 JUNIOR'S DAD WAS A BETTER MAN.
 WHO'S STILL HERE AT 2 AM, in pencil. Under it: ME. ME. ALWAYS. An arrow ran from ALWAYS up the wall to a card in a plastic sleeve, pinned higher than a drunk could reach, the marker gone brown: TUESDAYS 7 PM. UNITED CHURCH HALL. YOU ARE NOT THE ONLY ONE.
 FATHER: I went to those.
