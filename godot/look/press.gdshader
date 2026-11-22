@@ -114,6 +114,9 @@ void fragment() {
 	vec4 m = texture(cut_mask, uv + o_k * px);
 	// a story object, printed clean: its own picture straight onto the paper, no strokes or grain
 	float clean = step(0.97, m.r);
+	// printed twice: a second hit of the night, no paper left in it (the Listener's body,
+	// look/listener.gdshader, marks it in the mask's red, between the cuts and the clean)
+	float twice = step(0.925, m.r) * (1.0 - clean);
 
 	// the key block: strokes whose width is the tone, cut with a slightly wandering hand. The tone
 	// is pressed into a band first, the way a cutter works: the light left bare, the deep shadow
@@ -169,6 +172,10 @@ void fragment() {
 	col *= 1.0 - ke * (1.0 - to_linear(ink_earth));
 	col *= 1.0 - key * (1.0 - to_linear(ink_night));
 
+	if (twice > 0.5) {
+		vec3 k = to_linear(ink_night);
+		col = to_linear(paper) * k * k * 5.0;
+	}
 	if (clean > 0.5) {
 		// printed clean: the thing's colours as they are, on the same paper, its outline still cut
 		vec3 sc = to_linear(clamp(texture(scene, uv).rgb * 1.08, 0.0, 1.0));
