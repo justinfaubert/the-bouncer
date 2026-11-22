@@ -68,7 +68,7 @@ const FLOOR_Y := -1.73                  # the carpet, under the bull
 # the dart swinging per metre in (N m / rad / m), steepest it'll take a point (cos of the angle off
 # straight in), bounce, grip]
 const STUFF := {
-	"sisal": [14.0, 9000.0, 4.2, 22.0, 0.26, 0.15, 0.6],
+	"sisal": [14.0, 9000.0, 5.2, 22.0, 0.26, 0.15, 0.6],
 	"wood": [70.0, 52000.0, 2.6, 30.0, 0.55, 0.32, 0.35],
 	"shaft": [16.0, 9000.0, 1.6, 10.0, 0.95, 0.3, 0.3],
 	"plaster": [400.0, 400000.0, 1.0, 20.0, 1.1, 0.25, 0.4],
@@ -181,7 +181,7 @@ func _init() -> void:
 	var seed_rng := RandomNumberGenerator.new()
 	seed_rng.seed = wear_seed
 	wear_spots = [
-		[Vector2(0.0, 0.103), 0.018, 0.42],          # treble 20
+		[Vector2(0.0, 0.103), 0.018, 0.38],          # treble 20
 		[Vector2(0.0, 0.135), 0.03, 0.22],           # the big 20 bed
 		[Vector2(0.0, 0.166), 0.012, 0.3],           # double 20
 		[Vector2(-0.032, 0.098), 0.012, 0.3],        # treble 5
@@ -203,7 +203,12 @@ func soundness(p: Vector2) -> float:
 		var rr: float = w[1]
 		if dd < rr * 2.0:
 			s *= 1.0 - float(w[2]) * exp(-(dd * dd) / (rr * rr))
-	return clampf(s, 0.12, 1.0)
+	# and the fibres themselves, never two holes alike: a bundle packed tight here, loose a few
+	# millimetres over (the same spot is always the same)
+	var cell := Vector2i(floori(p.x / 0.003), floori(p.y / 0.003))
+	var h := hash(cell * 7919 + Vector2i(wear_seed, 0)) % 1000
+	s *= 0.72 + 0.5 * float(h) / 1000.0
+	return clampf(s, 0.12, 1.15)
 
 
 func add(d: Dart) -> Body:
@@ -284,7 +289,7 @@ func _air(b: Body) -> Array:
 		# the torn side pushes harder (and turns with the dart)
 		if d.tear > 0.0:
 			var td: Vector3 = b.rot * d.tear_dir
-			var ft := td * (0.5 * RHO * spd * spd * d.flight_area * 0.04 * d.tear)
+			var ft := td * (0.5 * RHO * spd * spd * d.flight_area * 0.12 * d.tear)
 			f += ft
 			tq += rf.cross(ft)
 		# drag along: the flights' faces edge on, and their spin
@@ -583,7 +588,7 @@ func _in(b: Body) -> void:
 	var turned := (b.in_rot.z.cross(b.rot.z))
 	var k_turn := float(st[3]) * b.depth * sound
 	tq += -turned * k_turn
-	var hold := float(st[2]) * b.depth * pow(sound, 1.6)
+	var hold := float(st[2]) * b.depth * sound * sound
 	var pull := rc.cross(GRAV * d.mass).length()
 	# the fibres' drag, worked implicitly (the dart spins about its own length with almost no weight
 	# to it, so drag added the plain way would overshoot and run away)
@@ -600,8 +605,15 @@ func _in(b: Body) -> void:
 	else:
 		b.still = 0.0
 	# levered out by its own weight (or knocked), or never really in
+	# swung harder than the fibres can spring back from, they give: the dart reseats at the new
+	# angle, worked a little looser (it takes its own weight hanging off a soft hole to lever it out)
 	var spring_load := turned.length() * k_turn
-	if (b.dv <= 0.0 and (pull > hold or spring_load > hold * 1.6)) or (b.dv <= 0.0 and b.depth < 0.0012):
+	if spring_load > hold * 1.6:
+		b.in_rot = b.in_rot.slerp(b.rot, 0.2)
+		b.depth *= 0.995
+	if OS.has_environment("DART_WHY") and b.still > 0.05 and b.still < 0.05 + DT * 1.5:
+		print("  settled in %s: depth %.1f mm sound %.2f pull %.4f hold %.4f" % [b.in_what, b.depth * 1000, sound, pull, hold])
+	if (b.dv <= 0.0 and b.still > 0.05 and pull > hold) or (b.dv <= 0.0 and b.depth < 0.0012):
 		if OS.has_environment("DART_WHY"):
 			print("  out of %s: depth %.1f mm, sound %.2f, pull %.4f hold %.4f spring %.4f" % [b.in_what, b.depth * 1000, sound, pull, hold, spring_load])
 		b.mode = "fly"

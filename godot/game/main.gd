@@ -35,6 +35,7 @@ var feet: Feet
 var dice: Dice
 var props: Props
 var door_hand: DoorHand
+var darts: Darts
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -143,6 +144,10 @@ func _ready() -> void:
 	door_hand = DoorHand.new()
 	add_child(door_hand)
 	door_hand.setup(self)
+	darts = Darts.new()
+	add_child(darts)
+	darts.setup(self)
+	darts.left.connect(_darts_left)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -382,6 +387,49 @@ func persist_soon() -> void:
 	_save_soon = 0.9
 
 
+# Darts, at the board (game/darts.gd): from the night, or from the menu (the games he's met, and the
+# rehearsal, which needs no night at all: body is {drinks, hurt, tension, clock, cold}).
+var _darts_from := ""
+var _looked_at := {}
+
+
+# a game he's come across in the night: in the Games on the title from now on
+func _met(what: String) -> void:
+	var met: Array = settings.get("met", [])
+	if not (what in met):
+		met.append(what)
+		settings["met"] = met
+		store.save_settings()
+
+func start_darts(game_mode: String, from_menu: String, body := {}) -> void:
+	_darts_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("pool")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	darts.begin(game_mode, from_menu != "", body)
+
+
+func _darts_left() -> void:
+	if _darts_from == "":
+		return
+	var m := _darts_from
+	_darts_from = ""
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	if m == "rehearse":
+		menus.rehearse("title")
+	else:
+		menus.games("title")
+
+
 func back_to_title() -> void:
 	if in_game and not game.ended:
 		persist()
@@ -454,6 +502,15 @@ func choose_by_hand(i: int, _verdict: String) -> void:
 func toy(id: String, what: String) -> String:
 	if not in_game or pending != null or rolling != null or game.ended or answering:
 		return ""
+	# the dartboard: the first look says what it is; looked at again with the darts still in it, he
+	# goes over and takes them out of the board and throws a few (game/darts.gd). Either way it's met,
+	# and from then on it's in the Games on the title.
+	if id == "dartboard" and what == "look":
+		_met("darts")
+		if _looked_at.has(id) and not bool(game.get_var("darts_pulled")) and view.eye_pos.distance_to(darts.to_world.origin) < 8.5:
+			start_darts("practice", "")
+			return "said"
+		_looked_at[id] = true
 	var res := game.toy(id, what)
 	if res.is_empty():
 		return ""

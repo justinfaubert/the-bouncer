@@ -152,6 +152,8 @@ func title() -> void:
 	else:
 		_button("Start Wednesday", true, func(): main.start_new(cur), 30)
 	_button("Nights", false, func(): nights("title"))
+	_button("Games", false, func(): games("title"))
+	_button("Rehearse", false, func(): rehearse("title"))
 	_button("How it plays", false, func(): help("title"))
 	_button("Settings", false, func(): settings("title"))
 	_button("Quit", false, func(): main._notification(NOTIFICATION_WM_CLOSE_REQUEST))
@@ -181,7 +183,7 @@ func back() -> void:
 	match screen:
 		"pause":
 			hide_all()
-		"settings", "help", "nights":
+		"settings", "help", "nights", "games", "rehearse":
 			if came_from == "pause":
 				pause()
 			else:
@@ -193,6 +195,82 @@ func back() -> void:
 				hide_all()
 			else:
 				title()
+
+
+# ---------------------------------------------------------------- the games and the rehearsal
+
+# The games he's met, to play again from here: each one opens once the night's put it in front of
+# him (Store.met). Each comes up as it is in the Sov, at the board or the table.
+const GAMES := [
+	["darts", "Darts", "The board on the east wall, the house darts, the chalk.", [["practice", "Throw a few"], ["clock", "Round the clock"], ["501", "Five-oh-one"]]],
+]
+
+
+func games(from: String) -> void:
+	came_from = from
+	_open("games")
+	_gap(40)
+	_head("Games", "What he's played")
+	var met: Array = main.settings.get("met", [])
+	var any := false
+	for g in GAMES:
+		if not (g[0] in met):
+			continue
+		any = true
+		_section(g[1])
+		_para(g[2], 20, Look.MUTED)
+		for m in g[3]:
+			var mode: String = m[0]
+			_button(m[1], false, func(): main.start_darts(mode, "games"))
+	if not any:
+		_para("Nothing yet. The games open here once he's come across them on a shift.", 21, Look.MUTED)
+	_gap(14)
+	_button("Back", true, func(): back())
+	_focus_first()
+
+
+# Rehearse: any interaction on its own, without the night, with his body set by hand. For trying
+# things out while they're being made.
+var _rh := {"drinks": 0, "hurt": 0, "tension": 0, "clock": 1290, "cold": 0.0}
+
+func rehearse(from: String) -> void:
+	came_from = from
+	_open("rehearse")
+	_gap(40)
+	_head("Rehearse", "Without the night")
+	_para("Any of the hands-on parts on its own, for trying out. Set how he is first.", 21, Look.MUTED)
+	_rh_slider("Drinks in him", "drinks", 0, 12, 1, func(v): return "%d" % v)
+	_rh_slider("Hurt", "hurt", 0, 3, 1, func(v): return ["none", "a bit", "hurt", "badly"][int(v)])
+	_rh_slider("Nerves", "tension", 0, 4, 1, func(v): return ["calm", "edgy", "keyed up", "shaking", "after a fight"][int(v)])
+	_rh_slider("The hour", "clock", 1200, 1560, 15, func(v): return Look.clock_text(int(v) % 1440))
+	_rh_slider("Cold hands", "cold", 0.0, 1.0, 0.25, func(v): return "no" if v == 0 else ("in from the door" if v >= 1.0 else "a little"))
+	_section("Darts")
+	_button("Throw a few", true, func(): main.start_darts("practice", "rehearse", _rh.duplicate()))
+	_button("Round the clock", false, func(): main.start_darts("clock", "rehearse", _rh.duplicate()))
+	_button("Five-oh-one", false, func(): main.start_darts("501", "rehearse", _rh.duplicate()))
+	_section("Still to come here")
+	_para("The door by hand, the dice, the licence in his hands, the cigarette machine: each gets a way in here as it's worked on.", 19, Look.FAINT)
+	_gap(14)
+	_button("Back", true, func(): back())
+	_focus_first()
+
+
+func _rh_slider(label: String, key: String, lo: float, hi: float, step: float, fmt: Callable) -> void:
+	var row := _row(label, "")
+	var h := HBoxContainer.new()
+	var sl := HSlider.new()
+	sl.min_value = lo
+	sl.max_value = hi
+	sl.step = step
+	sl.value = _rh.get(key, lo)
+	sl.custom_minimum_size = Vector2(320, 24)
+	var val := UiBits.label(str(fmt.call(sl.value)), "ui_b", 18, Look.INK_2, 1)
+	sl.value_changed.connect(func(v):
+		_rh[key] = v
+		val.text = str(fmt.call(v)))
+	h.add_child(sl)
+	h.add_child(val)
+	row.add_child(h)
 
 
 # ---------------------------------------------------------------- the nights
@@ -245,6 +323,7 @@ const HELP := [
 	["Checks", "Some choices have a voice's dice behind them: its name, how hard it is, and the odds. Hover the tag to see what's for and against it tonight. When the dice come, hold Space or the mouse button to shake them and let go to throw. The first die down tells you what the second one needs."],
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
+	["Darts", "Look at the dartboard twice and he goes over and takes the darts out of the board. Aim with your eyes; hold the button and pull back to draw, and let go: halfway back is his usual throw, which lands where he's looking. The wheel lifts his elbow for a flatter throw or a lob, Q and E move his grip on the barrel, A and D move him along the line, Shift narrows his eyes and the right button holds his breath. The three house darts each fly their own way. Esc puts them down. Once he's played, darts are in Games on the title; Rehearse plays them with no night at all."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
 	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],

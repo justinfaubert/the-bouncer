@@ -35,6 +35,7 @@ drunk, and fullscreen.
 | Look round | drag across the room, or the arrow keys (W A S D too, where he isn't free to walk); the wheel narrows his eyes |
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
+| Darts | look at the dartboard twice and he takes the darts out of the board. The mouse aims his eyes; hold the button and pull back to draw, let go to throw (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and E: grip. A and D: along the line. Shift: narrow his eyes. Right button: hold his breath. Esc puts them down. Also from the title: Games (once met) and Rehearse (no night, his body set by hand) |
 | Something in his hands | drag a licence to tip it, click to turn it over, E to look closer, Q and R to go through it, Esc to put it down. What the voices make of it is above what he does with it, under WHAT HE MAKES OF IT: keep one, or none |
 | His notes (what's in his head, and on the second page what's on him: Q or E turns it), the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |
