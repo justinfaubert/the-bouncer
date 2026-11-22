@@ -20,6 +20,9 @@ const ROOMY := 0.5                         # past this from anything, a way does
 const EASE := 0.1                          # what a straight stretch keeps off things besides, where it can
 
 static var _clear := PackedByteArray()     # centimetres to the nearest thing, by cell
+# things moved off where the map has them for the night (a stool pushed out, one knocked over): key
+# -> circles on the floor, [Vector3 middle, radius], walked round like the people
+static var things := {}
 var astar := AStarGrid2D.new()
 var body := BODY
 var _people: Array = []                    # cells made solid for the people in the way, to undo
@@ -86,6 +89,7 @@ func open(c: Vector2i) -> bool:
 # and goes the last step straight. Empty if there's no way at all.
 func way(a: Vector3, b: Vector3, people: Array = []) -> PackedVector3Array:
 	_block_people(people, [a, b])
+	_block_things([a, b])
 	var ca := _nearest_open(cell(a))
 	var cb := _nearest_open(cell(b))
 	var out := PackedVector3Array()
@@ -102,29 +106,38 @@ func way(a: Vector3, b: Vector3, people: Array = []) -> PackedVector3Array:
 	return out
 
 
-# the people in the way as solid, but not the ones at either end of it (he's going to them, or
-# coming from beside them)
+# the people in the way as solid. One beside either end of it (he's going to them, or coming from
+# beside them) is still walked round, but only as close as the end is to them: the way gets to the
+# end, and doesn't go through them on the last step
 func _block_people(people: Array, ends: Array) -> void:
 	_people.clear()
-	var r := body + PERSON
-	var n := ceili(r / CELL)
 	for p in people:
-		var pp: Vector3 = p
-		var near_end := false
-		for e in ends:
-			if Vector2(pp.x - e.x, pp.z - e.z).length() < r + 0.15:
-				near_end = true
-		if near_end:
-			continue
-		var c := cell(pp)
-		for dj in range(-n, n + 1):
-			for di in range(-n, n + 1):
-				var k := c + Vector2i(di, dj)
-				if not open(k):
-					continue
-				if Vector2(world(k).x - pp.x, world(k).z - pp.z).length() <= r:
-					astar.set_point_solid(k, true)
-					_people.append(k)
+		_block_circle(p, body + PERSON, ends)
+
+
+# what's been moved for the night (things), the same way
+func _block_things(ends: Array) -> void:
+	for k in things:
+		for c in things[k]:
+			_block_circle(c[0], body + float(c[1]), ends)
+
+
+func _block_circle(at: Vector3, radius: float, ends: Array) -> void:
+	var r := radius
+	for e in ends:
+		r = minf(r, Vector2(at.x - e.x, at.z - e.z).length() - CELL * 0.75)
+	if r < CELL * 0.5:
+		return
+	var n := ceili(r / CELL)
+	var c := cell(at)
+	for dj in range(-n, n + 1):
+		for di in range(-n, n + 1):
+			var k := c + Vector2i(di, dj)
+			if not open(k):
+				continue
+			if Vector2(world(k).x - at.x, world(k).z - at.z).length() <= r:
+				astar.set_point_solid(k, true)
+				_people.append(k)
 
 
 func _unblock_people() -> void:

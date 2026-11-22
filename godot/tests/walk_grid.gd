@@ -2,7 +2,8 @@ extends SceneTree
 # Where a man can walk on the ground floor, for world/nav.gd: every ten centimetres over the bar,
 # the back strip, the deck, the lobby and the lot, how far it is to the nearest thing a body would
 # walk into (a stool, a table's edge, the bar, a wall, a truck), from a hand above the floor to
-# over his head, with the doors that swing out of his way left out (they open as he comes to them)
+# over his head, with the doors that swing out of his way left out (they open as he comes to them;
+# the front door's two leaves, that swing out into the lot, as they stand open)
 # and nobody in the room (the people are worked in as he goes). Only what can be walked to from
 # the floor counts: the inside of the pool table or a wall is nowhere. Writes
 # textures/walk_grid.png, the distance in centimetres in each pixel (x east, z down the image);
@@ -46,9 +47,13 @@ func _run() -> void:
 	var dyn: Dictionary = main.pub.dyn
 	for k in dyn:
 		var n = dyn[k]
-		if n is Node3D and (str(k) in ["leaf_l", "leaf_r", "swing", "deck_door", "hotel_door", "kitchen_door", "rain", "coaster", "hotel_wedge"]
+		if n is Node3D and (str(k) in ["swing", "deck_door", "hotel_door", "kitchen_door", "rain", "coaster", "hotel_wedge"]
 				or str(k).begins_with("wc_")):
 			(n as Node3D).visible = false
+	# the front door's glass leaves as they stand open (they're open whenever anyone's walking
+	# through): they swing out a long way into the lot, and a way that cut the corner round them
+	# went through the glass
+	main.pub.swing_door("main", true, true)
 	# the trucks where they park: walked round, whether they're there or not; and the yellow sign
 	# where it stands on the tiles inside the door when it's out
 	(dyn.truck as Node3D).visible = true

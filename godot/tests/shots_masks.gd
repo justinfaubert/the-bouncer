@@ -288,6 +288,7 @@ func _step(people: Array, dt := STEP) -> void:
 # moves again on the second, half a pose on. Their faces change on twos, with everyone's. paths:
 # who walks where meanwhile, {who: [from, to]}; origin: where eye is measured from (the set, or
 # the room's own 0)
+# paths: who walks, along which way (a PackedVector3Array on the floor), over the frames
 func _talk(people: Array, tag: String, frames: int, eye := Vector3.INF, paths := {}, origin := AT) -> void:
 	var any_ones := people.any(func(p): return p[3] in ONES)
 	for f in frames:
@@ -305,8 +306,15 @@ func _talk(people: Array, tag: String, frames: int, eye := Vector3.INF, paths :=
 				if half == 1 and not ones:
 					continue
 				if paths.has(who):
+					# along the way the stage's walkers take (world/nav.gd): round the pool table, not
+					# through it
 					var k := float(f * 2 + half) / float(frames * 2)
-					(p[4] as Node3D).position = (paths[who][0] as Vector3).lerp(paths[who][1], k)
+					var way: PackedVector3Array = paths[who]
+					var at: Array = Nav.at(way, k * Nav.length_of(way))
+					(p[4] as Node3D).position = at[0]
+					var dir: Vector3 = at[1]
+					if Vector2(dir.x, dir.z).length() > 0.01:
+						(p[4] as Node3D).rotation.y = atan2(dir.x, dir.z)
 				var script: Array = SCRIPT[who]
 				var ex: String = script[mini(f * script.size() / frames, script.size() - 1)]
 				var shut := (f + i * 5) % 19 == 18
@@ -525,8 +533,12 @@ func _run() -> void:
 					cast.append(_mask("bigman", Pub.POOL + Vector3(1.8, 0, 1.0), atan2(-1.8, -1.0)))
 					var a := Vector3(7.7, 0, 3.4)
 					var b := Vector3(9.9, 0, 5.75)
-					paths["amanda"] = [a, b]
-					cast.append(_mask("amanda", a, atan2(b.x - a.x, b.z - a.z)))
+					var way := Nav.new(Nav.SLIGHT).way(a, b, [Pub.POOL + Vector3(1.8, 0, 1.0)])
+					if way.size() < 2:
+						way = PackedVector3Array([a, b])
+					paths["amanda"] = way
+					var first: Vector3 = Nav.at(way, 0.3)[0] - a
+					cast.append(_mask("amanda", a, atan2(first.x, first.z)))
 				"t28":
 					# across the table from him, and Amanda come to the table at its side
 					var a1 := TAU / 6.0 + 0.25
