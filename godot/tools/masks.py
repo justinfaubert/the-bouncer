@@ -43,8 +43,8 @@ OUT = os.path.join(GODOT, 'models', 'masks')
 FINGERS = ('hand', 'thumb', 'index', 'middle', 'ring', 'pinky')
 
 COLOURS = {
-    'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58',
-    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#201916',
+    'skin': '#c7a38a', 'skin_pale': '#d9c0ae', 'skin_ruddy': '#c4927a', 'skin_olive': '#a97f58', 'skin_fair': '#caa286',
+    'hair': '#3a2e26', 'hair_grey': '#6e7276', 'hair_steel': '#4f5358', 'hair_white': '#d2cec6', 'hair_dark': '#16120f', 'hair_black': '#140f0c', 'hair_raven': '#231813', 'brow_brown': '#24180f',
     'shirt_dark': '#2c2c30', 'trousers': '#3b3a38', 'shoe': '#2a221c', 'sneaker': '#d8d3c8', 'shoe_black': '#1c1a1a',
     'jacket': '#183a2e', 'jacket_trim': '#d0ac5c', 'snap': '#b8b2a2', 'slacks': '#5a5248',
     'flannel': '#6a3a2a', 'flannel_dark': '#4a281e', 'jeans': '#3a4557', 'boot': '#4a3626', 'belt': '#2e221a', 'buckle': '#c9a85a',
@@ -126,7 +126,7 @@ PEOPLE = {
         paint=dict(top=('dress_red', 'short'), bottom='tights', shoes='shoe_black', heels=14, neckline=1.355),
         wear=['shell:dress_red:0.003', 'swing:dress_red:0.0:0.14:0.22', 'sash:belt_black', 'pouch:apron_black'],
         head=dict(w=0.09, d=0.1, h=0.13, jaw=0.75, chin=0.014, crown=1.0, cheeks=1.05, flat=0.85),
-        nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_raven'), brows='hair_black', beard=None, skin='skin_olive',
+        nose=('fine', 1.0), ears=0.75, hair=('centre', 'hair_raven'), brows='brow_brown', beard=None, skin='skin_fair',
         things=['pearls', 'wisps'], braid=dict(length=1.05, bones=8), sculpt='amanda'),
 }
 
@@ -1767,14 +1767,16 @@ def sculpted(spec, name, arm, head_at):
             depth = 0.001 if abs(V[i, 2] - zs[i]) < 0.006 and abs(V[i, 0]) < L[-1, 0] else 0.0025
             inside[i] = V[i, 1] < H['surface'].on_face(V[i, 0], V[i, 2])[1] - depth
         # and what tears when the jaw drops: the skin sealing the lips (a face whose corners the
-        # jaw moves apart) goes, so the mouth opens on its inside and the teeth
+        # jaw moves apart) goes, so the mouth opens on its inside and the teeth; but not out to the
+        # corners, which stay joined and stretch, as lips do (torn to the corners, the mouth opened
+        # on black gaps at either end)
         jd = np.linalg.norm(sculpt.shapes(H, V)['jaw'] - V, axis=1)
         bm = bmesh.new()
         bm.from_mesh(ob.data)
         bm.faces.ensure_lookup_table()
         def tears(f):
             vs = [v.index for v in f.verts]
-            return f.material_index == 0 and np.abs(V[vs, 0]).max() < L[-1, 0] - 0.0005 \
+            return f.material_index == 0 and np.abs(V[vs, 0]).max() < L[-1, 0] * 0.72 \
                 and np.abs(V[vs, 2] - zs[vs]).max() < 0.004 and np.ptp(jd[vs]) > 0.0015
         torn = [f for f in bm.faces if tears(f)]
         bmesh.ops.delete(bm, geom=torn, context='FACES_ONLY')

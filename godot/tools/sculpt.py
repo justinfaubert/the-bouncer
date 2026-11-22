@@ -116,14 +116,15 @@ HEADS = {
                   ala=(0.0086, 0.092, -0.030), ala_r=(0.0052, 0.0064, 0.0052)),
         mouth=dict(z=-0.062, f=0.0885, w=0.0268, upper=0.0058, lower=0.0070, bow=0.0019, curve=0.012),
         ear=dict(x=0.069, f=-0.006, z=-0.004, r=(0.0075, 0.016, 0.029)),
-        # what's on her skin: a light warm olive (a European's, sun on it), warm at the cheeks; a
+        # what's on her skin: fair, rosy at the cheeks (the warm olive she had read as South Asian,
+        # with the black hair parted in the middle; now a dark chestnut parted to one side); a
         # mouth in dark red, plum shadow and a wing of liner, fine brows with a lifted arch, a
         # beauty mark at her mouth's left corner
-        paint=dict(skin='#b88a68', warm='#bd7658', flush=0.5, contour=1.0, lips='#701020', shadow='#5a3a3c', shadow_k=0.55,
-                   liner='#140c0a', wing=0.006, brow='#1a1310', arch=0.0012, brow_w=0.95, brow_drop=0.0022, brow_inner=0.002, brow_lift=True, liner_k=0.5, mark=(0.031, -0.054), iris='#4a3018',
+        paint=dict(skin='#c99e83', warm='#c9806a', flush=0.5, contour=1.0, lips='#701020', shadow='#5a3a3c', shadow_k=0.55,
+                   liner='#140c0a', wing=0.006, brow='#22170f', arch=0.0012, brow_w=0.95, brow_drop=0.0022, brow_inner=0.002, brow_lift=True, liner_k=0.5, mark=(0.031, -0.054), iris='#5a6640',
                    iris_r=0.7),
         # her hair: black, parted in the middle and drawn back flat over the head into the braid
-        hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66),
+        hair=dict(lift=0.0055, locks=46, groove=0.0011, line=0.66, part=0.022),
     ),
 }
 
@@ -802,7 +803,7 @@ def hair_field(H, p):
         mp = mirror(p)
         out = out - 0.006 * gauss(mp, (0.065, -0.005, 0.03), (0.03, 0.06, 0.035)) \
             - 0.004 * gauss(p, (0.0, -0.03, H['crown'] - 0.01), (0.06, 0.06, 0.04))
-        part = np.exp(-(p[:, 0] / 0.0025) ** 2) * smoothstep(-0.03, 0.02, p[:, 1]) * smoothstep(0.03, 0.06, p[:, 2])
+        part = np.exp(-((p[:, 0] - hp.get('part', 0.0)) / 0.0025) ** 2) * smoothstep(-0.03, 0.02, p[:, 1]) * smoothstep(0.03, 0.06, p[:, 2])
         out = out + 0.004 * part
     # combed: the angle round an axis from the front of the part to the nape
     a = np.array([0.0, 0.07, 0.10]) if not H.get('surface') else np.array([0.0, 0.08, H['crown'] - 0.025])
