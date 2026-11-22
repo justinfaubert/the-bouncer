@@ -1,5 +1,7 @@
-THE BOUNCER
-Wednesday, from the interview to close. The first Godot build of 30 October 2026.
+LAST CALL
+Everything so far in one build, 22 November 2026: Wednesday, Thursday and Friday, the door by
+hand, walking on his own feet, darts, the new light, Amanda's sculpted head and the Listener's
+look test.
 
 
 PLAY IT
@@ -7,9 +9,12 @@ PLAY IT
     ./play.sh                 in a terminal in this folder (or: sh play.sh)
     ./play.sh --fullscreen    straight to fullscreen; the pause menu has it too
 
-The whole game is the one file in game/. It runs on OpenGL 3.3 (Godot's Compatibility
-renderer), so the 3080 has it easy. Wayland is fine: it runs through XWayland, or natively with
+The whole game is the one file in game/. It runs on Vulkan (Godot's Forward+ renderer) for the
+light, so the 3080 has it easy. Wayland is fine: it runs through XWayland, or natively with
 ./play.sh --display-driver wayland.
+
+To go straight to the darts: on the title, Rehearse, set how he is (drinks, hurt, nerves, the
+hour, cold hands), then Throw a few, Round the clock or Five-oh-one.
 
 
 OPEN IT IN GODOT
@@ -19,40 +24,39 @@ OPEN IT IN GODOT
 That opens godot-project/ in the Godot editor. The project was made in Godot 4.7.2. If the
 machine has a Godot 4.7 (Arch's godot package, or the Flatpak) it uses that. If it doesn't, it
 offers to fetch the official 4.7.2 editor (78 MB) into tools/ here, checks it against its
-fingerprint, and keeps it for next time. The first time the project opens, the editor spends a
-minute importing the models and textures. Press F5 in the editor to play from there.
+fingerprint, and keeps it for next time. Press F5 in the editor to play from there.
 
-By hand instead: open Godot 4.7, Import, and pick godot-project/project.godot.
-
-To export a build of your own from the editor, it needs the export templates once (Editor >
-Manage Export Templates > Download); the Linux, Windows and Web presets are already set up
-(Project > Export). godot-project/README.md has the rest: what each folder is, the checks, the
-export steps.
-
-The story itself is written in Ink, in the GitHub repo (justinfaubert/the-bouncer, content/ink).
-godot-project/data/content.json is that Ink compiled, with every rule; node tools/build.mjs in the
-repo writes it, and the browser build plays the same file.
+godot-project/README.md has the rest: what each folder is, the checks, the export steps.
 
 
 HANDS ON
 
-    Go somewhere      click the floor. In the bar he walks there, round the tables and whoever's
-                      standing, and a pale ring on the floor shows where he'd end up. The floor
-                      round a place (his stool, the bar, table 28, the pool table, the jukebox)
-                      takes him to it. Or click the place's name in the column, under GO WHERE
-                      HE LOOKS. E with nothing under his eyes walks him to the floor he's
-                      looking at; Space on the way hurries him
+    Walk              W A S D where he's free to walk: the bar's floor, the vestibule, the deck
+                      and the lot. Shift hurries him (and the room sees him run). Walking through
+                      a doorway is going there. Standing in a place's floor (the stool, the bar,
+                      table 28, the pool table) names it at the foot of the picture, and E
+                      settles him there. Alt with A or D leans him round a doorway. While he
+                      walks the picture takes the whole screen. Settings > Looking turns the
+                      keys back to looking
+    Go somewhere      click the floor; a pale ring shows where he'd end up. E with nothing under
+                      his eyes walks him to the floor he's looking at
+    The door          take his left hand off his knee and drag it: toward the room to let them
+                      in, up (palm square to them) for no, back past them at the lot to send them
+                      for something, down to pat the air and set terms. The words in the column
+                      still work too
     Choose            click a choice, or press its number
     Go on             Space or Enter, where the night stops to let a moment land
-    Look round        drag across the room, or the arrows (or W A S D); the wheel narrows his eyes
-    Look at a thing   rest the pointer on what a choice is about and the choice lights up;
-                      E or a click makes it. Rest it on anything else whose name comes up,
-                      fainter, and E or a click looks at it
+    Look round        drag across the room, or the arrows; the wheel narrows his eyes
+    Look at a thing   rest the pointer on it; E or a click looks at it or makes the choice
     Throw the dice    hold Space or the mouse button to shake, let go to throw
+    Darts             look at the dartboard twice and he takes the darts out of the board. The
+                      mouse aims his eyes; hold the button and pull back to draw, let go to throw
+                      (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and
+                      E: grip. A and D: along the line. Shift: narrow his eyes. Right button:
+                      hold his breath. Esc puts them down
     In his hands      click it to turn it over (drag a licence to tip it to the light), E to look
-                      closer, Q and R to go through it, Esc to put it down. What the voices make
-                      of it is above what he does with it: keep one, or none
-    Notes, sketch     Tab (Q or E turns to the page of what's on him), M
+                      closer, Q and R to go through it, Esc to put it down
+    Notes, sketch     Tab (Q or E turns the page), M
     Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
     On a pad          either stick looks round; the d-pad goes through the choices and A makes one;
                       Y walks him to the floor he's looking at
