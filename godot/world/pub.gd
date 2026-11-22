@@ -70,6 +70,7 @@ func build() -> void:
 	_lobby()
 	_room_things()
 	_town()
+	Lighting.dress(self)
 
 
 # The town, built last with its own dice so nothing in the building moves, and put away: it's out
@@ -731,6 +732,8 @@ func set_clock(clock: int) -> void:
 
 # Shadows from the lights near where he is, and none from the rest: they cost a pass each.
 func shadows_near(p: Vector3, reach := 7.5) -> void:
+	if Lighting.rich:
+		reach = Lighting.SHADOW_REACH
 	for pair in shadowed:
 		var l: Light3D = pair[0]
 		l.shadow_enabled = (pair[1] as Vector3).distance_to(p) < reach
@@ -2255,7 +2258,9 @@ func _lights() -> void:
 	dyn.work = work
 	# the room's middle: a little light off the ceiling so the depth reads (the review: frame 3)
 	for p in [Vector3(5.5, 2.6, 3.0), Vector3(12.5, 2.6, 3.0), Vector3(6.5, 2.6, 7.2), Vector3(12.0, 2.6, 7.0)]:
-		lamps.append(omni(p, Color("e8b87a"), 0.28, 5.5))
+		var f := omni(p, Color("e8b87a"), 0.28, 5.5)
+		f.set_meta("fill", true)
+		lamps.append(f)
 	# behind the back wall: the hall's tubes, the kitchen's, the washrooms', all of them the cold
 	# ink's green-white
 	omni(Vector3(9.0, 2.3, -0.6), Color(TUBE_LIGHT), 0.9, 4.5, true, "hall")
