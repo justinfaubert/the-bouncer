@@ -146,6 +146,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	eye = SubViewport.new()
 	eye.msaa_3d = Viewport.MSAA_DISABLED   # the strokes and the grain cover the edges; 4x cost a lot at fullscreen
 	eye.positional_shadow_atlas_size = 4096
+	Lighting.shadow_atlas(eye)
 	eye.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	eye.audio_listener_enable_3d = true
 	add_child(eye)

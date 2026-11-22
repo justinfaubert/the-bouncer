@@ -736,6 +736,7 @@ func shadows_near(p: Vector3, reach := 7.5) -> void:
 		reach = Lighting.SHADOW_REACH
 	for pair in shadowed:
 		var l: Light3D = pair[0]
+		# (Forward+: by the reach the shadow has already faded to nothing, Lighting.shadow_set)
 		l.shadow_enabled = (pair[1] as Vector3).distance_to(p) < reach
 
 

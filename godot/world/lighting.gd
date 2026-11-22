@@ -79,6 +79,51 @@ static func environment(env: Environment) -> void:
 
 # how far from him a lamp still throws a shadow (Compatibility: 7.5 m, world/pub.gd)
 const SHADOW_REACH := 13.0
+# and the last stretch of that, where its shadow thins out instead of being cut off: walking across
+# the room, a lamp's shadow used to snap on and off at the line (the "clipping" in the shadows)
+const SHADOW_FADE := 3.0
+
+# The shadows themselves (2026-11-22, after Hutch: "some clipping in the shadows"). What was wrong:
+#   - every lamp pushed its shadow 1.2 texels out along the surface (shadow_normal_bias), plus the
+#     default 0.1 m for an omni: a man's feet, a hand flat on the bar, a glass on a table all
+#     floated over a shadow that started a hand's width off them (peter-panning);
+#   - the soft shadows were filtered at the lowest quality, so the edges of the big ones stepped
+#     like a saw across the carpet and the tiles at the door;
+#   - sixteen lamps near the door shared an atlas cut for a few big shadows and many tiny ones, so
+#     half of them printed at 256 px, blocky, with acne in the steps;
+#   - and a lamp crossing SHADOW_REACH lost its shadow from one frame to the next.
+# Now: biases sized to each kind of lamp, the best filter the desktop has, the atlas cut into
+# fewer, bigger shadows, and each one fading out over SHADOW_FADE (Light3D's own distance fade).
+const BIAS := {"omni": [0.03, 0.45], "spot": [0.015, 0.35]}   # [depth bias, normal bias]
+
+
+# the atlas his eyes' shadows go in: 1 at 2048, 4 at 1024, 4 at 1024, 16 at 512 (was 4/4/16/64)
+static func shadow_atlas(vp: Viewport) -> void:
+	if not rich or _off("shadowfix"):
+		return
+	vp.positional_shadow_atlas_size = 4096
+	vp.positional_shadow_atlas_16_bits = false     # 24-bit depth: the small biases need it
+	vp.positional_shadow_atlas_quad_0 = Viewport.SHADOW_ATLAS_QUADRANT_SUBDIV_1
+	vp.positional_shadow_atlas_quad_1 = Viewport.SHADOW_ATLAS_QUADRANT_SUBDIV_4
+	vp.positional_shadow_atlas_quad_2 = Viewport.SHADOW_ATLAS_QUADRANT_SUBDIV_4
+	vp.positional_shadow_atlas_quad_3 = Viewport.SHADOW_ATLAS_QUADRANT_SUBDIV_16
+	RenderingServer.positional_soft_shadow_filter_set_quality(RenderingServer.SHADOW_QUALITY_SOFT_HIGH)
+	RenderingServer.directional_soft_shadow_filter_set_quality(RenderingServer.SHADOW_QUALITY_SOFT_HIGH)
+
+
+# one lamp's shadow, set the way its kind wants it
+static func shadow_set(li: Light3D) -> void:
+	if not rich or _off("shadowfix") or li is DirectionalLight3D:
+		return
+	var b: Array = BIAS["spot" if li is SpotLight3D else "omni"]
+	li.shadow_bias = b[0]
+	li.shadow_normal_bias = b[1]
+	li.shadow_blur = 1.0
+	# the shadow thins out over the last stretch before the reach; the lamp itself only goes far off
+	li.distance_fade_enabled = true
+	li.distance_fade_begin = 60.0
+	li.distance_fade_shadow = SHADOW_REACH - SHADOW_FADE
+	li.distance_fade_length = SHADOW_FADE
 
 # By name (world/pub.gd's `lights`): how much each lamp lights the haze, and how big its bulb is,
 # in metres, which is how soft its shadows come out. A pool lamp's long tube throws soft shadows,
@@ -186,6 +231,7 @@ static func dress(pub: Node) -> void:
 		li.light_size = SIZE.get(n, 0.08 if li is SpotLight3D else 0.05)
 		li.shadow_blur = 1.0
 		li.shadow_normal_bias = 1.2
+		shadow_set(li)
 		# haze hangs where the lamps are, thicker under them, so their light shows as a cone and the
 		# rest of the room stays clear (a veil over everything grey the blacks, and the print loses
 		# its lines against them)
