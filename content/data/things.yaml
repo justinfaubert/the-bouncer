@@ -63,6 +63,40 @@ store: {name: The beer store., at: a:store, from: [lot, seawall]}
 work_truck: {name: The work truck., at: a:work_truck, from: [lot]}
 his_window: {name: His window., at: a:his_window, from: [lot]}
 
+# ---------------------------------------------------------------- the grounds at night, on his own feet (godot/world/grounds.gd)
+#   near: out of doors, how close (metres, along the ground) he has to walk before it's there to
+#         look at: things out here are found by going to them, not named from across the highway
+rat_gap: {name: The gap under the window., at: a:rat_gap, from: [lot], near: 3}
+lot_pole: {name: The pole., at: a:lot_pole, from: [lot], near: 5}
+buzzers: {name: The buzzers., at: a:buzzers, from: [lot], near: 3}
+news_box: {name: The newspaper box., at: a:news_box, from: [lot], near: 3}
+hotel_urn: {name: The ashtray., at: a:hotel_urn, from: [lot], near: 3}
+kitchen_door: {name: The kitchen door., at: a:kitchen_door, from: [lot], near: 4}
+cook_crate: {name: The cook's crate., at: a:cook_crate, from: [lot], near: 3}
+dumpster: {name: The dumpster., at: a:dumpster, from: [lot], near: 5}
+drums: {name: The drums., at: a:drums, from: [lot], near: 4}
+back_freezer: {name: The freezer., at: a:back_freezer, from: [lot], near: 4}
+vent: {name: The vent., at: a:vent, from: [lot], near: 3}
+caps: {name: The bottle caps., at: a:caps, from: [lot], near: 2.5}
+fence: {name: The fence., at: a:fence, from: [lot], near: 6}
+trail: {name: The gap in the fence., at: a:trail, from: [lot], near: 4}
+back_tv: {name: The TV in the weeds., at: a:back_tv, from: [lot], near: 4}
+blocks_car: {name: The car on blocks., at: a:blocks_car, from: [lot], near: 6}
+mattress: {name: The mattress., at: a:mattress, from: [lot], near: 4}
+hotel_back: {name: The back of the hotel., at: a:hotel_back, from: [lot], near: 14}
+cross: {name: The cross., at: a:cross, from: [lot], near: 5}
+merle: {name: The man fishing., at: a:merle, from: [lot], near: 6}
+plaque: {name: The plaque., at: a:plaque, from: [lot], near: 3}
+sea_steps: {name: The steps down., at: a:sea_steps, from: [lot], near: 4}
+beach_fire: {name: The fire., at: a:beach_fire, from: [lot], near: 6}
+kelp: {name: Something in the kelp., at: a:kelp, from: [lot], near: 3}
+beach_cart: {name: The shopping cart., at: a:beach_cart, from: [lot], near: 5}
+far_shore: {name: The far shore., at: a:far_shore, from: [lot], near: 466}
+esso_phone: {name: The payphone., at: a:esso_phone, from: [lot], near: 5}
+esso_pumps: {name: The pumps., at: a:esso_pumps, from: [lot], near: 10}
+esso_clerk: {name: The night window., at: a:esso_clerk, from: [lot], near: 5}
+esso_prices_n: {name: The prices., at: a:esso_prices_n, from: [lot], near: 18}
+
 # ---------------------------------------------------------------- his room
 up_window: {name: The window., at: a:up_window}
 

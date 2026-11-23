@@ -17,7 +17,7 @@ const VIEWS := {
 	"east_side": [Vector2(21.5, 12.0), Vector3(20.0, 1.0, -2.0)],
 	"hotel_door": [Vector2(19.4, 2.4), Vector3(18.9, 1.4, 0.9)],
 	"behind": [Vector2(24.0, -6.0), Vector3(4.0, 1.5, -4.0)],
-	"alley": [Vector2(-3.0, 6.5), Vector3(-1.0, 1.2, -3.0)],
+	"alley": [Vector2(-4.0, -2.0), Vector3(-3.4, 0.8, 3.0)],
 	"kitchen_door": [Vector2(-2.6, -1.5), Vector3(-0.1, 1.2, -1.5)],
 	"up_the_hill": [Vector2(6.0, -6.0), Vector3(6.0, 6.0, -30.0)],
 	"crossing": [Vector2(10.0, 28.5), Vector3(-30.0, 1.0, 30.0)],
@@ -31,7 +31,7 @@ const VIEWS := {
 	"kelp": [Vector2(-2.0, 42.0), Vector3(-4.5, -0.35, 44.0)],
 	"shoulder": [Vector2(-80.0, 26.4), Vector3(-150.0, 2.0, 22.0)],
 	"esso_near": [Vector2(-138.0, 25.0), Vector3(-150.0, 1.5, 12.0)],
-	"esso_window": [Vector2(-152.0, 14.2), Vector3(-153.75, 1.5, 12.0)],
+	"esso_window": [Vector2(-145.6, 14.6), Vector3(-144.8, 1.4, 11.0)],
 }
 
 

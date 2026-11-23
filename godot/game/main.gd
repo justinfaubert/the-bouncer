@@ -532,9 +532,15 @@ func toy(id: String, what: String) -> String:
 
 # The room said something he heard through (game/talk.gd): a voice in his head can answer it.
 func overheard(id: String) -> void:
+	heard("ears:" + id)
+
+
+# Somewhere his feet have taken him, or anything else a voice can answer that isn't the Ink's
+# (out:<area>, world/grounds.gd).
+func heard(event: String) -> void:
 	if not in_game or pending != null or rolling != null or game.ended:
 		return
-	var res := game.overheard(id)
+	var res := game.heard(event)
 	if res.is_empty():
 		return
 	column.begin_batch()

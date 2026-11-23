@@ -649,9 +649,15 @@ func toy(id: String, what: String = "") -> Dictionary:
 # Something he's just overheard the room say (the Godot build's talk, content/rules/talk.yaml): a
 # voice in his head can answer it, once (barks.yaml, ears:<id>). Nothing moves the night on.
 func overheard(id: String) -> Dictionary:
+	return heard("ears:" + id)
+
+
+# A voice in his head answering something that isn't a line of the Ink: what he's overheard
+# (ears:<id>), or where his feet have taken him out of doors (out:<area>, world/grounds.gd).
+func heard(event: String) -> Dictionary:
 	if story == null or ended:
 		return {}
-	var rule = barks.best("ears:" + id, _gv, psyche, barks_used, _toy_rng("ears:" + id))
+	var rule = barks.best(event, _gv, psyche, barks_used, _toy_rng(event))
 	if rule == null:
 		return {}
 	if rule.once:

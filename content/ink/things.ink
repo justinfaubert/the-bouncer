@@ -439,3 +439,213 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 - The water, and the far shore.
 }
 
+
+
+// ------------------------------------------------------------------ the grounds at night (grounds.ink, godot/world/grounds.gd)
+// Found by walking up to them (things.yaml near:). A few are more than a look: the man fishing, the
+// cross, the licence, the buzzers, the caps, the payphone, the night window, the fire, the kitchen's
+// door take a choice in at_front instead, when it's there to take, and come here once it's not.
+
+=== function toy_rat_gap(what)
+~ out_found += cl_rat_front
+{stopping:
+- Under the front window, where the siding stopped short of the gravel, a gap the height of a fist, and the edge of the board worn smooth and dark, like a banister. A crust of something on the gravel in front of it, and nothing round it at all, not even a footprint, as if whatever went in and out of there wiped its feet.{knows ? keg_hole: Under the window was under table 28.}
+- The gap under the window. The edge of the board, polished.
+}
+
+=== function toy_lot_pole(what)
+{stopping:
+- A power pole at the edge of the lot with forty years of staples in it, a beard of them, and over the staples the posters of this autumn: a cover band at the Legion, SUNDOWN DRIVE, with a drummer in the back of the photo who looked like Jim; LOST: GREY CAT, ANSWERS TO NOTHING; GOD HAS NOT FORGOTTEN THIS TOWN; and a sheet with the same phone number torn off it twelve times, and nothing else on it. Nobody had taken any of the number.{out_found ? cl_wife: Low down on the pole, under the staples, a woman's face on a poster gone to pulp. Only the scarf was left.}
+- The pole and its posters. The torn-off tabs, all there.
+}
+
+=== function toy_news_box(what)
+~ out_found += cl_paper
+{stopping:
+- A newspaper box by the hotel's steps, the Valley Record, and through the scratched window the front page from last Friday: SEAWALL TO CLOSE AFTER WINTER, REGIONAL DISTRICT SAYS. Under it a photograph from the summer of a man fishing off the wall with the Sov's sign behind him. He was in a green jacket and he wasn't looking at the camera. The box took two dollars. Nobody had put any in since Friday.
+- The paper in the box. SEAWALL TO CLOSE. The man in the photo, not looking.
+}
+
+=== function toy_hotel_urn(what)
+{stopping:
+- The ashtray by the hotel's door, a cylinder of sand gone to cement, every butt in it smoked to the filter and stood up on end, a little graveyard of them in rows. Somebody upstairs did that every night and that was who they were.
+- The ashtray, the butts in their rows. One more row since.
+}
+
+=== function toy_kitchen_door(what)
+{stopping:
+- The kitchen's back door, shut, a grey steel door with KEEP CLOSED stencilled on it and a dent at kicking height where it had been kept open anyway. A brick by the step, for next time.
+- The kitchen door, shut. The brick by the step.
+}
+
+=== function toy_cook_crate(what)
+{stopping:
+- A milk crate turned over by the kitchen step, the cook's seat, a coffee can of butts beside it and a scratch ticket stuck to the wet gravel, scratched, nothing. Somebody had carved the crate's plastic with a knife into the shape of a woman, carefully, a long time ago, and then crossed it out.
+- The cook's crate, and the can of butts.
+}
+
+=== function toy_dumpster(what)
+{stopping:
+- The dumpster, lid up, full past full: flattened boxes, the fryer oil in its jug, the night's bags split open by something with hands. On the side in the rust somebody had written FUCK GARY and under it, in a better marker, FUCK YOU BRIAN, and under that, small, both.
+- The dumpster. Something in it, moving, then not.
+}
+
+=== function toy_drums(what)
+{stopping:
+- Two blue drums against the beer store's wall, FRYER OIL USED stencilled on them, and a smell off them like a ghost of every chip ever made. One lid had been prised up and put back wrong. Inside something floated and he didn't look at what.
+- The drums.
+}
+
+=== function toy_back_freezer(what)
+~ out_found += cl_freezer
+{stopping:
+- A chest freezer out in the yard on two pallets, running, an orange cord across the gravel to an outlet on the hotel's wall. A padlock on the lid, new, a good one. It hummed, and every so often it shuddered and hummed lower, the way a fridge does at four in the morning when you're the only one up.{card_kept == 1: The licence in his pocket was nothing to do with it, and he thought of it anyway.}
+    FIGHTER: Nobody padlocks a freezer for what's in it. They padlock it for who'd look.
+- The freezer, humming. The padlock.
+}
+
+=== function toy_vent(what)
+~ out_found += cl_rat_back
+{stopping:
+- A vent low in the back wall under the kitchen, the louvres pushed in, and warm air coming out of it that smelled of the keg room: wet concrete, old beer, something sweet underneath. The gravel in front of it was worn into a little road.{out_found ? cl_rat_front: In the front, out under the window. Out the back, here. Whatever it was had the run of the place.}
+- The vent, breathing out.
+}
+
+=== function toy_caps(what)
+{
+- caps_how == 1:
+    The spiral of caps, as it was. A new one on the end of it since, a Lucky, face up.
+- caps_how == 2:
+    The spiral of caps, with nothing in the middle.
+- caps_how == 3:
+    The caps where he'd kicked them, and some of them, he'd have sworn, put back.
+- else:
+    The caps in their spiral.
+}
+
+=== function toy_fence(what)
+{stopping:
+- A chain-link fence along the back of the yard, sagging between the posts, the top rail bent down in two places where people had climbed it. Behind it the brambles, and behind the brambles the hill going up black with firs. Caught in the wire, at the height of a face, a hair tie.
+- The fence, and the hill behind it.
+}
+
+=== function toy_trail(what)
+~ out_found += cl_trail
+{stopping:
+- Where the fence met the last post it had been cut and folded back, neatly, and a trail went up through the brambles into the firs, beaten flat, used. A plastic grocery bag tied to a branch at the start of it as a marker. It went up the hill toward nothing that was up the hill.
+    FATHER: A trail is people who didn't want to be seen on the road.
+- The trail, going up into the dark. The bag on its branch.
+}
+
+=== function toy_back_tv(what)
+{stopping:
+- A television in the weeds, the old deep kind, face up to the rain. Its screen had a puddle on it, and in the puddle the hotel's one lit window, so that for a second it looked like it was on.
+- The TV in the weeds, showing the window.
+}
+
+=== function toy_blocks_car(what)
+{stopping:
+- A Pontiac on blocks at the end of the yard, no wheels, the windows fogged from inside. A sleeping bag on the back seat, the shape of somebody in it or of nobody, a pair of boots on the floor under the dash with the laces tucked in. A cardboard sign in the back window: NOT ABANDONED.
+- The Pontiac. NOT ABANDONED. The shape in the back, or not.
+}
+
+=== function toy_mattress(what)
+{stopping:
+- A mattress against the fence, soaked through, a map of old stains on it that the rain was redrawing. Somebody had written on it in marker, big, HERE LIES, and then not finished.
+- The mattress. HERE LIES.
+}
+
+=== function toy_hotel_back(what)
+{stopping:
+- The back of the Sovereign from the yard, three storeys of it, the rooms' windows black but one, where a TV was going blue on a ceiling. The fire escape came down the wall in zigzags and stopped two metres off the ground. On the brick at the top, ghosting through two coats of paint, the old sign: SOVEREIGN HOTEL ROOMS BY THE WEEK. Somebody had painted out WEEK and somebody else had painted it back.
+- The back of the hotel. The one window, going blue.
+}
+
+=== function toy_buzzers(what)
+The buzzers. DOORMAN on twelve. Seven scratched to the brass.
+
+=== function toy_cross(what)
+The cross, leaning to the road. DARLENE. The roses, new.
+
+=== function toy_merle(what)
+{shuffle:
+- Merle, at the wall, watching nothing come up on the line.
+- Merle, his back to the Sov, the lantern at his feet.
+}
+
+=== function toy_plaque(what)
+{stopping:
+- A brass plaque set in the seawall's top: THIS SEAWALL WAS CONSTRUCTED BY THE PEOPLE OF THE PROVINCE, 1958, TO HOLD BACK THE SEA. Under it, scratched in with something sharp, IT WONT.
+- The plaque. IT WONT.
+}
+
+=== function toy_sea_steps(what)
+{stopping:
+- Concrete steps down through the wall to the beach, green with weed on the bottom four, and a chain across the top with a sign on it, NO BEACH ACCESS AFTER DARK, that everybody had been stepping over so long the chain had a shine where their legs went.
+- The steps down, and the chain with its shine.
+}
+
+=== function toy_beach_fire(what)
+{
+- fire_how == 1:
+    The fire, down to the last of it, and his own warmth still in his hands.
+- fire_how == 2:
+    The sand where the fire was. A thread of smoke coming up through it anyway.
+- else:
+    Somebody's fire.
+}
+
+=== function toy_kelp(what)
+{ card_kept == -1:
+    The kelp line. The licence, face up where he'd put it, the tide not to it yet.
+- else:
+    The kelp line, a long black braid of it, popping when he stood on it.
+}
+
+=== function toy_beach_cart(what)
+{stopping:
+- A shopping cart from the Save-On, on its side at the tide line, half full of sand and kelp and one child's rubber boot. It had come a long way or someone had pushed it a long way and he couldn't tell which was sadder.
+- The cart, filling with sand.
+}
+
+=== function toy_far_shore(what)
+{stopping:
+- Across the strait the mainland, or where it would be: a line of lights along the bottom of the dark, a town, a mill, a ferry dock, and above them the dark again all the way up. {knows ? esso_sky:Over the mountains the kid's light, where it had been, and then not.|Something blinked up in the black above the lights, red, and didn't blink again.}
+- The far shore. Its lights.
+}
+
+=== function toy_esso_phone(what)
+{
+- esso_answered == 1:
+    The payphone on its steel cord. He'd put the receiver back. It was warm.
+- esso_answered == -1:
+    The payphone, quiet now, and a sticker on its side: THIS PHONE DOES NOT ACCEPT INCOMING CALLS.
+- else:
+    {stopping:
+    - A payphone on the Esso's end wall, the last one on this end of the island, a steel cord, a coin slot jammed with a folded receipt. Sharpied across the hood: CALL YR MOTHER.
+    - The payphone. CALL YR MOTHER.
+    }
+}
+
+=== function toy_esso_pumps(what)
+{stopping:
+- Two islands of pumps under the canopy, nobody at them, and a sign on each: PAY INSIDE AFTER 10 PM / NIGHT WINDOW. On one nozzle somebody had left a single child's mitten on the handle like a puppet.
+- The pumps, nobody at them.
+}
+
+=== function toy_esso_clerk(what)
+The night window. The kid behind it, lit from under by his phone.
+
+=== function toy_esso_prices_n(what)
+~ esso_price++
+{
+- esso_price == 1:
+    The price sign by the road, the digits a foot high and red at night: 179.9. They'd been 179.9 at dusk.
+- esso_price == 2:
+    The price sign. 181.9. He hadn't seen anybody change it.
+- esso_price == 3:
+    The price sign. 186.9.
+    WRONGMAN: The drunk said the price went up every time you looked at it. Then he said that's just what prices are.
+- else:
+    The price sign. {esso_price * 2 + 180}.9. He stopped looking at it, which didn't help either.
+}

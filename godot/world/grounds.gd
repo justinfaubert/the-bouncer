@@ -35,7 +35,7 @@ const AREAS := [
 	["side", Rect2(18.45, -13.0, 12.6, 24.0)],
 	["back", Rect2(-10.0, -13.0, 41.0, 10.4)],
 	["alley", Rect2(-10.0, -13.0, 9.9, 24.0)],
-	["road", Rect2(-170.0, 26.4, 232.0, 9.25)],
+	["road", Rect2(-170.0, 25.0, 232.0, 10.65)],
 	["steps", Rect2(13.35, 34.8, 1.3, 2.4)],
 	["beach", Rect2(-14.0, 36.25, 54.0, 9.4)],
 	["esso", Rect2(-169.0, 1.5, 38.0, 26.5)],
@@ -291,6 +291,7 @@ func _materials() -> void:
 	M.ash = pub.mat(Color("2a2725"), 0.95, 0.0, 0, Vector3.UP, 7.0, 0.2)
 	M.ember = pub.glow(Color("ff5a1a"), 1.6)
 	M.fence = pub.mat(Color("6c706e"), 0.5, 0.6, 2, Vector3.UP, 4.0, 1.0)
+	M.mesh = pub.glass(Color("8a8f8c"), 0.18)                                        # chain-link, seen through
 	M.bramble = pub.mat(Color("1d211c"), 0.9, 0.0, 0, Vector3.UP, 6.0, 0.6)
 	M.white = pub.mat(Color("d8d4ca"), 0.7, 0.0, 0, Vector3.UP, 6.0, 0.9)
 	M.rose = pub.mat(Color("8a2a34"), 0.6, 0.0, 0, Vector3.UP, 6.0, 0.8)
@@ -489,10 +490,11 @@ func _yard() -> void:
 		var p := c(0.03, 0.03, 1.9, Vector3(x, g(x, -13.2) + 0.9, -13.2), M.fence, 6)
 		p.rotation.z = deg_to_rad(lean)
 		if not (x >= 5.0 and x < 8.0):
-			var mesh := b(Vector3(3.0, 1.75 - rng.randf_range(0.0, 0.25), 0.01), Vector3((x + x1) / 2.0, g(x + 1.5, -13.2) + 0.85, -13.2), M.fence)
+			var mesh := b(Vector3(3.0, 1.75 - rng.randf_range(0.0, 0.25), 0.01), Vector3((x + x1) / 2.0, g(x + 1.5, -13.2) + 0.85, -13.2), M.mesh)
+			_stick(Vector3(x, g(x, -13.2) + 1.72, -13.2), Vector3(x1, g(x1, -13.2) + 1.66, -13.2), 0.02, M.fence)
 			mesh.rotation.x = deg_to_rad(rng.randf_range(-4.0, 4.0))
 		else:
-			var flap := b(Vector3(1.4, 1.6, 0.01), Vector3(x + 0.7, g(x + 0.7, -12.6) + 0.8, -12.6), M.fence, 38.0)
+			var flap := b(Vector3(1.4, 1.6, 0.01), Vector3(x + 0.7, g(x + 0.7, -12.6) + 0.8, -12.6), M.mesh, 38.0)
 			flap.rotation.z = deg_to_rad(4.0)
 		x = x1
 	_anchor("fence", Vector3(14.0, 0.8, -13.2))
@@ -635,10 +637,10 @@ func _side() -> void:
 	_light(Vector3(18.875, 2.2, 1.6), Color("ffcf6a"), 1.0, 5.5, 0.0)
 	# the buzzers: a brass plate by the door, a column of buttons, the names in their slots
 	b(Vector3(0.2, 0.42, 0.02), Vector3(19.58, 1.45, 0.89), pub.M.brass)
-	for i in 8:
-		pub.ball(0.008, Vector3(19.64, 1.62 - i * 0.048, 0.905), pub.M.black, self)
-		b(Vector3(0.1, 0.03, 0.004), Vector3(19.55, 1.62 - i * 0.048, 0.902), M.paper if i != 6 else pub.M.dark)
-	_anchor("buzzers", Vector3(19.58, 1.45, 0.9))
+	for i in 12:
+		pub.ball(0.007, Vector3(19.64, 1.63 - i * 0.032, 0.905), pub.M.black, self)
+		b(Vector3(0.1, 0.022, 0.004), Vector3(19.55, 1.63 - i * 0.032, 0.902), M.paper if i != 6 else pub.M.brass)
+	_anchor("buzzers", Vector3(19.58, 1.45, 0.96))
 	# the urn of sand, a hundred butts in it
 	c(0.17, 0.2, 0.62, Vector3(19.55, 0.06, 1.55), pub.M.dark, 12)
 	c(0.18, 0.18, 0.02, Vector3(19.55, 0.38, 1.55), M.ash, 12)
@@ -708,9 +710,9 @@ func _seawall() -> void:
 	man.rotation.y = PI
 	man.name = "merle"
 	var hand := Vector3(2.12, 1.12, 35.42)
-	var tip := Vector3(2.5, 2.9, 38.6)
+	var tip := Vector3(2.35, 2.25, 37.4)
 	_stick(hand + Vector3(0, -0.3, -0.25), tip, 0.01, pub.M.black)
-	_stick(tip, Vector3(2.55, -0.39, 41.0), 0.0015, pub.M.porcelain)
+	_stick(tip, Vector3(2.4, -0.39, 38.6), 0.0015, pub.M.porcelain)
 	c(0.16, 0.13, 0.32, Vector3(2.75, 0.16, 35.2), M.white, 12)
 	_anchor("merle", Vector3(2.0, 1.45, 35.12))
 	# a lantern on the wall's top beside him, kerosene, low
@@ -728,16 +730,13 @@ func _seawall() -> void:
 func _beach() -> void:
 	var x0 := -16.0
 	var x1 := 42.0
-	# the beach: strips going down to the water, the last of them under it
-	var z := WALL_Z.y
-	var k := 0
-	while z < 47.0:
-		var z1 := z + 1.2
-		var y := ground_y(12.0, (z + z1) / 2.0)
-		var strip := b(Vector3(x1 - x0, 0.12, 1.24), Vector3((x0 + x1) / 2.0, y - 0.06, (z + z1) / 2.0), M.sand if z < 41.5 else M.wet_sand)
-		strip.rotation.x = deg_to_rad(-0.9)
-		z = z1
-		k += 1
+	# the beach: one long slope from the foot of the wall down under the water, dry sand above the
+	# tide line and wet below it
+	var fall := atan2(0.16, 8.6)
+	var dry := b(Vector3(x1 - x0, 0.12, 5.6), Vector3((x0 + x1) / 2.0, ground_y(12.0, 39.0) - 0.06, 39.0), M.sand)
+	dry.rotation.x = fall
+	var wet := b(Vector3(x1 - x0, 0.12, 6.0), Vector3((x0 + x1) / 2.0, ground_y(12.0, 44.6) - 0.065, 44.6), M.wet_sand)
+	wet.rotation.x = fall
 	# stones, scattered, more of them toward the wall
 	for i in 140:
 		var sx := rng.randf_range(x0, x1)
@@ -852,10 +851,10 @@ func _esso_night() -> void:
 	b(Vector3(0.25, 0.85, 0.5), ph + Vector3(0.12, 1.65, 0), pub.M.dark)
 	_anchor("esso_phone", ph + Vector3(0.15, 1.5, 0.0))
 	_anchor("esso_pumps", Vector3(-150.0, 1.2, 21.0))
-	_anchor("esso_clerk", Vector3(-148.4, 1.3, 12.0))
+	_anchor("esso_clerk", Vector3(-144.8, 1.5, 12.0))
 	_anchor("esso_prices_n", Vector3(-134.5, 6.0, 26.4))
 	# the clerk: a shape behind the counter through the glass, under the till's light
-	var clerk := pub.model("res://models/people/patron_e.glb", Vector3(-147.4, y, 10.1), self)
+	var clerk := pub.model("res://models/people/patron_e.glb", Vector3(-144.8, y, 10.9), self)
 	clerk.rotation.y = PI
 	clerk.name = "clerk"
 
@@ -929,7 +928,7 @@ func tick(main, dt: float) -> void:
 		if BANNER.has(now) and not seen.has(now):
 			seen[now] = true
 			_banner(main, BANNER[now])
-			main.overheard("out_" + now)
+			main.heard("out:" + now)
 	_banner_fade(dt)
 	# the payphone at the Esso rings the first time he comes down the shoulder near enough to hear it
 	if not _phone_rang and p.x < -120.0 and p.z < 30.0:
@@ -993,7 +992,7 @@ func _cars(main, dt: float) -> void:
 			if not car.honked:
 				car.honked = true
 				main.audio.at("horn", n.position + Vector3(0, 1, 0), 1.0, 12.0)
-				main.overheard("out_horn")
+				main.heard("out:horn")
 			car.swerve = move_toward(car.swerve, 1.0, dt * 1.4)
 			car.v = move_toward(car.v, 11.0, dt * 9.0)
 		else:
