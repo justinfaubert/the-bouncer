@@ -30,6 +30,7 @@ drunk, and fullscreen.
 
 | | |
 |---|---|
+| The cold open | plays before the title the first time the game starts; hold any key or the mouse button, or press Esc, to skip it. The title's "The cold open" plays it again (`--intro` on the command line forces it, `--no-intro` skips it) |
 | Choose | click a choice, or its number |
 | Go somewhere | click the floor. In the bar he walks there, round the tables and whoever's standing, and a pale ring on the floor shows where he'd end up. The floor round a place (the stool by the door, the bar, table 28, the pool table, the jukebox) takes him to it, and he settles there. The places aren't listed in the column: they're pinned where they are in the room, and the sketch (M) takes him to any lit on it. E with nothing under his eyes walks him to the floor he's looking at. Space on the way hurries him, and in the bar the room sees him run |
 | Go on, where the night stops to let a moment land | Space or Enter |

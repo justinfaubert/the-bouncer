@@ -13,6 +13,8 @@ var screen := ""          # title, pause, nights, settings, help, confirm
 var came_from := ""
 var _toast: Label
 var _toast_tw: Tween
+var _bg: ColorRect
+var _fade: TextureRect         # the title over the whole picture: the night ink fading off to the right
 
 
 func setup(m) -> void:
@@ -34,6 +36,25 @@ func setup(m) -> void:
 	bg.material = cm
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sheet.add_child(bg)
+	_bg = bg
+	_fade = TextureRect.new()
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var gt := GradientTexture2D.new()
+	var gr := Gradient.new()
+	gr.set_color(0, Color(Color("07080b"), 0.94))
+	gr.set_color(1, Color(Color("07080b"), 0.0))
+	gr.add_point(0.55, Color(Color("07080b"), 0.78))
+	gt.gradient = gr
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(1, 0)
+	gt.width = 256
+	gt.height = 4
+	_fade.texture = gt
+	_fade.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_fade.stretch_mode = TextureRect.STRETCH_SCALE
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fade.visible = false
+	sheet.add_child(_fade)
 	scroll = ScrollContainer.new()
 	scroll.set_anchors_preset(Control.PRESET_FULL_RECT)
 	scroll.offset_left = 58
@@ -82,6 +103,16 @@ func _open(name: String) -> void:
 	_clear()
 	screen = name
 	sheet.visible = true
+	# the title over the whole picture (game/intro.gd): the menu on the left on the night's ink,
+	# fading off into the print; everything else where the column is
+	var over: bool = name == "title" and main.full_frame
+	sheet.anchor_left = 0.0 if over else View.WORLD_W
+	sheet.anchor_right = 0.42 if over else 1.0
+	_bg.visible = not over
+	_fade.visible = over
+	scroll.offset_left = 84 if over else 58
+	scroll.offset_right = -120 if over else -46
+	scroll.offset_top = 96 if over else 70
 
 
 func _gap(h: int) -> void:
@@ -122,13 +153,19 @@ func _focus_first() -> void:
 
 # ---------------------------------------------------------------- the title
 
-func title() -> void:
+func title(stamp := false) -> void:
+	# back from somewhere that had the picture and the page (a game of darts from the Games): the
+	# title's own shot again, printed in
+	if not main.full_frame and not main.in_game and main.intro != null:
+		main.intro.title_only()
+		return
 	_open("title")
-	main.view.jump_to("door")
-	main.view.look_at_point(Vector3(3.45, 1.35, 10.1))
+	if not main.full_frame:
+		main.view.jump_to("door")
+		main.view.look_at_point(Vector3(3.45, 1.35, 10.1))
 	_gap(40)
 	box.add_child(UiBits.label("WEDNESDAY, THE TEST SHIFT", "ui_b", 18, Look.MUTED, 4))
-	var t := UiBits.label("LAST CALL", "display", 108, Look.INK, 2)
+	var t := UiBits.label("LAST CALL", "display", 132 if main.full_frame else 108, Look.INK, 2)
 	box.add_child(t)
 	_para("The Sovereign Hotel, on the island's east coast. A pub on the ground floor, rooms upstairs, a gravel lot and the strait beyond it. It's raining, and you're on the door.", 23)
 	_gap(24)
@@ -152,6 +189,7 @@ func title() -> void:
 	else:
 		_button("Start Wednesday", true, func(): main.start_new(cur), 30)
 	_button("Nights", false, func(): nights("title"))
+	_button("The cold open", false, func(): hide_all(); main.intro.play())
 	_button("Games", false, func(): games("title"))
 	_button("Rehearse", false, func(): rehearse("title"))
 	_button("How it plays", false, func(): help("title"))
@@ -160,6 +198,41 @@ func title() -> void:
 	_gap(30)
 	box.add_child(UiBits.label("PLACEHOLDER SOUND.   DRAFT WRITING IS MARKED FOR HUTCH.", "ui_b", 13, Look.FAINT, 2))
 	_focus_first()
+	if stamp:
+		_stamp(t)
+
+
+# The title comes down on the paper like a block on a press: LAST CALL first, hard, with the thump
+# of it; the picture jolts; then the rest of the menu, one line after another.
+func _stamp(t: Label) -> void:
+	var rest: Array = []
+	for c in box.get_children():
+		if c != t:
+			rest.append(c)
+			c.modulate.a = 0.0
+	t.modulate.a = 0.0
+	await get_tree().process_frame
+	t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
+	t.scale = Vector2(1.18, 1.18)
+	var tw := create_tween()
+	tw.tween_interval(0.25)
+	tw.tween_callback(func():
+		main.audio.sfx("stamp", 1.0, 0.62)
+		main.audio.sfx("thump", 0.7, 0.5))
+	tw.set_parallel()
+	tw.tween_property(t, "modulate:a", 1.0, 0.06).set_delay(0.25)
+	tw.tween_property(t, "scale", Vector2.ONE, 0.09).set_delay(0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# the jolt: the paper takes the block
+	var jolt := create_tween()
+	jolt.tween_interval(0.34)
+	jolt.tween_property(sheet, "position:y", 5.0, 0.04)
+	jolt.tween_property(sheet, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	var i := 0
+	for c in rest:
+		var ct := create_tween()
+		ct.tween_interval(0.75 + 0.07 * i)
+		ct.tween_property(c, "modulate:a", 1.0, 0.45)
+		i += 1
 
 
 # ---------------------------------------------------------------- the pause

@@ -39,6 +39,8 @@ var darts: Darts
 var marks: Marks
 var talk: Talk
 var audio: Sound
+var intro: Intro
+var full_frame := false        # the picture takes the whole screen: the cold open and the title (game/intro.gd)
 
 var in_game := false
 var slot := 1
@@ -169,22 +171,42 @@ func _ready() -> void:
 	view.arrived.connect(func(where): stage.arrived(where); spots.refresh(); props.arrived(); going.arrived(where))
 	view.ran.connect(func(): going.ran())
 	view.settled.connect(func(): audio.sfx("thump", 0.3, 0.7))
+	view.first_sight.connect(func(): letterbox(6.0))
 	stage.walked.connect(func(_id): props.arrived())
 	stage.sound.connect(audio.at)
 	view.people_at = stage.standing
 	stage.sync(game, true)
-	menus.title()
+	# the cold open, before the title: the first time the game starts, and whenever it's asked for
+	# (the title's "The cold open", or --intro); after that the title comes in on its own shot
+	intro = Intro.new()
+	root.add_child(intro)
+	intro.setup(self)
+	intro.finished.connect(_after_intro)
 	audio.ambience("rain_door")
 	# a picture of the title, then quit: for checking a build on a machine nobody's sitting at
 	#   TheBouncer --grab /tmp/title.png
 	var args := OS.get_cmdline_user_args() + OS.get_cmdline_args()
 	var at := args.find("--grab")
 	if at >= 0 and at + 1 < args.size():
+		intro.title_only()
 		_grab(args[at + 1])
+	elif args.has("--no-intro"):
+		menus.title()
+	elif args.has("--intro") or not bool(settings.get("intro_seen", false)):
+		intro.play()
+	else:
+		intro.title_only()
+
+
+func _after_intro() -> void:
+	if not bool(settings.get("intro_seen", false)):
+		settings["intro_seen"] = true
+		store.save_settings()
+	menus.title(true)
 
 
 func _grab(path: String) -> void:
-	for i in 90:
+	for i in 150:
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(path)
@@ -284,6 +306,7 @@ func start_new(in_slot: int) -> void:
 	reset_story()
 	in_game = true
 	menus.hide_all()
+	_leave_full_frame()
 	var res := game.new_game()
 	persist()
 	# the night opens wherever its first place line is (the lot), not where the story's
@@ -295,6 +318,7 @@ func start_new(in_slot: int) -> void:
 			break
 	view.frame = _frame_for(opening)
 	view.jump_to(opening)
+	view.print_in(1.4)
 	stage.sync(game, true)
 	show(res, true)
 	audio.unlock()
@@ -334,6 +358,7 @@ func resume(in_slot: int) -> void:
 	reset_story()
 	in_game = true
 	menus.hide_all()
+	_leave_full_frame()
 	column.begin_batch()
 	render_items(game.night_log, false)
 	if not game.night_log.is_empty() and not game.ended:
@@ -344,6 +369,7 @@ func resume(in_slot: int) -> void:
 	column.reveal(false)
 	view.frame = _frame_for(game.here())
 	view.jump_to(game.here() if game.here() != "" else "door")
+	view.print_in(1.1)
 	stage.sync(game, true)
 	if older and not game.ended:
 		# the scene it was saved in may not be in this story any more, or not where it was: a
@@ -355,6 +381,68 @@ func resume(in_slot: int) -> void:
 		after({"choices": game.choices, "ended": game.ended}, false)
 	column.scroll_to_end()
 	audio.unlock()
+
+
+# A moment held like a film: bars come in over the picture, top and bottom, for secs, and go. The
+# moments are few and the night's own: the Sov's front the first time, from the town; the bell for
+# last call; the night's end, where they stay (secs 0). The page is untouched, so nothing is taken
+# from the player's hands.
+var _bars: Array = []
+var _bars_tw: Tween
+const BARS := 0.09
+
+func letterbox(secs: float) -> void:
+	if not bool(settings.get("skin", true)):
+		return
+	if _bars.is_empty():
+		for i in 2:
+			var b := ColorRect.new()
+			b.color = Color("07080b")
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.anchor_top = 0.0 if i == 0 else 1.0
+			b.anchor_bottom = 0.0 if i == 0 else 1.0
+			root.add_child(b)
+			root.move_child(b, view.sheet.get_index() + 1)
+			_bars.append(b)
+	if _bars_tw != null and _bars_tw.is_valid():
+		_bars_tw.kill()
+	_bars_tw = create_tween()
+	_bars_tw.tween_method(_bars_at, _bars_h(), BARS, 1.1).set_trans(Tween.TRANS_SINE)
+	if secs > 0.0:
+		_bars_tw.tween_interval(secs)
+		_bars_tw.tween_method(_bars_at, BARS, 0.0, 1.4).set_trans(Tween.TRANS_SINE)
+
+
+func _bars_h() -> float:
+	return (_bars[0] as ColorRect).anchor_bottom if not _bars.is_empty() else 0.0
+
+
+func _bars_at(h: float) -> void:
+	for i in _bars.size():
+		var b: ColorRect = _bars[i]
+		b.anchor_right = view.world_w
+		if i == 0:
+			b.anchor_bottom = h
+		else:
+			b.anchor_top = 1.0 - h
+
+
+func _bars_off() -> void:
+	if _bars_tw != null and _bars_tw.is_valid():
+		_bars_tw.kill()
+	if not _bars.is_empty():
+		_bars_at(0.0)
+
+
+# Out of the title's whole-screen picture and back to the picture and the page, at once: the night
+# comes in as a print, so there's nothing to see sliding.
+func _leave_full_frame() -> void:
+	if intro.playing:
+		intro.stop()
+	full_frame = false
+	view.world_w = WORLD_W
+	lay_out(WORLD_W)
+	_bars_off()
 
 
 func reset_story() -> void:
@@ -405,6 +493,7 @@ func start_darts(game_mode: String, from_menu: String, body := {}) -> void:
 	_darts_from = from_menu
 	menus.hide_all()
 	if from_menu != "":
+		_leave_full_frame()
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))
@@ -439,7 +528,9 @@ func back_to_title() -> void:
 	pending = null
 	in_game = false
 	hand.stop()
-	menus.title()
+	menus.hide_all()
+	_bars_off()
+	intro.title_only()
 
 
 # the player's choice, by its place among the visible choices
@@ -572,6 +663,8 @@ func after(res: Dictionary, live: bool) -> void:
 			if str(it.get("cls", "")) == "end":
 				stamped = true
 		column.show_end(stamped)
+		if live:
+			letterbox(0.0)
 	else:
 		var list := game.visible_choices()
 		column.show_choices(list, Look.TENSION_WORDS, going.hidden(list))
@@ -783,6 +876,9 @@ func _fx(it: Dictionary) -> void:
 	match str(it.get("type", "")):
 		"sfx":
 			audio.sfx(str(it.get("id", "")))
+			# the bell for last call: the night's turn, held like a film for a moment
+			if str(it.get("id", "")) == "bell":
+				letterbox(5.5)
 		"music":
 			audio.track(str(it.get("id", "")))
 		"amb":
@@ -1185,7 +1281,7 @@ func _widen(dt: float) -> void:
 		_still_t += dt
 	var wide: bool = bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
 		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding()
-	var to := 1.0 if wide else WORLD_W
+	var to := 1.0 if wide or full_frame else WORLD_W
 	if is_equal_approx(view.world_w, to):
 		return
 	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)
@@ -1202,6 +1298,8 @@ func lay_out(w: float) -> void:
 	feet.hint.anchor_right = w
 	spots.overlay.anchor_right = w
 	props.hint.anchor_right = w
+	for b in _bars:
+		(b as ColorRect).anchor_right = w
 	view.resize()
 
 
