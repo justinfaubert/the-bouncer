@@ -1,0 +1,9 @@
+; A small project of its own, outside the game's, that renders the girls for the beer posters
+; (render.gd). See README in this folder.
+config_version=5
+
+[application]
+config/name="poster girls"
+
+[rendering]
+renderer/rendering_method="forward_plus"

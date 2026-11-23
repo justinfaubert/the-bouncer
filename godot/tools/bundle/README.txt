@@ -1,8 +1,10 @@
 LAST CALL
-Everything so far in one build, 23 November 2026 (second build, with the truck): the cold open, Wednesday, Thursday and Friday,
+Everything so far in one build, 23 November 2026: the cold open, Wednesday, Thursday and Friday,
 the door by hand, walking on his own feet and out round the grounds at night, darts with their
 fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
-the page, the new light, Jim behind the bar, and the jade '78 in the lot to drive.
+the page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant,
+the man on the deck), the jade '78 in the lot to drive, and the set dressing: the beer posters,
+the glasswasher behind the bar (its switch is yours to flip), the signs, the Esso's ads, trash.
 
 PLAY IT
 

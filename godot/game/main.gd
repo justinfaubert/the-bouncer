@@ -88,6 +88,7 @@ func _ready() -> void:
 	pub = Pub.new()
 	add_child(pub)
 	pub.build()
+	pub.dressing.washer.flipped.connect(_washer_flipped)
 	stage = Stage.new()
 	add_child(stage)
 	stage.setup(pub, content)
@@ -892,6 +893,13 @@ func toy(id: String, what: String) -> String:
 			start_mats("")
 			return "said"
 		_looked_at[id] = true
+	# the glasswasher's switch on the back bar (world/glasswasher.gd): he leans over and flips it, and
+	# then the words for it, which know which way it went
+	if id == "washer_switch" and what == "look" and pub.dressing != null:
+		var w := pub.dressing.washer
+		w.flip()
+		game.set_var("washer_on", w.on)
+		game.set_var("washer_flips", w.flips)
 	var res := game.toy(id, what)
 	if res.is_empty():
 		return ""
@@ -909,6 +917,14 @@ func toy(id: String, what: String) -> String:
 	refresh_status()
 	persist_soon()
 	return "said"
+
+
+# The glasswasher switched by somebody else: the bartender, back on, while he wasn't looking.
+func _washer_flipped(on: bool, by_jim: bool) -> void:
+	if not by_jim or not in_game or game == null or game.ended:
+		return
+	game.set_var("washer_on", on)
+	game.set_var("washer_back", true)
 
 
 # The room said something he heard through (game/talk.gd): a voice in his head can answer it.

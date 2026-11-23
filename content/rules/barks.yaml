@@ -590,6 +590,47 @@
   speaker: fighter
   text: Somebody's coming back for that, and he'll want to know whose hands have been on it.
 
+# the set dressing (godot/world/dressing.gd)
+- id: look_poster_mildcat
+  on: toy:poster_mildcat:look
+  speaker: father
+  text: Every bar I ever drank in had her. Different beer. Same stool.
+
+- id: look_calendar
+  on: toy:calendar:look
+  speaker: wrongman
+  text: In the story there was a calendar nobody turned. The drunk said that's how you knew which month it happened.
+
+- id: look_corkboard
+  on: toy:corkboard:look
+  speaker: fighter
+  text: Two hundred dollars. Bring your own mouthguard means they've got no doctor either.
+
+- id: look_glasswasher
+  on: toy:glasswasher:look
+  speaker: manual
+  text: Glassware is to be washed at no less than 60 degrees and air dried. Never towel a pint glass.
+
+- id: look_washer_switch
+  on: toy:washer_switch:look
+  speaker: kid
+  text: You just turned off the only thing in here that was working.
+
+- id: look_wall_hole
+  on: toy:wall_hole:look
+  speaker: fighter
+  text: Fist height. He hit the wall instead of somebody. Remember who that was.
+
+- id: look_sign_reserve
+  on: toy:sign_reserve:look
+  speaker: manual
+  text: Refusal of service must be communicated clearly, calmly and once.
+
+- id: look_lot_trash
+  on: toy:lot_trash:look
+  speaker: father
+  text: Count the butts by the door and you know how long they waited to come in.
+
 # His legs (toys.ink, toy_legs): he ran across the bar's floor, in the 3D build, and every head in
 # the room came round. The first time it's the father's rule; after that, one of the others.
 - id: legs_ran_father

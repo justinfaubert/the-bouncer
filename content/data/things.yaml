@@ -40,6 +40,25 @@ wallet: {name: A wallet., at: a:gs_wallet, from: [bar], when: [wallet_dropped > 
 mop: {name: The mop and bucket., at: a:mop, from: [door]}
 dimmer: {name: The dimmer., at: a:dimmer, from: [door]}
 
+# ---------------------------------------------------------------- the set dressing (godot/world/dressing.gd, glasswasher.gd)
+poster_boors: {name: The Boors poster., at: a:poster_boors, from: [floor, bar, t28, pool, hall]}
+poster_mildcat: {name: The Mildcat poster., at: a:poster_mildcat, from: [floor, door, t28, pool]}
+calendar: {name: The calendar., at: a:calendar, from: [room]}
+poster_lochness: {name: The Lochness poster., at: a:poster_lochness, from: [bar, door, t28, pool, hall]}
+labutt: {name: The tin sign., at: a:labutt, from: [bar, door, t28, pool]}
+corkboard: {name: The corkboard., at: a:corkboard, from: [room, hall]}
+sign_reserve: {name: The sign over the back bar., at: a:sign_reserve, from: [room]}
+sign_forget: {name: The sign over the kitchen door., at: a:sign_forget, from: [bar, door, t28, pool]}
+beer_clock: {name: The beer clock., at: a:beer_clock, from: [floor, bar, door, t28]}
+window_neon: {name: The neon in the window., at: a:window_neon, from: [room, lot]}
+clean_glasses: {name: The clean glasses., at: a:clean_glasses, from: [bar, door]}
+glasswasher: {name: The glasswasher., at: a:glasswasher, from: [bar, door, t28]}
+washer_switch: {name: The glasswasher's switch., at: a:washer_switch, from: [bar]}
+wall_hole: {name: The hole in the wall., at: a:wall_hole, from: [hall]}
+door_signs: {name: The signs by the door., at: a:door_signs, from: [lot]}
+lot_trash: {name: The butts round the step., at: a:lot_trash, from: [lot]}
+esso_ads: {name: The ads in the window., at: a:esso_ads, from: [esso]}
+
 # ---------------------------------------------------------------- by the door
 tape: {name: The tape on the frame., at: a:tape}
 id_sign: {name: The sign by the door., at: a:id_sign}
