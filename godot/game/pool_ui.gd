@@ -204,8 +204,15 @@ func _tipcard(vp: Vector2, k: float) -> void:
 	draw_circle(Vector2(sx, sy), 9 * k, Color("d9ccae"))
 	draw_line(Vector2(sx - 30 * k, sy + 9 * k), Vector2(sx + 110 * k, sy + 9 * k), Color(Look.MUTED, 0.6), 1.0)
 	var back := 14.0 * k + float(maxf(pool.draw, 0.0)) * 60.0 * k
+	var cue_l := 90.0 * k
+	# with the butt high, draw it shorter so it stays under the words
+	var fit := (sy - o.y - 62.0 * k) / maxf(sin(e), 0.01)
+	if back + cue_l > fit:
+		var sc := fit / (back + cue_l)
+		back *= sc
+		cue_l *= sc
 	var p0 := Vector2(sx + cos(e) * back, sy - sin(e) * back)
-	var p1 := p0 + Vector2(cos(e), -sin(e)) * 90.0 * k
+	var p1 := p0 + Vector2(cos(e), -sin(e)) * cue_l
 	draw_line(p0, p1, Color("cdb48a"), 3.0 * k)
 	_text(Vector2(sx - 4 * k, o.y + 30 * k), "butt up %d°" % roundi(float(pool.elev)), int(15 * k), Look.INK_2, "ui_r")
 	var chalk_w := "fresh chalk" if pool.chalk > 0.75 else ("chalk going" if pool.chalk > 0.3 else "dry tip")
