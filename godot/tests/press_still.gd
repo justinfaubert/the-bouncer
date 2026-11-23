@@ -42,7 +42,10 @@ func _init() -> void:
 	for sv in sets:
 		var kv: PackedStringArray = sv.split("=")
 		var v: PackedStringArray = kv[1].split(",")
-		m.set_shader_parameter(kv[0], float(v[0]) if v.size() == 1 else Vector2(float(v[0]), float(v[1])))
+		if kv[0] == "style":
+			m.set_shader_parameter("style", int(v[0]))
+		else:
+			m.set_shader_parameter(kv[0], float(v[0]) if v.size() == 1 else Vector2(float(v[0]), float(v[1])))
 	rect.material = m
 	vp.add_child(rect)
 	for i in 4:

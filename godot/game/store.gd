@@ -21,6 +21,9 @@ const DEFAULTS := {
 	"sway": true,         # drunk, the view sways (off for anyone it makes queasy)
 	"grain": 1.0,         # how coarse the print's grain is
 	"print": 1.0,         # the print's strokes: 1 cut, 0 a flat wash of ink (easier on the eyes)
+	"look": "0",          # the style of print, on trial (look/press.gdshader style): 0 as it is, 1 clean cut,
+	                      # 2 the black plate, 3 painted, 4 pulp halftone. F8 goes round them, Shift+F8 the bloom
+	"halo": false,        # the bulbs' halation, on trial
 	"sound": true,
 	"master": 0.8, "amb": 0.6, "sfx": 0.8, "music": 0.6, "voice": 0.9,
 	"look_speed": 1.0,    # turning his head with the mouse

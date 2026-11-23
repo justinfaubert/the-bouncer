@@ -654,6 +654,9 @@ func settings(from: String) -> void:
 	_slider("Field of view", "fov", 45.0, 90.0, 1.0, func(v): return "%d°" % roundi(v))
 	_section("The screen")
 	_toggle("Fullscreen", "fullscreen", "")
+	_seg("The print (on trial: F8 goes round them while you play)", [["0", "As it is"], ["1", "Clean cut"],
+		["2", "Black plate"], ["3", "Painted"], ["4", "Pulp"]], "look")
+	_toggle("The bulbs bloom", "halo", "Old incandescent glass: a warm haze round every lamp. Shift+F8 while you play.")
 	_slider("Detail", "render", 0.5, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_section("Sound")
 	_toggle("Sound", "sound", "Placeholder sound, until Hutch's own.")
