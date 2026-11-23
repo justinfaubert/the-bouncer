@@ -36,6 +36,7 @@ var dice: Dice
 var props: Props
 var door_hand: DoorHand
 var darts: Darts
+var truck: Truck
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -148,6 +149,10 @@ func _ready() -> void:
 	add_child(darts)
 	darts.setup(self)
 	darts.left.connect(_darts_left)
+	truck = Truck.new()
+	add_child(truck)
+	truck.setup(self)
+	truck.left.connect(_truck_left)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -390,6 +395,7 @@ func persist_soon() -> void:
 # Darts, at the board (game/darts.gd): from the night, or from the menu (the games he's met, and the
 # rehearsal, which needs no night at all: body is {drinks, hurt, tension, clock, cold}).
 var _darts_from := ""
+var _truck_from := ""
 var _looked_at := {}
 
 
@@ -413,6 +419,29 @@ func start_darts(game_mode: String, from_menu: String, body := {}) -> void:
 		audio.unlock()
 		audio.ambience("room_quiet")
 	darts.begin(game_mode, from_menu != "", body)
+
+
+# the truck (game/truck.gd): from Rehearse for now; in the month it's in the lot once he has the keys
+func start_truck(from_menu: String, body := {}) -> void:
+	_truck_from = from_menu
+	menus.hide_all()
+	stage.sync(game, true)
+	truck.begin(from_menu != "", body)
+
+
+func _truck_left() -> void:
+	var m := _truck_from
+	_truck_from = ""
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	audio.out_mix = {}
+	audio.ambience("rain_door")
+	if m == "rehearse":
+		menus.rehearse("title")
+	elif m != "":
+		menus.title()
 
 
 func _darts_left() -> void:

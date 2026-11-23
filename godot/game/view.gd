@@ -113,6 +113,8 @@ var keys_turn := Vector2.ZERO
 var keys_feet := Vector2.ZERO     # W A S D, when they turn his head instead of walking him (game/feet.gd)
 var stroll := false               # walking on his own feet, by the keys (game/feet.gd)
 var stroll_v := 0.0
+var ride: Node3D = null           # riding in something (game/truck.gd: the cab): his head's yaw and pitch are its, and eye_pos follows it
+var ride_eye := Vector3.ZERO      # his eyes in it, in its own frame
 var lean_off := 0.0               # leaning round something: how far his head's out to the side
 var lean_roll := 0.0
 var turned_t := -INF              # when the player last turned his head themselves
@@ -866,7 +868,12 @@ func _apply() -> void:
 		roll += sin(ph) * 0.004 * k
 	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll + lean_roll))
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
-	cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
+	if ride != null and is_instance_valid(ride):
+		var rt := ride.global_transform
+		eye_pos = rt * ride_eye
+		cam.global_transform = Transform3D(rt.basis * basis, eye_pos)
+	else:
+		cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
 	var base := float(settings.get("fov", 70.0))
 	var f := base * zoom
 	if focus_fov > 0.0:
