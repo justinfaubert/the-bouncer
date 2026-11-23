@@ -127,6 +127,7 @@ var clock := 0
 var heart := 0.0                  # beats per second, 0 at rest; main.gd raises it for the dice
 var _beat := 0.0
 var flash := 0.0
+var _gest := {}                   # his own head with what he says (beat): nod, shake, lean in, down
 # the light by the clock
 var _day := -1.0                  # the clock the light's at (it eases to the clock); -1 before there's been one
 var _snap := true                 # the next light goes on at once: he's just got somewhere
@@ -848,6 +849,10 @@ func _apply() -> void:
 		dy = (absf(sin(ph)) - 0.64) * 0.018 * k
 		side = sin(ph) * 0.012 * k
 		roll += sin(ph) * 0.004 * k
+	var g := _beat_now()
+	dp += g.x
+	sway += g.y
+	dy += g.z
 	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll + lean_roll))
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
 	cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
@@ -863,6 +868,32 @@ func _apply() -> void:
 
 # Tell the press where he's looking, so the grain and the paper stay put as he turns his head.
 # The grain repeats a whole number of times round the circle, so there's no seam behind him.
+# His head with what he says or does (game/acts.gd): a nod, a shake, a lean in, the head down.
+func beat(kind: String, s := 1.0) -> void:
+	if not bool(settings.get("skin", true)):
+		return
+	_gest = {"kind": kind, "t0": t, "s": s, "len": {"nod": 0.8, "shake": 1.0, "in": 1.2, "down": 1.4, "back": 1.0}.get(kind, 0.9)}
+
+
+# [pitch, yaw, height] for the beat now
+func _beat_now() -> Vector3:
+	if _gest.is_empty():
+		return Vector3.ZERO
+	var u := (t - float(_gest.t0)) / float(_gest.len)
+	if u >= 1.0:
+		_gest = {}
+		return Vector3.ZERO
+	var s := float(_gest.s)
+	var env := sin(u * PI)
+	match str(_gest.kind):
+		"nod": return Vector3(-sin(u * TAU * 2.0) * 0.035 * s * (1.0 - u), 0, 0)
+		"shake": return Vector3(0, sin(u * TAU * 2.0) * 0.03 * s * (1.0 - u), 0)
+		"in": return Vector3(-0.03 * s * env, 0, -0.03 * s * env)
+		"back": return Vector3(0.02 * s * env, 0, 0.02 * s * env)
+		"down": return Vector3(-0.12 * s * env, 0, -0.01 * s * env)
+	return Vector3.ZERO
+
+
 func _pin_press() -> void:
 	var half := deg_to_rad(cam.fov) / 2.0
 	var ppr := (eye.size.y / 2.0) / tan(half)

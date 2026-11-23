@@ -32,6 +32,8 @@ const DEAD := 22.0               # under this, no way is chosen yet
 # degrees (the model is his right hand lying open, palm up, fingers ahead, mirrored to his left)
 const POSE := {
 	"rest": [Vector3(-0.15, -0.30, -0.45), Vector3(40, 20, 180)],
+	# down out of the way, the fingertips at the foot of his view: where it waits till it's wanted
+	"low": [Vector3(-0.17, -0.42, -0.42), Vector3(55, 20, 180)],
 	"in": [Vector3(-0.2, -0.15, -0.5), Vector3(10, 75, -15)],
 	"out": [Vector3(-0.04, -0.10, -0.48), Vector3(90, 0, 180)],
 	"fetch": [Vector3(0.05, -0.14, -0.5), Vector3(10, -60, 15)],
@@ -55,6 +57,10 @@ var _armed := false
 var _lit := -1
 var _cur := Transform3D()
 var _t := 0.0
+var _ready_k := 0.0              # 0 down out of the way, 1 up and ready
+var row_way := ""                # the verdict whose row the player's hand is resting on
+var _who := ""                   # the one at the door
+var _taught := false             # he's done it once: no more words by the hand
 
 
 func setup(m) -> void:
@@ -108,7 +114,7 @@ func _read_offer() -> Dictionary:
 	var list: Array = main.game.visible_choices()
 	for i in list.size():
 		var d := str(list[i].get("door", ""))
-		if d in POSE and d != "rest" and not out.has(d):
+		if d in POSE and d != "rest" and d != "low" and not out.has(d):
 			out[d] = i
 	return out
 
@@ -129,9 +135,21 @@ func _process(dt: float) -> void:
 			_cancel()
 		node.visible = shown
 		if shown:
-			_cur = _pose_tr("rest").translated_local(Vector3(0, -0.12, 0.04))
+			_cur = _pose_tr("low").translated_local(Vector3(0, -0.12, 0.04))
 			_room_side()
-	hint.visible = shown and not dragging
+			_who = Acts.facing(main)
+		elif _who != "":
+			main.stage.life.hold(_who, 0.0)
+			_who = ""
+	# the hand comes up when it's wanted: the pointer down near it, or resting on a verdict's row
+	var near := false
+	var ptr: Vector2 = main.view.pointer
+	if ptr.x >= 0.0:
+		var hs := _hand_screen()
+		var at: Vector2 = ptr / Vector2(main.view.eye.size) * main.view.sheet.size + main.view.sheet.global_position
+		near = hs.x >= 0.0 and at.distance_to(hs) < GRAB_R * _scale() * 2.4
+	_ready_k = move_toward(_ready_k, 1.0 if (near or dragging or row_way != "") else 0.0, dt * 3.0)
+	hint.visible = shown and not dragging and _ready_k > 0.6 and not _taught
 	if hint.visible:
 		_hint_text()
 	if not shown:
@@ -139,9 +157,23 @@ func _process(dt: float) -> void:
 		main.audio.weigh = 0.0
 		return
 	# where it wants to be: on his knee, or that far along the way it's being taken
-	var target := _pose_tr("rest")
+	var target := _pose_tr("low").interpolate_with(_pose_tr("rest"), _ready_k)
 	if way != "":
 		target = target.interpolate_with(_pose_tr(way), amount)
+	elif row_way != "" and offered.has(row_way):
+		# a hand on the verdict's row: his hand starts to make it
+		target = target.interpolate_with(_pose_tr(row_way), 0.32)
+	# the one at the door feels it coming: leaning in to the sweep, back from the palm
+	var lean_v := 0.0
+	var w := way if way != "" else row_way
+	var a := amount if way != "" else (0.3 if row_way != "" else 0.0)
+	match w:
+		"in": lean_v = 0.7 * a
+		"out": lean_v = -1.0 * a
+		"fetch": lean_v = -0.6 * a
+		"terms": lean_v = -0.25 * a
+	if _who != "":
+		main.stage.life.hold(_who, lean_v)
 	elif dragging:
 		# taken, but no way yet: it follows a little, loosely
 		target = target.translated(Vector3(0, 0.01, 0))
@@ -154,9 +186,16 @@ func _process(dt: float) -> void:
 	_place_label()
 
 
+# the gestures held further off than they were: a wrist's worth of hand at the foot of the view,
+# not an arm across it (the hand looks smaller and leaves their face in sight)
+const REACH_K := 1.35
+const DROP := {"out": Vector3(-0.08, -0.05, 0.0), "terms": Vector3(0.0, -0.03, 0.0), "in": Vector3(0.0, -0.04, 0.0), "fetch": Vector3(0.04, -0.03, 0.0)}
+
 func _pose_tr(p: String) -> Transform3D:
 	var pr: Array = poses[p]
 	var pos: Vector3 = pr[0]
+	if p != "rest" and p != "low" and poses[p] == POSE[p]:
+		pos = pos * REACH_K + DROP.get(p, Vector3.ZERO)
 	var rot: Vector3 = pr[1]
 	# toward the room: the sweep's turn and place mirror when the room's on his right
 	if p == "in" and not room_left:
@@ -193,7 +232,17 @@ func _hint_text() -> void:
 	for g in ["in", "out", "fetch", "terms"]:
 		if offered.has(g):
 			parts.append("%s %s" % [arrows[g], WORDS[g]])
-	hint.text = "TAKE HIS HAND   " + "   ".join(parts)
+	hint.text = "DRAG HIS HAND   " + "   ".join(parts)
+
+
+func row_on(i: int, on: bool) -> void:
+	var g := ""
+	if on:
+		for k in offered:
+			if offered[k] == i:
+				g = k
+	if on or row_way == "" or offered.get(row_way, -1) == i:
+		row_way = g
 
 
 func _place_label() -> void:
@@ -319,6 +368,11 @@ func commit(g: String) -> void:
 		return
 	var i: int = offered[g]
 	_cancel()
+	_taught = true
+	if _who != "":
+		main.stage.life.hold(_who, 0.0)
+		main.stage.life.gesture(_who, {"in": "nod", "out": "back", "fetch": "away", "terms": "tilt"}[g], 1.0, 0.1)
+	main.view.beat({"in": "nod", "out": "back", "fetch": "shake", "terms": "nod"}[g], 0.6)
 	match g:
 		"out", "fetch":
 			# he leans and pushes the door open for them, and it falls to behind them

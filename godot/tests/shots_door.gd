@@ -73,6 +73,19 @@ func _run() -> void:
 		quit()
 		return
 	if dh != null:
+		# a hand on a verdict's row: the column scrolled to the choices, the hand starting it
+		main.column.scroll_to_end()
+		for g in ["out"]:
+			if dh.offers(g):
+				var r = main.column.row_for_index(dh.offered[g])
+				if r != null:
+					r.set_lit(true)
+				dh.row_on(dh.offered[g], true)
+				await _frames(40)
+				await _grab("row_" + g)
+				dh.row_on(dh.offered[g], false)
+				if r != null:
+					r.set_lit(false)
 		for g in ["in", "out", "fetch", "terms"]:
 			if dh.offers(g):
 				dh.preview(g, 1.0)

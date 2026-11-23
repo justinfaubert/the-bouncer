@@ -17,6 +17,7 @@ var tip_text := ""       # where a check's number comes from
 var _tip: Control
 var read_label := ""     # a voice's read of the thing in his hand: whose (set before setup)
 var read_style := ""
+var glyph: Control = null  # the hand's gesture, for a verdict at the door
 
 
 func setup(c: Dictionary, i: int, k: int, size: int, odds_numbers: bool, tension_words: Array) -> void:
@@ -37,6 +38,15 @@ func setup(c: Dictionary, i: int, k: int, size: int, odds_numbers: bool, tension
 	num.custom_minimum_size = Vector2(size * 1.25, 0)
 	num.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	row.add_child(num)
+	# a verdict at the door: the gesture his hand makes for it (game/door_hand.gd)
+	var dv := str(c.get("door", "")) if c.get("door") != null else ""
+	if dv in ["in", "out", "fetch", "terms"]:
+		var g := Gesture.new()
+		g.kind = dv
+		g.custom_minimum_size = Vector2(size * 1.5, size * 1.3)
+		g.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		row.add_child(g)
+		glyph = g
 	body = RichTextLabel.new()
 	body.fit_content = true
 	body.scroll_active = false
@@ -124,6 +134,9 @@ func hand(on: bool) -> void:
 
 
 func set_lit(on: bool) -> void:
+	if glyph != null:
+		glyph.lit = on
+		glyph.queue_redraw()
 	if lit == on:
 		return
 	lit = on
@@ -171,3 +184,46 @@ func _show_tip() -> void:
 	add_child(p)
 	p.global_position = global_position + Vector2(40, -p.get_combined_minimum_size().y - 34)
 	_tip = p
+
+
+# His hand drawn small, the way it goes for a verdict at the door, cut like the rest of the page:
+#   in     the open hand swept toward the room       out    the palm up, square on: no
+#   fetch  the thumb thrown back over the shoulder   terms  the hand flat, palm down, patting
+class Gesture extends Control:
+	var kind := "in"
+	var lit := false
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _palm(o: Vector2, ang: float, k: float, c: Color, spread := 1.0) -> void:
+		var tr := Transform2D(ang, o)
+		var palm := PackedVector2Array([Vector2(-5, 2), Vector2(5, 2), Vector2(6, 10), Vector2(-5, 11)])
+		draw_colored_polygon(tr * Transform2D().scaled(Vector2(k, k)) * palm, c)
+		for f in 4:
+			var x := -4.5 + f * 3.0
+			var l: float = [7.0, 9.0, 8.5, 6.5][f]
+			draw_line(tr * (Vector2(x * spread, 2) * k), tr * (Vector2(x * spread * 1.15, 2 - l) * k), c, 2.2 * k * 0.5, true)
+		draw_line(tr * (Vector2(-5, 7) * k), tr * (Vector2(-10, 1) * k), c, 2.2 * k * 0.5, true)
+
+	func _draw() -> void:
+		var c := Look.STOCK if lit else Look.INK_2
+		var k := size.y / 22.0
+		var mid := size * 0.5
+		match kind:
+			"in":
+				_palm(mid + Vector2(3, -1) * k, -1.2, k, c)
+				for i in 3:
+					draw_arc(mid + Vector2(6, 2) * k, (9.0 + i * 2.6) * k, PI * 0.95, PI * 1.35, 6, Color(c, 0.75 - i * 0.2), 1.2, true)
+			"out":
+				_palm(mid + Vector2(0, 3) * k, 0.0, k * 1.05, c)
+				draw_line(mid + Vector2(-9, 12) * k, mid + Vector2(9, 12) * k, Color(c, 0.6), 1.2, true)
+			"fetch":
+				_palm(mid + Vector2(-2, 1) * k, 1.0, k, c, 0.6)
+				draw_line(mid + Vector2(2, -8) * k, mid + Vector2(10, -8) * k, Color(c, 0.75), 1.4, true)
+				draw_line(mid + Vector2(10, -8) * k, mid + Vector2(7, -11) * k, Color(c, 0.75), 1.4, true)
+				draw_line(mid + Vector2(10, -8) * k, mid + Vector2(7, -5) * k, Color(c, 0.75), 1.4, true)
+			"terms":
+				_palm(mid + Vector2(0, -2) * k, PI * 0.5, k, c)
+				for i in 2:
+					draw_line(mid + Vector2(-7 + i * 7, 7) * k, mid + Vector2(-5 + i * 7, 11) * k, Color(c, 0.6), 1.2, true)
