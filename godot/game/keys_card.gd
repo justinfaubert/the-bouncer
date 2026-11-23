@@ -19,6 +19,7 @@ var grid: GridContainer
 var title: Label
 var folded: Label
 var what := ""
+var corner := "bl"            # where it sits: "bl" foot of the picture, "tr" top right (the table talks at the foot)
 var _rows: Array = []
 var _uses := 0
 var _t := 0.0
@@ -79,8 +80,9 @@ func _label(size: int, col: Color, font: String) -> Label:
 
 
 # The card for a thing: rows of [the key or the hand, what it does].
-func show_for(thing: String, rows: Array, heading := "") -> void:
+func show_for(thing: String, rows: Array, heading := "", where := "bl") -> void:
 	what = thing
+	corner = where
 	_uses = 0
 	_t = 0.0
 	set_rows(rows, heading)
@@ -151,9 +153,14 @@ func _place() -> void:
 	box.reset_size()
 	var s := box.get_combined_minimum_size()
 	box.size = s
-	box.position = Vector2(24, vp.y - s.y - 24)
 	folded.reset_size()
-	folded.position = Vector2(26, vp.y - folded.get_combined_minimum_size().y - 20)
+	var fs := folded.get_combined_minimum_size()
+	if corner == "tr":
+		box.position = Vector2(vp.x - s.x - 24, 24)
+		folded.position = Vector2(vp.x - fs.x - 26, 20)
+	else:
+		box.position = Vector2(24, vp.y - s.y - 24)
+		folded.position = Vector2(26, vp.y - fs.y - 20)
 
 
 func _process(dt: float) -> void:

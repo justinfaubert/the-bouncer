@@ -212,7 +212,7 @@ func begin(game_mode := "8bar", opponent := "buddy", opts := {}) -> void:
 	ui.say_clear()
 	set_process(true)
 	set_process_input(true)
-	main.keys.show_for("pool", _aim_rows(), "At the table")
+	main.keys.show_for("pool", _aim_rows(), "At the table", "tr")
 	_opening_lines()
 	_turn_start()
 
