@@ -1048,6 +1048,9 @@ func _read_choices() -> Array:
 		# "#door: in": a verdict at the door (in, out, fetch, terms), made with his hand (game/door_hand.gd)
 		if BUtil.js_truthy(tv.get("door")) and not (tv.door is bool):
 			ch["door"] = BUtil.js_trim(BUtil.js_str(tv.door))
+		# "#act: nod" / "#act: shake back": what he does with it and what they do back (game/acts.gd)
+		if BUtil.js_truthy(tv.get("act")) and not (tv.act is bool):
+			ch["act"] = BUtil.js_trim(BUtil.js_str(tv.act))
 		if BUtil.js_truthy(tv.get("check")):
 			var spec = Checks.parse_spec(tv.check)
 			if spec != null:

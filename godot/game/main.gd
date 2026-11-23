@@ -123,7 +123,9 @@ func _ready() -> void:
 		column.voice_labels[id] = str(content.voices[id].get("label", id.to_upper()))
 		column.voice_styles[id] = str(content.voices[id].get("style", id))
 	column.chose.connect(choose)
-	column.hand_on.connect(func(i, on): hand.on_row(i, on))
+	column.hand_on.connect(func(i, on):
+		hand.on_row(i, on)
+		door_hand.row_on(i, on))
 	column.pointed.connect(func(i, on): spots.point_out(i, on))
 	column.end_action.connect(_end_action)
 
@@ -451,6 +453,7 @@ func choose(i: int) -> void:
 		return
 	var considered := hand.leave(i)
 	var was_read: bool = list[i].get("read") != null
+	Acts.play(self, list[i])
 	var res := game.choose(i, {"considered": considered})
 	if res.is_empty():
 		return
@@ -606,6 +609,7 @@ func refresh_status() -> void:
 	if clock_shown < 0 or clock_shown > _clock_to or _clock_to - clock_shown > 90:
 		clock_shown = _clock_to
 	column.set_status(shown, clock_shown)
+	column.set_seats(game.psyche.seated if game.psyche != null else [], str(Look.TENSION_WORDS[clampi(int(st.tension), 0, Look.TENSION_WORDS.size() - 1)]))
 	view.drinks = int(st.get("felt", st.drinks))
 	view.tension = int(st.tension)
 	view.hurt = int(st.hurt)
@@ -1185,7 +1189,8 @@ func _widen(dt: float) -> void:
 		_still_t += dt
 	var wide: bool = bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
 		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding()
-	var to := 1.0 if wide else WORLD_W
+	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
+	var to := (1.0 - spine) if wide else WORLD_W
 	if is_equal_approx(view.world_w, to):
 		return
 	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)
@@ -1199,6 +1204,8 @@ func lay_out(w: float) -> void:
 	marks.anchor_right = w
 	column.anchor_left = w
 	column.anchor_right = 1.0 + (w - WORLD_W)
+	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
+	column.set_fold(inverse_lerp(WORLD_W, 1.0 - spine, w))
 	feet.hint.anchor_right = w
 	spots.overlay.anchor_right = w
 	props.hint.anchor_right = w

@@ -1314,6 +1314,9 @@ func speaking(speaker: String, text := "") -> void:
 		return
 	if f.get("rigged", false):
 		life.speak(id, text)
+		var g := Acts.their_line(text)
+		if g != "":
+			life.gesture(id, g, 0.7, 0.2)
 		return
 	var node: Node3D = f.node
 	var s: Dictionary = SPOTS.get(f.spot, {})
