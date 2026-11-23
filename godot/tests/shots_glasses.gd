@@ -57,19 +57,13 @@ func _run() -> void:
 	g._set_fill(5, 0.55)
 	g._set_fill(6, 0.8)
 	await _frames(30)
-	# the fingertip wetted, then round the rim at about a turn a second
-	g.finger = g.centre(3)
-	g.down = true
-	g._touch()
-	g.down = false
-	var a := 0.0
+	# the fingertip wetted, then held on the rim with the mouse moving, about 0.3 m/s round it
+	g.over = 3
+	g._wet()
+	await _frames(20)
 	g.down = true
 	for k in 90:
-		a += 0.1
-		var c: Vector2 = g.centre(3)
-		g.finger = c + Vector2(cos(a), sin(a)) * WineGlasses.RIM
-		g.finger_v = Vector2(-sin(a), cos(a)) * 0.3
-		g._moved = -1.0
+		g._rub_d = 0.3 * maxf(g.get_process_delta_time(), 1.0 / 60.0)
 		await process_frame
 	await _grab("singing")
 	g.down = false
