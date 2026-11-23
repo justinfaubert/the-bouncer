@@ -39,6 +39,7 @@ var darts: Darts
 var cig: CigMachine
 var mats: BeerMats
 var pool: Pool
+var keys: KeysCard
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -167,6 +168,9 @@ func _ready() -> void:
 	add_child(pool)
 	pool.setup(self)
 	pool.left.connect(_pool_left)
+	# the keys for whatever's in his hands (game/keys_card.gd): added after the toys so F1 reaches it first
+	keys = KeysCard.new()
+	add_child(keys)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W

@@ -212,6 +212,7 @@ func begin(game_mode := "8bar", opponent := "buddy", opts := {}) -> void:
 	ui.say_clear()
 	set_process(true)
 	set_process_input(true)
+	main.keys.show_for("pool", _aim_rows(), "At the table")
 	_opening_lines()
 	_turn_start()
 
@@ -227,6 +228,7 @@ func end() -> void:
 	line_node.visible = false
 	tbl.call_pocket(-1)
 	ui.visible = false
+	main.keys.hide_card()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.focus_fov = 0.0
 	set_process(false)
@@ -764,6 +766,7 @@ func release_state(at_t: float) -> Dictionary:
 
 
 func _stroke() -> void:
+	main.keys.used()
 	var st := release_state(t)
 	_before = sim.copy()
 	_start = {"targets": rules.targets(sim), "kitchen": rules.in_hand_placed == "kitchen", "jumped": false}
@@ -1024,18 +1027,35 @@ func _opening_lines() -> void:
 
 
 func _hint() -> void:
+	# the keys go on the card at the foot of the picture (game/keys_card.gd), the same card as the
+	# darts and the machine; the line over the table only says what's special about now
 	match phase:
 		"place":
-			ui.hint = "Ball in hand%s: move it with the mouse, click to put it down." % (" behind the line" if rules.in_hand == "kitchen" else "")
+			ui.hint = "Ball in hand%s." % (" behind the line" if rules.in_hand == "kitchen" else "")
+			main.keys.set_rows([["Mouse", "move the cue ball"], ["Click", "put it down"], ["Tab", "stand up over the table"]], "Ball in hand")
 		"aim":
-			var extra := ""
-			if rules.needs_call(sim):
-				extra = "   F calls the pocket."
-			if rules.game == "9ball" and rules.push_ok and rules.turn == 0:
-				extra += "   P: push out."
-			ui.hint = "Mouse aims (Shift fine), up and down moves his head.  Right button: the tip.  Wheel: the butt.  Hold and pull back to stroke.  C chalk, Q E cues, Tab stands up." + extra
+			ui.hint = ""
+			main.keys.set_rows(_aim_rows(), "At the table")
 		_:
 			ui.hint = ""
+
+
+func _aim_rows() -> Array:
+	var rows := [
+		["Mouse", "round the cue ball  (Shift: fine)"],
+		["Up / down", "his head low on the line, or up"],
+		["Hold right, move", "the tip on the ball: follow, draw, side"],
+		["Wheel", "lift the butt: over a ball, a curve, a jump"],
+		["Hold left, pull back", "draw the cue; let go to strike. How far back is how hard"],
+		["C", "chalk"],
+		["Q  E", "change cues"],
+		["Tab", "stand up over the table"],
+	]
+	if rules != null and sim != null and rules.needs_call(sim):
+		rows.append(["F", "call the pocket you're on"])
+	if rules != null and rules.game == "9ball" and rules.push_ok and rules.turn == 0:
+		rows.append(["P", "push out"])
+	return rows
 
 
 func _tell(res: Dictionary, shooter: int) -> void:

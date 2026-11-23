@@ -52,7 +52,7 @@ var best := 0
 var overhang := 0.042                        # how far the stack hangs out over the edge (m)
 var hand := Vector2(0.06, -0.06)             # where his fingertips are, in the plane (u, y)
 var hand_v := Vector2.ZERO
-var _hv: Array = []                          # the hand's last few speeds
+var _hv: Array = []                          # the hand's last few places, [usec, where]
 var curled := false                          # the button's held: fingers ready to flick
 var closed := false                          # the snatch
 var phase := "set"                           # set, air, down, caught
@@ -138,6 +138,13 @@ func begin(rehearse := false, from := {}) -> void:
 	set_process(true)
 	set_process_input(true)
 	_column_begin()
+	main.keys.show_for("mats", [
+		["Mouse", "his hand under the edge of the bar"],
+		["Hold the button, flick up", "curl the fingers and come up under the overhang"],
+		["Click again, while it's up", "snatch it: turned over and lying near flat"],
+		["Wheel", "slide the stack out over the edge, or back"],
+		["Q  E", "one off the stack, one on"],
+	], "Beer mats")
 
 
 var _saved := {}
@@ -146,6 +153,7 @@ func end() -> void:
 	if not active:
 		return
 	active = false
+	main.keys.hide_card()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.focus_fov = 0.0
 	set_process(false)
@@ -245,6 +253,7 @@ func _step(h: float) -> void:
 
 
 func _flick(v_hand: Vector2, at_u: float) -> void:
+	main.keys.used()
 	# the hinge: the back edge of the stack where it rests on the bar
 	var hinge := overhang - L
 	var a := clampf(at_u - hinge, L * 0.55, L)
@@ -430,15 +439,15 @@ func _input(e: InputEvent) -> void:
 			hand.y = 0.02
 		elif hand.x < -0.005 and hand.y < 0.02 and was.x >= -0.005:
 			hand.x = -0.005
-		var dt := maxf(get_process_delta_time(), 1.0 / 240.0)
-		var v := (hand - was) / dt
-		_hv.append(v)
-		if _hv.size() > 3:
+		# the hand's speed over the last few hundredths of a second, by the clock, not per event: a
+		# mouse that reports a thousand times a second sends many small moves a frame, and dividing
+		# each by the frame's time made the same flick ten times weaker than on a plain mouse
+		var now := Time.get_ticks_usec()
+		_hv.append([now, hand])
+		while _hv.size() > 2 and now - int(_hv[0][0]) > 45000:
 			_hv.pop_front()
-		hand_v = Vector2.ZERO
-		for vv in _hv:
-			hand_v += vv
-		hand_v /= float(_hv.size())
+		var span := maxf(float(now - int(_hv[0][0])) / 1e6, 1.0 / 240.0)
+		hand_v = ((hand - (_hv[0][1] as Vector2)) / span) if _hv.size() > 1 else (hand - was) * 60.0
 		hand_v = hand_v.limit_length(5.0)
 		# fingers come up through the underside of the overhang: the flick
 		if phase == "set" and was.y < 0.0 and hand.y >= 0.0 and hand.x > 0.0 and hand.x < overhang + 0.01:

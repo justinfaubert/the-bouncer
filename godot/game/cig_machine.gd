@@ -387,6 +387,16 @@ func begin(rehearse := false, from := {}) -> void:
 	synth.start()
 	set_process_input(true)
 	_column_begin()
+	main.keys.show_for("cigs", [
+		["Drag a knob down", "pull it out toward him: it sounds"],
+		["A W S E D F T G Y H U J", "play the row  (Shift: all the way)"],
+		["Z  X", "an octave down, up"],
+		["C / the slot", "a quarter in holds what's pulled"],
+		["Coin return lever", "bends the note; all the way down, R, gives the quarters back"],
+		["Click it / Space", "knock on the cabinet; twice sets its speed"],
+		["Wheel", "rock it on its feet  (over a dial: turn it)"],
+		["O", "open the front"],
+	], "The cigarette machine")
 
 
 func end() -> void:
@@ -400,6 +410,7 @@ func end() -> void:
 		pull[i] = 0.0
 	by_key.clear()
 	hover_label.visible = false
+	main.keys.hide_card()
 	view.focus_fov = 0.0
 	view.hand_drag = false
 	set_process_input(false)
@@ -627,6 +638,7 @@ func _input(e: InputEvent) -> void:
 func _press(what: String, right: bool) -> void:
 	if what.begins_with("knob"):
 		grabbed = int(what.substr(4))
+		main.keys.used()
 		return
 	match what:
 		"lever":

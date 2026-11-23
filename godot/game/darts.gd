@@ -219,6 +219,19 @@ func _chalkboard() -> void:
 
 # Step up to the line. game: practice, clock, 501. from: {"drinks", "hurt", "tension", "clock",
 # "cold"} for a rehearsal; in the night, his body as the night has it.
+# the card at the foot of the picture (game/keys_card.gd)
+const KEYS_ROWS := [
+	["Mouse", "aim with his eyes  (Shift: narrow them)"],
+	["Hold left, pull back", "draw the dart; let go to throw. Halfway is his usual throw"],
+	["Sideways while drawn", "turns the wrist"],
+	["Wheel", "elbow up for a lob, down for a flatter throw"],
+	["Right button", "hold his breath (not too long)"],
+	["Q  E", "grip back or forward on the barrel"],
+	["A  D", "along the oche"],
+	["Space / click", "fetch the darts from the board"],
+]
+
+
 func begin(game_mode := "practice", rehearse := false, from := {}) -> void:
 	active = true
 	rehearsal = rehearse
@@ -250,6 +263,7 @@ func begin(game_mode := "practice", rehearse := false, from := {}) -> void:
 	_chalk(true)
 	_column_begin()
 	room.begin()
+	main.keys.show_for("darts", KEYS_ROWS, "At the line")
 
 
 func end() -> void:
@@ -266,6 +280,7 @@ func end() -> void:
 	view.hand_drag = false
 	view.focus_fov = 0.0
 	room.end()
+	main.keys.hide_card()
 	set_process(false)
 	set_process_input(false)
 	# the darts back in the board the way they were, unless the night has them behind the till
@@ -657,6 +672,7 @@ func _clean_cross(from: Vector3, v: float, az: float, up: float):
 
 
 func _throw() -> void:
+	main.keys.used()
 	var i := next
 	var st := release_state(i, t)
 	var b = bodies[i]
