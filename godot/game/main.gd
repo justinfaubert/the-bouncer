@@ -548,6 +548,7 @@ func start_cig(from_menu: String, body := {}) -> void:
 	_cig_from = from_menu
 	menus.hide_all()
 	if from_menu != "":
+		_leave_full_frame()
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))
@@ -563,6 +564,7 @@ func start_mats(from_menu: String, body := {}) -> void:
 	_cig_from = from_menu
 	menus.hide_all()
 	if from_menu != "":
+		_leave_full_frame()
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))
@@ -700,6 +702,7 @@ func start_pool(game_mode: String, opponent: String, from_menu: String, opts := 
 	_pool_after = after
 	menus.hide_all()
 	if from_menu != "":
+		_leave_full_frame()
 		var body: Dictionary = opts.get("body", {})
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))

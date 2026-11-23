@@ -95,14 +95,16 @@ func set_rows(rows: Array, heading := "") -> void:
 	_rows = rows.duplicate(true)
 	if heading != "":
 		title.text = heading.to_upper()
+	# freed at once, not queued: the card measures itself from what's in it this frame
 	for c in grid.get_children():
-		c.queue_free()
+		grid.remove_child(c)
+		c.free()
 	for r in rows:
-		var k := _label(16, Color(Look.STOCK, 0.96), "ui_b")
+		var k := _label(15, Color(Look.STOCK, 0.96), "ui_b")
 		k.text = str(r[0])
 		k.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		grid.add_child(k)
-		var d := _label(16, Color(Look.INK_2, 0.9), "ui_r")
+		var d := _label(15, Color(Look.INK_2, 0.9), "ui_r")
 		d.text = str(r[1])
 		grid.add_child(d)
 	_place.call_deferred()
@@ -145,8 +147,10 @@ func _show() -> void:
 
 func _place() -> void:
 	var vp := get_viewport().get_visible_rect().size
+	box.size = Vector2.ZERO
 	box.reset_size()
 	var s := box.get_combined_minimum_size()
+	box.size = s
 	box.position = Vector2(24, vp.y - s.y - 24)
 	folded.reset_size()
 	folded.position = Vector2(26, vp.y - folded.get_combined_minimum_size().y - 20)
