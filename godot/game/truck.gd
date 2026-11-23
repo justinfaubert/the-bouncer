@@ -5,7 +5,7 @@
 # mill road, or south past the church and up through the cut to the ferry sign. Nothing on the
 # screen helps him hold it. The gauges are in the dash.
 #
-# The controls (the hint in the corner says them once, F1 brings it back):
+# The controls (on the keys card, game/keys_card.gd, like every toy; F1 brings it back):
 #   W / up        the gas         S / down    the brake (no ABS: stand on it and they lock)
 #   A D / left right   the wheel  (four turns lock to lock; let go and it comes back)
 #   R / F         the column shifter up toward P / down toward 1     E   the key
@@ -18,6 +18,10 @@ class_name Truck
 extends Node
 
 signal left
+
+const KEYS_ROWS := [["E", "the key (in P or N)"], ["R / F", "the shifter, up toward P, down toward 1"],
+	["W / S", "gas / brake"], ["A / D", "the wheel"], ["L  H  V", "lights, high beams, wipers"],
+	["Space", "the horn"], ["Mouse", "his head round the cab"], ["C", "in the cab / behind the truck"]]
 
 const EYE := Vector3(-0.40, 0.80, 0.16)         # his eyes on the bench seat: six foot four, his hair near the headliner
 const PARK_AT := Vector3(4.0, 0.0, 21.0)        # where it's parked in the lot, nose to the highway
@@ -62,7 +66,6 @@ var tail_glow: Array = []
 var dash_light: OmniLight3D
 var dome: OmniLight3D
 var wipers: Array = []
-var hint: Label
 var black: ColorRect
 var active := false
 var rehearsal := false
@@ -76,7 +79,6 @@ var _gas := 0.0
 var _brk := 0.0
 var _sel := 0
 var _t := 0.0
-var _hint_t := 0.0
 var _blank := 0.0                # a lost second or two, drunk
 var _next_blank := 30.0
 var _chase_pos := Vector3.ZERO
@@ -109,18 +111,6 @@ func _build_once() -> void:
 	sim.ground = road.ground
 	_build_truck()
 	_build_traffic()
-	hint = Label.new()
-	hint.add_theme_font_size_override("font_size", 17)
-	hint.add_theme_color_override("font_color", Color(0.92, 0.9, 0.84, 0.9))
-	hint.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	hint.add_theme_constant_override("outline_size", 5)
-	hint.position = Vector2(28, 0)
-	hint.anchor_top = 1.0
-	hint.anchor_bottom = 1.0
-	hint.offset_top = -210
-	hint.text = "E  the key        R / F  the shifter, up to P, down to 1\nW  gas    S  brake    A D  the wheel\nL  lights    H  high beams    V  wipers    Space  horn\nThe mouse looks round the cab.    C  inside / behind\nEsc  park it and get out        F1  this again"
-	main.root.add_child(hint)
-	hint.visible = false
 	black = ColorRect.new()
 	black.color = Color(0, 0, 0, 0)
 	black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -189,9 +179,7 @@ func begin(rehearse := true, from := {}) -> void:
 	sound.running = false
 	if _rain.stream != null:
 		_rain.play()
-	_hint_t = 14.0
-	hint.visible = true
-	hint.modulate.a = 1.0
+	main.keys.show_for("truck", KEYS_ROWS, "In the cab")
 	_next_blank = _rng.randf_range(25.0, 50.0)
 	for c in traffic:
 		_spawn_car(c, true)
@@ -210,7 +198,7 @@ func end() -> void:
 	view.ride = null
 	sound.stop()
 	_rain.stop()
-	hint.visible = false
+	main.keys.hide_card()
 	black.color.a = 0.0
 	main.column.visible = true
 	main.lay_out(View.WORLD_W)
@@ -271,9 +259,6 @@ func _input(e: InputEvent) -> void:
 				view.want_pitch = -0.08 if not chase else -0.22
 				_chase_pos = sim.pos - sim.forward() * 9.0 + Vector3(0, 3.0, 0)
 				sound.outside = chase
-			KEY_F1:
-				_hint_t = 12.0
-				hint.visible = true
 			_:
 				return
 		get_viewport().set_input_as_handled()
@@ -293,6 +278,7 @@ func _input(e: InputEvent) -> void:
 
 
 func _key() -> void:
+	main.keys.used()
 	if sim.running:
 		sim.running = false
 		sound.running = false
@@ -313,6 +299,7 @@ func _key() -> void:
 
 
 func _shift(d: int) -> void:
+	main.keys.used()
 	var to := clampi(_sel + d, 0, SELECTOR.size() - 1)
 	# out of P or into it only with a foot on the brake, slow
 	if (SELECTOR[_sel] == "P" or SELECTOR[to] == "P") and absf(sim.speed) > 1.0:
@@ -401,11 +388,6 @@ func _process(dt: float) -> void:
 		black.color.a = move_toward(black.color.a, 1.0, dt * 8.0)
 	else:
 		black.color.a = move_toward(black.color.a, 0.0, dt * 3.0)
-	if _hint_t > 0.0:
-		_hint_t -= dt
-		hint.modulate.a = clampf(_hint_t / 2.0, 0.0, 1.0)
-		if _hint_t <= 0.0:
-			hint.visible = false
 
 
 func _sync_body() -> void:

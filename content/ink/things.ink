@@ -10,6 +10,13 @@
 
 // ------------------------------------------------------------------ the room
 
+// The beer mats on the bar (godot/game/beer_mats.gd): the first look is this; the next, he flips one.
+=== function toy_coasters(what)
+{stopping:
+- A pile of beer mats on the bar in the gap by the rails, SEAWALL LAGER in a ring on every one. The brewery sent them up by the hundred and nobody'd put one under a glass in years. The top one had a phone number on it and a name that had been scribbled out hard enough to go through.
+- The beer mats. The top one hanging a little over the edge, the way they always ended up.
+}
+
 === function toy_jukebox(what)
 { juke_low:
     The jukebox, a notch down, and the room coming through under it.
@@ -206,6 +213,14 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
     The extinguisher on its bracket at the end of the hall, two years since anybody punched its tag.
 - else:
     The extinguisher on its bracket at the end of the hall, across from the payphone, with an inspection tag on a string round its neck.
+}
+
+// The cigarette machine on the east wall, under the news (godot/game/cig_machine.gd): the first look is this; the
+// next one, he goes and stands at it, and it plays. Nobody in the Ink says so.
+=== function toy_cigmachine(what)
+{stopping:
+- The cigarette machine against the east wall under the TV, on the way out to the deck: twelve brands behind twelve little windows, a knob under each, a strip of mirror gone grey at the corners. IT'S THE LAW, 19 TO BUY, on a sticker somebody had gone at with a key. They'd unplugged it the year of the ban and coiled the cord on top and taped it. Somebody had written ON over the coin slot in marker, and under it OFF, and under that a question mark.
+- The cigarette machine. Its cord was still taped up on top. He'd have sworn the windows were lit a second ago.
 }
 
 === function toy_hotel_door(what)

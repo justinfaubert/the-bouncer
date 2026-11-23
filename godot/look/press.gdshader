@@ -46,6 +46,9 @@ uniform float hurt = 0.0;                            // hurt: red thickens at th
 uniform float pulse = 0.0;                           // his heart, 0..1 on each beat: the ink swells
 uniform float starve = 0.0;                          // late: the ink runs thin and the strokes break
 uniform float flash = 0.0;                           // a cut between places: the page goes blank
+uniform float pull = 1.0;                            // a cut coming in: how far the press has got with the new
+                                                     // print, the plates laid one after another (lightest
+                                                     // first, the key block last, as a printer pulls a proof)
 uniform float print_k = 1.0;                         // the Print setting: 1 the cut strokes, 0 a flat wash of the night ink
 uniform vec2 band = vec2(0.16, 0.84);                // the key block's tone: below this, bare paper; above, solid ink; strokes between
 
@@ -85,6 +88,14 @@ vec2 separate_b(vec3 c) {
 	return mix(texture(separation_b, a).rg, texture(separation_b, b).rg, c.b - b0);
 }
 
+// How much of a plate has gone down on the paper, pull of the way through the proof: it starts at
+// a and is down by b, laid in grainy, the way ink comes off a roller that hasn't quite got it all
+// yet. Past b it's all there.
+float laid(float a, float b, float g) {
+	float k = clamp((pull - a) / (b - a), 0.0, 1.0);
+	return smoothstep(g - 0.18, g + 0.18, k * 1.36 - 0.18);
+}
+
 void fragment() {
 	vec2 uv = UV;
 	vec2 px = 1.0 / view_px;
@@ -106,6 +117,15 @@ void fragment() {
 	vec2 o_r = reg_neon + slip * vec2(cos(time * 0.53 + 0.9), sin(time * 0.29 + 5.0));
 	vec2 o_c = reg_cold + slip * vec2(sin(time * 0.43 + 2.6), sin(time * 0.67 + 1.1));
 	vec2 o_e = reg_earth + slip * vec2(cos(time * 0.31 + 3.3), cos(time * 0.59 + 4.4));
+	// a plate still coming down is out of register, and settles as it lands
+	if (pull < 1.0) {
+		float off = 1.0 - pull;
+		o_l += vec2(7.0, -4.0) * off * off;
+		o_e += vec2(-5.0, 6.0) * off * off;
+		o_c += vec2(4.0, 7.0) * off * off;
+		o_r += vec2(-8.0, -3.0) * off * off;
+		o_k += vec2(3.0, -2.0) * off * off * off;
+	}
 	float cn = separate(texture(scene, uv + o_k * px).rgb).r;
 	float cl = separate(texture(scene, uv + o_l * px).rgb).g;
 	float cr = separate(texture(scene, uv + o_r * px).rgb).b;
@@ -165,6 +185,18 @@ void fragment() {
 	kr = max(kr, hurt * rim * (0.75 + 0.25 * pulse));
 	key = max(key, hurt * rim * rim * 0.5);
 
+	// a cut coming in: the lamp's plate first, then the earth, the cold, the neon, and the key
+	// block last of all, so the place arrives as a printer's proof does
+	float fresh = 1.0;
+	if (pull < 1.0) {
+		kl *= laid(0.0, 0.34, g.g);
+		ke *= laid(0.12, 0.46, g2.b);
+		kc *= laid(0.24, 0.58, g2.g);
+		kr *= laid(0.36, 0.7, g.b);
+		fresh = laid(0.62, 0.9, g.r * 0.6 + pp.r * 0.4);
+		key *= fresh;
+	}
+
 	vec3 col = to_linear(paper) * (0.95 + 0.08 * pp.r);
 	col *= 1.0 - kl * (1.0 - to_linear(ink_lamp));
 	col *= 1.0 - kr * (1.0 - to_linear(ink_neon));
@@ -172,11 +204,11 @@ void fragment() {
 	col *= 1.0 - ke * (1.0 - to_linear(ink_earth));
 	col *= 1.0 - key * (1.0 - to_linear(ink_night));
 
-	if (twice > 0.5) {
+	if (twice > 0.5 && fresh > 0.5) {
 		vec3 k = to_linear(ink_night);
 		col = to_linear(paper) * k * k * 5.0;
 	}
-	if (clean > 0.5) {
+	if (clean > 0.5 && fresh > 0.5) {
 		// printed clean: the thing's colours as they are, on the same paper, its outline still cut
 		vec3 sc = to_linear(clamp(texture(scene, uv).rgb * 1.08, 0.0, 1.0));
 		vec3 cc = to_linear(paper) * (0.96 + 0.05 * pp.r) * mix(vec3(1.0), sc / max(to_linear(paper), vec3(0.2)), 0.97);
@@ -184,6 +216,8 @@ void fragment() {
 		cc *= 1.0 - ln * (1.0 - to_linear(ink_night));
 		col = cc;
 	}
-	col = mix(col, to_linear(paper) * (0.95 + 0.08 * pp.r), flash);
+	// the page going blank: the paper comes up through the ink, through its tooth first
+	float blank = smoothstep(pp.r * 0.5 + g.g * 0.5 - 0.22, pp.r * 0.5 + g.g * 0.5 + 0.02, flash * 1.3 - 0.25);
+	col = mix(col, to_linear(paper) * (0.95 + 0.08 * pp.r), blank);
 	COLOR = vec4(to_srgb(col), 1.0);
 }

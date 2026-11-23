@@ -50,9 +50,9 @@ VAR jacket_how = 0          // the jacket itself: 1 back in the drawer, 2 took i
 VAR showed_her = ()         // the jacket's things he showed the bartender
 VAR keys_how = 0            // the big man's keys: 1 the drawer, 2 his own pocket, 3 the daughter
 VAR keys_back = 0           // at the hotel door at two: 1 gave them back, -1 kept them
-VAR she_poured = 0          // drinks she poured him on shift (bar.ink, the shift drink)
-VAR poured_self = 0         // drinks he poured himself behind her bar (bar.ink, the pour)
-VAR pour_how = 0            // the pint he poured himself: 1 drank it and rinsed the glass, 2 took it to the ledge, 3 poured it down the sink; -1 she caught him
+VAR she_poured = 0          // drinks he poured him on shift (bar.ink, the shift drink)
+VAR poured_self = 0         // drinks he poured himself behind his bar (bar.ink, the pour)
+VAR pour_how = 0            // the pint he poured himself: 1 drank it and rinsed the glass, 2 took it to the ledge, 3 poured it down the sink; -1 he caught him
 VAR watched_bar = false     // he watched her bar while she changed the keg
 VAR lager_down = false      // she went down the trapdoor to change the lager (bar.ink)
 

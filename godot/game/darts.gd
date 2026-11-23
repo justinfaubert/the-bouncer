@@ -26,8 +26,14 @@
 #     others. He learns them or he doesn't.
 #   - the board: the 20 chewed soft (darts hang in it, and drop), the wire, darts already in it.
 #
-# The score goes up in chalk on the board beside it, not on the screen. The column keeps to what
-# he'd notice. Esc puts the darts down.
+# The score goes up in chalk on the board beside it, a stroke at a time, not on the screen. The column
+# keeps to what he'd notice. Esc puts the darts down.
+#
+# The feel of a dart landing (2026-11-22): its own sound for the sisal, the bull, the wire, a dart on
+# a dart, the carpet (tools/dart_sounds.py); the dart quivering on its point as the shaft flexes; a
+# few motes of fibre off a hard one in the lamp's light; the three pulled out each with a squeak.
+# The room round the board, who watches, who calls a ton or a 180, the hush when two are in the
+# treble, is game/darts_room.gd.
 class_name Darts
 extends Node
 
@@ -93,6 +99,16 @@ var clock_on := 1                       # round the clock: the number he's on
 var darts_thrown := 0
 var turns := 0
 var seen := {}                          # what he's noticed already, so he notices it once
+var room: DartsRoom                     # the room round the board: who watches, who calls it (game/darts_room.gd)
+var fov_hold := 0.0                     # tests: a fov to keep instead of the throw's
+# the feel of it landing
+var quiv := [{}, {}, {}]                # each dart's quiver as it goes in: {t0, amp, axis}
+var rest: Array = [null, null, null]    # and where it came to rest, in the world
+var _push := Vector3.ZERO               # the eyes narrowing on the board for a moment: (start, length, how far)
+var _chalk_want := ""                   # the chalk as it'll read, and as it's been written so far
+var _chalk_has := ""
+var _chalk_k := 0.0
+var _chalk_sound := 0.0
 var per_dart := [[], [], []]            # where each house dart's gone, off where he was looking (m)
 
 
@@ -129,6 +145,9 @@ func setup(m) -> void:
 	held.visible = false
 	view.hands.add_child(held)
 	_chalkboard()
+	room = DartsRoom.new()
+	add_child(room)
+	room.setup(self)
 	set_process(false)
 	set_process_input(false)
 
@@ -200,6 +219,19 @@ func _chalkboard() -> void:
 
 # Step up to the line. game: practice, clock, 501. from: {"drinks", "hurt", "tension", "clock",
 # "cold"} for a rehearsal; in the night, his body as the night has it.
+# the card at the foot of the picture (game/keys_card.gd)
+const KEYS_ROWS := [
+	["Mouse", "aim with his eyes  (Shift: narrow them)"],
+	["Hold left, pull back", "draw the dart; let go to throw. Halfway is his usual throw"],
+	["Sideways while drawn", "turns the wrist"],
+	["Wheel", "elbow up for a lob, down for a flatter throw"],
+	["Right button", "hold his breath (not too long)"],
+	["Q  E", "grip back or forward on the barrel"],
+	["A  D", "along the oche"],
+	["Space / click", "fetch the darts from the board"],
+]
+
+
 func begin(game_mode := "practice", rehearse := false, from := {}) -> void:
 	active = true
 	rehearsal = rehearse
@@ -228,8 +260,10 @@ func begin(game_mode := "practice", rehearse := false, from := {}) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	set_process(true)
 	set_process_input(true)
-	_chalk()
+	_chalk(true)
 	_column_begin()
+	room.begin()
+	main.keys.show_for("darts", KEYS_ROWS, "At the line")
 
 
 func end() -> void:
@@ -245,6 +279,8 @@ func end() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.hand_drag = false
 	view.focus_fov = 0.0
+	room.end()
+	main.keys.hide_card()
 	set_process(false)
 	set_process_input(false)
 	# the darts back in the board the way they were, unless the night has them behind the till
@@ -262,8 +298,16 @@ func _place_eyes() -> void:
 
 # all three back in his hand: he walks up, pulls them, walks back to the line
 func _collect(at_once := false) -> void:
+	var pulls := 0
 	for i in bodies.size():
 		var b = bodies[i]
+		if not at_once and b.mode == "in":
+			# he walks up and pulls them, each out of the fibres with its own squeak
+			var at := to_world * Vector3(b.pos.x, b.pos.y, 0.0)
+			room._after(0.3 + 0.28 * pulls, func(): main.audio.at("dart_pull", at, 0.55, 1.5, randf_range(0.92, 1.08)))
+			pulls += 1
+		rest[i] = null
+		quiv[i] = {}
 		b.mode = "hand"
 		b.depth = 0.0
 		b.pos = Vector3(0, 0, 50)
@@ -376,9 +420,91 @@ func _process(dt: float) -> void:
 		var aim_lift := deg_to_rad(loft) * 0.3 + draw * 0.12
 		held.transform = Transform3D(Basis.from_euler(Vector3(aim_lift + tr.y, tr.x + wrist * 3.0, 0.0)) \
 			* Basis(Vector3.UP, PI), hp + Vector3(0, 0, -grip * 0.012))
-	view.focus_fov = FOCUS_HARD if Input.is_key_pressed(KEY_SHIFT) else FOCUS
+	var f := FOCUS_HARD if Input.is_key_pressed(KEY_SHIFT) else FOCUS
+	# two in the treble: his eyes close in on the bed while the room holds its breath
+	f *= 1.0 - 0.1 * room.hush
+	if _push.y > 0.0:
+		var u := (t - _push.x) / _push.y
+		if u >= 1.0:
+			_push = Vector3.ZERO
+		else:
+			f *= 1.0 - _push.z * smoothstep(0.0, 0.22, u) * (1.0 - smoothstep(0.62, 1.0, u))
+	view.focus_fov = fov_hold if fov_hold > 0.0 else f
 	if flying:
 		_play(dt)
+	else:
+		for i in rest.size():
+			if rest[i] != null and not quiv[i].is_empty():
+				nodes[i].global_transform = _quivered(i, rest[i])
+	_write_chalk(dt)
+
+
+# The eyes narrowing on the board for a moment (game/darts_room.gd: a bull, a 180, the game shot):
+# secs long, by amount of the fov at most.
+func push(secs: float, amount: float) -> void:
+	if amount <= 0.0:
+		return
+	_push = Vector3(t, secs, amount)
+
+
+# a dart going in shakes on its point: the shaft and the flights flex, which the sim's rigid dart
+# doesn't, so it's laid over what the sim says
+func _quivered(i: int, base: Transform3D) -> Transform3D:
+	var q: Dictionary = quiv[i]
+	if q.is_empty():
+		return base
+	var u := t - float(q.t0)
+	if u > 0.7:
+		quiv[i] = {}
+		return base
+	var ang := float(q.amp) * exp(-u / 0.13) * sin(u * TAU * float(q.hz))
+	var tip := Vector3(0, 0, (bodies[i].d as DartSim.Dart).cg)
+	return base * Transform3D(Basis.IDENTITY, tip) * Transform3D(Basis(q.axis, ang), Vector3.ZERO) * Transform3D(Basis.IDENTITY, -tip)
+
+
+func _quiver(i: int, speed: float) -> void:
+	if i < 0 or i >= quiv.size():
+		return
+	quiv[i] = {"t0": t, "amp": deg_to_rad(clampf(speed * 0.45, 0.8, 4.0)),
+		"axis": Vector3(randf_range(-1, 1), randf_range(-1, 1), 0).normalized(), "hz": randf_range(16.0, 22.0)}
+
+
+# fibre dust off the sisal where a hard one goes in, a few motes in the lamp's light
+func _dust(at: Vector3, speed: float) -> void:
+	var p := CPUParticles3D.new()
+	p.one_shot = true
+	p.amount = int(clampf(speed * 1.6, 4.0, 16.0))
+	p.lifetime = 0.9
+	p.explosiveness = 0.95
+	p.local_coords = false
+	var normal := (to_world.basis * Vector3(0, 0, 1)).normalized()
+	p.direction = normal
+	p.spread = 55.0
+	p.initial_velocity_min = 0.08
+	p.initial_velocity_max = 0.05 + speed * 0.05
+	p.gravity = Vector3(0, -0.35, 0)
+	p.damping_min = 0.6
+	p.damping_max = 1.2
+	var m := QuadMesh.new()
+	m.size = Vector2(0.0022, 0.0022)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color("d8c79f")
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.roughness = 1.0
+	m.material = mat
+	p.mesh = m
+	var c := Curve.new()
+	c.add_point(Vector2(0, 1))
+	c.add_point(Vector2(0.7, 0.8))
+	c.add_point(Vector2(1, 0))
+	p.scale_amount_curve = c
+	p.scale_amount_min = 0.6
+	p.scale_amount_max = 1.4
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pub.add_child(p)
+	p.global_position = at + normal * 0.004
+	p.emitting = true
+	get_tree().create_timer(1.6).timeout.connect(p.queue_free)
 
 
 func _breathe_out(gasped := false) -> void:
@@ -546,6 +672,7 @@ func _clean_cross(from: Vector3, v: float, az: float, up: float):
 
 
 func _throw() -> void:
+	main.keys.used()
 	var i := next
 	var st := release_state(i, t)
 	var b = bodies[i]
@@ -564,7 +691,7 @@ func _throw() -> void:
 	wrist = 0.0
 	drawn_t = 0.0
 	darts_thrown += 1
-	main.audio.sfx("swipe", 0.25, 1.4)
+	main.audio.sfx("dart_throw", 0.35, randf_range(0.95, 1.1))
 
 
 # play the throw back as the sim worked it out, every dart that moved
@@ -584,7 +711,8 @@ func _play(dt: float) -> void:
 			last = false
 		var a: Array = fr[k]
 		var bn := Basis(a[1] as Quaternion)
-		nodes[i].global_transform = to_world * Transform3D(bn, a[0])
+		rest[i] = to_world * Transform3D(bn, a[0])
+		nodes[i].global_transform = _quivered(i, rest[i])
 	while _heard_i < sim.hits.size() and float(sim.hits[_heard_i][0]) <= _play_t:
 		_sound(sim.hits[_heard_i])
 		_heard_i += 1
@@ -601,18 +729,36 @@ func _play(dt: float) -> void:
 
 
 func _sound(h: Array) -> void:
-	var where: Vector3 = to_world * (h[4] as Vector3)
-	var s := clampf(float(h[3]) / 6.0, 0.15, 1.0)
+	var p_b: Vector3 = h[4]
+	var where: Vector3 = to_world * p_b
+	var speed := float(h[3])
+	var s := clampf(speed / 6.0, 0.15, 1.0)
+	var k := int(h[1])
 	match str(h[2]):
-		"sisal": main.audio.at("thud", where, 0.55 * s, 1.5, 1.6)
-		"wire": main.audio.at("clink", where, 0.7 * s, 1.5, 1.9)
+		"sisal":
+			# the bull's where the board's thickest: deeper
+			if Vector2(p_b.x, p_b.y).length() < 0.016:
+				main.audio.at("dart_bull", where, 0.75 * s, 1.5, randf_range(0.96, 1.04))
+			else:
+				main.audio.at("dart_sisal", where, 0.7 * s, 1.5, randf_range(0.94, 1.08))
+			_quiver(k, speed)
+			if speed > 3.0:
+				_dust(where, speed)
+		"wire": main.audio.at("dart_wire", where, 0.6 * s, 1.5, randf_range(0.95, 1.06))
 		"wood": main.audio.at("tock", where, 0.6 * s, 1.5, 1.1)
-		"plaster": main.audio.at("tock", where, 0.45 * s, 1.5, 0.8)
-		"carpet": main.audio.at("thump", where, 0.3 * s, 1.5, 1.5)
-		"dart": main.audio.at("clack", where, 0.5 * s, 1.5, 1.8)
+		"plaster":
+			main.audio.at("tock", where, 0.45 * s, 1.5, 0.8)
+			_dust(where, speed * 0.6)
+		"carpet": main.audio.at("dart_drop", where, 0.45 * s, 1.5)
+		"dart":
+			main.audio.at("dart_clack", where, 0.55 * s, 1.5)
+			# the one it hit shakes too
+			for j in rest.size():
+				if j != k and rest[j] != null and (rest[j] as Transform3D).origin.distance_to(where) < 0.12:
+					_quiver(j, speed * 0.6)
 		"flight": main.audio.at("tear", where, 0.35, 1.5, 1.6)
-		"robin": main.audio.at("clack", where, 0.8, 1.5, 0.9)
-		"out": main.audio.at("thump", where, 0.15, 1.5, 2.0)
+		"robin": main.audio.at("dart_clack", where, 0.8, 1.5, 0.82)
+		"out": main.audio.at("dart_drop", where, 0.25, 1.5, 1.2)
 
 
 # ---------------------------------------------------------------- the game
@@ -637,6 +783,7 @@ func _landed(i: int) -> void:
 		"501":
 			pass
 	_notice(i, r, heard, knocked)
+	room.landed(i, r, heard, turn_scores)
 	_chalk()
 
 
@@ -672,12 +819,14 @@ func _turn_over() -> void:
 		if not bust:
 			left_501 = left
 		_rows.append(left_501)
-		_line("Bust." if bust else ("Game shot." if left_501 == 0 else ""))
+		room.turn_over(turn_scores, bust, left_501 == 0 and not bust, left_501)
+	else:
+		room.turn_over(turn_scores)
 	_chalk()
 
 
 # The chalk: whatever game it is, in his hand, the way a man keeps score on a blackboard.
-func _chalk() -> void:
+func _chalk(at_once := false) -> void:
 	if chalk == null:
 		return
 	var marks := []
@@ -687,13 +836,51 @@ func _chalk() -> void:
 			marks.append(n)
 		else:
 			marks.append("-")
+	# the turn's total under the three, once they're all thrown; a 180 ringed the way they ring it
+	var total := 0
+	for r in turn_scores:
+		if r.where == "board":
+			total += int(r.n) * int(r.x)
+	var sum := ""
+	if turn_scores.size() == 3:
+		sum = "\n(180)" if total == 180 else "\n= %d" % total
+	var text := ""
 	match mode:
 		"501":
-			chalk.text = "501\n%s\n\n%s" % ["\n".join(_501_rows()), "  ".join(marks)]
+			text = "501\n%s\n\n%s%s" % ["\n".join(_501_rows()), "  ".join(marks), sum]
 		"clock":
-			chalk.text = "ROUND THE\nCLOCK\n\non %s\n%d darts" % ["BULL" if clock_on == 21 else ("DONE" if clock_on > 21 else str(clock_on)), darts_thrown]
+			text = "ROUND THE\nCLOCK\n\non %s\n%d darts" % ["BULL" if clock_on == 21 else ("DONE" if clock_on > 21 else str(clock_on)), darts_thrown]
 		_:
-			chalk.text = "%s\n\n%s" % ["PRACTICE" if rehearsal else "", "  ".join(marks)]
+			text = "%s\n\n%s%s" % ["PRACTICE" if rehearsal else "", "  ".join(marks), sum]
+	_chalk_want = text
+	if at_once:
+		_chalk_has = text
+		chalk.text = text
+		return
+	# rubbed out back to what still stands, then written on from there
+	var n := 0
+	while n < mini(_chalk_has.length(), text.length()) and _chalk_has[n] == text[n]:
+		n += 1
+	_chalk_has = _chalk_has.left(n)
+	chalk.text = _chalk_has
+
+
+# the chalk going up a stroke at a time, with its sound
+func _write_chalk(dt: float) -> void:
+	if _chalk_has == _chalk_want or chalk == null:
+		return
+	_chalk_k += dt * 14.0
+	_chalk_sound -= dt
+	while _chalk_k >= 1.0 and _chalk_has.length() < _chalk_want.length():
+		_chalk_k -= 1.0
+		var c := _chalk_want[_chalk_has.length()]
+		_chalk_has += c
+		if c != " " and c != "\n" and _chalk_sound <= 0.0:
+			main.audio.at("chalk", chalk.global_position, 0.4, 1.2, randf_range(0.9, 1.15))
+			_chalk_sound = 0.35
+	if _chalk_has.length() >= _chalk_want.length():
+		_chalk_k = 0.0
+	chalk.text = _chalk_has
 
 
 # ---------------------------------------------------------------- what he notices

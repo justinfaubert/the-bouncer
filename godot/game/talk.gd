@@ -353,6 +353,25 @@ func _his(id: String) -> bool:
 	return false
 
 
+# Someone in the room calls something out on their own, not part of a conversation (game/darts_room.gd:
+# a regular calling a score across the room). Written over their head like the rest; anything they
+# were in the middle of saying is broken off for it. Returns when it's said, or -1 if they can't.
+func call_out(id: String, text: String) -> float:
+	if stage == null or not stage.figures.has(id):
+		return -1.0
+	if not on.is_empty():
+		for role in on.cast:
+			if id in on.cast[role]:
+				_stop()
+				break
+	var now := _now()
+	var end := stage.life.say(id, text)
+	_slip("call", id, text, now + 0.06, end, stage.head_of(id))
+	said.emit("call", id, text)
+	queue_redraw()
+	return end
+
+
 # ---------------------------------------------------------------- the slips
 
 func _slip(role: String, id: String, text: String, t0: float, end: float, middle: Vector3) -> void:

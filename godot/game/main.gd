@@ -36,10 +36,16 @@ var dice: Dice
 var props: Props
 var door_hand: DoorHand
 var darts: Darts
+var cig: CigMachine
+var mats: BeerMats
+var pool: Pool
+var keys: KeysCard
 var truck: Truck
 var marks: Marks
 var talk: Talk
 var audio: Sound
+var intro: Intro
+var full_frame := false        # the picture takes the whole screen: the cold open and the title (game/intro.gd)
 
 var in_game := false
 var slot := 1
@@ -124,7 +130,9 @@ func _ready() -> void:
 		column.voice_labels[id] = str(content.voices[id].get("label", id.to_upper()))
 		column.voice_styles[id] = str(content.voices[id].get("style", id))
 	column.chose.connect(choose)
-	column.hand_on.connect(func(i, on): hand.on_row(i, on))
+	column.hand_on.connect(func(i, on):
+		hand.on_row(i, on)
+		door_hand.row_on(i, on))
 	column.pointed.connect(func(i, on): spots.point_out(i, on))
 	column.end_action.connect(_end_action)
 
@@ -149,6 +157,21 @@ func _ready() -> void:
 	add_child(darts)
 	darts.setup(self)
 	darts.left.connect(_darts_left)
+	cig = CigMachine.new()
+	add_child(cig)
+	cig.setup(self)
+	cig.left.connect(_cig_left)
+	mats = BeerMats.new()
+	add_child(mats)
+	mats.setup(self)
+	mats.left.connect(_cig_left)
+	pool = Pool.new()
+	add_child(pool)
+	pool.setup(self)
+	pool.left.connect(_pool_left)
+	# the keys for whatever's in his hands (game/keys_card.gd): added after the toys so F1 reaches it first
+	keys = KeysCard.new()
+	add_child(keys)
 	truck = Truck.new()
 	add_child(truck)
 	truck.setup(self)
@@ -174,22 +197,42 @@ func _ready() -> void:
 	view.arrived.connect(func(where): stage.arrived(where); spots.refresh(); props.arrived(); going.arrived(where))
 	view.ran.connect(func(): going.ran())
 	view.settled.connect(func(): audio.sfx("thump", 0.3, 0.7))
+	view.first_sight.connect(func(): letterbox(6.0))
 	stage.walked.connect(func(_id): props.arrived())
 	stage.sound.connect(audio.at)
 	view.people_at = stage.standing
 	stage.sync(game, true)
-	menus.title()
+	# the cold open, before the title: the first time the game starts, and whenever it's asked for
+	# (the title's "The cold open", or --intro); after that the title comes in on its own shot
+	intro = Intro.new()
+	root.add_child(intro)
+	intro.setup(self)
+	intro.finished.connect(_after_intro)
 	audio.ambience("rain_door")
 	# a picture of the title, then quit: for checking a build on a machine nobody's sitting at
 	#   TheBouncer --grab /tmp/title.png
 	var args := OS.get_cmdline_user_args() + OS.get_cmdline_args()
 	var at := args.find("--grab")
 	if at >= 0 and at + 1 < args.size():
+		intro.title_only()
 		_grab(args[at + 1])
+	elif args.has("--no-intro"):
+		menus.title()
+	elif args.has("--intro") or not bool(settings.get("intro_seen", false)):
+		intro.play()
+	else:
+		intro.title_only()
+
+
+func _after_intro() -> void:
+	if not bool(settings.get("intro_seen", false)):
+		settings["intro_seen"] = true
+		store.save_settings()
+	menus.title(true)
 
 
 func _grab(path: String) -> void:
-	for i in 90:
+	for i in 150:
 		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(path)
@@ -289,6 +332,7 @@ func start_new(in_slot: int) -> void:
 	reset_story()
 	in_game = true
 	menus.hide_all()
+	_leave_full_frame()
 	var res := game.new_game()
 	persist()
 	# the night opens wherever its first place line is (the lot), not where the story's
@@ -300,6 +344,7 @@ func start_new(in_slot: int) -> void:
 			break
 	view.frame = _frame_for(opening)
 	view.jump_to(opening)
+	view.print_in(1.4)
 	stage.sync(game, true)
 	show(res, true)
 	audio.unlock()
@@ -339,6 +384,7 @@ func resume(in_slot: int) -> void:
 	reset_story()
 	in_game = true
 	menus.hide_all()
+	_leave_full_frame()
 	column.begin_batch()
 	render_items(game.night_log, false)
 	if not game.night_log.is_empty() and not game.ended:
@@ -349,6 +395,7 @@ func resume(in_slot: int) -> void:
 	column.reveal(false)
 	view.frame = _frame_for(game.here())
 	view.jump_to(game.here() if game.here() != "" else "door")
+	view.print_in(1.1)
 	stage.sync(game, true)
 	if older and not game.ended:
 		# the scene it was saved in may not be in this story any more, or not where it was: a
@@ -360,6 +407,68 @@ func resume(in_slot: int) -> void:
 		after({"choices": game.choices, "ended": game.ended}, false)
 	column.scroll_to_end()
 	audio.unlock()
+
+
+# A moment held like a film: bars come in over the picture, top and bottom, for secs, and go. The
+# moments are few and the night's own: the Sov's front the first time, from the town; the bell for
+# last call; the night's end, where they stay (secs 0). The page is untouched, so nothing is taken
+# from the player's hands.
+var _bars: Array = []
+var _bars_tw: Tween
+const BARS := 0.09
+
+func letterbox(secs: float) -> void:
+	if not bool(settings.get("skin", true)):
+		return
+	if _bars.is_empty():
+		for i in 2:
+			var b := ColorRect.new()
+			b.color = Color("07080b")
+			b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.anchor_top = 0.0 if i == 0 else 1.0
+			b.anchor_bottom = 0.0 if i == 0 else 1.0
+			root.add_child(b)
+			root.move_child(b, view.sheet.get_index() + 1)
+			_bars.append(b)
+	if _bars_tw != null and _bars_tw.is_valid():
+		_bars_tw.kill()
+	_bars_tw = create_tween()
+	_bars_tw.tween_method(_bars_at, _bars_h(), BARS, 1.1).set_trans(Tween.TRANS_SINE)
+	if secs > 0.0:
+		_bars_tw.tween_interval(secs)
+		_bars_tw.tween_method(_bars_at, BARS, 0.0, 1.4).set_trans(Tween.TRANS_SINE)
+
+
+func _bars_h() -> float:
+	return (_bars[0] as ColorRect).anchor_bottom if not _bars.is_empty() else 0.0
+
+
+func _bars_at(h: float) -> void:
+	for i in _bars.size():
+		var b: ColorRect = _bars[i]
+		b.anchor_right = view.world_w
+		if i == 0:
+			b.anchor_bottom = h
+		else:
+			b.anchor_top = 1.0 - h
+
+
+func _bars_off() -> void:
+	if _bars_tw != null and _bars_tw.is_valid():
+		_bars_tw.kill()
+	if not _bars.is_empty():
+		_bars_at(0.0)
+
+
+# Out of the title's whole-screen picture and back to the picture and the page, at once: the night
+# comes in as a print, so there's nothing to see sliding.
+func _leave_full_frame() -> void:
+	if intro.playing:
+		intro.stop()
+	full_frame = false
+	view.world_w = WORLD_W
+	lay_out(WORLD_W)
+	_bars_off()
 
 
 func reset_story() -> void:
@@ -411,6 +520,7 @@ func start_darts(game_mode: String, from_menu: String, body := {}) -> void:
 	_darts_from = from_menu
 	menus.hide_all()
 	if from_menu != "":
+		_leave_full_frame()
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))
@@ -425,6 +535,8 @@ func start_darts(game_mode: String, from_menu: String, body := {}) -> void:
 func start_truck(from_menu: String, body := {}) -> void:
 	_truck_from = from_menu
 	menus.hide_all()
+	_leave_full_frame()
+	audio.unlock()
 	stage.sync(game, true)
 	truck.begin(from_menu != "", body)
 
@@ -459,6 +571,56 @@ func _darts_left() -> void:
 		menus.games("title")
 
 
+# The cigarette machine on the east wall under the news (game/cig_machine.gd): from the night, the
+# games, or the rehearsal, the same way as the darts.
+var _cig_from := ""
+
+func start_cig(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		_leave_full_frame()
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("pool")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	cig.begin(from_menu != "", body)
+
+
+# The beer mats off the edge of the bar (game/beer_mats.gd), the same way.
+func start_mats(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		_leave_full_frame()
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("bar")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	mats.begin(from_menu != "", body)
+
+
+func _cig_left() -> void:
+	if _cig_from == "":
+		return
+	var m := _cig_from
+	_cig_from = ""
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	if m == "rehearse":
+		menus.rehearse("title")
+	else:
+		menus.games("title")
+
+
 func back_to_title() -> void:
 	if in_game and not game.ended:
 		persist()
@@ -468,7 +630,9 @@ func back_to_title() -> void:
 	pending = null
 	in_game = false
 	hand.stop()
-	menus.title()
+	menus.hide_all()
+	_bars_off()
+	intro.title_only()
 
 
 # the player's choice, by its place among the visible choices
@@ -478,14 +642,47 @@ func choose(i: int) -> void:
 	var list := game.visible_choices()
 	if i < 0 or i >= list.size():
 		return
+	# played out on the table first: the night waits, and what came of it goes into the Ink
+	if list[i].get("game") != null and str(list[i].game.what) == "pool":
+		_play_choice(i, list[i].game)
+		return
 	var considered := hand.leave(i)
 	var was_read: bool = list[i].get("read") != null
+	Acts.play(self, list[i])
 	var res := game.choose(i, {"considered": considered})
 	if res.is_empty():
 		return
 	# what he made of the thing in his hand: it's still in his hand, to do something with
 	if was_read:
 		props.keep()
+	persist()
+	audio.sfx("choose")
+	marks.fade_all()
+	show(res, true)
+
+
+func _play_choice(i: int, g: Dictionary) -> void:
+	answering = true
+	column.clear_choices()
+	var who: String = g.who if g.who != "" else "bigman"
+	start_pool("8bar", who, "", {"stakes": 20, "story": "bigman_" + str(g.meant), "they_break": true}, func(res: Dictionary):
+		answering = false
+		var r := 3 if res.get("left", false) and not res.has("why") else (1 if res.get("won", false) else 2)
+		game.set_var("pool_result", r)
+		game.set_var("pool_threw", int(res.get("thrown", 0)))
+		game.set_var("pool_dumped", int(res.get("dumped", 0)))
+		view.jump_to("pool")
+		_choose_now.call_deferred(i))
+
+
+func _choose_now(i: int) -> void:
+	var list := game.visible_choices()
+	if i < 0 or i >= list.size():
+		return
+	var considered := hand.leave(i)
+	var res := game.choose(i, {"considered": considered})
+	if res.is_empty():
+		return
 	persist()
 	audio.sfx("choose")
 	marks.fade_all()
@@ -525,6 +722,54 @@ func choose_by_hand(i: int, _verdict: String) -> void:
 	show(res, true)
 
 
+# Pool, at the coin-op (game/pool.gd): from the night (a #game choice, the big man's twenty), from
+# Games (the regulars, the money, the Sunday draw), or the rehearsal. opts go to Pool.begin.
+var _pool_from := ""
+var _pool_choice := -1
+var _pool_after := Callable()
+
+func start_pool(game_mode: String, opponent: String, from_menu: String, opts := {}, after := Callable()) -> void:
+	_pool_from = from_menu
+	_pool_after = after
+	menus.hide_all()
+	if from_menu != "":
+		_leave_full_frame()
+		var body: Dictionary = opts.get("body", {})
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("pool")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+		opts["rehearse"] = true
+	else:
+		_met("pool")
+	pool.begin(game_mode, opponent, opts)
+
+
+func _pool_left(res: Dictionary) -> void:
+	var m := _pool_from
+	_pool_from = ""
+	if _pool_after.is_valid():
+		var cb := _pool_after
+		_pool_after = Callable()
+		cb.call(res)
+	if m == "":
+		return
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	if m == "rehearse":
+		menus.rehearse("title")
+	elif m == "games":
+		menus.pool_menu("title")
+	else:
+		menus.games("title")
+	audio.sfx("choose", 0.6)
+
+
 # Handling a thing between choices (Game.toy). If a choice was waiting for it, the night moves on
 # from that choice as from any other; if not, what it changed goes quietly into the head, and
 # anything said about it goes in above the choices. Returns "chose", "said" or "".
@@ -538,6 +783,20 @@ func toy(id: String, what: String) -> String:
 		_met("darts")
 		if _looked_at.has(id) and not bool(game.get_var("darts_pulled")) and view.eye_pos.distance_to(darts.to_world.origin) < 8.5:
 			start_darts("practice", "")
+			return "said"
+		_looked_at[id] = true
+	# the cigarette machine: the first look says what it is; the next, he goes and stands at it
+	if id == "cigmachine" and what == "look":
+		_met("cigs")
+		if _looked_at.has(id) and view.eye_pos.distance_to(CigMachine.AT) < 10.0:
+			start_cig("")
+			return "said"
+		_looked_at[id] = true
+	# the beer mats on the bar: the same, from the bar
+	if id == "coasters" and what == "look":
+		_met("mats")
+		if _looked_at.has(id) and view.eye_pos.distance_to(BeerMats.EDGE) < 3.0:
+			start_mats("")
 			return "said"
 		_looked_at[id] = true
 	var res := game.toy(id, what)
@@ -607,6 +866,8 @@ func after(res: Dictionary, live: bool) -> void:
 			if str(it.get("cls", "")) == "end":
 				stamped = true
 		column.show_end(stamped)
+		if live:
+			letterbox(0.0)
 	else:
 		var list := game.visible_choices()
 		column.show_choices(list, Look.TENSION_WORDS, going.hidden(list))
@@ -641,6 +902,7 @@ func refresh_status() -> void:
 	if clock_shown < 0 or clock_shown > _clock_to or _clock_to - clock_shown > 90:
 		clock_shown = _clock_to
 	column.set_status(shown, clock_shown)
+	column.set_seats(game.psyche.seated if game.psyche != null else [], str(Look.TENSION_WORDS[clampi(int(st.tension), 0, Look.TENSION_WORDS.size() - 1)]))
 	view.drinks = int(st.get("felt", st.drinks))
 	view.tension = int(st.tension)
 	view.hurt = int(st.hurt)
@@ -818,6 +1080,9 @@ func _fx(it: Dictionary) -> void:
 	match str(it.get("type", "")):
 		"sfx":
 			audio.sfx(str(it.get("id", "")))
+			# the bell for last call: the night's turn, held like a film for a moment
+			if str(it.get("id", "")) == "bell":
+				letterbox(5.5)
 		"music":
 			audio.track(str(it.get("id", "")))
 		"amb":
@@ -1218,9 +1483,10 @@ func _widen(dt: float) -> void:
 		_still_t = 0.0
 	else:
 		_still_t += dt
-	var wide: bool = bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
-		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding()
-	var to := 1.0 if wide else WORLD_W
+	var wide: bool = (bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
+		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding())
+	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
+	var to := 1.0 if full_frame or (pool != null and pool.active) else ((1.0 - spine) if wide else WORLD_W)
 	if is_equal_approx(view.world_w, to):
 		return
 	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)
@@ -1234,9 +1500,13 @@ func lay_out(w: float) -> void:
 	marks.anchor_right = w
 	column.anchor_left = w
 	column.anchor_right = 1.0 + (w - WORLD_W)
+	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
+	column.set_fold(inverse_lerp(WORLD_W, 1.0 - spine, w))
 	feet.hint.anchor_right = w
 	spots.overlay.anchor_right = w
 	props.hint.anchor_right = w
+	for b in _bars:
+		(b as ColorRect).anchor_right = w
 	view.resize()
 
 

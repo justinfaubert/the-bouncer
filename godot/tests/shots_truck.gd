@@ -47,8 +47,7 @@ func _run() -> void:
 	main.start_truck("rehearse", {"drinks": drinks, "hurt": 0, "tension": 0, "clock": 1290, "cold": 0.0})
 	await _frames(20)
 	var tr: Truck = main.truck
-	tr._hint_t = 0.0
-	tr.hint.visible = false
+	main.keys.hide_card()
 	if only == "":
 		await _grab("cab_parked_dark")
 		tr._key()

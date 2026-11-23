@@ -30,6 +30,7 @@ drunk, and fullscreen.
 
 | | |
 |---|---|
+| The cold open | plays before the title the first time the game starts; hold any key or the mouse button, or press Esc, to skip it. The title's "The cold open" plays it again (`--intro` on the command line forces it, `--no-intro` skips it) |
 | Choose | click a choice, or its number |
 | Go somewhere | click the floor. In the bar he walks there, round the tables and whoever's standing, and a pale ring on the floor shows where he'd end up. The floor round a place (the stool by the door, the bar, table 28, the pool table, the jukebox) takes him to it, and he settles there. The places aren't listed in the column: they're pinned where they are in the room, and the sketch (M) takes him to any lit on it. E with nothing under his eyes walks him to the floor he's looking at. Space on the way hurries him, and in the bar the room sees him run |
 | Go on, where the night stops to let a moment land | Space or Enter |
@@ -38,6 +39,8 @@ drunk, and fullscreen.
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
 | Darts | look at the dartboard twice and he takes the darts out of the board. The mouse aims his eyes; hold the button and pull back to draw, let go to throw (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and E: grip. A and D: along the line. Shift: narrow his eyes. Right button: hold his breath. Esc puts them down. Also from the title: Games (once met) and Rehearse (no night, his body set by hand) |
+| The cigarette machine | on the east wall under the news; look at it twice. Pull a knob out with the mouse (down the screen is out) or play the row on A W S E D F T G Y H U J, Shift for all the way; Z and X an octave. C a quarter (holds what's pulled), R or the lever all the way down gives them back (the lever bends the note on the way), click the cup to take them. Knock with either button or Space, twice to set its speed. Wheel rocks it. O or the lock opens the front: PRICE (the voice and its age), LAMP (chorus), MOTOR TEST (arpeggio), RELAY DELAY (echo). Esc steps back. Also in Games and Rehearse |
+| Beer mats | at the bar, look at the pile twice. The mouse moves his hand; hold the button and bring the fingers up fast under the overhang to flick, click while it's up to snatch it (turned over, lying flat). Wheel: overhang. Q and E: one fewer or one more on the stack. Esc puts them down. Also in Games and Rehearse |
 | Something in his hands | drag a licence to tip it, click to turn it over, E to look closer, Q and R to go through it, Esc to put it down. What the voices make of it is above what he does with it, under WHAT HE MAKES OF IT: keep one, or none |
 | His notes (what's in his head, and on the second page what's on him: Q or E turns it), the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |

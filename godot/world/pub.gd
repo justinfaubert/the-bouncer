@@ -37,6 +37,7 @@ const EARLY := Color("ffa04a")
 const LATE := Color("ffe4c4")
 
 var M := {}
+var pool_table: PoolTable
 var rng := RandomNumberGenerator.new()
 var anchors := {}          # named points: posts, hotspots, marks
 var lights := {}           # named lights, for the clock and the posts
@@ -747,6 +748,7 @@ func shadows_near(p: Vector3, reach := 7.5) -> void:
 		reach = Lighting.SHADOW_REACH
 	for pair in shadowed:
 		var l: Light3D = pair[0]
+		# (Forward+: by the reach the shadow has already faded to nothing, Lighting.shadow_set)
 		l.shadow_enabled = (pair[1] as Vector3).distance_to(p) < reach
 
 
@@ -1024,12 +1026,16 @@ func pendant(p: Vector3, drop := 2.35) -> void:
 
 
 func _floor_things() -> void:
-	# the pool table, a coin-op, with its lamp; the balls where the big man's buddy left them
-	model("res://models/pool_table.glb", POOL)
-	var balls := [[Vector2(-0.62, -0.28), "e8e4d8"], [Vector2(-0.45, 0.06), "b8342a"], [Vector2(0.58, -0.38), "d9a52e"],
-		[Vector2(0.21, 0.3), "2a3a78"], [Vector2(-0.88, 0.16), "d86a2a"], [Vector2(0.77, 0.24), "6a2430"], [Vector2(0.05, -0.12), "141414"]]
-	for b in balls:
-		ball(0.0286, POOL + Vector3(b[0].x, 0.8286, b[0].y), mat(Color(b[1]), 0.2, 0.0, 3, Vector3.UP, 5.0, 0.3))
+	# the pool table, a coin-op, built to the pool's own physics (game/pool_table.gd), with its lamp;
+	# the balls where the big man's buddy left them (game/pool.gd moves them from here on)
+	pool_table = PoolTable.new()
+	add_child(pool_table)
+	pool_table.position = POOL
+	pool_table.build(self, PoolSim.sov_table())
+	for b in [[0, Vector2(-0.62, -0.28)], [3, Vector2(-0.45, 0.06)], [1, Vector2(0.58, -0.38)], [2, Vector2(0.21, 0.3)],
+			[13, Vector2(-0.82, 0.16)], [7, Vector2(0.77, 0.24)], [8, Vector2(0.05, -0.12)]]:
+		var r := 0.0294 if b[0] == 0 else 0.028575
+		pool_table.put_ball(b[0], r, Vector3(b[1].x, r, b[1].y))
 	model("res://models/pool_light.glb", POOL + Vector3(0, 2.06, 0))
 	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(-0.7, 2.65, 0), M.frame)
 	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(0.7, 2.65, 0), M.frame)

@@ -35,6 +35,7 @@ extends Node
 signal arrived(place: String)
 signal ran                        # he ran across the bar's floor, in front of everyone
 signal settled                    # he's come to a post he sits or leans at, and his weight's gone onto it
+signal first_sight                # the Sov's front, the first time, from the town (main.gd holds it like a film)
 
 const WORLD_W := 0.655
 var world_w := WORLD_W            # the share of the screen the picture has now: all of it while he walks (game/main.gd, _widen)
@@ -129,6 +130,8 @@ var clock := 0
 var heart := 0.0                  # beats per second, 0 at rest; main.gd raises it for the dice
 var _beat := 0.0
 var flash := 0.0
+var _gest := {}                   # his own head with what he says (beat): nod, shake, lean in, down
+var pull := 1.0                   # the print coming in after a cut, plate by plate (look/press.gdshader)
 # the light by the clock
 var _day := -1.0                  # the clock the light's at (it eases to the clock); -1 before there's been one
 var _snap := true                 # the next light goes on at once: he's just got somewhere
@@ -148,6 +151,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	eye = SubViewport.new()
 	eye.msaa_3d = Viewport.MSAA_DISABLED   # the strokes and the grain cover the edges; 4x cost a lot at fullscreen
 	eye.positional_shadow_atlas_size = 4096
+	Lighting.shadow_atlas(eye)
 	eye.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	eye.audio_listener_enable_3d = true
 	add_child(eye)
@@ -293,6 +297,7 @@ func jump_to(where: String) -> void:
 			pub.swing_door(d[0], false, true)
 	_doors = []
 	flash = 0.0
+	pull = 1.0
 	walking = false
 	_legs.clear()
 	_path = PackedVector3Array()
@@ -678,10 +683,31 @@ func _cut_to(leg: Dictionary) -> void:
 			want_yaw = yaw
 			want_pitch = pitch)
 	_cut.tween_interval(0.15 if away == null else 0.35)
-	_cut.tween_property(self, "flash", 0.0, 0.45)
+	# and the new place comes in as a proof does, the colours first and the key block last
+	_cut.tween_callback(func():
+		pull = 0.0
+		flash = 0.0)
+	_cut.tween_property(self, "pull", 1.0, 0.7 if away == null else 1.15)
 	_cut.tween_callback(func():
 		_cut = null
 		_next_leg())
+
+
+# The page goes blank, through the paper's tooth (look/press.gdshader), over secs.
+func blank_out(secs := 0.35) -> Tween:
+	var tw := create_tween()
+	tw.tween_property(self, "flash", 1.0, secs)
+	return tw
+
+
+# The print comes in from blank paper as a proof does: the lamp's plate, the earth, the cold, the
+# neon, and the key block last, over secs.
+func print_in(secs := 0.9) -> Tween:
+	flash = 0.0
+	pull = 0.0
+	var tw := create_tween()
+	tw.tween_property(self, "pull", 1.0, secs)
+	return tw
 
 
 # there: still looking the way he was, unless someone there's turned his head on the way, or he's
@@ -720,7 +746,10 @@ func _first_look(where: String) -> Variant:
 	if not _first_sight or where in Posts.FIRST_SIGHT.through:
 		return null
 	_first_sight = false
-	return Posts.FIRST_SIGHT.look if where == Posts.FIRST_SIGHT.place else null
+	if where == Posts.FIRST_SIGHT.place:
+		first_sight.emit()
+		return Posts.FIRST_SIGHT.look
+	return null
 
 
 # on his way to the Sov's front the first time after the town: what it'll turn his head to, or null
@@ -866,6 +895,10 @@ func _apply() -> void:
 		dy = (absf(sin(ph)) - 0.64) * 0.018 * k
 		side = sin(ph) * 0.012 * k
 		roll += sin(ph) * 0.004 * k
+	var g := _beat_now()
+	dp += g.x
+	sway += g.y
+	dy += g.z
 	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll + lean_roll))
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
 	if ride != null and is_instance_valid(ride):
@@ -886,6 +919,32 @@ func _apply() -> void:
 
 # Tell the press where he's looking, so the grain and the paper stay put as he turns his head.
 # The grain repeats a whole number of times round the circle, so there's no seam behind him.
+# His head with what he says or does (game/acts.gd): a nod, a shake, a lean in, the head down.
+func beat(kind: String, s := 1.0) -> void:
+	if not bool(settings.get("skin", true)):
+		return
+	_gest = {"kind": kind, "t0": t, "s": s, "len": {"nod": 0.8, "shake": 1.0, "in": 1.2, "down": 1.4, "back": 1.0}.get(kind, 0.9)}
+
+
+# [pitch, yaw, height] for the beat now
+func _beat_now() -> Vector3:
+	if _gest.is_empty():
+		return Vector3.ZERO
+	var u := (t - float(_gest.t0)) / float(_gest.len)
+	if u >= 1.0:
+		_gest = {}
+		return Vector3.ZERO
+	var s := float(_gest.s)
+	var env := sin(u * PI)
+	match str(_gest.kind):
+		"nod": return Vector3(-sin(u * TAU * 2.0) * 0.035 * s * (1.0 - u), 0, 0)
+		"shake": return Vector3(0, sin(u * TAU * 2.0) * 0.03 * s * (1.0 - u), 0)
+		"in": return Vector3(-0.03 * s * env, 0, -0.03 * s * env)
+		"back": return Vector3(0.02 * s * env, 0, 0.02 * s * env)
+		"down": return Vector3(-0.12 * s * env, 0, -0.01 * s * env)
+	return Vector3.ZERO
+
+
 func _pin_press() -> void:
 	var half := deg_to_rad(cam.fov) / 2.0
 	var ppr := (eye.size.y / 2.0) / tan(half)
@@ -900,6 +959,7 @@ func _pin_press() -> void:
 	press.set_shader_parameter("paper_px", grain_px)
 	press.set_shader_parameter("time", t)
 	press.set_shader_parameter("flash", flash)
+	press.set_shader_parameter("pull", pull)
 
 
 # ---------------------------------------------------------------- the light by the clock

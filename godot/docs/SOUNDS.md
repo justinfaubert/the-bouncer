@@ -204,6 +204,23 @@ the pitch dropping as it passes; an old payphone bell, heard from a hundred metr
 for the browser build's sake or for later; the Godot build doesn't play them. No need to record
 them yet.
 
+## The darts
+
+Rendered by `tools/dart_sounds.py` (placeholders, like the rest; record over them at the board):
+
+| file | takes | what it is | when |
+|---|---|---|---|
+| `dart_sisal` | 4 | a steel point into the sisal: the crack, the board's body, the cabinet | each dart that sticks |
+| `dart_bull` | 2 | the same in the bull, deeper, the cabinet doors answering | a dart in the bull or the 25 |
+| `dart_wire` | 3 | off the wire, a thin steel ring | a dart touching a wire |
+| `dart_clack` | 3 | brass on brass | a dart hitting one already in (and a Robin Hood, lower) |
+| `dart_drop` | 2 | onto the carpet, a soft drop and the barrel's tick | a dart falling or bouncing out |
+| `dart_pull` | 3 | pulled out of the fibres: a squeak, a drag, free | collecting the three |
+| `dart_throw` | 3 | the hand coming through, air past the flights | each throw |
+| `chalk` | 3 | a few strokes on the blackboard | the score going up |
+| `bar_fill` | 2 | Jim behind the bar with two stir sticks: the rail, the rail, a glass | a ton or better |
+| `filament` | 1 | the board lamp's old filament catching and coming back | a 180 |
+
 ## Retired
 
 `amb_pool`, the pool game as a loop, is gone: the balls are struck one at a time now (`cue`,

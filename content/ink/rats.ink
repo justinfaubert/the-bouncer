@@ -12,7 +12,7 @@
 //
 // The bait and the traps are in the office, which is in the keg room (Hutch, 27 Sept). Laying them
 // down there costs nothing but the war; carrying them up through the trapdoor behind the bar means
-// carrying them past her (carry_up).
+// carrying them past his (carry_up).
 
 === function cook_here()
 ~ return clock < 1380
@@ -547,7 +547,7 @@ FATHER: One. Out of however many there are.
 ~ rep(rep_staff, 1)
 The lager was the keg at the end of the first row. He rocked it and it was light. He twisted the coupler off, rolled a full one into its place, put the coupler on and pulled the handle down, the way he'd done it at his last door, and the one before that.
 BARTENDER: Lager's back.
-She said it to the customers, but she'd said it down the hole first.
+He said it to the customers, but he'd said it down the hole first.
 FATHER: First useful thing you've done all night.
 -> kg_opts
 
@@ -574,7 +574,7 @@ FATHER: Whatever you do, do it like it's nothing.
         ~ rats_killed++
         ~ incident += inc_rat
         ~ go_to_war()
-        The woman in slippers put her hand over her mouth. Table 28 turned all the way round in their chairs. The bartender came down the bar with a roll of paper towel and a garbage bag and her face set.
+        The woman in slippers put her hand over her mouth. Table 28 turned all the way round in their chairs. The bartender came down the bar with a roll of paper towel and a garbage bag and his face set.
         BARTENDER: Not in front of the customers. I said.
         ~ rep(rep_staff, -1)
         { knows ? t28_rat:
@@ -701,7 +701,7 @@ The whole room was looking at it now. The woman in slippers had both hands over 
         Table 28 didn't say anything. The one who'd stood up picked up his chair and sat back down in it and looked at the table.
     - else:
         BARTENDER: Jesus Christ.
-        She got the mop out from behind the bar and held it out to him, handle first.
+        The bartender got the mop out from behind the bar and held it out to him, handle first.
     }
 * [Pick it up in a bar towel and carry it out.]
     ~ pass(4)
@@ -726,7 +726,7 @@ The whole room was looking at it now. The woman in slippers had both hands over 
     ~ pass(1)
     ~ incident += inc_rat
     It went under the radiator by table 28, and they could all hear it for a while, and then they couldn't.
-    The bartender had to go in after it with the dustpan, on her knees, in front of everybody.
+    The bartender had to go in after it with the dustpan, on his knees, in front of everybody.
     ~ rep(rep_staff, -2)
     { is_walter:
         ~ rep(rep_t28, -2)

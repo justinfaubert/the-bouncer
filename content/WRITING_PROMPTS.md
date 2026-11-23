@@ -10,7 +10,7 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/prologue.ink
 
-2. **prologue** (`content/ink/prologue.ink:78`): The lifer's first words to a new doorman. What does she actually say, and what does she not bother saying?
+2. **prologue** (`content/ink/prologue.ink:78`): The lifer's first words to a new doorman. What does he actually say, and what does he not bother saying?
 
 ## content/ink/door.ink
 
@@ -28,15 +28,15 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:760`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:792`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:788`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:820`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
 13. **at_bar** (`content/ink/bar.ink:82`): What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
-14. **at_bar** (`content/ink/bar.ink:105`): The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
-15. **at_bar** (`content/ink/bar.ink:141`): The lifer's history with table 28. She knew them when they were young. What were they like?
-16. **at_bar** (`content/ink/bar.ink:149`): Her name. Or keep it back until he's earned it.
+14. **at_bar** (`content/ink/bar.ink:105`): The lifer's house rules. What would he tell a new doorman, and what would he let him find out for himself?
+15. **at_bar** (`content/ink/bar.ink:141`): The lifer's history with table 28. He knew them when they were young. What were they like?
+16. **at_bar** (`content/ink/bar.ink:149`): His name. Or keep it back until he's earned it.
 17. **at_bar** (`content/ink/bar.ink:301`): The man who seems to speak for the rats. How does he talk? He's been coming in longer than the bartender has worked there.
 
 ## content/ink/rats.ink
@@ -60,16 +60,16 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 26. **last_call** (`content/ink/closing.ink:248`): Last call at the Sov. What really happens in a room like this when the bell goes?
 27. **incident_log** (`content/ink/closing.ink:978`): What does a real incident log look like? The book, the wording, what gets written down and what never does.
-28. **after_hours** (`content/ink/closing.ink:1071`): The song she puts on for the count. Yours to pick, or to write.
+28. **after_hours** (`content/ink/closing.ink:1071`): The song he puts on for the count. Yours to pick, or to write.
 29. **after_hours** (`content/ink/closing.ink:1115`): Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
 30. **keg_parley** (`content/ink/closing.ink:1416`): The first parley with the Rat King. The terms here are drafts. What would they want from a doorman, and what could they give him?
 31. **go_upstairs** (`content/ink/closing.ink:1759`): His room. What does a room that comes with a bar job look like, and what did he bring with him?
 
 ## content/ink/things.ink
 
-32. **toy_bottles** (`content/ink/things.ink:126`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
-33. **toy_taps** (`content/ink/things.ink:133`): What's on tap at a pub like yours?
-34. **toy_street_bank** (`content/ink/things.ink:388`): The old main street in a town like yours: what's on it that nobody from away would notice?
+32. **toy_bottles** (`content/ink/things.ink:133`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
+33. **toy_taps** (`content/ink/things.ink:140`): What's on tap at a pub like yours?
+34. **toy_street_bank** (`content/ink/things.ink:403`): The old main street in a town like yours: what's on it that nobody from away would notice?
 
 ## content/ink/drawer.ink
 

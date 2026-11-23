@@ -439,6 +439,6 @@ FIGHTER: The ones you put out the front come in the back. Every time.
 * [Leave him. He's back. Watch him.]
     ~ pass(1)
     ~ heat(1)
-    The bartender served him. She looked at the doorman while she did it.
+    The bartender served him. He looked at the doorman while he did it.
     ~ rep(rep_staff, -1)
 - -> carry_on

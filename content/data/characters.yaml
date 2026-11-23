@@ -38,8 +38,8 @@ bartender:
   label: THE BARTENDER
   portrait: bartender
   standing: staff
-  look: {build: slight, sex: f, hair: bun, face: [lined], top: apron, extra: [knife], mood: hard, warm: knowing, cold: flat}
-  note: The lifer (DECIDED). Draft - a woman in her fifties, at the Sov since she was a server at nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week.
+  look: {build: slight, sex: m, hair: short, hat: cap, face: [lined], top: apron, extra: [knife], mood: hard, warm: knowing, cold: flat}
+  note: The lifer (DECIDED). Jim (Hutch, 19 November 2026) - a man in his fifties in a ball cap, a drummer in cover bands, meek, reliable, very particular; at the Sov since he was nineteen. Drinks. Doesn't learn a doorman's name until he's lasted a week. His voice is Hutch's to rewrite (content/revisions/jim_groundwork.md); the pronouns are his now.
 
 table28:
   label: TABLE 28

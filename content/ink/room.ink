@@ -35,16 +35,16 @@
 He stacked the empties off the rail, {num(n)} of them, one inside the next, and took them over to the bar and set them down by the glass washer. #sfx: glass #look: bartender
 { bussed:
 - 1:
-    She looked at the glasses, and at him.
+    The bartender looked at the glasses, and at him.
     BARTENDER: You don't have to do that.
-    She racked them anyway, and ran the washer, and when it was going she said the rest of it to the steam.
+    He racked them anyway, and ran the washer, and when it was going he said the rest of it to the steam.
     BARTENDER: Nine doormen. Not one of them ever carried a glass.
     ~ rep(rep_staff, 1)
     FATHER: Keep the rail clear. Glasses get thrown.
 - 2:
     TABLE28: Busboy!
     TEAM_JACKET: Atta boy! Bring us one back while you're over there!
-    She slid the rack along the bar to him without a word.
+    The bartender slid the rack along the bar to him without a word.
 - else:
     BARTENDER: Mm.
 }
@@ -54,7 +54,7 @@ He stacked the empties off the rail, {num(n)} of them, one inside the next, and 
 // ------------------------------------------------------------------ the cue rack and the darts
 
 // Four house cues in the rack on the wall by the pool table (the big man and his buddy play with
-// their own), a chain through them and a padlock hanging open on the end of it; the key's on her
+// their own), a chain through them and a padlock hanging open on the end of it; the key's on him
 // ring. Lock it and nobody's taking a cue off the wall. The big man sees why.
 === lock_rack ===
 ~ pass(1)
@@ -72,7 +72,7 @@ FIGHTER: Four clubs on the wall. Now there's none.
 ~ pass(2)
 ~ darts_pulled = true
 ~ here = bar
-He pulled the three darts out of the board and took them over to the bar, points down in his fist, and she put them in the pint glass by the till with the pens and the bottle opener without asking him why. #look: bartender
+He pulled the three darts out of the board and took them over to the bar, points down in his fist, and the bartender put them in the pint glass by the till with the pens and the bottle opener without asking him why. #look: bartender
 BARTENDER: Nobody's thrown since the league folded.
 BARTENDER: There was a league, Thursdays. Then there wasn't.
 -> at_bar.opts
@@ -226,12 +226,12 @@ MANUAL: Where a weapon is used on licensed premises, police are called. There is
 { rep_staff <= -3:
     ~ remote_how = -1
     BARTENDER: Nope.
-    She didn't look up. The remote stayed under the rag, under her hand.
-    FATHER: She's had you figured since seven.
+    The bartender didn't look up. The remote stayed under the rag, under his hand.
+    FATHER: He's had you figured since seven.
     -> at_bar.opts
 }
 ~ remote_how = 1
-She found it under the bar rag and held it out to him, the black one, not the jukebox's. #prop: remote
+The bartender found it under the bar rag and held it out to him, the black one, not the jukebox's. #prop: remote
 BARTENDER: Don't you put the curling on. They'll be here till four.
 - (rm)
 <- reads_remote(-> rm)
@@ -384,7 +384,7 @@ He got the mop out of the bucket in the corner of the vestibule and wrung it, an
     TABLE28: Look at him go!
     TEAM_JACKET: The last one never mopped once!
     BARTENDER: That's not your job, Door.
-    She watched him do it anyway, across the room, between pours.
+    The bartender watched him do it anyway, across the room, between pours.
     BARTENDER: Thanks.
     ~ rep(rep_staff, 1)
     FATHER: The floor inside the door is the door's. Somebody falls on it, it's yours.
@@ -470,9 +470,9 @@ FATHER: I pulled one off the wall at the Legion once and nothing came out.
 ~ rep(rep_staff, 1)
 ~ here = bar
 BARTENDER: Two years.
-She didn't sound surprised. She sounded like a woman adding something to a list.
+He didn't sound surprised. He sounded like a man adding something to a list, which he was.
 BARTENDER: Since the grease fire. That was the last time anybody pulled the pin on one of those, and Junior's father was alive.
-She wrote it on a coaster in marker, EXTINGUISHER HALL, and stuck it in the frame of the back-bar mirror with the others: KEG ROOM LIGHT. WOMEN'S LOCK. ICE MACHINE. THIRD STEP.
+He wrote it on a coaster in marker, EXTINGUISHER HALL, and stuck it in the frame of the back-bar mirror with the others: KEG ROOM LIGHT. WOMEN'S LOCK. ICE MACHINE. THIRD STEP.
 BARTENDER: That's Junior's list. He reads it the night before the inspector, every time.
 -> at_bar.opts
 
@@ -480,7 +480,7 @@ BARTENDER: That's Junior's list. He reads it the night before the inspector, eve
 === owner_ext ===
 * [Tell him the extinguisher in the back hall's two years out of date.]
     { ext_how == 2:
-        Behind the bar, she looked at the coaster in the mirror frame, and then at him.
+        Behind the bar, the bartender looked at the coaster in the mirror frame, and then at him.
     }
     ~ ext_how = 3
     ~ rep(rep_owner, 1)
@@ -511,12 +511,12 @@ The house lights were on a dimmer on the wall inside the front door, a brass pla
         ~ rep(rep_staff, -1)
     }
     FATHER: Lights up, music off. Then stand where they can see you.
-* [Ask her to bring them up.]
+* [Ask him to bring them up.]
     ~ lights = 2
     ~ rep(rep_staff, 1)
-    He caught her eye and lifted his chin at the dimmer.
+    He caught the bartender's eye and lifted his chin at the dimmer.
     BARTENDER: Quarter to. Not before.
-    At quarter to she went and turned the dial up herself without looking at it, the way she'd done it every night for thirty-one years.
+    At quarter to he went and turned the dial up himself without looking at it, the way he'd done it every night for thirty-one years.
 * [Leave them low.]
     ~ lights = -1
     He left them where they were. Table 28 ordered another round.
@@ -637,7 +637,7 @@ He lifted the jacket off the hook. It was still wet across the shoulders from wh
     ~ drawer_seen = true
     ~ stow(bm_coat, in_drawer)
     ~ here = bar
-    He took it over to the bar. She looked at it and knew whose it was. #look: bartender
+    He took it over to the bar. The bartender looked at it and knew whose it was. #look: bartender
     BARTENDER: Moffat's. Drawer. He'll be back for it, or one of the kids will.
     He folded it in on top of the toques{cell_how != 3:, with the phone still in the pocket}.
     -> at_bar.opts
@@ -729,7 +729,7 @@ He bent and picked it up off the carpet. A man's wallet, brown, good leather wor
     ~ wallet_how = 2
     ~ drawer_seen = true
     ~ stow(gs_wallet, in_drawer)
-    She took it off him by one corner, the way you'd take something the dog brought in, and dropped it in the lost-and-found drawer under three winters of toques. #look: bartender
+    The bartender took it off him by one corner, the way you'd take something the dog brought in, and dropped it in the lost-and-found drawer under three winters of toques. #look: bartender
     BARTENDER: He'll be back for that. That kind always comes back for the wallet.
     -> at_bar.opts
 * [Keep it on him till he comes back for it.]
@@ -777,7 +777,7 @@ GOOD SHOES: I believe it's under my stool.
         ~ unstow(gs_wallet)
     - wallet_how == 2:
         ~ unstow(gs_wallet)
-        She had it out of the drawer and on the bar before he got there, and didn't look at it, or at the vestibule.
+        The bartender had it out of the drawer and on the bar before he got there, and didn't look at it, or at the vestibule.
     - else:
         He went and got it off the carpet, and table 28 watched him carry it the length of the room.
     }

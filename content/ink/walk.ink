@@ -218,18 +218,18 @@ Twelve had a bed, a chair, a sink in the corner, and a window onto the lot and t
 * [Lie down.]
     -> under_window
 
-// The bartender, on the phone to Gary about him: what he told Gary in the office, the way she
-// takes it. She's the one who gets everything Gary hears (prologue.ink, closing.ink door_story).
+// The bartender, on the phone to Gary about him: what he told Gary in the office, the way he
+// takes it. He's the one who gets everything Gary hears (prologue.ink, closing.ink door_story).
 // He can listen, or not: the night reads which (prologue.ink junior_rang, closing.ink owned_up).
 = under_window
-He lay down on the bed with his boots off the end of it. Through the two inches came the rain, and the highway, and a woman's voice, from the deck right under the window, and her cigarette smoke with it.
+He lay down on the bed with his boots off the end of it. Through the two inches came the rain, and the highway, and a man's voice, the bartender's, from the deck right under the window, and his cigarette smoke with it.
 BARTENDER: Yep. Mm. No, I'm out back. Go.
 BARTENDER: He's what? Long hair? Christ, Junior.
 * (heard_call) [Listen.]
     ~ knows += heard_phone
     -> phone_rest
 * (call_pillow) [Put the pillow over your head.]
-    He put the pillow over his head, and the rain and the highway and her voice went into one sound.
+    He put the pillow over his head, and the rain and the highway and his voice went into one sound.
     WRONGMAN: In the story, the doorman put a pillow over his head the first night. Or a towel. The drunk wasn't sure. Anyway he never found out what they said about him.
     -> after_call
 
@@ -238,7 +238,7 @@ BARTENDER: He's what? Long hair? Christ, Junior.
 { interview.the_rule.rude_gary:
     ~ n++
     BARTENDER: He said that? To you? Ha.
-    She laughed, once, and coughed.
+    The bartender laughed, once, and coughed.
 }
 { interview.the_deal.rude_bk && n < 3:
     ~ n++
@@ -329,7 +329,7 @@ BARTENDER: He's what? Long hair? Christ, Junior.
 }
 BARTENDER: Yep. Seven-thirty. I'll show him.
 BARTENDER: No. No, Junior. I'll show him. Nine doormen, I've shown.
-The deck door banged, and the smoke came up past the window without her.
+The deck door banged, and the smoke came up past the window without him.
 WRONGMAN: In the story, the doorman heard them talking about him through a window the first night. The drunk said that was where it started to go wrong. Then he said it was later.
 -> after_call
 

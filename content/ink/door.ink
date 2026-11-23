@@ -262,7 +262,7 @@ WRONGMAN: It was raining in the story too. The drunk was very sure about the rai
 He stood aside. The kid went past him and stopped just inside, dripping on the carpet, looking at the room.
 { knows !? kid_legal:
     ~ rep(rep_staff, -1)
-    Behind the bar, the bartender had stopped cutting limes. She'd seen the phone. She didn't say anything. She started cutting again.
+    Behind the bar, the bartender had stopped cutting limes. He'd seen the phone. He didn't say anything. He started cutting again.
     MANUAL: For the record, you did not verify his age.
 - else:
     MANUAL: For the record, you verified his age from a photograph. The record will say photograph.
@@ -374,7 +374,7 @@ He let him past. The kid went and stood by the jukebox and watched the pool tabl
 ~ move(sister_at, s_door)
 ~ move(vape_at, s_door)
 { here != door:
-    The bartender caught his eye and pointed her chin at the front door. #look: bartender
+    The bartender caught his eye and pointed his chin at the front door. #look: bartender
     ~ here = door
 }
 A young woman stood in the vestibule with car keys in her fist and rain in her hair. Behind her, holding the door open with his shoulder, a guy in a soaked hoodie with a vape in his hand. #portrait: driver
@@ -575,7 +575,7 @@ He said it on his way to the bar, not the pool table.
 { knows ? vape_no_id:
     ~ rep(rep_staff, -1)
     MANUAL: You asked him for identification. He had none. He is now inside, and ordering.
-    Behind the bar, the bartender had heard him ask. She'd heard the answer, too.
+    Behind the bar, the bartender had heard him ask. He'd heard the answer, too.
 - else:
     MANUAL: The one with no identification is now inside and ordering.
 }
@@ -685,7 +685,7 @@ He was steady on his feet, mostly. He came in carefully, putting each boot down 
     He went past with the case still under his arm and put it on the floor by a stool at the bar. The bartender looked at the case, then at the doorman.
     { no_beer:
         ~ rep(rep_staff, -2)
-        MANUAL: You told him he could not bring it in. Then he brought it in. She heard both.
+        MANUAL: You told him he could not bring it in. Then he brought it in. He heard both.
     - else:
         ~ rep(rep_staff, -1)
     }
@@ -823,7 +823,7 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
 + {knows !? eighty_six} ["Give me a second." Ask the bartender.]
     ~ pass(2)
     ~ here = bar
-    He went over to the bar. He didn't have to say anything. She looked past him at the man in the vestibule and her face shut like a door.
+    He went over to the bar. He didn't have to say anything. The bartender looked past him at the man in the vestibule and his face shut like a door.
     BARTENDER: No.
     BARTENDER: Binder, page three. Not ever.
     ~ knows += banned_face
@@ -876,9 +876,9 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
     ~ rep(rep_owner, 1)
     ~ pass(1)
     GOOD SHOES: That's all I ask. Thank you, friend.
-    He went to the bar. The bartender served him, because it was her job, and she didn't say one word while she did it.
-    She didn't look at the doorman for the rest of the night.
-    FATHER: One. You said one. He heard you, and so did she.
+    He went to the bar. The bartender served him, because it was his job, and he didn't say one word while he did it.
+    The bartender didn't look at the doorman for the rest of the night.
+    FATHER: One. You said one. He heard you, and so did the bartender.
     -> at_door
 + ["Go ahead." #door: in]
     -> let_in
@@ -896,7 +896,7 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
 }
 ~ rep(rep_owner, 1)
 He went to the bar and put a fifty on it.
-The bartender looked at the fifty and then at the man and then, over his shoulder, at the doorman. She served him. It was her job. She didn't say anything while she did it.
+The bartender looked at the fifty and then at the man and then, over his shoulder, at the doorman. He served him. It was his job. He didn't say anything while he did it.
 { knows !? banned_face && knows !? ardagh:
     WRONGMAN: In the story he had a nice coat too, and put a fifty on the bar. Or a hundred.
 }
@@ -912,17 +912,17 @@ GOOD SHOES: The owner will hear about this.
     GOOD SHOES: About all of it. The floor too.
 }
 He didn't answer. The man looked up at him for a while, opened his umbrella indoors, in the vestibule, and went out.
-The bartender didn't look up. After a while she brought him a glass of water he hadn't asked for and put it on the ledge by the stool.
+The bartender didn't look up. After a while he brought the doorman a glass of water he hadn't asked for and put it on the ledge by the stool.
 -> at_door
 
 
 // GOOD SHOES came in while nobody was on the door.
-// She comes to him, wherever he is; he goes to the man.
+// He comes to him, wherever he is; he goes to the man.
 === ev_banned_inside ===
 ~ banned_stage = 1
-The bartender came around the end of the bar, which she didn't do, and stood in front of him.
+The bartender came around the end of the bar, which he didn't do, and stood in front of him.
 BARTENDER: There's a man at my bar who is not allowed at my bar.
-She didn't point. She didn't have to. A good wool coat, a golf umbrella hooked on the rail, a fifty on the bar that she hadn't touched. #look: goodshoes
+He didn't point. He didn't have to. A good wool coat, a golf umbrella hooked on the rail, a fifty on the bar that he hadn't touched. #look: goodshoes
 BARTENDER: Page three. I'm not serving him and I'm not asking him. That's your job, Door.
 ~ knows += banned_face
 ~ knows += eighty_six
@@ -981,13 +981,13 @@ FATHER: You weren't on the door.
     ~ rep(rep_staff, -4)
     ~ arrivals += banned_in
     BARTENDER: Yep.
-    She went back behind the bar. She served the man's next drink herself, slowly, and for the rest of the night she didn't look at the doorman at all.
+    The bartender went back behind the bar. He served the man's next drink himself, slowly, and for the rest of the night he didn't look at the doorman at all.
     -> carry_on
 
 
 // GOOD SHOES, forty minutes into the one drink he was let in on.
 === ev_one_drink ===
-GOOD SHOES had finished the one drink. He'd made it last forty minutes. Now he lifted one finger to the bartender, pleasantly, and she looked down the bar at the doorman and didn't move. #look: goodshoes
+GOOD SHOES had finished the one drink. He'd made it last forty minutes. Now he lifted one finger to the bartender, pleasantly, and the bartender looked down the bar at the doorman and didn't move. #look: goodshoes
 FATHER: One, you said.
 * [Walk him out. One was the deal. #check: father:cha 11]
     ~ pass(3)
@@ -1015,14 +1015,14 @@ FATHER: One, you said.
     ~ banned_held = 2
     ~ rep(rep_staff, -1)
     GOOD SHOES: Of course. The last one.
-    She poured it and put it down in front of him without letting go of it until he'd said thank you.
+    The bartender poured it and put it down in front of him without letting go of it until he'd said thank you.
     WRONGMAN: The last one. Everybody in the story had a last one. Some of them had six.
     -> carry_on
 * [Let it go. He's no trouble.]
     ~ pass(1)
     ~ banned_held = -1
     ~ rep(rep_staff, -2)
-    She poured it. She looked at the doorman while she did, the whole time, and didn't spill a drop.
+    The bartender poured it. He looked at the doorman while he did, the whole time, and didn't spill a drop.
     FATHER: So it's not one.
     -> carry_on
 

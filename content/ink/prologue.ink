@@ -74,8 +74,8 @@ In the vestibule, between the two doors, he took Gary's shirt out of his jacket.
 # music: jukebox_early
 He went in.
 Beer, cleaner, piss, old wood and dust. The carpet had had a pattern once. By the bar rail it gave a little under his boots, where thirty years of spills had soaked through to the underlay.
-A woman behind the bar was cutting limes. She looked at him, looked at the size of him, and went back to the limes. #portrait: bartender
-// HUTCH: The lifer's first words to a new doorman. What does she actually say, and what does she not bother saying?
+A man behind the bar was cutting limes, thin, in a ball cap, the cap's brim dead level. He looked at the doorman, looked at the size of him, and went back to the limes. #portrait: bartender
+// HUTCH: The lifer's first words to a new doorman. What does he actually say, and what does he not bother saying?
 BARTENDER: You'll be the door, then. Hang on.
 -> junior_rang ->
 BARTENDER: Every drink in this room goes through my till. Anybody I pour for who didn't come past you, you find out how before you go home.
@@ -89,7 +89,7 @@ It was taped to the till in black marker. RATS. DEAL WITH IT. INSPECTOR ON THE 1
     So those were the few things.
 }
 # task: past :: Anybody who gets in without coming past him: find out how, before he goes home.
-// Ask her first, or look first: either way he looks before he sits (before_eight).
+// Ask his first, or look first: either way he looks before he sits (before_eight).
 * ["Where do you want me?"]
     ~ pass(4)
     -> where_want
@@ -139,7 +139,7 @@ BARTENDER: Front door's yours, that's the one that counts.
 BARTENDER: Hotel door's at the end of the back hall. Residents come down that way, and the night clerk props it so he can hear the TV.
 BARTENDER: Deck door's for the smokers. Kitchen door, the cook props that open, his fryer runs about a hundred degrees back there.
 BARTENDER: They're all locked at night.
-She cut another lime in half.
+He cut another lime in half.
 BARTENDER: Mostly.
 FATHER: Four doors. You can see one.
 { knows ? hotel_watched:
@@ -163,12 +163,12 @@ FATHER: Four doors. You can see one.
     -> where_more
 * (asked_anyone) ["Anyone I should know about?"]
     ~ pass(2)
-    She tapped the underside of the bar with the knife.
+    He tapped the underside of the bar with the knife.
     BARTENDER: Binder under the till, the eighty-sixes. Photos, most of them, and for how long. You read it before you sit on that stool.
     -> where_more
 * {not asked_last && not asked_anyone} ["Okay."]
     -> before_eight
-* {asked_last || asked_anyone} [Leave her to the limes.]
+* {asked_last || asked_anyone} [Leave him to the limes.]
     -> before_eight
 - -> before_eight
 
@@ -200,7 +200,7 @@ Headlights swung across the front window and stopped. A pickup had pulled in at 
     BARTENDER: You sat on that wall two and a half hours. I saw you. Everybody saw you.
 }
 { knows ? heard_phone:
-    She looked at him the way you look at somebody you've only had described to you, and checked it against the description.
+    The bartender looked at him the way you look at somebody you've only had described to you, and checked it against the description.
     ->->
 }
 {
@@ -208,10 +208,10 @@ Headlights swung across the front window and stopped. A pickup had pulled in at 
     BARTENDER: Junior rang. Says you've got a mouth on you.
 - told_gary ? tg_never:
     BARTENDER: Junior rang. Says you've never been in a fight.
-    She looked at his hands while she said it.
+    The bartender looked at the doorman's hands while he said it.
 - told_gary ? tg_dry:
     BARTENDER: Junior rang. Says you don't drink.
-    She didn't say anything else about that.
+    He didn't say anything else about that.
 - told_gary ? tg_city:
     BARTENDER: Junior rang. Ten years on a door in the city, he says.
 - gary_rye == 4:

@@ -169,6 +169,68 @@ func speak(id: String, text: String) -> void:
 	p.force = {"kind": "eye", "at": t0, "until": talk_free + randf_range(0.8, 2.0)}
 
 
+# What they do with their head and body in answer to him (game/acts.gd): a reaction played once,
+#   nod      a yes, twice down and back      shake    a no, side to side
+#   back     leaning away from him           in       leaning in toward him
+#   away     the eyes and the head off him, and down
+#   tilt     the head over to one side, weighing it
+#   down     the head dropped, caught out
+# s how big (0 to 1), starting after a moment.
+const GESTURES := ["nod", "shake", "back", "in", "away", "tilt", "down"]
+
+func gesture(id: String, kind: String, s := 1.0, after := 0.0) -> void:
+	var p = people.get(id)
+	if p == null or not kind in GESTURES:
+		return
+	p.gest = {"kind": kind, "t0": t + after + randf_range(0.05, 0.25), "s": clampf(s, 0.0, 1.5),
+		"len": {"nod": 1.0, "shake": 1.2, "back": 1.8, "in": 1.6, "away": 2.2, "tilt": 1.6, "down": 2.4}[kind] * randf_range(0.9, 1.15)}
+
+
+# Held while it lasts (his hand at the door on its way, game/door_hand.gd): -1 leaning back from
+# him, +1 leaning in. Eases there.
+func hold(id: String, v: float) -> void:
+	var p = people.get(id)
+	if p != null:
+		p.hold_to = clampf(v, -1.0, 1.0)
+
+
+# the gesture's turns now: [lean forward, head pitch, head yaw, head roll]
+func _gest(p: Dictionary, dt: float) -> Vector4:
+	p.hold = lerpf(float(p.get("hold", 0.0)), float(p.get("hold_to", 0.0)), 1.0 - exp(-dt * 6.0))
+	var out := Vector4(float(p.hold) * 0.16, -float(p.hold) * 0.05, 0.0, 0.0)
+	var g: Dictionary = p.get("gest", {})
+	if g.is_empty():
+		return out
+	var u := (t - float(g.t0)) / float(g.len)
+	if u < 0.0:
+		return out
+	if u >= 1.0:
+		p.gest = {}
+		return out
+	var env := sin(u * PI)
+	var s := float(g.s)
+	match str(g.kind):
+		"nod":
+			out.y += sin(u * TAU * 2.0) * 0.16 * s * (1.0 - u)
+		"shake":
+			out.z += sin(u * TAU * 2.5) * 0.24 * s * (1.0 - u * 0.7)
+		"back":
+			out.x -= 0.2 * s * env
+			out.y -= 0.08 * s * env
+		"in":
+			out.x += 0.18 * s * env
+			out.y += 0.05 * s * env
+		"away":
+			out.z += 0.55 * s * env * (1.0 if int(p.get("side", 1)) > 0 else -1.0)
+			out.y += 0.18 * s * env
+		"tilt":
+			out.w += 0.22 * s * env
+		"down":
+			out.y += 0.4 * s * env
+			out.x += 0.05 * s * env
+	return out
+
+
 # Something they turn to (he ran across the room): after a moment, for a few seconds.
 func startle(id: String, point: Vector3) -> void:
 	var p = people.get(id)
@@ -444,11 +506,12 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 	p.jawv = jaw_v.y
 	# a sip, started when it's time, and how far they lean in to reach a glass on the table (or over
 	# the bar, wiping it down)
-	var lean := _sip_phase(p) + _work_lean(p) + 0.06 * cg
+	var gs := _gest(p, dt)
+	var lean := _sip_phase(p) + _work_lean(p) + 0.06 * cg + gs.x
 	# the turn shared out: the chest a little past a big one, then the neck and the head (which
 	# keep their look as the body leans in)
-	var hy: float = p.hy
-	var hp: float = p.hp + (float(p.jaw) - 0.3) * 0.022 * (1.0 if open > 0.0 else 0.0) + float(p.drink) * 0.14 + lg * 0.16 - cg * 0.1
+	var hy: float = p.hy + gs.z
+	var hp: float = gs.y + p.hp + (float(p.jaw) - 0.3) * 0.022 * (1.0 if open > 0.0 else 0.0) + float(p.drink) * 0.14 + lg * 0.16 - cg * 0.1
 	var bounce := lg * (ha - 0.5) * 0.05
 	var cmax := CHEST_MAX_SEATED if p.seated else CHEST_MAX
 	var chest_y := signf(hy) * minf(maxf(absf(hy) - 0.7, 0.0) * 0.45, cmax)
@@ -460,7 +523,7 @@ func _live(p: Dictionary, dt: float, eye: Vector3, look: Vector3, heads: Diction
 	var d_spine := Basis(tf, sh.y) * Basis(tr, sh.x * 0.6 + br * 0.0035 - lean * 0.6 + bounce * 0.4)
 	var d_chest := Basis(Vector3.UP, chest_y + sh.z) * Basis(tr, sh.x * 0.4 + br * 0.007 - lean * 0.4 + bounce) * Basis(tf, -sh.y * 0.5)
 	var d_neck := Basis(Vector3.UP, rest_y * 0.4 - sh.z * 0.5) * Basis(right, hp * 0.4 - br * 0.009 - sh.x * 0.5 + lean * 0.4) * Basis(tf, -sh.y * 0.4)
-	var d_head := Basis(Vector3.UP, rest_y * 0.6) * Basis(right, hp * 0.6 + lean * 0.6)
+	var d_head := Basis(Vector3.UP, rest_y * 0.6) * Basis(right, hp * 0.6 + lean * 0.6) * Basis(p.fwd as Vector3, gs.w)
 	_turn(p, "spine", d_spine)
 	_turn(p, "chest", d_chest)
 	_turn(p, "neck", d_neck)

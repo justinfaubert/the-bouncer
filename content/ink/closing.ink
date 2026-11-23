@@ -44,9 +44,9 @@
 
 // ------------------------------------------------------------------ what goes in the book
 
-// What the bartender saw from behind the bar, so she'll know what he shaded or left out of the log.
-// The bait only if he carried it up past her or told the owner on her phone; the ones let in without
-// a card only if she watched it done, or the scanner can tell her.
+// What the bartender saw from behind the bar, so he'll know what he shaded or left out of the log.
+// The bait only if he carried it up past him or told the owner on his phone; the ones let in without
+// a card only if he watched it done, or the scanner can tell him.
 === function she_saw()
 ~ temp s = (inc_banned, inc_fight, inc_rat, inc_drinking, inc_hurt, inc_after, inc_hivis, inc_police, inc_slip)
 { poison_at ? kitchen || poison_at ? t28 || ev_owner.told_poison:
@@ -586,16 +586,16 @@ He was telling {cleared ? cl_res || slippers_both:the bartender|the woman in sli
 }
 GOOD SHOES: One more, I think. For the road. And one for the lady, of course, and one for the staff.
 BARTENDER: Nope. We're closed.
-She said it to the till.
+He said it to the till.
 GOOD SHOES: With respect, I was talking to the doorman.
 - (cb)
-* ["You heard her." #check: father:cha 11]
+* ["You heard him." #check: father:cha 11]
     { passed:
         He said it flat. GOOD SHOES looked at him and did the arithmetic again, the same as at the door, and got the same answer.
         GOOD SHOES: Goodnight, then. Goodnight, all.
-        He put a twenty on the bar for the bartender. She left it there.
+        He put a twenty on the bar for the bartender. The bartender left it there.
     - else:
-        GOOD SHOES: I heard her, friend. I'm asking you.
+        GOOD SHOES: I heard him, friend. I'm asking you.
         -> cb
     }
 * [Walk him out. #check: fighter:dex 10]
@@ -610,7 +610,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
 * ["One more. Then you go."]
     ~ rep(rep_staff, -2)
     ~ pass(10)
-    The bartender looked at the doorman for a long time, and then she poured it and slid it down the bar so it stopped in front of GOOD SHOES without her having to go near him.
+    The bartender looked at the doorman for a long time, and then he poured it and slid it down the bar so it stopped in front of GOOD SHOES without the bartender having to go near him.
     He drank it slowly. Then he went.
 - -> clear
 
@@ -690,7 +690,7 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
 ~ here = bar
 ~ pass(1)
 The glass was still at the end of the bar, full to the brim. Nobody had seen the old man go.
-The bartender picked the glass up and poured it down the sink without looking at it, the way she'd done every night for thirty-one years, by the look of it.
+The bartender picked the glass up and poured it down the sink without looking at it, the way he'd done every night for thirty-one years, by the look of it.
 { knows ? endbar_invite:
     WRONGMAN: After, he said. When it's quiet.
 }
@@ -852,22 +852,22 @@ He locked the front door behind the last of them and turned the sign over. #sfx:
 { bigman_left_coat() && fam ? dad_went && cell_how != 3:
     -> back_for_coat ->
 }
-// Who got past him tonight: the bartender rings in every drink, and she knows whose faces she
+// Who got past him tonight: the bartender rings in every drink, and he knows whose faces he
 // served that never came past the stool. Nobody did, and that's the end of it; somebody did, and
-// she wants to know how before he writes the log.
+// he wants to know how before he writes the log.
 BARTENDER: Anybody get past you, Door?
 { uncounted > 0:
-    He didn't have to answer. She'd rung in drinks tonight for {uncounted == 1:a face|faces} that never came past the stool, and she'd known it at the time.
+    He didn't have to answer. The bartender had rung in drinks tonight for {uncounted == 1:a face|faces} that never came past the stool, and he'd known it at the time.
     BARTENDER: So go find out how. I'll be counting.
     -> search
 }
-Nobody had. She'd been watching the door herself all night, between drinks, and she knew it as well as he did.
-She didn't say anything, which from her was a lot.
+Nobody had. The bartender had been watching the door himself all night, between drinks, and knew it as well as the doorman did.
+He didn't say anything, which from him was a lot.
 ~ rep(rep_staff, 1)
 -> incident_log
 
 // What turns up explains the ones who got past him (found_why). Whether it explains all of them is
-// what she wants to know before he writes the log (search_missed).
+// what he wants to know before he writes the log (search_missed).
 === function search_missed()
 { ((fam ? via_deck && not ev_deck_kids.counted) || vape_backs > 0) && found_why !? why_deck:
     ~ return true
@@ -977,7 +977,7 @@ The bartender pushed it along the bar to him with a pen.
 }
 // HUTCH: What does a real incident log look like? The book, the wording, what gets written down and what never does.
 { LIST_COUNT(incident) == 0:
-    Nothing had happened. He wrote the date and NOTHING TO REPORT, and she read it upside down.
+    Nothing had happened. He wrote the date and NOTHING TO REPORT, and the bartender read it upside down.
     BARTENDER: Ten of you now, and that's the first time I've seen that on a first night.
     -> log_close
 }
@@ -985,7 +985,7 @@ The bartender pushed it along the bar to him with a pen.
 
 // One incident at a time: what it is, what he writes, in his own hand. Writing the office down
 // costs the staff (whoever it was, the owner fires all of them); leaving it out is having their backs,
-// not lying to himself. Leaving the fight out, after she said "your name on the log", is a lie to her.
+// not lying to himself. Leaving the fight out, after he said "your name on the log", is a lie to him.
 = log_next
 ~ temp todo = incident - logged - shaded - left_out
 { LIST_COUNT(todo) == 0:
@@ -1027,16 +1027,16 @@ She turned the book round and read it.
 {
 - logged ? inc_office:
     BARTENDER: You wrote down the office.
-    She looked at the line for a long time.
+    The bartender looked at the line for a long time.
     BARTENDER: Junior reads that, he doesn't fire whoever it was. He fires all of us and starts again. That's all that line does.
 - shaded ? inc_office:
     BARTENDER: Office left untidy.
-    She almost laughed.
+    He almost laughed.
 }
 { left_out ? inc_fight && name_on_log:
     BARTENDER: Your name on it, I said. There's nothing on it.
 }
-// What she poured him is in it with him, if he wrote it the way it happened (bar.ink, shift_drink).
+// What he poured him is in it with him, if he wrote it the way it happened (bar.ink, shift_drink).
 { logged ? inc_drinking && she_poured > 0:
     BARTENDER: Poured by the bartender.
     BARTENDER: Nine of you wrote in that, and not one of you put me in it.
@@ -1045,7 +1045,7 @@ She turned the book round and read it.
 {
 - LIST_COUNT(shaded) + LIST_COUNT(left_out) == 0:
     BARTENDER: Huh.
-    She turned it back.
+    He turned it back.
     BARTENDER: Junior'll hate that. Every word of it's true.
     ~ rep(rep_staff, 1)
 - LIST_COUNT((shaded + left_out) ^ she_saw()) > 0:
@@ -1053,7 +1053,7 @@ She turned the book round and read it.
     BARTENDER: Your book, Door. You write what you want in it.
     ~ rep(rep_staff, -1)
 - else:
-    She turned it back and didn't say anything.
+    He turned it back and didn't say anything.
 }
 -> log_close
 
@@ -1067,35 +1067,35 @@ She turned the book round and read it.
 === after_hours ===
 ~ here = bar
 # music: after_hours
-The chairs went up on the tables. The bartender put one song on the jukebox, the same one, he'd find out, every night, and counted the till with a rye at her elbow. #sfx: till
-// HUTCH: The song she puts on for the count. Yours to pick, or to write.
+The chairs went up on the tables. The bartender put one song on the jukebox, the same one, he'd find out, every night, and counted the till with a rye at his elbow. #sfx: till
+// HUTCH: The song he puts on for the count. Yours to pick, or to write.
 { knows ? juke_top:
     It was the one at the top of the jukebox's list, the one he'd never seen anybody choose.
 }
 { drinks >= 3:
     -> water
 }
-She'd poured two. She pushed the other one along the bar to him without looking up from the twenties.
+The bartender had poured two. He pushed the other one along the bar to him without looking up from the twenties.
 * [Drink it. #hand: drink]
     ~ last_glass = 1
     ~ drink()
     FATHER: {Num(drinks)}. After hours still counts.
 * [Leave it standing.]
     ~ last_glass = 2
-    He left it where it was, full, on the bar. She didn't say anything about it.
+    He left it where it was, full, on the bar. The bartender didn't say anything about it.
     { knows ? endbar_seen:
         It looked like the old man's glass, down at the end.
     }
 * [Push it back.]
     ~ last_glass = 3
     BARTENDER: Suit yourself.
-    She drank it, and then she drank hers.
+    The bartender drank it, and then his own.
 - -> door_story
 
-// He's had three or more. She's counted.
+// He's had three or more. He's counted.
 = water
 ~ last_glass = 4
-She'd poured herself a rye. For him she put a pint glass of water on the bar, without looking up from the twenties.
+The bartender had poured himself a rye. For the doorman he put a pint glass of water on the bar, without looking up from the twenties.
 BARTENDER: {Num(drinks)}. I counted too.
 * (drank_water) [Drink the water.]
     He drank all of it. It was the best thing he'd had all night.
@@ -1103,19 +1103,19 @@ BARTENDER: {Num(drinks)}. I counted too.
 * [Ask for a rye. #hand: drink]
     ~ rep(rep_staff, -1)
     BARTENDER: Nope.
-    She didn't look up.
+    He didn't look up.
 - -> door_story
 
 = door_story
 BARTENDER: So. Why'd you leave your last door?
-// She's had what he told Gary, from Gary, on the phone at quarter past five (walk.ink, under_window).
+// He's had what he told Gary, from Gary, on the phone at quarter past five (walk.ink, under_window).
 { told_why():
     BARTENDER: I've had what you told Junior. I'm asking you.
 }
 // HUTCH: Why DID he leave his last door? Every answer below becomes true once he says it. Is one of them the real one?
 * (owned_up) {knows ? heard_phone} ["You had it from Gary, on the deck. I was up in twelve."]
     ~ rep(rep_staff, 1)
-    She stopped counting.
+    He stopped counting.
     BARTENDER: Twelve's over the deck. I forgot.
     BARTENDER: Then you heard what I said about it. I'm not saying it twice.
     // what he told Gary is what's true, then
@@ -1129,21 +1129,21 @@ BARTENDER: So. Why'd you leave your last door?
     - told_gary ? tg_quiet:
         ~ claims += said_nothing
     }
-    She went back to the twenties.
+    He went back to the twenties.
 * ["The owner shorted me."]
     ~ claims += said_left_bad_owner
     BARTENDER: They all short you. You'll find out.
 * ["Something happened."]
     ~ claims += said_left_something
-    She waited. He didn't say what. She nodded as if that was an answer, which in a bar it is.
+    The bartender waited. He didn't say what. The bartender nodded as if that was an answer, which in a bar it is.
 * ["Long story."]
     ~ claims += said_left_long_story
     BARTENDER: Yep. They're all long stories.
 * [Say nothing.]
     ~ claims += said_nothing
-    She looked at him over the rye, and went back to the count.
+    The bartender looked at him over the rye, and went back to the count.
 // People compare notes (bible/02_SYSTEMS.md): what he told Gary in the office, and what he told
-// table 28, put next to what he just told her.
+// table 28, put next to what he just told him.
 - { not owned_up && told_why():
     {
     - (told_gary ? tg_shorted && claims ? said_left_bad_owner) || (told_gary ? tg_something && claims ? said_left_something) || (told_gary ? tg_long && claims ? said_left_long_story) || (told_gary ? tg_quiet && claims ? said_nothing):
@@ -1207,23 +1207,23 @@ BARTENDER: So. Why'd you leave your last door?
 - claims ? said_left_bad_owner && owner_count == -1:
     BARTENDER: Shorted you. And you told this one it was busy. You'll get on.
 }
-// What she says about the night: two things at most, the ones that matter most to her.
+// What he says about the night: two things at most, the ones that matter most to him.
 ~ temp said = 0
 { office_wiped:
     ~ said++
-    She'd been down to put the float in the safe. She came back up the stairs and stopped at the top with the trapdoor open, and looked at him.
+    The bartender had been down to put the float in the safe. He came back up the stairs and stopped at the top with the trapdoor open, and looked at him.
     BARTENDER: Somebody's been tidying in the office.
     { at_keg.straw_held.straw_back:
         BARTENDER: Left them the straw, though. So they'd know.
     - else:
         BARTENDER: Straw and all.
     }
-    She didn't say whose it was. She didn't say thanks, either, in so many words.
+    He didn't say whose it was. He didn't say thanks, either, in so many words.
 }
 {
 - in_drawer ? truck_keys && said < 2:
     ~ said++
-    She found the big man's keys in the lost-and-found drawer when she put the float bag away, and held them up.
+    The bartender found the big man's keys in the lost-and-found drawer when he put the float bag away, and held them up.
     BARTENDER: He'll be in for these at noon, sorry for himself.
     BARTENDER: You'll be asleep upstairs. I'll be here.
 - on_him(truck_keys) && said < 2:
@@ -1237,7 +1237,7 @@ BARTENDER: So. Why'd you leave your last door?
 { owner_count == -1 && said < 2:
     ~ said++
     BARTENDER: Busy, you told him.
-    She tapped the till tape.
+    He tapped the till tape.
     BARTENDER: He'll have this at nine.
 }
 { owner_lie && said < 2:
@@ -1269,7 +1269,7 @@ BARTENDER: So. Why'd you leave your last door?
     BARTENDER: He tell you what he did? Ardagh?
     He said the man had said he'd paid for it.
     BARTENDER: He says that.
-    She didn't say what it was. She'd written NOT EVER under his picture instead, and that was all she was going to say about it, then or ever.
+    The bartender didn't say what it was. He'd written NOT EVER under Ardagh's picture instead, and that was all he was going to say about it, then or ever.
 }
 { kitchen_door_shut > 1 && said < 2:
     ~ said++
@@ -1294,14 +1294,14 @@ BARTENDER: Junior'll call me in the morning and ask how you did.
 - rep_staff >= 3:
     ~ verdict = 2
     BARTENDER: I'll tell him you'll do.
-    It was, he found out later, the best thing she'd said about a doorman on his first night in thirty-one years. She said it to the till.
+    It was, he found out later, the best thing the bartender had said about a doorman on his first night in thirty-one years. He said it to the till.
 - rep_staff >= 0:
     ~ verdict = 1
     BARTENDER: I'll tell him you showed up and you're still here. Two of the last nine didn't manage that.
 - else:
     ~ verdict = -1
     BARTENDER: I'm going to tell him what I saw.
-    She didn't say what that was. She didn't need to.
+    He didn't say what that was. He didn't need to.
 }
 BARTENDER: Friday's different. Friday's everybody.
 { knows ? doorman_stories:
@@ -1318,7 +1318,7 @@ Somebody knocked on the glass of the front door with the flat of a hand. #look: 
 The big man, under the light over the door, in the rain. He'd got as far as the Esso and come back. His jacket was soaked through to the shape of him.
 BIGMAN: Bud. Bud. My keys.
 { from_drawer:
-    She looked at the drawer under the till, and then at the doorman, and didn't open it.
+    The bartender looked at the drawer under the till, and then at the doorman, and didn't open it.
 }
 // The voice whose read of the keys he kept at close has the last word on them (hand.ink, reads_keys).
 { kept_read("truck_keys"):
@@ -1360,8 +1360,8 @@ BIGMAN: Bud. Bud. My keys.
 }
 * ["Table 28 told me about the last doorman. Which one's true?"]
     BARTENDER: Which ones did they tell you?
-    He told her. The pay, the big rat, the woman, the one he let in.
-    She laughed, once, at the till.
+    He told the bartender. The pay, the big rat, the woman, the one he let in.
+    The bartender laughed, once, at the till.
     BARTENDER: His jacket's in the lost-and-found. Folded at the bottom of the drawer, under three winters of toques and phone chargers. Nobody's been through the pockets.
     BARTENDER: You want to know which one's true, that's where it'll be. I never wanted to know.
     ~ knows += lost_jacket
@@ -1394,7 +1394,7 @@ BARTENDER: Go on up. Get some sleep, Door.
 = choose
 * [Go up to bed.]
     -> go_upstairs
-* [Wait till she's gone. Then go down to the keg room.]
+* [Wait till he's gone. Then go down to the keg room.]
     -> keg_parley
 
 
@@ -2145,7 +2145,7 @@ The door: {count_in} in past the stool #class: row
 - case_back == 1:
     HI-VIS's two-four went up to eleven with him.
 - case_back == -1:
-    HI-VIS's two-four is behind the bartender's front door. It's hers now.
+    HI-VIS's two-four is behind the bartender's front door. It's his now.
 }
 { hivis_landing:
     HI-VIS slept on the landing.
@@ -2389,7 +2389,7 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
 - verdict == 1:
     The bartender will tell the owner he showed up. #class: total
 - verdict == -1:
-    The bartender will tell the owner what she saw. #class: total
+    The bartender will tell the owner what he saw. #class: total
 }
 Friday is two nights away. Friday's everybody.
 END OF THE TEST SHIFT #class: end

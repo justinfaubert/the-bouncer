@@ -24,6 +24,7 @@ const PLACE_WORDS := {"door": "the door", "floor": "the floor", "t28": "table 28
 static var _pressing := RegEx.create_from_string("^(Get back|Back on)|getting loud|been an hour")
 const PAD_L := 44.0
 const PAD_R := 40.0
+const SPINE_W := 92.0           # px of the page left showing while he walks
 
 var settings: Dictionary
 var size_px := 24
@@ -37,6 +38,11 @@ var page: VBoxContainer
 var story: VBoxContainer
 var choices_box: VBoxContainer
 var foot: Label
+var seats_row: HBoxContainer
+var seats_word: Label
+var seat_masks := {}            # voice style -> its mask in the head
+var spine: Spine                # the page folded to its edge while he walks
+var fold := 0.0                 # 0 the page, 1 folded to the spine
 var more: Label
 
 var block: Control              # the block new lines go into
@@ -87,6 +93,27 @@ func setup(s: Dictionary) -> void:
 	head_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head_row.custom_minimum_size = Vector2(560, 0)
 	head.add_child(head_row)
+
+	# who has a seat in his head: their masks along the top, the last to speak leaning in
+	seats_row = HBoxContainer.new()
+	seats_row.anchor_left = 1.0
+	seats_row.anchor_right = 1.0
+	seats_row.offset_left = -330
+	seats_row.offset_right = -PAD_R
+	seats_row.offset_top = 22
+	seats_row.offset_bottom = 70
+	seats_row.alignment = BoxContainer.ALIGNMENT_END
+	seats_row.add_theme_constant_override("separation", 6)
+	seats_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(seats_row)
+	seats_word = UiBits.label("", "ui_b", 12, Look.FAINT, 2)
+	seats_word.anchor_left = 1.0
+	seats_word.anchor_right = 1.0
+	seats_word.offset_left = -330
+	seats_word.offset_right = -PAD_R
+	seats_word.offset_top = 76
+	seats_word.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	add_child(seats_word)
 
 	scroll = ScrollContainer.new()
 	scroll.anchor_right = 1.0
@@ -146,6 +173,13 @@ func setup(s: Dictionary) -> void:
 	more.offset_top = -34
 	more.visible = false
 	add_child(more)
+	spine = Spine.new()
+	spine.column = self
+	spine.anchor_bottom = 1.0
+	spine.offset_right = SPINE_W
+	spine.modulate.a = 0.0
+	spine.visible = false
+	add_child(spine)
 	reset()
 
 
@@ -188,7 +222,14 @@ func set_status(st: Dictionary, shown_clock := -1) -> void:
 	_status_row(st)
 
 
+var shown_clock_value := 0
+var drinks_value := 0
+
+
 func show_clock(c: int) -> void:
+	shown_clock_value = c
+	if spine != null and spine.visible:
+		spine.queue_redraw()
 	var cp := BUtil.clock_parts(c)
 	head_clock.clear()
 	head_clock.push_font(Look.font("display"), 46)
@@ -207,6 +248,7 @@ func show_clock(c: int) -> void:
 
 
 func _status_row(st: Dictionary) -> void:
+	drinks_value = int(st.drinks)
 	head_row.clear()
 	# what his size is holding off (engine/checks.gd, felt): only the ones that show count
 	var felt := int(st.get("felt", st.drinks))
@@ -235,6 +277,46 @@ func _status_row(st: Dictionary) -> void:
 			head_row.push_font(UiBits.spaced("ui_b", 1), 19)
 			head_row.add_text("        ")
 			head_row.pop()
+
+
+# the seats: a mask for each voice in the room in his head, in the order they sat down
+func set_seats(seated: Array, tension_word: String) -> void:
+	var want: Array = []
+	for id in seated:
+		var st := voice_style(str(id))
+		if Look.VOICES.has(st):
+			want.append(st)
+	if want != seat_masks.keys():
+		for c in seats_row.get_children():
+			c.queue_free()
+		seat_masks.clear()
+		for st in want:
+			var m := VoiceMask.new(st, 40)
+			m.custom_minimum_size = Vector2(40, 46)
+			seats_row.add_child(m)
+			seat_masks[st] = m
+	seats_word.text = tension_word.to_upper() + "  IN HIS HEAD" if tension_word != "" and not want.is_empty() else ""
+
+
+# While he walks the page folds back to its spine: a strip down the edge of the screen that keeps
+# the clock, where he is, what's in him, and the masks of who's in his head. It's always there, in
+# the same place, so the world can have the screen without the page going anywhere.
+func set_fold(f: float) -> void:
+	fold = clampf(f, 0.0, 1.0)
+	var page_a := clampf(1.0 - fold * 1.6, 0.0, 1.0)
+	for n in [scroll, foot, more, seats_row, seats_word, head_day.get_parent()]:
+		n.modulate.a = page_a
+	bg.modulate.a = 1.0
+	spine.visible = fold > 0.01
+	spine.modulate.a = clampf((fold - 0.35) / 0.65, 0.0, 1.0)
+	spine.queue_redraw()
+
+
+# a voice said something while the page was folded: its mask on the spine speaks, and a tab is
+# left beside it till the page comes back
+func spine_said(style: String) -> void:
+	if spine != null:
+		spine.said(style)
 
 
 # ---------------------------------------------------------------- blocks
@@ -272,6 +354,8 @@ func _add(node: Control, screen = "keep") -> Control:
 		use_screen(screen)
 	block_box.add_child(node)
 	batch.append(node)
+	if not node.has_meta("voice"):
+		_last_voice = ""
 	return node
 
 
@@ -288,10 +372,128 @@ func begin_batch() -> void:
 			n.modulate.a = 0.62
 	older = batch.duplicate()
 	batch.clear()
+	_last_voice = ""
 
 
 func _screen_of(it: Dictionary):
 	return it.get("screen", null)
+
+
+# ---------------------------------------------------------------- the voices
+
+# A voice's line on the page: its mask in the gutter, then its words set its own way.
+#   father    steady, a rule of his amber down the left of it
+#   fighter   comes in with a jolt, the mask's and the words'
+#   manual    a clipping from the binder: a ruled box, the ring holes down its side
+#   wrongman  set further in and drifting, and the words come slowly, as if he's still deciding
+#   table     all at once: the words land in one go
+#   kid       typed, in lower case, quick
+# The same voice twice running keeps its mask once, at the first line.
+const GUTTER := 54.0
+var _last_voice := ""
+
+
+func _voice_line(speaker: String, label: String, text: String) -> Control:
+	var s := size_px
+	var st := voice_style(speaker) if voice_styles.has(speaker) else speaker
+	var v := Look.voice(st)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var gut := Control.new()
+	gut.custom_minimum_size = Vector2(GUTTER, 0)
+	gut.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(gut)
+	var mask: VoiceMask = null
+	if st != _last_voice:
+		mask = VoiceMask.new(st, 46)
+		mask.size = Vector2(46, 53)
+		mask.position = Vector2(GUTTER - 46, -4)
+		gut.add_child(mask)
+		gut.custom_minimum_size.y = 52
+	_last_voice = st
+	var words := UiBits.para(([["ui_b", int(s * 0.7), v.color, label + "   "]] if mask != null else []) +
+		[[v.font, int(s * float(v.size)), v.color, Look.voice_text(v, text)]])
+	var body: Control = words
+	match st:
+		"manual":
+			var pc := PanelContainer.new()
+			var sb := StyleBoxFlat.new()
+			sb.bg_color = Color(v.color, 0.06)
+			sb.border_color = Color(v.color, 0.45)
+			sb.set_border_width_all(1)
+			sb.border_width_left = 14
+			sb.content_margin_left = 16
+			sb.content_margin_right = 12
+			sb.content_margin_top = 8
+			sb.content_margin_bottom = 10
+			pc.add_theme_stylebox_override("panel", sb)
+			pc.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			pc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			pc.add_child(words)
+			# the ring holes punched through the binder's edge
+			pc.draw.connect(func():
+				for k in 3:
+					var y := pc.size.y * (0.2 + 0.3 * k)
+					pc.draw_circle(Vector2(7, y), 3.2, Look.NIGHT))
+			body = pc
+		"wrongman":
+			var m := MarginContainer.new()
+			m.add_theme_constant_override("margin_left", 22)
+			m.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			m.add_child(words)
+			body = m
+		"father", "senior":
+			var m := MarginContainer.new()
+			m.add_theme_constant_override("margin_left", 12)
+			m.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			m.add_child(words)
+			var col: Color = v.color
+			m.draw.connect(func(): m.draw_rect(Rect2(0, 6, 2, m.size.y - 10), Color(col, 0.55)))
+			body = m
+	h.add_child(body)
+	h.set_meta("voice", st)
+	h.set_meta("mask", mask)
+	h.set_meta("words", words)
+	return h
+
+
+# how a voice's line comes onto the page, once it's its turn
+func _enter_voice(h: Control) -> void:
+	if not is_instance_valid(h):
+		return
+	var st := str(h.get_meta("voice", ""))
+	# get_meta with a null default still errors when the key's missing (a null mask unsets it)
+	var mask = h.get_meta("mask") if h.has_meta("mask") else null
+	var words: RichTextLabel = h.get_meta("words") if h.has_meta("words") else null
+	var n := words.get_total_character_count() if words != null else 20
+	var secs := clampf(n / 55.0, 0.5, 3.0)
+	if mask != null and is_instance_valid(mask):
+		mask.say(secs)
+	var seat = seat_masks.get(st)
+	if seat != null and is_instance_valid(seat):
+		seat.say(secs)
+	if words == null:
+		return
+	var tw := create_tween()
+	h.set_meta("tw", tw)
+	match st:
+		"kid":
+			words.visible_ratio = 0.0
+			tw.tween_property(words, "visible_ratio", 1.0, clampf(n / 90.0, 0.3, 1.6))
+		"wrongman":
+			words.visible_ratio = 0.0
+			tw.tween_property(words, "visible_ratio", 1.0, clampf(n / 40.0, 0.6, 3.0)).set_trans(Tween.TRANS_SINE)
+		"fighter":
+			h.position.x += 14
+			tw.tween_property(h, "position:x", h.position.x - 14, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		"father", "senior", "manual", "till":
+			words.visible_ratio = 0.0
+			tw.tween_property(words, "visible_ratio", 1.0, clampf(n / 70.0, 0.3, 2.0))
+		_:
+			tw.kill()
 
 
 # ---------------------------------------------------------------- lines
@@ -308,10 +510,7 @@ func add_line(it: Dictionary) -> Control:
 	var r: RichTextLabel
 	match role:
 		"voice":
-			var st := str(it.get("speaker", "father"))
-			var v := Look.voice(st)
-			r = UiBits.para([["ui_b", int(s * 0.74), v.color, str(it.get("label", "")) + "   "],
-				[v.font, int(s * float(v.size)), v.color, Look.voice_text(v, text)]])
+			return _add(_voice_line(str(it.get("speaker", "father")), str(it.get("label", "")), text), scr)
 		"dialogue":
 			r = UiBits.para([["ui_b", int(s * 0.74), Look.INK_2, str(it.get("label", "")) + "   "], ["read", s, Look.INK, text]])
 		"teller":
@@ -792,6 +991,8 @@ func reveal(live: bool) -> void:
 		node.modulate.a = 0.0
 		node.set_meta("shown", true)
 		_reveal.tween_property(node, "modulate:a", 1.0, 0.32).set_delay(minf(k * 0.07, 1.4))
+		if node.has_meta("voice"):
+			_reveal.tween_callback(_enter_voice.bind(node)).set_delay(minf(k * 0.07, 1.4))
 
 
 # show everything now
@@ -802,6 +1003,12 @@ func hurry() -> bool:
 		for n in batch:
 			if is_instance_valid(n):
 				n.modulate.a = 1.0
+				var w = n.get_meta("words", null) if n.has_meta("words") else null
+				var t = n.get_meta("tw", null) if n.has_meta("tw") else null
+				if t != null and t.is_valid():
+					t.kill()
+				if w != null and is_instance_valid(w):
+					w.visible_ratio = 1.0
 		choices_box.modulate.a = 1.0
 	return busy
 
@@ -1070,3 +1277,74 @@ class StampLabel extends Control:
 		draw_rect(box, c, false, 1.5 if small else 3.0)
 		draw_string(_font, Vector2(-w / 2.0, _size * 0.36), text, HORIZONTAL_ALIGNMENT_LEFT, -1, _size, c)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+# The page folded to its spine (Column.set_fold).
+class Spine extends Control:
+	var column
+	var masks := {}
+	var tabs := {}
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func said(style: String) -> void:
+		tabs[style] = true
+		var m = masks.get(style)
+		if m != null and is_instance_valid(m):
+			m.say(1.6)
+		queue_redraw()
+
+	func _process(_d: float) -> void:
+		if not visible:
+			if not tabs.is_empty() and column != null and column.fold < 0.05:
+				tabs.clear()
+			return
+		# keep the masks in step with the seats in the head
+		var want: Array = column.seat_masks.keys()
+		if want != masks.keys():
+			for m in masks.values():
+				m.queue_free()
+			masks.clear()
+			for i in want.size():
+				var m := VoiceMask.new(want[i], 46)
+				m.size = Vector2(46, 53)
+				add_child(m)
+				masks[want[i]] = m
+		var y := 250.0
+		for st in masks:
+			masks[st].position = Vector2((size.x - 46) * 0.5, y)
+			y += 62.0
+
+	func _draw() -> void:
+		if column == null:
+			return
+		var w := size.x
+		# the fold itself: a darker crease at the edge of the picture
+		draw_rect(Rect2(0, 0, 3, size.y), Color(0, 0, 0, 0.5))
+		draw_rect(Rect2(3, 0, 1, size.y), Color(Look.INK, 0.08))
+		var cp := BUtil.clock_parts(column.shown_clock_value)
+		var f := Look.font("display")
+		var t := str(cp.text)
+		var tw := f.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 30).x
+		draw_string(f, Vector2((w - tw) * 0.5, 62), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, Look.INK)
+		var uf := Look.font("ui_b")
+		var ap := str(cp.ampm).to_upper()
+		var aw := uf.get_string_size(ap, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		draw_string(uf, Vector2((w - aw) * 0.5, 82), ap, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Look.MUTED)
+		draw_line(Vector2(18, 98), Vector2(w - 18, 98), Look.RULE, 1.0)
+		# where he is, up the spine like a book's title
+		draw_set_transform(Vector2(w * 0.5 + 6, 228), -PI * 0.5)
+		draw_string(uf, Vector2(0, 0), column._head_place, HORIZONTAL_ALIGNMENT_LEFT, 124, 14, Look.INK_2)
+		draw_set_transform(Vector2.ZERO)
+		# a tab beside each voice that spoke while the page was folded
+		var y := 250.0
+		for st in masks:
+			if tabs.has(st):
+				draw_rect(Rect2(w - 10, y + 10, 6, 30), Look.voice_color(st))
+			y += 62.0
+		# what's in him, in tally
+		var dr := Look.tally(column.drinks_value)
+		if column.drinks_value > 0:
+			var dw := uf.get_string_size(dr, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			draw_string(uf, Vector2((w - dw) * 0.5, size.y - 60), dr, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Look.INK_2)

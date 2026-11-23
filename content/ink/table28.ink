@@ -334,7 +334,7 @@ TEAM_JACKET: For looking after us.
     He took it back without any offence at all. It went into the next round.
 * [Put it in the bartender's jar on the way past.]
     ~ rep(rep_staff, 1)
-    The bartender saw. She didn't say anything. She didn't have to.
+    The bartender saw. He didn't say anything. He didn't have to.
 - -> topics
 
 = standing
@@ -374,9 +374,9 @@ HEARING_AID: Arse.
 }
 TABLE28: Cut off!
 TEAM_JACKET: Son, I've been cut off by better than you. I've been cut off by a judge.
-Behind the bar, the bartender had put down her rag.
+Behind the bar, the bartender had put down his rag.
 BARTENDER: Not them.
-She said it to the doorman, quietly, across the room, and went back to the rag.
+The bartender said it to the doorman, quietly, across the room, and went back to the rag.
 BARTENDER: Junior's rule, Door. Table 28 don't get cut off. They paid for half this carpet.
 ~ rep(rep_t28, -2)
 ~ rep(rep_owner, -1)
