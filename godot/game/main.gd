@@ -483,6 +483,8 @@ func start_glasses(from_menu: String, body := {}) -> void:
 	_cig_from = from_menu
 	menus.hide_all()
 	if from_menu != "":
+		if has_method("_leave_full_frame"):
+			call("_leave_full_frame")
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))

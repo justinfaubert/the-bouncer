@@ -171,6 +171,16 @@ func begin(rehearse := false, from := {}) -> void:
 	set_process(true)
 	set_process_input(true)
 	_column_begin()
+	if "keys" in main and main.keys != null:
+		main.keys.show_for("glasses", [
+			["Mouse", "his hand over the bar top"],
+			["Hold the button on a rim, go round", "rub it: it sings; faster is louder, too fast skates"],
+			["Shift", "lean on it"],
+			["Button down in water", "wet the finger (a dry one squeaks)"],
+			["Hold the right button", "pour from the jug into the glass under his hand"],
+			["Wheel", "a splash in, a sip out: more water, lower note"],
+			["A S D F G H J K", "tap them with a stir stick  (Shift: harder)"],
+		], "The wine glasses")
 
 
 func end() -> void:
@@ -189,6 +199,8 @@ func end() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.focus_fov = 0.0
 	hover_label.visible = false
+	if "keys" in main and main.keys != null:
+		main.keys.hide_card()
 	if hand_node != null:
 		hand_node.visible = false
 	set_process_input(false)
