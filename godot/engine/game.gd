@@ -1045,6 +1045,11 @@ func _read_choices() -> Array:
 			if BUtil.js_truthy(tv.get("unlisted")):
 				ch["unlisted"] = true
 				ch["hidden"] = true
+		# "#game: pool bigman win": this choice is played out on the table first (game/pool.gd), and what
+		# came of it set in the Ink before the choice goes on
+		if BUtil.js_truthy(tv.get("game")) and not (tv.game is bool):
+			var gw := BUtil.split_ws(BUtil.js_trim(BUtil.js_str(tv.game)))
+			ch["game"] = {"what": gw[0], "who": gw[1] if gw.size() > 1 else "", "meant": gw[2] if gw.size() > 2 else ""}
 		# "#door: in": a verdict at the door (in, out, fetch, terms), made with his hand (game/door_hand.gd)
 		if BUtil.js_truthy(tv.get("door")) and not (tv.door is bool):
 			ch["door"] = BUtil.js_trim(BUtil.js_str(tv.door))

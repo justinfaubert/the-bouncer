@@ -23,7 +23,7 @@ func _init() -> void:
 			tally[key] = tally.get(key, 0) + 1
 	print(tally)
 	# the big man: does he throw?
-	var r2 := play("8bar", "bigman", "scratch", 900)
+	var r2 := play("8bar", "bigman", "cook", 903)
 	print("the big man threw %d" % r2.thrown)
 	print("pool_rules: %s (%d s)" % ["ok" if bad == 0 else "%d bad" % bad, (Time.get_ticks_msec() - t0) / 1000])
 	quit(1 if bad else 0)

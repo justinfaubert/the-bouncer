@@ -33,6 +33,7 @@ var made := [0, 0]
 var runs := [0, 0]                  # the longest run of balls each
 var _run := 0
 var history: Array = []             # each shot: {who, potted, foul, why}
+var in_hand_placed := ""            # the cue ball was put down from in hand this shot (behind the line, or anywhere)
 
 
 func _init(g := "8bar") -> void:

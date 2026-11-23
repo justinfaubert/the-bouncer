@@ -217,7 +217,7 @@ func _paces(sim: PoolSim, c: Dictionary) -> Array:
 	var V := v_cb * cb.m * (1.0 / 0.54 + 1.0 / cb.m) / 1.75
 	var f := float(me.firm)
 	var out := []
-	for k in [1.15, 1.7, 2.6]:
+	for k: float in [1.15, 1.7, 2.6]:
 		out.append(clampf(V * k * f, 0.4, 7.5))
 	return out
 
@@ -375,8 +375,8 @@ func _choose_place(sim: PoolSim, rules: PoolRules) -> Vector3:
 			var pk: Array = sim.table.pockets[k]
 			var aim_at: Vector3 = (pk[0] + pk[2]) * 0.5
 			var u := Vector3(aim_at.x - b.p.x, 0, aim_at.z - b.p.z).normalized()
-			for dist in [0.22, 0.4, 0.65]:
-				for ang in [-18.0, 0.0, 18.0]:
+			for dist: float in [0.22, 0.4, 0.65]:
+				for ang: float in [-18.0, 0.0, 18.0]:
 					var back := (-u).rotated(Vector3.UP, deg_to_rad(ang))
 					var p := b.p - u * (b.r + cb.r) + back * dist
 					p.y = 0.0

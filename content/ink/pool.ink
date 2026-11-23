@@ -203,20 +203,48 @@ BIGMAN: Lot of doors in this old place for one fella.
 ~ pass(15)
 He put a twenty on the rail. The buddy looked relieved to sit one out.
 BIGMAN: Rack 'em, then. You any good?
-* [Play to win. #check: fighter:dex 12]
-    { passed:
-        He ran four balls, missed, and then the big man handed him the eight, deliberately, the way he'd been handing the buddy games all night.
-        ~ tip(20)
-        FIGHTER: He threw it.
-        FATHER: He's been throwing games all night. He's buying something.
-    - else:
-        He was not good. The table had a lean he didn't know. The big man took his twenty and tucked it under the rail with the others.
-        ~ cash -= 20
-    }
-* [Play to lose.]
-    ~ bigman_ease++
-    He played badly enough that the big man noticed, and liked him for it.
+// #game: the rack is played on the table itself (game/pool.gd); pool_result and the rest come back
+// from it before the choice goes on. Where there's no table to play it on, pool_result stays 0.
+* [Play to win. #game: pool bigman win]
+    ~ pool_meant = 1
+    -> played
+* [Play to lose. #game: pool bigman lose]
+    ~ pool_meant = 2
+    -> played
+
+= played
+{
+- pool_result == 1 && pool_threw > 0:
+    He got to the eight with the big man still on four balls. Then the big man missed a ball a child would make, left him the eight in the jaw, and looked at the door while he shot it.
+    ~ cash += 20
+    FIGHTER: He threw it. Twice, to be sure you'd notice.
+    FATHER: He's been throwing games all night. He's buying something, and it isn't pool.
+- pool_result == 1:
+    He won it clean, before the big man had worked out whether he was supposed to lose to him. The big man paid him off the rail without a word, which is how you pay a man you don't like losing to.
+    ~ cash += 20
+    ~ bigman_ease--
+    FIGHTER: Now he knows you can play. That's information he didn't want.
+- pool_result == 2 && pool_meant == 2 && pool_dumped >= 2:
+    He lost it the way a man loses on purpose when he's never had to: a ball that touched nothing, then the eight knocked in with three of his own still on the cloth.
     ~ cash -= 20
+    ~ bigman_ease--
+    The big man looked at the eight in the window, and then at him.
+    BIGMAN: Don't do me any favours, bud. I get enough of them.
+- pool_result == 2 && pool_meant == 2:
+    He lost it properly: honest misses, a scratch that looked like bad luck, the table's lean doing the rest. The big man took the twenty and noticed, and liked him for it, and would have hated being told.
+    ~ cash -= 20
+    ~ bigman_ease++
+- pool_result == 2:
+    He was not as good as he thought he was. The table had a lean he didn't know and the cue ball was the big one that won't draw. The big man took his twenty and tucked it under the rail with the others.
+    ~ cash -= 20
+- pool_result == 3:
+    He put the cue back in the rack halfway through the rack and left his twenty where it was. The big man let it sit there a while, then put it under the rail with the others.
+    ~ cash -= 20
+    ~ bigman_ease--
+- else:
+    He was not good. The table had a lean he didn't know. The big man took his twenty and tucked it under the rail with the others.
+    ~ cash -= 20
+}
 - ~ heat(-2)
 While they racked, the big man spoke to the table, not to him.
 BIGMAN: You got kids yourself?
