@@ -17,6 +17,13 @@
 - The beer mats. The top one hanging a little over the edge, the way they always ended up.
 }
 
+// The wine glasses on the bar (godot/game/wine_glasses.gd): the first look is this; the next, he plays them.
+=== function toy_wineglasses(what)
+{stopping:
+- Eight wine glasses upside down on a bar towel in the gap across from the taps, none of them from the same set. Jim kept them for the one woman a year who ordered wine and then asked what kind. His clip-on tuner was on the water jug's handle behind them, where he'd left it after tuning a snare at the bar on a Monday.
+- The wine glasses on their towel. Anybody who'd ever been bored in a restaurant knew what you could do with one.
+}
+
 === function toy_jukebox(what)
 { juke_low:
     The jukebox, a notch down, and the room coming through under it.

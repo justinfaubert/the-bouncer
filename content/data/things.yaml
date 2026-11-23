@@ -30,6 +30,7 @@ taps: {name: The taps., at: a:taps, from: [room, hall]}
 lotto: {name: The lottery screen., at: a:lotto, from: [room, hall]}
 coasters: {name: The beer mats., at: a:coasters, from: [bar]}
 cigmachine: {name: The cigarette machine., at: a:cigmachine, from: [room]}
+wineglasses: {name: The wine glasses., at: a:wine_glasses, from: [bar]}
 
 # ---------------------------------------------------------------- the room's things (content/ink/room.ink)
 #   when: only while these hold, on the Ink's VARs (the criteria of content/rules/barks.yaml): a thing

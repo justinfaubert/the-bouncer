@@ -38,6 +38,7 @@ var door_hand: DoorHand
 var darts: Darts
 var cig: CigMachine
 var mats: BeerMats
+var glasses: WineGlasses
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -158,6 +159,10 @@ func _ready() -> void:
 	add_child(mats)
 	mats.setup(self)
 	mats.left.connect(_cig_left)
+	glasses = WineGlasses.new()
+	add_child(glasses)
+	glasses.setup(self)
+	glasses.left.connect(_cig_left)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -473,6 +478,21 @@ func start_mats(from_menu: String, body := {}) -> void:
 	mats.begin(from_menu != "", body)
 
 
+# The wine glasses on the bar (game/wine_glasses.gd), the same way.
+func start_glasses(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("bar")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	glasses.begin(from_menu != "", body)
+
+
 func _cig_left() -> void:
 	if _cig_from == "":
 		return
@@ -581,6 +601,13 @@ func toy(id: String, what: String) -> String:
 		_met("mats")
 		if _looked_at.has(id) and view.eye_pos.distance_to(BeerMats.EDGE) < 3.0:
 			start_mats("")
+			return "said"
+		_looked_at[id] = true
+	# the wine glasses on the bar: the same, from the bar
+	if id == "wineglasses" and what == "look":
+		_met("glasses")
+		if _looked_at.has(id) and view.eye_pos.distance_to(WineGlasses.AT) < 3.5:
+			start_glasses("")
 			return "said"
 		_looked_at[id] = true
 	var res := game.toy(id, what)

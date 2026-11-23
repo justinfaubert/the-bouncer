@@ -205,6 +205,7 @@ const GAMES := [
 	["darts", "Darts", "The board on the east wall, the house darts, the chalk.", [["practice", "Throw a few"], ["clock", "Round the clock"], ["501", "Five-oh-one"]]],
 	["cigs", "The cigarette machine", "On the east wall under the news, unplugged, and it plays.", [["play", "Stand at it"]]],
 	["mats", "Beer mats", "Off the edge of the bar, flipped and caught, one more each time.", [["play", "Flip a few"]]],
+	["glasses", "The wine glasses", "Eight on a bar towel in the gap, a jug of water, a wet finger.", [["play", "Play them"]]],
 ]
 
 
@@ -227,6 +228,8 @@ func games(from: String) -> void:
 				_button(m[1], false, func(): main.start_cig("games"))
 			elif g[0] == "mats":
 				_button(m[1], false, func(): main.start_mats("games"))
+			elif g[0] == "glasses":
+				_button(m[1], false, func(): main.start_glasses("games"))
 			else:
 				_button(m[1], false, func(): main.start_darts(mode, "games"))
 	if not any:
@@ -259,6 +262,8 @@ func rehearse(from: String) -> void:
 	_button("Stand at it", false, func(): main.start_cig("rehearse", _rh.duplicate()))
 	_section("Beer mats")
 	_button("Flip a few", false, func(): main.start_mats("rehearse", _rh.duplicate()))
+	_section("The wine glasses")
+	_button("Play them", false, func(): main.start_glasses("rehearse", _rh.duplicate()))
 	_section("Still to come here")
 	_para("The door by hand, the dice, the licence in his hands: each gets a way in here as it's worked on.", 19, Look.FAINT)
 	_gap(14)
@@ -335,7 +340,8 @@ const HELP := [
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
 	["Darts", "Look at the dartboard twice and he goes over and takes the darts out of the board. Aim with your eyes; hold the button and pull back to draw, and let go: halfway back is his usual throw, which lands where he's looking. The wheel lifts his elbow for a flatter throw or a lob, Q and E move his grip on the barrel, A and D move him along the line, Shift narrows his eyes and the right button holds his breath. The three house darts each fly their own way. Esc puts them down. Once he's played, darts are in Games on the title; Rehearse plays them with no night at all."],
-	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. The lock opens the front (O): what's on the board inside changes the sound. Esc steps back. What a quarter's holding keeps playing while he's gone."],
+	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. K O L P ; go on up past the knobs, and a MIDI keyboard plugged in plays it too, with velocity, the sustain pedal, the mod wheel and pitch bend. The two lamps over the slot are a tape: Enter (or click MAKE ANOTHER SELECTION) records, then closes the loop and plays it round, then lays more over it; Backspace (or USE CORRECT CHANGE) wipes it; Q pulls what's played onto the sixteenths. Knock twice to set the speed before recording; knocks and the tray flap record as a drum part. The lock opens the front (I): what's on the board inside changes the sound. Esc steps back. What a quarter's holding keeps playing while he's gone."],
+	["The wine glasses", "At the bar, look at the wine glasses twice. The mouse moves his hand over the bar top. Hold the button to put his fingertip down: drawn round a rim, it rubs, and the glass sings; faster is louder, too fast and the finger skates, too slow and it barely speaks. Shift leans on it. Dip the fingertip in a glass with water in it to wet it; a dry finger squeaks. Hold the other button over a glass to pour from the jug, and the wheel adds a splash or tips a little out: more water, lower note. A S D F G H J K tap them with a stir stick, Shift harder. Jim's tuner reads the glass under his hand. Esc leaves them."],
 	["Beer mats", "At the bar, look at the pile of beer mats twice. The mouse moves his hand. Hold the button to curl his fingers and bring them up fast under the part hanging over the edge: it hinges off the bar and turns over in the air. Click again while it's up to snatch it. It has to have turned over and be lying near flat. Each one caught, he puts another on the stack. The wheel slides it out over the edge or back; Q and E take one off or put one on. Esc puts them down."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
