@@ -32,7 +32,7 @@ extends Node
 
 const RATE := 32000.0
 const CTRL := 16                        # samples to a control step: envelopes, the filter's sums, the arpeggio
-const NV := 6
+const NV := 8
 const TAB := 4096
 const MASK := 4095
 const BUS := &"Machine"
@@ -111,6 +111,8 @@ class Voice:
 	var drift_to := 0.0
 	var gl := 0.7
 	var gr := 0.7
+	var vel := 1.0                      # how hard the key went down (a MIDI keyboard's velocity; a knob is 1)
+	var loop := false                   # played by the loop, not the hands
 
 
 # A thing that rings when it's struck: modes, each a two-pole resonator. Where it's struck is in the
@@ -187,6 +189,24 @@ var _arp_t := 0.0
 var _arp_i := 0
 var _arp_note := -1
 var _knocks: Array = []                 # when the last knocks were, for the speed
+
+# for a player with a keyboard of their own (cig_machine.gd reads MIDI into these)
+var sustain := false                    # the pedal: what's let go keeps sounding until it comes up
+var sustained := {}
+var mod := 0.0                          # the mod wheel: vibrato, on top of the patch's own
+var bright := 0.0                       # a brightness control (CC 74): octaves on the filter, -2..2
+var _vib := 0.0
+var vels := {}                          # note: velocity, for what's held
+
+# the loop: the coin mech's counter turned into a tape. Notes and knocks played while it records go
+# round again, a whole number of beats long, and more can be laid over them.
+var loop_state := "off"                 # off, rec (the first pass), play, dub (laying more over it)
+var loop_len := 0                       # samples
+var loop_pos := 0
+var loop_events: Array = []             # [sample in the loop, kind, a, b, c, d]
+var quantize := false                   # pull what's played to the nearest sixteenth as it's laid down
+var _rec_pos := 0
+var _beat_n := -1
 
 # the box and what's in it
 var cabinet: Body
@@ -319,10 +339,13 @@ func _echo_time() -> void:
 
 # ---------------------------------------------------------------- notes
 
-func pull(n: int, how: float) -> void:
+func pull(n: int, how: float, vel := 1.0) -> void:
 	var was := held.has(n)
 	held[n] = clampf(how, 0.0, 1.0)
+	vels[n] = vel
 	if not was:
+		sustained.erase(n)
+		_record("on", n, held[n], vel)
 		# a quarter in: a knob pulled again lets go of the note it's holding, or adds it to the hold
 		if credit > 0:
 			if n in latched:
@@ -339,8 +362,18 @@ func pull(n: int, how: float) -> void:
 func push_in(n: int) -> void:
 	if not held.has(n):
 		return
+	if sustain:
+		sustained[n] = held[n]
 	held.erase(n)
+	_record("off", n, 0.0, 0.0)
 	_regate()
+
+
+func set_sustain(on: bool) -> void:
+	sustain = on
+	if not on:
+		sustained.clear()
+		_regate()
 
 
 func drop_hold() -> void:
@@ -355,26 +388,28 @@ func _regate() -> void:
 	var want := {}
 	for n in latched:
 		want[n] = held.get(n, 0.55)
+	for n in sustained:
+		want[n] = sustained[n]
 	for n in held:
 		want[n] = held[n]
 	for v in voices:
-		if v.gate and not want.has(v.note - octave * 12):
+		if v.gate and not v.loop and not want.has(v.note - octave * 12):
 			_release(v)
 	if bool(P.mono):
 		if want.is_empty():
 			return
 		var last: int = want.keys()[want.size() - 1]
 		var v: Voice = voices[0]
-		_on(v, last + octave * 12, float(want[last]), v.gate)
+		_on(v, last + octave * 12, float(want[last]), v.gate, float(vels.get(last, 1.0)))
 		return
 	for n in want:
 		var have := false
 		for v in voices:
-			if v.gate and v.note == n + octave * 12:
+			if v.gate and not v.loop and v.note == n + octave * 12:
 				have = true
 				v.expr = float(want[n])
 		if not have:
-			_on(_free_voice(), n + octave * 12, float(want[n]))
+			_on(_free_voice(), n + octave * 12, float(want[n]), false, float(vels.get(n, 1.0)))
 
 
 func _free_voice() -> Voice:
@@ -395,7 +430,9 @@ func _free_voice() -> Voice:
 	return best
 
 
-func _on(v: Voice, n: int, how: float, legato := false) -> void:
+func _on(v: Voice, n: int, how: float, legato := false, vel := 1.0) -> void:
+	v.loop = false
+	v.vel = vel
 	v.note = n
 	v.target = float(n)
 	if not legato or float(P.glide) <= 0.0:
@@ -435,6 +472,7 @@ func _release(v: Voice) -> void:
 func all_off() -> void:
 	held.clear()
 	latched.clear()
+	sustained.clear()
 	_arp_note = -1
 	for v in voices:
 		_release(v)
@@ -483,13 +521,17 @@ func coins_back() -> int:
 
 
 # a knock on the side: where (0..1 across, 0..1 up), how hard, and what with (0 a palm, 1 a knuckle)
-func knock(x: float, y: float, hard: float, knuckle: float) -> void:
+func knock(x: float, y: float, hard: float, knuckle: float, from_loop := false) -> void:
+	if not from_loop:
+		_record("knock", x, y, hard, knuckle)
 	# a plate's modes: each rings by how far the place it's hit is from its still lines
 	for m in cabinet.f.size():
 		var nx := 1 + (m % 3)
 		var ny := 1 + int(m / 3)
 		cabinet.g[m] = absf(sin(nx * PI * clampf(x, 0.05, 0.95)) * sin(ny * PI * clampf(y, 0.05, 0.95))) + 0.15
 	strike(cabinet, hard, lerpf(0.2, 0.95, knuckle), -1.0, int(lerpf(5.0, 1.0, knuckle)))
+	if from_loop or loop_state != "off":
+		return
 	# the speed: from the last two knocks, if they're near enough a beat apart to be one
 	var ts := Time.get_ticks_msec() / 1000.0
 	_knocks.append(ts)
@@ -502,7 +544,9 @@ func knock(x: float, y: float, hard: float, knuckle: float) -> void:
 			_echo_time()
 
 
-func flap(hard: float) -> void:
+func flap(hard: float, from_loop := false) -> void:
+	if not from_loop:
+		_record("flap", hard, 0.0, 0.0, 0.0)
 	strike(tray, hard, 0.85, rng.randf(), 2)
 	_at(_now + int(RATE * 0.07), func(): strike(tray, hard * 0.35, 0.8, randf(), 1))
 
@@ -541,8 +585,107 @@ func set_arp(on: bool) -> void:
 	arp_on = on
 	_arp_note = -1
 	for v in voices:
-		_release(v)
+		if not v.loop:
+			_release(v)
 	_regate()
+
+
+# ---------------------------------------------------------------- the loop
+
+func beat_len() -> int:
+	return int(RATE * 60.0 / bpm)
+
+
+# the one control: first press records, the next closes the loop and plays it, then each press
+# lays more over it or stops laying; clear() wipes the tape
+func loop_press() -> String:
+	match loop_state:
+		"off":
+			loop_events.clear()
+			_rec_pos = 0
+			_beat_n = -1
+			loop_state = "rec"
+		"rec":
+			var b := beat_len()
+			loop_len = maxi(b, int(round(float(_rec_pos) / b)) * b)
+			# a note still held at the end lets go at the end, and goes round from the top again
+			for n in held:
+				loop_events.append([loop_len - CTRL, "off", n, 0.0, 0.0, 0.0])
+			loop_events = loop_events.filter(func(e): return int(e[0]) < loop_len)
+			loop_events.sort_custom(func(a, b2): return int(a[0]) < int(b2[0]))
+			loop_pos = 0
+			loop_state = "play"
+		"play":
+			loop_state = "dub"
+		"dub":
+			loop_events.sort_custom(func(a, b2): return int(a[0]) < int(b2[0]))
+			loop_state = "play"
+	return loop_state
+
+
+func loop_clear() -> void:
+	loop_state = "off"
+	loop_events.clear()
+	loop_len = 0
+	for v in voices:
+		if v.loop:
+			_release(v)
+
+
+func _record(kind: String, a, b = 0.0, c = 0.0, d = 0.0) -> void:
+	if loop_state != "rec" and loop_state != "dub":
+		return
+	var at := _rec_pos if loop_state == "rec" else loop_pos
+	if quantize:
+		var q := beat_len() / 4
+		at = int(round(float(at) / q)) * q
+		if loop_state == "dub":
+			at = posmod(at, loop_len)
+	loop_events.append([at, kind, a, b, c, d])
+
+
+# the beat: the relay ticks it while the tape's recording, the bar's first louder
+func _loop_step() -> void:
+	if loop_state == "off":
+		return
+	var b := beat_len()
+	var pos := _rec_pos if loop_state == "rec" else loop_pos
+	var bn := pos / b
+	if bn != _beat_n:
+		_beat_n = bn
+		if loop_state == "rec" or loop_state == "dub":
+			strike(knob, 0.5 if bn % 4 == 0 else 0.22, 0.95, 0.5, 1)
+	if loop_state == "rec":
+		_rec_pos += CTRL
+		return
+	var from := loop_pos
+	var to := loop_pos + CTRL
+	for e in loop_events:
+		var at := int(e[0])
+		if (at >= from and at < to) or (to > loop_len and at < to - loop_len):
+			_play_event(e)
+	loop_pos = to % loop_len if loop_len > 0 else 0
+	if loop_pos < from:
+		_beat_n = -1
+
+
+func _play_event(e: Array) -> void:
+	match str(e[1]):
+		"on":
+			var n := int(e[2])
+			var v := _free_voice()
+			_on(v, n + octave * 12, float(e[3]), false, float(e[4]))
+			v.loop = true
+		"off":
+			var n := int(e[2]) + octave * 12
+			for v in voices:
+				if v.loop and v.gate and v.note == n:
+					_release(v)
+					break
+		"knock":
+			knock(float(e[2]), float(e[3]), float(e[4]), float(e[5]), true)
+		"flap":
+			flap(float(e[2]), true)
 
 
 # ---------------------------------------------------------------- the sound
@@ -588,9 +731,12 @@ func render(n: int) -> PackedVector2Array:
 	for i in n:
 		var l := L[i] * vol
 		var r := R[i] * vol
-		# a soft ceiling: nothing clips, a chord leaned on just thickens
-		l = l / (1.0 + 0.3 * absf(l))
-		r = r / (1.0 + 0.3 * absf(r))
+		# a soft ceiling, like the little amp in the cabinet running out: nothing clips, a chord
+		# leaned on and a drum part on top just thicken (a rational tanh, flat at 1 past 3)
+		l = clampf(l, -3.0, 3.0)
+		r = clampf(r, -3.0, 3.0)
+		l = l * (27.0 + l * l) / (27.0 + 9.0 * l * l)
+		r = r * (27.0 + r * r) / (27.0 + 9.0 * r * r)
 		out[i] = Vector2(l, r)
 	return out
 
@@ -616,6 +762,8 @@ func _control() -> void:
 			k += 1
 	if arp_on and credit > 0:
 		_arp(dt)
+	_vib = fmod(_vib + dt * 5.6, 1.0)
+	_loop_step()
 
 
 func _arp(dt: float) -> void:
@@ -646,7 +794,7 @@ func _arp(dt: float) -> void:
 	_arp_i = (_arp_i + 1) % seq.size()
 	var n: int = seq[_arp_i]
 	for v in voices:
-		if v.gate:
+		if v.gate and not v.loop:
 			_release(v)
 	var how: float = held.get(n % 128, 0.55) if held.has(n) else 0.55
 	if bool(P.mono):
@@ -696,7 +844,7 @@ func _voice(v: Voice, L: PackedFloat32Array, R: PackedFloat32Array, o: int) -> v
 	v.ex += (v.expr - v.ex) * (1.0 - exp(-dt / 0.03))
 	var lfo := _tab[int(_lfo * TAB) & MASK]
 	var tape := (_tab[int(_wow * TAB) & MASK] * 0.09 + _tab[int(_flut * TAB) & MASK] * 0.025) * w
-	var pt := v.pitch + bend + lfo * float(P.vib) / 100.0 + v.drift + tape + rock * 0.9 + float(P.oct) * 12.0
+	var pt := v.pitch + bend + _tab[int(_vib * TAB) & MASK] * mod * 0.45 + lfo * float(P.vib) / 100.0 + v.drift + tape + rock * 0.9 + float(P.oct) * 12.0
 	var freq := 440.0 * pow(2.0, (pt - 69.0) / 12.0)
 	var inc := freq / RATE
 	var incb := inc * pow(2.0, float(P.det) / 1200.0)
@@ -704,7 +852,7 @@ func _voice(v: Voice, L: PackedFloat32Array, R: PackedFloat32Array, o: int) -> v
 	if sync > 0.0:
 		incb = inc * (sync + v.fe * 2.2 + v.ex * 1.2)
 	# the filter: its cutoff from the patch, the envelope, the key, the pull
-	var fc := float(P.cut) * pow(2.0, float(P.env) * v.fe + float(P.track) * (v.pitch - 60.0) / 12.0 + (v.ex - 0.35) * float(P.expr))
+	var fc := float(P.cut) * pow(2.0, float(P.env) * v.fe + float(P.track) * (v.pitch - 60.0) / 12.0 + (v.ex - 0.35) * float(P.expr) + bright + (v.vel - 0.7) * 1.2)
 	fc = clampf(fc, 30.0, RATE * 0.42)
 	var g := tan(PI * fc / RATE)
 	var kq := 2.0 - 1.94 * float(P.res)
@@ -715,8 +863,9 @@ func _voice(v: Voice, L: PackedFloat32Array, R: PackedFloat32Array, o: int) -> v
 	var c1 := 1.0 / (1.0 + g * (g + 1.4))
 	var c2 := g * c1
 	var c3 := g * c2
-	var a1v := v.amp * (0.62 + 0.38 * v.ex) * float(P.lvl) * 0.3
-	var a0v := a0 * (0.62 + 0.38 * v.ex) * float(P.lvl) * 0.3
+	var vk := 0.35 + 0.65 * v.vel
+	var a1v := v.amp * (0.62 + 0.38 * v.ex) * float(P.lvl) * 0.3 * vk
+	var a0v := a0 * (0.62 + 0.38 * v.ex) * float(P.lvl) * 0.3 * vk
 	# the oscillators' mix
 	var m_saw := float(P.saw)
 	var m_saw2 := float(P.saw2)

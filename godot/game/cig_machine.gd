@@ -48,6 +48,7 @@ const TRAVEL := 0.085                                 # how far a knob comes out
 const DETENT := 0.1                                   # past this much of its travel it speaks
 const KEYS := [KEY_A, KEY_W, KEY_S, KEY_E, KEY_D, KEY_F, KEY_T, KEY_G, KEY_Y, KEY_H, KEY_U, KEY_J]
 const BASE_NOTE := 60
+const UPPER := [KEY_K, KEY_O, KEY_L, KEY_P, KEY_SEMICOLON]   # the row goes on past the knobs, up into the next octave
 # the brands nobody's made since: invented, each its own pack, printed in the inks there are
 const BRANDS := [["MATADOR", "b9a47a"], ["NORTHERN", "6d8a8e"], ["CABOT", "c8c2b0"], ["REGAL", "8a6a44"],
 	["VANGUARD", "3d4a5c"], ["LAKESHORE", "a9bcc0"], ["THISTLE", "7a7a5a"], ["MONARCH", "d8c48a"],
@@ -73,6 +74,13 @@ var lamp_sw: Node3D
 var motor_sw: Node3D
 var relay: Node3D
 var hover_label: Label
+var loop_lamps: Array = []       # the two lamps by the slot: the tape recording, the tape going round
+var counter: Label3D             # the coin mech's counter, turned to counting bars
+var upper_held := {}             # the keys past the knobs: note held
+var midi_held := {}              # a keyboard on a cable: note held
+var midi_bend := 0.0             # its wheel, -1..1
+var midi_open := false
+var kick := []                   # a knob jumping in its hole when its note comes from elsewhere
 
 var active := false
 var rehearsal := false
@@ -110,6 +118,7 @@ func setup(m) -> void:
 	for i in 12:
 		pull.append(0.0)
 		shown.append(0.0)
+		kick.append(0.0)
 	_build()
 	synth = CigSynth.new()
 	add_child(synth)
@@ -267,6 +276,20 @@ func _door() -> void:
 	rl.pixel_size = 0.0006
 	pub.box(Vector3(0.08, 0.07, 0.04), Vector3(0.91, 0.57, -0.01), M.black, 0.0, door)          # the cup
 	pub.box(Vector3(0.085, 0.01, 0.045), Vector3(0.91, 0.535, 0.0), chrome, 0.0, door)
+	# two lamps over the slot, the kind that said the machine wanted something: one lit while the
+	# tape records, the other on the beat while it goes round. A counter under the return.
+	for k in 2:
+		var lm := pub.glow(Color("e8b860") if k == 0 else Color("cfd8b8"), 0.03)
+		lm.set_shader_parameter("albedo", Color("6a5a40") if k == 0 else Color("5a6250"))
+		var y := 1.2 - k * 0.042
+		var plate := pub.box(Vector3(0.1, 0.03, 0.004), Vector3(0.91, y, 0.004), lm, 0.0, door)
+		plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		loop_lamps.append(lm)
+		var ll := _label(door, "USE CORRECT CHANGE" if k == 0 else "MAKE ANOTHER SELECTION", Vector3(0.91, y, 0.0065), 15, Color("2b2a27"))
+		ll.pixel_size = 0.00042
+	pub.box(Vector3(0.05, 0.022, 0.006), Vector3(0.91, 0.79, 0.003), M.black, 0.0, door)
+	counter = _label(door, "0000", Vector3(0.91, 0.79, 0.0065), 30, Color("d9d4c8"), "mono")
+	counter.pixel_size = 0.0005
 	cup_coins = Node3D.new()
 	cup_coins.position = Vector3(0.91, 0.545, 0.0)
 	door.add_child(cup_coins)
@@ -387,15 +410,24 @@ func begin(rehearse := false, from := {}) -> void:
 	synth.start()
 	set_process_input(true)
 	_column_begin()
+	# a keyboard on a cable, if there's one plugged in: it plays the machine too
+	if not midi_open:
+		midi_open = true
+		OS.open_midi_inputs()
+	var ins := OS.get_connected_midi_inputs()
+	if not ins.is_empty():
+		_once("midi", "There was a keyboard on the end of a cable (%s), and the machine took it like it had been waiting for one. Every key a note, how hard you hit it how loud, the pedal holding, the wheels bending and shaking." % ", ".join(ins))
 	main.keys.show_for("cigs", [
 		["Drag a knob down", "pull it out toward him: it sounds"],
-		["A W S E D F T G Y H U J", "play the row  (Shift: all the way)"],
+		["A W S E D F T G Y H U J", "play the row  (Shift: all the way); K O L P ; go on up"],
 		["Z  X", "an octave down, up"],
 		["C / the slot", "a quarter in holds what's pulled"],
 		["Coin return lever", "bends the note; all the way down, R, gives the quarters back"],
 		["Click it / Space", "knock on the cabinet; twice sets its speed"],
 		["Wheel", "rock it on its feet  (over a dial: turn it)"],
-		["O", "open the front"],
+		["Enter", "the tape: record, close the loop, lay more over it"],
+		["Backspace", "wipe the tape  (Q: onto the sixteenths)"],
+		["I", "open the front  (a MIDI keyboard plays it too)"],
 	], "The cigarette machine")
 
 
@@ -409,6 +441,14 @@ func end() -> void:
 		synth.push_in(BASE_NOTE + i)
 		pull[i] = 0.0
 	by_key.clear()
+	for n in upper_held.keys() + midi_held.keys():
+		synth.push_in(n)
+	upper_held.clear()
+	midi_held.clear()
+	midi_bend = 0.0
+	synth.set_sustain(false)
+	if rehearsal:
+		synth.loop_clear()
 	hover_label.visible = false
 	main.keys.hide_card()
 	view.focus_fov = 0.0
@@ -446,11 +486,12 @@ func _process(dt: float) -> void:
 			pull[i] = move_toward(pull[i], want, dt * (9.0 if want > pull[i] else 14.0))
 		_knob_moved(i, shown[i], pull[i])
 		shown[i] = pull[i]
-		(knobs[i] as Node3D).position.z = pull[i] * TRAVEL
+		kick[i] = move_toward(kick[i], 0.0, dt * 5.0)
+		(knobs[i] as Node3D).position.z = maxf(pull[i], kick[i]) * TRAVEL
 	# the coin return lever: springs up
 	if not bend_held:
 		lever_v = move_toward(lever_v, 0.0, dt * 6.0)
-	synth.bend = -lever_v * 2.0 if lever_v < 0.92 else -2.0
+	synth.bend = (-lever_v * 2.0 if lever_v < 0.92 else -2.0) + midi_bend * 2.0
 	lever.position.y = 0.885 - lever_v * 0.03
 	lever.rotation.x = -lever_v * 0.35
 	# the door, on its hinge
@@ -475,6 +516,20 @@ func _process(dt: float) -> void:
 	for i in 12:
 		var m: ShaderMaterial = (windows[i] as MeshInstance3D).material_override
 		m.set_shader_parameter("emission_energy", base + lit[i] * 1.4)
+	# the tape's lamps: recording, the first lit steady; going round, the second blinks on the beat
+	var st: String = synth.loop_state
+	var b := maxi(1, synth.beat_len())
+	var on_beat := false
+	if st == "play" or st == "dub":
+		on_beat = (synth.loop_pos % b) < b / 5
+		counter.text = "%02d%02d" % [synth.loop_pos / b + 1, synth.loop_len / b]
+	elif st == "rec":
+		on_beat = (synth._rec_pos % b) < b / 5
+		counter.text = "%02d--" % (synth._rec_pos / b + 1)
+	else:
+		counter.text = "0000"
+	(loop_lamps[0] as ShaderMaterial).set_shader_parameter("emission_energy", ((1.6 if on_beat else 1.0) if st == "rec" or st == "dub" else 0.03))
+	(loop_lamps[1] as ShaderMaterial).set_shader_parameter("emission_energy", ((1.8 if on_beat else 0.5) if st == "play" or st == "dub" else 0.03))
 	# heard from where he is: in the room it carries; from the back, through the walls
 	var d := view.eye_pos.distance_to(FRAME * Vector3(0, 1.0, 0))
 	var db := -20.0 * log(maxf(1.0, d / 1.2)) / log(10.0)
@@ -568,6 +623,10 @@ func _input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		end()
 		return
+	if e is InputEventMIDI:
+		_midi(e as InputEventMIDI)
+		get_viewport().set_input_as_handled()
+		return
 	if main.menus.is_open():
 		return
 	if e is InputEventMouse:
@@ -612,11 +671,21 @@ func _input(e: InputEvent) -> void:
 		var ke := e as InputEventKey
 		var k: int = ke.physical_keycode
 		var i := KEYS.find(k)
+		var u := UPPER.find(k)
 		if i >= 0 and not ke.echo:
 			if ke.pressed:
 				by_key[i] = 1.0 if ke.shift_pressed else 0.62
 			else:
 				by_key.erase(i)
+		elif u >= 0 and not ke.echo:
+			var n: int = BASE_NOTE + 12 + u
+			if ke.pressed:
+				upper_held[n] = true
+				synth.pull(n, 1.0 if ke.shift_pressed else 0.62)
+				_knob_flash(n, 0.62)
+			else:
+				upper_held.erase(n)
+				synth.push_in(n)
 		elif ke.pressed and not ke.echo:
 			match k:
 				KEY_Z:
@@ -630,8 +699,16 @@ func _input(e: InputEvent) -> void:
 					_coin_return()
 				KEY_SPACE:
 					_knock(0.5, 0.45, false)
-				KEY_O:
+				KEY_I:
 					_door_toggle()
+				KEY_ENTER, KEY_KP_ENTER:
+					_loop()
+				KEY_BACKSPACE:
+					_loop_clear()
+				KEY_Q:
+					synth.quantize = not synth.quantize
+					synth.strike(synth.knob, 0.3, 0.9, 0.7, 1)
+					_line("He set the tape to pull what he played onto the sixteenths." if synth.quantize else "He let the tape take what he played where he played it.")
 		get_viewport().set_input_as_handled()
 
 
@@ -654,6 +731,10 @@ func _press(what: String, right: bool) -> void:
 				synth.flap(0.9 if right else 0.6)
 		"lock", "door":
 			_door_toggle()
+		"lamp_rec":
+			_loop_clear()
+		"lamp_sel":
+			_loop()
 		"lamp":
 			lamp = (lamp + 1) % 3
 			synth.set_lamp(lamp)
@@ -725,8 +806,12 @@ func _under() -> String:
 		var i := int(round((p.x - KNOB_X0) / KNOB_DX))
 		if i >= 0 and i < 12 and absf(p.x - (KNOB_X0 + i * KNOB_DX)) < 0.03:
 			return "knob%d" % i
-	if absf(p.x - 0.91) < 0.05:
-		if absf(p.y - 1.04) < 0.07:
+	if absf(p.x - 0.91) < 0.055:
+		if absf(p.y - 1.2) < 0.017:
+			return "lamp_rec"
+		if absf(p.y - 1.158) < 0.017:
+			return "lamp_sel"
+		if absf(p.y - 1.04) < 0.065:
 			return "slot"
 		if absf(p.y - 0.885) < 0.03:
 			return "lever"
@@ -766,6 +851,7 @@ func _hit_local() -> Vector2:
 
 
 const NAMES := {"slot": "the coin slot", "lever": "coin return", "cup": "the return cup", "tray": "the tray",
+	"lamp_rec": "USE CORRECT CHANGE (the tape: wipe it)", "lamp_sel": "MAKE ANOTHER SELECTION (the tape: record, play, lay over)",
 	"lock": "the lock", "door": "the door", "lamp": "LAMP", "motor": "MOTOR TEST", "relay": "RELAY DELAY", "mirror": "",
 	"steel": "", "board": ""}
 
@@ -895,6 +981,77 @@ func _take_pack() -> void:
 	_line("He put the pack in his jacket. On the side, in the place the warning went, a picture of a man's lungs, and a price in a currency that still had pennies.")
 
 
+# a keyboard on a cable: notes as they're hit, the pedal, the wheels
+func _midi(m: InputEventMIDI) -> void:
+	match m.message:
+		MIDI_MESSAGE_NOTE_ON:
+			if m.velocity == 0:
+				_midi_off(m.pitch)
+				return
+			var vel := clampf(m.velocity / 127.0, 0.05, 1.0)
+			var n := m.pitch - synth.octave * 12
+			midi_held[n] = true
+			synth.pull(n, 0.35 + 0.65 * vel, vel)
+			_knob_flash(n, 0.3 + 0.7 * vel)
+			_noticed_note()
+		MIDI_MESSAGE_NOTE_OFF:
+			_midi_off(m.pitch)
+		MIDI_MESSAGE_PITCH_BEND:
+			midi_bend = clampf((m.pitch - 8192) / 8192.0, -1.0, 1.0)
+		MIDI_MESSAGE_CONTROL_CHANGE:
+			var v := m.controller_value / 127.0
+			match m.controller_number:
+				1:
+					synth.mod = v
+				7:
+					synth.volume = 0.8 * v
+				64:
+					synth.set_sustain(m.controller_value >= 64)
+				74, 71:
+					synth.bright = (v - 0.5) * 4.0
+				120, 123:
+					for n in midi_held.keys():
+						synth.push_in(n)
+					midi_held.clear()
+
+
+func _midi_off(pitch: int) -> void:
+	var n := pitch - synth.octave * 12
+	if midi_held.has(n):
+		midi_held.erase(n)
+		synth.push_in(n)
+
+
+# the knob for that note jumps in its hole, as if a hand inside had it
+func _knob_flash(n: int, how: float) -> void:
+	var i := posmod(n - BASE_NOTE, 12)
+	kick[i] = maxf(kick[i], how * 0.6)
+	synth.crackle = minf(1.0, synth.crackle + 0.15)
+
+
+# the tape: what the coin mech was really for, by the look of the counter
+func _loop() -> void:
+	var was: String = synth.loop_state
+	var now: String = synth.loop_press()
+	synth.strike(synth.knob, 0.5, 0.9, 0.3, 1)
+	match now:
+		"rec":
+			_once("tape", "The first lamp came on and stayed on, and the relay started ticking under everything at the speed he'd knocked. Whatever he did now, it was keeping.")
+		"play":
+			if was == "rec":
+				_once("tape_round", "He hit it again and the machine played back what he'd just done, from the top, and went round again when it got to the end. The second lamp blinked on the one.")
+		"dub":
+			_once("tape_dub", "Both lamps lit. It went on going round, and kept what he laid over it.")
+
+
+func _loop_clear() -> void:
+	if synth.loop_state == "off":
+		return
+	synth.loop_clear()
+	synth.strike(synth.cabinet, 0.3, 0.4, 0.6, 3)
+	_once("tape_wipe", "He held the other lamp in and it all went, like it had never been played.")
+
+
 func _noticed_note() -> void:
 	_once("first", "The knob came out with a click, and the machine made a sound. A note, held as long as he held the knob, and brighter the further it came.")
 
@@ -910,7 +1067,7 @@ func _column_begin() -> void:
 		main.column.add_line({"role": "narration", "text": "The cigarette machine against the east wall, under the news, on the way to the deck. The plug coiled on top of it and taped. Twelve knobs, twelve brands nobody makes now."})
 	else:
 		main.column.add_line({"role": "narration", "text": "He went over and stood in front of the cigarette machine."})
-	main.column.add_note("Pull a knob out with the mouse (down is out) or play the row with A W S E D F T G Y H U J; Shift pulls one all the way. Z and X move the row an octave. Click the slot for a quarter (C), the coin return lever bends the note and gives them back (R). Knock on it: left button a knuckle, right a palm (Space). The wheel rocks it. The lock opens the front (O). Esc steps back.\nQuarters on him: %d." % pocket)
+	main.column.add_note("Pull a knob out with the mouse (down is out) or play the row with A W S E D F T G Y H U J; Shift pulls one all the way. Z and X move the row an octave. Click the slot for a quarter (C), the coin return lever bends the note and gives them back (R). Knock on it: left button a knuckle, right a palm (Space). The wheel rocks it. K O L P ; carry the row on up past the knobs. A keyboard plugged in plays it too, with the pedal and the wheels.\nThe two lamps over the slot are a tape: Enter records, closes the loop, then lays more over it; Backspace wipes it; Q pulls what you play onto the sixteenths. Knock twice first to set the speed; knocks and the tray flap record as a drum part. The lock opens the front (I). Esc steps back.\nQuarters on him: %d." % pocket)
 	main.column.scroll_to_end()
 
 

@@ -45,6 +45,7 @@ var fight: Fight
 var cards: FightCards
 var plant: FishPlant
 var menu_practice: Practice     # practice outside a night: the Games and Rehearse (settings)
+var glasses: WineGlasses
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -180,6 +181,10 @@ func _ready() -> void:
 	add_child(mats)
 	mats.setup(self)
 	mats.left.connect(_cig_left)
+	glasses = WineGlasses.new()
+	add_child(glasses)
+	glasses.setup(self)
+	glasses.left.connect(_cig_left)
 	pool = Pool.new()
 	add_child(pool)
 	pool.setup(self)
@@ -700,6 +705,23 @@ func start_mats(from_menu: String, body := {}) -> void:
 	mats.begin(from_menu != "", body)
 
 
+# The wine glasses on the bar (game/wine_glasses.gd), the same way.
+func start_glasses(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		if has_method("_leave_full_frame"):
+			call("_leave_full_frame")
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("bar")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	glasses.begin(from_menu != "", body)
+
+
 func _cig_left() -> void:
 	if _cig_from == "":
 		return
@@ -900,6 +922,13 @@ func toy(id: String, what: String) -> String:
 		w.flip()
 		game.set_var("washer_on", w.on)
 		game.set_var("washer_flips", w.flips)
+	# the wine glasses on the bar: the same, from the bar
+	if id == "wineglasses" and what == "look":
+		_met("glasses")
+		if _looked_at.has(id) and view.eye_pos.distance_to(WineGlasses.AT) < 3.5:
+			start_glasses("")
+			return "said"
+		_looked_at[id] = true
 	var res := game.toy(id, what)
 	if res.is_empty():
 		return ""

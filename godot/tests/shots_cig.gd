@@ -63,6 +63,27 @@ func _run() -> void:
 	c.by_key.clear()
 	await _frames(40)
 	await _grab("let_go_and_held")
+	# the tape: the pointer on its lamp, recording, a note from a keyboard on a cable, going round
+	c.synth.coins_back()
+	c.synth.all_off()
+	_point(c, Vector3(0.91 - 0.5, 1.158, 0.0))
+	print("pointer on: ", c.hovered)
+	c._press(c.hovered, false)
+	var m := InputEventMIDI.new()
+	m.message = MIDI_MESSAGE_NOTE_ON
+	m.pitch = 64
+	m.velocity = 110
+	c._midi(m)
+	await _frames(30)
+	await _grab("tape_recording")
+	m.message = MIDI_MESSAGE_NOTE_OFF
+	c._midi(m)
+	await _frames(30)
+	c._loop()
+	await _frames(25)
+	print("tape: ", c.synth.loop_state, " ", c.synth.loop_events.size(), " events, counter ", c.counter.text)
+	await _grab("tape_going_round")
+	c._loop_clear()
 	c._door_toggle()
 	await _frames(80)
 	await _grab("front_open")
