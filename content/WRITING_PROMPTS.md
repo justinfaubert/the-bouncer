@@ -67,9 +67,9 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/things.ink
 
-32. **toy_bottles** (`content/ink/things.ink:126`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
-33. **toy_taps** (`content/ink/things.ink:133`): What's on tap at a pub like yours?
-34. **toy_street_bank** (`content/ink/things.ink:388`): The old main street in a town like yours: what's on it that nobody from away would notice?
+32. **toy_bottles** (`content/ink/things.ink:133`): What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
+33. **toy_taps** (`content/ink/things.ink:140`): What's on tap at a pub like yours?
+34. **toy_street_bank** (`content/ink/things.ink:403`): The old main street in a town like yours: what's on it that nobody from away would notice?
 
 ## content/ink/drawer.ink
 

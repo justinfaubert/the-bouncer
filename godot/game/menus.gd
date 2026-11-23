@@ -203,6 +203,8 @@ func back() -> void:
 # him (Store.met). Each comes up as it is in the Sov, at the board or the table.
 const GAMES := [
 	["darts", "Darts", "The board on the east wall, the house darts, the chalk.", [["practice", "Throw a few"], ["clock", "Round the clock"], ["501", "Five-oh-one"]]],
+	["cigs", "The cigarette machine", "On the east wall under the news, unplugged, and it plays.", [["play", "Stand at it"]]],
+	["mats", "Beer mats", "Off the edge of the bar, flipped and caught, one more each time.", [["play", "Flip a few"]]],
 ]
 
 
@@ -221,7 +223,12 @@ func games(from: String) -> void:
 		_para(g[2], 20, Look.MUTED)
 		for m in g[3]:
 			var mode: String = m[0]
-			_button(m[1], false, func(): main.start_darts(mode, "games"))
+			if g[0] == "cigs":
+				_button(m[1], false, func(): main.start_cig("games"))
+			elif g[0] == "mats":
+				_button(m[1], false, func(): main.start_mats("games"))
+			else:
+				_button(m[1], false, func(): main.start_darts(mode, "games"))
 	if not any:
 		_para("Nothing yet. The games open here once he's come across them on a shift.", 21, Look.MUTED)
 	_gap(14)
@@ -248,8 +255,12 @@ func rehearse(from: String) -> void:
 	_button("Throw a few", true, func(): main.start_darts("practice", "rehearse", _rh.duplicate()))
 	_button("Round the clock", false, func(): main.start_darts("clock", "rehearse", _rh.duplicate()))
 	_button("Five-oh-one", false, func(): main.start_darts("501", "rehearse", _rh.duplicate()))
+	_section("The cigarette machine")
+	_button("Stand at it", false, func(): main.start_cig("rehearse", _rh.duplicate()))
+	_section("Beer mats")
+	_button("Flip a few", false, func(): main.start_mats("rehearse", _rh.duplicate()))
 	_section("Still to come here")
-	_para("The door by hand, the dice, the licence in his hands, the cigarette machine: each gets a way in here as it's worked on.", 19, Look.FAINT)
+	_para("The door by hand, the dice, the licence in his hands: each gets a way in here as it's worked on.", 19, Look.FAINT)
 	_gap(14)
 	_button("Back", true, func(): back())
 	_focus_first()
@@ -324,6 +335,8 @@ const HELP := [
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
 	["Darts", "Look at the dartboard twice and he goes over and takes the darts out of the board. Aim with your eyes; hold the button and pull back to draw, and let go: halfway back is his usual throw, which lands where he's looking. The wheel lifts his elbow for a flatter throw or a lob, Q and E move his grip on the barrel, A and D move him along the line, Shift narrows his eyes and the right button holds his breath. The three house darts each fly their own way. Esc puts them down. Once he's played, darts are in Games on the title; Rehearse plays them with no night at all."],
+	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. The lock opens the front (O): what's on the board inside changes the sound. Esc steps back. What a quarter's holding keeps playing while he's gone."],
+	["Beer mats", "At the bar, look at the pile of beer mats twice. The mouse moves his hand. Hold the button to curl his fingers and bring them up fast under the part hanging over the edge: it hinges off the bar and turns over in the air. Click again while it's up to snatch it. It has to have turned over and be lying near flat. Each one caught, he puts another on the stack. The wheel slides it out over the edge or back; Q and E take one off or put one on. Esc puts them down."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
 	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],

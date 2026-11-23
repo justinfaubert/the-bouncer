@@ -36,6 +36,8 @@ var dice: Dice
 var props: Props
 var door_hand: DoorHand
 var darts: Darts
+var cig: CigMachine
+var mats: BeerMats
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -150,6 +152,14 @@ func _ready() -> void:
 	add_child(darts)
 	darts.setup(self)
 	darts.left.connect(_darts_left)
+	cig = CigMachine.new()
+	add_child(cig)
+	cig.setup(self)
+	cig.left.connect(_cig_left)
+	mats = BeerMats.new()
+	add_child(mats)
+	mats.setup(self)
+	mats.left.connect(_cig_left)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -432,6 +442,54 @@ func _darts_left() -> void:
 		menus.games("title")
 
 
+# The cigarette machine on the east wall under the news (game/cig_machine.gd): from the night, the
+# games, or the rehearsal, the same way as the darts.
+var _cig_from := ""
+
+func start_cig(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("pool")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	cig.begin(from_menu != "", body)
+
+
+# The beer mats off the edge of the bar (game/beer_mats.gd), the same way.
+func start_mats(from_menu: String, body := {}) -> void:
+	_cig_from = from_menu
+	menus.hide_all()
+	if from_menu != "":
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("bar")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+	mats.begin(from_menu != "", body)
+
+
+func _cig_left() -> void:
+	if _cig_from == "":
+		return
+	var m := _cig_from
+	_cig_from = ""
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	if m == "rehearse":
+		menus.rehearse("title")
+	else:
+		menus.games("title")
+
+
 func back_to_title() -> void:
 	if in_game and not game.ended:
 		persist()
@@ -512,6 +570,20 @@ func toy(id: String, what: String) -> String:
 		_met("darts")
 		if _looked_at.has(id) and not bool(game.get_var("darts_pulled")) and view.eye_pos.distance_to(darts.to_world.origin) < 8.5:
 			start_darts("practice", "")
+			return "said"
+		_looked_at[id] = true
+	# the cigarette machine: the first look says what it is; the next, he goes and stands at it
+	if id == "cigmachine" and what == "look":
+		_met("cigs")
+		if _looked_at.has(id) and view.eye_pos.distance_to(CigMachine.AT) < 10.0:
+			start_cig("")
+			return "said"
+		_looked_at[id] = true
+	# the beer mats on the bar: the same, from the bar
+	if id == "coasters" and what == "look":
+		_met("mats")
+		if _looked_at.has(id) and view.eye_pos.distance_to(BeerMats.EDGE) < 3.0:
+			start_mats("")
 			return "said"
 		_looked_at[id] = true
 	var res := game.toy(id, what)

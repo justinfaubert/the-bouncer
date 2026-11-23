@@ -28,6 +28,8 @@ window: {name: The window., at: "p:10.2,1.65,10.1", from: [room, lot]}
 bottles: {name: The back bar., at: a:bottles, from: [room, hall]}
 taps: {name: The taps., at: a:taps, from: [room, hall]}
 lotto: {name: The lottery screen., at: a:lotto, from: [room, hall]}
+coasters: {name: The beer mats., at: a:coasters, from: [bar]}
+cigmachine: {name: The cigarette machine., at: a:cigmachine, from: [room]}
 
 # ---------------------------------------------------------------- the room's things (content/ink/room.ink)
 #   when: only while these hold, on the Ink's VARs (the criteria of content/rules/barks.yaml): a thing
@@ -47,6 +49,7 @@ book: {name: The incident book., at: a:ledge}
 # ---------------------------------------------------------------- the back hall, the kitchen, the keg room
 hotel_door: {name: The hotel door., at: a:hotel_door}
 extinguisher: {name: The extinguisher., at: a:extinguisher}
+
 pass: {name: The pass., at: a:pass}
 fryer: {name: The fryer., at: a:fryer}
 radio: {name: The radio., at: a:radio}
