@@ -215,11 +215,11 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
     The extinguisher on its bracket at the end of the hall, across from the payphone, with an inspection tag on a string round its neck.
 }
 
-// The cigarette machine by the payphone (godot/game/cig_machine.gd): the first look is this; the
+// The cigarette machine on the east wall, under the news (godot/game/cig_machine.gd): the first look is this; the
 // next one, he goes and stands at it, and it plays. Nobody in the Ink says so.
 === function toy_cigmachine(what)
 {stopping:
-- The cigarette machine at the end of the hall, by the payphone: twelve brands behind twelve little windows, a knob under each, a strip of mirror gone grey at the corners. IT'S THE LAW, 19 TO BUY, on a sticker somebody had gone at with a key. They'd unplugged it the year of the ban and coiled the cord on top and taped it. Somebody had written ON over the coin slot in marker, and under it OFF, and under that a question mark.
+- The cigarette machine against the east wall under the TV, on the way out to the deck: twelve brands behind twelve little windows, a knob under each, a strip of mirror gone grey at the corners. IT'S THE LAW, 19 TO BUY, on a sticker somebody had gone at with a key. They'd unplugged it the year of the ban and coiled the cord on top and taped it. Somebody had written ON over the coin slot in marker, and under it OFF, and under that a question mark.
 - The cigarette machine. Its cord was still taped up on top. He'd have sworn the windows were lit a second ago.
 }
 

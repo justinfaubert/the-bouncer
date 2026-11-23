@@ -392,10 +392,11 @@ func _draw() -> void:
 		var palm_down := phase == "air" and not curled or closed
 		var b := Basis(Vector3.UP, PI / 2.0)
 		if palm_down:
-			b = b * Basis(Vector3(0, 0, 1), PI)
+			# turned in on its edge to take it out of the air, thumb up, the way a hand grabs
+			b = b * Basis(Vector3(0, 0, 1), deg_to_rad(-75.0))
 		if curled and phase == "set":
 			b = b * Basis(Vector3(1, 0, 0), deg_to_rad(-20.0))
-		hand_node.global_transform = Transform3D(b, _w(hp) + Vector3(0.13, -0.015 if not palm_down else 0.015, 0.0))
+		hand_node.global_transform = Transform3D(b, _w(hp) + Vector3(0.13, -0.015, 0.0))
 
 
 func _tremor() -> Vector2:

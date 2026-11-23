@@ -440,7 +440,7 @@ func _darts_left() -> void:
 		menus.games("title")
 
 
-# The cigarette machine at the end of the back hall (game/cig_machine.gd): from the night, the
+# The cigarette machine on the east wall under the news (game/cig_machine.gd): from the night, the
 # games, or the rehearsal, the same way as the darts.
 var _cig_from := ""
 
@@ -451,7 +451,7 @@ func start_cig(from_menu: String, body := {}) -> void:
 		view.drinks = int(body.get("drinks", 0))
 		view.hurt = int(body.get("hurt", 0))
 		view.tension = int(body.get("tension", 0))
-		view.jump_to("hall")
+		view.jump_to("pool")
 		stage.sync(game, true)
 		audio.unlock()
 		audio.ambience("room_quiet")

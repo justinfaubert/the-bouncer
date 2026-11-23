@@ -54,21 +54,28 @@ func _run() -> void:
 	m.hand = Vector2(m.overhang * 0.7, -0.02)
 	await _frames(5)
 	await _grab("fingers_under")
-	m._flick(Vector2(0.1, 1.45), m.overhang * 0.75)
-	await _frames(4)
-	await _grab("in_the_air")
-	# follow it with the hand and snatch it as it comes flat
+	m.set_process(false)
+	m._flick(Vector2(0.1, 2.1), m.overhang * 0.75)
+	# follow it with the hand and snatch it as it comes flat (the physics stepped here, not by frames)
+	m.set_process(false)
 	var caught := false
-	for f in 120:
-		m.hand = m.hand.lerp(m.pos, 0.5)
+	for f in 1200:
+		m._step(1.0 / m.HZ)
+		m.hand = m.hand.lerp(m.pos, 0.05)
 		m.hand_v = m.vel
-		var turned := fposmod(m.th, TAU)
-		if absf(turned - PI) < 0.3 and m.phase == "air":
+		if f == 40:
+			m._draw()
+			await _grab("in_the_air")
+		if absf(fposmod(m.th, TAU) - PI) < 0.25 and m.phase == "air":
+			print("snatch at d %.3f rel %.2f th %.2f" % [m.hand.distance_to(m.pos), (m.vel - m.hand_v).length(), m.th])
 			m.curled = false
 			m._snatch()
 			caught = m.phase == "caught"
 			break
-		await process_frame
+		if m.phase != "air":
+			break
+	m._draw()
+	m.set_process(true)
 	await _frames(2)
 	await _grab("snatched" if caught else "missed")
 	await _frames(70)

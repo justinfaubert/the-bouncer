@@ -1,4 +1,5 @@
-# The cigarette machine at the end of the back hall, by the dead payphone. Pulled from service
+# The cigarette machine against the east wall of the bar, under the TV on the news, between the
+# dartboard and the deck door, where everyone going out for a smoke passes it. Pulled from service
 # when the ban came in, the plug coiled on top and taped. It plays anyway. Nobody explains it.
 # (game/cig_synth.gd is its voice.)
 #
@@ -30,11 +31,13 @@
 #                 price, with the quarters in, a hard pull all the way out drops it.
 #
 # The column keeps to what he'd notice. Esc steps back from it; a quarter's hold keeps playing in
-# the hall while he's gone, until the coin mech gives up and drops it into the box.
+# the room while he's gone, until the coin mech gives up and drops it into the box.
 class_name CigMachine
 extends Node
 
-const AT := Vector3(15.05, 0.0, Pub.BACK + 0.46)     # the middle of its front, on the floor
+const AT := Vector3(15.64, 0.0, 5.3)                 # the middle of its front, on the floor: against the east wall under the news, between the darts and the deck door
+const TURN := -PI / 2.0                              # facing into the room (its front, +z, to the west)
+var FRAME := Transform3D(Basis(Vector3.UP, TURN), AT)
 const W := 1.0
 const H := 1.74
 const D := 0.46
@@ -130,6 +133,7 @@ func _build() -> void:
 	root = Node3D.new()
 	root.name = "cig_machine"
 	root.position = AT
+	root.rotation.y = TURN
 	pub.add_child(root)
 	var enamel := pub.mat(Color("a89c80"), 0.45, 0.25, 2, Vector3.UP, 5.0, 0.9)     # the cabinet: brown enamel gone dull
 	var chrome := pub.mat(Color("b4b8ba"), 0.18, 0.9, 2, Vector3.UP, 4.0, 1.0)
@@ -173,7 +177,15 @@ func _build() -> void:
 	lamp_light.position = Vector3(-0.1, 1.08, 0.2)
 	lamp_light.shadow_enabled = false
 	root.add_child(lamp_light)
-	pub.anchors["cigmachine"] = AT + Vector3(0, 1.1, 0.02)
+	# the bare bulb over the corner, on the ceiling by the kitchen door: just enough to read it by
+	var bulb := OmniLight3D.new()
+	bulb.light_color = Color("ffd9a0")
+	bulb.light_energy = 0.45
+	bulb.omni_range = 2.4
+	bulb.omni_attenuation = 1.6
+	bulb.position = Vector3(0.1, 2.5, 0.7)
+	root.add_child(bulb)
+	pub.anchors["cigmachine"] = FRAME * Vector3(0, 1.1, 0.02)
 
 
 func _door() -> void:
@@ -397,7 +409,7 @@ func end() -> void:
 		view.pitch = _saved.get("pitch", view.pitch)
 		view.want_yaw = view.yaw
 		view.want_pitch = view.pitch
-	# a hold left on keeps going in the hall while he's gone; a rehearsal's ends with it
+	# a hold left on keeps going in the room while he's gone; a rehearsal's ends with it
 	if rehearsal:
 		pocket += synth.coins_back() + in_cup
 		in_cup = 0
@@ -452,10 +464,10 @@ func _process(dt: float) -> void:
 	for i in 12:
 		var m: ShaderMaterial = (windows[i] as MeshInstance3D).material_override
 		m.set_shader_parameter("emission_energy", base + lit[i] * 1.4)
-	# heard from where he is: in the hall it's close; from the room, through the doorway
-	var d := view.eye_pos.distance_to(AT + Vector3(0, 1.0, 0))
+	# heard from where he is: in the room it carries; from the back, through the walls
+	var d := view.eye_pos.distance_to(FRAME * Vector3(0, 1.0, 0))
 	var db := -20.0 * log(maxf(1.0, d / 1.2)) / log(10.0)
-	if not active and view.place != "hall":
+	if not active and Hotspots.PART.get(view.place, "room") != "room":
 		db -= 10.0
 	synth.player.volume_db = db + linear_to_db(float(main.settings.get("vol_room", 1.0)) if main.settings.has("vol_room") else 1.0)
 	# a hold left playing, while he's away: the coin mech gives up after a while
@@ -489,10 +501,10 @@ func _eyes(dt: float) -> void:
 		var off := (pp / Vector2(view.eye.size) - Vector2(0.5, 0.5))
 		look_l += Vector3(off.x * 0.12, -off.y * 0.1, 0)
 		eye_l += Vector3(off.x * 0.05, 0, 0)
-	var want_eye := AT + eye_l
+	var want_eye := FRAME * eye_l
 	var k := 1.0 - exp(-dt * 5.0)
 	view.eye_pos = view.eye_pos.lerp(want_eye, k) if view.eye_pos.distance_to(want_eye) < 3.0 else want_eye
-	var a := Posts.aim(view.eye_pos, AT + look_l)
+	var a := Posts.aim(view.eye_pos, FRAME * look_l)
 	view.yaw = lerp_angle(view.yaw, a.x, k)
 	view.pitch = lerpf(view.pitch, a.y, k)
 	view.want_yaw = view.yaw
@@ -883,9 +895,9 @@ func _column_begin() -> void:
 	main.column.begin_batch()
 	if rehearsal:
 		main.column.reset()
-		main.column.add_line({"role": "narration", "text": "The cigarette machine at the end of the back hall, by the payphone. The plug coiled on top of it and taped. Twelve knobs, twelve brands nobody makes now."})
+		main.column.add_line({"role": "narration", "text": "The cigarette machine against the east wall, under the news, on the way to the deck. The plug coiled on top of it and taped. Twelve knobs, twelve brands nobody makes now."})
 	else:
-		main.column.add_line({"role": "narration", "text": "He went down to the end of the hall and stood in front of the cigarette machine."})
+		main.column.add_line({"role": "narration", "text": "He went over and stood in front of the cigarette machine."})
 	main.column.add_note("Pull a knob out with the mouse (down is out) or play the row with A W S E D F T G Y H U J; Shift pulls one all the way. Z and X move the row an octave. Click the slot for a quarter (C), the coin return lever bends the note and gives them back (R). Knock on it: left button a knuckle, right a palm (Space). The wheel rocks it. The lock opens the front (O). Esc steps back.\nQuarters on him: %d." % pocket)
 	main.column.scroll_to_end()
 

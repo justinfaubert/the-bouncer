@@ -43,9 +43,9 @@ func _grab(name: String) -> void:
 
 func _run() -> void:
 	await _frames(5)
-	main.view.jump_to("hall")
+	main.view.jump_to("pool")
 	await _frames(40)
-	await _grab("from_the_hall")
+	await _grab("from_the_pool_table")
 	main.start_cig("rehearse", {"drinks": 0, "hurt": 0, "tension": 0, "clock": 1290, "cold": 0.0})
 	await _frames(90)
 	await _grab("stood_at_it")
