@@ -1,7 +1,8 @@
 LAST CALL
-Everything so far in one build, 22 November 2026: Wednesday, Thursday and Friday, the door by
-hand, walking on his own feet, darts, the new light, Amanda's sculpted head and the Listener's
-look test.
+The build of 23 November 2026: everything from 22 November (Wednesday, Thursday and Friday, the
+door by hand, walking on his own feet, darts, the new light, Amanda's head, the Listener's look
+test) and the set dressing: the beer posters, the glasswasher behind the bar (its switch is
+yours to flip), the signs, the corkboard, the clock, the neon, the Esso's ads, trash outside.
 
 
 PLAY IT
