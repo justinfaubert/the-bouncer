@@ -85,6 +85,20 @@ from the floor rather than from the middle of a scene, and some of it won't line
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
 
 
+THE TRUCK, AFTER ITS FIRST DRIVE
+
+- W A S D never turn his head now, anywhere. In the truck no key looks round at all: the mouse
+  does. Out of the truck, looking is the mouse or the arrow keys.
+- The steering wheel turns round its column, the way you steer.
+- A hit is one deep thud through the frame, once, not a racket every moment it's touching.
+- The truck is rebuilt from its own lines: the fenders' crown and arches, the hood, the grille
+  with round lamps in square bezels, the doors with their seams and handles, the side glass and
+  the vent wings, the Styleside bed with its arches and white rail caps, the bumpers, mud flaps
+  and tailpipe. Inside: a padded dash, the radio, door panels with the crank and armrest, sun
+  visors, the mirror, and a cardboard pine hanging from it that swings when you brake or turn.
+- C's outside view sits closer behind the truck.
+
+
 WHAT'S NEW IN THE SECOND BUILD OF 23 NOVEMBER
 
 The truck, a first drivable slice: Rehearse > The truck > Drive it.
