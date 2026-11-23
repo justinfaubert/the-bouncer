@@ -38,6 +38,7 @@ var door_hand: DoorHand
 var darts: Darts
 var cig: CigMachine
 var mats: BeerMats
+var pool: Pool
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -162,6 +163,10 @@ func _ready() -> void:
 	add_child(mats)
 	mats.setup(self)
 	mats.left.connect(_cig_left)
+	pool = Pool.new()
+	add_child(pool)
+	pool.setup(self)
+	pool.left.connect(_pool_left)
 
 	notes = Notes.new()
 	notes.anchor_right = WORLD_W
@@ -600,6 +605,10 @@ func choose(i: int) -> void:
 	var list := game.visible_choices()
 	if i < 0 or i >= list.size():
 		return
+	# played out on the table first: the night waits, and what came of it goes into the Ink
+	if list[i].get("game") != null and str(list[i].game.what) == "pool":
+		_play_choice(i, list[i].game)
+		return
 	var considered := hand.leave(i)
 	var was_read: bool = list[i].get("read") != null
 	Acts.play(self, list[i])
@@ -609,6 +618,34 @@ func choose(i: int) -> void:
 	# what he made of the thing in his hand: it's still in his hand, to do something with
 	if was_read:
 		props.keep()
+	persist()
+	audio.sfx("choose")
+	marks.fade_all()
+	show(res, true)
+
+
+func _play_choice(i: int, g: Dictionary) -> void:
+	answering = true
+	column.clear_choices()
+	var who: String = g.who if g.who != "" else "bigman"
+	start_pool("8bar", who, "", {"stakes": 20, "story": "bigman_" + str(g.meant), "they_break": true}, func(res: Dictionary):
+		answering = false
+		var r := 3 if res.get("left", false) and not res.has("why") else (1 if res.get("won", false) else 2)
+		game.set_var("pool_result", r)
+		game.set_var("pool_threw", int(res.get("thrown", 0)))
+		game.set_var("pool_dumped", int(res.get("dumped", 0)))
+		view.jump_to("pool")
+		_choose_now.call_deferred(i))
+
+
+func _choose_now(i: int) -> void:
+	var list := game.visible_choices()
+	if i < 0 or i >= list.size():
+		return
+	var considered := hand.leave(i)
+	var res := game.choose(i, {"considered": considered})
+	if res.is_empty():
+		return
 	persist()
 	audio.sfx("choose")
 	marks.fade_all()
@@ -646,6 +683,53 @@ func choose_by_hand(i: int, _verdict: String) -> void:
 		return
 	audio.sfx("choose", 0.6)
 	show(res, true)
+
+
+# Pool, at the coin-op (game/pool.gd): from the night (a #game choice, the big man's twenty), from
+# Games (the regulars, the money, the Sunday draw), or the rehearsal. opts go to Pool.begin.
+var _pool_from := ""
+var _pool_choice := -1
+var _pool_after := Callable()
+
+func start_pool(game_mode: String, opponent: String, from_menu: String, opts := {}, after := Callable()) -> void:
+	_pool_from = from_menu
+	_pool_after = after
+	menus.hide_all()
+	if from_menu != "":
+		var body: Dictionary = opts.get("body", {})
+		view.drinks = int(body.get("drinks", 0))
+		view.hurt = int(body.get("hurt", 0))
+		view.tension = int(body.get("tension", 0))
+		view.jump_to("pool")
+		stage.sync(game, true)
+		audio.unlock()
+		audio.ambience("room_quiet")
+		opts["rehearse"] = true
+	else:
+		_met("pool")
+	pool.begin(game_mode, opponent, opts)
+
+
+func _pool_left(res: Dictionary) -> void:
+	var m := _pool_from
+	_pool_from = ""
+	if _pool_after.is_valid():
+		var cb := _pool_after
+		_pool_after = Callable()
+		cb.call(res)
+	if m == "":
+		return
+	view.drinks = 0
+	view.hurt = 0
+	view.tension = 0
+	column.reset()
+	if m == "rehearse":
+		menus.rehearse("title")
+	elif m == "games":
+		menus.pool_menu("title")
+	else:
+		menus.games("title")
+	audio.sfx("choose", 0.6)
 
 
 # Handling a thing between choices (Game.toy). If a choice was waiting for it, the night moves on
@@ -1361,10 +1445,10 @@ func _widen(dt: float) -> void:
 		_still_t = 0.0
 	else:
 		_still_t += dt
-	var wide: bool = bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
-		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding()
+	var wide: bool = (bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
+		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding())
 	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
-	var to := 1.0 if full_frame else ((1.0 - spine) if wide else WORLD_W)
+	var to := 1.0 if full_frame or (pool != null and pool.active) else ((1.0 - spine) if wide else WORLD_W)
 	if is_equal_approx(view.world_w, to):
 		return
 	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)

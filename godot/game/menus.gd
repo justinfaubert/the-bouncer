@@ -278,6 +278,7 @@ const GAMES := [
 	["darts", "Darts", "The board on the east wall, the house darts, the chalk.", [["practice", "Throw a few"], ["clock", "Round the clock"], ["501", "Five-oh-one"]]],
 	["cigs", "The cigarette machine", "On the east wall under the news, unplugged, and it plays.", [["play", "Stand at it"]]],
 	["mats", "Beer mats", "Off the edge of the bar, flipped and caught, one more each time.", [["play", "Flip a few"]]],
+	["pool", "Pool", "The coin-op by the back wall: the regulars on the chalk ladder, money on the rail, the Sunday draw, the trick shots table 28 bets on.", [["table", "To the table"]]],
 ]
 
 
@@ -300,6 +301,8 @@ func games(from: String) -> void:
 				_button(m[1], false, func(): main.start_cig("games"))
 			elif g[0] == "mats":
 				_button(m[1], false, func(): main.start_mats("games"))
+			elif g[0] == "pool":
+				_button(m[1], false, func(): pool_menu("games"))
 			else:
 				_button(m[1], false, func(): main.start_darts(mode, "games"))
 	if not any:
@@ -307,6 +310,172 @@ func games(from: String) -> void:
 	_gap(14)
 	_button("Back", true, func(): back())
 	_focus_first()
+
+
+# Pool for money (game/pool_career.gd): his purse, the ladder chalked by the table, Good Shoes, the
+# Sunday draw, the trick shots, and the pawn window.
+func pool_menu(from: String) -> void:
+	if from != "pool":
+		came_from = from
+	_open("pool")
+	_gap(40)
+	var d := PoolCareer.data(main.settings)
+	_head("The table", "Pool for money")
+	_para("$%d in his pocket.%s" % [int(d.purse), ("  The trophy on the shelf: " + ", ".join(d.trophies)) if not (d.trophies as Array).is_empty() else ""], 22, Look.INK)
+	_button("Knock them around on his own", false, func(): main.start_pool("practice", "", "games", {}))
+	_section("The ladder")
+	_para("Chalked on the board by the table. Beat one and the next will play you.", 19, Look.MUTED)
+	for i in PoolCareer.LADDER.size():
+		var r: Dictionary = PoolCareer.LADDER[i]
+		var beaten: bool = r.id in d.beaten
+		if not PoolCareer.unlocked(main.settings, i):
+			_para("— " + ("?" if i > 0 else ""), 19, Look.FAINT)
+			break
+		var label := "%s, $%d, %s%s" % [str(PoolAI.PEOPLE[r.who].name), int(r.stakes), PoolRules.new().describe(r.game).to_lower(), "  (beaten)" if beaten else ""]
+		var idx := i
+		var bt := _button(label, false, func(): _pool_match(idx), 22)
+		bt.tooltip_text = str(r.line)
+		_para(str(r.line), 17, Look.MUTED)
+		if int(d.purse) < int(r.stakes):
+			bt.disabled = true
+	_section("Good Shoes")
+	var shoes_st := int(d.get("shoes_stakes", 50))
+	_para("He's at the bar with a soda water and a fifty folded long-ways. He'll play anybody for anything, and he's bad. Win by too much and he remembers somewhere else to be.", 18, Look.MUTED)
+	var sb := _button("Play him for $%d" % shoes_st, false, func(): _pool_shoes(), 22)
+	sb.disabled = int(d.purse) < shoes_st or int(d.get("shoes_week", 0)) > 0
+	if int(d.get("shoes_week", 0)) > 0:
+		_para("He's not in. Somebody said he'd gone to the casino in Nanaimo.", 17, Look.FAINT)
+	_section("The Sunday draw")
+	_para("Ten dollars in, eight names out of a pint glass, league rules, one rack a round. Fifty to the winner, twenty to the other one in the final.", 18, Look.MUTED)
+	var tb := _button("Put ten in the glass", false, func(): _pool_sunday(), 22)
+	tb.disabled = int(d.purse) < 10
+	_section("Trick shots")
+	_para("Table 28 puts money on whether he can. Three tries a time.", 18, Look.MUTED)
+	for tr in PoolCareer.TRICKS:
+		var tid: String = tr.id
+		var done: bool = tid in d.tricks
+		_button("%s, $%d%s" % [tr.name, int(tr.pays), "  (made)" if done else ""], false, func(): _pool_trick(tid), 21)
+	_section("The pawn window")
+	for it in PoolCareer.SHOP:
+		var iid: String = it.id
+		var own: bool = iid in d.owned
+		var lb := "%s, $%d%s" % [it.name, int(it.price), "  (his)" if own else ""]
+		var b := _button(lb, false, func(): _pool_buy(iid), 21)
+		b.disabled = own or int(d.purse) < int(it.price)
+		_para(str(it.note), 17, Look.MUTED)
+	_gap(14)
+	_button("Back", true, func(): back())
+	_focus_first()
+
+
+func _pool_pay(amount: int) -> void:
+	var d := PoolCareer.data(main.settings)
+	d.purse = maxi(0, int(d.purse) + amount)
+	main.store.save_settings()
+
+
+func _pool_match(i: int) -> void:
+	var r: Dictionary = PoolCareer.LADDER[i]
+	var d := PoolCareer.data(main.settings)
+	var who: String = r.who
+	var stakes := int(r.stakes)
+	# the man from Nanaimo: once he's lost the first one, it's a hundred, and he plays
+	if r.id == "nanaimo" and bool(d.get("nanaimo_hustled", false)):
+		who = "nanaimo"
+		stakes = 100
+		if int(d.purse) < 100:
+			toast("He wants a hundred on it now. You haven't got a hundred.")
+			return
+	main.start_pool(r.game, who, "games", {"stakes": stakes, "they_break": randf() < 0.5}, func(res):
+		if res.get("left", false) and not res.has("why"):
+			return
+		var dd := PoolCareer.data(main.settings)
+		_pool_pay(stakes if res.won else -stakes)
+		if res.won and r.id == "nanaimo" and who == "nanaimo_dumb":
+			dd.nanaimo_hustled = true
+		elif res.won and not (r.id in dd.beaten) and not (r.id == "nanaimo" and who == "nanaimo_dumb"):
+			dd.beaten.append(r.id)
+		main.store.save_settings())
+
+
+func _pool_shoes() -> void:
+	var d := PoolCareer.data(main.settings)
+	var stakes := int(d.get("shoes_stakes", 50))
+	main.start_pool("8bar", "goodshoes", "games", {"stakes": stakes}, func(res):
+		if res.get("left", false) and not res.has("why"):
+			return
+		var dd := PoolCareer.data(main.settings)
+		_pool_pay(stakes if res.won else -stakes)
+		# keep it close and he doubles; run away with it and he's gone for the week
+		if res.won and int(res.get("margin", 0)) >= 5:
+			dd.shoes_week = 1
+			dd.shoes_stakes = 50
+		elif res.won:
+			dd.shoes_stakes = mini(stakes * 2, 400)
+		main.store.save_settings())
+
+
+func _pool_trick(id: String) -> void:
+	var tr: Dictionary = {}
+	for x in PoolCareer.TRICKS:
+		if x.id == id:
+			tr = x
+	main.start_pool("trick", "", "games", {"trick": id}, func(res):
+		if res.get("made", false) or res.get("won", false):
+			var dd := PoolCareer.data(main.settings)
+			_pool_pay(int(tr.pays))
+			if not (id in dd.tricks):
+				dd.tricks.append(id)
+			main.store.save_settings())
+
+
+func _pool_buy(id: String) -> void:
+	var d := PoolCareer.data(main.settings)
+	for it in PoolCareer.SHOP:
+		if it.id == id and int(d.purse) >= int(it.price) and not (id in d.owned):
+			d.purse = int(d.purse) - int(it.price)
+			d.owned.append(id)
+			main.store.save_settings()
+			toast("His now: " + str(it.name).to_lower() + ".")
+	pool_menu("pool")
+
+
+# The Sunday draw: three rounds, one rack each, the other games played out by how good they are.
+var _sunday_round := 0
+var _sunday_field: Array = []
+
+func _pool_sunday() -> void:
+	_pool_pay(-10)
+	_sunday_round = 0
+	var field := ["scratch", "hivis", "buddy", "cook", "jim", "bigman_straight", "nanaimo"]
+	field.shuffle()
+	_sunday_field = field
+	_sunday_next()
+
+
+func _sunday_next() -> void:
+	var who: String = _sunday_field[_sunday_round]
+	var round_name: String = ["The first round", "The semi-final", "The final"][_sunday_round]
+	toast("%s: %s." % [round_name, str(PoolAI.PEOPLE[who].name).to_lower()])
+	main.start_pool("8league", who, "games", {"stakes": 0, "sunday": round_name}, func(res):
+		if not res.get("won", false):
+			if _sunday_round == 2:
+				_pool_pay(20)
+				toast("Out in the final. Twenty dollars for the other one in it.")
+			else:
+				toast("Out in %s." % round_name.to_lower())
+			return
+		_sunday_round += 1
+		if _sunday_round >= 3:
+			var dd := PoolCareer.data(main.settings)
+			_pool_pay(50)
+			dd.sundays = int(dd.get("sundays", 0)) + 1
+			if not ("the Sunday draw" in dd.trophies):
+				dd.trophies.append("the Sunday draw")
+			main.store.save_settings()
+			toast("He won the Sunday draw. Fifty dollars, and his name in chalk on the board till next week.")
+			return
+		_sunday_next.call_deferred())
 
 
 # Rehearse: any interaction on its own, without the night, with his body set by hand. For trying
@@ -332,6 +501,14 @@ func rehearse(from: String) -> void:
 	_button("Stand at it", false, func(): main.start_cig("rehearse", _rh.duplicate()))
 	_section("Beer mats")
 	_button("Flip a few", false, func(): main.start_mats("rehearse", _rh.duplicate()))
+	_section("Pool")
+	_button("The table to himself", false, func(): main.start_pool("practice", "", "rehearse", {"body": _rh.duplicate()}))
+	_button("Eight-ball against the buddy", false, func(): main.start_pool("8bar", "buddy", "rehearse", {"body": _rh.duplicate()}))
+	_button("Nine-ball against the cook", false, func(): main.start_pool("9ball", "cook", "rehearse", {"body": _rh.duplicate()}))
+	_button("The big man, the way he plays tonight", false, func(): main.start_pool("8bar", "bigman", "rehearse", {"body": _rh.duplicate(), "stakes": 20, "they_break": true}))
+	for tr in PoolCareer.TRICKS:
+		var tid: String = tr.id
+		_button("Trick shot: " + str(tr.name).to_lower(), false, func(): main.start_pool("trick", "", "rehearse", {"body": _rh.duplicate(), "trick": tid}))
 	_section("Still to come here")
 	_para("The door by hand, the dice, the licence in his hands: each gets a way in here as it's worked on.", 19, Look.FAINT)
 	_gap(14)
@@ -410,6 +587,7 @@ const HELP := [
 	["Darts", "Look at the dartboard twice and he goes over and takes the darts out of the board. Aim with your eyes; hold the button and pull back to draw, and let go: halfway back is his usual throw, which lands where he's looking. The wheel lifts his elbow for a flatter throw or a lob, Q and E move his grip on the barrel, A and D move him along the line, Shift narrows his eyes and the right button holds his breath. The three house darts each fly their own way. Esc puts them down. Once he's played, darts are in Games on the title; Rehearse plays them with no night at all."],
 	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. The lock opens the front (O): what's on the board inside changes the sound. Esc steps back. What a quarter's holding keeps playing while he's gone."],
 	["Beer mats", "At the bar, look at the pile of beer mats twice. The mouse moves his hand. Hold the button to curl his fingers and bring them up fast under the part hanging over the edge: it hinges off the bar and turns over in the air. Click again while it's up to snatch it. It has to have turned over and be lying near flat. Each one caught, he puts another on the stack. The wheel slides it out over the edge or back; Q and E take one off or put one on. Esc puts them down."],
+	["Pool", "Put twenty on the big man's next game and you play the rack on the table. The mouse turns the cue round the cue ball (Shift for fine work); up and down moves his head, low on the line or stood up. Hold the right button and move the mouse to put the tip on the ball: high follows, low draws, the sides spin it, and past the ring on the little ball it slips off. The wheel lifts the butt: over a ball, a curve, a jump. Hold the left button and pull back to draw the cue, and let go: how far back is how hard. C chalks, Q and E change cues, Tab stands him up over the table, F calls the pocket on the eight. In hand, the mouse puts the cue ball down. Once he's played, Games on the title has the table: the regulars for money, Good Shoes, the Sunday draw, the trick shots and the pawn window."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
 	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
 	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],

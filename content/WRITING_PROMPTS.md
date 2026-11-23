@@ -28,8 +28,8 @@ Each prompt marks a place where the draft needs your material or your voice. Rew
 
 ## content/ink/pool.ink
 
-11. **at_jukebox** (`content/ink/pool.ink:760`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
-12. **at_jukebox** (`content/ink/pool.ink:792`): The song at the top. It's the one the bartender puts on at close, every night.
+11. **at_jukebox** (`content/ink/pool.ink:788`): What's on it at the Sov on a Wednesday, and who put it on? The score is the jukebox, and the songs are yours (bible/04_PRODUCTION.md).
+12. **at_jukebox** (`content/ink/pool.ink:820`): The song at the top. It's the one the bartender puts on at close, every night.
 
 ## content/ink/bar.ink
 
