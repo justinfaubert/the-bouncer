@@ -687,8 +687,24 @@ ROOM = {
     'cheer': _cheer,
     'groan': _groan,
     'spill': _spill,
+    'horn': lambda o, v: _horn(o, v),
 }
-ROOM_SECONDS = {'laugh': 2.4, 'laugh_one': 1.6, 'cough': 1.0, 'pour': 3.8, 'wipe': 0.7, 'flush': 4.0, 'break': 2.0,
+def _horn(o, v):
+    # a car's horn out on the highway, leaned on and let go, the pitch dropping as it goes by
+    n = int(SR * 1.15)
+    tt = np.arange(n) / SR
+    fall = 1.0 - 0.06 * np.clip((tt - 0.5) / 0.6, 0, 1)
+    x = np.zeros(n)
+    for f, a in ((415.0, 1.0), (494.0, 0.8), (830.0, 0.25)):
+        ph = 2 * np.pi * np.cumsum(f * fall) / SR
+        x += a * np.sign(np.sin(ph))
+    x = _filter(x, 'lowpass', 2400, 0.7)
+    env = np.clip(tt / 0.02, 0, 1) * np.where(tt < 1.0, 1.0, np.exp(-(tt - 1.0) / 0.03))
+    x = x * env
+    o[:n] += (x / (np.max(np.abs(x)) + 1e-9) * 0.3 * v)[:len(o)]
+
+
+ROOM_SECONDS = {'horn': 1.3, 'laugh': 2.4, 'laugh_one': 1.6, 'cough': 1.0, 'pour': 3.8, 'wipe': 0.7, 'flush': 4.0, 'break': 2.0,
                 'pocket': 0.9, 'clink': 0.5, 'lighter': 0.6, 'cheer': 2.0, 'groan': 1.8, 'spill': 1.2}
 ROOM_TAKES = {'glass_down': 4, 'clink': 2, 'laugh': 3, 'laugh_one': 3, 'cough': 3, 'stool': 3, 'pour': 2, 'wipe': 2,
               'door_wc': 2, 'slap': 2, 'cue': 3, 'pocket': 2, 'lighter': 2, 'cheer': 2, 'groan': 2}

@@ -290,6 +290,16 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 + [Walk about the lot. #toy: legs walk #unlisted]
     ~ pass(1)
     -> f_opts
+// out on the grounds (grounds.ink): handling one of these things out there is more than a look
++ {out_merle < 6} [The man fishing off the seawall. #toy: merle look #unlisted] -> out_merle
++ {not out_cross} [The cross on the shoulder. #toy: cross look #unlisted] -> out_cross
++ {not out_kelp} [Something in the kelp. #toy: kelp look #unlisted] -> out_kelp
++ [The buzzers by the hotel door. #toy: buzzers look #unlisted] -> out_buzzers
++ {not out_caps} [The bottle caps by the vent. #toy: caps look #unlisted] -> out_caps
++ {esso_rang && esso_answered == 0} [The Esso's payphone, ringing. #toy: esso_phone look #unlisted] -> out_payphone
++ [The Esso's night window. #toy: esso_clerk look #unlisted] -> out_clerk
++ {not out_fire} [The fire on the beach. #toy: beach_fire look #unlisted] -> out_fire
++ {kitchen_door} [The kitchen's back door, propped. #toy: kitchen_door look #unlisted] -> out_kitchen_door
 
 = f_air
 ~ pass(3)

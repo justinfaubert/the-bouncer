@@ -32,8 +32,9 @@ const LEAN := 0.3             # how far his head goes out, leaning
 const LEAN_ROLL := 0.09
 # the part of the building each zone is (Hotspots.zone_of), as a place the night knows
 const ZONE_PLACE := {"room": "floor", "vest": "floor", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot"}
-# where in each place he walks about freely, once he's there
-const WALKS := {"floor": ["room", "vest"], "deck": ["deck"], "lot": ["lot"]}
+# where in each place he walks about freely, once he's there: out front, everywhere out of doors a
+# man could walk (world/grounds.gd), round the back, across the highway, down to the Esso
+const WALKS := {"floor": ["room", "vest"], "deck": ["deck"], "lot": ["lot", "yard", "town"]}
 
 var main
 var held := {}                # W A S D, by key
@@ -169,6 +170,8 @@ func process(dt: float) -> void:
 			_held_t = 0.0
 	_doors()
 	_hint(m)
+	if main.pub.grounds != null:
+		main.pub.grounds.tick(main, dt)
 
 
 # ---------------------------------------------------------------- walking
@@ -189,6 +192,7 @@ func _walk(dt: float, w: Vector2) -> void:
 			want *= 0.8
 	vel = vel.move_toward(want, (ACCEL if want.length() > vel.length() else BRAKE) * dt)
 	var at := Vector3(view.eye_pos.x, 0.0, view.eye_pos.z)
+	var outside: bool = Grounds.outdoor_zone(Hotspots.zone_of(view.eye_pos))
 	var step := vel * dt
 	if step.length() > 0.00001:
 		var to = _try(at, step)
@@ -202,7 +206,10 @@ func _walk(dt: float, w: Vector2) -> void:
 			return
 		else:
 			var moved: float = (to as Vector3).distance_to(at)
-			view.eye_pos = Vector3(to.x, Posts.STAND, to.z)
+			# out of doors the ground goes up and down under him: round the back a step below the
+			# lot, down the steps through the seawall onto the beach
+			var gy := Grounds.ground_y(to.x, to.z) if outside else 0.0
+			view.eye_pos = Vector3(to.x, Posts.STAND + gy, to.z)
 			view.floor_spot = Vector3(to.x, 0.0, to.z)
 			_walked += moved
 			_since_step += moved
@@ -238,9 +245,13 @@ func _try(at: Vector3, step: Vector3) -> Variant:
 	var to := at + step
 	# room for his body: outside, between the deck's chairs and the cars, he turns a shoulder (a
 	# little less); and from a spot the night put him in tight, any step toward more room is fine
-	var need := Nav.BODY if Hotspots.zone_of(at + Vector3(0, 1.0, 0)) in ["room", "vest"] else TIGHT
-	var room := Nav.clearance(to)
-	if room < need and not (room > Nav.clearance(at) + 0.005 and room > 0.03):
+	var zone_at := Hotspots.zone_of(at + Vector3(0, 1.0 + Grounds.ground_y(at.x, at.z), 0))
+	var need := Nav.BODY if zone_at in ["room", "vest"] else TIGHT
+	# out of doors, the grounds' map (world/grounds.gd), which has Nav's for the lot in it
+	var out: bool = Grounds.outdoor_zone(zone_at)
+	var room := Grounds.clearance(to) if out else Nav.clearance(to)
+	var was := Grounds.clearance(at) if out else Nav.clearance(at)
+	if room < need and not (room > was + 0.005 and room > 0.03):
 		return null
 	var people: Array = view.people_at.call() if view.people_at.is_valid() else []
 	for p in people:
@@ -249,7 +260,7 @@ func _try(at: Vector3, step: Vector3) -> Variant:
 		# never walks into someone; walking away from them is fine
 		if d < PERSON_ROOM and d < pp.distance_to(at):
 			return null
-	var zone := Hotspots.zone_of(to + Vector3(0, 1.0, 0))
+	var zone := Hotspots.zone_of(to + Vector3(0, 1.0 + (Grounds.ground_y(to.x, to.z) if out else 0.0), 0))
 	var allowed: Array = WALKS.get(view.place, [])
 	if zone in allowed:
 		return to

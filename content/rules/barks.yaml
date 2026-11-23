@@ -1102,3 +1102,64 @@
   speaker: kid
   text: they all look at the door before they look at you
   mark: door.door
+
+# ---------------------------------------------------------------- out on the grounds (world/grounds.gd)
+# out:<area>: the first time his feet take him somewhere out there (side, back, alley, road,
+# seawall, beach, shoulder, esso); out:horn, a car leaning on its horn at him in the lane.
+
+- id: out_side
+  on: out:side
+  speaker: father
+  text: Every hotel's got a front door nobody uses and a back door everybody does.
+
+- id: out_back
+  on: out:back
+  speaker: fighter
+  text: Nobody sees you back here. That's the first thing and the last thing to know about it.
+
+- id: out_back_late
+  on: out:back
+  speaker: kid
+  when: [rat_favour >= 1]
+  text: they know youre here. they knew before you did
+
+- id: out_alley
+  on: out:alley
+  speaker: manual
+  text: Staff are reminded that the rear lane is not a designated smoking area.
+
+- id: out_road
+  on: out:road
+  speaker: father
+  text: Look both ways. Then look again. They come round that bend at a hundred and twenty.
+
+- id: out_seawall
+  on: out:seawall
+  speaker: wrongman
+  text: In the story the doorman walked out to the water every night after close and stood there. The drunk didn't know why. He said that was the point.
+
+- id: out_beach
+  on: out:beach
+  speaker: kid
+  text: the tide takes everything back eventually. even the stuff it didnt bring
+
+- id: out_shoulder
+  on: out:shoulder
+  speaker: fighter
+  text: No sidewalk, no light, and you're in black. Walk facing them, so you see it coming.
+
+- id: out_esso
+  on: out:esso
+  speaker: father
+  when: [door_away >= 20]
+  text: You're a quarter mile from your door. Somebody's standing at it, or nobody is.
+
+- id: out_esso_early
+  on: out:esso
+  speaker: manual
+  text: Security staff are to remain on the premises for the duration of their shift.
+
+- id: out_horn
+  on: out:horn
+  speaker: fighter
+  text: That was close enough to read his plate. Get off the road.

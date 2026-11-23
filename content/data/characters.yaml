@@ -198,3 +198,10 @@ woman:
 man:
   label: THE HUSBAND
   note: Behind her, still talking.
+merle:
+  label: MERLE
+  look: {age: old, build: slight, hair: thin, face: [stubble, lined], top: coat, mood: flat}
+  note: Fishes off the seawall across from the Sov every night with nothing on his hook, since his wife Darlene went in off it in March (content/ink/grounds.ink). Room seven was hers. Claude's draft.
+voice:
+  label: THE PHONE
+  note: Whoever's on the line when the dead payphone at the Esso rings (grounds.ink). A room is behind them that sounds like the Sov.

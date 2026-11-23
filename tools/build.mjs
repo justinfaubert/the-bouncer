@@ -320,7 +320,9 @@ for (const r of scan.readRefs) {
 }
 for (const t of scan.toyRefs) {
   const pr = props && props[t.id];
-  if (!pr || t.id === 'tonight') { err(`#toy: "${t.id}" at ${t.loc} is not in props.yaml`); continue; }
+  // a thing out of doors (things.yaml) can be more than a look: handling it makes the choice
+  if (!pr && things && things[t.id]) { if (t.what !== 'look') err(`#toy: ${t.id} ${t.what} at ${t.loc}: a thing in things.yaml is only looked at`); continue; }
+  if (!pr || t.id === 'tonight') { err(`#toy: "${t.id}" at ${t.loc} is not in props.yaml or things.yaml`); continue; }
   const can = PROP_KINDS[pr.kind] || [];
   if (!can.includes(t.what) && !(pr.kind === 'binder' && /^page\d+$/.test(t.what))) err(`#toy: ${t.id} ${t.what} at ${t.loc}: a ${pr.kind} can be ${can.join(', ')}${pr.kind === 'binder' ? ', or page<n>' : ''}`);
 }

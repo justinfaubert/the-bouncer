@@ -26,6 +26,7 @@ INCLUDE hand.ink
 INCLUDE drawer.ink
 INCLUDE room.ink
 INCLUDE days.ink
+INCLUDE grounds.ink
 
 -> interview
 

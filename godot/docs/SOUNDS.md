@@ -191,9 +191,16 @@ in: a dead little vestibule, the room's warm wash, the back hall's tiles, the ke
 ring, and next to nothing outside (`SPACE` in `godot/game/sound.gd`). So record dry: no room in
 the recording, the game adds it.
 
+## Out on the grounds
+
+`horn` (a car leaning on its horn at him in the lane, then swerving) and `gust` (one going by) are made by `sounds.py`;
+`ring` (the dead payphone at the Esso) reuses the room's phone ring, placed at the phone. They
+are played by `godot/world/grounds.gd`, and all three are wanted as recordings: a real horn, long,
+the pitch dropping as it passes; an old payphone bell, heard from a hundred metres in the rain.
+
 ## Made, but not played in this build
 
-`click`, `heart`, `lift`, `gust`, `zero`, `rings` and `ratchet` are made by `sounds.py` and kept
+`click`, `heart`, `lift`, `zero`, `rings` and `ratchet` are made by `sounds.py` and kept
 for the browser build's sake or for later; the Godot build doesn't play them. No need to record
 them yet.
 

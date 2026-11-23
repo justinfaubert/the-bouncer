@@ -147,6 +147,8 @@ var _pu := PackedVector2Array()
 var _lamps: Array = []           # [head, pool, on at, the head's light, the pool's]
 var _wins: Array = []            # the window lights, one material for each of WIN_ON
 var _at := ""                    # where he is
+var _clock := 0.0
+var outdoors := false            # he's out of doors at the Sov at night (world/grounds.gd): the town's out to walk to
 var _halo: MeshInstance3D
 var _rainfall: CPUParticles3D
 var _day_spot: SpotLight3D       # the daylight in through Gary's window
@@ -221,10 +223,11 @@ func show_for(where: String, clock: int, frame := "") -> void:
 # Gary's window goes with the sky. Before there's a clock, and from the night's hour on, every lamp
 # is lit; at the Sov then, none of it is out.
 func by_clock(c: float, where: String) -> void:
+	_clock = c
 	var away := Posts.away(where)
 	var night := c >= NIGHT or c < 420.0
-	near.visible = away or not night
-	far.visible = away
+	near.visible = away or not night or outdoors
+	far.visible = away or outdoors
 	for l in _lamps:
 		var on: float = l[2]
 		var k := 1.0 if night else clampf((c - on) / 10.0, 0.0, 1.0)
@@ -239,9 +242,18 @@ func by_clock(c: float, where: String) -> void:
 	if _day_spot != null:
 		_day_spot.light_energy = 0.0 if night else 1.5 * clampf((1045.0 - c) / 85.0, 0.0, 1.0)
 	if _halo != null:
-		_halo.visible = away and (night or c >= 990.0)
+		_halo.visible = (away or outdoors) and (night or c >= 990.0)
 	if T.has("store_spill"):
 		(T.store_spill as Light3D).light_energy = 1.3 if night else lerpf(0.7, 1.3, dusk)
+
+
+# Out of doors at the Sov at night or back in (world/grounds.gd): the town out, so there's the Esso
+# down the highway to walk to and the hill behind, or put away again.
+func set_outdoors(on: bool) -> void:
+	if on == outdoors:
+		return
+	outdoors = on
+	by_clock(_clock, _at)
 
 
 # ---------------------------------------------------------------- the lie of the land
