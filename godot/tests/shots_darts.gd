@@ -70,15 +70,15 @@ func _run() -> void:
 		var r: Dictionary = d.sim.result(d.bodies[k])
 		print("dart %d: %s %s x%s, heard %s" % [k, r.where, r.get("n", 0), r.get("x", 0), str(d.sim.hits.filter(func(h): return int(h[1]) == k).map(func(h): return h[2]))])
 		await _grab("dart_%d_landed" % k)
-	main.view.focus_fov = 14.0
+	d.fov_hold = 14.0
 	d.aim_pitch = a.y - 0.03
 	await _frames(30)
 	await _grab("board_close")
 	var ca: Vector2 = Posts.aim(main.view.eye_pos, d.chalk.global_position)
 	d.aim_yaw = ca.x
 	d.aim_pitch = ca.y
-	main.view.focus_fov = 22.0
+	d.fov_hold = 22.0
 	await _frames(30)
 	await _grab("chalk")
-	main.view.focus_fov = 0.0
+	d.fov_hold = 0.0
 	quit()
