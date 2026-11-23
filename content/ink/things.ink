@@ -439,3 +439,136 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 - The water, and the far shore.
 }
 
+// ------------------------------------------------------------------ the set dressing
+// What's on the walls and the floor (godot/world/dressing.gd): the beer posters and the calendar,
+// the signs, the corkboard, the beer clock, the neon, the glasses and the glasswasher, the hall's
+// hole, the signs by the door and what's on the gravel, the Esso's window. The brands are made up.
+
+=== function toy_poster_boors(what)
+{stopping:
+- BOORS LIGHT. COLD AS YOUR EX. A blonde in a bikini the colour of a glacier, standing in snow to her shins in nothing else, the can up by her ear as if it had said something. The window had taken the blue out of the top half of her. Somebody had put a piece of tape back over the bottom corner where she'd come away from the wall.
+- Still cold. So was the ex.
+}
+
+=== function toy_poster_mildcat(what)
+{stopping:
+- MILDCAT. UNLEASH THE MILD. A brunette on a bar stool in a leopard bikini, her legs crossed, the can up by her mouth like a microphone. Across her shins, in black marker, in capitals pressed hard into the paper: SHITTY KITTY. And an arrow. The arrow pointed at the can, not at her. Whoever wrote it had principles.
+- SHITTY KITTY. It was still the second-best seller in the place.
+}
+
+=== function toy_calendar(what)
+{stopping:
+- The Unlucky Lager calendar on its nail under the lamp. Miss March: a redhead leaned on the fender of a pickup with a bottle at her hip. GET UNLUCKY. MARCH 1998. Somebody had crossed the days off in ballpoint, one X each, the first to the thirteenth, and then stopped. On the fourteenth, in pencil, small: D.
+- The truck in it was jade green. He'd had one that colour once, a long time ago, and sold it for parts.
+- March 1998, crossed off to the thirteenth. D.
+}
+
+=== function toy_poster_lochness(what)
+{stopping:
+- LOCHNESS. SOMETHING DARK LIVES IN HERE. A pint of stout, the cream on it, and coming up out of the cream two humps and a neck. Irish-ish, it said. Brewed in the dark since 1759, probably. Nobody in the Sov drank it but the old soldier, who said it was the only one with any food in it.
+- Seen it? Neither has anyone sober.
+}
+
+=== function toy_labutt(what)
+{stopping:
+- A tin sign up near the ceiling, LABUTT BLUE, OUT OF THE BLUE. INTO THE DITCH., rusted out round its screws and dented in the middle where something had been thrown at it from about where the pool table was. One corner had come off its screw and stood out from the wall.
+- Labutt Blue. Into the ditch.
+}
+
+// The first look, the board; after that, a flyer at a time.
+=== function toy_corkboard(what)
+{stopping:
+- The corkboard by the way to the hall, every inch of it somebody's, pinned over somebody else's. On top, newest, a sheet with four of its six phone tabs torn off: SMOKER, at the fish plant, Sunday, eight. Three rounds. Two hundred dollars to the last man standing. Bring your own mouthguard. No referee. No refunds.
+- {cycle:
+    - THE DOWNSTROKES, Saturday, nine, at the Sov. Classic rock, covers of covers. No cover. (Get it.) JIM ON DRUMS, along the bottom, in smaller letters than the rest, as if he'd made it himself and hadn't wanted to presume.
+    - LOST CAT. PICKLES. Answers to nothing. Has done this before. A photocopy of a photo of a cat, mostly toner, and one tab gone.
+    - In loving memory, DARLENE. A celebration of life, at the Sov, Saturday March 28, two o'clock. Potluck. Bring a story. Under it, in another pen: she would have hated this.
+    - ROOM FOR RENT, upstairs, weekly, shared bath, no drugs no pets no drama. Ask at the bar. Drama was underlined twice.
+    - KARAOKE TUESDAYS with DJ SANDY. You are not as good as you think you are. Sing anyway.
+    - MEAT DRAW, every Sunday at four, Royal Canadian Legion, Branch 71. Hams, roasts, a turkey, and the 50/50. Proceeds to the poppy fund.
+    - A business card in the corner. PREMIUM DRYWALL. No job too small. Holes punched in walls a specialty. Darrell.
+    - SMOKER, at the fish plant. Two tabs left.
+  }
+}
+
+=== function toy_sign_reserve(what)
+{stopping:
+- Over the back bar, a printed sign: WE RESERVE THE RIGHT TO REFUSE SERVICE TO ANYONE. Under it, in marker, in Gary's hand: and we do. - G. He'd been hired to be the and we do.
+- And we do.
+}
+
+=== function toy_sign_forget(what)
+{stopping:
+- Over the kitchen door: IF YOU ARE DRINKING TO FORGET, PLEASE PAY IN ADVANCE. Everyone laughed at it once. Nobody paid in advance.
+- Please pay in advance.
+}
+
+=== function toy_beer_clock(what)
+{stopping:
+- The beer clock over the end of the bar, OLD MILDEW, IT'S ALWAYS TIME, lit from inside, the face gone the yellow of a smoker's ceiling and five dead flies in the bottom of it. It ran seven minutes fast. That way last call came early, and nobody argues with a clock.
+- Bar time. Seven minutes fast, and nobody arguing.
+}
+
+=== function toy_window_neon(what)
+{stopping:
+- In the window, BOORS LIGHT in blue neon, to the lot, the H going on and off in its own time. From inside it was backwards and said nothing at all.
+- The H, on. Then not.
+}
+
+=== function toy_clean_glasses(what)
+{stopping:
+- Pints upside down on the rubber mat on the back bar, three rows of them, all the same way round. One gap in the third row where somebody had taken one and not put it back, which would bother somebody behind the bar more than it should.
+- The clean glasses. The gap, still.
+}
+
+=== function toy_glasswasher(what)
+{
+- not washer_on:
+    The glasswasher, off, the belt stopped where it had been, a rack of empties half in under the strips, the amber lamp dark.
+- washer_back:
+    ~ washer_back = false
+    The glasswasher, running again. Nobody had seen it switched back on. The bartender was across the bar, not looking at it, very carefully.
+- else:
+    {stopping:
+    - The glasswasher on the end of the back bar, a conveyor machine out of a hotel kitchen and much too big for here. Racks of empties went in at one end under a curtain of plastic strips, the spray hissed inside, and they came out the other end clean and steaming. The belt ticked over. Somebody had bought it when the Sov did a hundred covers a night, and nobody since had had a reason to move it.
+    - {shuffle:The belt ticking over, a rack going in under the strips.|A rack out at the end, steaming.|The hum, which you stopped hearing after the first hour.}
+    }
+}
+
+// The switch: by the time this is said, he's flipped it (godot/game/main.gd), and washer_on is
+// what it is now.
+=== function toy_washer_switch(what)
+{
+- not washer_on && washer_flips == 1:
+    He leaned over the bar and flipped the switch on the front of the glasswasher. The amber lamp went out. The motor ran down through one long falling note, the spray stopped, and for a second the whole bar could hear itself: the cooler, the hockey, somebody at table 28 saying "and then he says" into nothing. The bartender looked at the switch, and then at him.
+- not washer_on:
+    {shuffle:Off. The hum ran down, and the room came up under it.|Off again. The bartender didn't look this time, which was worse.|He switched it off. Nobody said anything about it.}
+- washer_flips == 2:
+    He flipped it back. The amber lamp came on, the motor caught, and the belt took up where it had left off as if it hadn't noticed.
+- else:
+    {shuffle:On. The hum came back and the room sank under it.|He switched it on again. The belt went on.}
+}
+
+=== function toy_wall_hole(what)
+{stopping:
+- A hole in the hall side of the wall at about the height of a big man's fist, the paper of the board torn back round it, and a beer mat taped over half of it, as if that was the half that mattered.
+- The hole, and the mat over half of it.
+}
+
+=== function toy_door_signs(what)
+{stopping:
+- By the door, at the height of someone deciding whether to come in: MINORS PROHIBITED, with the licence number under it; and NO SHIRT NO SHOES NO SERVICE, and under that in marker, no pants: ask Gary. Nobody had ever asked Gary. Probably.
+- No pants: ask Gary.
+}
+
+=== function toy_lot_trash(what)
+{stopping:
+- Butts all round the step, a thousand nights of them, ground into the gravel where people stood to finish one before going in, or after being put out. A can crushed flat by a tire. A scratch ticket, scratched. The rain had pushed everything that floated up against the front of the building.
+- The butts round the step. Somebody's always last.
+}
+
+=== function toy_esso_ads(what)
+{stopping:
+- Ads taped to the outside of the Esso's window, the sun and the squeegee gone over them: ICE, 2 BAGS $5, it is still just water. LOTTO MOST, $40 MILLION, somebody has to. SMOKES behind the counter, ask, PRICES UP AGAIN, not our fault, ask Ottawa. ROLLER GRILL 2 for $4, since this morning. On the door, WE ID everyone under 30, and anyone who argues.
+- Ice, smokes, the lotto. Since this morning.
+}

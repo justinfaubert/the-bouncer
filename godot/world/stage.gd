@@ -593,6 +593,10 @@ func _room_things(game: Game, v: Dictionary) -> void:
 	var coat: bool = not _has(v, "in_drawer", "bm_coat") and num.call("back_for") == 0 and not _has(v, "fam", "lot_scene")
 	var crooked: bool = num.call("cell_how") != 3
 	_thing("coat", pub.anchors.coat_hook, "room", func(): pub.set_coat(coat, crooked), [coat, crooked])
+	# the glasswasher, running or not, as he (or a saved night) left it
+	if pub.dressing != null:
+		var washing: bool = bool(BUtil.js_truthy(v.get("washer_on", true)))
+		_thing("washer", pub.anchors.glasswasher, "room", func(): pub.dressing.washer.set_on(washing), washing)
 	var wallet: bool = num.call("wallet_dropped") > 0 and num.call("wallet_how") == 0 and num.call("wallet_back") == 0
 	_thing("wallet", pub.anchors.gs_wallet, "room", func(): (pub.dyn.gs_wallet as Node3D).visible = wallet, wallet)
 	var wet := int(BUtil.js_int(_ink(game, "wet", 0)))

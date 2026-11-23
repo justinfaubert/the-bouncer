@@ -70,6 +70,7 @@ func build() -> void:
 	_lobby()
 	_room_things()
 	_town()
+	_dress()
 	Lighting.dress(self)
 
 
@@ -80,6 +81,16 @@ func _town() -> void:
 	town.name = "town"
 	add_child(town)
 	town.build_for(self)
+
+
+# The set dressing (world/dressing.gd): the posters, the signs, the glasses and the glasswasher, the
+# trash on the gravel and at the Esso. After the town, which it dresses too.
+var dressing: Dressing
+
+func _dress() -> void:
+	dressing = Dressing.new()
+	add_child(dressing)
+	dressing.build(self)
 
 
 # Away from the Sov, or back (game/view.gd, as he gets somewhere): the town out or put away.
@@ -693,6 +704,8 @@ func set_clock(clock: int) -> void:
 	if clock == int(dyn.get("clock", -1)):
 		return
 	dyn.clock = clock
+	if dressing != null:
+		dressing.set_clock(clock)
 	var up := 1.0
 	var work := 0.0
 	var some := clock >= Look.LAST_CALL
@@ -1592,12 +1605,15 @@ func _back_strip() -> void:
 	# floors and ceilings
 	tiled(Vector3(4.8, 0.1, 2.64), Vector3(2.4, -0.05, BACK / 2.0), M.tile)
 	tiled(Vector3(11.2, 0.1, 2.64), Vector3(10.4, -0.05, BACK / 2.0), M.lino)
-	tiled(Vector3(16, 0.1, 2.64), Vector3(8, y + 0.05, BACK / 2.0), M.ceiling)
+	# (short of the room's side of the back wall: its edge flush with it was a band of fighting pixels)
+	tiled(Vector3(16, 0.1, -0.1 - BACK), Vector3(8, y + 0.05, (BACK - 0.1) / 2.0), M.ceiling)
 	# the back wall of the building, with the kitchen's back door (propped for the fryer)
 	wall(Vector2(0, BACK - 0.1), Vector2(16, BACK - 0.1), y, M.plain)
 	wall(Vector2(-0.1, BACK), Vector2(-0.1, 0), y, M.plain, [[0.66, 1.54, 0.0, 2.05]])
 	# the kitchen's side of things: the wall between it and the hall
-	wall(Vector2(4.8, BACK), Vector2(4.8, 0), y, M.plain)
+	# stopping in the back wall, not flush with its face: flush, its end fought the wall for the same
+	# pixels down a stripe under the corkboard
+	wall(Vector2(4.8, BACK), Vector2(4.8, -0.12), y, M.plain)
 	# the washrooms: three fronts on the hall, each with its door
 	for w in [[6.4, 8.64, 7.1, 7.84, "men"], [8.64, 10.88, 9.34, 10.08, "women"], [10.88, 13.12, 11.58, 12.3, "single"]]:
 		wall(Vector2(w[0], HALL_Z), Vector2(w[1], HALL_Z), y, M.plain, [[w[2] - w[0], w[3] - w[0], 0.0, 2.05]], 0.0, 0.1)
