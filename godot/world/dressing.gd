@@ -498,7 +498,8 @@ func _esso() -> void:
 	                                  # washed them out to nothing)
 	for a in [["ice", 0.36, 0.48, -156.3, 1.12], ["lotto", 0.4, 0.52, -155.25, 1.32], ["smokes", 0.4, 0.3, -153.9, 1.05],
 			["grill", 0.38, 0.3, -152.6, 1.8], ["wash", 0.34, 0.22, -151.4, 1.0]]:
-		paper(paper_mat("esso_" + a[0]), a[1], a[2], Vector3(a[3], y + a[4], zi), out, _tilt(), 0, 0.0, es)
+		# big enough to read across the forecourt: these are made to be seen from the pumps
+		paper(paper_mat("esso_" + a[0]), a[1] * 1.7, a[2] * 1.7, Vector3(a[3], y + a[4] + 0.15, zi), out, _tilt(), 0, 0.0, es)
 	paper(paper_mat("esso_id"), 0.3, 0.2, Vector3(-148.7, y + 1.55, zi), out, -1.5, 0, 0.0, es)
 	paper(paper_mat("esso_night"), 0.3, 0.4, Vector3(-144.3, y + 1.75, zi), out, 1.0, 0, 0.0, es)
 	pub.anchors["esso_ads"] = Vector3(-154.0, y + 1.3, 11.95)
