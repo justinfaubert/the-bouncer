@@ -41,6 +41,10 @@ var mats: BeerMats
 var pool: Pool
 var keys: KeysCard
 var truck: Truck
+var fight: Fight
+var cards: FightCards
+var plant: FishPlant
+var menu_practice: Practice     # practice outside a night: the Games and Rehearse (settings)
 var marks: Marks
 var talk: Talk
 var audio: Sound
@@ -157,6 +161,16 @@ func _ready() -> void:
 	add_child(darts)
 	darts.setup(self)
 	darts.left.connect(_darts_left)
+	plant = FishPlant.new()
+	pub.add_child(plant)
+	plant.build_for(pub)
+	fight = Fight.new()
+	add_child(fight)
+	fight.setup(self)
+	cards = FightCards.new()
+	add_child(cards)
+	cards.setup(self, fight, plant)
+	menu_practice = Practice.from_dict(settings.get("menu_practice", {}))
 	cig = CigMachine.new()
 	add_child(cig)
 	cig.setup(self)
@@ -554,6 +568,85 @@ func _truck_left() -> void:
 		menus.rehearse("title")
 	elif m != "":
 		menus.title()
+
+
+# A fight (game/fight_cards.gd): from the menu (the Games, or Rehearse) or the night.
+var _fight_from := ""
+
+func start_fight(id: String, from_menu: String, body := {}) -> void:
+	_fight_from = from_menu
+	menus.hide_all()
+	audio.unlock()
+	if from_menu != "":
+		_leave_full_frame()
+		column.reset()
+		_met("fights")
+	await cards.run(id, from_menu, body)
+	if from_menu != "":
+		persist_settings_practice()
+		await get_tree().create_timer(4.0).timeout
+		view.drinks = 0
+		view.hurt = 0
+		view.tension = 0
+		column.reset()
+		if from_menu == "rehearse":
+			menus.rehearse("title")
+		else:
+			menus.games("title")
+	else:
+		persist()
+
+
+# What he's practised into knacks, now: the night's, or the menu's.
+func knacks_now(from_menu := "") -> Dictionary:
+	if from_menu == "" and in_game and game != null:
+		return game.practice.fight_knacks()
+	return menu_practice.fight_knacks() if menu_practice != null else {}
+
+
+# Practice outside a night (the Games, Rehearse): kept in the settings, with its own seven.
+func practice_play(kind: String, amount: float, how: String) -> Array:
+	var st: Dictionary = settings.get("menu_stats", {"str": 6, "con": 5, "dex": 5, "int": 4, "wis": 5, "cha": 4, "gut": 4})
+	menu_practice.new_night(int(Time.get_unix_time_from_system() / 21600.0))
+	var out := menu_practice.earn(kind, amount, how, st)
+	settings["menu_stats"] = st
+	return out
+
+
+# from anywhere: the night's practice when in one, else the menu's
+func practise_any(kind: String, amount: float, how: String, from_menu := "") -> Array:
+	var out: Array
+	if from_menu == "" and in_game and game != null:
+		out = game.practise(kind, amount, how)
+	else:
+		out = practice_play(kind, amount, how)
+	_say_practice(out)
+	return out
+
+
+func _say_practice(out: Array) -> void:
+	if out.is_empty() or column == null:
+		return
+	column.begin_batch()
+	for ev in out:
+		if ev.kind == "mark":
+			var s := Practice.says(ev)
+			column.add_line({"role": "voice", "speaker": s[0], "label": _voice_label(s[0]), "text": s[1]})
+		elif ev.kind == "stat":
+			column.add_note("%s %d → %d (practice: %s)" % [Checks.STATS[ev.stat].label, int(ev.from), int(ev.to), Practice.KINDS[ev.practice].label])
+		elif ev.kind == "knack":
+			column.add_note("A knack: %s. %s" % [ev.name, ev.what])
+	column.scroll_to_end()
+
+
+func _voice_label(id: String) -> String:
+	var v = content.get("voices", {}).get(id, {})
+	return str(v.get("label", id.to_upper())) if v is Dictionary else id.to_upper()
+
+
+func persist_settings_practice() -> void:
+	settings["menu_practice"] = menu_practice.to_dict()
+	store.save_settings()
 
 
 func _darts_left() -> void:
@@ -1336,7 +1429,7 @@ func _key(e: InputEventKey) -> void:
 		return
 	if notes.visible and (k == KEY_Q or k == KEY_E):
 		get_viewport().set_input_as_handled()
-		notes.turn_page()
+		notes.turn_page(k == KEY_Q)
 		return
 	if k == KEY_E or k == KEY_F:
 		get_viewport().set_input_as_handled()
@@ -1486,7 +1579,7 @@ func _widen(dt: float) -> void:
 	var wide: bool = (bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
 		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding())
 	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
-	var to := 1.0 if full_frame or (pool != null and pool.active) else ((1.0 - spine) if wide else WORLD_W)
+	var to := 1.0 if full_frame or (pool != null and pool.active) or (fight != null and fight.active) else ((1.0 - spine) if wide else WORLD_W)
 	if is_equal_approx(view.world_w, to):
 		return
 	var w := move_toward(view.world_w, to, dt * WIDE_SPEED)

@@ -279,6 +279,7 @@ const GAMES := [
 	["cigs", "The cigarette machine", "On the east wall under the news, unplugged, and it plays.", [["play", "Stand at it"]]],
 	["mats", "Beer mats", "Off the edge of the bar, flipped and caught, one more each time.", [["play", "Flip a few"]]],
 	["pool", "Pool", "The coin-op by the back wall: the regulars on the chalk ladder, money on the rail, the Sunday draw, the trick shots table 28 bets on.", [["table", "To the table"]]],
+	["fights", "Fights", "The fish plant on a Sunday, and the man on the deck.", [["fight:ox", "Sunday: Ox Pettigrew"], ["fight:ogre", "The man on the deck"], ["fight:spar", "Move around with Dale"]]],
 ]
 
 
@@ -297,7 +298,9 @@ func games(from: String) -> void:
 		_para(g[2], 20, Look.MUTED)
 		for m in g[3]:
 			var mode: String = m[0]
-			if g[0] == "cigs":
+			if mode.begins_with("fight:"):
+				_button(m[1], false, func(): main.start_fight(mode.substr(6), "games", _rh.duplicate()))
+			elif g[0] == "cigs":
 				_button(m[1], false, func(): main.start_cig("games"))
 			elif g[0] == "mats":
 				_button(m[1], false, func(): main.start_mats("games"))
@@ -512,6 +515,10 @@ func rehearse(from: String) -> void:
 	_section("The truck")
 	_para("The jade green '78 in the lot at night, in the rain. The highway north to the mill road and south to the ferry sign.", 19, Look.MUTED)
 	_button("Drive it", false, func(): main.start_truck("rehearse", _rh.duplicate()))
+	_section("Fights")
+	_button("The man on the deck", false, func(): main.start_fight("ogre", "rehearse", _rh.duplicate()))
+	_button("Sunday at the fish plant: Ox Pettigrew", false, func(): main.start_fight("ox", "rehearse", _rh.duplicate()))
+	_button("Move around with Dale", false, func(): main.start_fight("spar", "rehearse", _rh.duplicate()))
 	_section("Still to come here")
 	_para("The door by hand, the dice, the licence in his hands: each gets a way in here as it's worked on.", 19, Look.FAINT)
 	_gap(14)

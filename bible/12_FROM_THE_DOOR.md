@@ -4,6 +4,24 @@
 
 New material goes at the top, dated and verbatim. Under it are Claude's notes on where each piece goes, which are [PROPOSED] unless Hutch said so.
 
+## 23 November 2026: the ogre on the deck, the brawl out front, and the ring
+
+### What Hutch said, as written
+
+> One night a massive 7 foot Slavic ogre came into the bar. Didn't speak much English but didn't seem fucked up. He came up to the bar and I served him a beer, he was the biggest man I've ever seen. I'm 6'4, 250, this guy was like 2 of me. The night went on until one of the girls came running for me saying that there's someone going crazy on the deck. I went out there and this ogre was punching the deck with his massive meathooks, sounded like thunder cracks, yelling with a deep growl and losing it, there was already a guy my size out there trying to keep him from punching people which he had, and with both of us on him we could barely get him to stop because he was so scary strong and possibly on something, like a berserker. A gal came through the patio door and asked if I wanted help from her brothers, I said yes and a 5 bikers came and helped me wrestle him through the patio door, which he pushed back against, yelling like an orc and grunting, we got him inside and he fell on his  face like a giant tree, boom!, he was unphased, we picked him up and tossed him out of the bar literally. He elbowed me in the jaw, it hurt. There was also a 20 or so person fight in front of the bar, mostly young kids, girls fighting each other even ripping each other's hair out. I was able to stop a few fights by getting in between them but there was no way I could handle all of them, the rcmp was called, came way too late, 7 cruisers, tons of cops, useless. The burden of violence is deferred, which we should make clear to the player. I'll add more stories as i go, we can embellish a little for the gameplay if necessary.
+
+On the ring:
+
+> I'm not quite sure about who they are that you're fighting, but the men should look and act like they walked out of the mid 19th century or older, perhaps newer, it depends. It would be great to have a real historical story to tell behind this fight club. Another consideration is that the opponents get stranger the more the days progress, as does reality. Doing things like fighting should raise stats or have their own sub stats that translate to general skill after passing thresholds through play and achievement.
+
+On the feel:
+
+> that sounds like the right approach. The fighting system should be robust, fun, feel impactful and have great feeling, intuitive controls. There should be a few story fights that start in those choices during frozen seconds but lead to live fighting.
+
+### Where it goes
+
+All in `15_FIGHTS_AND_STATS.md`. The ogre is the first story fight, built nearly as told (section 5): the server running in, the thunder on the boards, the man his size already on one arm, the sister and her five brothers at the patio door, the walk through it, the fall like a tree, the toss and the elbow to the jaw. The brawl out front joins story 2 (the brawl in the lot on day 24) as its second telling: the girls pulling hair, getting between pairs, seven cruisers too late. "The burden of violence is deferred" is the after of every fight: the cost lands on whoever's at the door, the law comes after, and the game says so plainly.
+
 ## 14 October 2026 (evening): Hutch's answers to the skeleton
 
 ### What Hutch said, as written
