@@ -1,8 +1,8 @@
 LAST CALL
-Everything so far in one build, 23 November 2026: the cold open, Wednesday, Thursday and Friday,
+Everything so far in one build, 23 November 2026 (second build, with the truck): the cold open, Wednesday, Thursday and Friday,
 the door by hand, walking on his own feet and out round the grounds at night, darts with their
 fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
-the page, the new light, and Jim behind the bar.
+the page, the new light, Jim behind the bar, and the jade '78 in the lot to drive.
 
 PLAY IT
 
@@ -14,7 +14,7 @@ light, so the 3080 has it easy. Wayland is fine: it runs through XWayland, or na
 ./play.sh --display-driver wayland.
 
 To go straight to the games: on the title, Rehearse, set how he is (drinks, hurt, nerves, the
-hour, cold hands), then pick darts, pool, the cigarette machine or the beer mats. The cold open
+hour, cold hands), then pick darts, pool, the cigarette machine, the beer mats or the truck. The cold open
 plays once on the first launch; the title has it again under "The cold open".
 
 
@@ -81,6 +81,22 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW IN THE SECOND BUILD OF 23 NOVEMBER
+
+The truck, a first drivable slice: Rehearse > The truck > Drive it.
+
+- The jade green '78 camper special in the Sov's lot at night in the rain, engine off. E turns
+  the key (in P or N), R and F move the column shifter, W gas, S brake, A and D the wheel, L
+  lights, H high beams, V wipers, Space the horn, C behind the truck, Esc parks it. A pad works
+  too: the triggers and the left stick. The keys are on the same card as the other games.
+- It drives on real physics: a heavy truck with a 460, a three-speed automatic, drum brakes
+  with no ABS (stand on them and they lock), loose steering that wanders on the wet.
+- The island highway with no loading: north past the motel, over the bluff, the fish plant and
+  the mill road to the barricade at the washout; south past the church, the fruit stand and the
+  cut to the ferry sign and the bridge that's out. A few cars come the other way.
+- The engine is made as it plays, cylinder by cylinder, not a recording.
 
 
 WHAT'S NEW SINCE THE BUILD OF 22 NOVEMBER
