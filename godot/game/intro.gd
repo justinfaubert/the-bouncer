@@ -52,7 +52,7 @@ const PLATES := [
 	{"at": Vector3(2.75, 1.42, 7.45), "look": Vector3(2.08, 1.16, 7.05), "zoom": 0.36, "place": "bar", "machine": true,
 		"say": "The card machines went down two nights a week. The bank said it was the weather."},
 	{"at": Vector3(14.2, 1.8, -1.7), "look": Vector3(14.25, 1.85, -2.55), "zoom": 0.62, "place": "hall", "wall": "mill", "secs": 4.6,
-		"spot": Vector3(14.3, 2.0, -2.55)},
+		"spot": Vector3(14.42, 2.0, -2.55)},
 	{"at": Vector3(8.6, 1.5, 21.5), "look": Vector3(8.0, 10.6, 10.6), "zoom": 0.55, "place": "lot",
 		"say": "Every big night that month, the sign on the roof lost a letter."},
 	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg", "torch": true,
@@ -430,12 +430,13 @@ func _wall(which: String, p: Dictionary) -> void:
 		l.modulate = ln[2]
 		l.outline_size = 0
 		l.shaded = false
+		l.no_depth_test = true     # the wall's plaster isn't flat to the millimetre; marker sits on top of it
 		l.double_sided = false
 		l.alpha_cut = Label3D.ALPHA_CUT_DISCARD
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		l.text = ""
 		main.pub.add_child(l)
-		l.global_position = Vector3(look.x, look.y, Pub.BACK) + face * 0.006 + ln[3]
+		l.global_position = Vector3(look.x, look.y, Pub.BACK) + face * 0.012 + ln[3]
 		l.look_at(l.global_position - face, Vector3.UP)
 		l.rotate_object_local(Vector3(0, 0, 1), deg_to_rad(randf_range(-3.0, 2.0)))
 		_labels.append(l)
