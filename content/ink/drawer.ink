@@ -1,7 +1,7 @@
 // The lost-and-found: the drawer under the till, where the bartender puts whatever the night
 // leaves behind (bible/11_SKELETON.md, What he carries: the lost-and-found box is his, DECIDED).
 // He opens it from the bar (bar.ink: asking where the last doorman's jacket is, and after that
-// whenever he's at the bar), and after hours, when she tells him the jacket's in it (closing.ink,
+// whenever he's at the bar), and after hours, when he tells him the jacket's in it (closing.ink,
 // last_doorman). What's in it, and what he puts in it or takes out, is hand.ink's (in_drawer).
 //
 // The last doorman's jacket is folded at the bottom, and nobody's been through the pockets.
@@ -12,7 +12,7 @@
 //   the big rat  a beer mat, left pocket: his count of them, doubling, and the knot, drawn
 //   the woman    two ferry tickets, inside pocket: foot passengers, one way, the last boat on the
 //                Friday he went, and neither one torn
-//   let him in   a licence behind them: the boy he let in, who's in her binder now (page eight)
+//   let him in   a licence behind them: the boy he let in, who's in his binder now (page eight)
 // Who the woman was, the jacket doesn't say (a writing prompt, at the inside pocket).
 // Under the glove, a paperback on aikido (the skeleton's THE CIRCLE, for later).
 
@@ -41,7 +41,7 @@ VAR book_seen = false       // he's had the paperback out from under the glove
 ~ drawer_seen = true
 ~ pass(1)
 { the_drawer == 1:
-    She pulled the drawer out from under the till for him, and went back to {clock < CLOSE_TIME:her taps|the twenties}. #look: bartender
+    The bartender pulled the drawer out from under the till for him, and went back to {clock < CLOSE_TIME:his taps|the twenties}. #look: bartender
     Three winters of toques and phone chargers. A single glove, a pair of reading glasses, a baby's shoe, a lanyard from the mill, a phone with a cracked screen that nobody had come back for.
     At the bottom, folded under all of it, a man's work jacket, brown canvas, the elbows gone pale.
 - else:
@@ -85,14 +85,14 @@ In the right pocket was a bank bag, the clear plastic kind with a zip, with mone
 On the back of the tape, in pencil: four hundred, less ninety-six, less ninety-six. Under the line, two hundred and eight. By each ninety-six, a Friday in September.
 - (fl)
 <- reads_float(-> fl)
-* [Give it to her.]
+* [Give it to the bartender.]
     ~ float_how = 1
     ~ unstow(float_bag)
     ~ rep(rep_staff, 1)
-    She counted it without looking like she was counting it, and read the tape, and turned it over and read the sum again.
+    The bartender counted it without looking like he was counting it, and read the tape, and turned it over and read the sum again.
     BARTENDER: Ninety-six, two Fridays running.
     BARTENDER: That's not Junior. Junior can't add.
-    She put it in the till, under the tray, where the night's float went.
+    He put it in the till, under the tray, where the night's float went.
 * [Put it back in the jacket.]
     ~ float_how = 2
     ~ stow(float_bag, in_jacket)
@@ -101,7 +101,7 @@ On the back of the tape, in pencil: four hundred, less ninety-six, less ninety-s
     ~ float_how = 3
     ~ cash += 208
     He took the money out of the bag and put it in his wallet, and put the bag back in the pocket with the tape in it.
-    She had her back to him. In the back-bar mirror, between the bottles, a big man was going through another man's jacket.
+    The bartender had his back to him. In the back-bar mirror, between the bottles, a big man was going through another man's jacket.
 - -> left_pocket
 
 // The big rat: SCRATCH's "He saw the big rat, down in the keg room."
@@ -138,7 +138,7 @@ In the inside pocket were two ferry tickets, the paper kind from the machine at 
     ~ showed_her += ferry_tickets
     She looked at them a long time.
     BARTENDER: Eleven-fifteen. Last boat.
-    She gave them back to him and went {clock < CLOSE_TIME:down the bar to somebody who didn't need anything|back to the twenties, and counted the same ones twice}.
+    The bartender gave them back to him and went {clock < CLOSE_TIME:down the bar to somebody who didn't need anything|back to the twenties, and counted the same ones twice}.
     ~ stow(ferry_tickets, in_jacket)
     He put them back in the jacket.
 - -> licence
@@ -150,7 +150,7 @@ In the inside pocket were two ferry tickets, the paper kind from the machine at 
 = licence
 Behind the tickets was a driver's licence: a boy with his hair flat from a cap they'd made him take off for the photo. The birthday made him eighteen, nineteen in January. #prop: minor_card
 { knows ? eighty_six:
-    He knew the face. Page eight of the binder, and under it, in her marker: THREE MONTHS.
+    He knew the face. Page eight of the binder, and under it, in the bartender's marker: THREE MONTHS.
 }
 - (lc)
 <- reads_card(-> lc)
@@ -163,9 +163,9 @@ Behind the tickets was a driver's licence: a boy with his hair flat from a cap t
 * [Show her.]
     ~ unstow(minor_card)
     BARTENDER: Page eight.
-    She didn't need the binder.
+    He didn't need the binder.
     BARTENDER: Three months, and that's till his birthday, so don't look at me like that.
-    She took it off him and put it in the binder under the till, in the sleeve with the boy's picture.
+    The bartender took it off him and put it in the binder under the till, in the sleeve with the boy's picture.
 - -> jacket_back
 
 = jacket_back

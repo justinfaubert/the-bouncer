@@ -85,7 +85,7 @@ VAR shirt_on = false        // he's wearing it
 VAR pay_how = 0             // the bookkeeper's form: 1 filled it in, 2 asked for cash, 3 read it first
 VAR staff_warned = 0        // Gary's "don't fuck the staff": 1 wasn't planning on it, 2 who's the staff, 3 just took the key (he brings it up at midnight)
 // What he claimed in the office. Gary tells the bartender all of it on the phone at quarter past
-// five (walk.ink), and she holds him to it at close (closing.ink, door_story).
+// five (walk.ink), and he holds him to it at close (closing.ink, door_story).
 LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry
 VAR told_gary = ()
 VAR wharf_how = 0           // the old man on the wharf: 1 word gets around, 2 who's asking, 3 looked at the water with him
@@ -126,7 +126,7 @@ VAR juke_low = false        // the bartender turned the jukebox down a notch whe
 // ------------------------------------------------------------------ the room's things (room.ink)
 // What's within reach, and what it does to the night. Claude's draft, PROPOSED.
 
-VAR ledge_at = 1150         // when the rail by the pool table was last cleared of empties: by her, at ten past seven
+VAR ledge_at = 1150         // when the rail by the pool table was last cleared of empties: by him, at ten past seven
 VAR bussed = 0              // trips he's made to the bar with empties
 VAR rack_locked = false     // he snapped the padlock shut on the cue rack's chain
 VAR darts_pulled = false    // he took the darts out of the board and gave them to her
@@ -259,7 +259,7 @@ VAR scans = ()
 VAR police_at = 0           // the clock when the bartender called it in. It's always forty minutes out here.
 VAR police_seen = false
 VAR told_police = 0         // what he told the constable: 1 the way it happened, -1 less than that, 2 left it to her
-VAR name_on_log = false     // he told her not to call it: "Your name on the log, then."
+VAR name_on_log = false     // he told the bartender not to call it: "Your name on the log, then."
 VAR bar_scuffle = false     // putting GOOD SHOES out went wrong: the stool went over
 VAR office_wiped = false    // he wiped the mirror on the desk in the office downstairs
 LIST found = why_deck, why_hotel, why_front, why_sleeper
@@ -292,12 +292,12 @@ VAR secret_kept = 0         // at close table 28 asked where the one in the card
 VAR owner_lie = false       // he told the owner the rats were handled
 VAR owner_count = 0         // what he told the owner when he asked how it was tonight: 1 the door's number, 0 quiet, -1 busy (it wasn't)
 VAR police_called = false    // the bartender called it in after the fight
-VAR verdict = 0             // what the bartender tells the owner: 2 he'll do, 1 he showed up, -1 what she saw
+VAR verdict = 0             // what the bartender tells the owner: 2 he'll do, 1 he showed up, -1 what he saw
 LIST cleared = cl_pool, cl_banned, cl_hivis, cl_res, cl_t28
 VAR two_called = false
-VAR asked_name = false      // he asked the bartender what to call her
+VAR asked_name = false      // he asked the bartender what to call him
 VAR terms_kept = 0          // the kitchen door on the latch, the night he made the terms: 1 he went and did it, -1 he went up
-VAR last_glass = 0          // the glass she poured him after hours: 1 he drank it, 2 left it standing full, 3 pushed it back, 4 she gave him water
+VAR last_glass = 0          // the glass he poured him after hours: 1 he drank it, 2 left it standing full, 3 pushed it back, 4 he gave him water
 
 
 // ------------------------------------------------------------------ the engine

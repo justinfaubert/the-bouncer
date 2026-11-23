@@ -1,8 +1,8 @@
 // The bar: the bartender, the binder, the shift drink, and the old man at the end.
-// The bartender is his partner and his witness (bible/02_SYSTEMS.md): she sees everything he does.
-// Her respect (rep_staff) is the hardest thing in the game to earn.
+// The bartender is his partner and his witness (bible/02_SYSTEMS.md): he sees everything he does.
+// His respect (rep_staff) is the hardest thing in the game to earn.
 
-// From ten till somebody changes the keg, him in the keg room (rats.ink) or her (lager_out, below).
+// From ten till somebody changes the keg, him in the keg room (rats.ink) or the bartender (lager_out, below).
 === function lager_off()
 ~ return clock >= 1320 && not at_keg.change_keg && not at_bar.lager_out
 
@@ -15,14 +15,14 @@
     {shuffle:
     - He went back to the gap in the stools. #look: bartender
     - He leaned on the bar, out of the way of the taps. #look: bartender
-    - The gap in the stools. She was pulling a pint and didn't look up. #look: bartender
+    - The gap in the stools. The bartender was pulling a pint and didn't look up. #look: bartender
     }
 }
 { rep_staff <= -3:
-    She served him the same way she served everyone, and not one bit more.
+    The bartender served him the same way he served everyone, and not one bit more.
 }
-// he ran across her floor since she last had him at the bar (toys.ink, toy_legs) (Claude's draft).
-// The first time it goes down with her, and the third, and that's the word on him (word.yaml).
+// he ran across his floor since he last had him at the bar (toys.ink, toy_legs) (Claude's draft).
+// The first time it goes down with him, and the third, and that's the word on him (word.yaml).
 { ran_room > ran_seen:
     ~ ran_seen = ran_room
     { stopping:
@@ -70,7 +70,7 @@
 // The room's things (room.ink): the wallet by the stool, the extinguisher's tag, the TV remote.
 * {wallet_there()} [The wallet by the stool where GOOD SHOES sat.]
     -> the_wallet
-* {ext_how == 1} [Tell her about the extinguisher in the back hall.]
+* {ext_how == 1} [Tell him about the extinguisher in the back hall.]
     -> ext_tell_her
 * {clock >= 1380 && clock < LAST_CALL && remote_how == 0} [{remote_label()}]
     -> the_remote
@@ -78,7 +78,7 @@
 = binder
 ~ pass(5)
 ~ knows += eighty_six
-She slid it along the bar to him without being asked twice. A two-inch binder, the plastic sleeves gone cloudy. Photocopied licences, phone photos printed on the office printer, a few real photographs. Under each one, in marker, in her handwriting: a date, sometimes a reason, always a length. SIX MONTHS. ONE YEAR. LIFE.
+The bartender slid it along the bar to him without being asked twice. A two-inch binder, the plastic sleeves gone cloudy. Photocopied licences, phone photos printed on the office printer, a few real photographs. Under each one, in marker, in his handwriting: a date, sometimes a reason, always a length. SIX MONTHS. ONE YEAR. LIFE.
 // HUTCH: What's actually written in a bar's 86 book? Reasons, shorthand, the ones that are funny and the ones that aren't. (They go on the binder's pages, in content/data/props.yaml; the pages carry dates and lengths until then.)
 Page three was a man in his fifties with a good haircut, photographed off his driver's licence. Under it, not a date or a reason. Just: NO. NOT EVER. #prop: binder
 // Leafing through to the last sleeve makes the first choice; staying on page three makes the second.
@@ -93,7 +93,7 @@ Page three was a man in his fifties with a good haircut, photographed off his dr
     He stayed on page three.
     ~ knows += banned_face
     FATHER: The ones they write NOT EVER under come back. I had one come back after eleven years.
-- She took the binder back and put it under the till.
+- The bartender took the binder back and put it under the till.
 -> opts
 
 = know
@@ -102,7 +102,7 @@ BARTENDER: Table 28 don't get cut off. That's Junior's rule, so don't look at me
 BARTENDER: Cook's all right, he's just hot, and you'd be hot. Leave his kitchen door alone unless you want an earful.
 BARTENDER: Night clerk's Terry. Props the hotel door so he can watch our TV off the desk. You didn't hear that from me.
 BARTENDER: And when the card machine goes down, and it will, it's cash, and if they haven't got cash, they haven't got a drink.
-// HUTCH: The lifer's house rules. What would she tell a new doorman, and what would she let him find out for himself?
+// HUTCH: The lifer's house rules. What would he tell a new doorman, and what would he let him find out for himself?
 ~ knows += hotel_gap
 ~ knows += kitchen_gap
 ~ knows += terry
@@ -112,11 +112,11 @@ FATHER: The written rules are for the inspector.
 = who_endbar
 ~ pass(2)
 ~ knows += endbar_seen
-She didn't look down the bar. She didn't need to.
+He didn't look down the bar. He didn't need to.
 BARTENDER: Him? He was coming in before I started, and I started when I was nineteen.
 BARTENDER: Don't ask me his name. Thirty-one years and I never got it. Buys one glass and doesn't touch it.
 BARTENDER: He's no trouble.
-She wiped the bar where it didn't need wiping.
+He wiped the bar where it didn't need wiping.
 BARTENDER: He's the only one in here who's never been any trouble.
 WRONGMAN: In the story they said that about the wrong man too. No trouble at all, they said.
 -> opts
@@ -128,7 +128,7 @@ BARTENDER: Table 28 feed one, under the table. They think I don't know.
 BARTENDER: They come up through the keg room. Trapdoor's behind me, and mind the third step, it's rotten.
 ~ knows += keg_hole
 BARTENDER: Me, I want a quiet night. Deal with them however you want, but don't do it in front of the customers.
-FATHER: She means don't let anybody see you do it.
+FATHER: He means don't let anybody see you do it.
 -> opts
 
 = how_long
@@ -138,34 +138,34 @@ BARTENDER: I've had nine doormen. You're ten.
 BARTENDER: Table 28's had more than that. They were the young ones when I started, and they were worse than any kids you'll see tonight, believe me.
 ~ knows += dennis
 BARTENDER: That's Dennis, in the big glasses. His wife'll be in for him around one. She always is.
-// HUTCH: The lifer's history with table 28. She knew them when they were young. What were they like?
+// HUTCH: The lifer's history with table 28. He knew them when they were young. What were they like?
 -> opts
 
 = name
 ~ pass(1)
 ~ asked_name = true
-She looked at him for a second longer than she needed to.
+The bartender looked at him for a second longer than he needed to.
 BARTENDER: Last a week, Door. Then ask me.
-// HUTCH: Her name. Or keep it back until he's earned it.
+// HUTCH: His name. Or keep it back until he's earned it.
 -> opts
 
 // He's heard the last one left his jacket (office.ink, prologue.ink). Claude's draft, PROPOSED.
 = jacket_ask
 ~ pass(1)
 ~ knows += lost_jacket
-She pointed down with the knife, at the drawer under the till.
+He pointed down with the knife, at the drawer under the till.
 BARTENDER: Lost-and-found. Bottom of the drawer, under three winters of toques.
 BARTENDER: Nobody's been through the pockets. I never wanted to know.
 ~ drawer_from = 1
 -> the_drawer
 
-// Counted from the start of the shift: Gary's two at four o'clock aren't hers to count (prologue.ink).
-// Every one she pours him, she's in it with him (she_poured): the log can say so (closing.ink).
+// Counted from the start of the shift: Gary's two at four o'clock aren't his to count (prologue.ink).
+// Every one he pours him, he's in it with him (she_poured): the log can say so (closing.ink).
 = shift_drink
 ~ pass(3)
 {
 - drinks - drinks_before == 0:
-    She poured a rye and put it on the ledge, not the bar, where the customers couldn't see it. #sfx: glass
+    The bartender poured a rye and put it on the ledge, not the bar, where the customers couldn't see it. #sfx: glass
     BARTENDER: That's your one. On the ledge, not the bar, and you don't come back for two.
     ~ she_poured++
     ~ drink()
@@ -174,13 +174,13 @@ BARTENDER: Nobody's been through the pockets. I never wanted to know.
         FATHER: And Gary's, at four. Don't think I didn't count those.
     }
 - drinks - drinks_before == 1:
-    She poured it. She put it on the ledge. She didn't say anything this time, which was worse. #sfx: glass
+    The bartender poured it. Put it on the ledge. Didn't say anything this time, which was worse. #sfx: glass
     ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
     FATHER: Two. I used to say two and mean nine.
 - drinks - drinks_before == 2:
-    She looked at him. Then she poured it, because she was a bartender and he was a grown man, and she'd seen nine doormen. #sfx: glass
+    The bartender looked at him. Then he poured it, because he was a bartender and the doorman was a grown man, and he'd seen nine doormen. #sfx: glass
     ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
@@ -189,9 +189,9 @@ BARTENDER: Nobody's been through the pockets. I never wanted to know.
 - else:
     BARTENDER: No.
     {stopping:
-    - She put a glass of water on the ledge.
+    - The bartender put a glass of water on the ledge.
         BARTENDER: Drink that, and go and stand at your door.
-    - She pushed the glass of water along the ledge an inch, toward him.
+    - He pushed the glass of water along the ledge an inch, toward him.
         BARTENDER: Your door's still there.
     }
     ~ rep(rep_staff, -1)
@@ -199,22 +199,22 @@ BARTENDER: Nobody's been through the pockets. I never wanted to know.
 -> opts
 
 // From ten the lager's been spitting foam (things.ink, toy_taps). If he hasn't changed the keg
-// himself (rats.ink, at_keg.change_keg), she goes down and does it, and her bar is his while she's
+// himself (rats.ink, at_keg.change_keg), he goes down and does it, and his bar is his while he's
 // down there. Hutch (14 October): "there should be other temptations as well, like pouring ourself
 // a beer when the bartender isn't looking or asking the bartender and implicating them"
 // (bible/11_SKELETON.md, Temptations). Claude's draft, PROPOSED.
 = lager_out
 ~ pass(1)
-She pulled a lager and it came out foam, and she tipped it in the sink and pulled again, and it was foam again. #look: bartender
+The bartender pulled a lager and it came out foam, and he tipped it in the sink and pulled again, and it was foam again. #look: bartender
 BARTENDER: Fuckin' lager.
 BARTENDER: Watch my bar, Door. Two minutes.
 ~ lager_down = true
-She lifted the trapdoor and went down, minding the third step, and he heard the keg room door bang shut under his feet.
-For two minutes it was his: the taps, the till, the rail, the well. Nobody at the bar wanted anything. In the back-bar mirror, between the bottles, the room, and him in it, at her bar with nobody behind it.
-* (watched) [Watch her bar.]
+The bartender lifted the trapdoor and went down, minding the third step, and the doorman heard the keg room door bang shut under his feet.
+For two minutes it was his: the taps, the till, the rail, the well. Nobody at the bar wanted anything. In the back-bar mirror, between the bottles, the room, and him in it, at the bartender's bar with nobody behind it.
+* (watched) [Watch the bar.]
     ~ watched_bar = true
     ~ pass(2)
-    He stood in the gap in the stools with his back to her taps and watched the room, and the room watched the hockey.
+    He stood in the gap in the stools with his back to the bartender's taps and watched the room, and the room watched the hockey.
     -> lager_up
 * [Go round and pour himself one. #hand: drink]
     -> self_pour
@@ -228,69 +228,69 @@ For two minutes it was his: the taps, the till, the rail, the well. Nobody at th
 He went round behind the bar and took a pint glass off the stack and pulled himself a red, because the lager was off and the red was nearest. It came up clean, with a head you could stand a coin on. #prop: pint
 - (pr)
 <- reads_pint(-> pr)
-* [Drink it down and rinse the glass, before she's up. #hand: drink #check: fighter:dex 12]
+* [Drink it down and rinse the glass, before the bartender's up. #hand: drink #check: fighter:dex 12]
     ~ drink()
     { passed:
         ~ pour_how = 1
-        He drank it in four swallows standing behind her taps, and rinsed the glass, and put it upside down on the rack with the others, and was back in the gap in the stools with the back of his hand across his mouth when the trapdoor came up.
+        He drank it in four swallows standing behind the bartender's taps, and rinsed the glass, and put it upside down on the rack with the others, and was back in the gap in the stools with the back of his hand across his mouth when the trapdoor came up.
     - else:
         ~ pour_how = -1
-        He had it half down when the trapdoor came up, and her head after it.
+        He had it half down when the trapdoor came up, and the bartender's head after it.
     }
-* [Take it round to the ledge, where she puts his. #hand: drink]
+* [Take it round to the ledge, where the bartender puts his. #hand: drink]
     ~ pour_how = 2
     ~ drink()
-    He put it on the ledge, not the bar, where she put his, and went back round to the gap in the stools and drank it there as if she'd poured it.
+    He put it on the ledge, not the bar, where the bartender put his, and went back round to the gap in the stools and drank it there as if it had been poured for him.
 * [Pour it down the sink.]
     ~ pour_how = 3
     He looked at it a while. Then he tipped it down the bar sink, and rinsed the glass, and put it on the rack with the others.
 - -> lager_up
 
-// She comes up from the keg room, and she counts.
+// He comes up from the keg room, and he counts.
 = lager_up
 ~ lager_down = false
-The trapdoor came up, and she came up after it, wiping her hands on the bar towel. #look: bartender
+The trapdoor came up, and the bartender came up after it, wiping his hands on the bar towel. #look: bartender
 BARTENDER: Lager's back.
-She said it to the room. Then she looked at the till, and the rail, and him.
+He said it to the room. Then he looked at the till, and the rail, and him.
 {
 - pour_how == -1:
     ~ rep(rep_staff, -2)
-    She looked at the glass in his hand, and at the red tap, and at him.
+    The bartender looked at the glass in his hand, and at the red tap, and at him.
     BARTENDER: You want one, you ask me. Nobody pours in my bar. Nobody.
-    She took the glass out of his hand and put it in the sink, half full, and rang it in. #sfx: till
+    The bartender took the glass out of his hand and put it in the sink, half full, and rang it in. #sfx: till
     ~ cash -= 7
     BARTENDER: Seven-fifty. Call it seven.
 - pour_how == 2:
     ~ rep(rep_staff, -1)
-    She looked at the pint on the ledge, which she hadn't poured.
-    She rang it in without asking him what it was. She knew what it was. #sfx: till
+    The bartender looked at the pint on the ledge, which he hadn't poured.
+    He rang it in without asking him what it was. He knew what it was. #sfx: till
     ~ cash -= 7
     BARTENDER: Seven-fifty. Call it seven. Next time you ask me, Door.
 - pour_how == 1:
-    She looked at the rack, where one glass was wet with the others dry, and at him, and he looked at the room.
+    The bartender looked at the rack, where one glass was wet with the others dry, and at him, and the doorman looked at the room.
     BARTENDER: Mm.
 - pour_how == 3:
-    She looked at the rack, where one glass was wet with the others dry.
+    The bartender looked at the rack, where one glass was wet with the others dry.
     BARTENDER: Mm.
 - watched_bar:
     ~ rep(rep_staff, 1)
     BARTENDER: Mm. Thanks.
-    Nine doormen, she'd had, and every one of them had helped himself to something while she was down there.
+    Nine doormen, he'd had, and every one of them had helped himself to something while he was down there.
 }
 -> opts
 
-// He went back to his door and left her bar to itself, and table 28 helped themselves.
+// He went back to his door and left the bartender's bar to itself, and table 28 helped themselves.
 = lager_left
 ~ rep(rep_staff, -1)
 ~ here = door
 He went back to his door.
 From the stool he watched the one in the team jacket get up from table 28 and go round behind the bar, the way he must have done it in nineteen eighty-one, and start pulling a round.
 ~ lager_down = false
-The trapdoor came up, and she came up after it, and stood there with the bar towel in her hand.
+The trapdoor came up, and the bartender came up after it, and stood there with the bar towel in his hand.
 BARTENDER: Out.
 TEAM_JACKET: Lager's off!
 TABLE28: Hear, hear!
-He went, and she poured their round, and when she'd done it she looked down the room at the doorman on his stool, and didn't say anything.
+He went, and the bartender poured their round, and when it was done the bartender looked down the room at the doorman on his stool, and didn't say anything.
 -> carry_on
 
 = endbar
@@ -333,7 +333,7 @@ He went, and she poured their round, and when she'd done it she looked down the 
 
 // ------------------------------------------------------------------ 8:15 the card machine goes down
 
-// Heard from wherever he is; then he goes and stands by her, the way a doorman does when the money
+// Heard from wherever he is; then he goes and stands by him, the way a doorman does when the money
 // stops, since that's where the arguing will be.
 === ev_card ===
 ~ ev_card_done = true
@@ -355,7 +355,7 @@ The TV over the bar had cut to a panel of men in suits talking in front of a map
 // Hutch, in director mode (27 Sept), on what stops working first in a town like his: it's an island, so
 // it's the shipments from the mainland. When diesel's too dear for the trucks to make sense, things
 // start disappearing off the shelves, slowly, and then all at once. (Worked in by Claude.)
-The limes had come in short again. She was cutting them into eighths instead of quarters, and there was a strip of cardboard taped over one of the taps with NO MORE TIL TUES on it in marker.
+The limes had come in short again. The bartender was cutting them into eighths instead of quarters, and there was a strip of cardboard taped over one of the taps with NO MORE TIL TUES on it in marker.
 BARTENDER: Truck didn't come off the ferry with half my order. Again.
 TABLE28: It's the diesel!
 They'd been saying it since two o'clock.
@@ -378,12 +378,12 @@ SLIPPERS: I never have cash. My husband always carried the cash.
         He said it from the door, over the room.
     }
     BARTENDER: She can run a tab till the day she dies, and she will.
-    She started one on a napkin.
+    He started one on a napkin.
     ~ rep(rep_staff, 1)
 * [Stay out of it.]
     ~ slippers_upstairs = true
     ~ room_count--
-    BARTENDER: Sorry, hon.
+    BARTENDER: Sorry. Sorry, really.
     The woman went back upstairs in her slippers. Her friend stayed with the bottle.
     WRONGMAN: Twenty dollars. The drunk said the whole story started over twenty dollars. Then he said it was a woman.
 - ~ pass(3)
@@ -490,19 +490,19 @@ Behind him a slot machine was paying out, and a woman laughed at something he'd 
     ~ rep(rep_staff, 1)
     The bartender, who could hear every word, didn't look up.
 // Learned when GOOD SHOES got in without him (door.ink): "The owner didn't write it. I did."
-* {knows ? binder_hers} ["She wrote it. Not you."]
-    OWNER: She writes a lot of things.
+* {knows ? binder_hers} ["He wrote it. Not you."]
+    OWNER: He writes a lot of things.
     There was a long breath at the other end.
-    OWNER: Put her on.
+    OWNER: Put him on.
     ~ rep(rep_owner, -2)
     ~ rep(rep_staff, 2)
-    The bartender took the phone. She listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the bar as if she'd never stopped.
+    The bartender took the phone. He listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the bar as if he'd never stopped.
     -> carry_on
 * ["I'll let him in next time."]
     OWNER: Good man.
     ~ rep(rep_owner, 1)
     ~ rep(rep_staff, -2)
-    The bartender could hear every word. She didn't look up. She stopped wiping the bar.
+    The bartender could hear every word. He didn't look up. He stopped wiping the bar.
 - -> hang_up
 
 = hang_up
@@ -519,7 +519,7 @@ Behind him a slot machine was paying out, and a woman laughed at something he'd 
 - 3:
     OWNER: And what I said about the staff. You didn't say anything. I noticed that. Ha.
 }
-OWNER: Good. Good. Put her back on, my food's here.
-He handed the phone back. She listened, said "Yep," and "Yep," and hung up.
+OWNER: Good. Good. Put him back on, my food's here.
+He handed the phone back. The bartender listened, said "Yep," and "Yep," and hung up.
 ~ pass(4)
 -> carry_on

@@ -596,10 +596,10 @@ FIGHTER: Now. Now, now, now.
     It was over before it started.
 }
 { used:
-    Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in her hand, and she was dialling.
+    Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in his hand, and he was dialling.
     -> weapon_call
 }
-Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in her hand and hadn't dialled it.
+Table 28 had turned all the way around in their chairs to watch. The bartender had the phone in his hand and hadn't dialled it.
 { bad:
     -> call_it
 }
@@ -613,13 +613,13 @@ BARTENDER: Door. Do I call it or not?
     ~ police_at = clock
     ~ incident += inc_police
     BARTENDER: Yep.
-    She dialled. It would be forty minutes. It was always forty minutes out here.
+    He dialled. It would be forty minutes. It was always forty minutes out here.
     MANUAL: Correct.
     FATHER: Now it's on paper. Now it's the owner's night, and the owner's insurance.
 * ["Don't. I've got it."]
     ~ rep(rep_owner, 1)
     ~ name_on_log = true
-    She put the phone down.
+    The bartender put the phone down.
     BARTENDER: Your name goes on the log, then. Not mine.
 - -> sort_out
 
@@ -718,7 +718,7 @@ BARTENDER: Door. Do I call it or not?
 
 // The bartender called it in after the fight (call_it). One car. It's always forty minutes out here.
 // A tunnel: from the floor (sim.ink, events) while the bar's open, or from lock_up (closing.ink) if
-// forty minutes runs past close and she knocks on the locked door.
+// forty minutes runs past close and he knocks on the locked door.
 === ev_police ===
 ~ police_seen = true
 { lock_up:
@@ -811,7 +811,7 @@ WRONGMAN: In the story the police came too. Forty minutes after. Everybody had g
 * [Stand at it like you're picking a song.]
     -> stand_at
 
-// The bartender's song is the one at the top, and she plays it at close (closing.ink).
+// The bartender's song is the one at the top, and he plays it at close (closing.ink).
 = most_played
 ~ pass(2)
 ~ knows += juke_top
@@ -826,12 +826,12 @@ WRONGMAN: Somebody plays that when there's nobody here. There was a song in the 
 ~ pass(1)
 He caught the bartender's eye across the room and turned a hand down, flat, twice.
 { rep_staff >= 0:
-    She picked the remote up off the till without looking at it, and the room came down a notch. The balls on the felt again, and table 28 a bit more than anyone needed.
+    The bartender picked the remote up off the till without looking at it, and the room came down a notch. The balls on the felt again, and table 28 a bit more than anyone needed.
     ~ juke_low = true
     ~ heat(-1)
     FIGHTER: Good. Loud's for them. You want to hear it start.
 - else:
-    She looked at his hand, and at him, and went back to the till. The jukebox stayed where it was.
+    The bartender looked at his hand, and at him, and went back to the till. The jukebox stayed where it was.
     FATHER: You haven't earned that across a room yet.
 }
 -> j_opts

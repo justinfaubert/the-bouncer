@@ -118,7 +118,7 @@ OWNER: So where were you before this?
     SENIOR: I taught you to count a till, Junior. That's what I taught you.
 - -> why_left
 
-// The bartender asks him the same thing at close (closing.ink, door_story), and she'll have had
+// The bartender asks him the same thing at close (closing.ink, door_story), and he'll have had
 // this answer from Gary by then.
 = why_left
 OWNER: And why'd you leave?
