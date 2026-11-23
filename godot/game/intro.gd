@@ -39,21 +39,23 @@ const LAST := "Last call's at half past one. There's time."
 
 # the writing on the walls (content/ink/hall.ink, the men's): each line its own hand
 const WALL_PM := ["PUSH BUTTON FOR A MESSAGE", "FROM THE PRIME MINISTER"]
-const WALL_MILL := [["THE MILL ISN'T CLOSING.", "hand", Color("15161a")], ["READ THE NOTICE.", "hand_l", Color("1d2a52")],
-	["CAN'T READ. WORK AT THE MILL.", "hand", Color("2a1512")]]
+const WALL_MILL := [["THE MILL ISN'T CLOSING.", "hand", Color("101114")], ["READ THE NOTICE.", "hand_l", Color("1d2a52")],
+	["CAN'T READ. WORK AT THE MILL.", "hand", Color("c0141c")]]
 
 # the plates: where his eyes are, what they're on, how wide, the clock, the place they're printed
 # from (for its light and its sounds), and what's said or written
 const PLATES := [
-	{"at": Vector3(12.2, 1.55, 6.3), "look": Vector3(15.9, 2.3, 4.0), "zoom": 0.62, "place": "floor",
+	{"at": Vector3(12.6, 1.6, 5.9), "look": Vector3(15.9, 2.3, 4.0), "zoom": 0.5, "place": "floor",
 		"say": "Table 28 watched the country come apart on the TV over the bar, and had money on it."},
-	{"at": Vector3(13.3, 1.62, -1.35), "look": Vector3(13.45, 1.62, -2.55), "zoom": 0.78, "place": "hall", "wall": "pm"},
-	{"at": Vector3(3.4, 1.55, 7.9), "look": Vector3(2.0, 1.22, 7.05), "zoom": 0.5, "place": "bar", "machine": true,
+	{"at": Vector3(13.5, 1.55, -1.35), "look": Vector3(13.6, 1.5, -2.55), "zoom": 0.74, "place": "hall", "wall": "pm",
+		"spot": Vector3(13.47, 1.8, -2.55)},
+	{"at": Vector3(2.75, 1.42, 7.45), "look": Vector3(2.08, 1.16, 7.05), "zoom": 0.36, "place": "bar", "machine": true,
 		"say": "The card machines went down two nights a week. The bank said it was the weather."},
-	{"at": Vector3(10.6, 1.6, -1.3), "look": Vector3(10.6, 1.55, -2.55), "zoom": 0.82, "place": "hall", "wall": "mill", "secs": 4.6},
+	{"at": Vector3(14.2, 1.8, -1.7), "look": Vector3(14.25, 1.85, -2.55), "zoom": 0.62, "place": "hall", "wall": "mill", "secs": 4.6,
+		"spot": Vector3(14.3, 2.0, -2.55)},
 	{"at": Vector3(8.6, 1.5, 21.5), "look": Vector3(8.0, 10.6, 10.6), "zoom": 0.55, "place": "lot",
 		"say": "Every big night that month, the sign on the roof lost a letter."},
-	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg",
+	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg", "torch": true,
 		"say": "The rats heard it before any of us did."},
 ]
 const PLATE_SECS := 3.4
@@ -314,9 +316,8 @@ func _dream() -> void:
 		main.pub.add_child(_rig)
 		_rig.build(view.eye.find_world_3d(), view.env, view.cam, view.mcam)
 	_rig.put(Vector3(SPHERE_AT.x, ListenerRig.WATER_Y - SPHERE_R - 0.3, SPHERE_AT.z), SPHERE_R)
-	_go_black(1.2, true)
+	_go_black(2.2, true)
 	_bars_to(LETTERBOX, 1.6)
-	view.print_in(1.6)
 	_shot_t0 = t
 	# the water at first, with nothing on it; it comes up three seconds in, over eight, slowing,
 	# the last of it hanging; the rings start where it breaks the surface and die away
@@ -351,6 +352,8 @@ func _push() -> void:
 		_eyes(from, SPHERE_AT + Vector3(0, -0.15 * kk, 0), lerpf(0.8, 0.2, kk))
 		if _rig != null:
 			_rig.grow(lerpf(0.14, 1.0, smoothstep(0.1, 0.85, k)))
+			# the tiles go back to ghosts as the room comes up through them
+			_rig.hear = lerpf(1.0, 0.1, smoothstep(0.2, 0.75, k))
 		if _far != null:
 			_far.volume_db = linear_to_db(_vol() * lerpf(0.5, 0.95, k))
 			if _far_bus >= 0:
@@ -387,6 +390,8 @@ func _plate(p: Dictionary) -> void:
 		_wall(str(p.wall), p)
 	if p.get("machine", false):
 		_card_machine()
+	if p.get("torch", false):
+		_torch(p)
 	if p.has("say"):
 		var said: String = p.say
 		get_tree().create_timer(0.55).timeout.connect(func(): if playing: _say(said, float(p.get("secs", PLATE_SECS)) - 0.9))
@@ -404,33 +409,33 @@ func _plate(p: Dictionary) -> void:
 # The writing on the wall, put up a letter at a time in each hand as the plate comes in. It's in the
 # world, so the press prints it with the wall.
 func _wall(which: String, p: Dictionary) -> void:
-	var look: Vector3 = p.look
+	var look: Vector3 = p.get("spot", p.look)
 	var at: Vector3 = p.at
-	var face := (at - look)
+	var face := (at - (p.look as Vector3))
 	face.y = 0.0
 	face = face.normalized()
 	var lines: Array = []
 	if which == "pm":
 		for i in WALL_PM.size():
-			lines.append([WALL_PM[i], "hand", Color("16171c"), Vector3(0.0, 0.08 - i * 0.075, 0.0), 0.35 + i * 0.95])
+			lines.append([WALL_PM[i], "hand", Color("c0141c"), Vector3(0.0, 0.03 - i * 0.05, 0.0), 0.35 + i * 0.95])
 	else:
 		for i in WALL_MILL.size():
 			var w: Array = WALL_MILL[i]
-			lines.append([w[0], w[1], w[2], Vector3(-0.04 + i * 0.03, 0.16 - i * 0.12, 0.0), 0.35 + i * 1.25])
+			lines.append([w[0], w[1], w[2], Vector3(-0.03 + i * 0.025, 0.0 - i * 0.075, 0.0), 0.35 + i * 1.25])
 	for ln in lines:
 		var l := Label3D.new()
 		l.font = Look.font(str(ln[1]))
 		l.font_size = 64
-		l.pixel_size = 0.0011
+		l.pixel_size = 0.00062
 		l.modulate = ln[2]
 		l.outline_size = 0
-		l.shaded = true
+		l.shaded = false
 		l.double_sided = false
 		l.alpha_cut = Label3D.ALPHA_CUT_DISCARD
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		l.text = ""
 		main.pub.add_child(l)
-		l.global_position = look + face * 0.012 + ln[3]
+		l.global_position = Vector3(look.x, look.y, Pub.BACK) + face * 0.006 + ln[3]
 		l.look_at(l.global_position - face, Vector3.UP)
 		l.rotate_object_local(Vector3(0, 0, 1), deg_to_rad(randf_range(-3.0, 2.0)))
 		_labels.append(l)
@@ -441,12 +446,30 @@ func _wall(which: String, p: Dictionary) -> void:
 		tw.tween_method(func(n: float): if is_instance_valid(l): l.text = full.substr(0, int(n)), 0.0, float(full.length()), full.length() * 0.045)
 
 
+# His torch in the dark, the beam going where he looks (the X-Files' flashlight crossing a room,
+# bible/13_STYLE.md): the keg room has no light of its own till someone brings one.
+func _torch(p: Dictionary) -> void:
+	var l := SpotLight3D.new()
+	l.light_color = Color("fff1d6")
+	l.light_energy = 6.0
+	l.spot_range = 9.0
+	l.spot_angle = 17.0
+	l.spot_attenuation = 0.8
+	l.shadow_enabled = true
+	main.pub.add_child(l)
+	l.global_position = (p.at as Vector3) + Vector3(0.18, -0.25, 0.0)
+	l.look_at(p.look, Vector3.UP)
+	_labels.append(l)
+
+
 # A card machine on the bar by the till, its screen saying what it said two nights a week.
 func _card_machine() -> void:
 	_machine = Node3D.new()
 	main.pub.add_child(_machine)
-	_machine.global_position = Vector3(2.02, 1.13, 7.02)
-	_machine.rotation.y = deg_to_rad(-62.0)
+	_machine.global_position = Vector3(2.08, 1.13, 7.05)
+	# its screen turned to whoever's paying: him, in the plate
+	_machine.look_at(Vector3(2.75, 1.13, 7.45), Vector3.UP)
+	_machine.rotate_y(PI)
 	var body := MeshInstance3D.new()
 	var bm := BoxMesh.new()
 	bm.size = Vector3(0.085, 0.035, 0.17)
@@ -461,8 +484,8 @@ func _card_machine() -> void:
 	var scr := Label3D.new()
 	scr.text = "DECLINED"
 	scr.font = Look.font("mono")
-	scr.font_size = 48
-	scr.pixel_size = 0.00034
+	scr.font_size = 64
+	scr.pixel_size = 0.00028
 	scr.modulate = Color(0.75, 1.0, 0.86)
 	scr.shaded = false
 	scr.position = Vector3(0, 0.04, -0.035)
@@ -484,9 +507,12 @@ func _title_shot() -> void:
 	main.audio.ambience("rain_door")
 	if _far != null:
 		_far.stop()
-	_go_black(0.4, true)
+	if _skipping:
+		view.print_in(1.2)
+		_go_black(0.3, true)
+	else:
+		_go_black(1.6, true)
 	_bars_to(0.0, 0.4)
-	view.print_in(1.5)
 	_shot_t0 = t
 	_shot = func(s: float):
 		_eyes(SEAWALL_EYE, TITLE_LOOK + Vector3(0, -0.25 * (1.0 - smoothstep(0.0, 3.0, s)), 0), 0.92)
