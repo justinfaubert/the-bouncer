@@ -345,7 +345,21 @@ func apply_settings() -> void:
 
 # ---------------------------------------------------------------- the night
 
-func start_new(in_slot: int) -> void:
+# The days a night can start on (Hutch, 23 November: "the other 2 nights aren't playable from the
+# start, it just starts the 1st day over"). The Nights were three saves of Wednesday; Thursday and
+# Friday only came after a whole Wednesday. Now a night can start on any of them: a new game, then
+# straight to that day's first knot, as if Wednesday had gone by quietly (no incidents, nobody met
+# who wasn't met on the door by default). dawn is where Thursday starts (it sets the new day).
+const DAYS := [["wednesday", "Wednesday", "The test shift: Gary's office at four, then the door."],
+	["dawn", "Thursday", "His own day on the island, the morning after the test shift."],
+	["friday", "Friday", "The first real shift, and Friday's line in the rain."]]
+
+
+func start_day(in_slot: int, knot: String) -> void:
+	start_new(in_slot, knot)
+
+
+func start_new(in_slot: int, from_knot := "") -> void:
 	slot = in_slot
 	settings["slot"] = slot
 	store.save_settings()
@@ -354,6 +368,8 @@ func start_new(in_slot: int) -> void:
 	menus.hide_all()
 	_leave_full_frame()
 	var res := game.new_game()
+	if from_knot != "" and from_knot != "wednesday":
+		res = game.jump(from_knot)
 	persist()
 	# the night opens wherever its first place line is (the lot), not where the story's
 	# bookkeeping says he'll be later: start there, don't walk there
