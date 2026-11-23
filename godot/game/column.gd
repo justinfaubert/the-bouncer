@@ -465,8 +465,9 @@ func _enter_voice(h: Control) -> void:
 	if not is_instance_valid(h):
 		return
 	var st := str(h.get_meta("voice", ""))
-	var mask = h.get_meta("mask", null)
-	var words: RichTextLabel = h.get_meta("words", null)
+	# get_meta with a null default still errors when the key's missing (a null mask unsets it)
+	var mask = h.get_meta("mask") if h.has_meta("mask") else null
+	var words: RichTextLabel = h.get_meta("words") if h.has_meta("words") else null
 	var n := words.get_total_character_count() if words != null else 20
 	var secs := clampf(n / 55.0, 0.5, 3.0)
 	if mask != null and is_instance_valid(mask):
