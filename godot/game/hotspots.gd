@@ -122,7 +122,7 @@ const BETWEEN := {"a:swing_door": ["room", "kitchen"], "a:hall_way": ["room", "h
 	"a:main_door": ["vest", "lot"], "a:hotel_door": ["hall", "lobby"]}
 # the parts of the building with nothing between them: the room and the vestibule; the town and
 # the lot, across the highway
-const OPEN := ["room|vest", "town|lot"]
+const OPEN := ["room|vest", "town|lot", "yard|lot", "yard|town"]
 # and the openings he sees one part from another through, any other two being walled off from each
 # other: [part, part, corner, corner, the door in it if it's only open when that is], each a
 # rectangle down the middle of a wall 0.2 thick. The back hall's doorway; the main door (glass) and
@@ -352,7 +352,15 @@ func look_spot(id: String) -> Array:
 	for c in _when.get(id, []):
 		if not Barks.test(c, func(n): return main.game.get_var(n), main.game.psyche, ""):
 			return []
-	return _first_seen(str(t.get("at", "")))
+	var w := _first_seen(str(t.get("at", "")))
+	# out of doors, some things are only to be found by walking up to them (things.yaml's near:
+	# metres), not named from across the highway
+	var near = t.get("near")
+	if not w.is_empty() and near != null:
+		var e: Vector3 = main.view.eye_pos
+		if Vector2(e.x - w[0].x, e.z - w[0].z).length() > float(near):
+			return []
+	return w
 
 
 # Whether a thing's somewhere he could see from here, if he turned his head: in the part of the
@@ -441,7 +449,7 @@ func _where(key: String) -> Array:
 		var node = pub.dyn.get(n)
 		if node is Node3D and not (node as Node3D).visible:
 			return []
-		var r := 0.35
+		var r: float = Grounds.RADIUS.get(n, 0.35)
 		match n:
 			"truck":
 				r = 1.6
@@ -508,6 +516,9 @@ func _where(key: String) -> Array:
 static func zone_of(p: Vector3) -> String:
 	if Town.in_office(p):
 		return "office"
+	# round the back of the building and down its sides, out of doors (world/grounds.gd)
+	if Grounds.in_yard(p):
+		return "yard"
 	if Town.in_town(p):
 		return "town"
 	if p.y < -0.2:

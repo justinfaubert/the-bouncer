@@ -132,6 +132,7 @@ var weigh := 0.0                # a verdict at the door being made by hand: the 
 var duck := 1.0                 # the room, lowered under a voice or the score
 var reverb: AudioEffectReverb
 var _now := 0.0
+var out_mix := {}               # out of doors past the lot (world/grounds.gd): the sea, the road, the Esso's hum, by where he is
 
 
 func setup(s: Dictionary) -> void:
@@ -504,7 +505,7 @@ static func _space(zone: String) -> String:
 	match zone:
 		"vest":
 			return "room"
-		"truck":
+		"truck", "yard":
 			return "lot"
 		"office":
 			return "town"
@@ -519,7 +520,8 @@ func _through(src: String, mine: String) -> Vector2:
 	if a == b:
 		return Vector2(1.0, 20500.0)
 	if a == "town" or b == "town":
-		return Vector2.ZERO
+		# the lot and the highway past it are the same open air (world/grounds.gd)
+		return Vector2(0.9, 20500.0) if (a == "lot" or b == "lot") else Vector2.ZERO
 	var pair := [a, b]
 	pair.sort()
 	match "%s:%s" % pair:
@@ -644,6 +646,9 @@ func _mix() -> void:
 			t.traffic = 0.5
 	if ink_amb == "rain_lot":
 		t.rain_out = maxf(t.rain_out, 0.8)
+	if where == "lot":
+		for k in out_mix:
+			t[k] = out_mix[k]
 	if ink_amb == "deck":
 		t.rain_roof = maxf(t.rain_roof, 0.7)
 	if ink_amb == "keg_room":

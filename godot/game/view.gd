@@ -335,6 +335,12 @@ func _got_to(where: String) -> void:
 func walk_to(where: String, instant := false, then := false) -> void:
 	if where == place and frame == _framed and not walking:
 		return
+	# out round the back, across the road or down the beach, the night seeing the same place another
+	# way (the lot from the step, the lot from the pickup) doesn't fetch him back to see it: he's
+	# where his own feet took him (world/grounds.gd)
+	if where == place and not walking and where == "lot" and Grounds.far_out(eye_pos):
+		_framed = frame
+		return
 	if instant or where == "":
 		jump_to(where)
 		arrived.emit(where)
@@ -483,6 +489,17 @@ func _plan(where: String, p: Dictionary, from: Vector3, off: String) -> Array:
 		var to_floor := where if Posts.away(where) or Posts.FLIGHTS.has(where) else ""
 		return [{"cut": p.at, "floor": to_floor, "after": p.look, "away": where}]
 	var legs: Array = []
+	# Out past the lot on his own feet (round the back, across the highway, the beach, the Esso),
+	# there's no walk map to bring him back by: up the deck steps from the gravel beside them it's a
+	# step or two up onto the boards; from anywhere else the page goes blank and he's back on the
+	# front step, and goes on from there
+	if off == "" and Grounds.far_out(from):
+		if where == "deck" and Vector2(from.x - 18.6, from.z - 5.0).length() < 2.5:
+			legs.append({"path": PackedVector3Array([Vector3(from.x, 0, from.z), Vector3(17.9, 0, 5.05), Vector3(p.at.x, 0, p.at.z)]), "y1": p.at.y})
+			return legs
+		var step := Vector3(3.9, Posts.STAND, 12.4)
+		legs.append({"cut": step, "floor": "", "after": Vector3(3.2, 1.3, 10.1)})
+		from = step
 	if off != "":
 		var up: Dictionary = Posts.FLIGHTS[off]
 		var top := Vector3(up.from.x, Posts.STAND, up.from.z)

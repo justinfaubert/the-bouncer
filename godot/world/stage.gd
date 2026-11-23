@@ -31,7 +31,7 @@ const SEEN := {
 	"door": ["vest", "room", "lot", "truck"],
 	"floor": ["vest", "room", "lot"], "bar": ["vest", "room"], "t28": ["vest", "room", "lot", "truck"], "pool": ["room", "vest"],
 	"hall": ["hall", "room", "lobby"], "kitchen": ["kitchen"], "keg": ["keg"], "deck": ["deck", "lot"],
-	"lot": ["lot", "truck", "vest", "room"], "upstairs": ["upstairs", "lot", "truck"],
+	"lot": ["lot", "truck", "vest", "room", "yard", "town"], "upstairs": ["upstairs", "lot", "truck"],
 	# before the night, away from it: Gary's front room and the street out of its window; the town;
 	# from the seawall, the town and the Sov's lot across the highway
 	"office": ["office", "town"], "street": ["town"], "esso": ["town"], "seawall": ["town", "lot", "truck"],
@@ -57,7 +57,7 @@ const OFF_INTO := Vector3(6.2, 0, 17.5)                         # out of the doo
 # where someone coming to the door comes from, out in the lot, nearest first: the first he can't see
 const COMES_FROM := [Vector3(4.6, 0, 13.4), Vector3(6.4, 0, 15.6), Vector3(2.6, 0, 16.4), Vector3(7.5, 0, 18.5)]
 # which post sees what a part of the building does, for what he can see on the way somewhere
-const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot",
+const ZONE_POST := {"room": "floor", "vest": "door", "hall": "hall", "kitchen": "kitchen", "deck": "deck", "lot": "lot", "yard": "lot",
 	"lobby": "hall", "keg": "keg", "upstairs": "upstairs", "office": "office", "town": "street"}
 # the men's on the back hall, for whoever goes: in front of its door, and inside it, past the door
 # walking: a door opens this far ahead of a walker, so it's open before they're where it swings (the

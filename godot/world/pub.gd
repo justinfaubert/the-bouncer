@@ -45,6 +45,7 @@ var stools := {}           # the stools by the spot they're at (world/stage.gd):
 var lamps: Array = []      # the room's lamps, dimmed and brightened with the clock
 var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
 var town: Town             # the town round the Sov, Gary's office in it (world/town.gd): out only while he's away
+var grounds: Grounds       # round the back, across the road, the beach, the shoulder (world/grounds.gd): out while he's outdoors
 
 var SURFACE := preload("res://look/surface.gdshader")
 var GLASS := preload("res://look/glass.gdshader")
@@ -70,6 +71,7 @@ func build() -> void:
 	_lobby()
 	_room_things()
 	_town()
+	_grounds()
 	Lighting.dress(self)
 
 
@@ -80,6 +82,15 @@ func _town() -> void:
 	town.name = "town"
 	add_child(town)
 	town.build_for(self)
+
+
+# The grounds he walks about at night (world/grounds.gd): built last, with their own dice, and out
+# only while he's outdoors.
+func _grounds() -> void:
+	grounds = Grounds.new()
+	grounds.name = "grounds"
+	add_child(grounds)
+	grounds.build_for(self)
 
 
 # Away from the Sov, or back (game/view.gd, as he gets somewhere): the town out or put away.
@@ -1981,7 +1992,9 @@ func _outside() -> void:
 	box(Vector3(160, 0.02, 8), Vector3(8, 0.0, 31.6), M.road)
 	for x in range(-60, 80, 6):
 		box(Vector3(2.5, 0.01, 0.12), Vector3(x, 0.02, 31.6), M.wall)
-	box(Vector3(160, 0.9, 0.5), Vector3(8, 0.2, 35.9), M.dark)
+	# the seawall, with the gap where the steps go down through it to the beach (world/grounds.gd)
+	box(Vector3(Grounds.STEP_X.x + 72.0, 0.9, 0.5), Vector3((Grounds.STEP_X.x - 72.0) / 2.0, 0.2, 35.9), M.dark)
+	box(Vector3(88.0 - Grounds.STEP_X.y, 0.9, 0.5), Vector3((Grounds.STEP_X.y + 88.0) / 2.0, 0.2, 35.9), M.dark)
 	box(Vector3(900, 0.02, 900), Vector3(8, -0.4, 486), M.water)
 	for i in 16:
 		ball(rng.randf_range(0.5, 1.1), Vector3(rng.randf_range(-260, 420), rng.randf_range(0.5, 6.0), 420 + rng.randf_range(0, 40)), M.far)
