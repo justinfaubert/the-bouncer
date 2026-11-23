@@ -663,6 +663,8 @@ The night window. The kid behind it, lit from under by his phone.
     WRONGMAN: The drunk said the price went up every time you looked at it. Then he said that's just what prices are.
 - else:
     The price sign. {esso_price * 2 + 180}.9. He stopped looking at it, which didn't help either.
+}
+
 // ------------------------------------------------------------------ the set dressing
 // What's on the walls and the floor (godot/world/dressing.gd): the beer posters and the calendar,
 // the signs, the corkboard, the beer clock, the neon, the glasses and the glasswasher, the hall's
