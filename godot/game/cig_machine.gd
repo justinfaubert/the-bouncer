@@ -1049,7 +1049,7 @@ func _loop_clear() -> void:
 		return
 	synth.loop_clear()
 	synth.strike(synth.cabinet, 0.3, 0.4, 0.6, 3)
-	_once("tape_wipe", "He held the other lamp in and it all went, like it had never been played.")
+	_once("tape_wipe", "He held the other lamp in and it all went. The relay ticked on over nothing.")
 
 
 func _noticed_note() -> void:

@@ -262,7 +262,7 @@ WRONGMAN: It was raining in the story too. The drunk was very sure about the rai
 He stood aside. The kid went past him and stopped just inside, dripping on the carpet, looking at the room.
 { knows !? kid_legal:
     ~ rep(rep_staff, -1)
-    Behind the bar, the bartender had stopped cutting limes. He'd seen the phone. He didn't say anything. He started cutting again.
+    Behind the bar, the bartender had stopped cutting limes. He'd seen the phone. He started cutting again, smaller.
     MANUAL: For the record, you did not verify his age.
 - else:
     MANUAL: For the record, you verified his age from a photograph. The record will say photograph.
@@ -823,7 +823,7 @@ WRONGMAN: He had a nice face, the one in the story. Everybody said so after.
 + {knows !? eighty_six} ["Give me a second." Ask the bartender.]
     ~ pass(2)
     ~ here = bar
-    He went over to the bar. He didn't have to say anything. The bartender looked past him at the man in the vestibule and his face shut like a door.
+    He went over to the bar and leaned on it. The bartender looked past him at the man in the vestibule and set the glass he was drying upside down on the mat.
     BARTENDER: No.
     BARTENDER: Binder, page three. Not ever.
     ~ knows += banned_face
@@ -876,7 +876,7 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
     ~ rep(rep_owner, 1)
     ~ pass(1)
     GOOD SHOES: That's all I ask. Thank you, friend.
-    He went to the bar. The bartender served him, because it was his job, and he didn't say one word while he did it.
+    He went to the bar. The bartender poured him a rye and put it down on the bar a foot short of where he could reach it.
     The bartender didn't look at the doorman for the rest of the night.
     FATHER: One. You said one. He heard you, and so did the bartender.
     -> at_door
@@ -896,7 +896,7 @@ GOOD SHOES: That's old, friend. I completely understand, but the owner and I hav
 }
 ~ rep(rep_owner, 1)
 He went to the bar and put a fifty on it.
-The bartender looked at the fifty and then at the man and then, over his shoulder, at the doorman. He served him. It was his job. He didn't say anything while he did it.
+The bartender looked at the fifty and then at the man and then, over his shoulder, at the doorman. He served him with his mouth shut tight and the change counted out coin by coin onto the wet bar.
 { knows !? banned_face && knows !? ardagh:
     WRONGMAN: In the story he had a nice coat too, and put a fifty on the bar. Or a hundred.
 }
@@ -922,7 +922,7 @@ The bartender didn't look up. After a while he brought the doorman a glass of wa
 ~ banned_stage = 1
 The bartender came around the end of the bar, which he didn't do, and stood in front of him.
 BARTENDER: There's a man at my bar who is not allowed at my bar.
-He didn't point. He didn't have to. A good wool coat, a golf umbrella hooked on the rail, a fifty on the bar that he hadn't touched. #look: goodshoes
+Nobody else in the room looked like page three. A good wool coat, a golf umbrella hooked on the rail, a fifty on the bar that he hadn't touched. #look: goodshoes
 BARTENDER: Page three. I'm not serving him and I'm not asking him. That's your job, Door.
 ~ knows += banned_face
 ~ knows += eighty_six

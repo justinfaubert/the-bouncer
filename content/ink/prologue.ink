@@ -193,14 +193,14 @@ Headlights swung across the front window and stopped. A pickup had pulled in at 
     ->->
 }
 { shirt_on:
-    She looked at the shirt.
+    The bartender looked at the shirt.
     BARTENDER: One of Junior's shirts. Christ.
 }
 { knows ? sov_watched:
     BARTENDER: You sat on that wall two and a half hours. I saw you. Everybody saw you.
 }
 { knows ? heard_phone:
-    The bartender looked at him the way you look at somebody you've only had described to you, and checked it against the description.
+    The bartender looked at his boots, then his hands, then his face, and nodded once, at something Gary must have said on the phone.
     ->->
 }
 {
@@ -211,7 +211,7 @@ Headlights swung across the front window and stopped. A pickup had pulled in at 
     The bartender looked at the doorman's hands while he said it.
 - told_gary ? tg_dry:
     BARTENDER: Junior rang. Says you don't drink.
-    He didn't say anything else about that.
+    He took a beer off the rail, a Kokanee, and put it back in the cooler where the doorman could see him do it.
 - told_gary ? tg_city:
     BARTENDER: Junior rang. Ten years on a door in the city, he says.
 - gary_rye == 4:

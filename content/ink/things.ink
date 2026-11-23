@@ -14,7 +14,7 @@
 === function toy_coasters(what)
 {stopping:
 - A pile of beer mats on the bar in the gap by the rails, SEAWALL LAGER in a ring on every one. The brewery sent them up by the hundred and nobody'd put one under a glass in years. The top one had a phone number on it and a name that had been scribbled out hard enough to go through.
-- The beer mats. The top one hanging a little over the edge, the way they always ended up.
+- The beer mats. The top one hanging a little over the edge, for flipping.
 }
 
 // The wine glasses on the bar (godot/game/wine_glasses.gd): the first look is this; the next, he plays them.
@@ -680,7 +680,7 @@ The night window. The kid behind it, lit from under by his phone.
 === function toy_poster_boors(what)
 {stopping:
 - BOORS LIGHT. COLD AS YOUR EX. A blonde in a bikini the colour of a glacier, standing in snow to her shins in nothing else, the can up by her ear as if it had said something. The window had taken the blue out of the top half of her. Somebody had put a piece of tape back over the bottom corner where she'd come away from the wall.
-- Still cold. So was the ex.
+- The glacier girl, with the tape on her corner. Somebody had drawn a moustache on her and somebody else had tried to rub it off with a thumb.
 }
 
 === function toy_poster_mildcat(what)
@@ -777,14 +777,14 @@ The night window. The kid behind it, lit from under by his phone.
 - not washer_on:
     {shuffle:Off. The hum ran down, and the room came up under it.|Off again. The bartender didn't look this time, which was worse.|He switched it off. Nobody said anything about it.}
 - washer_flips == 2:
-    He flipped it back. The amber lamp came on, the motor caught, and the belt took up where it had left off as if it hadn't noticed.
+    He flipped it back. The amber lamp came on, the motor caught, and the belt took up where it had left off, the half-in rack first, dripping.
 - else:
     {shuffle:On. The hum came back and the room sank under it.|He switched it on again. The belt went on.}
 }
 
 === function toy_wall_hole(what)
 {stopping:
-- A hole in the hall side of the wall at about the height of a big man's fist, the paper of the board torn back round it, and a beer mat taped over half of it, as if that was the half that mattered.
+- A hole in the hall side of the wall at about the height of a big man's fist, the paper of the board torn back round it, and a beer mat taped over half of it, with a phone number on the mat and the last two digits torn off.
 - The hole, and the mat over half of it.
 }
 

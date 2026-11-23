@@ -375,7 +375,7 @@ OWNER: Okay. Here's what it is.
 OWNER: Twenty an hour. Tonight's cash, it's a test. After that it's Wednesday to Saturday, on the books, and the room comes off the top.
 BOOKKEEPER: Six hundred and fifty. A month. With the hydro.
 She read it off her pad.
-TILL: Hydro's fifty. Hydro was always fifty.
+TILL: Hydro, fifty. Six hundred less fifty, six hundred.
 // A passive read (bible/11_SKELETON.md): past a threshold, he notices without being asked.
 { stat_int >= 5:
     He heard it. Gary saw him hear it.

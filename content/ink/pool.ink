@@ -168,7 +168,7 @@ BIGMAN: Lot of doors in this old place for one fella.
     -> tk
 * [Ask how his night's going. #check: father:cha 12 {asked_regular:1|0}]
     { passed:
-        He asked it the way his father used to, like it didn't matter, and it got an answer.
+        He asked it while he was looking at the table, not the man, and it got an answer.
         BIGMAN: Ah, it's been a week, bud. One of them weeks.
         BIGMAN: Family stuff. You know how it is.
         He didn't say anything else about it. He put the chalk down.
@@ -192,7 +192,7 @@ BIGMAN: Lot of doors in this old place for one fella.
     He went back to the table.
 * [Say nothing.]
     ~ promised_bigman = true
-    He didn't say anything. The big man took it for a yes.
+    He shrugged. The big man took it for a yes.
 * ["Depends who's asking."]
     ~ bigman_ease--
     BIGMAN: Sure. Forget I asked, then.
@@ -220,12 +220,12 @@ BIGMAN: Rack 'em, then. You any good?
     FIGHTER: He threw it. Twice, to be sure you'd notice.
     FATHER: He's been throwing games all night. He's buying something, and it isn't pool.
 - pool_result == 1:
-    He won it clean, before the big man had worked out whether he was supposed to lose to him. The big man paid him off the rail without a word, which is how you pay a man you don't like losing to.
+    He won it clean, before the big man had worked out whether he was supposed to lose to him. The big man paid him off the rail, and folded the bills once each first, so they'd be harder to pick up.
     ~ cash += 20
     ~ bigman_ease--
     FIGHTER: Now he knows you can play. That's information he didn't want.
 - pool_result == 2 && pool_meant == 2 && pool_dumped >= 2:
-    He lost it the way a man loses on purpose when he's never had to: a ball that touched nothing, then the eight knocked in with three of his own still on the cloth.
+    He lost it badly, on purpose, and it showed: a ball that touched nothing, then the eight knocked in with three of his own still on the cloth.
     ~ cash -= 20
     ~ bigman_ease--
     The big man looked at the eight in the window, and then at him.
@@ -555,12 +555,12 @@ FIGHTER: Now. Now, now, now.
 * ["Everybody stop." #check: father:cha 14 {reach_mod()}]
     ~ pass(1)
     { passed:
-        He didn't shout it. He said it from the chest, the way his father used to, low enough to go under the music.
+        He didn't shout it. He said it from the chest, low enough to go under the music, in the voice his father kept for the Legion at closing.
         The room stopped.
         FATHER: That's my voice. Where'd you get that.
         -> after_fight(false)
     - else:
-        He said it. Nobody heard it. The jukebox was on the chorus.
+        Nobody heard. The jukebox was on the chorus.
         ~ here = pool
         The big man shoved {indoors(vape_at):the boyfriend|the buddy} into the table and a cue went over and the doorman was in it now whether he liked it or not. #sfx: hit
         ~ hurt++
@@ -576,7 +576,7 @@ FIGHTER: Now. Now, now, now.
         He took it off him, and the buddy let him.
         -> after_fight(false)
     - else:
-        He waited one second. That was the second it happened in. The big man's left hand came off the rail. #sfx: hit
+        He waited one second, and that was the one it happened in. The big man's left hand came off the rail. #sfx: hit
         { indoors(vape_at):
             The boyfriend went down against the jukebox and stayed down, holding his face.
         - else:
@@ -613,7 +613,7 @@ BARTENDER: Door. Do I call it or not?
     ~ police_at = clock
     ~ incident += inc_police
     BARTENDER: Yep.
-    He dialled. It would be forty minutes. It was always forty minutes out here.
+    He dialled. The dispatcher said forty minutes, and then, because she knew the address, said it might be more.
     MANUAL: Correct.
     FATHER: Now it's on paper. Now it's the owner's night, and the owner's insurance.
 * ["Don't. I've got it."]
@@ -722,7 +722,7 @@ BARTENDER: Door. Do I call it or not?
 === ev_police ===
 ~ police_seen = true
 { lock_up:
-    Headlights came into the empty lot and stopped crooked across two spaces, and a constable got out and put her hat on in the rain, and knocked on the glass of the door he'd just locked. One car. It was always one car out here. #portrait: constable
+    Headlights came into the empty lot and stopped crooked across two spaces, and a constable got out and put her hat on in the rain, and knocked on the glass of the door he'd just locked. The passenger seat was full of paperwork. #portrait: constable
     ~ here = door
     ~ door_away = 0
     He let her in.
@@ -730,7 +730,7 @@ BARTENDER: Door. Do I call it or not?
     She looked at the room the way he'd been taught to look at one: heads, then faces, then hands. There was nobody in it but the bartender and him, and the chairs up on the tables.
     CONSTABLE: Forty minutes. I know. I've got one car for the whole valley.
 - else:
-    Headlights came into the lot slowly and stopped crooked across two spaces, and a constable got out and put her hat on in the rain. One car. It was always one car out here. #portrait: constable #look: door
+    Headlights came into the lot slowly and stopped crooked across two spaces, and a constable got out and put her hat on in the rain. The passenger seat was full of paperwork. #portrait: constable #look: door
     ~ here = door
     ~ door_away = 0
     CONSTABLE: Okay. So. We had a call about a fight.

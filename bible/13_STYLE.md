@@ -58,6 +58,10 @@ Nobody notices one tell. They notice the same move made a hundred times, and aft
 
 What's left is mostly the bartender's lines and the narration about her, which wait for her rewrite as Jim.
 
+### The echo
+
+*Hutch, 23 November 2026: "X was the Y. X was always the Y". lots of examples of that.* Two sentences side by side that open the same way, the second the first with a word slipped in: "It hears them. It hears everyone." "He didn't point. He didn't have to." "It would be forty minutes. It was always forty minutes out here." `python3 tools/echoes.py` lists them. In a narrator's mouth, never; in a drunk's, sometimes, because people do repeat themselves. The pass that cleared them is in `content/revisions/days_writing_pass_2026-11-23.md`.
+
 ### The narrator
 
 - **End on the last concrete thing.** Cut the line that comments on it: "Then he sat.", "He didn't need to.", "That was the thing about him", "Table 28 said a great many things."
