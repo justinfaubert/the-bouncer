@@ -22,6 +22,7 @@ func _init() -> void:
 	_circle()
 	_choke()
 	_ogre()
+	_room()
 	print("fight_sim: %s" % ("ok" if bad == 0 else "%d bad" % bad))
 	quit(1 if bad else 0)
 
@@ -230,3 +231,37 @@ func _ogre() -> void:
 	print("ogre: %d surges in 10 s, dragged up to %.2f m from where they had him" % [surges, moved])
 	check(surges >= 4, "he surges")
 	check(moved > 0.3, "and drags them")
+
+
+# Nobody through anybody: two brawlers for a minute on a small deck and in a ring of people, the
+# gap never under the bodies', nobody past the rail or the ring.
+func _room() -> void:
+	for ring in [false, true]:
+		var s := FightSim.new(11)
+		var me := FightSim.body("him", {"str": 6, "con": 5, "dex": 5}, 1.93, 0.75, "brawler")
+		var ogre := FightSim.body("ogre", {"str": 10, "con": 10, "dex": 3}, 2.13, 1.3, "berserker")
+		s.setup(me, ogre, 0.9)
+		if ring:
+			s.ring_r = 1.9
+		else:
+			s.bounds = Rect2(-0.9, -2.6, 1.85, 5.2)
+		var closest := 9.0
+		var out := 0.0
+		var crowd := 0
+		for i in int(60.0 / FightSim.DT):
+			if i % 240 == 0:
+				me.pos += Vector2(0.4, 0.3)       # a shove off the line, now and then
+			s.step()
+			if not me.down and not ogre.down:
+				closest = minf(closest, me.pos.distance_to(ogre.pos) / s.apart_now())
+			for f in [me, ogre]:
+				if ring:
+					out = maxf(out, f.pos.length() - s.ring_r)
+				else:
+					var c := Vector2(clampf(f.pos.x, s.bounds.position.x, s.bounds.end.x), clampf(f.pos.y, s.bounds.position.y, s.bounds.end.y))
+					out = maxf(out, f.pos.distance_to(c))
+			for e in s.take_events():
+				crowd += 1 if e.kind in ["crowd", "wall"] else 0
+		print("room (%s): closest %.2f of the gap, %.3f m past the edge at most, %d shoves off it" % ["ring" if ring else "deck", closest, out, crowd])
+		check(closest > 0.97, "never into each other")
+		check(out < 0.001, "never past the edge")

@@ -160,7 +160,7 @@ func _ogre() -> void:
 		if ogre.pos.y > 1.9 and fight.sim.t - last_hit > 3.0:
 			hits += 1
 			last_hit = fight.sim.t
-			main.audio.at("slap_2", fight._w3(ogre.pos, 1.5), 1.0, 3.0, 0.7)
+			main.audio.at("punch", fight._w3(ogre.pos, 1.5), 0.7, 3.0, 0.8)
 			fight.say(["He gets a fist into a man at the rail. The man sits down hard among the chairs.", "Another one at the rail. Somebody's glass goes over the side.", "He catches a woman's shoulder. She screams like it's a joke and then it isn't."][mini(hits - 1, 2)], 3.5)
 		# both hands off him: he hits the deck, and anyone near
 		if me.grips.is_empty():
@@ -244,7 +244,7 @@ func _ogre() -> void:
 	if jaw:
 		fight.view.flash = 1.0
 		fight.shake_v += Vector2(3.0, -1.0)
-		main.audio.sfx("slap", 1.0, 0.6)
+		main.audio.sfx("punch", 0.8, 0.8)
 		main.audio.sfx("heart", 0.8, 0.8)
 		fight.say("On the way out his elbow comes back and finds your jaw. You hear it more than feel it. Then you feel it.", 5.0)
 		result["jaw"] = true
@@ -284,7 +284,7 @@ func _ogre_after(hits: int) -> void:
 
 func _thunder() -> void:
 	var at := fight._w3(fight.sim.b.pos, 0.1) if fight.sim != null else DECK
-	main.audio.at("thud", at, 1.0, 4.0, 0.45)
+	main.audio.at("body_fall", at, 0.9, 4.0, 0.7)
 	main.audio.at("break", at, 0.5, 4.0, 0.5)
 	fight.shake_v += Vector2(0.0, 0.8)
 
@@ -306,6 +306,7 @@ func _plant_fight(opts: Dictionary) -> void:
 	main.view.jump_to("pool")
 	opts["where"] = plant.frame()
 	opts["bounds"] = Rect2(-FishPlant.RING, -FishPlant.RING, FishPlant.RING * 2.0, FishPlant.RING * 2.0)
+	opts["ring_r"] = FishPlant.RING - 0.2
 	fight.begin(opts, from_menu != "", body)
 
 
