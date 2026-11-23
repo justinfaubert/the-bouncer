@@ -1,8 +1,8 @@
 LAST CALL
-Everything so far in one build, 22 November 2026: Wednesday, Thursday and Friday, the door by
-hand, walking on his own feet, darts, the new light, Amanda's sculpted head and the Listener's
-look test.
-
+Everything so far in one build, 23 November 2026: the cold open, Wednesday, Thursday and Friday,
+the door by hand, walking on his own feet and out round the grounds at night, darts with their
+fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
+the page, the new light, and Jim behind the bar.
 
 PLAY IT
 
@@ -13,8 +13,9 @@ The whole game is the one file in game/. It runs on Vulkan (Godot's Forward+ ren
 light, so the 3080 has it easy. Wayland is fine: it runs through XWayland, or natively with
 ./play.sh --display-driver wayland.
 
-To go straight to the darts: on the title, Rehearse, set how he is (drinks, hurt, nerves, the
-hour, cold hands), then Throw a few, Round the clock or Five-oh-one.
+To go straight to the games: on the title, Rehearse, set how he is (drinks, hurt, nerves, the
+hour, cold hands), then pick darts, pool, the cigarette machine or the beer mats. The cold open
+plays once on the first launch; the title has it again under "The cold open".
 
 
 OPEN IT IN GODOT
@@ -49,11 +50,26 @@ HANDS ON
     Look round        drag across the room, or the arrows; the wheel narrows his eyes
     Look at a thing   rest the pointer on it; E or a click looks at it or makes the choice
     Throw the dice    hold Space or the mouse button to shake, let go to throw
+    The keys card     whatever he steps up to puts its keys on a card at the foot of the
+                      picture, the same card for every game. It folds to one line once you've
+                      used it a few times; F1 brings it back up. Esc always steps back
     Darts             look at the dartboard twice and he takes the darts out of the board. The
                       mouse aims his eyes; hold the button and pull back to draw, let go to throw
                       (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and
                       E: grip. A and D: along the line. Shift: narrow his eyes. Right button:
                       hold his breath. Esc puts them down
+    Pool              put twenty on the big man's game, or Games on the title. The mouse turns
+                      the cue round the ball, up and down moves his head; hold the right button
+                      and move to put the tip on the ball; the wheel lifts the butt; hold the left
+                      button and pull back to stroke. C chalk, Q E cues, Tab stands him up
+    Cig machine       on the east wall under the news: look at it twice. Drag a knob down to
+                      pull it out and it sounds, or play the row A W S E D F T G Y H U J; Z X
+                      octaves; C a quarter holds the note; the coin return lever bends it
+    Beer mats         at the bar, look at the pile twice. Hold the button to curl his fingers,
+                      flick up under the edge, click again to snatch it out of the air
+    Outside           out front is always open: walk the lot to the yard, the alley, the
+                      hotel door, the highway, the seawall, the beach and down the shoulder to
+                      the Esso
     In his hands      click it to turn it over (drag a licence to tip it to the light), E to look
                       closer, Q and R to go through it, Esc to put it down
     Notes, sketch     Tab (Q or E turns the page), M
@@ -65,6 +81,26 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+WHAT'S NEW SINCE THE BUILD OF 22 NOVEMBER
+
+Everything from the six pieces since, together, and a polish pass over the controls.
+
+- The cold open before the title, and a title over the Sov from the seawall. Cuts come in the
+  way a print does, plate by plate.
+- The grounds: walk out round the Sov at night, to the beach, the seawall and the Esso.
+- Pool: real physics, eight-ball and nine-ball, its own table view, the regulars, the money.
+- The cigarette machine plays like a synth; beer mats off the edge of the bar.
+- The page, the voices and his hand: each voice has its own mask, the column folds to a spine
+  while he walks, the door hand sits lower and the person at the door reacts to it.
+- Shadows that stay put, and darts with fanfare from the room.
+- Jim is behind the bar: a man in a ball cap, and the narration calls him he. His lines are
+  still the old bartender's words, waiting on your rewrite.
+- Controls: every game puts its keys on the same card at the foot of the picture, F1 to bring it
+  back. The beer mat flick reads the hand's speed by the clock, so a fast gaming mouse flicks as
+  hard as a plain one (it was up to ten times weaker).
+- Fixed: an error when a voice spoke without a mask on the page.
 
 
 WHAT'S NEW SINCE THE FOURTH BUILD OF 24 OCTOBER
