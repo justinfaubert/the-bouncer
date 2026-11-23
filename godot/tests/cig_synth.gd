@@ -83,6 +83,51 @@ func _init():
 	s.set_arp(true)
 	c.append_array(s.render(int(CigSynth.RATE * 5) - int(CigSynth.RATE * 5) % 16))
 	_wav(out + "/arpeggio.wav", c)
+	# the tape: knock the speed, record a bar of knocks and a bass line, close it, lay a chord over
+	# on velocity with the pedal, then let it go round twice more on its own
+	s.set_patch(6)
+	s.all_off()
+	s.coins_back()
+	s.set_arp(false)
+	s.bpm = 120.0
+	var bl := s.beat_len()
+	var q := bl / 4 - (bl / 4) % 16
+	var tape := PackedVector2Array()
+	s.loop_press()
+	for k in 16:
+		if k % 4 == 0:
+			s.knock(0.5, 0.3, 0.9, 0.0)
+		elif k % 4 == 2:
+			s.knock(0.7, 0.6, 0.7, 1.0)
+		if k % 2 == 0:
+			s.flap(0.4)
+		if k in [0, 6, 10]:
+			s.pull([45, 48, 52][[0, 6, 10].find(k)], 0.7, 0.9)
+		if k in [3, 8, 14]:
+			for n in [45, 48, 52]:
+				s.push_in(n)
+		tape.append_array(s.render(q))
+	var st1: String = s.loop_press()
+	var n_rec: int = s.loop_events.size()
+	tape.append_array(s.render(q * 4))
+	var st2: String = s.loop_press()
+	s.set_sustain(true)
+	for n in [64, 67, 71]:
+		s.pull(n, 0.6, 0.3 + (n - 64) * 0.1)
+		tape.append_array(s.render(q))
+		s.push_in(n)
+	tape.append_array(s.render(q * 4))
+	s.set_sustain(false)
+	tape.append_array(s.render(q * 5))
+	s.loop_press()
+	var n_dub: int = s.loop_events.size()
+	tape.append_array(s.render(q * 32))
+	var tpeak := 0.0
+	for v in tape:
+		tpeak = maxf(tpeak, maxf(absf(v.x), absf(v.y)))
+	print("tape: %s then %s, %d events recorded, %d after the overdub, loop %d beats, peak %.2f" % [st1, st2, n_rec, n_dub, s.loop_len / bl, tpeak])
+	_wav(out + "/tape.wav", tape)
+	s.loop_clear()
 	print("worst %.0f%% of real time" % (worst * 100.0))
 	quit()
 
