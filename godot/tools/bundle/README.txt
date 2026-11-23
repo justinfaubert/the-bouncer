@@ -103,8 +103,17 @@ The truck, a first drivable slice: Rehearse > The truck > Drive it.
 
 WHAT'S NEW SINCE THE BUILD OF 22 NOVEMBER
 
-Everything from the six pieces since, together, and a polish pass over the controls.
+Everything since, together, and a polish pass over the controls.
 
+- Fights and stats: the Friendly at the fish plant on a Sunday (Ox Pettigrew), the man on the
+  deck, sparring with Dale; live fists with frozen seconds; practice that grows stats and knacks.
+  Games and Rehearse have them.
+- The truck: the jade '78 camper special, driven for real on the island road. Rehearse > The
+  truck > Drive it.
+- The set dressing: the beer posters, the glasswasher behind the bar (look at its switch), the
+  signs, the corkboard, the clock, the neon, the Esso's ads, trash on the gravel.
+- The wine glasses at the bar sing under a wet finger; the cigarette machine takes a MIDI
+  keyboard and has a tape loop (Enter).
 - The cold open before the title, and a title over the Sov from the seawall. Cuts come in the
   way a print does, plate by plate.
 - The grounds: walk out round the Sov at night, to the beach, the seawall and the Esso.
