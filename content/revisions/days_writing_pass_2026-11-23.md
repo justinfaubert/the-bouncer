@@ -26,7 +26,7 @@ Claude's pass, PROPOSED. Hutch has final cut.
 
 ## What I'd change next (for Hutch to pick)
 
-1. **Two Jims on Friday.** The bartender is Jim now, and friday.ink still brings in a second barman called Jim, counting the Fireball. A player will notice. My recommendation: the counting, the numbers up his wrist and the stir-stick drum fills all belong to the bartender, and Friday's extra hand becomes somebody else (a niece home from college, say, who doesn't know where anything is, which gives Jim someone to be particular at).
+1. **Two Jims on Friday.** DECIDED (Hutch, 23 November): leave Friday as it is for now.
 2. **Thursday has a clock and nothing racing it.** Sunset spends the day, but nothing is lost by being slow. Give it one thing that happens at a set time and can be missed: the big man's daughter at the two o'clock ferry with his phone, or the bookkeeper walking to the bank with the Sov's deposit bag.
 3. **Friday's line is six quick reads.** Let one face from the line come back changed on Saturday (different hair, the binder's 86 list), so the door remembers.
 4. **The narrator is the self-aware hook.** "I've told it to you before anyone else" now opens Thursday. If the narrator is a man telling his month to a machine, he can correct himself at the day ends, admit the bar clock was wrong, get a name wrong and fix it. One per day, no more.
