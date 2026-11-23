@@ -64,6 +64,22 @@ VAR stat_int = 4            // Intelligence
 VAR stat_wis = 4            // Wisdom
 VAR stat_cha = 4            // Charisma
 VAR stat_gut = 4            // Gut Brain (DECIDED: Intuition, a nod to Inland Empire)
+// What he's practised into a knack (godot/engine/practice.gd, bible/15_FIGHTS_AND_STATS.md section 4).
+// The game sets these when a practice crosses its mark; the story can ask for them.
+VAR knack_short_one = false      // Hands: a six-inch punch with his weight in it
+VAR knack_heavy_hands = false    // Hands: what lands rings the bell harder
+VAR knack_circle_closes = false  // Holds: the turn builds quicker
+VAR knack_the_angle = false      // Feet: off the line with a sidestep
+VAR knack_hard_head = false      // Chin: the first clean one doesn't ring the bell
+VAR knack_second_wind = false    // Wind: once a fight, the breath comes back
+VAR knack_the_shoulder = false   // Read: he sees the shoulder go back before the blow
+VAR knack_seen_it = false        // Read: their tells last longer for him
+VAR knack_steady_hand = false    // Arm: the dart shakes half as much
+// The fights (godot/game/fight_cards.gd)
+VAR ring_name = 0                // the smokers at the fish plant: bouts won there
+VAR ogre_done = 0                // the man on the deck: 0 not yet, 1 out the door, 2 out the door and the jaw
+VAR ogre_club = false            // he said yes to the sister's brothers: the club did the Sov's doorman a favour
+VAR jaw = 0                      // his jaw: days it has left to ache
 VAR stats_set = false       // the interview's set them: from here what moves them shows struck through in his notes
 VAR ate = 0                 // before the shift: 1 he ate at the Esso, -1 he didn't eat (the engine: the body's checks, -1)
 

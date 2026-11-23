@@ -315,6 +315,9 @@ func shake() -> float:
 	s += clampf(up_t - 6.0, 0.0, 10.0) * 0.00012       # his arm's been up a while
 	s += clampf(drawn_t - 1.6, 0.0, 4.0) * 0.0005      # held back too long
 	s += debt * 0.0022
+	# steady hand (engine/practice.gd): an arm that's thrown enough shakes half as much
+	if main != null and main.knacks_now("" if not rehearsal else "rehearse").has("steady_hand"):
+		s *= 0.5
 	return s
 
 
@@ -653,6 +656,16 @@ func _501_rows() -> Array:
 
 func _turn_over() -> void:
 	turns += 1
+	# a good turn is practice for his arm (engine/practice.gd): trebles and big totals, each kind of
+	# good turn its own way, so the same thing over and over teaches less
+	var tot := 0
+	var trebles := 0
+	for r in turn_scores:
+		if r.where == "board":
+			tot += int(r.n) * int(r.x)
+			trebles += 1 if int(r.x) == 3 else 0
+	if tot >= 60 or trebles > 0:
+		main.practise_any("arm", clampf(tot / 60.0, 0.4, 2.5), "darts:%s:%d" % [mode, mini(tot / 20, 9)], "rehearse" if rehearsal else "")
 	if mode == "501":
 		var total := 0
 		var last_double := false

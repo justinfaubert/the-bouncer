@@ -203,6 +203,7 @@ func back() -> void:
 # him (Store.met). Each comes up as it is in the Sov, at the board or the table.
 const GAMES := [
 	["darts", "Darts", "The board on the east wall, the house darts, the chalk.", [["practice", "Throw a few"], ["clock", "Round the clock"], ["501", "Five-oh-one"]]],
+	["fights", "Fights", "The fish plant on a Sunday, and the man on the deck.", [["fight:ox", "Sunday: Ox Pettigrew"], ["fight:ogre", "The man on the deck"], ["fight:spar", "Move around with Dale"]]],
 ]
 
 
@@ -221,7 +222,10 @@ func games(from: String) -> void:
 		_para(g[2], 20, Look.MUTED)
 		for m in g[3]:
 			var mode: String = m[0]
-			_button(m[1], false, func(): main.start_darts(mode, "games"))
+			if mode.begins_with("fight:"):
+				_button(m[1], false, func(): main.start_fight(mode.substr(6), "games", _rh.duplicate()))
+			else:
+				_button(m[1], false, func(): main.start_darts(mode, "games"))
 	if not any:
 		_para("Nothing yet. The games open here once he's come across them on a shift.", 21, Look.MUTED)
 	_gap(14)
@@ -248,6 +252,10 @@ func rehearse(from: String) -> void:
 	_button("Throw a few", true, func(): main.start_darts("practice", "rehearse", _rh.duplicate()))
 	_button("Round the clock", false, func(): main.start_darts("clock", "rehearse", _rh.duplicate()))
 	_button("Five-oh-one", false, func(): main.start_darts("501", "rehearse", _rh.duplicate()))
+	_section("Fights")
+	_button("The man on the deck", false, func(): main.start_fight("ogre", "rehearse", _rh.duplicate()))
+	_button("Sunday at the fish plant: Ox Pettigrew", false, func(): main.start_fight("ox", "rehearse", _rh.duplicate()))
+	_button("Move around with Dale", false, func(): main.start_fight("spar", "rehearse", _rh.duplicate()))
 	_section("Still to come here")
 	_para("The door by hand, the dice, the licence in his hands, the cigarette machine: each gets a way in here as it's worked on.", 19, Look.FAINT)
 	_gap(14)
