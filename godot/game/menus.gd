@@ -612,6 +612,7 @@ const HELP := [
 	["Reading", "The night comes down the column on the right, a paragraph at a time. The voices in his head speak in their own type and colour. Scroll back up whenever you like: the whole night stays on the page."],
 	["Choosing", "Click a choice, or press its number. The ways out of a place sit in a row under the rest. Where the Ink stops to let a moment land, Go on (or Space) carries on."],
 	["Looking", "Drag across the room to turn his head, or use the arrow keys. The wheel narrows his eyes on something far off. Rest the pointer on someone or something a choice is about and that choice lights up; a voice may lean in on it. Click it to do it."],
+	["Where he is", "He can only do what he's there for. While he's on his way somewhere, the choices wait, faint, till he gets there. A choice about someone across the room is faint too: pick it and he walks over first, then does it. Out round the back of the lot, the bar's choices wait for him to come back out front. The Settings can let you choose ahead."],
 	["Checks", "Some choices have a voice's dice behind them: its name, how hard it is, and the odds. Hover the tag to see what's for and against it tonight. When the dice come, hold Space or the mouse button to shake them and let go to throw. The first die down tells you what the second one needs."],
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
@@ -622,7 +623,7 @@ const HELP := [
 	["Pool", "Put twenty on the big man's next game and you play the rack on the table. The mouse turns the cue round the cue ball (Shift for fine work); up and down moves his head, low on the line or stood up. Hold the right button and move the mouse to put the tip on the ball: high follows, low draws, the sides spin it, and past the ring on the little ball it slips off. The wheel lifts the butt: over a ball, a curve, a jump. Hold the left button and pull back to draw the cue, and let go: how far back is how hard. C chalks, Q and E change cues, Tab stands him up over the table, F calls the pocket on the eight. In hand, the mouse puts the cue ball down. Once he's played, Games on the title has the table: the regulars for money, Good Shoes, the Sunday draw, the trick shots and the pawn window."],
 	["The keys card", "Whatever he steps up to (the darts, the table, the cigarette machine, the beer mats) puts its keys on a card at the foot of the picture. It folds down to one line once you've got the hang of it; F1 brings it back up."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
-	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
+	["Saving", "Every choice is saved as it's made. There are three saves, one to a page under Nights; each can start on Wednesday, Thursday or Friday, and starting over wipes only that page."],
 	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],
 ]
 
@@ -645,8 +646,12 @@ func help(from: String) -> void:
 # ---------------------------------------------------------------- settings
 
 func settings(from: String) -> void:
+	# a toggle redraws the page: keep it where it was scrolled to, not back at the top
+	var keep: int = scroll.scroll_vertical if screen == "settings" else 0
 	came_from = from
 	_open("settings")
+	if keep > 0:
+		_rescroll.call_deferred(keep)
 	var s: Dictionary = main.settings
 	_gap(40)
 	_head("Settings")
@@ -655,6 +660,7 @@ func settings(from: String) -> void:
 	_seg("New lines", [["lines", "One after another"], ["all", "All at once"]], "reveal")
 	_seg("Odds", [["words", "In words"], ["numbers", "In numbers"]], "odds")
 	_seg("Dice", [["full", "By hand"], ["auto", "Thrown for you"], ["quick", "Quick"], ["still", "At once"]], "dice")
+	_toggle("Choose ahead while he walks", "click_ahead", "Off: while he's on his way somewhere, the next choices wait till he gets there. On: pick ahead while he walks.")
 	_toggle("The voices notice you", "notice", "A voice may lean in on what your hand or eyes are on.")
 	_toggle("Writing prompts", "prompts", "Show where the draft is waiting on Hutch's own material.")
 	_section("His body")
@@ -681,6 +687,11 @@ func settings(from: String) -> void:
 	_gap(16)
 	_button("Back", true, func(): back())
 	_focus_first()
+
+
+func _rescroll(v: int) -> void:
+	await get_tree().process_frame
+	scroll.scroll_vertical = v
 
 
 func _section(t: String) -> void:
