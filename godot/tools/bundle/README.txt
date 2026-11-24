@@ -126,6 +126,10 @@ Everything since, together, and a polish pass over the controls.
   truck > Drive it.
 - The set dressing: the beer posters, the glasswasher behind the bar (look at its switch), the
   signs, the corkboard, the clock, the neon, the Esso's ads, trash on the gravel.
+- From your notes: the cigarette machine's front can't trap you any more (Esc or a click off
+  the board shuts it; I still opens it). The wine glasses snap to the nearest glass, the hand
+  stays level at the rims, and any mouse movement takes the finger round (no circles needed);
+  W wets it, the arrow keys go along the row.
 - The wine glasses at the bar sing under a wet finger; the cigarette machine takes a MIDI
   keyboard and has a tape loop (Enter).
 - The cold open before the title, and a title over the Sov from the seawall. Cuts come in the

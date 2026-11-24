@@ -68,6 +68,11 @@ var stream: MeshInstance3D
 var hand_node: Node3D
 var hover_label: Label
 var hand_roll := 180.0            # palm down, the fingers out over the glasses
+var ang := 0.0                    # where round the rim his fingertip is
+var rub_v := 0.0                  # how fast it's going round, m/s
+var _rub_d := 0.0                 # rim travelled since the last frame
+var _dip := 0.0                   # the fingertip going down into the water: 1 at the bottom of it
+const K_RUB := 0.0011             # metres round the rim a pixel of the mouse, any direction
 
 
 func setup(m) -> void:
@@ -163,7 +168,8 @@ func begin(rehearse := false, from := {}) -> void:
 	view.walking = false
 	view.focus_fov = 50.0
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	finger = centre(3) + Vector2(0.06, 0.0)
+	finger = centre(3) + Vector2(RIM, 0.0)
+	wet = maxf(wet, 0.7)
 	down = false
 	pouring = false
 	_hand_build()
@@ -173,10 +179,10 @@ func begin(rehearse := false, from := {}) -> void:
 	_column_begin()
 	if "keys" in main and main.keys != null:
 		main.keys.show_for("glasses", [
-			["Mouse", "his hand over the bar top"],
-			["Hold the button on a rim, go round", "rub it: it sings; faster is louder, too fast skates"],
+			["Mouse / arrow keys", "his hand to a glass"],
+			["Hold the button, keep moving", "round the rim: it sings; faster is louder, too fast skates"],
 			["Shift", "lean on it"],
-			["Button down in water", "wet the finger (a dry one squeaks)"],
+			["W", "wet the finger (a dry one squeaks)"],
 			["Hold the right button", "pour from the jug into the glass under his hand"],
 			["Wheel", "a splash in, a sip out: more water, lower note"],
 			["A S D F G H J K", "tap them with a stir stick  (Shift: harder)"],
@@ -234,34 +240,30 @@ func _process(dt: float) -> void:
 	t += dt
 	if not active:
 		return
-	_moved += dt
-	if _moved > maxf(0.05, dt * 2.5):
-		finger_v = finger_v.move_toward(Vector2.ZERO, dt * 6.0)
 	var tr := _tremor()
 	var f := finger + tr
-	over = _over(f)
-	# the fingertip down: on a rim it rubs; in water it wets; the rim pulls a finger round it a
-	# little, the way a rim does, so a circle that's nearly round stays on
+	# his hand goes to whichever glass the mouse is nearest; held down, it stays on that one
+	if not down:
+		over = _over(f)
+	# the fingertip down on the rim: any movement of the mouse takes it round, so it's the speed
+	# and the lean that play it, not drawing circles; the glass does the rest
 	var was := on
-	on = -1
-	if down and over >= 0:
-		var c := centre(over)
-		var d := f.distance_to(c)
-		if absf(d - RIM) < 0.009:
-			on = over
-			var dir := (f - c) / maxf(d, 0.0001)
-			finger = finger.lerp(c + dir * RIM - tr, 1.0 - exp(-dt * 10.0))
-			var tang := Vector2(-dir.y, dir.x)
-			var vt := absf(finger_v.dot(tang))
-			synth.set_finger(on, vt, 1.8 if lean else 1.0, wet)
-			wet = maxf(0.0, wet - vt * dt / 8.0)
-			if was != on:
-				synth.tap(on, 0.06, 0.05)
-				_once("rub", "He put his fingertip on the rim and drew it round, and the glass took hold of it.")
-			if wet < 0.25:
-				_once("dry", "It squeaked. His finger had gone dry.")
+	on = over if down and over >= 0 else -1
+	var inst := _rub_d / maxf(dt, 0.001)
+	_rub_d = 0.0
+	rub_v = lerpf(rub_v, inst, 1.0 - exp(-dt * 14.0))
+	if on >= 0:
+		ang += inst * dt / RIM
+		synth.set_finger(on, rub_v, 1.8 if lean else 1.0, wet)
+		wet = maxf(0.0, wet - rub_v * dt / 8.0)
+		if was != on:
+			synth.tap(on, 0.06, 0.05)
+			_once("rub", "He put his fingertip on the rim and drew it round, and the glass took hold of it.")
+		if wet < 0.25 and rub_v > 0.05:
+			_once("dry", "It squeaked. His finger had gone dry. (W wets it.)")
 	if was >= 0 and was != on:
 		synth.set_finger(was, 0.0, 0.0, wet)
+	_dip = move_toward(_dip, 0.0, dt * 2.5)
 	# the jug: over the glass, tipped, a thread of water into it
 	var into := over if pouring and over >= 0 and jug_ml > 0.0 else -1
 	if into >= 0:
@@ -298,13 +300,13 @@ func _process(dt: float) -> void:
 		sm.set_shader_parameter("emission_energy", minf(1.2, a * 3.0))
 		(surface[i] as MeshInstance3D).position.y = BOWL_Y + fill[i] * BOWL_H + 0.0004 + sin(t * 97.0 + i) * a * 0.0006
 	_eyes(dt)
-	_draw_hand(f)
+	_draw_hand()
 	_tuner()
 
 
 func _over(f: Vector2) -> int:
 	var best := -1
-	var bd := RIM + 0.012
+	var bd := 0.14
 	for i in N:
 		var d := f.distance_to(centre(i))
 		if d < bd:
@@ -374,24 +376,34 @@ func _eyes(dt: float) -> void:
 
 # his hand, palm down over the bar, the forefinger's tip where the mouse has it; down on a rim it
 # sits at the rim's height, up it hovers a couple of centimetres over everything
-func _draw_hand(f: Vector2) -> void:
+func _draw_hand() -> void:
 	if hand_node == null:
 		return
-	var y := 1.12 + BOWL_Y + BOWL_H + 0.03
-	if down:
-		if on >= 0:
-			y = 1.12 + BOWL_Y + BOWL_H + 0.002
-		elif over >= 0 and f.distance_to(centre(over)) < RIM - 0.006:
-			y = 1.12 + BOWL_Y + maxf(0.004, fill[over] * BOWL_H - 0.006)
-		elif over < 0:
-			y = 1.125
+	var rim_y := 1.12 + BOWL_Y + BOWL_H
+	var tip: Vector3
+	var tr := _tremor()
+	if over >= 0:
+		var c := centre(over)
+		# resting over the near side of the rim; down, going round it
+		var a := ang if on >= 0 else 0.0
+		var p := c + Vector2(cos(a), sin(a)) * RIM + tr
+		var y := rim_y + (0.002 if on >= 0 else 0.014)
+		# a dip: the fingertip into the middle of the glass and out
+		if _dip > 0.0:
+			var depth := rim_y - (1.12 + BOWL_Y + maxf(0.01, fill[over] * BOWL_H - 0.008))
+			var k := sin(_dip * PI)
+			p = p.lerp(c, k)
+			y -= depth * k
+		tip = Vector3(p.x, y, p.y)
+	else:
+		tip = Vector3(finger.x + tr.x, rim_y + 0.02, finger.y + tr.y)
 	# the arm comes in from his right shoulder, over the bar's edge, not straight at his eyes
 	var yaw := deg_to_rad(68.0)
 	var b := Basis(Vector3.UP, PI / 2.0 + yaw) * Basis(Vector3(0, 0, 1), deg_to_rad(hand_roll))
-	var tip := Vector3(f.x, y, f.y)
-	var cur := hand_node.global_transform.origin
 	var want := tip + Basis(Vector3.UP, yaw) * Vector3(0.13, 0.012, 0.0)
-	hand_node.global_transform = Transform3D(b, cur.lerp(want, 0.6) if cur.distance_to(want) < 0.5 else want)
+	var cur := hand_node.global_transform.origin
+	var k2 := 1.0 - exp(-get_process_delta_time() * (30.0 if on >= 0 else 14.0))
+	hand_node.global_transform = Transform3D(b, cur.lerp(want, k2) if cur.distance_to(want) < 0.5 else want)
 
 
 # Jim's tuner, reading the glass under his hand
@@ -426,7 +438,13 @@ func _input(e: InputEvent) -> void:
 		return
 	if e is InputEventMouseMotion:
 		var rel: Vector2 = e.relative
-		var k := K_HAND * float(main.settings.get("look_speed", 1.0))
+		var ls := float(main.settings.get("look_speed", 1.0))
+		if down and over >= 0:
+			# on a rim: the hand stays on its glass and the movement goes round it
+			_rub_d += rel.length() * K_RUB * ls
+			get_viewport().set_input_as_handled()
+			return
+		var k := K_HAND * ls
 		var was := finger
 		# he's facing west down the bar: the mouse right is toward the door end, up is away
 		finger += Vector2(rel.y, -rel.x) * k
@@ -451,6 +469,8 @@ func _input(e: InputEvent) -> void:
 				lean = mb.shift_pressed
 				if down:
 					_touch()
+				elif over >= 0:
+					finger = centre(over) + Vector2(RIM, 0.0)
 			MOUSE_BUTTON_RIGHT:
 				pouring = mb.pressed
 				if pouring and over >= 0 and jug_ml <= 0.0:
@@ -472,27 +492,43 @@ func _input(e: InputEvent) -> void:
 		if ke.physical_keycode == KEY_SHIFT:
 			lean = ke.pressed
 		var i := KEYS.find(ke.physical_keycode)
+		if ke.pressed and not ke.echo and not down:
+			match ke.physical_keycode:
+				KEY_W:
+					_wet()
+				KEY_LEFT, KEY_RIGHT:
+					# along the row: left is down the scale, right up it
+					var o := maxi(over, 0)
+					over = clampi(o + (1 if ke.physical_keycode == KEY_RIGHT else -1), 0, N - 1)
+					finger = centre(over) + Vector2(RIM, 0.0)
 		if i >= 0 and ke.pressed and not ke.echo:
 			synth.tap(i, 0.9 if ke.shift_pressed else 0.5, 1.0)
 			_once("tap", "He took a stir stick out of the caddy and tapped along the row with it.")
 		get_viewport().set_input_as_handled()
 
 
-# the fingertip going down: into the water, onto a rim, or on the bar
+# the fingertip going down onto the rim
 func _touch() -> void:
 	if over < 0:
 		return
-	var d := (finger + _tremor()).distance_to(centre(over))
-	if d < RIM - 0.006:
-		if fill[over] > 0.12:
-			wet = 1.0
-			synth.tap(over, 0.03, 0.02)
-			_once("wet", "He dipped his fingertip in the water in the glass.")
-		else:
-			synth.tap(over, 0.2, 0.15)
-			_once("bottom", "He touched the bottom of the bowl. Dry, and it rang a little.")
-	elif absf(d - RIM) < 0.009 and wet < 0.1:
-		_once("dry_first", "His fingertip squeaked on the rim and the glass didn't want it. Dry.")
+	if wet < 0.1:
+		_once("dry_first", "His fingertip squeaked on the rim and the glass didn't want it. Dry. (W wets it.)")
+
+
+# W: the fingertip dipped in the water in this glass, or in the jug if it's empty
+func _wet() -> void:
+	if over < 0:
+		return
+	wet = 1.0
+	_dip = 1.0 if fill[over] > 0.12 else 0.0
+	if fill[over] > 0.12:
+		synth.tap(over, 0.03, 0.02)
+		_once("wet", "He dipped his fingertip in the water in the glass.")
+	else:
+		synth.pour = 0.25
+		synth.pour_into = -1
+		get_tree().create_timer(0.1).timeout.connect(func(): if not pouring: synth.pour = 0.0)
+		_once("wet_jug", "He dipped his fingertip in the jug.")
 
 
 # ---------------------------------------------------------------- what he notices
@@ -506,7 +542,7 @@ func _column_begin() -> void:
 		main.column.add_line({"role": "narration", "text": "Eight wine glasses on a bar towel in the gap, kept for the one woman a year who orders wine, none of them from the same set. The water jug behind them, with Jim's clip-on tuner on its handle."})
 	else:
 		main.column.add_line({"role": "narration", "text": "He turned the wine glasses over on their towel, one by one, and pulled the water jug over."})
-	main.column.add_note("The mouse moves his hand over the bar. Hold the button to put his fingertip down: round a rim it rubs, faster is louder, too fast and it skates; Shift leans on it. Down in a glass with water, it wets his finger; a dry finger squeaks. Hold the other button over a glass to pour from the jug; the wheel adds a splash or tips a little out. More water, lower note. A S D F G H J K tap them with a stir stick (Shift harder). The tuner reads the glass under his hand. Esc leaves them.")
+	main.column.add_note("The mouse moves his hand from glass to glass (or the arrow keys). Hold the button to put his fingertip on the rim, and keep the mouse moving, any way you like: that takes it round. Faster is louder, too fast and it skates; Shift leans on it. W wets his finger; a dry finger squeaks. Hold the other button over a glass to pour from the jug; the wheel adds a splash or tips a little out. More water, lower note. A S D F G H J K tap them with a stir stick (Shift harder). The tuner reads the glass under his hand. Esc leaves them.")
 	main.column.scroll_to_end()
 
 

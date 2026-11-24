@@ -427,7 +427,8 @@ func begin(rehearse := false, from := {}) -> void:
 		["Wheel", "rock it on its feet  (over a dial: turn it)"],
 		["Enter", "the tape: record, close the loop, lay more over it"],
 		["Backspace", "wipe the tape  (Q: onto the sixteenths)"],
-		["I", "open the front  (a MIDI keyboard plays it too)"],
+		["I / the lock", "open the front; I, Esc or a click off the board shuts it"],
+		["A MIDI keyboard", "plays it too: velocity, pedal, mod wheel, bend"],
 	], "The cigarette machine")
 
 
@@ -621,7 +622,11 @@ func _input(e: InputEvent) -> void:
 		return
 	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
-		end()
+		# the front open: Esc shuts it first, so he's never left facing the board
+		if door_open:
+			_door_toggle()
+		else:
+			end()
 		return
 	if e is InputEventMIDI:
 		_midi(e as InputEventMIDI)
@@ -713,6 +718,11 @@ func _input(e: InputEvent) -> void:
 
 
 func _press(what: String, right: bool) -> void:
+	# the front open: a click anywhere that isn't one of the board's controls
+	# swings it shut
+	if door_open and (what == "" or what == "board" or what == "door"):
+		_door_toggle()
+		return
 	if what.begins_with("knob"):
 		grabbed = int(what.substr(4))
 		main.keys.used()
@@ -1067,7 +1077,7 @@ func _column_begin() -> void:
 		main.column.add_line({"role": "narration", "text": "The cigarette machine against the east wall, under the news, on the way to the deck. The plug coiled on top of it and taped. Twelve knobs, twelve brands nobody makes now."})
 	else:
 		main.column.add_line({"role": "narration", "text": "He went over and stood in front of the cigarette machine."})
-	main.column.add_note("Pull a knob out with the mouse (down is out) or play the row with A W S E D F T G Y H U J; Shift pulls one all the way. Z and X move the row an octave. Click the slot for a quarter (C), the coin return lever bends the note and gives them back (R). Knock on it: left button a knuckle, right a palm (Space). The wheel rocks it. K O L P ; carry the row on up past the knobs. A keyboard plugged in plays it too, with the pedal and the wheels.\nThe two lamps over the slot are a tape: Enter records, closes the loop, then lays more over it; Backspace wipes it; Q pulls what you play onto the sixteenths. Knock twice first to set the speed; knocks and the tray flap record as a drum part. The lock opens the front (I). Esc steps back.\nQuarters on him: %d." % pocket)
+	main.column.add_note("Pull a knob out with the mouse (down is out) or play the row with A W S E D F T G Y H U J; Shift pulls one all the way. Z and X move the row an octave. Click the slot for a quarter (C), the coin return lever bends the note and gives them back (R). Knock on it: left button a knuckle, right a palm (Space). The wheel rocks it. K O L P ; carry the row on up past the knobs. A keyboard plugged in plays it too, with the pedal and the wheels.\nThe two lamps over the slot are a tape: Enter records, closes the loop, then lays more over it; Backspace wipes it; Q pulls what you play onto the sixteenths. Knock twice first to set the speed; knocks and the tray flap record as a drum part. The lock opens the front (I); I, Esc or a click off the board shuts it. Esc steps back.\nQuarters on him: %d." % pocket)
 	main.column.scroll_to_end()
 
 
