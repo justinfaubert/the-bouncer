@@ -805,3 +805,87 @@ The night window. The kid behind it, lit from under by his phone.
 - Ads taped to the outside of the Esso's window, the sun and the squeegee gone over them: ICE, 2 BAGS $5, it is still just water. LOTTO MOST, $40 MILLION, somebody has to. SMOKES behind the counter, ask, PRICES UP AGAIN, not our fault, ask Ottawa. ROLLER GRILL 2 for $4, since this morning. On the door, WE ID everyone under 30, and anyone who argues.
 - Ice, smokes, the lotto. Since this morning.
 }
+
+// ---------------------------------------------------------------- the second layer (godot/world/dressing.gd, _lived_in)
+
+=== function toy_poster_teeth(what)
+{stopping:
+- ALEXANDER TEETH'S INDIA PALE ALE. A sea captain, all head, his beard a cloud he was sinking into, and in the middle of it more teeth than a man has, two rows, each one drawn on its own. His eyes had gone off to the side, past you, at something by the door. FOR THE MAN WHO HAS STOPPED EXPLAINING HIMSELF. Nobody in the Sov drank it. The rep had stopped coming round in about 2004.
+- The captain was still looking past him at the door.
+}
+
+=== function toy_poster_cokanee(what)
+{stopping:
+- COKANEE. MOUNTAIN FRESH. LEGALLY. A glacier, and along the very top of the ridge one fine white line, drawn with a ruler. Under the can, in small print: Do not snort. Somebody had tried to peel the small print off and given up at the D.
+- Mountain fresh. Legally.
+}
+
+=== function toy_poster_hockey(what)
+{stopping:
+- HOCKEY NIGHT AT THE SOV. WINGS 35¢, crossed out in marker, 60¢ over it. Every game. Even those ones. Down in the corner, in the same marker, NO OILERS JERSEYS. Under that, in pencil, somebody had written why, and somebody else had scratched it out.
+- Wings were a dollar ten now. The sign still said sixty.
+}
+
+=== function toy_poster_zero(what)
+{stopping:
+- A small poster by the jukebox, gone the yellow of a smoker's ceiling, the corners eaten. BOORS ZERO. NEW! NOW WITH ZERO. No alcohol. No barley. No water. Contains Boors. Along the bottom: AVAILABLE SUMMER 2031. He read the year twice. The tape on its corners had gone brown and brittle. Thirty years of sun on it, at least.
+- Summer 2031. The tape was older than he was, nearly.
+}
+
+=== function toy_founder(what)
+{stopping:
+- A portrait in a gilt frame between the washroom doors, in oils gone the brown of strong tea. A man in a frock coat, a watch chain across him, his hands folded on a cane. Where his face should have been the painter had put a disc of black, perfectly round, and varnished it till it shone. The hall was in it: the tube light, small and bent, and in the middle a shape that was him. The plate said R. H. SOVEREIGN, PROPRIETOR, 1911, and a dash, and nothing after the dash.
+- R. H. Sovereign, 1911 to nothing yet. The hall was still in his face, and him in the middle of it.
+- He looked for the brush strokes round the edge of the black. There weren't any. The frock coat had them, the cane, the watch chain, every button. The black had been put on after, or before.
+}
+
+=== function toy_painting_1952(what)
+{stopping:
+- Over the drink rail, a painting on board, the varnish gone amber, its own brass lamp over it: this room, from the back, the same beams, the same lamps hanging, the pool table with its felt the colour of pond water. Two shapes at the far end that might have been men, or coats. In a door in the far wall, filling it, a man with the light behind him. Bottom corner: E. M. 1952.
+- He found the far wall in the room and then in the painting. In the room there was no door in it. The Sov had been a dining room in 1952, the old soldier said, white tablecloths. Gary had bought the pool table in 1988.
+- The man was still in the door. He looked to have come a step further in.
+}
+
+=== function toy_velvet(what)
+{stopping:
+- On black velvet in a frame sprayed gold: a woman on a bar stool, her back to the room, looking over her shoulder at whoever had just come in. Nothing on. The painter had put the light only where it fell on her, a hot amber down her spine, a rose at the shoulder, and left the rest to the velvet. A crescent moon, for no reason. Signed Rocco. Under the blacklight Gary had put over her the amber came up and burned.
+- Rocco's woman, still looking over her shoulder at the door, the moon over her.
+}
+
+=== function toy_hall_clock(what)
+{stopping:
+- A school clock over the hall, SOVEREIGN across the face, TIME, GENTLEMEN under the middle. He watched the red second hand go round once. It went the wrong way, and the minute hand had gone back a notch by the time it got to the top.
+- The hall clock, going back. It met the beer clock at six and at twelve, give or take the beer clock's seven minutes.
+}
+
+=== function toy_scrawl(what)
+{stopping:
+- The wall by the phone, everything people write while they wait for a phone that doesn't ring: pen, marker, a key. DARLENE 338-1979, and under it, ask for the other Darlene.
+- {cycle:
+    - GARY IS A COWARD, in capitals, and under it, small and neat: no I'm not - G.
+    - A tally, sixteen days in fives, and a red line through all of it.
+    - An eye, drawn carefully, lashes and all. Under it: it hears you flush.
+    - who put the lime in the helmet, and in another hand, it was always there.
+    - A heart keyed into the paint, T + and the other letter scratched out so hard the plaster showed.
+    - for a good time call your mother. Somebody had added a number. He didn't recognize it, then did, nearly.
+    - DARLENE 338-1979. Ask for the other Darlene.
+  }
+}
+
+=== function toy_helmet(what)
+{stopping:
+- On top of the jukebox, a brass diving helmet, the old kind with the round windows and the bolts, green at every seam. Nobody knew whose. It had been there before Gary. Through the front window, inside it, a lime, fresh, cut in half.
+- The lime in the helmet was fresh again. The helmet had no way in but the neck, and the neck was bolted to the plate.
+}
+
+=== function toy_table_tents(what)
+{stopping:
+- A folded card on the table, red: CLAM-A-LOT. THE CAESAR. Canada's national cocktail and only defence. $6.50. On the back: ASK ABOUT OUR WINGS, and under it, smaller, (don't). A ring on it from somebody's glass.
+- Ask about our wings. Don't.
+}
+
+=== function toy_ceiling_stain(what)
+{stopping:
+- Over the middle of the room the ceiling tiles had a stain on them, a brown bloom with three tide lines in it where it had spread and dried and spread again. Every winter it got a ring bigger. Nobody had been upstairs to see what was over it.
+- The stain on the ceiling. He counted the tide lines. Four.
+}

@@ -68,6 +68,20 @@ var POSES := {
 			["curl", "r", 66.0], ["curl", "l", 35.0],
 		],
 		"props": [["bottle", "grip_r", Vector3(0, -0.02, 0), Vector3(0, 0, 0), 1.0], ["models/truck.glb", "", Vector3(-0.6, 0.0, -1.7), Vector3(0, 75, 0), 1.0]]},
+	# THE VELVET (not a brand): on the stool from behind, her back to you and her face turned
+	# over her shoulder, one hand up in her hair; painted on black velvet after (dressing2.py)
+	"velvet": {"hair": "Hair_Long", "hair_c": Color("2a1810"), "drop": 0.21, "cam": [Vector3(-0.9, 1.05, -3.1), Vector3(0.0, 0.92, 0)], "fov": 30.0,
+		"moves": [
+			["turn", "pelvis", Y, 20],
+			["aim", "thigh_l", "calf_l", Vector3(0.1, -0.1, 1)], ["aim", "calf_l", "foot_l", Vector3(0.0, -1, 0.15)],
+			["aim", "thigh_r", "calf_r", Vector3(0.3, 0.1, 1)], ["aim", "calf_r", "foot_r", Vector3(0.2, -1, 0.3)],
+			["turn", "spine_01", X, 8], ["turn", "spine_02", X, 6], ["turn", "spine_02", Y, 22], ["turn", "spine_03", Y, 20],
+			["turn", "neck_01", Y, 25], ["turn", "Head", Y, 45], ["turn", "Head", Z, -8], ["turn", "Head", X, 8],
+			["aim", "upperarm_l", "lowerarm_l", Vector3(0.7, 0.6, 0.15)], ["aim", "lowerarm_l", "hand_l", Vector3(-0.55, 0.55, -0.45)],
+			["aim", "upperarm_r", "lowerarm_r", Vector3(-0.25, -0.9, -0.2)], ["aim", "lowerarm_r", "hand_r", Vector3(-0.1, -0.6, 0.6)],
+			["curl", "l", 25.0], ["curl", "r", 30.0],
+		],
+		"props": [["models/stool_bar.glb", "", Vector3(0.0, 0.0, 0.07), Vector3(0, 30, 0), 1.0]]},
 }
 
 

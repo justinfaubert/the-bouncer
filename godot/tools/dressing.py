@@ -268,7 +268,7 @@ def save(img, name):
 
 KIT = os.environ.get('UBC_KIT', '/tmp/claude-0/ubc/Universal Base Characters[Standard]')
 WORK = os.environ.get('GIRLS_WORK', os.path.join(tempfile.gettempdir(), 'last-call-girls'))
-BIKINI = {'boors': ('8fc0e0', None), 'mildcat': (None, 'leopard'), 'unlucky': ('3f8a6a', None)}
+BIKINI = {'boors': ('8fc0e0', None), 'mildcat': (None, 'leopard'), 'unlucky': ('3f8a6a', None), 'velvet': (None, 'skin')}
 
 
 def leopard(w, h, seed=7):
@@ -302,6 +302,9 @@ def girl_skins():
     for name, (col, pattern) in BIKINI.items():
         if pattern == 'leopard':
             fab = np.asarray(leopard(a.shape[1], a.shape[0]), dtype=np.float32) / 255.0
+        elif pattern == 'skin':
+            # nothing on: the bikini's place in her own skin's tone (the velvet painting)
+            fab = np.ones_like(a) * np.median(skin[mask < 0.2].reshape(-1, 3), axis=0) * 0.93
         else:
             fab = np.ones_like(a) * (np.array(rgb(col)[:3]) / 255.0)
         out = skin * (1 - mask[..., None]) + fab * shade[..., None] * mask[..., None]
