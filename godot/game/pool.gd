@@ -67,6 +67,7 @@ var story := ""                         # "", "bigman_win", "bigman_lose" (what 
 var phase := "aim"                      # aim, place, rolling, theirs, over
 var cue_i := 0
 var chalk := 1.0
+var _aim_shown := 0.0                   # the cue's way as it lies, following aim_yaw
 var aim_yaw := 0.0                      # the cue's way, about the vertical (0 along +x)
 var stance := 0.15                      # 0 down on the line, 1 stood up
 var tip := Vector2.ZERO                 # on the ball's face: x across, y up, parts of its radius
@@ -88,6 +89,8 @@ var _trough: Array = []
 var _thread: Thread
 var _plan := {}
 var _their_t := 0.0
+var _their_fwd := Vector3.FORWARD
+var _their_tip := Vector3.ZERO
 var _their_stage := 0
 var _their_shot := {}
 var _esc_t := -10.0
@@ -316,10 +319,29 @@ func _aim_at_something() -> void:
 	if best >= 0:
 		var to := sim.ball(best).p - cb.p
 		aim_yaw = atan2(-to.z, to.x)
+		_aim_shown = aim_yaw
 
 
+# the way the cue lies: the hands follow where he means to aim (aim_yaw) a moment behind, the way
+# a cue's weight settles on the bridge, so the line doesn't twitch with every count of the mouse
 func aim_dir() -> Vector3:
-	return Vector3(cos(aim_yaw), 0, -sin(aim_yaw))
+	return Vector3(cos(_aim_shown), 0, -sin(_aim_shown))
+
+
+func _settle_aim(dt: float) -> void:
+	# A and D: the finest turn there is, held, for the last hair
+	var nudge := 0.0
+	if Input.is_physical_key_pressed(KEY_A):
+		nudge += 1.0
+	if Input.is_physical_key_pressed(KEY_D):
+		nudge -= 1.0
+	if nudge != 0.0:
+		aim_yaw += nudge * dt * deg_to_rad(2.0) * (0.2 if Input.is_key_pressed(KEY_SHIFT) else 1.0)
+	var d := wrapf(aim_yaw - _aim_shown, -PI, PI)
+	if absf(d) > 0.6:
+		_aim_shown = aim_yaw
+	else:
+		_aim_shown += d * (1.0 - exp(-dt * 20.0))
 
 
 func cue() -> Dictionary:
@@ -362,31 +384,7 @@ func _tremor(at: float) -> Vector2:
 # the lowest the butt can be here: over the rail behind the cue ball, and over any ball in the way of
 # the cue's line back
 func min_elev() -> float:
-	var cb := sim.ball(0)
-	var back := -aim_dir()
-	var need := ELEV_MIN
-	# the rail: where the line back crosses the cushion's line
-	var hl := sim.table.L * 0.5
-	var hw := sim.table.W * 0.5
-	var dist := INF
-	if absf(back.x) > 1e-4:
-		dist = minf(dist, ((hl if back.x > 0 else -hl) - cb.p.x) / back.x)
-	if absf(back.z) > 1e-4:
-		dist = minf(dist, ((hw if back.z > 0 else -hw) - cb.p.z) / back.z)
-	# the rail's top is RAIL_TOP over the cloth, and a hand's thickness more to bridge on it
-	var over := PoolSim.RAIL_TOP + 0.02 - cb.r
-	if dist < 0.5:
-		need = maxf(need, rad_to_deg(atan2(over, maxf(dist + 0.08, 0.02))))
-	for o in sim.balls:
-		if o.id == 0 or o.state == PoolSim.DOWN or o.state == PoolSim.OFF:
-			continue
-		var rel := Vector3(o.p.x - cb.p.x, 0, o.p.z - cb.p.z)
-		var s := rel.dot(back)
-		if s <= 0.0 or s > 0.6:
-			continue
-		if (rel - back * s).length() < o.r + 0.012:
-			need = maxf(need, rad_to_deg(atan2(o.r * 2.0 + 0.01 - cb.r, s)))
-	return clampf(need, ELEV_MIN, ELEV_MAX)
+	return clampf(rad_to_deg(sim.min_elev(aim_dir(), deg_to_rad(ELEV_MIN))), ELEV_MIN, ELEV_MAX)
 
 
 # ---------------------------------------------------------------- every frame
@@ -397,6 +395,7 @@ func _process(dt: float) -> void:
 	t += dt
 	match phase:
 		"aim":
+			_settle_aim(dt)
 			elev = maxf(elev, min_elev())
 			_camera_aim(dt)
 			_place_cue()
@@ -429,6 +428,11 @@ func _camera_aim(dt: float) -> void:
 	var dist := lerpf(0.36, 1.05, s) + elev / 90.0 * 0.15
 	var hgt := lerpf(0.1, 0.78, s * s) + sin(deg_to_rad(elev)) * 0.32
 	var eye := cb.p - d * dist + Vector3(0, hgt, 0)
+	# his head can't go into the rail: over the frame it stays a little above the wood
+	var fl := sim.table.L * 0.5 + PoolSim.Table.CUSH_W + PoolSim.Table.RAIL_W + 0.06
+	var fw := sim.table.W * 0.5 + PoolSim.Table.CUSH_W + PoolSim.Table.RAIL_W + 0.06
+	if absf(eye.x) < fl and absf(eye.z) < fw:
+		eye.y = maxf(eye.y, PoolSim.Table.WOOD_TOP + 0.075)
 	var look := cb.p + d * lerpf(0.5, 0.25, s) + Vector3(0, -0.02, 0)
 	_look(world(eye), world(look), dt, 18.0)
 	view.focus_fov = lerpf(46.0, 58.0, s) * (0.6 if Input.is_key_pressed(KEY_SHIFT) and not drawing else 1.0)
@@ -488,6 +492,9 @@ func _place_cue() -> void:
 	var c := sqrt(maxf(1.0 - a * a - b * b, 0.0)) * R
 	var contact := cb.p + side * a * R + up * b * R - fwd * c
 	var gap := 0.012 + draw * 0.28
+	# going through, the tip stops short of the cloth
+	if gap < 0.0 and fwd.y < -1e-3:
+		gap = maxf(gap, (contact.y - 0.006) / fwd.y)
 	var tip_at := contact - fwd * gap
 	cue_node.visible = not overview or phase == "aim"
 	var bas := Basis.looking_at(fwd, Vector3.UP)
@@ -550,9 +557,15 @@ func _input(e: InputEvent) -> void:
 				elif overview:
 					pass
 				else:
-					var k := AIM_K * ls * (FINE if Input.is_key_pressed(KEY_SHIFT) else 1.0)
+					# down on the shot the hand moves the cue less than stood up looking it over
+					var k := AIM_K * ls * (FINE if Input.is_key_pressed(KEY_SHIFT) else 1.0) * lerpf(0.55, 1.5, stance)
 					aim_yaw -= rel.x * k
-					stance = clampf(stance + rel.y * 0.0025, 0.0, 1.0)
+					# the head goes up and down only with the hand going mostly up and down, so turning
+					# the cue doesn't bob it
+					var ay := absf(rel.y)
+					if ay > 0.0:
+						var keep := clampf((ay - absf(rel.x) * 0.7) / ay, 0.0, 1.0)
+						stance = clampf(stance + rel.y * 0.0025 * keep, 0.0, 1.0)
 			"place":
 				Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		return
@@ -575,7 +588,7 @@ func _input(e: InputEvent) -> void:
 						overview = false
 						Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 						_aim_at_something()
-						main.audio.sfx("clack", 0.3, 1.4)
+						main.audio.sfx("pool_bounce", 0.25, 1.3)
 						_hint()
 					else:
 						ui.toast("Not there." if rules.in_hand != "kitchen" else "Behind the line, and clear of the balls.")
@@ -767,6 +780,7 @@ func release_state(at_t: float) -> Dictionary:
 
 func _stroke() -> void:
 	main.keys.used()
+	_aim_shown = aim_yaw
 	var st := release_state(t)
 	_before = sim.copy()
 	_start = {"targets": rules.targets(sim), "kitchen": rules.in_hand_placed == "kitchen", "jumped": false}
@@ -802,12 +816,13 @@ func _shoot(st: Dictionary, shooter: int) -> void:
 	cue_node.visible = shooter == 0
 	their_cue.visible = shooter == 1
 	if r.miscue:
-		main.audio.at("clack", world(_shot_from), 0.7, 1.5, 1.7)
+		main.audio.at("pool_jaw", world(_shot_from), 0.6, 1.5, 1.5)
 		ui.say("Miscue." if chalk > 0.4 else "Miscue. The tip was dry.")
 		_once("miscue_%d" % shooter, "The tip slid off the ball with that sound everybody in the room knows." if shooter == 0 else "The tip slid off. He looked at the end of the cue like it had done it.")
 	else:
 		var hard := clampf(float(st.speed) / 6.0, 0.15, 1.0)
-		main.audio.at("break" if not rules.broke and mode != "practice" and float(st.speed) > 4.0 else "cue", world(_shot_from), 0.5 + hard * 0.5, 1.5, 0.9 + rng.randf() * 0.2)
+		var brk: bool = not rules.broke and mode != "practice" and float(st.speed) > 4.0
+		main.audio.at("pool_break" if brk else "pool_cue", world(_shot_from), (0.75 if brk else 0.3 + hard * 0.45), 1.5, 0.95 + rng.randf() * 0.1)
 	tbl.call_pocket(rules.called)
 
 
@@ -838,6 +853,14 @@ func _play(dt: float) -> void:
 		_place_cue()
 	elif _who_shot == 0:
 		cue_node.visible = false
+	if _who_shot == 1:
+		if _play_t < 0.35:
+			var go := minf(_play_t * 1.6, 0.09)
+			if _their_fwd.y < -1e-3:
+				go = minf(go, (_their_tip.y - 0.006) / -_their_fwd.y)
+			their_cue.global_transform = to_world * Transform3D(Basis.looking_at(_their_fwd, Vector3.UP), _their_tip + _their_fwd * go)
+		else:
+			their_cue.visible = false
 	while _heard < sim.log.size() and float(sim.log[_heard][0]) <= _play_t:
 		_sound(sim.log[_heard])
 		_heard += 1
@@ -851,21 +874,23 @@ func _sound(e: Array) -> void:
 		return
 	var at: Vector3 = world(sim.sample(b, float(e[0]))[0])
 	var sp := float(e[4])
+	# the table's own sounds (tools/pool_sounds.py), soft as they come and kept down: heard from
+	# a stool, not through headphones
 	match str(e[1]):
 		"ball":
-			main.audio.at("clack", at, clampf(sp / 3.0, 0.08, 1.0), 1.6, 1.0 + rng.randf_range(-0.08, 0.08) + (0.15 if sp < 0.6 else 0.0))
+			main.audio.at("pool_click", at, clampf(sp / 3.5, 0.05, 0.75), 1.6, 1.0 + rng.randf_range(-0.06, 0.06) + (0.1 if sp < 0.6 else 0.0))
 		"rail":
-			main.audio.at("thump", at, clampf(sp / 3.5, 0.05, 0.6), 1.4, 1.6)
+			main.audio.at("pool_rail", at, clampf(sp / 4.0, 0.04, 0.55), 1.4, rng.randf_range(0.92, 1.06))
 		"jaw":
-			main.audio.at("tock", at, clampf(sp / 3.0, 0.08, 0.7), 1.4, 1.5)
+			main.audio.at("pool_jaw", at, clampf(sp / 3.5, 0.06, 0.55), 1.4, rng.randf_range(0.94, 1.06))
 		"pocket":
-			main.audio.at("pocket", at + Vector3(0, -0.1, 0), clampf(0.4 + sp / 4.0, 0.3, 1.0), 1.6, rng.randf_range(0.85, 1.1))
+			main.audio.at("pool_drop", at + Vector3(0, -0.1, 0), clampf(0.3 + sp / 5.0, 0.25, 0.7), 1.6, rng.randf_range(0.92, 1.06))
 			# and down the gully under the table to the window at the foot
-			get_tree().create_timer(0.6).timeout.connect(func(): main.audio.at("rattle", world(Vector3(0.9, -0.4, 0.1)), 0.35, 1.4, 0.8))
+			get_tree().create_timer(0.7).timeout.connect(func(): main.audio.at("pool_gully", world(Vector3(sim.table.L * 0.45, -0.4, 0.1)), 0.35, 1.4, rng.randf_range(0.95, 1.05)))
 		"off":
-			get_tree().create_timer(0.4).timeout.connect(func(): main.audio.at("thump", at + Vector3(0, -0.8, 0), 0.6, 1.8, 0.9))
+			get_tree().create_timer(0.35).timeout.connect(func(): main.audio.at("pool_floor", at + Vector3(0, -0.8, 0), 0.6, 1.8, 1.0))
 		"bounce":
-			main.audio.at("tock", at, clampf(sp, 0.1, 0.6), 1.4, 1.1)
+			main.audio.at("pool_bounce", at, clampf(sp, 0.1, 0.5), 1.4, 1.0)
 
 
 # Everything's stopped: the rules have their say, the balls that went down go into the window, and
@@ -965,6 +990,11 @@ func _join() -> void:
 	_thread = null
 
 
+# where the practice strokes leave the tip when he stops at the back
+func gap_hold() -> float:
+	return 0.03 + 0.09 * (0.5 - 0.5 * cos(1.45 * 6.0))
+
+
 func _theirs(dt: float) -> void:
 	_their_t += dt
 	match _their_stage:
@@ -985,23 +1015,36 @@ func _theirs(dt: float) -> void:
 					tbl.put_ball(0, cb.r, cb.p, true)
 					rules.in_hand_placed = rules.in_hand
 					rules.in_hand = ""
-					main.audio.sfx("clack", 0.25, 1.4)
+					main.audio.sfx("pool_bounce", 0.22, 1.3)
 				rules.called = int(_plan.get("call", -1))
 				tbl.call_pocket(rules.called)
 				_their_shot = ai.hands(_plan, 1.0 + float(body.get("tension", 0)) * 0.0)
 				_their_shot["cue"] = CUES[1] if who == "bigman" else CUES[0]
 		1:
-			# down on it: his cue along the line, a couple of practice strokes, then through
+			# down on it: his cue along the line, over the rail and whatever's behind, a few practice
+			# strokes, a pause at the back, then through
 			var cb := sim.ball(0)
 			var d: Vector3 = _their_shot.dir
-			var e := float(_their_shot.elev)
+			var e := maxf(float(_their_shot.elev), sim.min_elev(d))
+			_their_shot.elev = e
 			var fwd := (d * cos(e) - Vector3.UP * sin(e)).normalized()
-			var strokes := 0.12 + 0.1 * (0.5 - 0.5 * cos(_their_t * 5.5)) if _their_t < 1.7 else 0.12 + (_their_t - 1.7) * 1.4
-			var tip_at := cb.p - fwd * (cb.r + strokes)
+			var side := d.cross(Vector3.UP).normalized()
+			var up := side.cross(fwd).normalized()
+			var a := float(_their_shot.a)
+			var b := float(_their_shot.b)
+			var contact := cb.p + side * a * cb.r + up * b * cb.r - fwd * sqrt(maxf(1.0 - a * a - b * b, 0.0)) * cb.r
+			var gap: float
+			if _their_t < 1.45:
+				gap = 0.03 + 0.09 * (0.5 - 0.5 * cos(_their_t * 6.0))
+			elif _their_t < 1.85:
+				gap = lerpf(gap_hold(), 0.2, smoothstep(1.45, 1.85, _their_t))
+			else:
+				gap = lerpf(0.2, 0.0, smoothstep(1.85, 2.0, _their_t))
 			their_cue.visible = true
-			their_cue.global_transform = to_world * Transform3D(Basis.looking_at(fwd, Vector3.UP), tip_at)
+			their_cue.global_transform = to_world * Transform3D(Basis.looking_at(fwd, Vector3.UP), contact - fwd * gap)
+			_their_fwd = fwd
+			_their_tip = contact
 			if _their_t > 2.0:
-				their_cue.visible = false
 				_before = sim.copy()
 				_start = {"targets": rules.targets(sim), "kitchen": rules.in_hand_placed == "kitchen", "jumped": false, "first_in_kitchen": false}
 				_shoot(_their_shot, 1)
@@ -1043,6 +1086,7 @@ func _hint() -> void:
 func _aim_rows() -> Array:
 	var rows := [
 		["Mouse", "round the cue ball  (Shift: fine)"],
+		["Hold A  D", "the last hair of the aim"],
 		["Up / down", "his head low on the line, or up"],
 		["Hold right, move", "the tip on the ball: follow, draw, side"],
 		["Wheel", "lift the butt: over a ball, a curve, a jump"],
@@ -1125,7 +1169,7 @@ func _game_over() -> void:
 		"thrown": ai.thrown if ai != null else 0, "fouls": rules.history.filter(func(h): return h.who == 0 and h.foul).size(),
 		"dumped": _dumped(), "opponent": who, "game": mode, "margin": _margin()}
 	if won:
-		main.audio.sfx("cheer", 0.25, 1.1) if stakes > 0 else main.audio.sfx("clack", 0.3)
+		main.audio.sfx("cheer", 0.25, 1.1) if stakes > 0 else main.audio.sfx("pool_click", 0.3)
 	ui.over(won, why)
 
 

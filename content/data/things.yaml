@@ -42,7 +42,7 @@ mop: {name: The mop and bucket., at: a:mop, from: [door]}
 dimmer: {name: The dimmer., at: a:dimmer, from: [door]}
 
 # ---------------------------------------------------------------- the set dressing (godot/world/dressing.gd, glasswasher.gd)
-poster_boors: {name: The Boors poster., at: a:poster_boors, from: [floor, bar, t28, pool, hall]}
+poster_boors: {name: The Boors poster., at: a:poster_boors, from: [floor, bar, pool, hall]}
 poster_mildcat: {name: The Mildcat poster., at: a:poster_mildcat, from: [floor, door, t28, pool]}
 calendar: {name: The calendar., at: a:calendar, from: [room]}
 poster_lochness: {name: The Lochness poster., at: a:poster_lochness, from: [bar, door, t28, pool, hall]}

@@ -152,8 +152,8 @@ On top, in a font somebody had picked carefully: APOCALYPSE MEANS UNCOVERING.
 + [Read the top one where he stands.]
     ~ preacher_how = 2
     ~ pass(2)
-    It wasn't about hell. It was about a word in Greek that meant lifting a lid. At the bottom it said the lid comes off whether you're ready or not, and that you could get ready, and gave the church's hours.
-    PREACHER: That's the one. People think it's the end of the world. It's just the end of not knowing.
+    It was about a word in Greek that meant lifting a lid. Somebody had underlined lid in ballpoint, on every copy, by hand. At the bottom it said the lid comes off whether you're ready or not, and that you could get ready, and gave the church's hours.
+    PREACHER: That's the one. I did three hundred of those on the church's machine before it jammed. Pastor Dave thinks I'm at the Safeway.
     WRONGMAN: The drunk said a man like this came in that night. Or the night before. He said the man knew.
 + ["Not in here."]
     ~ preacher_how = -1
@@ -205,7 +205,7 @@ By eight the room was louder than Wednesday's loudest.
     FATHER: You got paid twice today.
 * [Push it back. "Have your one."]
     ~ bigman_ease++
-    The big man put it back in his wallet and stood there a second longer than he had to.
+    The big man put it back in his wallet, and then took his cap off and put it back on.
     BIGMAN: Okay. Okay.
 - -> wave_start
 
@@ -302,7 +302,7 @@ A girl in a white puffer coat, hair straightened, holding a card out before he'd
         Twenty-two, the card said. The girl on it had the same hair but her ears weren't pierced, and this one had three holes in the left.
         MANUAL: Compare features that do not change: ear shape, the hairline, the space between the eyes. Hair, makeup and piercings change.
     - else:
-        Twenty-two, the card said. The photo looked like her. Photos do.
+        Twenty-two, the card said. The photo looked like her, same hair, same chin, same expression of somebody at the DMV.
     }
     -> girl_choose
 + ["What's your birthday?" #check: father:cha 9]
@@ -310,7 +310,7 @@ A girl in a white puffer coat, hair straightened, holding a card out before he'd
     { passed:
         ~ knows += girl_card
         She said it right. Then she said it again, faster, and got the year wrong by one and heard herself do it.
-        FATHER: They learn the day. They never practise the year.
+        FATHER: The Fraser boys' cousin had the day cold and gave me nineteen-ninety for a ninety-one card. I let her in anyway. She bought me a rye.
     - else:
         She said it right, the day and the year, like she'd said it in the car.
     }
@@ -375,7 +375,7 @@ GOOD SHOES was three back in the line, and he didn't wait to get to the front. #
     He took it and opened it there at the door and counted it with his thumb.
     { wallet_cash > 0:
         GOODSHOES: Huh.
-        He looked at the doorman a while. Then he folded it and put it away.
+        He took out a business card, wrote the amount on the back of it, folded the wallet over it and put it away.
         GOODSHOES: I'll remember that.
     - else:
         GOODSHOES: All there. Huh. Okay. I owe you one, then.
@@ -409,9 +409,9 @@ LEGION: Good evening, young man. The other place has closed on me.
     ~ slow()
     { passed:
         He let go, and his hand found the frame again on its own.
-        FATHER: That's a man who's done that ten thousand times. You don't let him in. You get him a cab.
+        FATHER: Legion hands. Mine did that the last two years, and I let myself in every time. Get him a cab.
     - else:
-        He let go and stood up fine. Stood up very straight. The old ones can do that for about a minute.
+        He let go and stood up fine, very straight, chin up, like a man on parade with a wet arse.
     }
     -> legion_choose
 + [Ask him his name. #check: wrongman 10]
@@ -436,7 +436,7 @@ LEGION: Good evening, young man. The other place has closed on me.
 + ["Not tonight, sir." #door: out]
     ~ rep(rep_t28, -1)
     LEGION: Quite right. Quite right.
-    He went off along the shoulder in the rain in the direction of nothing in particular.
+    He went off along the shoulder in the rain, toward the Legion, which had closed on him, and past it.
     TEAM_JACKET: Was that Doug? You put Doug out? Doug was at Dieppe! Doug's father was at Dieppe!
 - -> the_line
 
@@ -452,7 +452,7 @@ WOMAN: I am not going home with him. I'm telling you so you know.
     ~ count_in++
     She went in. The man stood in the rain with his mouth open.
     MAN: That's my wife.
-    FATHER: That's what they all say. Doesn't make it a reason.
+    FATHER: Your mother went into the Courtenay Elks without me once. I stood on the step and told the doorman she was my wife. He said he knew.
 + ["Both of you. Sort it out inside." #door: in]
     ~ fast()
     ~ wave_in += w_couple
@@ -504,7 +504,7 @@ MANUAL: The licensee is liable. The doorman is liable. The bartender is liable.
 + [Walk her out.]
     ~ rep(rep_staff, 1)
     ~ incident += inc_no_id
-    She went. She didn't argue, and that was worse. At the door she zipped the puffer up to her chin.
+    She went without a word to the mill boys, who'd already turned back to the bar. At the door she zipped the puffer up to her chin and texted somebody with both thumbs, fast.
 + [Leave it. It's Friday.]
     ~ cocoon++
     ~ rep(rep_staff, -1)
@@ -523,7 +523,7 @@ At two the lights came up and the room was a room again: sticky, small, the carp
 - preacher_how == 2:
     The Preacher's tracts were on every table, one each, and somebody had folded one into a hat and left it on the jukebox. He'd read it, so he knew what the hat said.
 - preacher_how == 1:
-    The tract was still in his back pocket, folded in four. He hadn't read it. It was the taking.
+    The tract was still in his back pocket, folded in four. He hadn't read it. The Preacher had watched him take it, and had nodded like a man getting a signature.
 - preacher_how == -1:
     The Preacher's tracts were on every table anyway, one each. Gary let him.
 }
@@ -531,7 +531,7 @@ At two the lights came up and the room was a room again: sticky, small, the carp
 - crib_won > 0:
     HI-VIS went by with his jacket over his arm and pointed at him. "Shark." He was still a little mad.
 - crib_won < 0:
-    HI-VIS went by and put four dollars on the stool. "Your crib money. I felt bad." He didn't, much.
+    HI-VIS went by and put four dollars on the stool. "Your crib money. I felt bad." Two of the four were Canadian Tire money.
 }
 {
 - rib_how == 1:
@@ -539,7 +539,7 @@ At two the lights came up and the room was a room again: sticky, small, the carp
     COOK: Take it. It's going in the garbage anyway.
     It was heavy and warm. There was a lot of it in there.
     { knows ? prime_thin:
-        FATHER: You saw the slices. Now you've seen where the rest goes.
+        FATHER: The Legion cook did the same with the turkey every Remembrance Day. I ate it for a week and said nothing.
     }
 - rib_how >= 2:
     The cook came out with his coat on and two foil packages under his arm, and went past the doorman with his eyes on the floor and out to his car.
@@ -578,7 +578,7 @@ He went up past six and stopped at seven. The brass number had a screw missing a
     ~ seven_how = 1
     It turned. Inside, the bed was made, tight, hospital corners. The radiator was warm. The window was open two inches and the rain came in and darkened the carpet under it.
     On the bedspread there was a record with no sleeve, black, no label in the middle. In the light from the hall it didn't shine.
-    He didn't touch it. Later, he wished he had.
+    He didn't touch it. When he shut the door, from the hall, he heard the radiator knock three times, and then a needle set down on nothing.
     -> friday_end
 * [Put the key back in his pocket.]
     ~ seven_how = 2
@@ -587,15 +587,15 @@ He went up past six and stopped at seven. The brass number had a screw missing a
 
 
 === friday_end ===
-NARRATOR: That was the first Friday. A hundred and four, Jim said, and I said a hundred and four, and one of us was wrong. #pause
+NARRATOR: A hundred and four, Jim said, and I said a hundred and four, and one of us was wrong. #pause
 { let_wrong >= 2:
-    NARRATOR: I let in people I shouldn't have that night. I don't remember all of their faces now. I remember the line.
+    NARRATOR: I let in people I shouldn't have that night. I couldn't pick most of them out of a lineup now. I could tell you what the glass smelled like.
 }
 { seven_how == 1:
     NARRATOR: I asked Terry in the morning who'd had seven. He said nobody, since March. He said it twice, the second time a bit louder.
 }
 { cheque_how == 3:
-    NARRATOR: BALANCE OWING. After the first week I owed the Sov money. It took me most of the month to see that was the job.
+    NARRATOR: BALANCE OWING. After the first week I owed the Sov money. I owed it money at the end, too. Less.
 }
 { key_left:
     NARRATOR: The old man never mentioned the key. By Saturday the trap was gone off the wharf, rope and all.

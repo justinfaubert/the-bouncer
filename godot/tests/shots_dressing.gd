@@ -10,6 +10,20 @@ extends "res://tests/shots.gd"
 # name, where he is (place or place:frame), what he's looking at, the clock, and (for a close look)
 # where his eyes are instead of the post's
 const VIEWS := [
+	# from where he stands, no closer: what the player actually gets
+	["p_mildcat", "door", Vector3(4.97, 1.7, 10.0), 1290],
+	["p_lochness", "pool:juke", Vector3(14.95, 1.78, 0.0), 1290],
+	["p_labutt", "t28", Vector3(15.2, 2.2, 10.0), 1290],
+	["p_forget", "bar", Vector3(3.25, 2.3, 0.0), 1290],
+	["p_reserve", "floor", Vector3(0.0, 2.08, 7.18), 1290],
+	["p_boors", "t28", Vector3(16.0, 1.43, 9.3), 1290],
+	# looked at from there: he reads it (game/main.gd, _read_closer)
+	["r_mildcat", "floor", Vector3(4.97, 1.7, 10.0), 1290, null, "poster_mildcat"],
+	["r_lochness", "pool:juke", Vector3(14.95, 1.78, 0.0), 1290, null, "poster_lochness"],
+	["r_labutt", "t28", Vector3(15.2, 2.2, 10.0), 1290, null, "labutt"],
+	["r_forget", "bar", Vector3(3.25, 2.3, 0.0), 1290, null, "sign_forget"],
+	["r_reserve", "floor", Vector3(0.0, 2.08, 7.18), 1290, null, "sign_reserve"],
+	["r_boors", "t28", Vector3(16.0, 1.43, 9.3), 1290, null, "poster_boors"],
 	["room_front", "bar", Vector3(9.0, 1.6, 10.0), 1290],
 	["mildcat", "floor", Vector3(4.97, 1.7, 10.0), 1290, Vector3(5.6, 1.6, 8.6)],
 	["boors", "floor", Vector3(16.0, 1.43, 9.3), 1290, Vector3(14.6, 1.6, 8.6)],
@@ -48,7 +62,7 @@ func _run() -> void:
 		var at: String = v[1]
 		main.view.frame = at.get_slice(":", 1) if ":" in at else ""
 		main.view.jump_to(at.get_slice(":", 0))
-		if v.size() > 4:
+		if v.size() > 4 and v[4] != null:
 			main.view.eye_pos = v[4]
 		main.stage.sync(main.game, true)
 		main.stage._settle(0.0)
@@ -60,6 +74,10 @@ func _run() -> void:
 		main.view.pitch = clampf(a.y, View.PITCH_MIN, View.PITCH_MAX)
 		main.view.want_pitch = main.view.pitch
 		await _frames(25)
+		# and (for a read) he looks at it: his eyes narrow on it
+		if v.size() > 5:
+			main.toy(v[5], "look")
+			await _frames(45)
 		await _grab(v[0])
 		# and the eye's own picture, before the press: to see what's in what
 		var img: Image = main.view.eye.get_texture().get_image()

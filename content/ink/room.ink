@@ -162,13 +162,13 @@ BARTENDER: There was a league, Thursdays. Then there wasn't.
     Somebody had the darts out of the board, all three, in a fist with the points out, and then didn't do anything with them. The doorman had to take them off him one at a time.
 }
 
-// Something got picked up. She doesn't ask him this time (pool.ink, after_fight).
+// Something got picked up. He doesn't ask him this time (pool.ink, after_fight).
 === weapon_call ===
 ~ police_called = true
 ~ police_at = clock
 ~ incident += inc_police
 ~ rep(rep_owner, -1)
-She didn't ask him this time.
+The bartender didn't ask him this time.
 BARTENDER: Somebody picked something up, Door. That's not mine to sit on, and it's not yours.
 MANUAL: Where a weapon is used on licensed premises, police are called. There is no discretion.
 { at_pool > 0:
@@ -268,7 +268,7 @@ FATHER: We put the boxing on at the Legion Friday nights. Nobody ever started on
 ~ tv_on = 4
 ~ t28_off = 0
 He went through the channels till he found the curling: a bonspiel on the prairies somewhere, eight men in sweaters, and a stone taking its time down the ice. #look: t28
-She looked at the TV, and at him, and didn't say anything, because she'd said it already.
+She looked at the TV, and at him, and turned back to the curling. She'd said it already.
 Table 28 went quiet for the first time since two o'clock.
 TEAM_JACKET: Now that's a sport.
 HEARING_AID: Is that Saskatoon?
@@ -463,14 +463,14 @@ MANUAL: Portable extinguishers are inspected monthly and serviced annually by a 
 FATHER: I pulled one off the wall at the Legion once and nothing came out.
 -> at_hall.h_opts
 
-// He tells her (bar.ink). She keeps the owner's list in the frame of the back-bar mirror.
+// He tells him (bar.ink). He keeps the owner's list in the frame of the back-bar mirror.
 === ext_tell_her ===
 ~ pass(1)
 ~ ext_how = 2
 ~ rep(rep_staff, 1)
 ~ here = bar
 BARTENDER: Two years.
-He didn't sound surprised. He sounded like a man adding something to a list, which he was.
+He didn't sound surprised.
 BARTENDER: Since the grease fire. That was the last time anybody pulled the pin on one of those, and Junior's father was alive.
 He wrote it on a coaster in marker, EXTINGUISHER HALL, and stuck it in the frame of the back-bar mirror with the others: KEG ROOM LIGHT. WOMEN'S LOCK. ICE MACHINE. THIRD STEP.
 BARTENDER: That's Junior's list. He reads it the night before the inspector, every time.
@@ -516,7 +516,7 @@ The house lights were on a dimmer on the wall inside the front door, a brass pla
     ~ rep(rep_staff, 1)
     He caught the bartender's eye and lifted his chin at the dimmer.
     BARTENDER: Quarter to. Not before.
-    At quarter to he went and turned the dial up himself without looking at it, the way he'd done it every night for thirty-one years.
+    At quarter to he went and turned the dial up himself without looking at it. There was a groove worn in the brass where his thumb went.
 * [Leave them low.]
     ~ lights = -1
     He left them where they were. Table 28 ordered another round.
@@ -729,7 +729,7 @@ He bent and picked it up off the carpet. A man's wallet, brown, good leather wor
     ~ wallet_how = 2
     ~ drawer_seen = true
     ~ stow(gs_wallet, in_drawer)
-    The bartender took it off him by one corner, the way you'd take something the dog brought in, and dropped it in the lost-and-found drawer under three winters of toques. #look: bartender
+    The bartender took it off him by one corner, between two fingers, and dropped it in the lost-and-found drawer under three winters of toques. #look: bartender
     BARTENDER: He'll be back for that. That kind always comes back for the wallet.
     -> at_bar.opts
 * [Keep it on him till he comes back for it.]

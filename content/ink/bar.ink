@@ -112,7 +112,7 @@ FATHER: The written rules are for the inspector.
 = who_endbar
 ~ pass(2)
 ~ knows += endbar_seen
-He didn't look down the bar. He didn't need to.
+He kept his eyes on the glass he was drying.
 BARTENDER: Him? He was coming in before I started, and I started when I was nineteen.
 BARTENDER: Don't ask me his name. Thirty-one years and I never got it. Buys one glass and doesn't touch it.
 BARTENDER: He's no trouble.
@@ -144,7 +144,7 @@ BARTENDER: That's Dennis, in the big glasses. His wife'll be in for him around o
 = name
 ~ pass(1)
 ~ asked_name = true
-The bartender looked at him for a second longer than he needed to.
+The bartender looked at him, and at the name, and wrote it on the float sheet, spelled wrong.
 BARTENDER: Last a week, Door. Then ask me.
 // HUTCH: His name. Or keep it back until he's earned it.
 -> opts
@@ -174,7 +174,7 @@ BARTENDER: Nobody's been through the pockets. I never wanted to know.
         FATHER: And Gary's, at four. Don't think I didn't count those.
     }
 - drinks - drinks_before == 1:
-    The bartender poured it. Put it on the ledge. Didn't say anything this time, which was worse. #sfx: glass
+    The bartender poured it. Put it on the ledge. Didn't say anything this time. He wrote something on the pad by the till and tore the page off and kept it. #sfx: glass
     ~ she_poured++
     ~ drink()
     ~ rep(rep_staff, -1)
@@ -240,7 +240,7 @@ He went round behind the bar and took a pint glass off the stack and pulled hims
 * [Take it round to the ledge, where the bartender puts his. #hand: drink]
     ~ pour_how = 2
     ~ drink()
-    He put it on the ledge, not the bar, where the bartender put his, and went back round to the gap in the stools and drank it there as if it had been poured for him.
+    He put it on the ledge, not the bar, where the bartender put his, and went back round to the gap in the stools and drank it there, standing, with the bartender watching him in the back-bar mirror.
 * [Pour it down the sink.]
     ~ pour_how = 3
     He looked at it a while. Then he tipped it down the bar sink, and rinsed the glass, and put it on the rack with the others.
@@ -251,7 +251,7 @@ He went round behind the bar and took a pint glass off the stack and pulled hims
 ~ lager_down = false
 The trapdoor came up, and the bartender came up after it, wiping his hands on the bar towel. #look: bartender
 BARTENDER: Lager's back.
-He said it to the room. Then he looked at the till, and the rail, and him.
+Loud, for the room. Then he looked at the till, and the rail, and him.
 {
 - pour_how == -1:
     ~ rep(rep_staff, -2)
@@ -284,13 +284,13 @@ He said it to the room. Then he looked at the till, and the rail, and him.
 ~ rep(rep_staff, -1)
 ~ here = door
 He went back to his door.
-From the stool he watched the one in the team jacket get up from table 28 and go round behind the bar, the way he must have done it in nineteen eighty-one, and start pulling a round.
+From the stool he watched the one in the team jacket get up from table 28 and lift the flap at the end of the bar without asking, and start pulling a round. He knew which tap stuck.
 ~ lager_down = false
 The trapdoor came up, and the bartender came up after it, and stood there with the bar towel in his hand.
 BARTENDER: Out.
 TEAM_JACKET: Lager's off!
 TABLE28: Hear, hear!
-He went, and the bartender poured their round, and when it was done the bartender looked down the room at the doorman on his stool, and didn't say anything.
+He went, and the bartender poured their round, and when it was done the bartender looked down the room at the doorman on his stool, and rang it in, and kept looking while the drawer came out.
 -> carry_on
 
 = endbar
@@ -319,7 +319,7 @@ He went, and the bartender poured their round, and when it was done the bartende
     But the glass was full.
 - at_bar.endbar == 2:
     ENDBAR: The owner would like you to deal with them.
-    He said it like he'd read the note. Maybe he had. It was taped to the till.
+    The note was taped to the till, facing the bar. The old man hadn't looked at it once.
     ENDBAR: People always think it is a matter of poison. It is a matter of terms.
     ENDBAR: Go down, after, when it is quiet. If you would care to talk about it.
     WRONGMAN: Talk about it. With who.
@@ -426,7 +426,7 @@ Behind him a slot machine was paying out, and a woman laughed at something he'd 
     He gave him the number: everyone he'd let in past the stool, and the thirteen who'd been in when he came on.
     OWNER: That's a Wednesday. I can live with a Wednesday.
     { uncounted > 0:
-        Behind the bar, the bartender, who'd rung in drinks tonight for more faces than that, didn't say anything.
+        Behind the bar, the bartender, who'd rung in drinks tonight for more faces than that, put a clean glass down a little harder than he needed to.
     }
     ~ rep(rep_owner, 1)
 * ["Quiet."]
@@ -496,7 +496,7 @@ Behind him a slot machine was paying out, and a woman laughed at something he'd 
     OWNER: Put him on.
     ~ rep(rep_owner, -2)
     ~ rep(rep_staff, 2)
-    The bartender took the phone. He listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the bar as if he'd never stopped.
+    The bartender took the phone. He listened, and said "Yep," and "No," and "Not ever," and hung up, and went back to wiping the same ring off the bar.
     -> carry_on
 * ["I'll let him in next time."]
     OWNER: Good man.

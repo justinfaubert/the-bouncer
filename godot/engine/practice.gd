@@ -62,10 +62,10 @@ const KNACKS := {
 const SAYS := {
 	"hands": "Your hands are %s. Feel that? That's the weight going through, not the arm.",
 	"holds": "%s. You stopped pulling and started turning. They follow the turn.",
-	"feet": "%s. The punch you weren't there for is the one that never hurt.",
+	"feet": "%s. He swung where your head was half a second ago.",
 	"chin": "%s. Tuck it and take it on the forehead. You're still here.",
 	"wind": "%s. You'd have been sat on a stool gasping a week ago.",
-	"read": "%s. You watched his shoulder, not his fist. That's all it ever is.",
+	"read": "%s. You watched his shoulder, not his fist.",
 	"sense": "%s. You turned before you knew why. Don't ask why.",
 	"nerve": "%s. You didn't step back. They saw you not step back.",
 	"arm": "%s. Same elbow, same release, same place. Again.",

@@ -5,7 +5,7 @@ extends SceneTree
 # so it's moving): the motel, the bluff, the fish plant, the mill road, the washout; the church, the
 # fruit stand, the cut, the ferry sign, the bridge that's out. Needs a display:
 #   xvfb-run -a -s "-screen 0 1600x900x24" godot --rendering-driver vulkan --resolution 1600x900 \
-#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel] [--drinks 0]
+#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel|model] [--drinks 0]
 
 var main
 var out := "/tmp/truck"
@@ -48,6 +48,20 @@ func _run() -> void:
 	await _frames(20)
 	var tr: Truck = main.truck
 	main.keys.hide_card()
+	if only == "model":
+		# round the truck in the lot, lights on, close enough to see what it is
+		tr._key()
+		await create_timer(1.6).timeout
+		tr.lights = 1
+		tr._lights()
+		for v in [["front_quarter", Vector3(3.6, 1.3, -5.2)], ["side", Vector3(5.6, 1.1, 0.4)],
+				["rear_quarter", Vector3(-3.8, 1.8, 6.0)], ["front", Vector3(0.0, 1.0, -6.8)], ["above", Vector3(2.5, 4.5, 3.5)]]:
+			tr.chase_at = v[1]
+			_chase(tr, true)
+			await _frames(40)
+			await _grab("model_" + str(v[0]))
+		quit()
+		return
 	if only == "":
 		await _grab("cab_parked_dark")
 		tr._key()
@@ -98,7 +112,7 @@ func _run() -> void:
 func _chase(tr: Truck, on: bool) -> void:
 	tr.chase = on
 	main.view.ride = null if on else tr.body
-	tr._chase_pos = tr.sim.pos - tr.sim.forward() * 8.5 + Vector3(0, 2.9, 0)
+	tr._chase_pos = tr.sim.pos + tr.sim.rot * Vector3(tr.chase_at.x, 0.0, tr.chase_at.z) + Vector3(0, tr.chase_at.y, 0)
 	main.view.want_yaw = 0.0
 	main.view.want_pitch = -0.08
 	main.view.yaw = 0.0
