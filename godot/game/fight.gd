@@ -63,6 +63,8 @@ var last_pull := Vector2.ZERO
 var mouse_v := Vector2.ZERO
 var _prev_mouse := Vector2.ZERO
 var _hid: Array = []
+var _stopped_him := {}
+var _stopped := {}                      # hand -> where his blow met something (a guard, a forearm): the fist goes no further
 var opp_level := 4.0                    # how good the other man is, for what beating him teaches
 
 
@@ -164,6 +166,7 @@ func begin(opts: Dictionary, rehearse := false, from := {}) -> void:
 	frame_to = opts.get("where", Transform3D.IDENTITY)
 	sim = FightSim.new(int(opts.get("seed", 1)))
 	sim.bounds = opts.get("bounds", Rect2(-2.5, -2.5, 5.0, 5.0))
+	sim.ring_r = float(opts.get("ring_r", 0.0))
 	sim.keep_down = ring_rules
 	var me: FightSim.Fighter = opts.me
 	var him: FightSim.Fighter = opts.him
@@ -185,6 +188,8 @@ func begin(opts: Dictionary, rehearse := false, from := {}) -> void:
 		var to: Vector3 = x.get("face", x.at + Vector3(0, 0, 1))
 		n.look_at(Vector3(to.x, n.global_position.y, to.z), Vector3.UP, true)
 		extras.append(n)
+		# a body standing there: the fight goes round him, not through him
+		sim.posts.append({"pos": _f2(n.global_position), "r": 0.24})
 	view.walking = false
 	view.focus_fov = 62.0
 	view.drinks = int(body.get("drinks", 0))
@@ -444,8 +449,7 @@ static func _strip_props(mi: MeshInstance3D) -> void:
 
 func _landed_flat(fg: Figure) -> void:
 	var at := fg.node.global_position
-	main.audio.at("thud", at, 1.0, 3.0, 0.55 if fg.scale > 1.05 else 0.8)
-	main.audio.at("thump", at, 0.9, 3.0, 0.5)
+	main.audio.at("body_fall", at, 0.8, 3.0, 0.8 if fg.scale > 1.05 else 1.0)
 	if fg.scale > 1.05:
 		shake_v += Vector2(0.0, 1.6)
 		view.flash = maxf(view.flash, 0.25)
@@ -456,7 +460,8 @@ func _landed_flat(fg: Figure) -> void:
 func _hand_target(fg: Figure, side: String, me: FightSim.Fighter) -> Vector3:
 	var f := fg.f
 	var g: Vector2 = f.guard[side]
-	var guard_w := _w3(f.pos + f.right() * g.x * 1.25 * fg.scale + f.fwd() * 0.38 * fg.scale, g.y - 0.17 * fg.scale)
+	var out_w := minf(0.38 * fg.scale, maxf(0.16, f.pos.distance_to(me.pos) - 0.34))
+	var guard_w := _w3(f.pos + f.right() * g.x * 1.25 * fg.scale + f.fwd() * out_w, g.y - 0.17 * fg.scale)
 	if f.cover:
 		guard_w = _w3(f.pos + f.right() * (0.07 if side == "R" else -0.07) * fg.scale + f.fwd() * 0.2 * fg.scale, f.head_y() - 0.02)
 	if f.breath < 0.35:
@@ -487,11 +492,12 @@ func _hand_target(fg: Figure, side: String, me: FightSim.Fighter) -> Vector3:
 				y = me.height * 0.66
 			"belt":
 				y = me.height * 0.53
-		return _w3(me.pos + me.right() * x - (me.pos - f.pos).normalized() * 0.12, y)
+		return _w3(me.pos + me.right() * x - (me.pos - f.pos).normalized() * 0.24, y)
 	if not f.act.is_empty() and str(f.act.get("hand", "")) == side:
 		var ac := f.act
 		var tgt: Vector2 = ac.target
-		var hit := _w3(me.pos + me.right() * tgt.x - (me.pos - f.pos).normalized() * 0.08, tgt.y)
+		# his fist comes to your face and stops there, filling it, never through the lens
+		var hit := _w3(me.pos + me.right() * tgt.x * 0.6 - (me.pos - f.pos).normalized() * 0.27, tgt.y)
 		var age := sim.t - float(ac.t0)
 		var back_w := guard_w + (_w3(f.pos) - _w3(f.pos + f.fwd() * 0.25)) * float(ac.get("power", 0.5))
 		if ac.blow == "hook":
@@ -500,6 +506,7 @@ func _hand_target(fg: Figure, side: String, me: FightSim.Fighter) -> Vector3:
 			"tell":
 				return guard_w.lerp(back_w, clampf(age / maxf(0.01, float(ac.tell)), 0.0, 1.0))
 			"go":
+				_stopped_him.erase(side)
 				var k := clampf((age - float(ac.tell)) / maxf(0.01, float(ac.travel)), 0.0, 1.0)
 				var mid := back_w.lerp(hit, k)
 				if ac.blow == "hook":
@@ -507,7 +514,7 @@ func _hand_target(fg: Figure, side: String, me: FightSim.Fighter) -> Vector3:
 				return mid
 			_:
 				var k2 := clampf((age - float(ac.tell) - float(ac.travel)) / maxf(0.01, float(ac.back)), 0.0, 1.0)
-				return hit.lerp(guard_w, k2)
+				return (_stopped_him.get(side, hit) as Vector3).lerp(guard_w, k2)
 	return guard_w
 
 
@@ -559,6 +566,12 @@ func _pose_helper(fg: Figure, dt: float) -> void:
 	var cur := _f2(fg.node.global_position) if fg.posed_t > 0.0 else at
 	fg.posed_t += dt
 	cur = cur.lerp(at, 1.0 - exp(-dt * 6.0))
+	# he stands on the floor too: inside the rail, and not in your face
+	var bx := sim.bounds.grow(0.05)
+	cur = Vector2(clampf(cur.x, bx.position.x, bx.end.x), clampf(cur.y, bx.position.y, bx.end.y))
+	var from_me := cur - sim.a.pos
+	if from_me.length() < 0.55:
+		cur = sim.a.pos + (from_me.normalized() if from_me.length() > 0.001 else Vector2.RIGHT) * 0.55
 	fg.node.global_position = _w3(cur)
 	var face := (o.pos - cur).normalized()
 	fg.node.rotation = Vector3(0, _yaw_of(atan2(face.x, face.y)), 0)
@@ -753,10 +766,11 @@ func _hand_target_me(side: String) -> Vector3:
 			# both hands on the one arm, out at his side: his left is on your right
 			var at := 0.26 if str(a.grips[side].part) == "arm_L" else -0.26
 			x = at + (0.05 if side == "R" else -0.05)
-		return _w3(o.pos - o.right() * x + (a.pos - o.pos).normalized() * 0.15, y)
+		return _w3(o.pos - o.right() * x + (a.pos - o.pos).normalized() * (_front(o, y) + 0.07), y)
 	var ac := a.act
 	var tgt: Vector2 = ac.target
-	var hit := _w3(o.pos + o.right() * tgt.x + (a.pos - o.pos).normalized() * 0.1, tgt.y)
+	# the wrist stops a fist's length off his skin: the knuckles on him, not in him
+	var hit := _w3(o.pos + o.right() * tgt.x + (a.pos - o.pos).normalized() * (_front(o, tgt.y) + 0.08), tgt.y)
 	var age := sim.t - float(ac.t0)
 	var guard := view.cam.global_transform * (Vector3(0.13, -0.13, -0.3) if side == "R" else Vector3(-0.14, -0.1, -0.36))
 	var back := guard + (eye - hit).normalized() * 0.08
@@ -764,12 +778,13 @@ func _hand_target_me(side: String) -> Vector3:
 		"tell":
 			return guard.lerp(back, clampf(age / maxf(0.01, float(ac.tell)), 0.0, 1.0))
 		"go":
+			_stopped.erase(side)
 			var k := clampf((age - float(ac.tell)) / maxf(0.01, float(ac.travel)), 0.0, 1.0)
 			var reach_pt := eye + (hit - eye).limit_length(a.reach + 0.25)
 			return back.lerp(reach_pt, k)
 		_:
 			var k2 := clampf((age - float(ac.tell) - float(ac.travel)) / maxf(0.01, float(ac.back)), 0.0, 1.0)
-			var reach2 := eye + (hit - eye).limit_length(a.reach + 0.25)
+			var reach2: Vector3 = _stopped.get(side, eye + (hit - eye).limit_length(a.reach + 0.25))
 			return reach2.lerp(guard, k2)
 
 
@@ -817,6 +832,17 @@ func _on_event(e: Dictionary) -> void:
 			_say_once("gone", "His hands stop pulling at your arm.")
 		"surge":
 			main.audio.at("groan", _w3(sim.b.pos, 1.8), 0.7, 3.0, 0.55)
+		"crowd":
+			main.audio.at("block", _w3(sim.a.pos if e.by == me else sim.b.pos, 1.3), 0.3, 3.0, 0.8)
+			if e.by == me:
+				shake_v += Vector2(randf_range(-0.6, 0.6), 0.3)
+				_say_once("crowd_me", "Hands in your back. The old men shove you back into the light.")
+			else:
+				_say_once("crowd_him", "He backs into the ring of them and they shove him back at you.")
+		"wall":
+			main.audio.at("body_fall", _w3(sim.a.pos if e.by == me else sim.b.pos, 1.2), 0.35 + minf(0.4, float(e.force) * 0.3), 3.0, 1.3)
+			if e.by == me:
+				shake_v += Vector2(randf_range(-0.8, 0.8), 0.5)
 		"second_wind":
 			if e.by == me:
 				_say_once("wind", "From somewhere, the breath comes back.")
@@ -833,9 +859,9 @@ func _blow(e: Dictionary) -> void:
 	match res:
 		"clean":
 			hold = lerpf(HIT_STOP[0], HIT_STOP[1], clampf(f, 0.0, 1.0))
-			main.audio.at("slap" if randf() < 0.5 else "slap_2", at, 0.8 + f * 0.4, 2.0, lerpf(1.1, 0.7, clampf(f, 0.0, 1.0)))
-			if str(e.get("zone", "")) == "body":
-				main.audio.at("thump", at, 0.7, 2.0, 0.7)
+			# deep and short: more felt than heard (tools/fight_sounds.py)
+			var body_blow := str(e.get("zone", "")) == "body"
+			main.audio.at("punch_body" if body_blow else "punch", at, 0.5 + clampf(f, 0.0, 1.0) * 0.3, 2.0, lerpf(1.06, 0.84, clampf(f, 0.0, 1.0)) * randf_range(0.96, 1.04))
 			if on_me:
 				var dirx := 1.0 if str(e.hand) == "L" else -1.0
 				shake_v += Vector2(dirx * f * (3.5 if e.blow == "hook" else 1.2), (1.8 if e.blow == "upper" else -0.8) * f)
@@ -847,8 +873,19 @@ func _blow(e: Dictionary) -> void:
 				if f > 0.8 and str(e.zone) == "jaw":
 					main.audio.sfx("groan_2", 0.6, 0.8)
 		"blocked":
-			hold = 0.03
-			main.audio.at("thud_2", at, 0.6, 2.0, 1.2)
+			hold = 0.045
+			# the fist stops on what it met: his forearm, or yours
+			if not on_me:
+				var fg0: Figure = figures[0]
+				var near_h := "L" if str(e.hand) == "R" else "R"
+				var hw: Vector3 = fg0.hand_w.get(near_h, Vector3.ZERO)
+				if hw != Vector3.ZERO:
+					_stopped[str(e.hand)] = hw + (view.cam.global_position - hw).normalized() * 0.09
+			else:
+				var fist: Node3D = fist_l if str(e.hand) == "R" else fist_r
+				_stopped_him[str(e.hand)] = fist.global_position + (fist.global_position - view.cam.global_position).normalized() * 0.1
+				figures[0].hand_w[str(e.hand)] = _stopped_him[str(e.hand)]
+			main.audio.at("block", at, 0.45, 2.0, randf_range(0.92, 1.05))
 			if on_me:
 				shake_v += Vector2(0.0, -0.4 * f)
 			else:
@@ -1078,6 +1115,16 @@ func point_of(what: String) -> Vector3:
 		"my_mouth":
 			return view.cam.global_position + view.cam.global_transform.basis * Vector3(0, -0.15, -0.6)
 	return _w3(sim.b.pos, 1.2)
+
+
+# from the middle of a man to his skin, facing you, at a height: his head, or his chest and belly
+func _front(o: FightSim.Fighter, y: float) -> float:
+	var sc := fg_b_scale() if o == sim.b else 1.0
+	if y > o.height - 0.32:
+		return 0.11 * sc
+	if y < o.height * 0.62:
+		return o.depth * sc * 1.12
+	return o.depth * sc
 
 
 func fg_b_scale() -> float:

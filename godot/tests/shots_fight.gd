@@ -86,6 +86,14 @@ func _pick(id: String) -> void:
 			return
 
 
+func _mouse(down: bool, at: Vector2, f) -> void:
+	var mb := InputEventMouseButton.new()
+	mb.button_index = MOUSE_BUTTON_LEFT
+	mb.pressed = down
+	mb.position = at
+	f._input(mb)
+
+
 func _ox() -> void:
 	main.start_fight("ox", "rehearse", {"drinks": 0, "hurt": 0, "tension": 0, "clock": 1290})
 	var t0 := Time.get_ticks_msec()
@@ -101,8 +109,29 @@ func _ox() -> void:
 	_sim(0.3)
 	await _frames(3)
 	await _grab("ox_guard_up")
+	# by hand: a stroke of the mouse from below his chin up onto his jaw, as the player makes it,
+	# through _input and _stroke (the sim stepped by hand, so the paused flag is lifted for the input)
+	sim.a.pos = sim.b.pos + (sim.a.pos - sim.b.pos).normalized() * 0.95
+	_sim(0.05)
+	var jaw: Vector3 = main.view.on_screen(f._w3(sim.b.pos, sim.b.head_y() - 0.08))
+	var from := Vector2(jaw.x + 40, jaw.y + 260)
+	f.paused = false
+	_mouse(true, from, f)
+	for k in 6:
+		f.t += 0.016
+		var mm := InputEventMouseMotion.new()
+		mm.position = from.lerp(Vector2(jaw.x, jaw.y), (k + 1) / 6.0)
+		f._input(mm)
+	f.t += 0.016
+	_mouse(false, Vector2(jaw.x, jaw.y), f)
+	f.paused = true
+	print("  stroke: act %s" % [sim.a.act])
+	_sim(0.3)
+	await _frames(3)
+	await _grab("ox_by_hand")
+	_sim(0.8)
 	# a straight to the jaw: the tell, then the hit held
-	sim.a.pos = sim.b.pos + (sim.a.pos - sim.b.pos).normalized() * 1.0
+	sim.a.pos = sim.b.pos + (sim.a.pos - sim.b.pos).normalized() * 0.85
 	sim.strike(sim.a, "R", "straight", Vector2(0.0, sim.b.head_y() - 0.06), 1.0)
 	_sim(0.12)
 	await _frames(3)

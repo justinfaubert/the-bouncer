@@ -69,7 +69,7 @@ def fist(side):
     for p in parts:
         p.data.materials.clear()
         p.data.materials.append(skin)
-    bpy.ops.mesh.primitive_cone_add(radius1=0.058, radius2=0.048, depth=0.3, vertices=24, location=(0, -0.3, -0.012), rotation=(math.radians(-90), 0, 0))
+    bpy.ops.mesh.primitive_cone_add(radius1=0.06, radius2=0.047, depth=0.6, vertices=28, location=(0, -0.45, -0.012), rotation=(math.radians(-90), 0, 0))
     sl = bpy.context.active_object
     sl.scale = (1.15, 0.95, 1.0)
     sl.data.materials.append(sleeve)
