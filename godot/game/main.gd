@@ -1542,7 +1542,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _key(e: InputEventKey) -> void:
 	var k := e.physical_keycode
-	# his feet: W A S D walk him where he's free to walk, and turn his head where he isn't; Shift
+	# his feet: W A S D walk him where he's free to walk, and do nothing to his head anywhere; Shift
 	# hurries him and Alt leans (game/feet.gd)
 	if not e.echo and (k in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_SHIFT, KEY_ALT]) and not menus.is_open():
 		if feet.key(k, e.pressed) or k in [KEY_SHIFT, KEY_ALT]:
@@ -1551,9 +1551,8 @@ func _key(e: InputEventKey) -> void:
 	elif e.echo and k in [KEY_W, KEY_A, KEY_S, KEY_D] and feet.on():
 		get_viewport().set_input_as_handled()
 		return
-	# looking round: the arrow keys and the keys by the left hand (when his feet aren't using them)
-	var turn := {KEY_LEFT: Vector2(-1, 0), KEY_A: Vector2(-1, 0), KEY_RIGHT: Vector2(1, 0), KEY_D: Vector2(1, 0),
-		KEY_UP: Vector2(0, 1), KEY_W: Vector2(0, 1), KEY_DOWN: Vector2(0, -1), KEY_S: Vector2(0, -1)}
+	# looking round: the arrow keys only (Hutch, 23 Nov: W A S D never turn his head; they walk, or drive)
+	var turn := {KEY_LEFT: Vector2(-1, 0), KEY_RIGHT: Vector2(1, 0), KEY_UP: Vector2(0, 1), KEY_DOWN: Vector2(0, -1)}
 	if turn.has(k) and not menus.is_open():
 		var v: Vector2 = turn[k]
 		if e.pressed:

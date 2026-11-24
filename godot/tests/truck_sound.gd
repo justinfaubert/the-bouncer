@@ -60,10 +60,45 @@ func _init() -> void:
 	_check(peak < 1.0, "never clips hard (peak %.2f)" % peak)
 	_check(peak > 0.15, "loud enough to hear (peak %.2f)" % peak)
 	_check(quiet_run < 10, "never silent while it runs (%d silent frames)" % quiet_run)
+	_knocks()
 	_save(out, all)
 	print("  wrote %s, %.1f s" % [out, all.size() / TruckSound.RATE])
 	print("truck_sound: %s" % ("ok" if bad == 0 else "%d bad" % bad))
 	quit(1 if bad else 0)
+
+
+# a hit, alone: deep (most of it under 150 Hz), heard but well short of the soft knee's ceiling,
+# and gone inside a second
+func _knocks() -> void:
+	var snd := TruckSound.new()
+	snd._rng.seed = 7
+	for i in 8:
+		snd._cyl_jit.append(1.0)
+	snd.running = false
+	snd.speed = 0.0
+	snd.fill(2205)
+	snd.knock(1.0)
+	var b := snd.fill(int(TruckSound.RATE))
+	var peak := 0.0
+	var e := 0.0
+	var ehi := 0.0
+	var prev := 0.0
+	var tail := 0.0
+	for i in b.size():
+		var x: float = b[i].x
+		peak = maxf(peak, absf(x))
+		e += x * x
+		var d := x - prev     # the first difference leans on what's high
+		ehi += d * d
+		prev = x
+		if i > int(TruckSound.RATE * 0.85):
+			tail = maxf(tail, absf(x))
+	# for a sine at f the difference's energy is (2 sin(pi f / rate))^2 of the signal's
+	var f_eff := asin(sqrt(ehi / maxf(e, 1e-9)) / 2.0) * TruckSound.RATE / PI
+	_check(peak > 0.12 and peak < 0.6, "a hard hit is heard but not harsh (peak %.2f)" % peak)
+	_check(f_eff < 150.0, "it's deep: its weight sits low (about %.0f Hz)" % f_eff)
+	_check(tail < 0.02, "and it's gone inside a second (%.3f left)" % tail)
+	_save("/tmp/truck_knock.wav", b)
 
 
 func _check(ok: bool, what: String) -> void:

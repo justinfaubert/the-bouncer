@@ -148,11 +148,9 @@ func process(dt: float) -> void:
 	var view: View = main.view
 	var w := wish()
 	var m := mode()
-	# the keys turn his head when they can't walk him (and Alt's A and D lean him instead)
-	var look := Vector2.ZERO
-	if m == "look":
-		look = Vector2(w.x, w.y)
-	view.keys_feet = look
+	# where they can't walk him the keys do nothing to his head: looking is the mouse, the arrows
+	# and the stick (Alt's A and D still lean him)
+	view.keys_feet = Vector2.ZERO
 	_lean(dt, w.x if m == "lean" else 0.0)
 	if not view.walking:
 		_crossing = false
