@@ -22,6 +22,8 @@ var _neon_h: Label3D
 var _neon_light: OmniLight3D
 var _neon_t := 0.0
 var _clock_hands: Array = []      # [hour, minute]
+var _marks_node: Node3D
+var _back_hands: Array = []       # the hall clock's [hour, minute, second], going the other way
 
 
 func build(p: Pub) -> void:
@@ -38,6 +40,7 @@ func build(p: Pub) -> void:
 	add_child(washer)
 	washer.build(pub)
 	_hall()
+	_lived_in()
 	_outside_signs()
 	_lot_trash()
 	if pub.town != null:
@@ -53,7 +56,9 @@ const PAPER_GLOW := 0.07
 # eyes on it till it fills his sight (game/main.gd, _read_closer)
 const READ := {"poster_boors": 0.45, "poster_mildcat": 0.45, "calendar": 0.32, "poster_lochness": 0.38,
 	"labutt": 0.24, "corkboard": 0.42, "sign_reserve": 0.2, "sign_forget": 0.18, "beer_clock": 0.2,
-	"door_signs": 0.3, "esso_ads": 0.6}
+	"door_signs": 0.3, "esso_ads": 0.6, "poster_teeth": 0.36, "poster_cokanee": 0.34, "poster_hockey": 0.3,
+	"poster_zero": 0.22, "founder": 0.36, "painting_1952": 0.42, "velvet": 0.36, "scrawl": 0.5,
+	"hall_clock": 0.18, "table_tents": 0.1}
 
 
 func paper_mat(t: String) -> ShaderMaterial:
@@ -280,6 +285,10 @@ func set_clock(minutes: int) -> void:
 	var m := float((minutes + 7) % 1440)
 	(_clock_hands[0] as Node3D).rotation.z = -TAU * fmod(m / 60.0, 12.0) / 12.0
 	(_clock_hands[1] as Node3D).rotation.z = -TAU * fmod(m, 60.0) / 60.0
+	if _back_hands.size() == 3:
+		var b := float(minutes % 1440)
+		(_back_hands[0] as Node3D).rotation.z = TAU * fmod(b / 60.0, 12.0) / 12.0
+		(_back_hands[1] as Node3D).rotation.z = TAU * fmod(b, 60.0) / 60.0
 
 
 # The neon in the front window, BOORS LIGHT in blue, to the lot; the H in LIGHT going.
@@ -333,6 +342,8 @@ func _neon_word(s: String, at: Vector3, col: Color) -> Label3D:
 
 
 func _process(dt: float) -> void:
+	if _back_hands.size() == 3:
+		(_back_hands[2] as Node3D).rotation.z += TAU / 60.0 * dt
 	if _neon_h == null:
 		return
 	# the H: on, mostly; a stutter now and then, a few seconds dark once in a while
@@ -404,6 +415,321 @@ func _hall() -> void:
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		(mi as MeshInstance3D).layers = 1 << (Pub.HALL_LAYER - 1)
 	pub.anchors["wall_hole"] = at + Vector3(0, 0, -0.02)
+
+
+# ---------------------------------------------------------------- the second layer
+
+# What thirty years leave on a room that nobody decided on: four more ads in the gaps (ALEXANDER
+# TEETH'S, COKANEE, the hockey night with its wings gone up, a BOORS ZERO from a summer that hasn't
+# come), the Clam-a-Lot cards on the tables, the rings on the tables and the stain on the ceiling
+# and the brown over the big table, the heel marks by the door, stickers where people stood; and the
+# things nobody can account for: the founder with no face between the washroom doors, the painting
+# of this room in 1952 with a man in a door that wasn't there, Rocco's woman on velvet under a
+# blacklight, the hall clock that goes the other way, what's written on the hall wall, the diving
+# helmet on the jukebox with a lime in it.
+func _lived_in() -> void:
+	# the ads, in the gaps between everything else
+	paper(paper_mat("teeth"), 0.45, 0.675, Vector3(16.0, 1.5, 8.2), EAST, -1.1, 1)
+	pub.anchors["poster_teeth"] = Vector3(15.99, 1.5, 8.2)
+	paper(paper_mat("cokanee"), 0.42, 0.63, Vector3(13.25, 1.62, 10.0), FRONT, 1.7, 0)
+	pub.anchors["poster_cokanee"] = Vector3(13.25, 1.62, 9.99)
+	paper(paper_mat("hockey"), 0.36, 0.5, Vector3(14.1, 1.72, 0.0), BACKW, 2.3, 4)
+	pub.anchors["poster_hockey"] = Vector3(14.1, 1.72, 0.01)
+	var z := paper(paper_mat("zero"), 0.26, 0.364, Vector3(12.42, 1.58, 0.0), BACKW, -3.4, 2)
+	z.position += BACKW * 0.002
+	for c in [Vector2(-1, 1), Vector2(1, 1), Vector2(1, -1), Vector2(-1, -1)]:
+		# tape on its corners, gone brown
+		var t := pub.box(Vector3(0.04, 0.014, 0.001), z.to_global(Vector3(c.x * 0.12, c.y * 0.17, 0.003)), pub.mat(Color("9a7a3e"), 0.8, 0.0, 3), 0.0, self)
+		t.rotation = z.rotation + Vector3(0, 0, c.x * c.y * 0.7)
+		t.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	pub.anchors["poster_zero"] = Vector3(12.42, 1.58, 0.01)
+	_pool_on(Vector3(16.0, 1.5, 8.2), EAST, 0.36, 0.8)
+	_pool_on(Vector3(13.25, 1.62, 10.0), FRONT, 0.34, 0.7)
+	_pool_on(Vector3(14.1, 1.72, 0.0), BACKW, 0.3, 0.8)
+	_pictures()
+	_back_clock()
+	_scrawl()
+	_helmet()
+	_tents()
+	_marks()
+	_stickers()
+
+
+# A picture in a frame w x h at `at` on a wall facing `face`: the frame `fm`, `d` deep, the picture
+# itself flat in it (board or canvas, not paper), a breath of its own light `glow`. The node's
+# returned, its z toward the room.
+func _framed(t: String, w: float, h: float, at: Vector3, face: Vector3, fm: Material, d: float, glow: float, tilt: float) -> Node3D:
+	var n := Node3D.new()
+	n.transform = Transform3D(Basis.looking_at(-face, Vector3.UP) * Basis(Vector3(0, 0, 1), deg_to_rad(tilt)), at)
+	add_child(n)
+	var bw := 0.045
+	for s in [-1.0, 1.0]:
+		pub.box(Vector3(w + bw * 2.0, bw, d), Vector3(0, s * (h + bw) / 2.0, d / 2.0), fm, 0.0, n)
+		pub.box(Vector3(bw, h, d), Vector3(s * (w + bw) / 2.0, 0, d / 2.0), fm, 0.0, n)
+	# the backing, so the wall doesn't show round the picture's edge
+	pub.box(Vector3(w, h, 0.006), Vector3(0, 0, 0.004), pub.M.black, 0.0, n)
+	var m := pub.mat(Color(1, 1, 1), 0.7, 0.0, 3, Vector3.UP, 7.0, 0.3)
+	m.set_shader_parameter("albedo_tex", pub.tex("res://textures/dress_" + t + ".png"))
+	m.set_shader_parameter("emission", Color(1, 1, 1))
+	m.set_shader_parameter("emission_tex", pub.tex("res://textures/dress_" + t + ".png"))
+	m.set_shader_parameter("emission_energy", glow)
+	var q := MeshInstance3D.new()
+	var qm := QuadMesh.new()
+	qm.size = Vector2(w, h)
+	q.mesh = qm
+	q.position = Vector3(0, 0, 0.0085)
+	q.material_override = m
+	n.add_child(q)
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return n
+
+
+func _hall_layer(n: Node) -> void:
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).layers = 1 << (Pub.HALL_LAYER - 1)
+
+
+func _pictures() -> void:
+	var gilt := pub.mat(Color("8a6a2e"), 0.4, 0.75, 2, Vector3.UP, 5.0, 0.8)
+	# the founder, between the washroom doors, in the hall's tube light: the face a disc of black,
+	# domed and varnished, the hall in it
+	var hall_face := Vector3(0, 0, 1)
+	var f := _framed("founder", 0.46, 0.6, Vector3(8.6, 1.6, -1.16), hall_face, gilt, 0.05, 0.05, 0.8)
+	var disc := pub.ball(0.085, Vector3(0, 0.088, 0.024), pub.mat(Color("030304"), 0.12, 0.55, 3, Vector3.UP, 7.0, 0.0), f)
+	disc.scale = Vector3(1, 1, 0.22)
+	# the plate on the frame's foot
+	var plate := pub.box(Vector3(0.16, 0.035, 0.004), Vector3(0, -0.3 - 0.0225, 0.052), pub.mat(Color("b8923e"), 0.3, 0.85, 3), 0.0, f)
+	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var pl := Label3D.new()
+	pl.text = "R. H. SOVEREIGN\nPROPRIETOR · 1911 –"
+	pl.font_size = 22
+	pl.pixel_size = 0.0004
+	pl.modulate = Color("2a1e0e")
+	pl.outline_size = 0
+	pl.position = Vector3(0, -0.3225, 0.0545)
+	pl.alpha_cut = Label3D.ALPHA_CUT_DISCARD
+	pl.layers = 1 << (Pub.HALL_LAYER - 1)
+	f.add_child(pl)
+	_hall_layer(f)
+	pub.anchors["founder"] = Vector3(8.6, 1.6, -1.14)
+	# the painting of this room, over the drink rail on the back wall, dark wood, its own little
+	# brass lamp on an arm over it
+	var p := _framed("room1952", 0.72, 0.48, Vector3(7.95, 1.8, 0.0), BACKW, pub.M.frame, 0.04, 0.16, -0.6)
+	var arm := pub.box(Vector3(0.012, 0.012, 0.14), Vector3(0, 0.3, 0.07), gilt, 0.0, p)
+	arm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var hood := pub.cyl(0.02, 0.02, 0.26, Vector3(0, 0.29, 0.15), gilt, p, 10)
+	hood.rotation.z = PI / 2.0
+	hood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var pls := SpotLight3D.new()
+	pls.position = Vector3(7.95, 2.07, 0.17)
+	pls.rotation = Vector3(deg_to_rad(-62), 0, 0)
+	pls.light_color = Color("ffc070")
+	pls.light_energy = 0.22
+	pls.light_specular = 0.05
+	pls.spot_range = 0.8
+	pls.spot_angle = 52.0
+	pls.spot_attenuation = 1.4
+	add_child(pls)
+	pub.lamps.append(pls)
+	pub.anchors["painting_1952"] = Vector3(7.95, 1.8, 0.03)
+	# Rocco's woman on velvet, on the east wall under the news screen, a frame sprayed gold; the
+	# blacklight tube Gary put over her
+	var gold := pub.mat(Color("c8a040"), 0.35, 0.9, 2, Vector3.UP, 5.0, 0.6)
+	_framed("velvet", 0.42, 0.62, Vector3(16.0, 1.43, 4.0), EAST, gold, 0.035, 0.32, 1.3)
+	var tube := pub.box(Vector3(0.03, 0.03, 0.46), Vector3(15.95, 1.8, 4.0), pub.glow(Color("8a50ff"), 2.2))
+	tube.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var bl := OmniLight3D.new()
+	bl.position = Vector3(15.8, 1.6, 4.0)
+	bl.light_color = Color("7a48ff")
+	bl.light_energy = 0.35
+	bl.omni_range = 0.9
+	bl.omni_attenuation = 1.6
+	add_child(bl)
+	pub.anchors["velvet"] = Vector3(15.99, 1.43, 4.0)
+
+
+# The school clock over the hall: SOVEREIGN, TIME, GENTLEMEN, and its hands going the other way.
+func _back_clock() -> void:
+	var at := Vector3(11.5, 2.0, -0.2)
+	var n := Node3D.new()
+	n.transform = Transform3D(Basis.looking_at(Vector3(0, 0, 1), Vector3.UP), at)
+	add_child(n)
+	var rim := pub.cyl(0.165, 0.165, 0.05, Vector3(0, 0, 0.025), pub.M.black, n, 28)
+	rim.rotation.x = PI / 2.0
+	var face := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(0.3, 0.3)
+	face.mesh = q
+	face.position = Vector3(0, 0, 0.0515)
+	var fm := pub.mat(Color(1, 1, 1), 0.6, 0.0, 3, Vector3.UP, 7.0, 0.3)
+	fm.set_shader_parameter("albedo_tex", pub.tex("res://textures/dress_clock_back.png"))
+	fm.set_shader_parameter("alpha_scissor", 0.5)
+	fm.set_shader_parameter("emission", Color(1, 1, 1))
+	fm.set_shader_parameter("emission_tex", pub.tex("res://textures/dress_clock_back.png"))
+	fm.set_shader_parameter("emission_energy", 0.08)
+	face.material_override = fm
+	n.add_child(face)
+	for k in 3:
+		var hand := Node3D.new()
+		hand.position = Vector3(0, 0, 0.054 + k * 0.002)
+		n.add_child(hand)
+		var ln: float = [0.075, 0.115, 0.12][k]
+		pub.box(Vector3([0.007, 0.005, 0.002][k], ln, 0.0015), Vector3(0, ln / 2.0 - 0.015, 0), pub.M.black if k < 2 else pub.mat(Color("a8281e"), 0.6), 0.0, hand)
+		_back_hands.append(hand)
+	for mi in n.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_hall_layer(n)
+	pub.anchors["hall_clock"] = at + Vector3(0, 0, -0.06)
+	set_clock(1260)
+
+
+# On the hall wall by the phone, in pen and marker and key: what people write while they wait.
+func _scrawl() -> void:
+	var m := paper_mat("scrawl")
+	m.set_shader_parameter("lines", 0.0)
+	var s := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(1.4, 0.5)
+	s.mesh = q
+	s.transform = Transform3D(Basis.looking_at(Vector3(0, 0, 1), Vector3.UP), Vector3(12.9, 1.35, -0.203))
+	s.material_override = m
+	s.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	s.layers = 1 << (Pub.HALL_LAYER - 1)
+	add_child(s)
+	# the phone's own bulb, over the wall where they stand and write
+	_pool_on(Vector3(12.9, 1.35, -0.2), Vector3(0, 0, -1), 0.7, 0.9)
+	pub.anchors["scrawl"] = Vector3(12.9, 1.35, -0.22)
+
+
+# On top of the jukebox: a brass diving helmet, the old kind, green at its seams; in its front
+# window, half a lime.
+func _helmet() -> void:
+	var n := Node3D.new()
+	n.position = Vector3(13.22, 2.008, 0.2)
+	n.rotation.y = deg_to_rad(18)
+	add_child(n)
+	var brass := pub.mat(Color("a8823a"), 0.5, 0.8, 2, Vector3.UP, 5.0, 0.8)
+	var green := pub.mat(Color("4e7a5c"), 0.85, 0.1, 3)
+	pub.cyl(0.15, 0.17, 0.05, Vector3(0, 0.025, 0), brass, n, 18)         # the breastplate's collar
+	pub.cyl(0.152, 0.152, 0.012, Vector3(0, 0.05, 0), green, n, 18)
+	var dome := pub.ball(0.15, Vector3(0, 0.2, 0), brass, n)
+	dome.scale = Vector3(1, 1.05, 1)
+	for k in 10:
+		var a := TAU * k / 10.0
+		pub.ball(0.009, Vector3(cos(a) * 0.168, 0.035, sin(a) * 0.168), brass, n)
+	# the windows: front and the two sides, each a ring with its glass gone dark; the front's has
+	# the lime
+	for w in [[Vector3(0, 0.2, 1), 0.06], [Vector3(1, 0.21, 0.15), 0.045], [Vector3(-1, 0.21, 0.15), 0.045]]:
+		var dir: Vector3 = Vector3(w[0].x, 0, w[0].z).normalized()
+		var c: Vector3 = Vector3(0, w[0].y, 0) + dir * 0.135
+		var r: float = w[1]
+		var ring := pub.cyl(r + 0.012, r + 0.012, 0.03, c, brass, n, 16)
+		ring.transform.basis = Basis.looking_at(dir, Vector3.UP) * Basis(Vector3(1, 0, 0), PI / 2.0)
+		var glass := pub.cyl(r, r, 0.032, c + dir * 0.002, pub.mat(Color("0c0e0d"), 0.08, 0.3, 3, Vector3.UP, 7.0, 0.0), n, 16)
+		glass.transform.basis = Basis.looking_at(dir, Vector3.UP) * Basis(Vector3(1, 0, 0), PI / 2.0)
+		if r > 0.05:
+			var lime := pub.ball(0.034, c + dir * 0.004, pub.mat(Color("3f7a22"), 0.6, 0.0, 3), n)
+			lime.scale = Vector3(1, 1, 0.45)
+			lime.transform.basis = Basis.looking_at(dir, Vector3.UP) * Basis.from_scale(Vector3(1, 1, 0.45))
+			var flesh := pub.cyl(0.03, 0.03, 0.003, c + dir * 0.019, pub.mat(Color("8fae4a"), 0.6, 0.0, 3), n, 14)
+			flesh.transform.basis = Basis.looking_at(dir, Vector3.UP) * Basis(Vector3(1, 0, 0), PI / 2.0)
+			# its bars
+			for b in [-1.0, 1.0]:
+				var bar := pub.box(Vector3(0.006, r * 2.0, 0.006), c + dir * 0.02 + Vector3(0, 0, 0) + Basis.looking_at(dir, Vector3.UP) * Vector3(b * 0.02, 0, 0), brass, 0.0, n)
+				bar.transform.basis = Basis.looking_at(dir, Vector3.UP)
+	# the air fitting at the back, and the green coming out of every seam
+	var nip := pub.cyl(0.02, 0.025, 0.06, Vector3(0, 0.25, -0.15), brass, n, 10)
+	nip.rotation.x = -PI / 3.0
+	for k in 6:
+		var a := TAU * k / 6.0 + 0.3
+		pub.box(Vector3(0.025, 0.006, 0.006), Vector3(cos(a) * 0.15, 0.055, sin(a) * 0.15), green, -a, n)
+	pub.anchors["helmet"] = n.position + Vector3(0, 0.2, 0.15)
+
+
+# The Clam-a-Lot cards, folded over on the four tables, one corner each; on the turn of the night
+# somebody's always moved one.
+func _tents() -> void:
+	var a := paper_mat("clam_a")
+	var b := paper_mat("clam_b")
+	var k := 0
+	for t in Pub.TABLES:
+		var yaw := rng.randf_range(0, TAU)
+		var c: Vector3 = t + Vector3(0.24 * (1 if k % 2 == 0 else -1), 0.78, -0.22 * (1 if k < 2 else -1))
+		var out := Vector3(cos(yaw), 0, sin(yaw))
+		var lean := deg_to_rad(18)
+		for side in [[a, 1.0], [b, -1.0]]:
+			var f: Vector3 = out * float(side[1])
+			var face := Vector3(f.x * cos(lean), sin(lean), f.z * cos(lean))
+			var at := c + f * 0.016 + Vector3(0, 0.048, 0)
+			var mi := paper(side[0], 0.14, 0.1, at, face, 0.0, 0)
+			mi.position -= face * 0.004
+		k += 1
+	pub.anchors["table_tents"] = Pub.TABLES[0] + Vector3(0.24, 0.84, -0.22)
+
+
+# The marks: rings on the tables, a water stain on the ceiling, the brown over the big table, heel
+# scuffs where the door's crowd stands. Soft-edged, laid a hair off what they're on.
+func _mark_mat(t: String, a: float) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = pub.tex("res://textures/dress_" + t + ".png")
+	m.albedo_color = Color(1, 1, 1, a)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.roughness = 0.9
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+	return m
+
+
+# the same, for a mark up where no lamp reaches: a breath of its own, so the shape holds in the dark
+func _mark_glow(t: String, a: float, e: float) -> StandardMaterial3D:
+	var m := _mark_mat(t, a)
+	m.emission_enabled = true
+	m.emission_texture = m.albedo_texture
+	m.emission = Color(1, 1, 1)
+	m.emission_energy_multiplier = e
+	return m
+
+
+func _flat(m: Material, size: Vector2, at: Vector3, up: bool, yaw: float) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := PlaneMesh.new()
+	q.size = size
+	q.flip_faces = not up
+	mi.mesh = q
+	mi.position = at
+	mi.rotation.y = yaw
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_marks_node.add_child(mi)
+	return mi
+
+
+func _marks() -> void:
+	# their own node: laid flat over everything, they're meant to be in it (the pendant's cord goes
+	# through the brown on the ceiling)
+	_marks_node = Node3D.new()
+	_marks_node.name = "marks"
+	add_child(_marks_node)
+	var rings := _mark_mat("rings", 0.75)
+	for t in Pub.TABLES + [Pub.T28]:
+		for i in rng.randi_range(1, 3):
+			_flat(rings, Vector2(0.16, 0.16), t + Vector3(rng.randf_range(-0.3, 0.3), 0.7815 + i * 0.0004, rng.randf_range(-0.3, 0.3)), true, rng.randf_range(0, TAU))
+	_flat(_mark_glow("stain", 0.9, 0.35), Vector2(1.6, 1.6), Vector3(6.6, 3.196, 5.9), false, 0.4)
+	_flat(_mark_glow("nicotine", 0.85, 0.2), Vector2(2.6, 2.2), Vector3(9.4, 3.197, 8.1), false, 1.1)
+	_flat(_mark_mat("scuffs", 0.7), Vector2(1.4, 0.9), Vector3(3.4, 0.008, 8.6), true, 0.2)
+	pub.anchors["ceiling_stain"] = Vector3(6.6, 3.15, 5.9)
+
+
+# The stickers, where people stand and wait: by the phone, on the washroom fronts, by the corkboard.
+func _stickers() -> void:
+	var spots := [[0, Vector3(14.0, 1.05, -0.2), Vector3(0, 0, -1), true],
+		[2, Vector3(9.15, 1.15, -1.16), Vector3(0, 0, 1), true],
+		[3, Vector3(10.35, 1.42, -1.16), Vector3(0, 0, 1), true],
+		[1, Vector3(5.62, 1.22, 0.0), BACKW, false]]
+	for s in spots:
+		var mi := paper(paper_mat("stk_%d" % s[0]), 0.105, 0.082, s[1], s[2], rng.randf_range(-14, 14), 0)
+		if s[3]:
+			mi.layers = 1 << (Pub.HALL_LAYER - 1)
 
 
 # ---------------------------------------------------------------- outside

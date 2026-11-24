@@ -50,7 +50,7 @@ func _run() -> void:
 	# nothing in anything
 	var mine: Array = []
 	for mi in d.find_children("*", "MeshInstance3D", true, false):
-		if (mi as Node).get_parent().name == "belt" or "trash" in str((mi as Node).get_path()) or "esso" in str((mi as Node).get_path()):
+		if (mi as Node).get_parent().name == "belt" or "trash" in str((mi as Node).get_path()) or "marks" in str((mi as Node).get_path()) or "esso" in str((mi as Node).get_path()):
 			continue
 		mine.append(mi)
 	var others: Array = []

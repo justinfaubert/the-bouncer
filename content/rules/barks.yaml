@@ -616,6 +616,36 @@
   speaker: kid
   text: You just turned off the only thing in here that was working.
 
+- id: look_founder
+  on: toy:founder:look
+  speaker: kid
+  text: is that the owner. gary said the owner was a numbered company
+
+- id: look_painting_1952
+  on: toy:painting_1952:look
+  speaker: father
+  text: Your mother bought a painting off a man in Courtenay once. A lighthouse. She said the keeper was in the window. I never saw him. She did, every time.
+
+- id: look_velvet
+  on: toy:velvet:look
+  speaker: manual
+  text: "Section 4.6, Premises: Artwork depicting nudity must not be visible from the street."
+
+- id: look_velvet_senior
+  on: toy:velvet:look
+  speaker: senior
+  text: Paid forty dollars for one of his in 1979. Rocco's other one was a tiger. I should have bought the tiger.
+
+- id: look_helmet
+  on: toy:helmet:look
+  speaker: wrongman
+  text: The drunk said his uncle went down in it off Quadra Island. Then he said it was a different helmet. Then he said it was his uncle's.
+
+- id: look_poster_zero
+  on: toy:poster_zero:look
+  speaker: fighter
+  text: Five years till that summer. Count the punches you've got left in you. Fewer than that.
+
 - id: look_wall_hole
   on: toy:wall_hole:look
   speaker: fighter

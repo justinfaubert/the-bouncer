@@ -59,6 +59,18 @@ wall_hole: {name: The hole in the wall., at: a:wall_hole, from: [hall]}
 door_signs: {name: The signs by the door., at: a:door_signs, from: [lot]}
 lot_trash: {name: The butts round the step., at: a:lot_trash, from: [lot]}
 esso_ads: {name: The ads in the window., at: a:esso_ads, from: [esso]}
+poster_teeth: {name: The Alexander Teeth's poster., at: a:poster_teeth, from: [room]}
+poster_cokanee: {name: The Cokanee poster., at: a:poster_cokanee, from: [room]}
+poster_hockey: {name: The hockey night poster., at: a:poster_hockey, from: [pool, t28]}
+poster_zero: {name: The little poster by the jukebox., at: a:poster_zero, from: [room]}
+painting_1952: {name: The painting over the rail., at: a:painting_1952, from: [room]}
+velvet: {name: The velvet painting., at: a:velvet, from: [pool, bar, door, t28]}
+helmet: {name: The helmet on the jukebox., at: a:helmet, from: [bar, door, t28]}
+table_tents: {name: The card on the table., at: a:table_tents, from: [room]}
+ceiling_stain: {name: The stain on the ceiling., at: a:ceiling_stain, from: [bar, door, t28]}
+founder: {name: The portrait in the hall., at: a:founder, from: [hall]}
+hall_clock: {name: The hall clock., at: a:hall_clock, from: [hall]}
+scrawl: {name: The writing on the wall., at: a:scrawl, from: [hall]}
 
 # ---------------------------------------------------------------- by the door
 tape: {name: The tape on the frame., at: a:tape}
