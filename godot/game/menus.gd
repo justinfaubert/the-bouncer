@@ -211,25 +211,26 @@ func _stamp(t: Label) -> void:
 			rest.append(c)
 			c.modulate.a = 0.0
 	t.modulate.a = 0.0
-	await get_tree().process_frame
-	t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
 	t.scale = Vector2(1.18, 1.18)
-	var tw := create_tween()
+	# every tween hangs off the node it moves, so a title rebuilt mid-stamp (back to the menu twice
+	# quickly) takes its tweens with it instead of leaving them on freed labels
+	var tw := t.create_tween()
 	tw.tween_interval(0.25)
 	tw.tween_callback(func():
+		t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
 		main.audio.sfx("stamp", 1.0, 0.62)
 		main.audio.sfx("thump", 0.7, 0.5))
 	tw.set_parallel()
 	tw.tween_property(t, "modulate:a", 1.0, 0.06).set_delay(0.25)
 	tw.tween_property(t, "scale", Vector2.ONE, 0.09).set_delay(0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	# the jolt: the paper takes the block
-	var jolt := create_tween()
+	var jolt := t.create_tween()
 	jolt.tween_interval(0.34)
 	jolt.tween_property(sheet, "position:y", 5.0, 0.04)
 	jolt.tween_property(sheet, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var i := 0
 	for c in rest:
-		var ct := create_tween()
+		var ct: Tween = (c as Node).create_tween()
 		ct.tween_interval(0.75 + 0.07 * i)
 		ct.tween_property(c, "modulate:a", 1.0, 0.45)
 		i += 1

@@ -379,6 +379,14 @@ Update this file at the end of every session: add a session entry, move items be
 - Settings > Looking: "The keys walk him" and "The whole screen while he walks", both on by default.
 - Checks: `tests/feet.gd` (real key presses, pictures with --out). The bots reached 303 of 304 knots and stitches in 400 runs.
 - Next: walk and talk, so a scene stops freezing his feet; then the building deeper (stairs, his room, the roof, the keg room on foot).
+### 2026-11-23 (Monday), the cold open's second pass, and the crash back to the title
+
+- Hutch, after the 23 November build: "the intro is decent but needs more", and "the game crashes when you try to go back to the main menu."
+- The crash: the title's stamp (`game/menus.gd`, `_stamp`) waited a frame before setting LAST CALL's pivot, and when the title was rebuilt in that frame the label it was holding was gone; under the Vulkan renderer that was a hard crash. The stamp no longer waits, and every tween in it hangs off the node it moves, so a rebuilt title takes them with it. The wall writing in the cold open does the same. Checked with five rounds of start a night, back to the title, under the real renderer.
+- A score, played on the cigarette machine's own synth (`game/cig_synth.gd`, a second one of it): a pad under the teller (a low fifth, the minor third, leaning on the sixth, opening out unsettled), strings and a hum as the Listener comes up, swelling with it, bells far apart while it listens, then nothing at all the moment we go through it, so the jukebox in the room is all there is. Under the plates, a bass note on every cut, a step down each time from D. The last line gets a music box. The title gets the whole chord, and a bass note under the stamp. (PROPOSED.)
+- Two new plates (eight now, about 84 seconds in all). The women's stall door from `content/ink/hall.ink`, under a failing tube: DEAN R. MARRIED. CURTIS W. LIAR. BRENT S. HITS. TODD P. CRIES AFTER. WADE L. NICE BUT BROKE. A beat, then, bigger and in red, NEW DOORMAN? The other is the cigarette machine in the bar, its tube flickering, playing the score's chord broken up on its organ, each window lighting with its note: "The cigarette machine had been unplugged since the smoking ban. Some nights it played anyway." So the music was coming from the machine.
+- The teller's cards are set a word at a time rather than faded in.
+
 ### 2026-11-22 (Sunday), the cold open, and cuts that print
 
 - Hutch: "We need a proper intro that is stylish and provocative, right now its the kid at the door. We have to guide the player into our dream", and "moments and transitions that are of immaculate cinematography."
