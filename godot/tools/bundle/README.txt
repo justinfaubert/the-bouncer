@@ -85,6 +85,25 @@ from the floor rather than from the middle of a scene, and some of it won't line
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
 
 
+THE TRUCK, AFTER ITS SECOND DRIVE
+
+- Q is the door. Stopped, he puts it in P and steps out, and can walk round it (W A S D, Shift to
+  hurry) and get back in at the driver's door with Q or E. Moving, Q is a bail: under a walking
+  pace he stumbles; faster it hurts, more the faster, and the truck goes on without him with the
+  door open and rolls to a stop. The dome lamp comes on with the door, and the key buzzer goes if
+  the engine's running. A pad: B is the door.
+- The hiss is gone: the tires are a low rush now and the rain on the roof is quieter. The engine
+  sits lower: deeper pipes, a bigger muffler, less rasp.
+- The dash is a '78's: a wide speedometer in km/h with miles inside, lit green with the lamps on,
+  fuel and temperature in their own pods, PRND21 along its foot, woodgrain across the face, a
+  push-button AM radio, the heater's levers, the glovebox, the headlamp knob that pulls out, a
+  two-spoke wheel with a broad horn pad, the key in the column with its fob swinging, and on the
+  pad a sun-faded bill of sale.
+- The keys steer less the faster you go, the way your hands would: a tap at highway speed is a
+  lane change, at a crawl they still find full lock. His head moves with the truck (braking,
+  turning) and the road comes up through the seat.
+
+
 THE TRUCK, AFTER ITS FIRST DRIVE
 
 - W A S D never turn his head now, anywhere. In the truck no key looks round at all: the mouse

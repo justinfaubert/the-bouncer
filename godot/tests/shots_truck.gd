@@ -5,7 +5,7 @@ extends SceneTree
 # so it's moving): the motel, the bluff, the fish plant, the mill road, the washout; the church, the
 # fruit stand, the cut, the ferry sign, the bridge that's out. Needs a display:
 #   xvfb-run -a -s "-screen 0 1600x900x24" godot --rendering-driver vulkan --resolution 1600x900 \
-#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel|model] [--drinks 0]
+#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel|model|dash] [--drinks 0]
 
 var main
 var out := "/tmp/truck"
@@ -48,6 +48,30 @@ func _run() -> void:
 	await _frames(20)
 	var tr: Truck = main.truck
 	main.keys.hide_card()
+	if only == "dash":
+		tr._key()
+		await create_timer(1.6).timeout
+		tr.lights = 1
+		tr._lights()
+		for v in [["cab", 0.0, -0.08], ["the_dash", 0.0, -0.42], ["the_radio", -0.55, -0.4], ["the_bill", -0.75, -0.2], ["out_the_door", 1.3, -0.15]]:
+			main.view.want_yaw = v[1]
+			main.view.want_pitch = v[2]
+			main.view.yaw = v[1]
+			main.view.pitch = v[2]
+			await _frames(25)
+			await _grab("dash_" + str(v[0]))
+		main.view.want_yaw = 0.0
+		main.view.yaw = 0.0
+		tr._door()
+		await _frames(20)
+		main.view.yaw = tr.sim.yaw() - 2.6
+		main.view.want_yaw = main.view.yaw
+		main.view.pitch = -0.2
+		main.view.want_pitch = -0.2
+		await _frames(30)
+		await _grab("out_by_the_door")
+		quit()
+		return
 	if only == "model":
 		# round the truck in the lot, lights on, close enough to see what it is
 		tr._key()

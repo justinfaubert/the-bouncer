@@ -23,6 +23,7 @@ func _init() -> void:
 	s.place(Truck.PARK_AT, PI)
 	s.selector = "D"
 	s.running = true
+	s.keys_cap = false     # the lane keeper works the wheel itself, to the degree
 	print("  the road: %.0f m north of the Sov's door, %.0f m south" % [road.length_n(), road.length_s()])
 	_out_of_the_lot()
 	_drive(1.0, IslandRoad.WASHOUT, "north to the washout")

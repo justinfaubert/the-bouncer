@@ -11,7 +11,8 @@
 #                panel's own drone at about 45 Hz
 #   the road     tire hiss on the wet, rising with speed; the gravel's crunch; the wind round the
 #                mirrors and the drip rails
-#   the rest     the horn (two notes, a slow attack), a deep thud when it hits something, the starter
+#   the rest     the horn (two notes, a slow attack), a deep thud when it hits something, the starter,
+#                the key-in buzzer with the door open
 #
 # One AudioStreamGenerator at 22 050 Hz, filled each frame.
 class_name TruckSound
@@ -33,6 +34,7 @@ var wet := true
 var running := true
 var cranking := 0.0             # seconds of starter left
 var horn := false
+var buzzer := false              # the key-in buzzer, door open with it running
 var volume := 0.8
 var outside := false            # heard from out of the cab (the outside view): brighter, no cab boom
 
@@ -51,6 +53,9 @@ var _intake := 0.0
 var _tick_ph := 0.0
 var _horn_ph := [0.0, 0.0]
 var _horn_env := 0.0
+var _buzz_ph := 0.0
+var _buzz_t := 0.0
+var _buzz_lp := 0.0
 var _knock := 0.0
 var _knock_ph := 0.0
 var _knock_body := 0.0          # the thud's phase
@@ -120,9 +125,9 @@ func fill(n: int) -> PackedVector2Array:
 	var spd := absf(speed)
 	var gravel := surface == TruckSim.Surf.GRAVEL or surface == TruckSim.Surf.SAND
 	var puddle := surface == TruckSim.Surf.PUDDLE
-	var hiss_amt := clampf(spd / 30.0, 0.0, 1.0) * (0.5 if wet else 0.18) * (1.6 if puddle else 1.0)
+	var hiss_amt := clampf(spd / 30.0, 0.0, 1.0) * (0.12 if wet else 0.05) * (1.8 if puddle else 1.0)
 	var crunch := clampf(spd / 10.0, 0.0, 1.0) * (0.55 if gravel else 0.0)
-	var wind_amt := clampf(spd * spd / 1600.0, 0.0, 1.0) * 0.35
+	var wind_amt := clampf(spd * spd / 1600.0, 0.0, 1.0) * 0.16
 	var vol := volume
 	var buf := PackedVector2Array()
 	buf.resize(n)
@@ -153,36 +158,36 @@ func fill(n: int) -> PackedVector2Array:
 				# the pulse: a short burst, a couple of milliseconds
 				if float(_bank[b][0]) > 0.0:
 					var pulse: float = _bank[b][1] * (float(_bank[b][0]) * 2.0 - 1.0 if float(_bank[b][0]) > 0.5 else float(_bank[b][0]) * 2.0)
-					ex[b] = pulse + _rng.randf_range(-0.15, 0.15) * float(_bank[b][1]) * float(_bank[b][0])
-					_bank[b][0] = maxf(0.0, float(_bank[b][0]) - 1.0 / (RATE * 0.0028))
+					ex[b] = pulse + _rng.randf_range(-0.06, 0.06) * float(_bank[b][1]) * float(_bank[b][0])
+					_bank[b][0] = maxf(0.0, float(_bank[b][0]) - 1.0 / (RATE * 0.0042))
 		# each bank's pipe and the muffler: the resonances move a little with load
-		var pf := 92.0 + 18.0 * load + _rpm_s * 0.004
+		var pf := 62.0 + 12.0 * load + _rpm_s * 0.003
 		var l := _res(ex[0], _pipe[0], pf, 3.2)
 		var r := _res(ex[1], _pipe[1], pf * 1.06, 3.2)
 		var mono := (l + r) * 0.5
-		var muff := _res(mono, _box, 310.0, 1.6)
-		var eng: float = mono * 1.4 + muff * 0.8 + (float(ex[0]) + float(ex[1])) * 0.08
+		var muff := _res(mono, _box, 175.0, 1.5)
+		var eng: float = mono * 1.6 + muff * 0.7 + (float(ex[0]) + float(ex[1])) * 0.03
 		# the intake: breath under the throttle, filtered noise
 		_intake += (_rng.randf_range(-1.0, 1.0) - _intake) * (0.05 + 0.25 * load)
-		eng += _intake * load * clampf(_rpm_s / 3500.0, 0.0, 1.0) * 0.18
+		eng += _intake * load * clampf(_rpm_s / 3500.0, 0.0, 1.0) * 0.08
 		# the valves on the cam: a tick at the cam's speed times eight, faint
 		_tick_ph = fmod(_tick_ph + _rpm_s / 60.0 / 2.0 * 8.0 / RATE, 1.0)
 		if on and _tick_ph < 0.004:
-			eng += 0.05 * _rng.randf_range(0.5, 1.0)
+			eng += 0.025 * _rng.randf_range(0.5, 1.0)
 		# through the cab: low pass and the panel's boom
-		var cut := 0.08 if not outside else 0.25
+		var cut := 0.055 if not outside else 0.18
 		_lp += (eng - _lp) * cut
 		_lp2 += (_lp - _lp2) * cut
 		var cab := _lp2 * 1.6
 		if not outside:
 			cab += _res(_lp2, _cab, 45.0 + _rpm_s * 0.002, 4.0) * 1.2
 		else:
-			cab = eng * 0.6 + _lp2
+			cab = eng * 0.4 + _lp2 * 1.2
 		# the road: hiss, crunch, wind
 		var w := _rng.randf_range(-1.0, 1.0)
-		_hiss[0] += (w - _hiss[0]) * 0.55
-		_hiss[1] += (_hiss[0] - _hiss[1]) * 0.3
-		var road: float = (float(_hiss[0]) - float(_hiss[1])) * hiss_amt
+		_hiss[0] += (w - _hiss[0]) * 0.07
+		_hiss[1] += (_hiss[0] - _hiss[1]) * 0.07
+		var road: float = float(_hiss[1]) * 2.2 * hiss_amt    # a dark rush, not a bright hiss
 		if crunch > 0.0 and _rng.randf() < 0.004 * crunch * 10.0:
 			_knock_ph = 0.0
 			road += _rng.randf_range(0.2, 0.5) * crunch
@@ -195,6 +200,15 @@ func fill(n: int) -> PackedVector2Array:
 			_horn_ph[0] = fmod(_horn_ph[0] + 392.0 / RATE, 1.0)
 			_horn_ph[1] = fmod(_horn_ph[1] + 494.0 / RATE, 1.0)
 			hv = ((1.0 if _horn_ph[0] < 0.5 else -1.0) + (1.0 if _horn_ph[1] < 0.42 else -1.0)) * 0.12 * _horn_env
+		# the buzzer: a dull rasp, on and off twice a second, from under the dash
+		var bz := 0.0
+		if buzzer:
+			_buzz_t += 1.0 / RATE
+			_buzz_ph = fmod(_buzz_ph + 180.0 / RATE, 1.0)
+			var on_off := 1.0 if fmod(_buzz_t, 0.5) < 0.3 else 0.0
+			_buzz_lp += ((1.0 if _buzz_ph < 0.5 else -1.0) * on_off - _buzz_lp) * 0.15
+			bz = _buzz_lp * 0.05
+		hv += bz
 		# a knock: a deep thud that falls in pitch (70 Hz down to 36), a little dull noise for the
 		# crumple, the cab's low ring under it; quiet enough to stay clear of the soft knee
 		var kv := 0.0
@@ -209,13 +223,13 @@ func fill(n: int) -> PackedVector2Array:
 			kv = _knock * 0.16 * (env * (sin(TAU * _knock_body) + float(_knock_lp[1]) * 1.6) + ring)
 			if kt > 0.9:
 				_knock = 0.0
-		var s: float = (cab * 0.55 + road * 0.5 + hv + kv) * vol
+		var s: float = (cab * 1.0 + road * 0.5 + hv * 0.6 + kv * 1.6) * vol
 		# a DC blocker, then a soft knee rather than a hard clip
 		var hp: float = s - float(_dc[0]) + 0.995 * float(_dc[1])
 		_dc[0] = s
 		_dc[1] = hp
-		var sl := tanh((hp + l * 0.05 * vol) * 5.5) * 0.8
-		var sr := tanh((hp + r * 0.05 * vol) * 5.5) * 0.8
+		var sl := tanh((hp + l * 0.05 * vol) * 2.6) * 0.85
+		var sr := tanh((hp + r * 0.05 * vol) * 2.6) * 0.85
 		buf[k] = Vector2(sl, sr)
 	if cranking > 0.0:
 		cranking = maxf(0.0, cranking - float(n) / RATE)
