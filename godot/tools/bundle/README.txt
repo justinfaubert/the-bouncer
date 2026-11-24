@@ -1,5 +1,5 @@
 LAST CALL
-Everything so far in one build, 23 November 2026: the cold open, Wednesday, Thursday and Friday,
+Everything so far in one build, 24 November 2026: the cold open, Wednesday, Thursday and Friday,
 the door by hand, walking on his own feet and out round the grounds at night, darts with their
 fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
 the page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant,
@@ -97,6 +97,31 @@ THE TRUCK, AFTER ITS FIRST DRIVE
   and tailpipe. Inside: a padded dash, the radio, door panels with the crank and armrest, sun
   visors, the mirror, and a cardboard pine hanging from it that swings when you brake or turn.
 - C's outside view sits closer behind the truck.
+
+
+WHAT'S NEW IN THE BUILD OF 24 NOVEMBER
+
+The fixes from your play of the 23rd, all together.
+
+- No more crash going back to the title (from the pause menu, the games or the truck).
+- Nights on the title: each of the three saves can start on Wednesday, Thursday or Friday.
+- He has to be there: while he's walking somewhere, the next choices wait, faint, till he
+  arrives. A choice about someone across the room is faint too; pick it and he walks over and
+  then does it. Out round the back of the lot, the bar's choices wait for him out front.
+  Settings > The page > Choose ahead turns the waiting off.
+- W A S D never turn his head anywhere. In the truck no key looks; the wheel turns the right
+  way round its column; a hit is one deep thud; the truck has a real body inside and out.
+- Pool: the balls show their numbers, an eight-foot table, the other man's cue stays above the
+  cloth, smoother aim, the table's own sounds.
+- The cigarette machine's front always shuts (Esc first, or a click off the board). The wine
+  glasses snap to the nearest glass, the hand stays level, any movement rubs; W wets.
+- Fights: nobody passes through anybody, fists stop on skin, the blows sound deep and short.
+- The posters and ads: looking at one narrows his eyes on it, the ones away from a lamp have a
+  small warm light of their own, and the paper never prints solid black.
+- The writing: the "X was the Y. X was always the Y." echoes cleared across all three days and
+  the toys, about sixty lines; Jim's last leftover "she"s.
+- The cold open has a score on the cigarette machine's synth and two new plates.
+- Settings keep their place when you flip one; How it plays explains where he is and the saves.
 
 
 WHAT'S NEW IN THE SECOND BUILD OF 23 NOVEMBER
