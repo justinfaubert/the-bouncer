@@ -21,9 +21,10 @@ const DEFAULTS := {
 	"sway": true,         # drunk, the view sways (off for anyone it makes queasy)
 	"grain": 1.0,         # how coarse the print's grain is
 	"print": 1.0,         # the print's strokes: 1 cut, 0 a flat wash of ink (easier on the eyes)
-	"look": "0",          # the style of print, on trial (look/press.gdshader style): 0 as it is, 1 clean cut,
+	"look": "7",          # how the night is shown (look/press.gdshader style; menus.gd LOOK_FAMILIES): 7 night stock; 0 the press, 1 clean cut,
 	                      # 2 the black plate, 3 painted, 4 pulp halftone, 5 to 12 film and lenses (round two). F8 goes round them, Shift+F8 the bloom
-	"halo": false,        # the bulbs' halation, on trial
+	"halo": false,        # the bulbs' halation on the print looks
+	"film_grain": 1.0, "film_halation": 1.0, "film_glow": 1.0, "film_vignette": 1.0,   # the film looks' dials
 	"sound": true,
 	"master": 0.8, "amb": 0.6, "sfx": 0.8, "music": 0.6, "voice": 0.9,
 	"look_speed": 1.0,    # turning his head with the mouse
@@ -31,7 +32,7 @@ const DEFAULTS := {
 	"fov": 70.0,          # wider than it was (58): the room has air round it
 	"keys_walk": true,
 	"wide_walk": true,    # the picture takes the whole screen while he walks, the page slides back when he stops    # W A S D walk him (game/feet.gd); off, they turn his head
-	"settings_v": 2,
+	"settings_v": 3,
 	"fullscreen": false,
 	"render": 1.0,        # the share of the screen's pixels the world is drawn at
 	"slot": 1,            # the night last played
@@ -56,6 +57,10 @@ func _init() -> void:
 		if int(got.get("settings_v", 1)) < 2:
 			if absf(float(got.get("fov", 58.0)) - 58.0) < 0.5:
 				settings["fov"] = DEFAULTS["fov"]
+			settings["settings_v"] = DEFAULTS["settings_v"]
+		# settings from before night stock: the night is shown on film now, whatever was tried on F8
+		if int(got.get("settings_v", 1)) < 3:
+			settings["look"] = DEFAULTS["look"]
 			settings["settings_v"] = DEFAULTS["settings_v"]
 
 

@@ -1394,7 +1394,7 @@ func _on_world_input(e: InputEvent) -> void:
 
 
 # the looks on trial (look/press.gdshader style): F8 goes round them anywhere, Shift+F8 the bulbs' bloom
-const LOOKS := ["As it is", "Clean cut", "Black plate", "Painted", "Pulp", "Painted, oil", "Painted, thin",
+const LOOKS := ["The press", "Clean cut", "Black plate", "Painted", "Pulp", "Painted, oil", "Painted, thin",
 	"Night stock", "Super 8", "Bodycam", "The bar's camera", "Anamorphic", "Painted on night stock"]
 
 
@@ -1403,7 +1403,7 @@ func _input(e: InputEvent) -> void:
 		if e.shift_pressed:
 			settings["halo"] = not settings.get("halo", false)
 		else:
-			settings["look"] = str((int(str(settings.get("look", "0"))) + 1) % LOOKS.size())
+			settings["look"] = str((int(str(settings.get("look", "7"))) + 1) % LOOKS.size())
 		apply_settings()
 		var t: String = LOOKS[int(str(settings["look"]))] + (", the bulbs bloom" if settings["halo"] else "")
 		_show_look(t)

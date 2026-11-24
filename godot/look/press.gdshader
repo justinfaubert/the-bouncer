@@ -54,6 +54,10 @@ uniform float pull = 1.0;                            // a cut coming in: how far
 // brought forward (round two): 5 painted heavy, 6 painted light, 7 night stock, 8 super 8, 9 bodycam,
 // 10 the bar's camera, 11 anamorphic, 12 painted on night stock
 uniform int style = 0;
+uniform float film_grain = 1.0;                      // the film looks' own dials (the Look menu): grain,
+uniform float film_halation = 1.0;                   // the red round the lights,
+uniform float film_glow = 1.0;                       // the lights' soft glow,
+uniform float film_vignette = 1.0;                   // and the lens's falloff at the corners
 uniform float halo = 0.0;                            // the bulbs' halation: old incandescent glass blooms into the lamp ink
 uniform float print_k = 1.0;                         // the Print setting: 1 the cut strokes, 0 a flat wash of the night ink
 uniform vec2 band = vec2(0.16, 0.84);                // the key block's tone: below this, bare paper; above, solid ink; strokes between
@@ -143,7 +147,7 @@ float dots(vec2 p, float ang, float pitch, float cov) {
 }
 
 // the bulbs' bloom: how much hot light lies round this pixel, out to rad pixels (a), and its colour (rgb)
-vec4 bloom(vec2 uv, vec2 px, float rad, float jit) {
+vec4 bloom_at(vec2 uv, vec2 px, float rad, float jit, float lo) {
 	float s = 0.0;
 	vec3 hue = vec3(0.0);
 	for (int k = 0; k < 16; k++) {
@@ -151,12 +155,16 @@ vec4 bloom(vec2 uv, vec2 px, float rad, float jit) {
 		for (int r = 1; r <= 4; r++) {
 			vec3 c = texture(scene, uv + vec2(cos(a), sin(a)) * rad * (float(r) - jit * 0.5) / 4.0 * px).rgb;
 			float l = max(c.r, max(c.g, c.b));
-			float w = smoothstep(0.6, 0.95, l) * (1.25 - float(r) * 0.25);
+			float w = smoothstep(lo, 0.97, l) * (1.25 - float(r) * 0.25);
 			s += w;
 			hue += c * w;
 		}
 	}
 	return vec4(hue / max(s, 0.001), clamp(s / 10.0, 0.0, 1.0));
+}
+
+vec4 bloom(vec2 uv, vec2 px, float rad, float jit) {
+	return bloom_at(uv, px, rad, jit, 0.6);
 }
 
 // ---- the render brought forward (styles 5 to 12): film stocks and lenses
@@ -208,10 +216,73 @@ vec3 sat(vec3 c, float k) {
 	return max(mix(vec3(l), c, k), vec3(0.0));
 }
 
+// value noise, smooth between its points
+float vnoise(vec2 p, float seed) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	vec2 u = f * f * (3.0 - 2.0 * f);
+	float a = hash12(i + seed);
+	float b = hash12(i + vec2(1.0, 0.0) + seed);
+	float c = hash12(i + vec2(0.0, 1.0) + seed);
+	float d = hash12(i + vec2(1.0, 1.0) + seed);
+	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+// silver grain: crystals that clump at a few sizes at once, not one speck per pixel; about zero
+// mean and unit spread
+float crystals(vec2 p, float seed) {
+	float n = (vnoise(p, seed) - 0.5) * 0.62
+		+ (vnoise(p * 0.47 + 3.1, seed + 11.0) - 0.5) * 0.3
+		+ (vnoise(p * 0.21 + 7.7, seed + 23.0) - 0.5) * 0.18;
+	return n * 4.2;
+}
+
+// Night stock: a tungsten negative pushed in a dark room, printed. The light goes through the
+// emulsion, off the film's base and back into the red layer (the halation), the lens softens and
+// splits a little toward its edge, the stock has a toe that holds the blacks and a shoulder that
+// rolls the bulbs off warm, and the grain is in the dye layers, three clouds of different sizes,
+// made in density so it rides on the picture rather than over it. A new frame of grain every
+// 1/24 s, whatever the game's frame rate.
+vec3 night_stock(vec2 uv, vec2 px, float jit, vec2 frag, float frame, float rr, float hungry) {
+	float k = view_px.y / 1080.0;
+	vec3 c = rendered(uv);
+	c = mix(c, soft(uv, px, 0.8 * k), 0.4 + 0.45 * smoothstep(0.35, 1.1, rr));
+	vec2 d = (uv - 0.5) * px * 2.2 * k * smoothstep(0.25, 1.1, rr) / max(rr, 0.05);
+	c.r = mix(c.r, rendered(uv + d).r, 0.7);
+	c.b = mix(c.b, rendered(uv - d).b, 0.7);
+	// exposure: the halation, tight and orange at the core, wide and red further out, and the glow
+	vec4 tight = bloom_at(uv, px, 9.0 * k, jit, 0.8);
+	vec4 wide = bloom_at(uv, px, 44.0 * k, jit, 0.74);
+	c += (vec3(1.0, 0.34, 0.1) * tight.a * 0.34 + vec3(0.8, 0.12, 0.04) * wide.a * 0.5) * film_halation;
+	c += wide.rgb * wide.a * 0.06 * film_glow;
+	c *= 1.0 + (hash12(vec2(frame, 5.0)) - 0.5) * 0.012;              // the shutter's flicker
+	// the stock's curve: a toe per layer (the blue's shorter, so the shadows go a touch cool) and
+	// a shoulder (the red's longer, so the bulbs roll off warm)
+	c = c * c / (c + vec3(0.008, 0.007, 0.0055));
+	vec3 w = vec3(0.66, 0.6, 0.56);
+	c = c / (c + w) * (1.0 + w) * 1.05;
+	float lum = dot(c, vec3(0.2126, 0.7152, 0.0722));
+	c = mix(c, c * vec3(0.84, 0.96, 1.1), (1.0 - smoothstep(0.0, 0.22, lum)) * 0.75);
+	c = sat(c, 1.08 - 0.3 * smoothstep(0.55, 1.0, lum));             // rich in the mids, paler in the bulbs
+	c = c * 0.985 + vec3(0.0028, 0.0034, 0.0044);                     // the print's base: no black is quite black
+	// the grain, in density: most in the mid-tones, least in the deepest dark and the burnt light
+	float l = sqrt(max(lum, 0.0));
+	float amp = (0.3 + 0.7 * smoothstep(0.03, 0.32, l) * (1.0 - smoothstep(0.6, 1.0, l))) * 0.15 * film_grain * (1.0 + hungry);
+	vec2 gp = frag / (1.1 * k) + vec2(hash12(vec2(frame, 1.0)), hash12(vec2(frame, 2.0))) * 997.0;
+	float mono = crystals(gp, 0.0);
+	vec3 dye = vec3(crystals(gp * 1.12 + 17.0, 31.0), crystals(gp * 0.96 + 41.0, 57.0), crystals(gp * 0.78 + 73.0, 83.0));
+	vec3 gr = mono * 0.78 + dye * 0.4 * vec3(0.8, 0.9, 1.3);
+	c *= exp2(-gr * amp * 2.0);
+	c *= 1.0 - smoothstep(0.3, 1.3, rr) * 0.45 * film_vignette;       // the lens's falloff
+	return max(c, vec3(0.0));
+}
+
 void fragment() {
 	vec2 uv = UV;
 	float asp0 = view_px.x / view_px.y;
-	if (style == 8) uv = barrel(UV, 0.06, 0.97, asp0) + vec2(sin(time * 13.0) * 0.0006, cos(time * 9.0) * 0.0009 + 0.0004);
+	float frame24 = floor(time * 24.0);
+	if (style == 7) uv = UV + (vec2(hash12(vec2(frame24, 7.0)), hash12(vec2(frame24, 9.0))) - 0.5) * 0.4 / view_px;   // the gate's weave
+	else if (style == 8) uv = barrel(UV, 0.06, 0.97, asp0) + vec2(sin(time * 13.0) * 0.0006, cos(time * 9.0) * 0.0009 + 0.0004);
 	else if (style == 9) uv = barrel(UV, 0.42, 0.82, asp0);
 	else if (style == 10) uv = barrel(UV, 0.18, 0.92, asp0);
 	else if (style == 11) uv = barrel(UV, 0.04, 0.98, asp0);
@@ -390,17 +461,11 @@ void fragment() {
 	float fg2 = hash12(floor(FRAGCOORD.xy / 1.5) + vec2(7.0, floor(time * 24.0) * 29.0));
 	vec2 cv0 = (UV - 0.5) * vec2(asp0, 1.0);
 	float rr = length(cv0);
-	if (style >= 7 && style <= 11 && fresh > 0.5) {
+	bool film = style >= 7 && style <= 11;
+	if (film) {
 		vec3 c = rendered(uv);
 		if (style == 7) {
-			// night stock (tungsten film shot under bulbs): cool shadows, warm light, red halation round
-			// every bulb where the light goes through the film and back off its base
-			vec4 bl = bloom(uv, px, 36.0, g.r);
-			c = c / (c + 0.6) * 1.6;                                        // the stock's shoulder
-			c = mix(c, c * vec3(0.82, 0.96, 1.12), 1.0 - smoothstep(0.0, 0.25, dot(c, vec3(0.33))));
-			c += vec3(1.0, 0.2, 0.05) * bl.a * 0.55;
-			c += (fg - 0.5) * 0.05 * (0.4 + sqrt(max(dot(c, vec3(0.33)), 0.0)));
-			c *= 1.0 - smoothstep(0.55, 1.15, rr) * 0.45;
+			c = night_stock(uv, px, g.r, FRAGCOORD.xy, frame24, rr, starve);
 		} else if (style == 8) {
 			// super 8 at night: soft, warm, the blacks gone brown, coarse grain, the gate's round corners
 			c = soft(uv, px, 1.6);
@@ -450,6 +515,17 @@ void fragment() {
 			c *= step(bars, UV.y) * step(UV.y, 1.0 - bars);
 		}
 		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) c = vec3(0.0);
+		// drink: the picture doubles, the second image drifting with the plates
+		vec3 ghost = rendered(uv + o_l * px * 2.5);
+		c = mix(c, ghost / (ghost + 0.6) * 1.6, 0.35 * clamp(slip / 3.0, 0.0, 1.0));
+		// nerves: red comes up in the dark; hurt: red at the edge of his sight, thicker on each beat
+		float lumc = dot(c, vec3(0.33));
+		c = mix(c, c * vec3(1.6, 0.55, 0.5) + vec3(0.012, 0.0, 0.0), bleed * (1.0 - smoothstep(0.0, 0.2, lumc)) * 0.8);
+		c = mix(c, vec3(0.2, 0.008, 0.008), clamp(hurt * rim * (0.75 + 0.25 * pulse), 0.0, 1.0) * 0.85);
+		c *= 1.0 + pulse * 0.035;
+		c = sat(c, 1.0 - 0.35 * starve);
+		// a cut: the film fades up from black, and goes to black for the cut
+		c *= smoothstep(0.0, 1.0, pull) * (1.0 - smoothstep(0.1, 0.9, flash));
 		col = max(c, vec3(0.0));
 	}
 	if (style == 12 && fresh > 0.5) {
@@ -464,7 +540,7 @@ void fragment() {
 		vec3 k = to_linear(ink_night);
 		col = to_linear(paper) * k * k * 5.0;
 	}
-	if (clean > 0.5 && fresh > 0.5) {
+	if (clean > 0.5 && fresh > 0.5 && !film) {
 		// printed clean: the thing's colours as they are, on the same paper, its outline still cut
 		vec3 sc = to_linear(clamp(texture(scene, uv).rgb * 1.08, 0.0, 1.0));
 		vec3 cc = to_linear(paper) * (0.96 + 0.05 * pp.r) * mix(vec3(1.0), sc / max(to_linear(paper), vec3(0.2)), 0.97);
@@ -474,6 +550,6 @@ void fragment() {
 	}
 	// the page going blank: the paper comes up through the ink, through its tooth first
 	float blank = smoothstep(pp.r * 0.5 + g.g * 0.5 - 0.22, pp.r * 0.5 + g.g * 0.5 + 0.02, flash * 1.3 - 0.25);
-	col = mix(col, to_linear(paper) * (0.95 + 0.08 * pp.r), blank);
+	if (!film) col = mix(col, to_linear(paper) * (0.95 + 0.08 * pp.r), blank);
 	COLOR = vec4(to_srgb(col), 1.0);
 }
