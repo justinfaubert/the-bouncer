@@ -17,6 +17,12 @@
 #
 # Every cut is a print coming in (View.print_in): the colours first and the key block last. Hold any
 # key or the mouse to skip; Esc skips at once.
+#
+# The score is the cigarette machine's own voice (game/cig_synth.gd), a second one of it, played from
+# here: a pad under the teller, strings as it comes up, bells while it listens, nothing at all the
+# moment we go through it, a bass line stepping down a note a plate, and the music box on the last
+# line. One plate is the machine itself in the bar, unplugged, playing the figure, its windows
+# lighting note by note. That's where the music was coming from.
 class_name Intro
 extends Control
 
@@ -39,6 +45,11 @@ const LAST := "Last call's at half past one. There's time."
 
 # the writing on the walls (content/ink/hall.ink, the men's): each line its own hand
 const WALL_PM := ["PUSH BUTTON FOR A MESSAGE", "FROM THE PRIME MINISTER"]
+# the women's stall door (content/ink/hall.ink): a list that's been going for years, a name and an
+# initial and one word, and at the bottom, fresh, the question about him
+const WALL_STALL := [["DEAN R. MARRIED", "hand", Color("15161a")], ["CURTIS W. LIAR", "hand_l", Color("1d2a52")],
+	["BRENT S. HITS", "hand", Color("15161a")], ["TODD P. CRIES AFTER", "hand_l", Color("4a1d4e")],
+	["WADE L. NICE BUT BROKE", "hand", Color("1d2a52")], ["NEW DOORMAN?", "hand", Color("c0141c")]]
 const WALL_MILL := [["THE MILL ISN'T CLOSING.", "hand", Color("101114")], ["READ THE NOTICE.", "hand_l", Color("1d2a52")],
 	["CAN'T READ. WORK AT THE MILL.", "hand", Color("c0141c")]]
 
@@ -53,12 +64,20 @@ const PLATES := [
 		"say": "The card machines went down two nights a week. The bank said it was the weather."},
 	{"at": Vector3(14.2, 1.8, -1.7), "look": Vector3(14.25, 1.85, -2.55), "zoom": 0.62, "place": "hall", "wall": "mill", "secs": 4.6,
 		"spot": Vector3(14.42, 2.0, -2.55)},
+	{"at": Vector3(9.6, 1.62, -1.3), "look": Vector3(10.3, 1.55, -2.64), "zoom": 0.66, "place": "hall", "wall": "stall", "secs": 5.4,
+		"spot": Vector3(10.3, 1.86, -2.64), "tube": Vector3(9.76, 2.3, -1.9)},
 	{"at": Vector3(8.6, 1.5, 21.5), "look": Vector3(8.0, 10.6, 10.6), "zoom": 0.55, "place": "lot",
 		"say": "Every big night that month, the sign on the roof lost a letter."},
+	{"at": Vector3(13.6, 1.45, 5.05), "look": Vector3(15.55, 1.05, 5.3), "zoom": 0.6, "place": "floor", "cig": true, "secs": 4.2,
+		"say": "The cigarette machine had been unplugged since the smoking ban. Some nights it played anyway."},
 	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg", "torch": true,
 		"say": "The rats heard it before any of us did."},
 ]
 const PLATE_SECS := 3.4
+# the bass under the plates, a step down each cut (MIDI notes; the bass patch plays them an octave down)
+const PLATE_BASS := [50, 48, 46, 45, 43, 41, 40, 38]
+# what the machine plays on its own plate: the pad's chord broken up, the way its motor walks a hold
+const CIG_FIGURE := [62, 65, 69, 74, 69, 65, 62, 57]
 
 # the dream, off the seawall: where it comes up, how big, and his eyes on the water
 const SPHERE_AT := Vector3(8.0, 3.5, 53.0)
@@ -89,6 +108,9 @@ var _far: AudioStreamPlayer      # the jukebox, from across the highway
 var _far_bus := -1
 var _labels: Array = []          # Label3Ds put in the world for a plate, freed after it
 var _machine: Node3D
+var _score: CigSynth             # the pad, the strings, the bells
+var _low: CigSynth               # the hum, the bass, the music box
+var _cig_was := {}               # the bar's machine as it was before its plate, put back after
 
 
 func setup(m) -> void:
@@ -149,6 +171,12 @@ func setup(m) -> void:
 	skip_ring.modulate.a = 0.0
 	add_child(skip_ring)
 	_bars(0.0)
+	_score = CigSynth.new()
+	add_child(_score)
+	_score.setup()
+	_low = CigSynth.new()
+	add_child(_low)
+	_low.setup()
 
 
 # ---------------------------------------------------------------- the reel
@@ -170,6 +198,7 @@ func _begin() -> void:
 	lower.modulate.a = 0.0
 	_bars(0.0)
 	_cues = []
+	_score_on()
 
 
 # Just the title's own shot: the Sov from the seawall printed in, and the stamp.
@@ -188,6 +217,8 @@ func stop() -> void:
 	_free_labels()
 	if _far != null:
 		_far.stop()
+	_score_off(true)
+	_cig_back()
 	visible = false
 
 
@@ -196,28 +227,52 @@ func play() -> void:
 	var c := 0.0
 	# 1. black; the bell; the teller
 	_at(1.0, func(): main.audio.sfx("bell", 0.9))
+	# the pad comes in under the bell as it dies: a low fifth, then the minor third, then it leans
+	# on the sixth, and opens out to nothing settled as the cards go
+	_at(2.3, func(): _score.set_patch(1); _hold(_score, [38, 45], 0.22))
 	_at(2.6, func(): _card(OPEN[0]))
+	_at(6.2, func(): _hold(_score, [53], 0.3))
 	_at(6.4, func(): _card(OPEN[1]))
+	_at(9.8, func(): _let(_score, [45]); _hold(_score, [46], 0.34))
 	_at(10.0, func(): _card(OPEN[2]))
-	_at(14.6, func(): _cards_out(0.9))
-	# 2. the dream
+	_at(12.9, func(): _let(_score, [46, 53]); _hold(_score, [45, 52], 0.3))
+	_at(14.6, func(): _cards_out(0.9); _score.all_off())
+	# 2. the dream; strings and a hum under it as it comes up, swelling with it
 	_at(15.6, _dream)
+	_at(17.4, func(): _score.set_patch(5); _low.set_patch(0))
+	_at(18.4, func():
+		_hold(_score, [50, 57, 64], 0.15)
+		_hold(_low, [26], 0.4)
+		_swell(_score, [50, 57, 64], 0.15, 0.6, 9.0))
+	_at(27.6, func(): _low.all_off())
 	_at(28.0, func(): _say(DREAM, 6.2))
+	# it listens: bells, far apart, the way sonar goes out and comes back
+	_at(29.2, func(): _low.set_patch(7))
+	for b in [[29.5, 81], [30.9, 76], [32.6, 86], [34.0, 81], [35.8, 74], [37.1, 88]]:
+		var bn: int = b[1]
+		_at(float(b[0]), func(): _ping(_low, bn, 0.5))
 	_at(29.5, _hears)
-	_at(31.5, _push)
-	# 3. into it, and out into the Sov's room
-	_at(40.4, func(): view.blank_out(0.3))
+	_at(31.5, func(): _push(); _swell(_score, [50, 57, 64], 0.6, 1.0, 8.5))
+	_at(34.2, func(): _hold(_score, [69], 0.5))
+	_at(36.8, func(): _hold(_score, [74], 0.6))
+	# 3. through it: the music stops dead, and the room's jukebox is all there is
+	_at(40.4, func(): view.blank_out(0.3); _score_cut())
 	_at(40.75, _room)
-	# 4. the plates
+	# 4. the plates, the bass stepping down a note a cut
 	c = 45.4
-	for p in PLATES:
-		var plate: Dictionary = p
+	_at(c - 0.5, func(): _low.set_patch(6))
+	for i in PLATES.size():
+		var plate: Dictionary = PLATES[i]
+		var bn: int = PLATE_BASS[mini(i, PLATE_BASS.size() - 1)]
 		_at(c - 0.22, func(): view.blank_out(0.2))
-		_at(c, func(): _plate(plate))
+		_at(c, func(): _plate(plate); _ping(_low, bn, 0.7, 0.45))
 		c += float(plate.get("secs", PLATE_SECS))
-	# 5. black, the last line, the title
-	_at(c - 0.3, func(): view.blank_out(0.3); _bars_to(0.0, 0.5))
+	# 5. black, the last line on the music box, the title on the pad
+	_at(c - 0.3, func(): view.blank_out(0.3); _bars_to(0.0, 0.5); _low.set_patch(9))
 	_at(c, func(): _go_black(0.35); _card(LAST))
+	for m in [[0.7, 69], [1.15, 67], [1.6, 65], [2.5, 62]]:
+		var mn: int = m[1]
+		_at(c + float(m[0]), func(): _ping(_low, mn, 0.6))
 	_at(c + 3.9, func(): _cards_out(0.6))
 	_at(c + 4.6, _title_shot)
 	_at(c + 7.4, _end)
@@ -237,6 +292,8 @@ func skip() -> void:
 	_cues = []
 	_next = 0
 	t = 0.0
+	_score_cut()
+	_cig_back()
 	_at(0.0, func(): view.blank_out(0.15))
 	_at(0.2, _title_shot)
 	_at(2.3, _end)
@@ -284,8 +341,15 @@ func _end() -> void:
 	_shot = Callable()
 	_free_rig()
 	_free_labels()
+	_cig_back()
 	visible = false
 	finished.emit()
+	# the title's stamp lands a quarter second after this (menus._stamp): the bass under it, and the
+	# pad let go to ring out under the menu
+	_score.all_off()
+	_low.set_patch(6)
+	get_tree().create_timer(0.25).timeout.connect(func(): if not playing: _ping(_low, 38, 1.0, 0.6))
+	get_tree().create_timer(4.0).timeout.connect(func(): if not playing: _score_off(false))
 
 
 # ---------------------------------------------------------------- the shots
@@ -392,6 +456,10 @@ func _plate(p: Dictionary) -> void:
 		_card_machine()
 	if p.get("torch", false):
 		_torch(p)
+	if p.has("tube"):
+		_tube(p.tube)
+	if p.get("cig", false):
+		_cig_plays(float(p.get("secs", PLATE_SECS)))
 	if p.has("say"):
 		var said: String = p.say
 		get_tree().create_timer(0.55).timeout.connect(func(): if playing: _say(said, float(p.get("secs", PLATE_SECS)) - 0.9))
@@ -418,6 +486,14 @@ func _wall(which: String, p: Dictionary) -> void:
 	if which == "pm":
 		for i in WALL_PM.size():
 			lines.append([WALL_PM[i], "hand", Color("c0141c"), Vector3(0.0, 0.03 - i * 0.05, 0.0), 0.35 + i * 0.95])
+	elif which == "stall":
+		# square on the wall, not on him: a list written over years from wherever each one stood
+		face = Vector3(0, 0, 1)
+		for i in WALL_STALL.size():
+			var w: Array = WALL_STALL[i]
+			var last := i == WALL_STALL.size() - 1
+			lines.append([w[0], w[1], w[2], Vector3(-0.02 + 0.03 * sin(i * 2.1), -i * 0.062 - (0.05 if last else 0.0), 0.0),
+				0.2 + i * 0.42 + (1.1 if last else 0.0), 1.25 if last else 1.0])
 	else:
 		for i in WALL_MILL.size():
 			var w: Array = WALL_MILL[i]
@@ -426,7 +502,7 @@ func _wall(which: String, p: Dictionary) -> void:
 		var l := Label3D.new()
 		l.font = Look.font(str(ln[1]))
 		l.font_size = 64
-		l.pixel_size = 0.00062
+		l.pixel_size = 0.00062 * (float(ln[5]) if ln.size() > 5 else 1.0)
 		l.modulate = ln[2]
 		l.outline_size = 0
 		l.shaded = false
@@ -441,10 +517,10 @@ func _wall(which: String, p: Dictionary) -> void:
 		l.rotate_object_local(Vector3(0, 0, 1), deg_to_rad(randf_range(-3.0, 2.0)))
 		_labels.append(l)
 		var full: String = ln[0]
-		var tw := create_tween()
+		var tw := l.create_tween()     # dies with the label, if the plate's cut short
 		tw.tween_interval(float(ln[4]))
 		tw.tween_callback(func(): main.audio.sfx("pen", 0.5))
-		tw.tween_method(func(n: float): if is_instance_valid(l): l.text = full.substr(0, int(n)), 0.0, float(full.length()), full.length() * 0.045)
+		tw.tween_method(func(n: float): if is_instance_valid(l): l.text = full.substr(0, int(n)), 0.0, float(full.length()), full.length() * (0.03 if which == "stall" else 0.045))
 
 
 # His torch in the dark, the beam going where he looks (the X-Files' flashlight crossing a room,
@@ -514,6 +590,9 @@ func _title_shot() -> void:
 	else:
 		_go_black(1.6, true)
 	_bars_to(0.0, 0.4)
+	# the pad again, the whole chord this time, the seawall and the Sov under it
+	_score.set_patch(1)
+	_hold(_score, [38, 45, 53, 57, 64], 0.3)
 	_shot_t0 = t
 	_shot = func(s: float):
 		_eyes(SEAWALL_EYE, TITLE_LOOK + Vector3(0, -0.25 * (1.0 - smoothstep(0.0, 3.0, s)), 0), 0.92)
@@ -528,9 +607,12 @@ func _card(text: String) -> void:
 	l.custom_minimum_size = Vector2(minf(get_viewport_rect().size.x * 0.62, 1100.0), 0)
 	l.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	l.modulate.a = 0.0
+	l.visible_ratio = 0.0
 	cards.add_child(l)
-	var tw := create_tween()
-	tw.tween_property(l, "modulate:a", 1.0, 1.1)
+	# set a word at a time, the way a teller gets a sentence out: steady, and a breath at the commas
+	var tw := l.create_tween().set_parallel()
+	tw.tween_property(l, "modulate:a", 1.0, 0.5)
+	tw.tween_property(l, "visible_ratio", 1.0, clampf(text.length() * 0.032, 0.8, 2.8))
 	main.audio.sfx("page", 0.25)
 
 
@@ -575,6 +657,127 @@ func _bars_to(h: float, secs: float) -> void:
 	tw.tween_method(_bars, from, h, secs)
 
 
+# A strip light in a washroom, on its last legs: the plate's only light.
+func _tube(at: Vector3) -> void:
+	var l := OmniLight3D.new()
+	l.light_color = Color("d9f0e6")
+	l.light_energy = 0.5
+	l.omni_range = 2.2
+	l.omni_attenuation = 1.8
+	l.shadow_enabled = true
+	main.pub.add_child(l)
+	l.global_position = at
+	_labels.append(l)
+	var tw := l.create_tween().set_loops(6)
+	tw.tween_property(l, "light_energy", 0.08, 0.04)
+	tw.tween_property(l, "light_energy", 0.5, 0.05)
+	tw.tween_interval(0.55)
+
+
+# The bar's own machine, on its plate: the starter flickering its tube, and playing the figure on
+# its own, each note lighting its window (game/cig_machine.gd lights them off its synth).
+func _cig_plays(secs: float) -> void:
+	var cig = main.get("cig")
+	if cig == null or cig.active:
+		return
+	var sy: CigSynth = cig.synth
+	_cig_was = {"lamp": cig.lamp, "patch": sy.patch, "echo": sy.echo, "bpm": sy.bpm}
+	cig.lamp = 2
+	sy.set_lamp(2)
+	sy.bpm = 92.0
+	sy.set_echo(0.45)
+	sy.set_patch(3)
+	sy.start()
+	var step := 0.26
+	var n := int((secs - 0.6) / step)
+	for i in n:
+		var note: int = CIG_FIGURE[i % CIG_FIGURE.size()]
+		get_tree().create_timer(0.35 + i * step).timeout.connect(func():
+			if playing and not _cig_was.is_empty():
+				sy.pull(note, 0.55)
+				get_tree().create_timer(step * 0.8).timeout.connect(func(): sy.push_in(note)))
+
+
+func _cig_back() -> void:
+	if _cig_was.is_empty():
+		return
+	var cig = main.get("cig")
+	if cig != null and not cig.active:
+		var sy: CigSynth = cig.synth
+		sy.all_off()
+		cig.lamp = int(_cig_was.lamp)
+		sy.bpm = float(_cig_was.bpm)
+		sy.set_patch(int(_cig_was.patch))
+		sy.set_lamp(int(_cig_was.lamp))
+		sy.set_echo(float(_cig_was.echo))
+	_cig_was = {}
+
+
+# ---------------------------------------------------------------- the score
+
+# The score's two machines on, at the music volume. They share the bar machine's bus (its chorus and
+# echo), so what they set there goes back as the bar's machine had it when they're done.
+func _score_on() -> void:
+	for sy in [_score, _low]:
+		var c: CigSynth = sy
+		c.all_off()
+		c.wear = 0.45
+		c.bpm = 72.0
+		c.start()
+		c.player.volume_db = linear_to_db(maxf(_vol() * 0.85, 0.0001))
+	_score.set_lamp(1)
+	_score.set_echo(0.3)
+
+
+func _score_off(now: bool) -> void:
+	for sy in [_score, _low]:
+		var c: CigSynth = sy
+		c.all_off()
+		if now or not playing:
+			c.stop()
+	# the bar's machine's bus as it had it
+	var cig = main.get("cig") if main != null else null
+	if cig != null:
+		cig.synth.set_lamp(cig.synth.lamp)
+		cig.synth.set_echo(cig.synth.echo)
+
+
+# Dead stop: not let go, gone. The cut through the sphere, and a skip.
+func _score_cut() -> void:
+	for sy in [_score, _low]:
+		var c: CigSynth = sy
+		c.player.volume_db = -80.0
+		c.all_off()
+	get_tree().create_timer(1.8).timeout.connect(func():
+		for sy in [_score, _low]:
+			(sy as CigSynth).player.volume_db = linear_to_db(maxf(_vol() * 0.85, 0.0001)))
+
+
+func _hold(sy: CigSynth, notes: Array, how: float) -> void:
+	for n in notes:
+		sy.pull(int(n), how)
+
+
+func _let(sy: CigSynth, notes: Array) -> void:
+	for n in notes:
+		sy.push_in(int(n))
+
+
+# a note struck and let go: the bells, the bass, the music box
+func _ping(sy: CigSynth, n: int, how: float, secs := 0.25) -> void:
+	sy.pull(n, how)
+	get_tree().create_timer(secs).timeout.connect(func(): sy.push_in(n))
+
+
+# held notes opening up: the knobs drawn further out over secs
+func _swell(sy: CigSynth, notes: Array, from: float, to: float, secs: float) -> void:
+	var open := func(v: float):
+		for n in notes:
+			if sy.held.has(int(n)):
+				sy.pull(int(n), v)
+	create_tween().tween_method(open, from, to, secs)
+
+
 # ---------------------------------------------------------------- sound
 
 func _vol() -> float:
@@ -617,6 +820,7 @@ func _free_rig() -> void:
 
 
 func _free_labels() -> void:
+	_cig_back()
 	for l in _labels:
 		if is_instance_valid(l):
 			l.queue_free()
