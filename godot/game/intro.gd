@@ -2,18 +2,21 @@
 # for again (the title's "The cold open"). Hutch's brief: a proper intro, stylish and provocative,
 # that guides the player into the dream, where before the game opened on the kid at the door.
 #
-# It's Serling's frame and the X-Files' cold open (bible/13_STYLE.md): one image, the teller in a
-# few plain lines, then out. Everything in it is the game's own world printed by the game's own
-# press, so it's the same print the night is, and nothing is a picture made for the occasion.
+# No words in it (Hutch, 2026-11-24: take the text out, a little quicker, more compelling, a quiet
+# way into what's going on). What's written is only what's written in the world: the walls, a card
+# machine's screen. About a minute. Everything in it is the game's own world printed by the game's
+# own press, so it's the same print the night is.
 #
-#   1. black, and a bell for last call; the teller, years later, to someone who doesn't drink
+#   1. black, and a bell for last call; a pad under it
 #   2. the dream: the seawall at night, the strait, and the Listener coming up out of the water
-#      (world/listener_rig.gd). It hears the jukebox across the highway, the tiles pack in, and we
-#      go into it until the room at its heart is all there is
-#   3. through it into the Sov's room, the jukebox loud
-#   4. the country ending, a plate at a time: the news at table 28, the wall by the payphone, the
-#      card machine, the mill's argument on the hall wall, the sign losing letters, the rats
-#   5. black, the teller's last line; the Sov from the seawall; LAST CALL stamped, and the title
+#      (world/listener_rig.gd), the projector breathing over it. It hears the jukebox across the
+#      highway, the tiles pack in, and we go into it, the frame closing round it, until the room at
+#      its heart is all there is
+#   3. through it into the Sov's room, the music cut dead, the jukebox loud
+#   4. the country ending, a plate at a time, each cut landing with a punch: the news at table 28,
+#      the payphone wall, the card machine, the mill's argument, the women's stall door, the sign
+#      losing letters, the cigarette machine playing on its own, the rats
+#   5. black and a music box; the Sov from the seawall; LAST CALL stamped, and the title
 #
 # Every cut is a print coming in (View.print_in): the colours first and the key block last. Hold any
 # key or the mouse to skip; Esc skips at once.
@@ -32,17 +35,6 @@ const SKIP_HOLD := 0.7
 const LETTERBOX := 0.105         # each bar, as a share of the screen's height
 const NIGHT_CLOCK := 1180        # twenty to eight: the Sov lit, the lot's lamp on
 
-# The teller's words. Plain, said once, to someone at a bar who doesn't drink (bible/05_LOG.md:
-# the listener turns out to be a machine; the teller's "he" may turn to "I"). Each line ends on the
-# last concrete thing (bible/13_STYLE.md, What reads like a machine).
-const OPEN := [
-	"You're not drinking. I'll talk, then.",
-	"He worked the door at the Sovereign for a month.",
-	"On the last night he wasn't even there, and it's the only one anybody asks me about.",
-]
-const DREAM := "I still have the dream. It comes up out of the strait, about as high as a house, and it listens."
-const LAST := "Last call's at half past one. There's time."
-
 # the writing on the walls (content/ink/hall.ink, the men's): each line its own hand
 const WALL_PM := ["PUSH BUTTON FOR A MESSAGE", "FROM THE PRIME MINISTER"]
 # the women's stall door (content/ink/hall.ink): a list that's been going for years, a name and an
@@ -56,24 +48,19 @@ const WALL_MILL := [["THE MILL ISN'T CLOSING.", "hand", Color("101114")], ["READ
 # the plates: where his eyes are, what they're on, how wide, the clock, the place they're printed
 # from (for its light and its sounds), and what's said or written
 const PLATES := [
-	{"at": Vector3(12.6, 1.6, 5.9), "look": Vector3(15.9, 2.3, 4.0), "zoom": 0.5, "place": "floor",
-		"say": "Table 28 watched the country come apart on the TV over the bar, and had money on it."},
-	{"at": Vector3(13.5, 1.55, -1.35), "look": Vector3(13.6, 1.5, -2.55), "zoom": 0.74, "place": "hall", "wall": "pm",
+	{"at": Vector3(12.6, 1.6, 5.9), "look": Vector3(15.9, 2.3, 4.0), "zoom": 0.5, "place": "floor"},
+	{"at": Vector3(13.5, 1.55, -1.35), "look": Vector3(13.6, 1.6, -2.55), "zoom": 0.74, "place": "hall", "wall": "pm",
 		"spot": Vector3(13.47, 1.8, -2.55)},
-	{"at": Vector3(2.75, 1.42, 7.45), "look": Vector3(2.08, 1.16, 7.05), "zoom": 0.36, "place": "bar", "machine": true,
-		"say": "The card machines went down two nights a week. The bank said it was the weather."},
-	{"at": Vector3(14.2, 1.8, -1.7), "look": Vector3(14.25, 1.85, -2.55), "zoom": 0.62, "place": "hall", "wall": "mill", "secs": 4.6,
+	{"at": Vector3(2.75, 1.42, 7.45), "look": Vector3(2.08, 1.16, 7.05), "zoom": 0.36, "place": "bar", "machine": true},
+	{"at": Vector3(14.2, 1.8, -1.7), "look": Vector3(14.25, 1.85, -2.55), "zoom": 0.62, "place": "hall", "wall": "mill", "secs": 3.4,
 		"spot": Vector3(14.42, 2.0, -2.55)},
-	{"at": Vector3(9.6, 1.62, -1.3), "look": Vector3(10.3, 1.55, -2.64), "zoom": 0.66, "place": "hall", "wall": "stall", "secs": 5.4,
+	{"at": Vector3(9.6, 1.62, -1.3), "look": Vector3(10.3, 1.55, -2.64), "zoom": 0.66, "place": "hall", "wall": "stall", "secs": 3.9,
 		"spot": Vector3(10.3, 1.86, -2.64), "tube": Vector3(9.76, 2.3, -1.9)},
-	{"at": Vector3(8.6, 1.5, 21.5), "look": Vector3(8.0, 10.6, 10.6), "zoom": 0.55, "place": "lot",
-		"say": "Every big night that month, the sign on the roof lost a letter."},
-	{"at": Vector3(13.6, 1.45, 5.05), "look": Vector3(15.55, 1.05, 5.3), "zoom": 0.6, "place": "floor", "cig": true, "secs": 4.2,
-		"say": "The cigarette machine had been unplugged since the smoking ban. Some nights it played anyway."},
-	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg", "torch": true,
-		"say": "The rats heard it before any of us did."},
+	{"at": Vector3(8.6, 1.5, 21.5), "look": Vector3(8.0, 10.6, 10.6), "zoom": 0.55, "place": "lot"},
+	{"at": Vector3(13.6, 1.45, 5.05), "look": Vector3(15.55, 1.05, 5.3), "zoom": 0.6, "place": "floor", "cig": true, "secs": 3.4},
+	{"at": Vector3(2.2, -1.25, 0.9), "look": Vector3(2.9, -2.2, -2.4), "zoom": 0.8, "place": "keg", "torch": true},
 ]
-const PLATE_SECS := 3.4
+const PLATE_SECS := 2.4
 # the bass under the plates, a step down each cut (MIDI notes; the bass patch plays them an octave down)
 const PLATE_BASS := [50, 48, 46, 45, 43, 41, 40, 38]
 # what the machine plays on its own plate: the pad's chord broken up, the way its motor walks a hold
@@ -100,6 +87,8 @@ var _held := 0.0
 var _skipping := false
 
 var black: ColorRect
+var flick: ColorRect
+var flicker := 0.0              # how hard the projector breathes, 0 off
 var bars: Array = []
 var cards: VBoxContainer
 var lower: Label
@@ -133,6 +122,13 @@ func setup(m) -> void:
 			b.anchor_bottom = 1.0
 		add_child(b)
 		bars.append(b)
+	# the projector: a breath of light over the picture, frame to frame, while the dream's on
+	flick = ColorRect.new()
+	flick.color = Color("efe6d2")
+	flick.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flick.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flick.modulate.a = 0.0
+	add_child(flick)
 	black = ColorRect.new()
 	black.color = Color("07080b")
 	black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -183,6 +179,7 @@ func setup(m) -> void:
 
 func _begin() -> void:
 	playing = true
+	flicker = 0.0
 	visible = true
 	t = 0.0
 	_next = 0
@@ -212,6 +209,8 @@ func title_only() -> void:
 # Put away without finishing: a night's been started from under it.
 func stop() -> void:
 	playing = false
+	flicker = 0.0
+	flick.modulate.a = 0.0
 	_shot = Callable()
 	_free_rig()
 	_free_labels()
@@ -225,57 +224,51 @@ func stop() -> void:
 func play() -> void:
 	_begin()
 	var c := 0.0
-	# 1. black; the bell; the teller
-	_at(1.0, func(): main.audio.sfx("bell", 0.9))
-	# the pad comes in under the bell as it dies: a low fifth, then the minor third, then it leans
-	# on the sixth, and opens out to nothing settled as the cards go
-	_at(2.3, func(): _score.set_patch(1); _hold(_score, [38, 45], 0.22))
-	_at(2.6, func(): _card(OPEN[0]))
-	_at(6.2, func(): _hold(_score, [53], 0.3))
-	_at(6.4, func(): _card(OPEN[1]))
-	_at(9.8, func(): _let(_score, [45]); _hold(_score, [46], 0.34))
-	_at(10.0, func(): _card(OPEN[2]))
-	_at(12.9, func(): _let(_score, [46, 53]); _hold(_score, [45, 52], 0.3))
-	_at(14.6, func(): _cards_out(0.9); _score.all_off())
-	# 2. the dream; strings and a hum under it as it comes up, swelling with it
-	_at(15.6, _dream)
-	_at(17.4, func(): _score.set_patch(5); _low.set_patch(0))
-	_at(18.4, func():
+	# No words (Hutch, 2026-11-24: take the text out, quicker, more compelling, a quiet way in).
+	# 1. black; the bell for last call; the pad comes in under it as it dies
+	_at(0.8, func(): main.audio.sfx("bell", 0.9))
+	_at(1.5, func(): _score.set_patch(1); _hold(_score, [38, 45], 0.22))
+	_at(2.6, func(): _hold(_score, [53], 0.28))
+	# 2. the dream: the strait, nothing on it, then it comes up; strings and a hum swell with it,
+	# and the projector breathes over it
+	_at(3.0, func(): _dream(); flicker = 0.022)
+	_at(4.6, func(): _score.all_off(); _low.set_patch(0))
+	_at(5.6, func():
+		_score.set_patch(5)
 		_hold(_score, [50, 57, 64], 0.15)
 		_hold(_low, [26], 0.4)
-		_swell(_score, [50, 57, 64], 0.15, 0.6, 9.0))
-	_at(27.6, func(): _low.all_off())
-	_at(28.0, func(): _say(DREAM, 6.2))
-	# it listens: bells, far apart, the way sonar goes out and comes back
-	_at(29.2, func(): _low.set_patch(7))
-	for b in [[29.5, 81], [30.9, 76], [32.6, 86], [34.0, 81], [35.8, 74], [37.1, 88]]:
+		_swell(_score, [50, 57, 64], 0.15, 0.6, 8.0))
+	_at(13.4, func(): _low.all_off())
+	# it listens: bells far apart, the way sonar goes out and comes back
+	_at(13.8, func(): _low.set_patch(7))
+	for b in [[14.0, 81], [15.2, 76], [16.7, 86], [18.0, 81], [19.6, 74], [20.8, 88]]:
 		var bn: int = b[1]
 		_at(float(b[0]), func(): _ping(_low, bn, 0.5))
-	_at(29.5, _hears)
-	_at(31.5, func(): _push(); _swell(_score, [50, 57, 64], 0.6, 1.0, 8.5))
-	_at(34.2, func(): _hold(_score, [69], 0.5))
-	_at(36.8, func(): _hold(_score, [74], 0.6))
+	_at(14.0, _hears)
+	# into it: the frame closes in round it as we go
+	_at(15.6, func(): _push(); _swell(_score, [50, 57, 64], 0.6, 1.0, 8.5); _bars_to(LETTERBOX * 1.45, 8.0))
+	_at(18.2, func(): _hold(_score, [69], 0.5))
+	_at(20.8, func(): _hold(_score, [74], 0.6))
 	# 3. through it: the music stops dead, and the room's jukebox is all there is
-	_at(40.4, func(): view.blank_out(0.3); _score_cut())
-	_at(40.75, _room)
-	# 4. the plates, the bass stepping down a note a cut
-	c = 45.4
+	_at(24.5, func(): view.blank_out(0.3); _score_cut(); flicker = 0.0)
+	_at(24.85, func(): _room(); _bars_to(LETTERBOX, 0.2))
+	# 4. the plates, hard cuts, the bass stepping down a note a cut
+	c = 28.4
 	_at(c - 0.5, func(): _low.set_patch(6))
 	for i in PLATES.size():
 		var plate: Dictionary = PLATES[i]
 		var bn: int = PLATE_BASS[mini(i, PLATE_BASS.size() - 1)]
-		_at(c - 0.22, func(): view.blank_out(0.2))
+		_at(c - 0.18, func(): view.blank_out(0.16))
 		_at(c, func(): _plate(plate); _ping(_low, bn, 0.7, 0.45))
 		c += float(plate.get("secs", PLATE_SECS))
-	# 5. black, the last line on the music box, the title on the pad
+	# 5. black and the music box, then the Sov from the seawall on the pad
 	_at(c - 0.3, func(): view.blank_out(0.3); _bars_to(0.0, 0.5); _low.set_patch(9))
-	_at(c, func(): _go_black(0.35); _card(LAST))
-	for m in [[0.7, 69], [1.15, 67], [1.6, 65], [2.5, 62]]:
+	_at(c, func(): _go_black(0.3))
+	for m in [[0.4, 69], [0.85, 67], [1.3, 65], [2.1, 62]]:
 		var mn: int = m[1]
 		_at(c + float(m[0]), func(): _ping(_low, mn, 0.6))
-	_at(c + 3.9, func(): _cards_out(0.6))
-	_at(c + 4.6, _title_shot)
-	_at(c + 7.4, _end)
+	_at(c + 3.0, _title_shot)
+	_at(c + 5.8, _end)
 
 
 func _at(when: float, fn: Callable) -> void:
@@ -294,6 +287,7 @@ func skip() -> void:
 	t = 0.0
 	_score_cut()
 	_cig_back()
+	flicker = 0.0
 	_at(0.0, func(): view.blank_out(0.15))
 	_at(0.2, _title_shot)
 	_at(2.3, _end)
@@ -315,6 +309,7 @@ func advance(dt: float) -> void:
 		_shot.call(t - _shot_t0)
 	if _rig != null:
 		_rig.step(dt)
+	flick.modulate.a = flicker * (0.5 + 0.5 * randf()) * (1.0 if randf() > 0.08 else 2.2)
 	# hold to skip
 	var down := Input.is_anything_pressed()
 	_held = _held + dt if down else 0.0
@@ -338,6 +333,8 @@ func _input(e: InputEvent) -> void:
 
 func _end() -> void:
 	playing = false
+	flicker = 0.0
+	flick.modulate.a = 0.0
 	_shot = Callable()
 	_free_rig()
 	_free_labels()
@@ -470,8 +467,13 @@ func _plate(p: Dictionary) -> void:
 	var secs: float = p.get("secs", PLATE_SECS)
 	_shot = func(s: float):
 		# a slow push, the way a camera on a dolly leans in on a still
+		# and the cut lands with a punch: in tight, easing back out over a third of a second, the
+		# frame weaving a hair in the gate the way film does
 		var k := s / secs
-		_eyes(at + (look - at).normalized() * 0.18 * k, look, z * lerpf(1.0, 0.93, k))
+		var punch := lerpf(0.88, 1.0, 1.0 - pow(1.0 - clampf(s / 0.35, 0.0, 1.0), 3.0))
+		var d := at.distance_to(look)
+		var weave := Vector3(sin(s * 7.3) * 0.0022 + sin(s * 17.0) * 0.0009, sin(s * 5.1 + 1.3) * 0.0018, 0.0) * d
+		_eyes(at + (look - at).normalized() * 0.18 * k, look + weave, z * lerpf(1.0, 0.93, k) * punch)
 
 
 # The writing on the wall, put up a letter at a time in each hand as the plate comes in. It's in the
@@ -485,7 +487,7 @@ func _wall(which: String, p: Dictionary) -> void:
 	var lines: Array = []
 	if which == "pm":
 		for i in WALL_PM.size():
-			lines.append([WALL_PM[i], "hand", Color("c0141c"), Vector3(0.0, 0.03 - i * 0.05, 0.0), 0.35 + i * 0.95])
+			lines.append([WALL_PM[i], "hand", Color("c0141c"), Vector3(0.0, 0.03 - i * 0.05, 0.0), 0.2 + i * 0.7])
 	elif which == "stall":
 		# square on the wall, not on him: a list written over years from wherever each one stood
 		face = Vector3(0, 0, 1)
@@ -493,11 +495,11 @@ func _wall(which: String, p: Dictionary) -> void:
 			var w: Array = WALL_STALL[i]
 			var last := i == WALL_STALL.size() - 1
 			lines.append([w[0], w[1], w[2], Vector3(-0.02 + 0.03 * sin(i * 2.1), -i * 0.062 - (0.05 if last else 0.0), 0.0),
-				0.2 + i * 0.42 + (1.1 if last else 0.0), 1.25 if last else 1.0])
+				0.15 + i * 0.3 + (0.65 if last else 0.0), 1.25 if last else 1.0])
 	else:
 		for i in WALL_MILL.size():
 			var w: Array = WALL_MILL[i]
-			lines.append([w[0], w[1], w[2], Vector3(-0.03 + i * 0.025, 0.0 - i * 0.075, 0.0), 0.35 + i * 1.25])
+			lines.append([w[0], w[1], w[2], Vector3(-0.03 + i * 0.025, 0.0 - i * 0.075, 0.0), 0.2 + i * 0.95])
 	for ln in lines:
 		var l := Label3D.new()
 		l.font = Look.font(str(ln[1]))
