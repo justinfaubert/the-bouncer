@@ -13,9 +13,11 @@
 #   the mouse     his head round the cab, out the side window, into the mirror
 #   C             his eyes in the cab / behind the truck (the rehearsal's view)
 #   Q             the door: out when it's still (into P first), a bail when it isn't; back in at the door
+#   T             the radio on and off      , .  (or the wheel)  tune it      1-5  its buttons
 #   Esc           leave the rehearsal
 # A gamepad: right trigger the gas, left trigger the brake, the left stick the wheel, B the door.
-# Out of it on his feet: game/truck_foot.gd.
+# Out of it on his feet: game/truck_foot.gd. The radio: game/truck_radio.gd. What's out on the road
+# that shouldn't be, and the rearview mirror it shows in: game/truck_odd.gd.
 class_name Truck
 extends Node
 
@@ -23,7 +25,8 @@ signal left
 
 const KEYS_ROWS := [["Q", "the door: out (moving, he bails)"], ["E", "the key (in P or N)"], ["R / F", "the shifter, up toward P, down toward 1"],
 	["W / S", "gas / brake"], ["A / D", "the wheel"], ["L  H  V", "lights, high beams, wipers"],
-	["Space", "the horn"], ["Mouse", "his head round the cab"], ["C", "in the cab / behind the truck"]]
+	["Space", "the horn"], ["T", "the radio"], [",  .  or the wheel", "tune it"], ["1 to 5", "its buttons (somebody set them)"],
+	["Mouse", "his head round the cab"], ["C", "in the cab / behind the truck"]]
 
 const HINGE := Vector3(-0.945, 0.0, -0.85)      # the driver's door's hinges, its front edge
 const ODO_START := 86402.0                      # the odometer when it turned up: five drums, been round once
@@ -56,6 +59,19 @@ var view: View
 var road: IslandRoad
 var sim: TruckSim
 var sound: TruckSound
+var radio: TruckRadio
+var odd: TruckOdd
+var mirror_vp: SubViewport       # the rearview mirror: what's behind, drawn by its own camera
+var mirror_cam: Camera3D
+var tail_light: SpotLight3D      # the tail lamps' red on the road behind
+var caption: Label               # what can be made out of the radio
+var _dial_lab: Label3D
+var _dial_map: Array = []        # [kHz, x on the dial]
+var _tune_held := 0.0
+var _horns := 0
+var _horn_was := false
+var _dark_t := 0.0
+var _out_t := 0.0
 var body: Node3D                 # the truck, at the sim's middle of mass
 var wheels: Array = []           # [steer pivot, spinning tire]
 var wheel_node: Node3D           # the steering wheel
@@ -126,6 +142,8 @@ func setup(m) -> void:
 	set_process_input(false)
 	sound = TruckSound.new()
 	add_child(sound)
+	radio = TruckRadio.new()
+	add_child(radio)
 	foot = TruckFoot.new(self)
 	_rng.randomize()
 
@@ -141,6 +159,26 @@ func _build_once() -> void:
 	sim.ground = road.ground
 	_build_truck()
 	_build_traffic()
+	odd = TruckOdd.new()
+	odd.setup(self)
+	_build_mirror()
+	caption = Label.new()
+	caption.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.custom_minimum_size = Vector2(760, 0)
+	caption.offset_left = -380.0
+	caption.offset_right = 380.0
+	caption.offset_top = -120.0
+	caption.offset_bottom = -40.0
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	caption.add_theme_font_size_override("font_size", 17)
+	caption.add_theme_color_override("font_color", Color("e8c070"))
+	caption.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	caption.add_theme_constant_override("shadow_offset_x", 1)
+	caption.add_theme_constant_override("shadow_offset_y", 1)
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	main.root.add_child(caption)
 	black = ColorRect.new()
 	black.color = Color(0, 0, 0, 0)
 	black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -216,6 +254,18 @@ func begin(rehearse := true, from := {}) -> void:
 	sound.wet = true
 	sound.start()
 	sound.running = false
+	var vars := {}
+	var path: Array = []
+	if main.game != null and main.game.story != null:
+		vars = main.game.vars()
+		path = main.game.path
+	radio.begin(vars, path)
+	radio.start()
+	odd.begin()
+	_horns = 0
+	_dark_t = 0.0
+	_out_t = 0.0
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	if _rain.stream != null:
 		_rain.play()
 	main.keys.show_for("truck", KEYS_ROWS, "In the cab")
@@ -239,6 +289,10 @@ func end() -> void:
 	view.lean_roll = 0.0
 	foot.out = false
 	sound.stop()
+	radio.stop()
+	odd.end_all()
+	caption.text = ""
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	_rain.stop()
 	main.keys.hide_card()
 	black.color.a = 0.0
@@ -272,6 +326,14 @@ func _input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_MIDDLE:
 		view.want_yaw = 0.0
 		view.want_pitch = -0.08
+	if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and not foot.out:
+		var wb := (e as InputEventMouseButton).button_index
+		if wb == MOUSE_BUTTON_WHEEL_UP or wb == MOUSE_BUTTON_WHEEL_DOWN:
+			if not radio.on:
+				radio.toggle()
+			radio.tune(4.0 if wb == MOUSE_BUTTON_WHEEL_UP else -4.0)
+			get_viewport().set_input_as_handled()
+			return
 	if e is InputEventKey and (e as InputEventKey).pressed and not (e as InputEventKey).echo:
 		var key := (e as InputEventKey).physical_keycode
 		if key == KEY_ESCAPE:
@@ -302,6 +364,13 @@ func _input(e: InputEvent) -> void:
 			KEY_V:
 				wipe = not wipe
 				main.audio.sfx("click", 0.4, 0.7)
+			KEY_T:
+				radio.toggle()
+				main.keys.used()
+			KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_KP_1, KEY_KP_2, KEY_KP_3, KEY_KP_4, KEY_KP_5:
+				var i := (key - KEY_1) if key <= KEY_5 else (key - KEY_KP_1)
+				radio.preset(i)
+				main.keys.used()
 			KEY_C:
 				chase = not chase
 				view.ride = null if chase else body
@@ -333,6 +402,13 @@ func _input(e: InputEvent) -> void:
 			JOY_BUTTON_X:
 				lights = 1 - lights
 				_lights()
+			JOY_BUTTON_DPAD_UP:
+				radio.toggle()
+			JOY_BUTTON_DPAD_DOWN:
+				# the buttons in turn
+				var near: Array = radio.nearest()
+				var at := TruckRadio.PRESETS.find(near[0].f if near[0] != null and float(near[1]) > 0.5 else -1.0)
+				radio.preset((at + 1) % TruckRadio.PRESETS.size())
 
 
 func _key() -> void:
@@ -374,6 +450,8 @@ func _door() -> void:
 		chase = false
 		sound.outside = true
 		main.keys.set_rows(TruckFoot.KEYS_ROWS, "On his feet")
+		if how > 0:
+			radio.saw("bail")
 		match how:
 			0:
 				main.audio.sfx("clack", 0.35, 0.7)
@@ -472,6 +550,8 @@ func _process(dt: float) -> void:
 		# a knock once for each new hit, not every step it's against the thing
 		if sim.hit > 0.8 and _hit_cool <= 0.0:
 			sound.knock(clampf(sim.hit / 7.0, 0.15, 1.0))
+			if sim.hit > 2.5:
+				radio.saw("hit")
 			_hit_cool = 0.45
 	_hit_cool -= dt
 	_sync_body()
@@ -479,6 +559,7 @@ func _process(dt: float) -> void:
 	_gauges(dt)
 	_traffic(dt)
 	road.tick(_t)
+	_radio_and_mirror(dt)
 	# the sound
 	sound.rpm = sim.rpm
 	sound.load = sim.throttle
@@ -594,7 +675,174 @@ func _lights() -> void:
 	for g in head_glow:
 		((g as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("emission_energy", (2.4 if lights > 0 else 0.0))
 	dash_light.visible = lights > 0
+	if tail_light != null:
+		tail_light.visible = lights > 0
 	(M.face as ShaderMaterial).set_shader_parameter("emission_energy", 0.5 if lights > 0 else 0.0)
+
+
+# ---------------------------------------------------------------- the radio, the mirror, the road
+
+var _flickering := false
+
+func _radio_and_mirror(dt: float) -> void:
+	# his hand on the tuning knob: a nudge, then a sweep the longer it's held
+	var dir := 0.0
+	if not foot.out:
+		if Input.is_physical_key_pressed(KEY_PERIOD) or Input.is_physical_key_pressed(KEY_BRACKETRIGHT) or Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_RIGHT):
+			dir += 1.0
+		if Input.is_physical_key_pressed(KEY_COMMA) or Input.is_physical_key_pressed(KEY_BRACKETLEFT) or Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_LEFT):
+			dir -= 1.0
+	if dir != 0.0:
+		if _tune_held == 0.0:
+			if not radio.on:
+				radio.toggle()
+			radio.tune(dir * 3.0)
+		_tune_held += dt
+		if _tune_held > 0.25:
+			radio.tune(dir * dt * lerpf(30.0, 160.0, clampf((_tune_held - 0.25) / 1.2, 0.0, 1.0)))
+	else:
+		_tune_held = 0.0
+	radio.rpm = sim.rpm if sim.running else 0.0
+	var a: Array = road.along(sim.pos)
+	radio.drive = {"odo": int(odo_value()), "where": TruckRadio.place_name(float(a[0]) - road.zero), "out": foot.out}
+	if foot.out:
+		var dist := foot.pos.distance_to(sim.pos)
+		radio.volume = clampf(3.0 / maxf(dist, 1.0), 0.0, 1.0) * (1.0 if door_open > 0.3 else 0.35)
+		radio.muffle = 1.0
+	else:
+		radio.volume = 1.0
+		radio.muffle = 0.6 if chase else 0.0
+	# the pointer on the dial, and its light
+	if _dial_map.is_empty():
+		_make_dial_map()
+	radio_ptr.position.x = _dial_x(radio.dial)
+	radio_ptr.visible = true
+	(radio_ptr.material_override as ShaderMaterial).set_shader_parameter("emission_energy", 0.9 if radio.on else 0.0)
+	# what can be made out of it
+	var c := ""
+	if radio.caption != "" and not foot.out:
+		c = (radio.caption_from + "    " if radio.caption_from != "" else "") + radio.caption
+	elif radio.caption != "" and foot.out and door_open > 0.3 and foot.pos.distance_to(sim.pos) < 4.0:
+		c = radio.caption
+	caption.text = c
+	# the things that tell the island's radio about him
+	var kmh := absf(sim.speed) * 3.6
+	if kmh > 118.0:
+		radio.saw("fast")
+	if sound.horn and not _horn_was:
+		_horns += 1
+		if _horns >= 4:
+			radio.saw("horn")
+	_horn_was = sound.horn
+	_dark_t = _dark_t + dt if lights == 0 and kmh > 40.0 else 0.0
+	if _dark_t > 15.0:
+		radio.saw("dark")
+	_out_t = _out_t + dt if foot.out and absf(float(a[1])) < 6.0 else 0.0
+	if _out_t > 20.0:
+		radio.saw("out")
+	# what's out there
+	odd.step(dt)
+	if odd.flicker > 0.01:
+		_flickering = true
+		for b in beams:
+			(b as SpotLight3D).light_energy = (240.0 if high else 120.0) * (1.0 - odd.flicker * _rng.randf_range(0.0, 1.0) * (1.0 if _rng.randf() < 0.3 else 0.3))
+	elif _flickering:
+		_flickering = false
+		_lights()
+	# the mirror's camera: on the glass, looking back, through the back window
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if not foot.out and not chase else SubViewport.UPDATE_DISABLED
+	var mt := body.global_transform * Transform3D(Basis.from_euler(Vector3(deg_to_rad(-2.5), PI, 0.0)), Vector3(0.0, 0.88, -0.53))
+	mirror_cam.global_transform = mt
+
+
+func odo_value() -> float:
+	return ODO_START + sim.odometer / 1000.0
+
+
+func _make_dial_map() -> void:
+	var f: Font = _dial_lab.font if _dial_lab.font != null else ThemeDB.fallback_font
+	var text := _dial_lab.text
+	var px := _dial_lab.pixel_size
+	var fs := _dial_lab.font_size
+	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+	var x0 := _dial_lab.position.x - w * 0.5
+	var at := 0
+	for tok in text.split(" ", false):
+		var i := text.find(tok, at)
+		var pre := f.get_string_size(text.substr(0, i), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+		var tw := f.get_string_size(tok, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+		_dial_map.append([float(tok) * 10.0, x0 + pre + tw * 0.5])
+		at = i + tok.length()
+
+
+func _dial_x(khz: float) -> float:
+	var m := _dial_map
+	if khz <= float(m[0][0]):
+		var k0 := (khz - float(m[0][0])) / (float(m[1][0]) - float(m[0][0]))
+		return lerpf(float(m[0][1]), float(m[1][1]), k0)
+	for i in range(1, m.size()):
+		if khz <= float(m[i][0]):
+			var k := (khz - float(m[i - 1][0])) / (float(m[i][0]) - float(m[i - 1][0]))
+			return lerpf(float(m[i - 1][1]), float(m[i][1]), k)
+	return float(m[m.size() - 1][1])
+
+
+func _build_mirror() -> void:
+	mirror_vp = SubViewport.new()
+	mirror_vp.size = Vector2i(352, 80)
+	mirror_vp.world_3d = view.eye.find_world_3d()
+	mirror_vp.positional_shadow_atlas_size = 0
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	mirror_vp.audio_listener_enable_3d = false
+	add_child(mirror_vp)
+	mirror_cam = Camera3D.new()
+	mirror_cam.keep_aspect = Camera3D.KEEP_WIDTH
+	mirror_cam.fov = 30.0
+	mirror_cam.near = 0.9            # past the cab's own inside, up to its back wall and the window in it
+	mirror_cam.far = 400.0
+	mirror_cam.environment = view.cam.environment
+	mirror_cam.cull_mask = 0xFFFFF
+	mirror_cam.set_cull_mask_value(View.MASK_LAYER, false)
+	mirror_vp.add_child(mirror_cam)
+	# the glass: what the camera sees, the right way round for a mirror, a little dark and a
+	# little smeared, the way a mirror in a truck this age is
+	var q := QuadMesh.new()
+	q.size = Vector2(0.236, 0.052)
+	var glass := MeshInstance3D.new()
+	glass.mesh = q
+	var sm := ShaderMaterial.new()
+	sm.shader = Shader.new()
+	sm.shader.code = """shader_type spatial;
+render_mode unshaded, cull_back, fog_disabled;
+uniform sampler2D tex : filter_linear, source_color;
+void fragment() {
+	vec2 uv = vec2(1.0 - UV.x, UV.y);
+	// night in a mirror: what little light there is, lifted, so a shape can be made out
+	vec3 t = texture(tex, uv).rgb;
+	float lum = dot(t, vec3(0.3, 0.55, 0.15));
+	vec3 c = (1.0 - exp(-t * 22.0)) * 0.8 + vec3(1.0 - exp(-max(lum - 0.006, 0.0) * 30.0)) * 0.35;
+	float edge = smoothstep(0.0, 0.06, UV.x) * smoothstep(0.0, 0.06, 1.0 - UV.x) * smoothstep(0.0, 0.2, UV.y) * smoothstep(0.0, 0.2, 1.0 - UV.y);
+	float smear = 0.03 * sin(UV.x * 23.0 + UV.y * 7.0) * sin(UV.x * 5.0 - UV.y * 11.0);
+	ALBEDO = c * mix(0.55, 1.0, edge) + vec3(0.012 + smear * 0.4);
+}
+"""
+	sm.set_shader_parameter("tex", mirror_vp.get_texture())
+	glass.material_override = sm
+	glass.position = Vector3(0, 0.88, -0.5325)
+	body.add_child(glass)
+	# the tail lamps' red, on the road and whatever's standing on it behind (a spot, so none of it
+	# comes forward into the cab)
+	tail_light = SpotLight3D.new()
+	tail_light.light_color = Color("ff2a1a")
+	tail_light.light_energy = 2.0
+	tail_light.spot_range = 18.0
+	tail_light.spot_angle = 55.0
+	tail_light.spot_attenuation = 1.4
+	tail_light.shadow_enabled = false
+	tail_light.position = Vector3(0, -0.1, 3.45)
+	tail_light.rotation_degrees = Vector3(-8.0, 180.0, 0.0)
+	tail_light.visible = false
+	body.add_child(tail_light)
 
 
 # ---------------------------------------------------------------- the truck, drawn
@@ -770,7 +1018,8 @@ func _build_truck() -> void:
 	var rx := 0.1
 	_bx(Vector3(0.24, 0.085, 0.014), Vector3(rx, 0.33, -0.628), M.alu, body)
 	_bx(Vector3(0.14, 0.026, 0.004), Vector3(rx, 0.345, -0.62), M.dial, body)
-	_lab("55  60  70  80  100  120  140  160", 0.00019, 22, Color("e8c88a"), body).position = Vector3(rx, 0.349, -0.617)
+	_dial_lab = _lab("55  60  70  80  100  120  140  160", 0.00019, 22, Color("e8c88a"), body)
+	_dial_lab.position = Vector3(rx, 0.349, -0.617)
 	_lab("AM", 0.0002, 22, Color("e8c88a"), body).position = Vector3(rx - 0.055, 0.338, -0.617)
 	radio_ptr = _bx(Vector3(0.0016, 0.022, 0.001), Vector3(rx - 0.03, 0.345, -0.6175), pub.glow(Color("ff5030"), 0.6), body)
 	for k in 5:

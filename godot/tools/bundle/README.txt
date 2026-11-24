@@ -85,6 +85,22 @@ from the floor rather than from the middle of a scene, and some of it won't line
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
 
 
+THE TRUCK, WITH THE RADIO ON
+
+- The radio works. T turns it on and off, , and . tune it (hold for a sweep; the mouse wheel tunes
+  too), and 1 to 5 are its five buttons, which somebody set before you. On a pad: up on the d-pad
+  for on and off, left and right to tune, down for the next button.
+- Between the stations there's static, with the engine's plugs ticking in it. Near a station it
+  comes in muffled and whistling; on it, it's clear. What's said shows at the foot of the screen,
+  and only as much of it as the signal lets through.
+- 690 the Dominion Service (the overnight news, the marine forecast, the emergency signal's test).
+  870 a station two thousand miles off, in and out on the night air: listen to the Swap Shop for
+  a while. 1060 the Prayer Tower and Brother Cal. 1240 CKTD, the island's own, Reg on the night
+  desk: records, the town's news (some of it is about what you've done on your nights), and
+  callers who saw what your truck did tonight. 1470 is a carrier with nothing on it. Mostly.
+- The rearview mirror shows the road behind.
+- Something is out on the road some nights. It doesn't happen on a schedule. Keep driving.
+
 THE TRUCK, AFTER ITS SECOND DRIVE
 
 - Q is the door. Stopped, he puts it in P and steps out, and can walk round it (W A S D, Shift to
