@@ -1,13 +1,15 @@
 LAST CALL
-Everything so far in one build, 24 November 2026: the night on film now, night stock, with a Look
-menu (pause > The look, or Settings) holding thirteen ways to show it and dials for the film's
-grain, halation, glow and corners; F8 goes round them while you play. Also the cold open,
-Wednesday, Thursday and Friday,
-the door by hand, walking on his own feet and out round the grounds at night, darts with their
-fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
-the page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant,
-the man on the deck), the jade '78 in the lot to drive, and the set dressing: the beer posters,
-the glasswasher behind the bar (its switch is yours to flip), the signs, the Esso's ads, trash.
+The master build, 24 November 2026: every open thread's work in one game. New since the last
+combined build: the cold open's third pass (no words, about a minute, hard cuts), the truck after
+its second drive (the door, a '78 dash, the radio, the rearview mirror, and something on the road),
+the set dressing's second layer (more ads, stains, and things nobody can account for), and the
+night on film, night stock, with a Look menu (pause > The look, or Settings) holding thirteen ways
+to show it; F8 goes round them while you play. Also: Wednesday, Thursday and Friday, the door by
+hand, walking on his own feet and out round the grounds at night, darts with their fanfare, pool,
+the cigarette machine that plays like a synth, beer mats, the glasses, the voices' masks and the
+page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant, the man
+on the deck), the jade '78 in the lot to drive, and the beer posters, glasswasher, signs, Esso ads
+and trash.
 
 PLAY IT
 
