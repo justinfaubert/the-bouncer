@@ -139,7 +139,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 === function toy_bottles(what)
 // HUTCH: What's on the back bar at a place like yours: what gets poured, and what's been up there for years?
 {stopping:
-- The back bar: three shelves of bottles against the mirror, the rail stuff on the bottom where she could reach it without looking, and up top the good scotch, dusty at the shoulders.{here != hall: In the mirror, between the bottles, the room, and him in it.}
+- The back bar: three shelves of bottles against the mirror, the rail stuff on the bottom where the bartender could reach it without looking, and up top the good scotch, dusty at the shoulders.{here != hall: In the mirror, between the bottles, the room, and him in it.}
 - The bottles{here != hall:, and him in the mirror behind them}.
 }
 
@@ -200,7 +200,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 - lights == 1 || (lights == 2 && clock >= 1545) || clock >= CLOSE_TIME:
     The dimmer inside the front door, a brass plate and a dial, turned all the way up.
 - lights == -1:
-    The dimmer inside the front door, a brass plate and a dial, left where she had it: a quarter up.
+    The dimmer inside the front door, a brass plate and a dial, left where the bartender had it: a quarter up.
 - else:
     The dimmer inside the front door, a brass plate and a dial, down to a quarter since eight o'clock.
 }

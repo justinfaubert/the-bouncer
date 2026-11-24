@@ -188,7 +188,7 @@ func title(stamp := false) -> void:
 				main.start_new(cur)))
 	else:
 		_button("Start Wednesday", true, func(): main.start_new(cur), 30)
-	_button("Nights", false, func(): nights("title"))
+	_button("Nights: Wednesday, Thursday, Friday", false, func(): nights("title"))
 	_button("The cold open", false, func(): hide_all(); main.intro.play())
 	_button("Games", false, func(): games("title"))
 	_button("Rehearse", false, func(): rehearse("title"))
@@ -211,25 +211,31 @@ func _stamp(t: Label) -> void:
 			rest.append(c)
 			c.modulate.a = 0.0
 	t.modulate.a = 0.0
+	await get_tree().process_frame
+	# the title can be gone by now (a night started, or resumed, the frame it came up): its labels
+	# are freed, and a tween on a freed label crashes the engine. Every tween here is the node's own,
+	# so it dies with it.
+	if not is_instance_valid(t) or not t.is_inside_tree():
+		return
+	t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
 	t.scale = Vector2(1.18, 1.18)
-	# every tween hangs off the node it moves, so a title rebuilt mid-stamp (back to the menu twice
-	# quickly) takes its tweens with it instead of leaving them on freed labels
 	var tw := t.create_tween()
 	tw.tween_interval(0.25)
 	tw.tween_callback(func():
-		t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
 		main.audio.sfx("stamp", 1.0, 0.62)
 		main.audio.sfx("thump", 0.7, 0.5))
 	tw.set_parallel()
 	tw.tween_property(t, "modulate:a", 1.0, 0.06).set_delay(0.25)
 	tw.tween_property(t, "scale", Vector2.ONE, 0.09).set_delay(0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	# the jolt: the paper takes the block
-	var jolt := t.create_tween()
+	var jolt := sheet.create_tween()
 	jolt.tween_interval(0.34)
 	jolt.tween_property(sheet, "position:y", 5.0, 0.04)
 	jolt.tween_property(sheet, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var i := 0
 	for c in rest:
+		if not is_instance_valid(c):
+			continue
 		var ct: Tween = (c as Node).create_tween()
 		ct.tween_interval(0.75 + 0.07 * i)
 		ct.tween_property(c, "modulate:a", 1.0, 0.45)
@@ -557,7 +563,7 @@ func nights(from: String) -> void:
 	_open("nights")
 	_gap(40)
 	_head("Nights", "Three of them")
-	_para("Each night is its own Wednesday, saved as it goes. There's no going back inside a night: to try it another way, play another.", 21, Look.MUTED)
+	_para("Three saves, each its own run, saved as it goes. A new one can start on Wednesday, the test shift, or skip ahead to Thursday or Friday as if Wednesday went by quietly. There's no going back inside a night: to try it another way, play another.", 21, Look.MUTED)
 	_gap(10)
 	for s in range(1, Store.SLOTS + 1):
 		var save = main.store.load_slot(s)
@@ -574,16 +580,25 @@ func nights(from: String) -> void:
 			var b1 := UiBits.button("Continue" if not save.get("ended", false) else "See how it ended", true, 21)
 			b1.pressed.connect(func(): main.resume(slot_n))
 			h.add_child(b1)
-			var b2 := UiBits.button("Start over", false, 21)
-			b2.pressed.connect(func():
-				confirm("Start night %d over?" % slot_n, "That night, as it stands, goes.", "Start over", func():
-					main.store.clear(slot_n)
-					main.start_new(slot_n)))
-			h.add_child(b2)
+			h.add_child(UiBits.label("START OVER ON", "ui_b", 14, Look.FAINT, 2))
+			for d in main.DAYS:
+				var knot: String = d[0]
+				var day_name: String = d[1]
+				var b2 := UiBits.button(day_name, false, 19)
+				b2.tooltip_text = d[2]
+				b2.pressed.connect(func():
+					confirm("Start night %d over, on %s?" % [slot_n, day_name], "That night, as it stands, goes.", "Start over", func():
+						main.store.clear(slot_n)
+						main.start_day(slot_n, knot)))
+				h.add_child(b2)
 		else:
-			var b3 := UiBits.button("Start it", true, 21)
-			b3.pressed.connect(func(): main.start_new(slot_n))
-			h.add_child(b3)
+			h.add_child(UiBits.label("START ON", "ui_b", 14, Look.FAINT, 2))
+			for d in main.DAYS:
+				var knot: String = d[0]
+				var b3 := UiBits.button(d[1], d[0] == "wednesday", 21)
+				b3.tooltip_text = d[2]
+				b3.pressed.connect(func(): main.start_day(slot_n, knot))
+				h.add_child(b3)
 		row.add_child(h)
 		box.add_child(row)
 		_gap(8)
