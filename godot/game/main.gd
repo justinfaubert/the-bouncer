@@ -526,6 +526,8 @@ func persist_soon() -> void:
 var _darts_from := ""
 var _truck_from := ""
 var _looked_at := {}
+var _reading := 0.0             # a poster or a sign looked at: how long his eyes have been on it
+var _reading_fov := 0.0         # the fov it took, so letting go doesn't undo some other close look
 
 
 # a game he's come across in the night: in the Games on the title from now on
@@ -915,6 +917,10 @@ func toy(id: String, what: String) -> String:
 			start_mats("")
 			return "said"
 		_looked_at[id] = true
+	# a poster, a sign, an ad (world/dressing.gd): his eyes go to it and narrow on it till it fills
+	# his sight, the way you read a thing across a room; he lets it go when the player looks away
+	if what == "look" and pub.dressing != null and Dressing.READ.has(id) and pub.anchors.has(id):
+		_read_closer(id)
 	# the glasswasher's switch on the back bar (world/glasswasher.gd): he leans over and flips it, and
 	# then the words for it, which know which way it went
 	if id == "washer_switch" and what == "look" and pub.dressing != null:
@@ -1606,6 +1612,7 @@ func _process(dt: float) -> void:
 			column.show_clock(clock_shown)
 	going.process(dt)
 	feet.process(dt)
+	_reading_process(dt)
 	_widen(dt)
 
 
@@ -1669,3 +1676,32 @@ func _notification(what: int) -> void:
 			feet.clear()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		hand.away(false)
+
+
+# his eyes on a poster or a sign, reading it: the hover caption keeps off it till he looks away
+func reading() -> bool:
+	return _reading > 0.0
+
+
+func _read_closer(id: String) -> void:
+	if view.focus_fov > 0.0 and view.focus_fov != _reading_fov:
+		return                      # something else has his eyes (the darts, the dice)
+	var at: Vector3 = pub.anchors[id]
+	view.look_at_point(at)
+	var half: float = Dressing.READ[id] * 1.25
+	_reading_fov = clampf(rad_to_deg(2.0 * atan(half / maxf(view.eye_pos.distance_to(at), 0.3))), 9.0, 50.0)
+	view.focus_fov = _reading_fov
+	_reading = 0.001
+
+
+func _reading_process(dt: float) -> void:
+	if _reading <= 0.0:
+		return
+	_reading += dt
+	var done := view.walking or _reading > 14.0 or (_reading > 0.5 and view.turning())
+	if view.focus_fov != _reading_fov:
+		_reading = 0.0              # taken over, or let go elsewhere
+		return
+	if done:
+		view.focus_fov = 0.0
+		_reading = 0.0

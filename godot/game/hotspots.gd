@@ -539,7 +539,7 @@ static func zone_of(p: Vector3) -> String:
 func _process(dt: float) -> void:
 	_t += dt
 	if (spots.is_empty() and things.is_empty()) or not main.in_game or main.game.ended or main.menus.is_open() or main.pending != null \
-			or main.rolling != null or main.props.holding():
+			or main.rolling != null or main.props.holding() or main.reading():
 		if under != null and not _on_caption:
 			_set_under(null)
 		return
