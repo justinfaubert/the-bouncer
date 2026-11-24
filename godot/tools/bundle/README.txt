@@ -88,6 +88,41 @@ from the floor rather than from the middle of a scene, and some of it won't line
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
 
 
+THE TRUCK, WITH THE RADIO ON
+
+- The radio works. T turns it on and off, , and . tune it (hold for a sweep; the mouse wheel tunes
+  too), and 1 to 5 are its five buttons, which somebody set before you. On a pad: up on the d-pad
+  for on and off, left and right to tune, down for the next button.
+- Between the stations there's static, with the engine's plugs ticking in it. Near a station it
+  comes in muffled and whistling; on it, it's clear. What's said shows at the foot of the screen,
+  and only as much of it as the signal lets through.
+- 690 the Dominion Service (the overnight news, the marine forecast, the emergency signal's test).
+  870 a station two thousand miles off, in and out on the night air: listen to the Swap Shop for
+  a while. 1060 the Prayer Tower and Brother Cal. 1240 CKTD, the island's own, Reg on the night
+  desk: records, the town's news (some of it is about what you've done on your nights), and
+  callers who saw what your truck did tonight. 1470 is a carrier with nothing on it. Mostly.
+- The rearview mirror shows the road behind.
+- Something is out on the road some nights. It doesn't happen on a schedule. Keep driving.
+
+THE TRUCK, AFTER ITS SECOND DRIVE
+
+- Q is the door. Stopped, he puts it in P and steps out, and can walk round it (W A S D, Shift to
+  hurry) and get back in at the driver's door with Q or E. Moving, Q is a bail: under a walking
+  pace he stumbles; faster it hurts, more the faster, and the truck goes on without him with the
+  door open and rolls to a stop. The dome lamp comes on with the door, and the key buzzer goes if
+  the engine's running. A pad: B is the door.
+- The hiss is gone: the tires are a low rush now and the rain on the roof is quieter. The engine
+  sits lower: deeper pipes, a bigger muffler, less rasp.
+- The dash is a '78's: a wide speedometer in km/h with miles inside, lit green with the lamps on,
+  fuel and temperature in their own pods, PRND21 along its foot, woodgrain across the face, a
+  push-button AM radio, the heater's levers, the glovebox, the headlamp knob that pulls out, a
+  two-spoke wheel with a broad horn pad, the key in the column with its fob swinging, and on the
+  pad a sun-faded bill of sale.
+- The keys steer less the faster you go, the way your hands would: a tap at highway speed is a
+  lane change, at a crawl they still find full lock. His head moves with the truck (braking,
+  turning) and the road comes up through the seat.
+
+
 THE TRUCK, AFTER ITS FIRST DRIVE
 
 - W A S D never turn his head now, anywhere. In the truck no key looks round at all: the mouse

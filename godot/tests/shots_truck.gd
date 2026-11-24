@@ -5,7 +5,7 @@ extends SceneTree
 # so it's moving): the motel, the bluff, the fish plant, the mill road, the washout; the church, the
 # fruit stand, the cut, the ferry sign, the bridge that's out. Needs a display:
 #   xvfb-run -a -s "-screen 0 1600x900x24" godot --rendering-driver vulkan --resolution 1600x900 \
-#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel|model] [--drinks 0]
+#     --path godot -s res://tests/shots_truck.gd -- --out /tmp/truck [--only motel|model|dash|odd] [--drinks 0]
 
 var main
 var out := "/tmp/truck"
@@ -48,6 +48,80 @@ func _run() -> void:
 	await _frames(20)
 	var tr: Truck = main.truck
 	main.keys.hide_card()
+	if only == "dash":
+		tr._key()
+		await create_timer(1.6).timeout
+		tr.lights = 1
+		tr._lights()
+		for v in [["cab", 0.0, -0.08], ["the_dash", 0.0, -0.42], ["the_radio", -0.55, -0.4], ["the_bill", -0.75, -0.2], ["out_the_door", 1.3, -0.15]]:
+			main.view.want_yaw = v[1]
+			main.view.want_pitch = v[2]
+			main.view.yaw = v[1]
+			main.view.pitch = v[2]
+			await _frames(25)
+			await _grab("dash_" + str(v[0]))
+		main.view.want_yaw = 0.0
+		main.view.yaw = 0.0
+		tr._door()
+		await _frames(20)
+		main.view.yaw = tr.sim.yaw() - 2.6
+		main.view.want_yaw = main.view.yaw
+		main.view.pitch = -0.2
+		main.view.want_pitch = -0.2
+		await _frames(30)
+		await _grab("out_by_the_door")
+		quit()
+		return
+	if only == "odd":
+		# the radio, the figure on the shoulder, the mirror, the lights that aren't there
+		tr._key()
+		await create_timer(1.6).timeout
+		tr.lights = 1
+		tr._lights()
+		_put(tr, 600.0, 1.0)
+		tr.sim.selector = "D"
+		tr._sel = 3
+		tr.radio.on = true
+		tr.radio.dial = 1240.0
+		await _frames(20)
+		_look(-0.55, -0.4, 34.0)
+		await _frames(25)
+		await _grab("odd_radio_on")
+		_look(0.0, -0.06, 0.0)
+		tr.odd._next = 99999.0
+		tr.odd.start("figure")
+		var fd: float = tr.odd._d - tr.road.zero
+		_put(tr, fd - 70.0, 1.0)
+		await _frames(3)
+		await _grab("odd_figure_ahead")
+		_put(tr, fd - 34.0, 1.0)
+		await _frames(3)
+		await _grab("odd_figure_near")
+		_put(tr, fd - 16.0, 1.0)
+		await _frames(3)
+		await _grab("odd_figure_close")
+		_put(tr, fd + 6.0, 1.0)
+		_look(-0.5, 0.1, 22.0)
+		await _frames(4)
+		await _grab("odd_figure_in_the_mirror")
+		tr.mirror_vp.get_texture().get_image().save_png(out.path_join("mirror_raw_figure.png"))
+		_look(2.55, -0.05, 0.0)
+		await _frames(4)
+		print("odd behind: ", tr.odd.state, " passed ", tr.odd._passed, " eye ", tr.odd.eye_sees_figure())
+		await _grab("odd_nobody_there")
+		tr.odd.end_all()
+		_look(-0.5, 0.1, 22.0)
+		_put(tr, 900.0, 1.0)
+		tr.odd.start("lights")
+		tr.odd._gap = 40.0
+		await _frames(30)
+		await _grab("odd_lights_in_the_mirror")
+		tr.mirror_vp.get_texture().get_image().save_png(out.path_join("mirror_raw_lights.png"))
+		_look(2.55, -0.05, 0.0)
+		await _frames(25)
+		await _grab("odd_no_lights_behind")
+		quit()
+		return
 	if only == "model":
 		# round the truck in the lot, lights on, close enough to see what it is
 		tr._key()
@@ -107,6 +181,14 @@ func _run() -> void:
 			_chase(tr, false)
 	print("speed at the end: %.0f km/h, rpm %d, gear %s" % [tr.sim.kmh(), tr.sim.rpm, tr.sim.gear])
 	quit()
+
+
+func _look(yaw: float, pitch: float, fov: float) -> void:
+	main.view.want_yaw = yaw
+	main.view.yaw = yaw
+	main.view.want_pitch = pitch
+	main.view.pitch = pitch
+	main.view.focus_fov = fov
 
 
 func _chase(tr: Truck, on: bool) -> void:

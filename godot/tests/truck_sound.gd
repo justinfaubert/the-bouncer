@@ -25,6 +25,9 @@ func _init() -> void:
 	var block := int(TruckSound.RATE / 60.0)
 	var peak := 0.0
 	var quiet_run := 0
+	var e_all := 0.0
+	var e_hi := 0.0
+	var prev := 0.0
 	# script: [seconds, selector, throttle, brake, cranking, running, horn]
 	var plan := [[1.0, "P", 0.0, 1.0, false, false, false], [1.2, "P", 0.0, 1.0, true, false, false],
 		[3.0, "P", 0.0, 1.0, false, true, false], [1.5, "P", 0.7, 1.0, false, true, false],
@@ -53,12 +56,18 @@ func _init() -> void:
 			var loud := 0.0
 			for v in b:
 				loud = maxf(loud, maxf(absf(v.x), absf(v.y)))
+				if sim.running and step[1] == "D" and not step[6]:
+					e_all += v.x * v.x
+					e_hi += (v.x - prev) * (v.x - prev)
+				prev = v.x
 			peak = maxf(peak, loud)
 			if sim.running and loud < 0.01:
 				quiet_run += 1
 			all.append_array(b)
 	_check(peak < 1.0, "never clips hard (peak %.2f)" % peak)
 	_check(peak > 0.15, "loud enough to hear (peak %.2f)" % peak)
+	var f_drive := asin(sqrt(e_hi / maxf(e_all, 1e-9)) / 2.0) * TruckSound.RATE / PI
+	_check(f_drive < 400.0, "driving, its weight sits low, not in the hiss (about %.0f Hz)" % f_drive)
 	_check(quiet_run < 10, "never silent while it runs (%d silent frames)" % quiet_run)
 	_knocks()
 	_save(out, all)

@@ -104,6 +104,7 @@ var throttle := 0.0                          # 0..1
 var brake := 0.0                             # 0..1
 var steer_in := 0.0                          # -1 full left .. 1 full right: where his hands want the wheel
 var steer_direct := false                    # a stick or a wheel: the steering wheel goes where it's put
+var keys_cap := true                         # the keys' (and stick's) reach shrinks with speed
 var selector := "P"                          # P R N D 2 1
 var running := true
 var wet := true                              # it's raining (the island)
@@ -316,13 +317,23 @@ func _steering() -> void:
 		var lag := lerpf(30.0, 3.0, drunk)
 		_lag_steer += (steer_in - _lag_steer) * minf(1.0, lag * DT)
 		target = _lag_steer + (_lag_steer - steer_in) * -0.6 * drunk
-	var want := -target * LOCK
+	# how far a held key (or the stick, a little more) turns the wheel: all the way at a crawl, and
+	# at speed only as far as asks the tires for about 0.6 g, the way a driver's hands know to; so a
+	# tap on the highway is a lane change, not a swerve. keys_cap off: the raw wheel.
+	var cap := LOCK
+	if keys_cap and v > 1.0:
+		var delta := atan(5.4 * WHEELBASE / (v * v))
+		cap = clampf(rad_to_deg(delta) * RATIO + PLAY + 40.0, 70.0, LOCK)     # + the fronts' slip under load
+	var want := -target * (minf(LOCK, cap * 1.5) if steer_direct else cap)
 	if steer_direct:
 		wheel_deg = move_toward(wheel_deg, want, 1400.0 * DT)
 	elif absf(target) > 0.01:
-		# the keys: the wheel goes round as fast as hands go round a wheel, slower at speed
-		var rate := 520.0 / (1.0 + v / 14.0)
-		wheel_deg = move_toward(wheel_deg, want, rate * DT * (1.0 + absf(target)))
+		# the keys: the wheel goes round as fast as hands go round a wheel, and gets to where the
+		# key's asking in about half a second whatever the speed
+		var rate := maxf(cap * 2.2, 140.0)
+		if signf(want - wheel_deg) != signf(wheel_deg) and absf(wheel_deg) > 2.0:
+			rate *= 1.6      # back the other way, quicker: unwinding
+		wheel_deg = move_toward(wheel_deg, want, rate * DT)
 	else:
 		# hands loose, the castor brings it back, faster at speed
 		wheel_deg = move_toward(wheel_deg, 0.0, (40.0 + v * 22.0) * DT)

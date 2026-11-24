@@ -16,6 +16,7 @@ func _init() -> void:
 	_brake()
 	_circle()
 	_slide()
+	_keys()
 	_reverse()
 	_hill()
 	_wall()
@@ -180,6 +181,48 @@ func _slide() -> void:
 	check(max_lat > 1.0, "the back steps out when he yanks it at 90 in the wet (%.1f m/s sideways)" % max_lat)
 	var up: float = s.rot.y.dot(Vector3.UP)
 	check(up > 0.5, "doesn't roll over on a flat road (up %.2f)" % up)
+
+
+# the keys at speed: a tap is a lane change, held it's a hard turn but not a spin, and at a crawl
+# they still find full lock
+func _keys() -> void:
+	for case in ["tap", "hold"]:
+		var s := TruckSim.new()
+		s.wet = false
+		s.place(Vector3.ZERO, 0.0)
+		s.selector = "D"
+		s.throttle = 1.0
+		while s.kmh() < 90.0 and s.t < 30.0:
+			s.step()
+		s.throttle = 0.3
+		var y0 := s.yaw()
+		var max_spin := 0.0
+		var max_slip := 0.0
+		var max_g := 0.0
+		var v0 := s.vel
+		for n in int(3.0 * TruckSim.HZ):
+			s.steer_direct = false
+			s.steer_in = -1.0 if (case == "hold" or n < int(0.3 * TruckSim.HZ)) else 0.0
+			s.step()
+			max_spin = maxf(max_spin, absf(s.spin.y))
+			max_slip = maxf(max_slip, absf(s.vel.dot(s.rot.x)))
+			max_g = maxf(max_g, ((s.vel - v0) * TruckSim.HZ).length())
+			v0 = s.vel
+		var turned := absf(rad_to_deg(wrapf(s.yaw() - y0, -PI, PI)))
+		if case == "tap":
+			check(turned > 1.0 and turned < 20.0, "a tap of the key at 90 turns it %.1f degrees: a lane change, not a swerve" % turned)
+		else:
+			check(max_spin < 0.75 and max_slip < 3.0, "holding a key at 90 turns it hard but doesn't spin it (yaw %.2f rad/s, %.1f m/s sideways)" % [max_spin, max_slip])
+	var c := TruckSim.new()
+	c.place(Vector3.ZERO, 0.0)
+	c.selector = "D"
+	c.throttle = 0.1
+	for n in int(4.0 * TruckSim.HZ):
+		c.throttle = 0.1 if c.kmh() < 5.0 else 0.0
+		c.steer_direct = false
+		c.steer_in = 1.0
+		c.step()
+	check(absf(c.wheel_deg) > TruckSim.LOCK * 0.95, "at a crawl the keys still find full lock (%.0f of %.0f degrees)" % [absf(c.wheel_deg), TruckSim.LOCK])
 
 
 func _reverse() -> void:

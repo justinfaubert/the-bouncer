@@ -12,17 +12,24 @@
 #   L             the headlights, H the high beams     V the wipers     Space the horn
 #   the mouse     his head round the cab, out the side window, into the mirror
 #   C             his eyes in the cab / behind the truck (the rehearsal's view)
-#   Esc           park it and get out
-# A gamepad: right trigger the gas, left trigger the brake, the left stick the wheel.
+#   Q             the door: out when it's still (into P first), a bail when it isn't; back in at the door
+#   T             the radio on and off      , .  (or the wheel)  tune it      1-5  its buttons
+#   Esc           leave the rehearsal
+# A gamepad: right trigger the gas, left trigger the brake, the left stick the wheel, B the door.
+# Out of it on his feet: game/truck_foot.gd. The radio: game/truck_radio.gd. What's out on the road
+# that shouldn't be, and the rearview mirror it shows in: game/truck_odd.gd.
 class_name Truck
 extends Node
 
 signal left
 
-const KEYS_ROWS := [["E", "the key (in P or N)"], ["R / F", "the shifter, up toward P, down toward 1"],
+const KEYS_ROWS := [["Q", "the door: out (moving, he bails)"], ["E", "the key (in P or N)"], ["R / F", "the shifter, up toward P, down toward 1"],
 	["W / S", "gas / brake"], ["A / D", "the wheel"], ["L  H  V", "lights, high beams, wipers"],
-	["Space", "the horn"], ["Mouse", "his head round the cab"], ["C", "in the cab / behind the truck"]]
+	["Space", "the horn"], ["T", "the radio"], [",  .  or the wheel", "tune it"], ["1 to 5", "its buttons (somebody set them)"],
+	["Mouse", "his head round the cab"], ["C", "in the cab / behind the truck"]]
 
+const HINGE := Vector3(-0.945, 0.0, -0.85)      # the driver's door's hinges, its front edge
+const ODO_START := 86402.0                      # the odometer when it turned up: five drums, been round once
 const EYE := Vector3(-0.40, 0.80, 0.16)         # his eyes on the bench seat: six foot four, his hair near the headliner
 const PARK_AT := Vector3(4.0, 0.0, 21.0)        # where it's parked in the lot, nose to the highway
 const JADE := Color("3f6f55")
@@ -52,11 +59,43 @@ var view: View
 var road: IslandRoad
 var sim: TruckSim
 var sound: TruckSound
+var radio: TruckRadio
+var odd: TruckOdd
+var mirror_vp: SubViewport       # the rearview mirror: what's behind, drawn by its own camera
+var mirror_cam: Camera3D
+var tail_light: SpotLight3D      # the tail lamps' red on the road behind
+var caption: Label               # what can be made out of the radio
+var _dial_lab: Label3D
+var _dial_map: Array = []        # [kHz, x on the dial]
+var _tune_held := 0.0
+var _horns := 0
+var _horn_was := false
+var _dark_t := 0.0
+var _out_t := 0.0
 var body: Node3D                 # the truck, at the sim's middle of mass
 var wheels: Array = []           # [steer pivot, spinning tire]
 var wheel_node: Node3D           # the steering wheel
 var _hit_cool := 0.0
+var _temp := 0.0
+var _g_local := Vector3.ZERO       # what the cab's doing, in its own terms, smoothed
+var _head := Vector3.ZERO
 var tree: Node3D                 # the cardboard pine on the mirror
+var odo: Label3D
+var warn_lamps: Array = []
+var high_lamp: MeshInstance3D
+var radio_ptr: MeshInstance3D
+var lamp_knob: Node3D
+var wiper_knob: Node3D
+var key_node: Node3D
+var fob: Node3D
+var door_node: Node3D            # the driver's door, on its hinges
+var door_geom: Node3D
+var door_open := 0.0             # 0 shut, 1 wide
+var _door_want := 0.0
+var _door_shut_at := -1.0        # when it swings shut on its own (he's stepped away, or he's in)
+var _left_open := false          # he bailed: it stays as he left it
+var _roll_brk := 0.0             # nobody's foot: it rolls to a stop
+var foot: TruckFoot
 var _tree_th := [0.0, 0.0]
 var _tree_w := [0.0, 0.0]
 var _last_vel := Vector3.ZERO
@@ -103,6 +142,9 @@ func setup(m) -> void:
 	set_process_input(false)
 	sound = TruckSound.new()
 	add_child(sound)
+	radio = TruckRadio.new()
+	add_child(radio)
+	foot = TruckFoot.new(self)
 	_rng.randomize()
 
 
@@ -117,6 +159,26 @@ func _build_once() -> void:
 	sim.ground = road.ground
 	_build_truck()
 	_build_traffic()
+	odd = TruckOdd.new()
+	odd.setup(self)
+	_build_mirror()
+	caption = Label.new()
+	caption.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	caption.custom_minimum_size = Vector2(760, 0)
+	caption.offset_left = -380.0
+	caption.offset_right = 380.0
+	caption.offset_top = -120.0
+	caption.offset_bottom = -40.0
+	caption.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	caption.add_theme_font_size_override("font_size", 17)
+	caption.add_theme_color_override("font_color", Color("e8c070"))
+	caption.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	caption.add_theme_constant_override("shadow_offset_x", 1)
+	caption.add_theme_constant_override("shadow_offset_y", 1)
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	main.root.add_child(caption)
 	black = ColorRect.new()
 	black.color = Color(0, 0, 0, 0)
 	black.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -130,7 +192,7 @@ func _build_once() -> void:
 	if st != null:
 		st = main.audio._looping(st.duplicate())
 	_rain.stream = st
-	_rain.volume_db = -14.0
+	_rain.volume_db = -22.0
 	add_child(_rain)
 
 
@@ -172,6 +234,14 @@ func begin(rehearse := true, from := {}) -> void:
 	high = false
 	wipe = false
 	chase = false
+	foot.get_in()
+	door_open = 0.0
+	_door_want = 0.0
+	_door_shut_at = -1.0
+	_left_open = false
+	_roll_brk = 0.0
+	sound.outside = false
+	sound.volume = 1.0
 	_lights()
 	body.visible = true
 	main.lay_out(1.0)
@@ -184,6 +254,18 @@ func begin(rehearse := true, from := {}) -> void:
 	sound.wet = true
 	sound.start()
 	sound.running = false
+	var vars := {}
+	var path: Array = []
+	if main.game != null and main.game.story != null:
+		vars = main.game.vars()
+		path = main.game.path
+	radio.begin(vars, path)
+	radio.start()
+	odd.begin()
+	_horns = 0
+	_dark_t = 0.0
+	_out_t = 0.0
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	if _rain.stream != null:
 		_rain.play()
 	main.keys.show_for("truck", KEYS_ROWS, "In the cab")
@@ -204,7 +286,13 @@ func end() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.ride = null
 	view.keys_off = false
+	view.lean_roll = 0.0
+	foot.out = false
 	sound.stop()
+	radio.stop()
+	odd.end_all()
+	caption.text = ""
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	_rain.stop()
 	main.keys.hide_card()
 	black.color.a = 0.0
@@ -224,7 +312,10 @@ func _input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
 		var m := e as InputEventMouseMotion
 		var k := 0.0024 * float(main.settings.get("look_speed", 1.0))
-		if chase:
+		if foot.out:
+			view.want_yaw -= m.relative.x * k
+			view.want_pitch = clampf(view.want_pitch - m.relative.y * k, -1.2, 1.0)
+		elif chase:
 			view.want_yaw -= m.relative.x * k
 			view.want_pitch = clampf(view.want_pitch - m.relative.y * k, -0.6, 0.3)
 		else:
@@ -235,13 +326,27 @@ func _input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and (e as InputEventMouseButton).button_index == MOUSE_BUTTON_MIDDLE:
 		view.want_yaw = 0.0
 		view.want_pitch = -0.08
+	if e is InputEventMouseButton and (e as InputEventMouseButton).pressed and not foot.out:
+		var wb := (e as InputEventMouseButton).button_index
+		if wb == MOUSE_BUTTON_WHEEL_UP or wb == MOUSE_BUTTON_WHEEL_DOWN:
+			if not radio.on:
+				radio.toggle()
+			radio.tune(4.0 if wb == MOUSE_BUTTON_WHEEL_UP else -4.0)
+			get_viewport().set_input_as_handled()
+			return
 	if e is InputEventKey and (e as InputEventKey).pressed and not (e as InputEventKey).echo:
 		var key := (e as InputEventKey).physical_keycode
+		if key == KEY_ESCAPE:
+			get_viewport().set_input_as_handled()
+			end()
+			return
+		if key == KEY_Q or (foot.out and key == KEY_E):
+			_door()
+			get_viewport().set_input_as_handled()
+			return
+		if foot.out:
+			return
 		match key:
-			KEY_ESCAPE:
-				get_viewport().set_input_as_handled()
-				end()
-				return
 			KEY_E:
 				_key()
 			KEY_R:
@@ -259,6 +364,13 @@ func _input(e: InputEvent) -> void:
 			KEY_V:
 				wipe = not wipe
 				main.audio.sfx("click", 0.4, 0.7)
+			KEY_T:
+				radio.toggle()
+				main.keys.used()
+			KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_KP_1, KEY_KP_2, KEY_KP_3, KEY_KP_4, KEY_KP_5:
+				var i := (key - KEY_1) if key <= KEY_5 else (key - KEY_KP_1)
+				radio.preset(i)
+				main.keys.used()
 			KEY_C:
 				chase = not chase
 				view.ride = null if chase else body
@@ -271,18 +383,32 @@ func _input(e: InputEvent) -> void:
 				return
 		get_viewport().set_input_as_handled()
 	if e is InputEventJoypadButton and (e as InputEventJoypadButton).pressed:
-		match (e as InputEventJoypadButton).button_index:
+		var bi := (e as InputEventJoypadButton).button_index
+		if bi == JOY_BUTTON_B:
+			_door()
+			return
+		if bi == JOY_BUTTON_BACK:
+			end()
+			return
+		if foot.out:
+			return
+		match bi:
 			JOY_BUTTON_Y:
 				_key()
 			JOY_BUTTON_RIGHT_SHOULDER:
 				_shift(1)
 			JOY_BUTTON_LEFT_SHOULDER:
 				_shift(-1)
-			JOY_BUTTON_B:
-				end()
 			JOY_BUTTON_X:
 				lights = 1 - lights
 				_lights()
+			JOY_BUTTON_DPAD_UP:
+				radio.toggle()
+			JOY_BUTTON_DPAD_DOWN:
+				# the buttons in turn
+				var near: Array = radio.nearest()
+				var at := TruckRadio.PRESETS.find(near[0].f if near[0] != null and float(near[1]) > 0.5 else -1.0)
+				radio.preset((at + 1) % TruckRadio.PRESETS.size())
 
 
 func _key() -> void:
@@ -306,6 +432,56 @@ func _key() -> void:
 			sound.running = true)
 
 
+# Q: the door. Still, he steps out (and puts it in P first, the way a man does); moving, he bails,
+# and how that goes depends on how fast. Out, at the driver's door, he gets back in.
+func _door() -> void:
+	main.keys.used()
+	if not foot.out:
+		var still := absf(sim.speed) < 0.7
+		if still and SELECTOR[_sel] != "P" and SELECTOR[_sel] != "N":
+			_sel = 0
+			sim.selector = "P"
+			main.audio.sfx("clack", 0.4, 0.9)
+		var how := foot.get_out()
+		_door_want = 1.0
+		_left_open = not still
+		_door_shut_at = _t + 1.3 if still else -1.0
+		_roll_brk = 0.0
+		chase = false
+		sound.outside = true
+		main.keys.set_rows(TruckFoot.KEYS_ROWS, "On his feet")
+		if how > 0:
+			radio.saw("bail")
+		match how:
+			0:
+				main.audio.sfx("clack", 0.35, 0.7)
+			1:
+				main.audio.sfx("thump", 0.4, 0.9)
+			2:
+				main.audio.sfx("thump", 0.8, 0.7)
+				view.hurt += 1
+				_blank = 0.25
+				Input.start_joy_vibration(0, 0.6, 0.9, 0.4)
+			3:
+				main.audio.sfx("thump", 1.0, 0.55)
+				view.hurt += 2
+				_blank = 1.6
+				Input.start_joy_vibration(0, 1.0, 1.0, 0.8)
+		return
+	if foot.near_door() and absf(sim.speed) < 2.0:
+		foot.get_in()
+		view.ride = body
+		view.ride_eye = EYE
+		_door_want = 1.0
+		door_open = maxf(door_open, 0.6)
+		_door_shut_at = _t + 0.5
+		_left_open = false
+		_roll_brk = 0.0
+		sound.outside = false
+		sound.volume = 1.0
+		main.keys.set_rows(KEYS_ROWS, "In the cab")
+
+
 func _shift(d: int) -> void:
 	main.keys.used()
 	var to := clampi(_sel + d, 0, SELECTOR.size() - 1)
@@ -322,6 +498,18 @@ func _shift(d: int) -> void:
 
 
 func _pedals(dt: float) -> void:
+	if foot.out:
+		# nobody's foot on anything: it rolls on in whatever gear it was left in, slowing to a stop
+		_gas = 0.0
+		_brk = 0.0
+		sim.throttle = 0.0
+		var cap := 0.11 if absf(sim.speed) > 1.5 else 0.4
+		_roll_brk = move_toward(_roll_brk, cap, dt * (0.03 if absf(sim.speed) > 1.5 else 0.2))
+		sim.brake = _roll_brk
+		sim.steer_direct = false
+		sim.steer_in = 0.0
+		sound.horn = false
+		return
 	var up := Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)
 	var dn := Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN)
 	var lf := Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)
@@ -362,6 +550,8 @@ func _process(dt: float) -> void:
 		# a knock once for each new hit, not every step it's against the thing
 		if sim.hit > 0.8 and _hit_cool <= 0.0:
 			sound.knock(clampf(sim.hit / 7.0, 0.15, 1.0))
+			if sim.hit > 2.5:
+				radio.saw("hit")
 			_hit_cool = 0.45
 	_hit_cool -= dt
 	_sync_body()
@@ -369,17 +559,29 @@ func _process(dt: float) -> void:
 	_gauges(dt)
 	_traffic(dt)
 	road.tick(_t)
+	_radio_and_mirror(dt)
 	# the sound
 	sound.rpm = sim.rpm
 	sound.load = sim.throttle
 	sound.speed = sim.speed
 	sound.surface = sim.surf[2]
 	# the rain on the roof, louder at a stop
-	_rain.volume_db = -13.0 - clampf(absf(sim.speed) / 25.0, 0.0, 1.0) * 6.0
+	_rain.volume_db = -21.0 - clampf(absf(sim.speed) / 25.0, 0.0, 1.0) * 6.0
+	if foot.out:
+		foot.step(dt)
+		# the truck heard from out here: further, quieter
+		var dist := foot.pos.distance_to(sim.pos)
+		sound.volume = clampf(4.0 / maxf(dist, 1.0), 0.06, 1.0)
+		_rain.volume_db = -30.0
 	# his head in the cab: a little of the road comes up through the seat
-	if not chase:
-		var bump := clampf(absf(sim.speed) / 30.0, 0.0, 1.0)
-		view.ride_eye = EYE + Vector3(0, sin(_t * 13.0) * 0.002 * bump, 0)
+	elif not chase:
+		# his head in the cab: thrown a little against what the truck does (late, the way a body
+		# is), and the road coming up through the seat, more on gravel
+		var bump := clampf(absf(sim.speed) / 30.0, 0.0, 1.0) * (2.6 if sim.surf[2] == TruckSim.Surf.GRAVEL else 1.0)
+		var g := (-_g_local * 0.0045).limit_length(0.06)
+		_head = _head.lerp(g, 1.0 - exp(-dt * 5.0))
+		var shake := (sin(_t * 13.0) * 0.6 + sin(_t * 29.0 + 1.3) * 0.4) * 0.0022 * bump
+		view.ride_eye = EYE + Vector3(_head.x, shake + _head.y * 0.3, _head.z)
 	else:
 		var want := sim.pos + sim.rot * Vector3(chase_at.x, 0.0, chase_at.z) + Vector3(0, chase_at.y, 0)
 		_chase_pos = _chase_pos.lerp(want, 1.0 - exp(-dt * 3.0))
@@ -414,16 +616,26 @@ func _sync_body() -> void:
 
 
 func _gauges(dt: float) -> void:
-	var mph := absf(sim.speed) * MPH
-	# 0 at the left, 100 at the right, a 240 degree sweep; the needle shivers a little at speed
-	var a := -120.0 + clampf(mph, 0.0, 100.0) * 2.4 + sin(_t * 31.0) * 0.4 * clampf(mph / 40.0, 0.0, 1.0)
+	var kmh := absf(sim.speed) * 3.6
+	# 0 at the left, 160 at the right over the top; the needle shivers a little at speed
+	var a := -90.0 + clampf(kmh, 0.0, 160.0) / 160.0 * 180.0 + sin(_t * 31.0) * 0.5 * clampf(kmh / 60.0, 0.0, 1.0)
 	needle.rotation.z = -deg_to_rad(a)
-	fuel_needle.rotation.z = -deg_to_rad(-40.0 + 52.0)
-	temp_needle.rotation.z = -deg_to_rad(-40.0 + (36.0 if sim.running else 0.0))
+	fuel_needle.rotation.z = -deg_to_rad(30.0 if sim.running or sound.cranking > 0.0 else -50.0)
+	_temp = move_toward(_temp, 1.0 if sim.running else 0.0, dt * 0.02)
+	temp_needle.rotation.z = -deg_to_rad(-50.0 + _temp * 48.0)
 	var txt := ""
 	for s in SELECTOR:
 		txt += ("[" + s + "]" if s == sim.selector else " " + s + " ")
 	prnd.text = txt
+	var km := ODO_START + sim.odometer / 1000.0
+	odo.text = "%05d %d" % [int(km) % 100000, int(km * 10.0) % 10]
+	for w in warn_lamps:
+		(w as Label3D).modulate.a = 0.25 if sim.running else (0.95 if sound.cranking > 0.0 or w.text != "BRAKE" else 0.25)
+	(high_lamp.material_override as ShaderMaterial).set_shader_parameter("emission_energy", 2.0 if high and lights > 0 else 0.0)
+	lamp_knob.position.z = -0.636 + (0.03 if lights > 0 else 0.0)
+	wiper_knob.rotation.z = -1.1 if wipe else 0.0
+	key_node.rotation.x = 0.8 if sim.running or sound.cranking > 0.0 else 0.0
+	fob.rotation = Vector3(float(_tree_th[1]) * 0.7, 0.0, float(_tree_th[0]) * 0.7)
 	# wipers
 	if wipe:
 		_wipe_t += dt
@@ -436,8 +648,18 @@ func _gauges(dt: float) -> void:
 	# brake lights
 	for t in tail_glow:
 		((t as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("emission_energy", (2.6 if sim.brake > 0.05 else (0.9 if lights > 0 else 0.0)))
+	# the door, and the dome lamp while it's open; the key's buzzer while it's open with the engine on
+	if _door_shut_at > 0.0 and _t >= _door_shut_at:
+		_door_want = 0.0
+		_door_shut_at = -1.0
+	var was := door_open
+	door_open = move_toward(door_open, _door_want, dt * (2.6 if _door_want > door_open else 3.4))
+	door_node.rotation.y = -deg_to_rad(64.0) * smoothstep(0.0, 1.0, door_open)
+	if was > 0.02 and door_open <= 0.0:
+		main.audio.sfx("thump", 0.35, 1.1)
 	if dome != null:
-		dome.visible = false
+		dome.visible = door_open > 0.05
+	sound.buzzer = door_open > 0.05 and sim.running
 
 
 func _lights() -> void:
@@ -453,6 +675,174 @@ func _lights() -> void:
 	for g in head_glow:
 		((g as MeshInstance3D).material_override as ShaderMaterial).set_shader_parameter("emission_energy", (2.4 if lights > 0 else 0.0))
 	dash_light.visible = lights > 0
+	if tail_light != null:
+		tail_light.visible = lights > 0
+	(M.face as ShaderMaterial).set_shader_parameter("emission_energy", 0.5 if lights > 0 else 0.0)
+
+
+# ---------------------------------------------------------------- the radio, the mirror, the road
+
+var _flickering := false
+
+func _radio_and_mirror(dt: float) -> void:
+	# his hand on the tuning knob: a nudge, then a sweep the longer it's held
+	var dir := 0.0
+	if not foot.out:
+		if Input.is_physical_key_pressed(KEY_PERIOD) or Input.is_physical_key_pressed(KEY_BRACKETRIGHT) or Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_RIGHT):
+			dir += 1.0
+		if Input.is_physical_key_pressed(KEY_COMMA) or Input.is_physical_key_pressed(KEY_BRACKETLEFT) or Input.is_joy_button_pressed(0, JOY_BUTTON_DPAD_LEFT):
+			dir -= 1.0
+	if dir != 0.0:
+		if _tune_held == 0.0:
+			if not radio.on:
+				radio.toggle()
+			radio.tune(dir * 3.0)
+		_tune_held += dt
+		if _tune_held > 0.25:
+			radio.tune(dir * dt * lerpf(30.0, 160.0, clampf((_tune_held - 0.25) / 1.2, 0.0, 1.0)))
+	else:
+		_tune_held = 0.0
+	radio.rpm = sim.rpm if sim.running else 0.0
+	var a: Array = road.along(sim.pos)
+	radio.drive = {"odo": int(odo_value()), "where": TruckRadio.place_name(float(a[0]) - road.zero), "out": foot.out}
+	if foot.out:
+		var dist := foot.pos.distance_to(sim.pos)
+		radio.volume = clampf(3.0 / maxf(dist, 1.0), 0.0, 1.0) * (1.0 if door_open > 0.3 else 0.35)
+		radio.muffle = 1.0
+	else:
+		radio.volume = 1.0
+		radio.muffle = 0.6 if chase else 0.0
+	# the pointer on the dial, and its light
+	if _dial_map.is_empty():
+		_make_dial_map()
+	radio_ptr.position.x = _dial_x(radio.dial)
+	radio_ptr.visible = true
+	(radio_ptr.material_override as ShaderMaterial).set_shader_parameter("emission_energy", 0.9 if radio.on else 0.0)
+	# what can be made out of it
+	var c := ""
+	if radio.caption != "" and not foot.out:
+		c = (radio.caption_from + "    " if radio.caption_from != "" else "") + radio.caption
+	elif radio.caption != "" and foot.out and door_open > 0.3 and foot.pos.distance_to(sim.pos) < 4.0:
+		c = radio.caption
+	caption.text = c
+	# the things that tell the island's radio about him
+	var kmh := absf(sim.speed) * 3.6
+	if kmh > 118.0:
+		radio.saw("fast")
+	if sound.horn and not _horn_was:
+		_horns += 1
+		if _horns >= 4:
+			radio.saw("horn")
+	_horn_was = sound.horn
+	_dark_t = _dark_t + dt if lights == 0 and kmh > 40.0 else 0.0
+	if _dark_t > 15.0:
+		radio.saw("dark")
+	_out_t = _out_t + dt if foot.out and absf(float(a[1])) < 6.0 else 0.0
+	if _out_t > 20.0:
+		radio.saw("out")
+	# what's out there
+	odd.step(dt)
+	if odd.flicker > 0.01:
+		_flickering = true
+		for b in beams:
+			(b as SpotLight3D).light_energy = (240.0 if high else 120.0) * (1.0 - odd.flicker * _rng.randf_range(0.0, 1.0) * (1.0 if _rng.randf() < 0.3 else 0.3))
+	elif _flickering:
+		_flickering = false
+		_lights()
+	# the mirror's camera: on the glass, looking back, through the back window
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS if not foot.out and not chase else SubViewport.UPDATE_DISABLED
+	var mt := body.global_transform * Transform3D(Basis.from_euler(Vector3(deg_to_rad(-2.5), PI, 0.0)), Vector3(0.0, 0.88, -0.53))
+	mirror_cam.global_transform = mt
+
+
+func odo_value() -> float:
+	return ODO_START + sim.odometer / 1000.0
+
+
+func _make_dial_map() -> void:
+	var f: Font = _dial_lab.font if _dial_lab.font != null else ThemeDB.fallback_font
+	var text := _dial_lab.text
+	var px := _dial_lab.pixel_size
+	var fs := _dial_lab.font_size
+	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+	var x0 := _dial_lab.position.x - w * 0.5
+	var at := 0
+	for tok in text.split(" ", false):
+		var i := text.find(tok, at)
+		var pre := f.get_string_size(text.substr(0, i), HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+		var tw := f.get_string_size(tok, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x * px
+		_dial_map.append([float(tok) * 10.0, x0 + pre + tw * 0.5])
+		at = i + tok.length()
+
+
+func _dial_x(khz: float) -> float:
+	var m := _dial_map
+	if khz <= float(m[0][0]):
+		var k0 := (khz - float(m[0][0])) / (float(m[1][0]) - float(m[0][0]))
+		return lerpf(float(m[0][1]), float(m[1][1]), k0)
+	for i in range(1, m.size()):
+		if khz <= float(m[i][0]):
+			var k := (khz - float(m[i - 1][0])) / (float(m[i][0]) - float(m[i - 1][0]))
+			return lerpf(float(m[i - 1][1]), float(m[i][1]), k)
+	return float(m[m.size() - 1][1])
+
+
+func _build_mirror() -> void:
+	mirror_vp = SubViewport.new()
+	mirror_vp.size = Vector2i(352, 80)
+	mirror_vp.world_3d = view.eye.find_world_3d()
+	mirror_vp.positional_shadow_atlas_size = 0
+	mirror_vp.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	mirror_vp.audio_listener_enable_3d = false
+	add_child(mirror_vp)
+	mirror_cam = Camera3D.new()
+	mirror_cam.keep_aspect = Camera3D.KEEP_WIDTH
+	mirror_cam.fov = 30.0
+	mirror_cam.near = 0.9            # past the cab's own inside, up to its back wall and the window in it
+	mirror_cam.far = 400.0
+	mirror_cam.environment = view.cam.environment
+	mirror_cam.cull_mask = 0xFFFFF
+	mirror_cam.set_cull_mask_value(View.MASK_LAYER, false)
+	mirror_vp.add_child(mirror_cam)
+	# the glass: what the camera sees, the right way round for a mirror, a little dark and a
+	# little smeared, the way a mirror in a truck this age is
+	var q := QuadMesh.new()
+	q.size = Vector2(0.236, 0.052)
+	var glass := MeshInstance3D.new()
+	glass.mesh = q
+	var sm := ShaderMaterial.new()
+	sm.shader = Shader.new()
+	sm.shader.code = """shader_type spatial;
+render_mode unshaded, cull_back, fog_disabled;
+uniform sampler2D tex : filter_linear, source_color;
+void fragment() {
+	vec2 uv = vec2(1.0 - UV.x, UV.y);
+	// night in a mirror: what little light there is, lifted, so a shape can be made out
+	vec3 t = texture(tex, uv).rgb;
+	float lum = dot(t, vec3(0.3, 0.55, 0.15));
+	vec3 c = (1.0 - exp(-t * 22.0)) * 0.8 + vec3(1.0 - exp(-max(lum - 0.006, 0.0) * 30.0)) * 0.35;
+	float edge = smoothstep(0.0, 0.06, UV.x) * smoothstep(0.0, 0.06, 1.0 - UV.x) * smoothstep(0.0, 0.2, UV.y) * smoothstep(0.0, 0.2, 1.0 - UV.y);
+	float smear = 0.03 * sin(UV.x * 23.0 + UV.y * 7.0) * sin(UV.x * 5.0 - UV.y * 11.0);
+	ALBEDO = c * mix(0.55, 1.0, edge) + vec3(0.012 + smear * 0.4);
+}
+"""
+	sm.set_shader_parameter("tex", mirror_vp.get_texture())
+	glass.material_override = sm
+	glass.position = Vector3(0, 0.88, -0.5325)
+	body.add_child(glass)
+	# the tail lamps' red, on the road and whatever's standing on it behind (a spot, so none of it
+	# comes forward into the cab)
+	tail_light = SpotLight3D.new()
+	tail_light.light_color = Color("ff2a1a")
+	tail_light.light_energy = 2.0
+	tail_light.spot_range = 18.0
+	tail_light.spot_angle = 55.0
+	tail_light.spot_attenuation = 1.4
+	tail_light.shadow_enabled = false
+	tail_light.position = Vector3(0, -0.1, 3.45)
+	tail_light.rotation_degrees = Vector3(-8.0, 180.0, 0.0)
+	tail_light.visible = false
+	body.add_child(tail_light)
 
 
 # ---------------------------------------------------------------- the truck, drawn
@@ -489,6 +879,32 @@ func _cy(r: float, h: float, pos: Vector3, m: Material, parent: Node3D, rot := V
 	return mi
 
 
+func _lab(t: String, px: float, fs: int, c: Color, parent: Node3D) -> Label3D:
+	var l := Label3D.new()
+	l.text = t
+	l.pixel_size = px
+	l.font_size = fs
+	l.modulate = c
+	l.outline_size = 0
+	l.shaded = false
+	parent.add_child(l)
+	return l
+
+
+# a woodgrain applique's grain: thin dark lines across it, a little off level, never two alike
+func _grain(parent: Node3D, at: Vector3, size: Vector2) -> void:
+	var r := RandomNumberGenerator.new()
+	r.seed = int(at.x * 1000.0) + 78
+	var n := int(size.y / 0.012)
+	for k in n:
+		var y := -size.y / 2.0 + (k + r.randf_range(0.2, 0.8)) * size.y / n
+		var w := size.x * r.randf_range(0.5, 0.98)
+		var x := r.randf_range(-(size.x - w) / 2.0, (size.x - w) / 2.0)
+		var g := _bx(Vector3(w, 0.0016, 0.001), at + Vector3(x, y, 0.0), M.grain, parent)
+		g.rotation.z = r.randf_range(-0.012, 0.012)
+		g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
 # Body local: the middle of mass at 0, the ground about 0.87 down, -z ahead.
 func _build_truck() -> void:
 	M.jade = _m(JADE, 0.45, 0.25)
@@ -503,6 +919,10 @@ func _build_truck() -> void:
 	M.dial = _m(Color("0e100e"), 0.9, 0.0, 3)
 	M.needle = pub.glow(Color("ff8a3a"), 1.2)
 	M.numbers = pub.glow(Color("cfe8d8"), 0.6)
+	M.wood = _m(Color("6e4a2c"), 0.55)
+	M.grain = _m(Color("432a17"), 0.7)
+	M.alu = _m(Color("9a9c98"), 0.35, 0.7)
+	M.face = pub.glow(Color("1c4a30"), 0.0)        # the gauges' faces, lit green from behind with the lamps on
 	body = Node3D.new()
 	body.name = "truck"
 	pub.add_child(body)
@@ -511,98 +931,182 @@ func _build_truck() -> void:
 	_build_body(J, W)
 	# inside: the dash, the cluster, the wheel and its column, the shifter, the bench seat. Laid out
 	# from where his eyes are: the hood shows over the dash, the cluster over the wheel's rim.
-	# the dash: its face at z -0.64 under the cluster, the padded top rolling over toward the glass
+	# the dash, a '78's: a tall flat face, the pad rolled over the top of it and cracked from the
+	# sun, the cluster in its own hooded binnacle in front of him, and across the rest a woodgrain
+	# panel with the radio, the heater's levers, the ashtray and the glovebox in it
 	_prism(_pts([[-0.98, 0.12], [-0.64, 0.12], [-0.64, 0.45], [-0.68, 0.505], [-0.76, 0.525], [-0.98, 0.535]]),
 		-0.88, 0.88, 0.02, M.dash, body)
 	_prism(_pts([[-0.98, 0.50], [-0.72, 0.50], [-0.66, 0.52], [-0.70, 0.545], [-0.98, 0.55]]), -0.885, 0.885, 0.012, M.dark, body)
-	_bx(Vector3(0.62, 0.05, 0.06), Vector3(EYE.x, 0.535, -0.64), M.dark, body)      # the hood over the cluster
-	var cluster := Node3D.new()
-	cluster.position = Vector3(EYE.x, 0.44, -0.636)
-	cluster.rotation.x = deg_to_rad(14.0)
-	body.add_child(cluster)
-	_bx(Vector3(0.56, 0.16, 0.02), Vector3(0, 0, -0.012), M.dial, cluster)
-	_cy(0.068, 0.006, Vector3(0, 0, -0.001), M.dial, cluster, Vector3(90, 0, 0), 24)
-	needle = Node3D.new()
-	needle.position = Vector3(0, 0, 0.006)
-	cluster.add_child(needle)
-	_bx(Vector3(0.005, 0.06, 0.002), Vector3(0, 0.028, 0), M.needle, needle)
+	for k in 3:
+		_bx(Vector3(0.05, 0.003, 0.004), Vector3(0.18 + k * 0.04, 0.551, -0.78 + k * 0.012), M.black, body, Vector3(0, 25 - k * 40, 0))
 	for k in 6:
-		var a := deg_to_rad(-120.0 + k * 48.0)
-		var lab := Label3D.new()
-		lab.text = str(k * 20)
-		lab.pixel_size = 0.0006
-		lab.font_size = 40
-		lab.modulate = Color("d8f2e0")
-		lab.position = Vector3(sin(a) * 0.05, cos(a) * 0.05, 0.004)
-		lab.shaded = false
-		cluster.add_child(lab)
-	var mph_l := Label3D.new()
-	mph_l.text = "MPH"
-	mph_l.pixel_size = 0.0005
-	mph_l.font_size = 32
-	mph_l.position = Vector3(0, -0.032, 0.004)
-	mph_l.modulate = Color("9fc8b0")
-	mph_l.shaded = false
-	cluster.add_child(mph_l)
+		_bx(Vector3(0.1, 0.002, 0.01), Vector3(-0.6 + k * 0.24, 0.552, -0.9), M.black, body)     # the defrost slots
+	# the binnacle: a brow over the cluster, its sides
+	_prism(_pts([[-0.68, 0.535], [-0.625, 0.535], [-0.615, 0.548], [-0.68, 0.558]]), EYE.x - 0.32, EYE.x + 0.32, 0.008, M.dark, body)
+	var cluster := Node3D.new()
+	cluster.position = Vector3(EYE.x, 0.458, -0.612)
+	cluster.rotation.x = deg_to_rad(-18.0)     # tipped back, its face up toward his eyes
+	body.add_child(cluster)
+	# woodgrain round it, a brushed rim on that, then the gauges' black faces
+	_bx(Vector3(0.62, 0.19, 0.012), Vector3(0, 0, -0.018), M.wood, cluster)
+	_grain(cluster, Vector3(0, 0, -0.011), Vector2(0.6, 0.18))
+	_bx(Vector3(0.58, 0.15, 0.006), Vector3(0, 0, -0.012), M.alu, cluster)
+	# the speedometer: a wide face, kilometres an hour round the top in white and miles inside in
+	# red the way a Canadian truck had them, the needle from the bottom middle
+	_bx(Vector3(0.25, 0.135, 0.004), Vector3(0, 0, -0.009), M.face, cluster)
+	var pv := Vector2(0.0, -0.045)
+	for k in 17:
+		var a := deg_to_rad(180.0 - k * 180.0 / 16.0)
+		var r := 0.083
+		var tk := _bx(Vector3(0.0018, 0.008 if k % 2 == 0 else 0.004, 0.001), Vector3(pv.x + cos(a) * r, pv.y + sin(a) * r, -0.006), M.numbers, cluster)
+		tk.rotation.z = a - PI / 2.0
+	for k in 9:
+		var a := deg_to_rad(180.0 - k * 22.5)
+		var lab := _lab(str(k * 20), 0.00058, 30, Color("f2fbf4"), cluster)
+		lab.position = Vector3(pv.x + cos(a) * 0.098, pv.y + sin(a) * 0.098, -0.005)
+	for k in 6:
+		var a := deg_to_rad(180.0 - k * 20.0 * 1.609 * 180.0 / 160.0)
+		var lab := _lab(str(k * 20), 0.00042, 24, Color("ff8a6a"), cluster)
+		lab.position = Vector3(pv.x + cos(a) * 0.058, pv.y + sin(a) * 0.058, -0.005)
+	_lab("km/h", 0.0003, 24, Color("c8dccf"), cluster).position = Vector3(0, -0.012, -0.005)
+	_lab("MPH", 0.00026, 22, Color("ff7a5a"), cluster).position = Vector3(0, -0.024, -0.005)
+	needle = Node3D.new()
+	needle.position = Vector3(pv.x, pv.y, -0.003)
+	cluster.add_child(needle)
+	_bx(Vector3(0.0035, 0.085, 0.0015), Vector3(0, 0.036, 0), M.needle, needle)
+	_cy(0.009, 0.004, Vector3(pv.x, pv.y, -0.002), M.black, cluster, Vector3(90, 0, 0), 12)
+	# the odometer, five drums and the tenth, rolled over once already
+	_bx(Vector3(0.05, 0.012, 0.002), Vector3(0, -0.038, -0.006), M.black, cluster)
+	odo = _lab("", 0.00028, 28, Color("e8e4d4"), cluster)
+	odo.position = Vector3(0, -0.038, -0.004)
+	# the shift quadrant along the speedometer's foot
+	prnd = _lab("", 0.0003, 30, Color("f0dca8"), cluster)
+	prnd.position = Vector3(0, -0.058, -0.005)
+	# fuel to the left, temperature to the right, each in its own square pod; the warning lamps
 	for side in [-1.0, 1.0]:
-		_cy(0.034, 0.006, Vector3(side * 0.17, 0, -0.001), M.dial, cluster, Vector3(90, 0, 0), 18)
+		var cx: float = side * 0.2
+		_bx(Vector3(0.11, 0.115, 0.004), Vector3(cx, 0.0, -0.009), M.face, cluster)
 		var nd := Node3D.new()
-		nd.position = Vector3(side * 0.17, -0.012, 0.006)
+		nd.position = Vector3(cx, -0.03, -0.003)
 		cluster.add_child(nd)
-		_bx(Vector3(0.004, 0.03, 0.002), Vector3(0, 0.015, 0), M.needle, nd)
-		var gl := Label3D.new()
-		gl.text = "E    F" if side < 0.0 else "C    H"
-		gl.pixel_size = 0.00045
-		gl.font_size = 32
-		gl.position = Vector3(side * 0.17, 0.018, 0.004)
-		gl.modulate = Color("9fc8b0")
-		gl.shaded = false
-		cluster.add_child(gl)
+		_bx(Vector3(0.003, 0.05, 0.0015), Vector3(0, 0.022, 0), M.needle, nd)
+		_lab("E        F" if side < 0.0 else "C        H", 0.00042, 26, Color("c8dccf"), cluster).position = Vector3(cx, 0.012, -0.005)
+		_lab("FUEL" if side < 0.0 else "TEMP", 0.00036, 22, Color("8fb09c"), cluster).position = Vector3(cx, -0.045, -0.005)
 		if side < 0.0:
 			fuel_needle = nd
 		else:
 			temp_needle = nd
+	var warn := [["ALT", -0.2, 0.038], ["OIL", 0.2, 0.038], ["BRAKE", 0.2, -0.008]]
+	for w in warn:
+		var wl := _lab(w[0], 0.00024, 22, Color("ff3a2a"), cluster)
+		wl.position = Vector3(float(w[1]), float(w[2]), -0.005)
+		wl.modulate.a = 0.25
+		warn_lamps.append(wl)
+	high_lamp = _bx(Vector3(0.016, 0.008, 0.002), Vector3(0.105, -0.058, -0.006), pub.glow(Color("4a8aff"), 0.0), cluster)
 	dash_light = OmniLight3D.new()
-	dash_light.position = Vector3(0, 0.03, 0.06)
+	dash_light.position = Vector3(0, 0.04, 0.05)
 	dash_light.light_color = Color("bfe8cf")
 	dash_light.light_energy = 0.02
 	dash_light.omni_range = 0.25
 	cluster.add_child(dash_light)
-	# the steering wheel: a thin black rim, three chrome spokes, the horn pad, leaned well back the
-	# way an old truck's is, on its column down into the dash
+	# the woodgrain panel across the rest of the face, edged in brushed trim
+	_bx(Vector3(0.98, 0.22, 0.008), Vector3(0.37, 0.31, -0.636), M.wood, body)
+	_grain(body, Vector3(0.37, 0.31, -0.631), Vector2(0.96, 0.2))
+	_bx(Vector3(0.98, 0.008, 0.012), Vector3(0.37, 0.424, -0.634), M.alu, body)
+	_bx(Vector3(0.98, 0.008, 0.012), Vector3(0.37, 0.196, -0.634), M.alu, body)
+	# the radio: a push-button AM, its dial, its pointer, five buttons, two knobs
+	var rx := 0.1
+	_bx(Vector3(0.24, 0.085, 0.014), Vector3(rx, 0.33, -0.628), M.alu, body)
+	_bx(Vector3(0.14, 0.026, 0.004), Vector3(rx, 0.345, -0.62), M.dial, body)
+	_dial_lab = _lab("55  60  70  80  100  120  140  160", 0.00019, 22, Color("e8c88a"), body)
+	_dial_lab.position = Vector3(rx, 0.349, -0.617)
+	_lab("AM", 0.0002, 22, Color("e8c88a"), body).position = Vector3(rx - 0.055, 0.338, -0.617)
+	radio_ptr = _bx(Vector3(0.0016, 0.022, 0.001), Vector3(rx - 0.03, 0.345, -0.6175), pub.glow(Color("ff5030"), 0.6), body)
+	for k in 5:
+		_bx(Vector3(0.02, 0.014, 0.02), Vector3(rx - 0.05 + k * 0.025, 0.308, -0.618), M.chrome, body)
+	for kx in [-0.1, 0.1]:
+		_cy(0.017, 0.028, Vector3(rx + kx, 0.33, -0.612), M.chrome, body, Vector3(90, 0, 0), 12)
+		_cy(0.01, 0.012, Vector3(rx + kx, 0.33, -0.596), M.dark, body, Vector3(90, 0, 0), 10)
+	# the heater: two levers in their slots, the words under them
+	var hx := 0.37
+	_bx(Vector3(0.15, 0.075, 0.008), Vector3(hx, 0.335, -0.628), M.dark, body)
+	for k in 2:
+		_bx(Vector3(0.11, 0.004, 0.002), Vector3(hx, 0.355 - k * 0.032, -0.623), M.black, body)
+		_bx(Vector3(0.012, 0.018, 0.02), Vector3(hx - 0.03 + k * 0.05, 0.355 - k * 0.032, -0.615), M.black, body)
+	_lab("OFF   VENT   HEAT   DEF", 0.00017, 20, Color("c8c0a8"), body).position = Vector3(hx, 0.343, -0.622)
+	_lab("COOL              WARM", 0.00017, 20, Color("c8c0a8"), body).position = Vector3(hx, 0.311, -0.622)
+	# the ashtray and the lighter under the radio
+	_bx(Vector3(0.16, 0.034, 0.012), Vector3(rx, 0.23, -0.628), M.alu, body)
+	_bx(Vector3(0.05, 0.006, 0.006), Vector3(rx, 0.236, -0.621), M.black, body)
+	_cy(0.012, 0.02, Vector3(rx + 0.13, 0.23, -0.622), M.chrome, body, Vector3(90, 0, 0), 10)
+	# the glovebox: its door's line and the button
+	for e in [[Vector3(0.3, 0.004, 0.004), Vector3(0.68, 0.39, -0.63)], [Vector3(0.3, 0.004, 0.004), Vector3(0.68, 0.23, -0.63)],
+			[Vector3(0.004, 0.16, 0.004), Vector3(0.53, 0.31, -0.63)], [Vector3(0.004, 0.16, 0.004), Vector3(0.83, 0.31, -0.63)]]:
+		_bx(e[0], e[1], M.black, body)
+	_bx(Vector3(0.04, 0.016, 0.014), Vector3(0.68, 0.37, -0.625), M.chrome, body)
+	# left of the wheel: the headlamp knob (it pulls out when they're on) and the wipers' knob
+	lamp_knob = Node3D.new()
+	lamp_knob.position = Vector3(-0.76, 0.37, -0.636)
+	body.add_child(lamp_knob)
+	_cy(0.004, 0.04, Vector3(0, 0, 0.02), M.chrome, lamp_knob, Vector3(90, 0, 0), 8)
+	_cy(0.016, 0.02, Vector3(0, 0, 0.042), M.chrome, lamp_knob, Vector3(90, 0, 0), 12)
+	wiper_knob = Node3D.new()
+	wiper_knob.position = Vector3(-0.76, 0.28, -0.62)
+	body.add_child(wiper_knob)
+	_cy(0.015, 0.02, Vector3.ZERO, M.chrome, wiper_knob, Vector3(90, 0, 0), 12)
+	_bx(Vector3(0.004, 0.024, 0.004), Vector3(0, 0.0, 0.012), M.black, wiper_knob)
+	# on the pad by the glass, sun-faded, curling: the bill of sale from twenty years ago
+	var slip := Node3D.new()
+	slip.position = Vector3(0.48, 0.556, -0.83)
+	slip.rotation = Vector3(deg_to_rad(-84.0), deg_to_rad(8.0), 0.0)
+	body.add_child(slip)
+	_bx(Vector3(0.09, 0.12, 0.001), Vector3.ZERO, _m(Color("d8cfb4"), 0.95), slip)
+	var bill := _lab("CEREAL CITY AUTO SALVAGE\nBATTLE CREEK, MICH.\n\n1 - '78 F-250 CAMPER SPL\nJADE   NO MOTOR\nSOLD AS IS\n\n$ 1,150.00  CASH\nNO RETURNS", 0.00011, 22, Color("40382c"), slip)
+	bill.position = Vector3(0, 0, 0.001)
+	bill.shaded = true
+	# the steering wheel, the '78's: a thin black rim, two spokes a little below the middle and a
+	# wide horn pad between them; leaned well back on its column down into the dash
 	var col := Node3D.new()
-	col.position = Vector3(EYE.x, 0.38, -0.36)
+	col.position = Vector3(EYE.x, 0.32, -0.33)
 	var n := Vector3(0, 0.8, 0.6)
 	col.basis = Basis(Vector3(1, 0, 0), n, Vector3(1, 0, 0).cross(n))
 	body.add_child(col)
-	_cy(0.024, 0.46, Vector3(0, -0.24, 0), M.dark, col)
+	_cy(0.026, 0.46, Vector3(0, -0.24, 0), M.dark, col)
+	_cy(0.034, 0.06, Vector3(0, -0.06, 0), M.dark, col)
+	# the turn signal's stalk to the left, the key in the column's right side and what hangs off it
+	_bx(Vector3(0.15, 0.01, 0.01), Vector3(-0.1, -0.07, 0.01), M.chrome, col, Vector3(0, 0, 0))
+	_cy(0.011, 0.03, Vector3(0.04, -0.13, 0.0), M.chrome, col, Vector3(0, 0, 90), 10)
+	key_node = Node3D.new()
+	key_node.position = Vector3(0.058, -0.13, 0.0)
+	col.add_child(key_node)
+	_bx(Vector3(0.012, 0.024, 0.004), Vector3(0.012, 0.0, 0.0), M.chrome, key_node)
+	_bx(Vector3(0.02, 0.032, 0.005), Vector3(0.03, 0.0, 0.0), M.alu, key_node)
+	fob = Node3D.new()
+	fob.position = Vector3(0.042, -0.012, 0.0)
+	key_node.add_child(fob)
+	_cy(0.012, 0.003, Vector3(0, -0.012, 0), M.chrome, fob, Vector3(0, 0, 90), 12)
+	_bx(Vector3(0.026, 0.04, 0.003), Vector3(0, -0.04, 0), _m(Color("a07a3a"), 0.4, 0.8), fob)
 	wheel_node = Node3D.new()
 	col.add_child(wheel_node)
 	var rim := MeshInstance3D.new()
 	var tor := TorusMesh.new()
 	tor.inner_radius = 0.186
 	tor.outer_radius = 0.204
-	tor.rings = 32
+	tor.rings = 40
 	tor.ring_segments = 8
 	rim.mesh = tor
 	rim.material_override = M.black
 	wheel_node.add_child(rim)
-	for k in 3:
-		var a := deg_to_rad(90.0 + k * 120.0)
-		var sp := _bx(Vector3(0.19, 0.008, 0.022), Vector3(cos(a) * 0.095, 0.0, sin(a) * 0.095), M.chrome, wheel_node)
-		sp.rotation.y = -a
-	_cy(0.05, 0.03, Vector3.ZERO, M.chrome, wheel_node, Vector3.ZERO, 16)
-	# the column shifter and its quadrant: P R N D 2 1
-	var lever := _bx(Vector3(0.012, 0.012, 0.24), Vector3(EYE.x + 0.16, 0.44, -0.44), M.chrome, body, Vector3(0, -55, -18))
+	for sx in [-1.0, 1.0]:
+		var sp := _bx(Vector3(0.12, 0.012, 0.034), Vector3(sx * 0.13, 0.008, 0.045), M.black, wheel_node)
+		sp.rotation.y = -sx * 0.18
+	_prism(_pts([[-0.035, -0.01], [0.075, -0.01], [0.085, 0.02], [0.07, 0.035], [-0.025, 0.035], [-0.045, 0.02]]), -0.085, 0.085, 0.01, M.black, wheel_node)
+	_bx(Vector3(0.15, 0.002, 0.004), Vector3(0, 0.037, 0.0), M.chrome, wheel_node)
+	_bx(Vector3(0.15, 0.002, 0.004), Vector3(0, 0.037, 0.07), M.chrome, wheel_node)
+	# the column shifter and its knob
+	var lever := _bx(Vector3(0.012, 0.012, 0.24), Vector3(EYE.x + 0.16, 0.39, -0.41), M.chrome, body, Vector3(0, -55, -18))
 	lever.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	prnd = Label3D.new()
-	prnd.pixel_size = 0.0006
-	prnd.font_size = 40
-	prnd.modulate = Color("f0dca8")
-	prnd.position = Vector3(EYE.x, 0.395, -0.62)
-	prnd.rotation.x = deg_to_rad(14.0)
-	prnd.shaded = false
-	body.add_child(prnd)
+	_cy(0.016, 0.04, Vector3(EYE.x + 0.255, 0.355, -0.345), M.black, body, Vector3(0, 0, 70), 10)
 	# the light the headlamps throw on the road ahead: a pool, the way the town's lamps' are printed
 	for k in 2:
 		var q := MeshInstance3D.new()
@@ -785,15 +1289,24 @@ func _build_body(J: Material, W: Material) -> void:
 		beams.append(bl)
 		# the parking lamps, set in the bumper
 		_bx(Vector3(0.16, 0.06, 0.02), Vector3(sx * 1.05, -0.35, -2.99), pub.glow(Color("ffb050"), 0.15), body)
-	# the doors: each its own panel, the seam round it, the handle, the hinge side square
+	# the doors: each its own panel, the seam round it, the handle, the hinge side square. The
+	# driver's hangs on its hinges at the front edge and opens (door_node); the rest is drawn in the
+	# body's own terms under door_geom, so it all swings together.
+	door_node = Node3D.new()
+	door_node.position = HINGE
+	body.add_child(door_node)
+	door_geom = Node3D.new()
+	door_geom.position = -HINGE
+	door_node.add_child(door_geom)
 	for sx in [-1.0, 1.0]:
+		var P: Node3D = door_geom if sx < 0 else body
 		var d := [[-0.85, -0.46], [0.64, -0.46], [0.64, 0.45], [-0.78, 0.45], [-0.85, 0.31]]
-		_prism(_pts(d), -0.99 if sx < 0 else 0.90, -0.90 if sx < 0 else 0.99, 0.035, J, body)
+		_prism(_pts(d), -0.99 if sx < 0 else 0.90, -0.90 if sx < 0 else 0.99, 0.035, J, P)
 		for zz in [-0.80, 0.56]:
-			_bx(Vector3(0.006, 0.84, 0.008), Vector3(sx * 0.993, -0.02, zz), M.black, body)
-		_bx(Vector3(0.006, 0.008, 1.34), Vector3(sx * 0.993, -0.42, -0.12), M.black, body)
-		_bx(Vector3(0.025, 0.03, 0.16), Vector3(sx * 1.0, 0.32, 0.42), M.chrome, body)
-		_bx(Vector3(0.01, 0.018, 1.36), Vector3(sx * 0.996, 0.0, -0.12), M.chrome, body)
+			_bx(Vector3(0.006, 0.84, 0.008), Vector3(sx * 0.993, -0.02, zz), M.black, P)
+		_bx(Vector3(0.006, 0.008, 1.34), Vector3(sx * 0.993, -0.42, -0.12), M.black, P)
+		_bx(Vector3(0.025, 0.03, 0.16), Vector3(sx * 1.0, 0.32, 0.42), M.chrome, P)
+		_bx(Vector3(0.01, 0.018, 1.36), Vector3(sx * 0.996, 0.0, -0.12), M.chrome, P)
 		# the rocker under it
 		_bx(Vector3(0.12, 0.08, 1.5), Vector3(sx * 0.93, -0.47, -0.1), M.black, body)
 	# the cab's back wall, behind the seat, up to the roof
@@ -807,11 +1320,13 @@ func _build_body(J: Material, W: Material) -> void:
 		_prism(_pts([[-0.80, 0.43], [-0.74, 0.43], [-0.47, 0.99], [-0.53, 0.99]]), sx * 0.82 - 0.04, sx * 0.82 + 0.04, 0.012, J, body)
 		_prism(_pts([[0.50, 0.44], [0.62, 0.44], [0.62, 0.99], [0.50, 0.99]]), sx * 0.86 - 0.04, sx * 0.86 + 0.04, 0.012, W, body)
 		_bx(Vector3(0.03, 0.025, 1.12), Vector3(sx * 0.9, 1.0, 0.02), M.chrome, body)
-		# the side glass and the vent wing's post
-		var sg := _bx(Vector3(0.008, 0.52, 1.3), Vector3(sx * 0.9, 0.72, -0.1), M.glass, body)
+		# the side glass and the vent wing's post: the door's
+		var G: Node3D = door_geom if sx < 0 else body
+		var sg := _bx(Vector3(0.008, 0.52, 1.3), Vector3(sx * 0.9, 0.72, -0.1), M.glass, G)
 		sg.transparency = 0.88
 		sg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		_bx(Vector3(0.02, 0.5, 0.02), Vector3(sx * 0.9, 0.72, -0.42), M.chrome, body, Vector3(-12, 0, 0))
+		_bx(Vector3(0.02, 0.5, 0.02), Vector3(sx * 0.9, 0.72, -0.42), M.chrome, G, Vector3(-12, 0, 0))
+		_bx(Vector3(0.02, 0.02, 1.08), Vector3(sx * 0.9, 0.975, 0.02), M.chrome, G)
 	_bx(Vector3(1.66, 0.05, 0.06), Vector3(0, 0.975, -0.55), W, body)                              # windshield header
 	var ws := _bx(Vector3(1.6, 0.62, 0.012), Vector3(0, 0.71, -0.645), M.glass, body, Vector3(-27.0, 0, 0))
 	ws.transparency = 0.86
@@ -847,34 +1362,19 @@ func _build_cab_inside() -> void:
 		_bx(Vector3(0.006, 0.5, 0.01), Vector3(-0.72 + k * 0.24, 0.3, 0.47), M.dark, body, Vector3(-8, 0, 0))
 	# the doors' insides: the panel, the armrest, the window crank, the lock knob
 	for sx in [-1.0, 1.0]:
-		_bx(Vector3(0.03, 0.62, 1.3), Vector3(sx * 0.885, 0.08, -0.12), M.dash, body)
-		_bx(Vector3(0.07, 0.05, 0.36), Vector3(sx * 0.85, 0.14, 0.1), M.vinyl, body)
-		_cy(0.012, 0.05, Vector3(sx * 0.85, 0.3, -0.25), M.chrome, body, Vector3(0, 0, 90), 8)
-		_bx(Vector3(0.01, 0.1, 0.012), Vector3(sx * 0.83, 0.27, -0.25), M.chrome, body)
-		_cy(0.008, 0.04, Vector3(sx * 0.86, 0.47, 0.38), M.chrome, body, Vector3.ZERO, 8)
+		var P: Node3D = door_geom if sx < 0 else body
+		_bx(Vector3(0.03, 0.62, 1.3), Vector3(sx * 0.885, 0.08, -0.12), M.dash, P)
+		_bx(Vector3(0.07, 0.05, 0.36), Vector3(sx * 0.85, 0.14, 0.1), M.vinyl, P)
+		_cy(0.012, 0.05, Vector3(sx * 0.85, 0.3, -0.25), M.chrome, P, Vector3(0, 0, 90), 8)
+		_bx(Vector3(0.01, 0.1, 0.012), Vector3(sx * 0.83, 0.27, -0.25), M.chrome, P)
+		_cy(0.008, 0.04, Vector3(sx * 0.86, 0.47, 0.38), M.chrome, P, Vector3.ZERO, 8)
+		# the inside handle
+		_bx(Vector3(0.02, 0.025, 0.1), Vector3(sx * 0.86, 0.3, -0.45), M.chrome, P)
 		# the sun visor, flat up against the headliner
 		_bx(Vector3(0.55, 0.015, 0.2), Vector3(sx * 0.42, 0.955, -0.42), M.vinyl, body)
 	# the floor and its rubber mat, the transmission hump
 	_bx(Vector3(1.8, 0.04, 1.5), Vector3(0, -0.4, -0.2), M.black, body)
 	_bx(Vector3(0.36, 0.12, 0.7), Vector3(0, -0.34, -0.55), M.rubber, body)
-	# the radio in the middle of the dash, its two knobs, its dial; the heater's levers; the glovebox
-	_bx(Vector3(0.24, 0.07, 0.02), Vector3(0.08, 0.32, -0.632), M.chrome, body)
-	_bx(Vector3(0.12, 0.025, 0.005), Vector3(0.08, 0.33, -0.62), M.dial, body)
-	var rd := Label3D.new()
-	rd.text = "54  60  70  90  110  140  160"
-	rd.pixel_size = 0.00028
-	rd.font_size = 24
-	rd.modulate = Color("e8c88a")
-	rd.position = Vector3(0.08, 0.33, -0.617)
-	rd.shaded = false
-	body.add_child(rd)
-	for kx in [-0.08, 0.08]:
-		_cy(0.016, 0.03, Vector3(0.08 + kx, 0.32, -0.615), M.chrome, body, Vector3(90, 0, 0), 10)
-	for k in 2:
-		_bx(Vector3(0.012, 0.035, 0.03), Vector3(0.28 + k * 0.05, 0.24, -0.625), M.chrome, body)
-	_bx(Vector3(0.38, 0.006, 0.006), Vector3(0.55, 0.36, -0.638), M.black, body)
-	_bx(Vector3(0.38, 0.006, 0.006), Vector3(0.55, 0.22, -0.638), M.black, body)
-	_bx(Vector3(0.05, 0.015, 0.02), Vector3(0.55, 0.335, -0.632), M.chrome, body)
 	# the mirror on the glass, and what hangs from it: a cardboard pine gone pale, that swings
 	_bx(Vector3(0.03, 0.06, 0.03), Vector3(0, 0.93, -0.56), M.dark, body)
 	_bx(Vector3(0.26, 0.07, 0.025), Vector3(0, 0.88, -0.55), M.dark, body)
@@ -967,6 +1467,7 @@ func _swing(dt: float) -> void:
 	var a := (sim.vel - _last_vel) / dt
 	_last_vel = sim.vel
 	var local := sim.rot.inverse() * (a + Vector3(0, 9.8, 0))
+	_g_local = _g_local.lerp(sim.rot.inverse() * a, 1.0 - exp(-dt * 8.0))
 	for k in 2:
 		var push := (-local.x if k == 0 else local.z) / 9.8
 		var acc := -18.0 * sin(float(_tree_th[k]) - atan(push)) - 1.6 * float(_tree_w[k])
