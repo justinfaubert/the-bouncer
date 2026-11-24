@@ -72,8 +72,9 @@ func plan(sim0: PoolSim, rules: PoolRules) -> Dictionary:
 		var c: Dictionary = cands[ci]
 		for pace in _paces(sim, c):
 			var aim := _corrected_aim(sim, rules, c, pace)
+			var el := maxf(deg_to_rad(4.0), sim.min_elev(aim) + deg_to_rad(0.5))
 			for tip in _tips():
-				var shot := {"dir": aim, "elev": deg_to_rad(4.0), "a": 0.0, "b": tip, "speed": pace, "target": c.target, "pocket": c.pocket}
+				var shot := {"dir": aim, "elev": el, "a": 0.0, "b": tip, "speed": pace, "target": c.target, "pocket": c.pocket}
 				var out := _try(sim, rules, shot)
 				var v := _value(sim, rules, out, c)
 				if out.legal and not out.potted_target:
@@ -113,7 +114,8 @@ func plan(sim0: PoolSim, rules: PoolRules) -> Dictionary:
 				nd = d
 				near = id
 		var to := (sim.ball(near).p - cb.p) if near >= 0 else Vector3(1, 0, 0)
-		plan = {"dir": Vector3(to.x, 0, to.z).normalized(), "elev": deg_to_rad(4.0), "a": 0.0, "b": 0.0, "speed": 3.0, "target": near, "pocket": -1, "kind": "hope"}
+		var hd := Vector3(to.x, 0, to.z).normalized()
+		plan = {"dir": hd, "elev": maxf(deg_to_rad(4.0), sim.min_elev(hd) + deg_to_rad(0.5)), "a": 0.0, "b": 0.0, "speed": 3.0, "target": near, "pocket": -1, "kind": "hope"}
 	plan.erase("out")
 	plan["place"] = place
 	plan["sure"] = sure
@@ -360,7 +362,7 @@ func _break(sim: PoolSim, rules: PoolRules, place) -> Dictionary:
 	var from: Vector3 = place if place != null else cb.p
 	var dir := Vector3(apex.x - from.x, 0, apex.z - from.z).normalized()
 	var spd := clampf(6.4 * float(me.firm), 4.5, 8.5)
-	return {"dir": dir, "elev": deg_to_rad(3.0), "a": 0.0, "b": -0.08, "speed": spd, "place": place, "call": -1, "target": -1, "kind": "break", "sure": 0.0}
+	return {"dir": dir, "elev": maxf(deg_to_rad(3.0), sim.min_elev(dir) + deg_to_rad(0.3)), "a": 0.0, "b": -0.08, "speed": spd, "place": place, "call": -1, "target": -1, "kind": "break", "sure": 0.0}
 
 
 # In hand: where he puts the cue ball. A straight-ish shot on the easiest ball, a little angle on it

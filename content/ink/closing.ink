@@ -610,7 +610,7 @@ GOOD SHOES: With respect, I was talking to the doorman.
 * ["One more. Then you go."]
     ~ rep(rep_staff, -2)
     ~ pass(10)
-    The bartender looked at the doorman for a long time, and then he poured it and slid it down the bar so it stopped in front of GOOD SHOES without the bartender having to go near him.
+    The bartender dried his hands, both sides, on the towel at his belt, and then he poured it and slid it down the bar so it stopped in front of GOOD SHOES without the bartender having to go near him.
     He drank it slowly. Then he went.
 - -> clear
 
@@ -690,7 +690,7 @@ HI-VIS was asleep at the bar with his head on his arms and his vest folded under
 ~ here = bar
 ~ pass(1)
 The glass was still at the end of the bar, full to the brim. Nobody had seen the old man go.
-The bartender picked the glass up and poured it down the sink without looking at it, the way he'd done every night for thirty-one years, by the look of it.
+The bartender picked the glass up and poured it down the sink without looking at it, and rinsed it, and put it back on the shelf at the end, apart from the others.
 { knows ? endbar_invite:
     WRONGMAN: After, he said. When it's quiet.
 }
@@ -752,7 +752,7 @@ Table 28 had their two each lined up in front of them and were working through t
 // The house lights, the TV and the news count here (room.ink, t28_close_mod).
 * ["Drink up, gentlemen." #check: father:cha 11 {t28_close_mod()}]
     { passed:
-        He said it the way his father used to, like he was doing them a favour, and they drank up and got their coats in the order they always did, and went out together into the rain.
+        He said it in his father's Legion voice, the one that made it sound like a favour, and they drank up and got their coats in the order they always did, and went out together into the rain.
         ~ rep(rep_staff, 1)
     - else:
         TABLE28: Drink up, gentlemen!
@@ -862,7 +862,7 @@ BARTENDER: Anybody get past you, Door?
     -> search
 }
 Nobody had. The bartender had been watching the door himself all night, between drinks, and knew it as well as the doorman did.
-He didn't say anything, which from him was a lot.
+He put a coffee down in front of the doorman, black, and took the empty rye glass away with the same hand.
 ~ rep(rep_staff, 1)
 -> incident_log
 
@@ -1023,11 +1023,11 @@ The bartender pushed it along the bar to him with a pen.
 - -> log_next
 
 = log_done
-She turned the book round and read it.
+The bartender turned the book round and read it, one finger under each line.
 {
 - logged ? inc_office:
     BARTENDER: You wrote down the office.
-    The bartender looked at the line for a long time.
+    The bartender read the line twice, moving his lips on the second go.
     BARTENDER: Junior reads that, he doesn't fire whoever it was. He fires all of us and starts again. That's all that line does.
 - shaded ? inc_office:
     BARTENDER: Office left untidy.
@@ -1082,7 +1082,7 @@ The bartender had poured two. He pushed the other one along the bar to him witho
     FATHER: {Num(drinks)}. After hours still counts.
 * [Leave it standing.]
     ~ last_glass = 2
-    He left it where it was, full, on the bar. The bartender didn't say anything about it.
+    He left it where it was, full, on the bar. The bartender wiped round it.
     { knows ? endbar_seen:
         It looked like the old man's glass, down at the end.
     }
@@ -1135,7 +1135,7 @@ BARTENDER: So. Why'd you leave your last door?
     BARTENDER: They all short you. You'll find out.
 * ["Something happened."]
     ~ claims += said_left_something
-    The bartender waited. He didn't say what. The bartender nodded as if that was an answer, which in a bar it is.
+    The bartender waited. Nothing else came. The bartender nodded and wrote CASH on the back of a coaster for some reason of his own.
 * ["Long story."]
     ~ claims += said_left_long_story
     BARTENDER: Yep. They're all long stories.
@@ -1218,7 +1218,7 @@ BARTENDER: So. Why'd you leave your last door?
     - else:
         BARTENDER: Straw and all.
     }
-    He didn't say whose it was. He didn't say thanks, either, in so many words.
+    He dropped it in the bin under the sink and ran the tap on it, and that was as close to thanks as the doorman got.
 }
 {
 - in_drawer ? truck_keys && said < 2:
@@ -1294,14 +1294,14 @@ BARTENDER: Junior'll call me in the morning and ask how you did.
 - rep_staff >= 3:
     ~ verdict = 2
     BARTENDER: I'll tell him you'll do.
-    It was, he found out later, the best thing the bartender had said about a doorman on his first night in thirty-one years. He said it to the till.
+    He didn't look up from the float. Terry told him on Sunday that it was more than the last four had got.
 - rep_staff >= 0:
     ~ verdict = 1
     BARTENDER: I'll tell him you showed up and you're still here. Two of the last nine didn't manage that.
 - else:
     ~ verdict = -1
     BARTENDER: I'm going to tell him what I saw.
-    He didn't say what that was. He didn't need to.
+    He wrote something on the back of the float sheet and folded it in half, and put it in his shirt pocket, not the till.
 }
 BARTENDER: Friday's different. Friday's everybody.
 { knows ? doorman_stories:
@@ -1407,7 +1407,7 @@ BARTENDER: Go on up. Get some sleep, Door.
 }
 # amb: keg_room
 # music: keg_room
-She locked up and went out the front, and he heard her car start in the lot and go. #sfx: door
+He locked up and went out the front, and the doorman heard his car start in the lot and go. #sfx: door
 He waited until the building was quiet. The coolers. The rain. Then he lifted the trapdoor.
 The light at the bottom of the stairs was on. He hadn't left it on.
 The old man from the end of the bar was sitting on an upturned keg between the rows, in his tweed jacket, with the full glass on the floor beside his shoe. #portrait: endbar
@@ -1508,7 +1508,7 @@ WRONGMAN: There was an old man in the story too. The drunk said he was the one w
     -> overheard
 * (saw_it) {knows ? knot_seen} ["I saw it. In the wall."]
     ENDBAR: Then you know what you are talking to.
-    ENDBAR: It has been in that wall longer than there has been a wall. The table feeds it and does not know they do. It hears them. It hears everyone.
+    ENDBAR: It has been in that wall longer than there has been a wall. The table feeds it and does not know they do. Every word said over that table goes down through the floor, and some of yours.
     -> t
 + {want} ["Done. Those terms."]
     -> deal
@@ -1647,7 +1647,7 @@ FIGHTER: Good.
 = threaten
 ~ parley = 1
 ~ rats = hostile
-He said it. He said he'd burn them out.
+"I'll burn them out." It came out louder than he meant, and something in the dark behind the kegs stopped moving.
 ENDBAR: Then you will burn the hotel down with them. They are in every wall. They were here before the walls.
 He stood up, slowly, and picked up the full glass, and poured it out on the dirt, all of it, and set the empty glass on the keg.
 ENDBAR: That is the first time I have done that.
@@ -1705,7 +1705,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
     ~ hivis_landing = false
     He got an arm under him and walked him up the last flight and along the hall to eleven, and put him through his own door, and shut it on him.
     HI-VIS: Here I am.
-    He said it to the dark room. There was nobody in it to say it to.
+    Eleven was dark and smelled of feet and the crib board was still out on the suitcase. Nobody else was in.
 * (stepped_over) [Step over him.]
     He stepped over him. HI-VIS said "Night," without waking up.
     MANUAL: The licensee's duty of care ends at the door of the licensed premises (see Section 4, Premises).

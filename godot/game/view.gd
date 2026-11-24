@@ -76,6 +76,7 @@ var eye_pos := Post_default()
 var yaw := 0.0
 var pitch := 0.0
 var want_yaw := 0.0
+var keys_off := false          # the keys don't turn his head at all (in the truck the keys drive)
 var want_pitch := 0.0
 var zoom := 1.0                   # the wheel: 1 as he is, down to 0.5 narrowing his eyes on something
 var want_zoom := 1.0
@@ -852,7 +853,7 @@ func on_screen(p: Vector3) -> Vector3:
 func _process(dt: float) -> void:
 	t += dt
 	# the arrow keys, and the keys by them
-	var kt := (keys_turn + keys_feet).clamp(Vector2(-1, -1), Vector2(1, 1))
+	var kt := Vector2.ZERO if keys_off else (keys_turn + keys_feet).clamp(Vector2(-1, -1), Vector2(1, 1))
 	if kt != Vector2.ZERO:
 		turned_t = t
 		want_yaw -= kt.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom

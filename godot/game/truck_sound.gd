@@ -11,7 +11,7 @@
 #                panel's own drone at about 45 Hz
 #   the road     tire hiss on the wet, rising with speed; the gravel's crunch; the wind round the
 #                mirrors and the drip rails
-#   the rest     the horn (two notes, a slow attack), a knock when it hits something, the starter
+#   the rest     the horn (two notes, a slow attack), a deep thud when it hits something, the starter
 #
 # One AudioStreamGenerator at 22 050 Hz, filled each frame.
 class_name TruckSound
@@ -53,6 +53,8 @@ var _horn_ph := [0.0, 0.0]
 var _horn_env := 0.0
 var _knock := 0.0
 var _knock_ph := 0.0
+var _knock_body := 0.0          # the thud's phase
+var _knock_lp := [0.0, 0.0]
 var _cyl_jit: Array = []
 var _rpm_s := 0.0
 
@@ -80,8 +82,14 @@ func stop() -> void:
 	gen = null
 
 
+# a hit: a deep thud through the frame, the body's low ring under it (0..1)
 func knock(strength: float) -> void:
-	_knock = maxf(_knock, clampf(strength, 0.0, 1.5))
+	var st := clampf(strength, 0.0, 1.0)
+	if _knock > 0.001 and st < _knock * 0.6:
+		return
+	_knock = maxf(st, _knock * 0.5)
+	_knock_ph = 0.0
+	_knock_body = 0.0
 
 
 # a band-pass (RBJ, 0 dB at its peak, nothing at DC): returns the new output; state [x1, x2, y1, y2]
@@ -187,14 +195,20 @@ func fill(n: int) -> PackedVector2Array:
 			_horn_ph[0] = fmod(_horn_ph[0] + 392.0 / RATE, 1.0)
 			_horn_ph[1] = fmod(_horn_ph[1] + 494.0 / RATE, 1.0)
 			hv = ((1.0 if _horn_ph[0] < 0.5 else -1.0) + (1.0 if _horn_ph[1] < 0.42 else -1.0)) * 0.12 * _horn_env
-		# a knock: a thud and the body's ring
+		# a knock: a deep thud that falls in pitch (70 Hz down to 36), a little dull noise for the
+		# crumple, the cab's low ring under it; quiet enough to stay clear of the soft knee
 		var kv := 0.0
 		if _knock > 0.001:
 			_knock_ph += 1.0 / RATE
-			kv = _knock * (sin(TAU * 55.0 * _knock_ph) * 0.8 + _rng.randf_range(-1.0, 1.0) * 0.4) * exp(-_knock_ph * 9.0)
-			if _knock_ph > 0.6:
+			var kt := _knock_ph
+			_knock_body = fmod(_knock_body + (36.0 + 34.0 * exp(-kt * 16.0)) / RATE, 1.0)
+			var env := (1.0 - exp(-kt * 300.0)) * exp(-kt * 6.5)
+			_knock_lp[0] += (_rng.randf_range(-1.0, 1.0) - float(_knock_lp[0])) * 0.05
+			_knock_lp[1] += (float(_knock_lp[0]) - float(_knock_lp[1])) * 0.05
+			var ring := sin(TAU * 96.0 * kt) * exp(-kt * 11.0) * 0.18
+			kv = _knock * 0.16 * (env * (sin(TAU * _knock_body) + float(_knock_lp[1]) * 1.6) + ring)
+			if kt > 0.9:
 				_knock = 0.0
-				_knock_ph = 0.0
 		var s: float = (cab * 0.55 + road * 0.5 + hv + kv) * vol
 		# a DC blocker, then a soft knee rather than a hard clip
 		var hp: float = s - float(_dc[0]) + 0.995 * float(_dc[1])

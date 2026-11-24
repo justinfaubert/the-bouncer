@@ -67,6 +67,7 @@ class Fighter:
 	var mass := 95.0
 	var height := 1.88
 	var reach := 0.74              # shoulder to fist
+	var depth := 0.15              # chest, front to the middle of him (set from his build in body())
 	var pos := Vector2.ZERO        # on the floor (x, z), metres
 	var facing := 0.0              # radians; forward is (sin, cos)
 	var vel := Vector2.ZERO
@@ -128,6 +129,9 @@ var rng := RandomNumberGenerator.new()
 var events: Array = []          # what happened since the caller last took them: {"t", "kind", ...}
 var log := {}                   # the player's habits, for the champion: counts by key
 var bounds := Rect2(-3.0, -3.0, 6.0, 6.0)   # the floor he can stand on
+var posts: Array = []                        # people and things standing on the floor: {"pos", "r"}
+var ring_r := 0.0                            # a ring of people instead of walls: past it they shove him back in
+var _crowd_t := -9.0
 var keep_down := false          # ring rules: a man down stays down until the round's called
 var hold_breath := false
 
@@ -328,8 +332,7 @@ func _body(f: Fighter) -> void:
 	f.bal += f.bal_v * DT
 	# the weight moves the body too: a man pushed steps where he's pushed
 	f.pos += (f.vel + f.bal_v * 0.55) * DT
-	f.pos.x = clampf(f.pos.x, bounds.position.x, bounds.end.x)
-	f.pos.y = clampf(f.pos.y, bounds.position.y, bounds.end.y)
+	_keep_in(f)
 	var off := f.bal.length()
 	if off > FALL:
 		_fall(f, f.bal.normalized(), "balance")
@@ -609,15 +612,92 @@ func choke_past(f: Fighter) -> float:
 	return float(f.grips.values()[0].get("past", 0.0))
 
 
+# The nearest two bodies come: their chests and the forearms between them. Close in a clinch, when
+# one has hold of the other; never through each other, never through a wall or the ring of people.
+func apart_now() -> float:
+	var room := 0.34 if (a.grips.is_empty() and b.grips.is_empty()) else 0.24
+	return maxf(APART if room > 0.3 else 0.52, a.depth + b.depth + room)
+
+
 func _apart() -> void:
-	var d := b.pos - a.pos
-	var l := d.length()
-	if l < APART and l > 0.0001:
-		var n := d / l
-		var push := (APART - l)
-		var wa := b.mass / (a.mass + b.mass)
-		a.pos -= n * push * wa
-		b.pos += n * push * (1.0 - wa)
+	var want := apart_now()
+	for it in 3:
+		var d := b.pos - a.pos
+		var l := d.length()
+		if l < want and l > 0.0001:
+			var n := d / l
+			var push := (want - l)
+			var wa := b.mass / (a.mass + b.mass)
+			# a man against the wall can't give: the other takes it all
+			var a_pinned := _at_edge(a, -n)
+			var b_pinned := _at_edge(b, n)
+			if a_pinned and not b_pinned:
+				wa = 0.0
+			elif b_pinned and not a_pinned:
+				wa = 1.0
+			a.pos -= n * push * wa
+			b.pos += n * push * (1.0 - wa)
+			# what's closing the gap stops: no velocity into each other
+			var va := a.vel.dot(n)
+			if va > 0.0:
+				a.vel -= n * va
+			var vb := b.vel.dot(-n)
+			if vb > 0.0:
+				b.vel += n * vb
+		_keep_in(a)
+		_keep_in(b)
+
+
+# would a step this way take him out of the floor?
+func _at_edge(f: Fighter, dir: Vector2) -> bool:
+	var p := f.pos + dir * 0.03
+	if ring_r > 0.0:
+		return p.length() > ring_r
+	return not bounds.grow(-0.001).has_point(p)
+
+
+func _keep_in(f: Fighter) -> void:
+	for p in posts:
+		var pp: Vector2 = p.pos
+		var r := float(p.r) + f.depth + 0.05
+		var d := f.pos - pp
+		if d.length() < r:
+			var n := d.normalized() if d.length() > 0.001 else Vector2.RIGHT
+			f.pos = pp + n * r
+			var into := f.vel.dot(-n)
+			if into > 0.0:
+				f.vel += n * into
+			var bi := f.bal_v.dot(-n)
+			if bi > 0.0:
+				f.bal_v += n * bi * 1.2
+	if ring_r > 0.0:
+		var l := f.pos.length()
+		if l > ring_r:
+			var n := f.pos / l
+			f.pos = n * ring_r
+			var out := f.vel.dot(n)
+			if out > 0.0:
+				f.vel -= n * out * 1.6
+			# the people round the ring put their hands on him and shove him back in
+			f.bal_v -= n * 0.35
+			if t - _crowd_t > 1.2:
+				_crowd_t = t
+				events.append({"t": t, "kind": "crowd", "by": f.name})
+		return
+	var c := Vector2(clampf(f.pos.x, bounds.position.x, bounds.end.x), clampf(f.pos.y, bounds.position.y, bounds.end.y))
+	if c != f.pos:
+		var n := (f.pos - c).normalized()
+		f.pos = c
+		var out := f.vel.dot(n)
+		if out > 0.0:
+			f.vel -= n * out
+		# into the rail or the wall: it stops him, and his weight with him
+		var bo := f.bal_v.dot(n)
+		if bo > 0.0:
+			f.bal_v -= n * bo * 1.4
+			if bo > 0.5 and t - _crowd_t > 0.6:
+				_crowd_t = t
+				events.append({"t": t, "kind": "wall", "by": f.name, "force": bo})
 
 
 # ---------------------------------------------------------------- the brains
@@ -756,6 +836,7 @@ static func body(name_v: String, stats_v: Dictionary, height_v := 1.85, build :=
 	f.height = height_v
 	f.reach = height_v * 0.4
 	f.mass = lerpf(68.0, 112.0, build) * pow(height_v / 1.8, 2.4)
+	f.depth = 0.12 + 0.05 * build * (height_v / 1.85)
 	f.brain = brain_v
 	f.reset_guard()
 	return f

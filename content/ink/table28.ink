@@ -109,7 +109,7 @@ TABLE28: Where'd they dig you up?
 ~ rep(rep_t28, 1)
 He sat down. The chair was too small for him.
 TEAM_JACKET: Get the big fella a rye.
-Nobody moved, and a rye arrived anyway. The bartender put it down in front of him without a word and went back.
+Nobody moved, and a rye arrived anyway. The bartender put it down in front of him on a coaster from a brewery that had closed in 2009, and went back.
 FATHER: You know what that is.
 FIGHTER: It's a drink. Drink it. They'll trust you or they won't.
 - (the_rye)
@@ -334,7 +334,7 @@ TEAM_JACKET: For looking after us.
     He took it back without any offence at all. It went into the next round.
 * [Put it in the bartender's jar on the way past.]
     ~ rep(rep_staff, 1)
-    The bartender saw. He didn't say anything. He didn't have to.
+    The bartender saw, and put the jar back under the bar where the next man couldn't get at it.
 - -> topics
 
 = standing
@@ -368,9 +368,9 @@ HEARING_AID: Arse.
 ~ pass(3)
 { passed:
     MANUAL: A licensee must not permit a person to become intoxicated on the premises. They were intoxicated at two o'clock.
-    He said it. The table went quiet, and then all five of them laughed.
+    The table went quiet, and then all five of them laughed.
 - else:
-    He said it, and it came out wrong, like a question.
+    It came out wrong, going up at the end.
 }
 TABLE28: Cut off!
 TEAM_JACKET: Son, I've been cut off by better than you. I've been cut off by a judge.
@@ -455,7 +455,7 @@ FATHER: The rule is whoever pays for the carpet. I told you.
         Nobody answered. The one who'd fed Walter looked at the hole in the baseboard.
     - walter == 3:
         SCRATCH: Walter didn't want his fry.
-        He said it to the table.
+        He was holding the fry, cold, between two fingers.
     - dennis_gone():
         TABLE28: Down one!
         TEAM_JACKET: Dennis has been called home. It happens to the best of us. It happens to Dennis about twice a week.

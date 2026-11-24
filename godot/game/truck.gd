@@ -55,6 +55,11 @@ var sound: TruckSound
 var body: Node3D                 # the truck, at the sim's middle of mass
 var wheels: Array = []           # [steer pivot, spinning tire]
 var wheel_node: Node3D           # the steering wheel
+var _hit_cool := 0.0
+var tree: Node3D                 # the cardboard pine on the mirror
+var _tree_th := [0.0, 0.0]
+var _tree_w := [0.0, 0.0]
+var _last_vel := Vector3.ZERO
 var needle: Node3D
 var fuel_needle: Node3D
 var temp_needle: Node3D
@@ -82,6 +87,7 @@ var _t := 0.0
 var _blank := 0.0                # a lost second or two, drunk
 var _next_blank := 30.0
 var _chase_pos := Vector3.ZERO
+var chase_at := Vector3(0.0, 2.5, 7.2)   # the outside view: to his side, up, behind (the truck's own frame)
 var _rng := RandomNumberGenerator.new()
 var traffic: Array = []
 var _rain: AudioStreamPlayer
@@ -146,6 +152,7 @@ func begin(rehearse := true, from := {}) -> void:
 	pub.town.set_outdoors(true)
 	pub.grounds.visible = true
 	view.ride = body
+	view.keys_off = true
 	view.ride_eye = EYE
 	view.yaw = 0.0
 	view.pitch = -0.08
@@ -196,6 +203,7 @@ func end() -> void:
 	set_process_input(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	view.ride = null
+	view.keys_off = false
 	sound.stop()
 	_rain.stop()
 	main.keys.hide_card()
@@ -257,7 +265,7 @@ func _input(e: InputEvent) -> void:
 				view.want_yaw = 0.0 if not chase else sim.yaw()
 				view.yaw = view.want_yaw
 				view.want_pitch = -0.08 if not chase else -0.22
-				_chase_pos = sim.pos - sim.forward() * 9.0 + Vector3(0, 3.0, 0)
+				_chase_pos = sim.pos + sim.rot * Vector3(chase_at.x, 0.0, chase_at.z) + Vector3(0, chase_at.y, 0)
 				sound.outside = chase
 			_:
 				return
@@ -351,11 +359,13 @@ func _process(dt: float) -> void:
 		sim.step()
 		_acc -= TruckSim.DT
 		steps += 1
-		if sim.hit > 0.8:
-			sound.knock(sim.hit / 6.0)
-			if sim.hit > 3.0:
-				main.audio.sfx("thump", clampf(sim.hit / 8.0, 0.3, 1.0), 0.7)
+		# a knock once for each new hit, not every step it's against the thing
+		if sim.hit > 0.8 and _hit_cool <= 0.0:
+			sound.knock(clampf(sim.hit / 7.0, 0.15, 1.0))
+			_hit_cool = 0.45
+	_hit_cool -= dt
 	_sync_body()
+	_swing(dt)
 	_gauges(dt)
 	_traffic(dt)
 	road.tick(_t)
@@ -371,7 +381,7 @@ func _process(dt: float) -> void:
 		var bump := clampf(absf(sim.speed) / 30.0, 0.0, 1.0)
 		view.ride_eye = EYE + Vector3(0, sin(_t * 13.0) * 0.002 * bump, 0)
 	else:
-		var want := sim.pos - sim.forward() * 8.5 + Vector3(0, 2.9, 0)
+		var want := sim.pos + sim.rot * Vector3(chase_at.x, 0.0, chase_at.z) + Vector3(0, chase_at.y, 0)
 		_chase_pos = _chase_pos.lerp(want, 1.0 - exp(-dt * 3.0))
 		view.eye_pos = _chase_pos
 		var look := sim.pos + Vector3(0, 0.6, 0) - _chase_pos
@@ -400,7 +410,7 @@ func _sync_body() -> void:
 		piv.position = Vector3(m.x, m.y - float(sim.length[i]), m.z)
 		piv.rotation.y = float(sim.turn[i]) if i < 2 else 0.0
 		tire.rotation.x = -float(sim.roll_angle[i])
-	wheel_node.rotation.z = deg_to_rad(sim.wheel_deg)
+	wheel_node.rotation.y = deg_to_rad(sim.wheel_deg)    # round its column (local y): + is to the left, anticlockwise to him
 
 
 func _gauges(dt: float) -> void:
@@ -498,75 +508,13 @@ func _build_truck() -> void:
 	pub.add_child(body)
 	var J: Material = M.jade
 	var W: Material = M.white
-	# the frame and the running gear under it
-	_bx(Vector3(0.9, 0.2, 5.1), Vector3(0, -0.5, 0.05), M.black, body)
-	# the front: bumper, grille, the headlights in their bezels, the long hood, the fenders
-	_bx(Vector3(2.02, 0.2, 0.16), Vector3(0, -0.36, -2.78), M.chrome, body)
-	_bx(Vector3(1.62, 0.5, 0.08), Vector3(0, -0.02, -2.71), M.chrome, body)
-	for k in 6:
-		_bx(Vector3(1.5, 0.03, 0.06), Vector3(0, -0.2 + k * 0.075, -2.74), M.black, body)
-	for sx in [-0.62, 0.62]:
-		_bx(Vector3(0.3, 0.22, 0.06), Vector3(sx, 0.06, -2.76), M.chrome, body)
-		var g := _bx(Vector3(0.24, 0.16, 0.03), Vector3(sx, 0.06, -2.79), pub.glow(Color("fff2cc"), 0.0), body)
-		head_glow.append(g)
-		var b := SpotLight3D.new()
-		b.position = Vector3(sx, 0.06, -2.85)
-		b.light_color = Color("ffe9bc")
-		b.spot_attenuation = 0.9
-		b.spot_angle_attenuation = 1.4
-		b.shadow_enabled = sx < 0.0
-		b.light_size = 0.12
-		body.add_child(b)
-		beams.append(b)
-	_bx(Vector3(1.86, 0.1, 1.78), Vector3(0, 0.27, -1.86), J, body, Vector3(-2.0, 0, 0))
-	for sx in [-0.93, 0.93]:
-		_bx(Vector3(0.18, 0.6, 1.8), Vector3(sx, -0.02, -1.86), J, body)
-		var badge := Label3D.new()
-		badge.text = "CAMPER SPECIAL"
-		badge.pixel_size = 0.0016
-		badge.font_size = 48
-		badge.modulate = Color("e8e4d4")
-		badge.position = Vector3(sx + signf(sx) * 0.095, 0.08, -1.45)
-		badge.rotation.y = PI / 2.0 * signf(sx)
-		badge.shaded = true
-		body.add_child(badge)
-	_bx(Vector3(1.8, 0.04, 0.5), Vector3(0, -0.34, -2.45), M.black, body)
-	# the cab: below the beltline jade, the roof white, the pillars, the glass
-	_bx(Vector3(1.96, 0.82, 1.56), Vector3(0, -0.05, -0.18), J, body)
-	_bx(Vector3(1.78, 0.07, 1.24), Vector3(0, 1.02, -0.08), W, body)
-	for sx in [-0.86, 0.86]:
-		_bx(Vector3(0.07, 0.72, 0.08), Vector3(sx, 0.66, -0.78), J, body, Vector3(-24.0, 0, 0))   # A pillars
-		_bx(Vector3(0.07, 0.68, 0.08), Vector3(sx, 0.68, 0.53), W, body)                           # B pillars
-		_bx(Vector3(0.05, 0.03, 1.22), Vector3(sx, 1.0, -0.12), M.chrome, body)                   # drip rails
-	_bx(Vector3(1.74, 0.06, 0.08), Vector3(0, 0.98, -0.62), W, body)                              # windshield header
-	var ws := _bx(Vector3(1.68, 0.7, 0.012), Vector3(0, 0.67, -0.79), M.glass, body, Vector3(-24.0, 0, 0))
-	ws.transparency = 0.82
-	ws.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_bx(Vector3(1.74, 0.62, 0.05), Vector3(0, 0.68, 0.56), W, body)                               # the back wall
-	var rw := _bx(Vector3(1.2, 0.36, 0.012), Vector3(0, 0.72, 0.53), M.glass, body)
-	rw.transparency = 0.6
-	# the wipers, parked at the bottom of the glass
-	for sx in [-0.62, 0.08]:
-		var piv := Node3D.new()
-		piv.position = Vector3(sx, 0.36, -0.95)
-		piv.rotation.x = deg_to_rad(-24.0)
-		body.add_child(piv)
-		var arm := Node3D.new()
-		arm.set_meta("side", sx)
-		piv.add_child(arm)
-		_bx(Vector3(0.52, 0.018, 0.018), Vector3(0.26, 0.0, 0.02), M.black, arm)
-		arm.rotation.z = deg_to_rad(-6.0)
-		wipers.append(arm)
-	# the West Coast mirrors on their arms
-	for sx in [-1.0, 1.0]:
-		_bx(Vector3(0.24, 0.03, 0.03), Vector3(sx * 1.05, 0.5, -0.72), M.chrome, body)
-		_bx(Vector3(0.03, 0.34, 0.03), Vector3(sx * 1.17, 0.58, -0.72), M.chrome, body)
-		_bx(Vector3(0.16, 0.3, 0.04), Vector3(sx * 1.19, 0.6, -0.7), M.chrome, body)
-		_bx(Vector3(0.13, 0.27, 0.01), Vector3(sx * 1.19, 0.6, -0.68), M.glass, body)
+	_build_body(J, W)
 	# inside: the dash, the cluster, the wheel and its column, the shifter, the bench seat. Laid out
 	# from where his eyes are: the hood shows over the dash, the cluster over the wheel's rim.
-	_bx(Vector3(1.76, 0.36, 0.34), Vector3(0, 0.32, -0.81), M.dash, body)          # the dash's face, its top at 0.50
-	_bx(Vector3(1.78, 0.05, 0.42), Vector3(0, 0.505, -0.84), M.dark, body)         # the pad on top of it
+	# the dash: its face at z -0.64 under the cluster, the padded top rolling over toward the glass
+	_prism(_pts([[-0.98, 0.12], [-0.64, 0.12], [-0.64, 0.45], [-0.68, 0.505], [-0.76, 0.525], [-0.98, 0.535]]),
+		-0.88, 0.88, 0.02, M.dash, body)
+	_prism(_pts([[-0.98, 0.50], [-0.72, 0.50], [-0.66, 0.52], [-0.70, 0.545], [-0.98, 0.55]]), -0.885, 0.885, 0.012, M.dark, body)
 	_bx(Vector3(0.62, 0.05, 0.06), Vector3(EYE.x, 0.535, -0.64), M.dark, body)      # the hood over the cluster
 	var cluster := Node3D.new()
 	cluster.position = Vector3(EYE.x, 0.44, -0.636)
@@ -672,48 +620,8 @@ func _build_truck() -> void:
 		q.position = Vector3(0, -0.8, -2.9 - qm.size.y / 2.0)
 		body.add_child(q)
 		beam_pools.append(q)
-	# the bench seat
-	_bx(Vector3(1.66, 0.16, 0.52), Vector3(0, -0.1, 0.22), M.vinyl, body)
-	_bx(Vector3(1.66, 0.6, 0.12), Vector3(0, 0.24, 0.47), M.vinyl, body, Vector3(-8.0, 0, 0))
-	# the doors' insides, the floor
-	for sx in [-0.95, 0.95]:
-		_bx(Vector3(0.05, 0.5, 1.2), Vector3(sx, 0.1, -0.2), M.dash, body)
-	_bx(Vector3(1.8, 0.04, 1.5), Vector3(0, -0.4, -0.2), M.black, body)
-	# the bed: a Styleside eight-foot, the tailgate, the rear fenders in it, the bumper
-	_bx(Vector3(1.92, 0.05, 2.36), Vector3(0, -0.22, 1.86), M.dark, body)
-	for sx in [-0.96, 0.96]:
-		_bx(Vector3(0.06, 0.62, 2.4), Vector3(sx, 0.08, 1.86), J, body)
-		_bx(Vector3(0.08, 0.04, 2.4), Vector3(sx, 0.4, 1.86), W, body)
-	_bx(Vector3(1.92, 0.6, 0.06), Vector3(0, 0.08, 3.05), J, body)
-	_bx(Vector3(1.94, 0.18, 0.14), Vector3(0, -0.36, 3.15), M.chrome, body)
-	_bx(Vector3(1.86, 0.62, 0.05), Vector3(0, 0.08, 0.66), J, body)
-	for sx in [-0.86, 0.86]:
-		var tl := _bx(Vector3(0.1, 0.2, 0.03), Vector3(sx, 0.0, 3.09), pub.glow(Color("ff2a1a"), 0.0), body)
-		tail_glow.append(tl)
-	# the plate: Alberta, twenty years expired
-	var plate := Label3D.new()
-	plate.text = "ALBERTA  WILD ROSE COUNTRY\nBGX 417"
-	plate.pixel_size = 0.0011
-	plate.font_size = 48
-	plate.modulate = Color("2a3a7a")
-	plate.outline_size = 0
-	plate.position = Vector3(0, -0.3, 3.23)
-	plate.shaded = true
-	body.add_child(plate)
-	_bx(Vector3(0.32, 0.16, 0.01), Vector3(0, -0.3, 3.225), M.white, body)
-	# the wheels: each a pivot (steers) and a tire (spins), with a white-painted rim and a hubcap
-	for i in 4:
-		var piv := Node3D.new()
-		body.add_child(piv)
-		var tire := Node3D.new()
-		piv.add_child(tire)
-		var sx := -1.0 if i % 2 == 0 else 1.0
-		_cy(TruckSim.RADIUS, 0.25, Vector3.ZERO, M.rubber, tire, Vector3(0, 0, 90), 20)
-		_cy(0.21, 0.26, Vector3.ZERO, M.white, tire, Vector3(0, 0, 90), 16)
-		_cy(0.12, 0.27, Vector3.ZERO, M.chrome, tire, Vector3(0, 0, 90), 12)
-		# a tread block so the turning shows
-		_bx(Vector3(0.24, 0.05, 0.08), Vector3(0, TruckSim.RADIUS - 0.01, 0), M.black, tire)
-		wheels.append([piv, tire])
+	_build_cab_inside()
+	_build_bed_and_wheels(J, W)
 	dome = OmniLight3D.new()
 	dome.position = Vector3(0, 0.95, -0.1)
 	dome.light_color = Color("ffe0b0")
@@ -722,6 +630,349 @@ func _build_truck() -> void:
 	dome.visible = false
 	body.add_child(dome)
 	body.visible = false
+
+
+# ---------------------------------------------------------------- the body, from its side lines
+# Each panel is a side profile (z ahead-back, y up) pushed out across the truck from x0 to x1, its
+# long edges bevelled, so the print's line finds the fender's crown and the arch's lip the way a
+# pencil would, not a box's corners.
+
+func _pts(a: Array) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for p in a:
+		out.append(Vector2(float(p[0]), float(p[1])))
+	return out
+
+
+# an arch cut up out of a panel's bottom edge at y = bottom, round a wheel at (z, cy) radius r:
+# the points from the front of it, over, to the back
+func _arch(z: float, cy: float, r: float, bottom: float, n := 12) -> Array:
+	var out := []
+	var a0 := asin(clampf((bottom - cy) / r, -1.0, 1.0))
+	for k in n + 1:
+		var a := lerpf(PI - a0, a0, float(k) / n)
+		out.append([z + cos(a) * r, cy + sin(a) * r])
+	return out
+
+
+func _prism(prof: PackedVector2Array, x0: float, x1: float, bevel: float, m: Material, parent: Node3D) -> MeshInstance3D:
+	var area := 0.0
+	for i in prof.size():
+		var p := prof[i]
+		var q := prof[(i + 1) % prof.size()]
+		area += p.x * q.y - q.x * p.y
+	if area < 0.0:
+		prof.reverse()
+	var n := prof.size()
+	# each edge's outward normal (the profile now runs anticlockwise in z, y)
+	var en: Array = []
+	for i in n:
+		var d := prof[(i + 1) % n] - prof[i]
+		en.append(Vector2(d.y, -d.x).normalized())
+	var b := minf(bevel, (x1 - x0) * 0.3)
+	var inner := PackedVector2Array()
+	for i in n:
+		var n0: Vector2 = en[(i - 1 + n) % n]
+		var n1: Vector2 = en[i]
+		var mid := (n0 + n1).normalized()
+		inner.append(prof[i] - mid * b / maxf(mid.dot(n1), 0.35))
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var V := func(z: float, y: float, x: float) -> Vector3: return Vector3(x, y, z)
+	# the band round the outline, between the bevels
+	for i in n:
+		var p := prof[i]
+		var q := prof[(i + 1) % n]
+		var out3 := Vector3(0, (en[i] as Vector2).y, (en[i] as Vector2).x)
+		_quad(st, V.call(p.x, p.y, x0 + b), V.call(q.x, q.y, x0 + b), V.call(q.x, q.y, x1 - b), V.call(p.x, p.y, x1 - b), out3)
+		# the bevels, each side
+		var pi := inner[i]
+		var qi := inner[(i + 1) % n]
+		_quad(st, V.call(p.x, p.y, x1 - b), V.call(q.x, q.y, x1 - b), V.call(qi.x, qi.y, x1), V.call(pi.x, pi.y, x1), out3 + Vector3(1, 0, 0))
+		_quad(st, V.call(p.x, p.y, x0 + b), V.call(q.x, q.y, x0 + b), V.call(qi.x, qi.y, x0), V.call(pi.x, pi.y, x0), out3 - Vector3(1, 0, 0))
+	# the two flat sides
+	var tri := Geometry2D.triangulate_polygon(inner)
+	if tri.is_empty():
+		# the inset outline folded on itself somewhere tight: its points still match the outline's
+		tri = Geometry2D.triangulate_polygon(prof)
+	if tri.is_empty():
+		push_warning("truck: a panel's side wouldn't triangulate (%d points)" % inner.size())
+	for k in range(0, tri.size(), 3):
+		var a := inner[tri[k]]
+		var c := inner[tri[k + 1]]
+		var d := inner[tri[k + 2]]
+		_tri(st, V.call(a.x, a.y, x1), V.call(c.x, c.y, x1), V.call(d.x, d.y, x1), Vector3(1, 0, 0))
+		_tri(st, V.call(a.x, a.y, x0), V.call(c.x, c.y, x0), V.call(d.x, d.y, x0), Vector3(-1, 0, 0))
+	st.generate_normals()
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = m
+	parent.add_child(mi)
+	return mi
+
+
+# a triangle wound so its face looks the way `out` does
+func _tri(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, out: Vector3) -> void:
+	if (b - a).cross(c - a).dot(out) > 0.0:
+		var t := b
+		b = c
+		c = t
+	st.add_vertex(a)
+	st.add_vertex(b)
+	st.add_vertex(c)
+
+
+func _quad(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3, out: Vector3) -> void:
+	if (a - b).length_squared() < 1e-8 and (c - d).length_squared() < 1e-8:
+		return
+	_tri(st, a, b, c, out)
+	_tri(st, a, c, d, out)
+
+
+# Body local: the middle of mass at 0, the ground about 0.87 down, -z ahead. The wheels at z -1.42
+# and 1.96, their middles about 0.48 down.
+func _build_body(J: Material, W: Material) -> void:
+	var WY := -0.48
+	# the frame, the splash pans under the hood, the cross-member
+	_bx(Vector3(0.9, 0.2, 5.1), Vector3(0, -0.5, 0.05), M.black, body)
+	_bx(Vector3(1.36, 0.4, 1.86), Vector3(0, -0.26, -1.8), M.black, body)
+	# the front fenders: the crown along the top, the arch round the wheel, the lip at the nose
+	for sx in [-1.0, 1.0]:
+		var f := [[-2.76, -0.40]] + _arch(-1.42, WY, 0.47, -0.40) + [[-0.85, -0.40], [-0.85, 0.27], [-1.4, 0.272],
+			[-2.66, 0.255], [-2.75, 0.215], [-2.78, 0.15]]
+		_prism(_pts(f), 0.70 * sx if sx > 0 else -0.99, 0.99 if sx > 0 else -0.70, 0.045, J, body)
+		# the wheel well, dark behind the arch
+		_bx(Vector3(0.05, 0.5, 1.0), Vector3(sx * 0.69, -0.2, -1.42), M.black, body)
+		# the marker lamp on the fender's side, near the nose
+		_bx(Vector3(0.012, 0.05, 0.11), Vector3(sx * 0.995, 0.08, -2.55), pub.glow(Color("ff9a2a"), 0.25), body)
+		# the side spear: a thin chrome line along the fender and on down the door and the bed
+		_bx(Vector3(0.01, 0.018, 1.6), Vector3(sx * 0.996, 0.0, -1.78), M.chrome, body)
+		var badge := Label3D.new()
+		badge.text = "CAMPER SPECIAL"
+		badge.pixel_size = 0.0013
+		badge.font_size = 44
+		badge.modulate = Color("e8e4d4")
+		badge.position = Vector3(sx * 0.998, 0.12, -1.12)
+		badge.rotation.y = PI / 2.0 * sx
+		badge.shaded = true
+		body.add_child(badge)
+	# the hood between them: flat, a shallow crown, rising a touch to the cowl
+	_prism(_pts([[-2.72, -0.06], [-2.72, 0.2], [-2.67, 0.245], [-1.8, 0.29], [-0.85, 0.31], [-0.85, -0.06]]), -0.70, 0.70, 0.03, J, body)
+	# the cowl and its vent under the glass
+	_prism(_pts([[-0.85, 0.2], [-0.85, 0.32], [-0.80, 0.42], [-0.70, 0.43], [-0.70, 0.2]]), -0.95, 0.95, 0.02, J, body)
+	_bx(Vector3(1.4, 0.008, 0.06), Vector3(0, 0.36, -0.82), M.black, body, Vector3(-60, 0, 0))
+	# the front: the bumper, the grille's chrome surround and its bars, the round lamps in square bezels
+	_prism(_pts([[-2.98, -0.46], [-2.80, -0.46], [-2.80, -0.24], [-2.92, -0.24], [-2.99, -0.30]]), -1.02, 1.02, 0.03, M.chrome, body)
+	_prism(_pts([[-2.80, -0.36], [-2.74, -0.36], [-2.74, 0.20], [-2.80, 0.20]]), -0.95, 0.95, 0.02, M.chrome, body)
+	_bx(Vector3(1.62, 0.44, 0.02), Vector3(0, -0.06, -2.805), M.black, body)
+	for k in 4:
+		_bx(Vector3(0.92, 0.022, 0.03), Vector3(0, -0.24 + k * 0.12, -2.81), M.chrome, body)
+	for k in 5:
+		_bx(Vector3(0.022, 0.44, 0.03), Vector3(-0.44 + k * 0.22, -0.06, -2.812), M.chrome, body)
+	for sx in [-0.66, 0.66]:
+		_bx(Vector3(0.3, 0.27, 0.05), Vector3(sx, -0.03, -2.81), M.chrome, body)
+		_cy(0.095, 0.03, Vector3(sx, -0.03, -2.84), M.dark, body, Vector3(90, 0, 0), 20)
+		var g := _cy(0.085, 0.02, Vector3(sx, -0.03, -2.855), pub.glow(Color("fff2cc"), 0.0), body, Vector3(90, 0, 0), 20)
+		head_glow.append(g)
+		var bl := SpotLight3D.new()
+		bl.position = Vector3(sx, -0.03, -2.9)
+		bl.light_color = Color("ffe9bc")
+		bl.spot_attenuation = 0.9
+		bl.spot_angle_attenuation = 1.4
+		bl.shadow_enabled = sx < 0.0
+		bl.light_size = 0.12
+		body.add_child(bl)
+		beams.append(bl)
+		# the parking lamps, set in the bumper
+		_bx(Vector3(0.16, 0.06, 0.02), Vector3(sx * 1.05, -0.35, -2.99), pub.glow(Color("ffb050"), 0.15), body)
+	# the doors: each its own panel, the seam round it, the handle, the hinge side square
+	for sx in [-1.0, 1.0]:
+		var d := [[-0.85, -0.46], [0.64, -0.46], [0.64, 0.45], [-0.78, 0.45], [-0.85, 0.31]]
+		_prism(_pts(d), -0.99 if sx < 0 else 0.90, -0.90 if sx < 0 else 0.99, 0.035, J, body)
+		for zz in [-0.80, 0.56]:
+			_bx(Vector3(0.006, 0.84, 0.008), Vector3(sx * 0.993, -0.02, zz), M.black, body)
+		_bx(Vector3(0.006, 0.008, 1.34), Vector3(sx * 0.993, -0.42, -0.12), M.black, body)
+		_bx(Vector3(0.025, 0.03, 0.16), Vector3(sx * 1.0, 0.32, 0.42), M.chrome, body)
+		_bx(Vector3(0.01, 0.018, 1.36), Vector3(sx * 0.996, 0.0, -0.12), M.chrome, body)
+		# the rocker under it
+		_bx(Vector3(0.12, 0.08, 1.5), Vector3(sx * 0.93, -0.47, -0.1), M.black, body)
+	# the cab's back wall, behind the seat, up to the roof
+	_prism(_pts([[0.56, -0.44], [0.66, -0.44], [0.66, 0.54], [0.56, 0.54]]), -0.95, 0.95, 0.03, J, body)
+	_prism(_pts([[0.56, 0.90], [0.64, 0.90], [0.64, 0.96], [0.60, 1.0], [0.56, 1.0]]), -0.9, 0.9, 0.02, W, body)
+	for sx in [-1.0, 1.0]:
+		_bx(Vector3(0.24, 0.36, 0.08), Vector3(sx * 0.74, 0.72, 0.6), W, body)
+	# the greenhouse: the white roof, a bit narrower than the doors, its drip rails, the pillars
+	_prism(_pts([[-0.53, 0.98], [0.62, 0.98], [0.62, 1.03], [0.56, 1.07], [-0.40, 1.075], [-0.52, 1.03]]), -0.87, 0.87, 0.045, W, body)
+	for sx in [-1.0, 1.0]:
+		_prism(_pts([[-0.80, 0.43], [-0.74, 0.43], [-0.47, 0.99], [-0.53, 0.99]]), sx * 0.82 - 0.04, sx * 0.82 + 0.04, 0.012, J, body)
+		_prism(_pts([[0.50, 0.44], [0.62, 0.44], [0.62, 0.99], [0.50, 0.99]]), sx * 0.86 - 0.04, sx * 0.86 + 0.04, 0.012, W, body)
+		_bx(Vector3(0.03, 0.025, 1.12), Vector3(sx * 0.9, 1.0, 0.02), M.chrome, body)
+		# the side glass and the vent wing's post
+		var sg := _bx(Vector3(0.008, 0.52, 1.3), Vector3(sx * 0.9, 0.72, -0.1), M.glass, body)
+		sg.transparency = 0.88
+		sg.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_bx(Vector3(0.02, 0.5, 0.02), Vector3(sx * 0.9, 0.72, -0.42), M.chrome, body, Vector3(-12, 0, 0))
+	_bx(Vector3(1.66, 0.05, 0.06), Vector3(0, 0.975, -0.55), W, body)                              # windshield header
+	var ws := _bx(Vector3(1.6, 0.62, 0.012), Vector3(0, 0.71, -0.645), M.glass, body, Vector3(-27.0, 0, 0))
+	ws.transparency = 0.86
+	ws.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var rw := _bx(Vector3(1.24, 0.36, 0.012), Vector3(0, 0.72, 0.555), M.glass, body)
+	rw.transparency = 0.6
+	# the wipers, parked at the bottom of the glass
+	for sx in [-0.62, 0.08]:
+		var piv := Node3D.new()
+		piv.position = Vector3(sx, 0.44, -0.80)
+		piv.rotation.x = deg_to_rad(-27.0)
+		body.add_child(piv)
+		var arm := Node3D.new()
+		arm.set_meta("side", sx)
+		piv.add_child(arm)
+		_bx(Vector3(0.52, 0.018, 0.018), Vector3(0.26, 0.0, 0.02), M.black, arm)
+		arm.rotation.z = deg_to_rad(-6.0)
+		wipers.append(arm)
+	# the West Coast mirrors, the camper special's, out on their arms
+	for sx in [-1.0, 1.0]:
+		_bx(Vector3(0.26, 0.025, 0.025), Vector3(sx * 1.08, 0.5, -0.66), M.chrome, body)
+		_bx(Vector3(0.26, 0.025, 0.025), Vector3(sx * 1.08, 0.86, -0.62), M.chrome, body, Vector3(0, 0, sx * 4.0))
+		_bx(Vector3(0.025, 0.4, 0.025), Vector3(sx * 1.2, 0.68, -0.64), M.chrome, body)
+		_bx(Vector3(0.17, 0.3, 0.04), Vector3(sx * 1.22, 0.68, -0.62), M.chrome, body)
+		_bx(Vector3(0.14, 0.27, 0.01), Vector3(sx * 1.22, 0.68, -0.60), M.glass, body)
+
+
+func _build_cab_inside() -> void:
+	# the bench seat, its pleats, the back leaned a little
+	_prism(_pts([[-0.05, -0.18], [0.46, -0.18], [0.46, -0.02], [0.40, 0.0], [0.0, -0.01], [-0.06, -0.05]]), -0.84, 0.84, 0.04, M.vinyl, body)
+	_prism(_pts([[0.36, -0.02], [0.50, -0.02], [0.58, 0.58], [0.52, 0.62], [0.44, 0.6]]), -0.84, 0.84, 0.04, M.vinyl, body)
+	for k in 7:
+		_bx(Vector3(0.006, 0.5, 0.01), Vector3(-0.72 + k * 0.24, 0.3, 0.47), M.dark, body, Vector3(-8, 0, 0))
+	# the doors' insides: the panel, the armrest, the window crank, the lock knob
+	for sx in [-1.0, 1.0]:
+		_bx(Vector3(0.03, 0.62, 1.3), Vector3(sx * 0.885, 0.08, -0.12), M.dash, body)
+		_bx(Vector3(0.07, 0.05, 0.36), Vector3(sx * 0.85, 0.14, 0.1), M.vinyl, body)
+		_cy(0.012, 0.05, Vector3(sx * 0.85, 0.3, -0.25), M.chrome, body, Vector3(0, 0, 90), 8)
+		_bx(Vector3(0.01, 0.1, 0.012), Vector3(sx * 0.83, 0.27, -0.25), M.chrome, body)
+		_cy(0.008, 0.04, Vector3(sx * 0.86, 0.47, 0.38), M.chrome, body, Vector3.ZERO, 8)
+		# the sun visor, flat up against the headliner
+		_bx(Vector3(0.55, 0.015, 0.2), Vector3(sx * 0.42, 0.955, -0.42), M.vinyl, body)
+	# the floor and its rubber mat, the transmission hump
+	_bx(Vector3(1.8, 0.04, 1.5), Vector3(0, -0.4, -0.2), M.black, body)
+	_bx(Vector3(0.36, 0.12, 0.7), Vector3(0, -0.34, -0.55), M.rubber, body)
+	# the radio in the middle of the dash, its two knobs, its dial; the heater's levers; the glovebox
+	_bx(Vector3(0.24, 0.07, 0.02), Vector3(0.08, 0.32, -0.632), M.chrome, body)
+	_bx(Vector3(0.12, 0.025, 0.005), Vector3(0.08, 0.33, -0.62), M.dial, body)
+	var rd := Label3D.new()
+	rd.text = "54  60  70  90  110  140  160"
+	rd.pixel_size = 0.00028
+	rd.font_size = 24
+	rd.modulate = Color("e8c88a")
+	rd.position = Vector3(0.08, 0.33, -0.617)
+	rd.shaded = false
+	body.add_child(rd)
+	for kx in [-0.08, 0.08]:
+		_cy(0.016, 0.03, Vector3(0.08 + kx, 0.32, -0.615), M.chrome, body, Vector3(90, 0, 0), 10)
+	for k in 2:
+		_bx(Vector3(0.012, 0.035, 0.03), Vector3(0.28 + k * 0.05, 0.24, -0.625), M.chrome, body)
+	_bx(Vector3(0.38, 0.006, 0.006), Vector3(0.55, 0.36, -0.638), M.black, body)
+	_bx(Vector3(0.38, 0.006, 0.006), Vector3(0.55, 0.22, -0.638), M.black, body)
+	_bx(Vector3(0.05, 0.015, 0.02), Vector3(0.55, 0.335, -0.632), M.chrome, body)
+	# the mirror on the glass, and what hangs from it: a cardboard pine gone pale, that swings
+	_bx(Vector3(0.03, 0.06, 0.03), Vector3(0, 0.93, -0.56), M.dark, body)
+	_bx(Vector3(0.26, 0.07, 0.025), Vector3(0, 0.88, -0.55), M.dark, body)
+	var mg := _bx(Vector3(0.24, 0.055, 0.004), Vector3(0, 0.88, -0.536), M.glass, body)
+	mg.material_override = M.chrome
+	tree = Node3D.new()
+	tree.position = Vector3(0.02, 0.845, -0.56)
+	body.add_child(tree)
+	_bx(Vector3(0.002, 0.08, 0.002), Vector3(0, -0.04, 0), M.white, tree)
+	var pine := MeshInstance3D.new()
+	var pm := PrismMesh.new()
+	pm.size = Vector3(0.034, 0.055, 0.003)
+	pine.mesh = pm
+	pine.material_override = _m(Color("8fa88a"), 0.9)
+	pine.position = Vector3(0, -0.105, 0)
+	tree.add_child(pine)
+
+
+func _build_bed_and_wheels(J: Material, W: Material) -> void:
+	var WY := -0.48
+	# the bed: a Styleside eight-foot, its sides with the arch over the wheel, the rail caps, the
+	# floor, the tubs inside, the front wall, the tailgate and its latch handle
+	for sx in [-1.0, 1.0]:
+		var side := [[0.70, -0.42]] + _arch(1.96, WY, 0.47, -0.42) + [[3.08, -0.42], [3.08, 0.40], [3.04, 0.44], [0.74, 0.44], [0.70, 0.40]]
+		_prism(_pts(side), -0.99 if sx < 0 else 0.86, -0.86 if sx < 0 else 0.99, 0.035, J, body)
+		_bx(Vector3(0.16, 0.035, 2.38), Vector3(sx * 0.925, 0.455, 1.89), W, body)
+		_bx(Vector3(0.05, 0.5, 1.0), Vector3(sx * 0.70, -0.2, 1.96), M.black, body)
+		_bx(Vector3(0.2, 0.3, 0.9), Vector3(sx * 0.72, -0.08, 1.96), M.dark, body)
+		_bx(Vector3(0.01, 0.018, 0.7), Vector3(sx * 0.996, 0.0, 1.08), M.chrome, body)
+		_bx(Vector3(0.01, 0.018, 0.6), Vector3(sx * 0.996, 0.0, 2.75), M.chrome, body)
+		_bx(Vector3(0.012, 0.05, 0.09), Vector3(sx * 0.995, 0.1, 2.98), pub.glow(Color("ff2a1a"), 0.2), body)
+		# a mud flap behind the rear wheel
+		_bx(Vector3(0.24, 0.3, 0.012), Vector3(sx * 0.84, -0.64, 2.5), M.rubber, body)
+	_bx(Vector3(1.72, 0.04, 2.36), Vector3(0, -0.24, 1.88), M.dark, body)
+	_prism(_pts([[0.68, -0.26], [0.76, -0.26], [0.76, 0.42], [0.68, 0.42]]), -0.88, 0.88, 0.015, J, body)
+	_prism(_pts([[3.04, -0.42], [3.11, -0.42], [3.11, 0.40], [3.08, 0.43], [3.04, 0.43]]), -0.86, 0.86, 0.02, J, body)
+	_bx(Vector3(0.22, 0.05, 0.02), Vector3(0, 0.3, 3.115), M.chrome, body)
+	# the rear bumper, the tail lamps, the plate
+	_prism(_pts([[3.12, -0.46], [3.30, -0.46], [3.31, -0.32], [3.26, -0.26], [3.12, -0.26]]), -1.0, 1.0, 0.03, M.chrome, body)
+	for sx in [-0.93, 0.93]:
+		_bx(Vector3(0.1, 0.24, 0.04), Vector3(sx, 0.02, 3.1), M.chrome, body)
+		var tl := _bx(Vector3(0.08, 0.2, 0.02), Vector3(sx, 0.02, 3.12), pub.glow(Color("ff2a1a"), 0.0), body)
+		tail_glow.append(tl)
+	var plate := Label3D.new()
+	plate.text = "ALBERTA  WILD ROSE COUNTRY\nBGX 417"
+	plate.pixel_size = 0.0011
+	plate.font_size = 48
+	plate.modulate = Color("2a3a7a")
+	plate.outline_size = 0
+	plate.position = Vector3(0, -0.36, 3.322)
+	plate.shaded = true
+	body.add_child(plate)
+	_bx(Vector3(0.32, 0.16, 0.01), Vector3(0, -0.36, 3.316), M.white, body)
+	# the tailpipe, out from under the left side behind the wheel
+	_cy(0.032, 0.4, Vector3(-0.62, -0.62, 2.95), M.dark, body, Vector3(90, 0, 0), 10)
+	# the wheels: each a pivot (steers) and a tire (spins); the tire's shoulders rounded, a white
+	# steel wheel deep in it, the hubcap, eight lugs' worth of chrome, two tread blocks so it turns
+	for i in 4:
+		var piv := Node3D.new()
+		body.add_child(piv)
+		var tire := Node3D.new()
+		piv.add_child(tire)
+		var sx := -1.0 if i % 2 == 0 else 1.0
+		_cy(TruckSim.RADIUS, 0.21, Vector3.ZERO, M.rubber, tire, Vector3(0, 0, 90), 24)
+		for e in [-1.0, 1.0]:
+			var sh := MeshInstance3D.new()
+			var cm := CylinderMesh.new()
+			cm.top_radius = TruckSim.RADIUS - 0.03 if e > 0 else TruckSim.RADIUS
+			cm.bottom_radius = TruckSim.RADIUS if e > 0 else TruckSim.RADIUS - 0.03
+			cm.height = 0.022
+			cm.radial_segments = 24
+			cm.rings = 1
+			sh.mesh = cm
+			sh.material_override = M.rubber
+			sh.position = Vector3(e * 0.116, 0, 0)
+			sh.rotation_degrees = Vector3(0, 0, -90)
+			tire.add_child(sh)
+		_cy(0.22, 0.2, Vector3(sx * 0.02, 0, 0), M.white, tire, Vector3(0, 0, 90), 18)
+		_cy(0.11, 0.22, Vector3(sx * 0.03, 0, 0), M.chrome, tire, Vector3(0, 0, 90), 14)
+		for k in 2:
+			_bx(Vector3(0.2, 0.04, 0.08), Vector3(0, TruckSim.RADIUS - 0.012, 0).rotated(Vector3.RIGHT, k * PI), M.black, tire)
+		wheels.append([piv, tire])
+
+
+# the pine on the mirror swings with what the truck does: a pendulum hung in the cab, pushed by
+# the cab's own acceleration
+func _swing(dt: float) -> void:
+	if dt <= 0.0 or tree == null:
+		return
+	var a := (sim.vel - _last_vel) / dt
+	_last_vel = sim.vel
+	var local := sim.rot.inverse() * (a + Vector3(0, 9.8, 0))
+	for k in 2:
+		var push := (-local.x if k == 0 else local.z) / 9.8
+		var acc := -18.0 * sin(float(_tree_th[k]) - atan(push)) - 1.6 * float(_tree_w[k])
+		_tree_w[k] = float(_tree_w[k]) + acc * dt
+		_tree_th[k] = clampf(float(_tree_th[k]) + float(_tree_w[k]) * dt, -1.2, 1.2)
+	tree.rotation = Vector3(float(_tree_th[1]), 0.0, float(_tree_th[0]))
 
 
 # ---------------------------------------------------------------- the other cars on the road
