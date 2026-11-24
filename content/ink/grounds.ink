@@ -236,7 +236,7 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
 * {cash >= 16} [Smokes. Player's. (16 dollars)]
     ~ cash -= 16
     ~ smokes++
-    He put the pack in the tray, and took the change, and the window, and slid it shut a little, as if the cold was the thing he was selling.
+    He put the pack in the tray, and took the change, and the window, and slid it shut a little against the cold.
     ESSOKID: You don't look like you smoke.
     ESSOKID: Nobody does, now. It's all of us, though. It's everybody.
     -> counter
@@ -263,7 +263,7 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
         Twenty dollars.
     - 9:
         ~ cash += 5
-        Five dollars. His own money back, which felt like winning and was the opposite.
+        Five dollars. His own money back. He put it in a different pocket from the rest.
     - else:
         Nothing. A cherry, a bell, a crown.
     }

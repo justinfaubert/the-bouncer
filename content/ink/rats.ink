@@ -185,7 +185,7 @@ The lid had been propped open with a brick.
 { due(): -> called_up }
 # amb: keg_room
 { at_keg == 1:
-    He lifted the trapdoor behind the bar. The bartender stepped around the hole without looking down, the way you step around a sleeping dog.
+    He lifted the trapdoor behind the bar. The bartender stepped around the hole without looking down, carrying two pints.
     BARTENDER: Third step.
     The third step was soft. So was the fourth.
     A stone foundation, sweating. Kegs on pallets in two rows, the beer lines going up through the ceiling to the taps. The compressor ticking over. It smelled of wet stone and old beer and, under that, rat piss, which he knew from other cellars.
@@ -309,7 +309,7 @@ MANUAL: Wear gloves. Place in tamper-resistant stations only. Never where it can
     ~ poison_at += t28
     -> carry_up ->
     He waited until table 28 were watching the hockey and put two blocks into the hole in the baseboard where Walter went in and out, and pushed them in with the side of his boot.
-    Nobody saw. That was the idea.
+    Nobody saw. The hearing aid one looked down once, at the boot, and back at the hockey.
     WRONGMAN: In the story there was a woman at the bar who saw everything, and told all of it after church on Sunday.
 + (lid_back) [Put the lid back on.]
     He put the lid back on the bucket and pushed it back under the schedule with his foot.
@@ -769,7 +769,7 @@ The one who scratched lottery tickets was under the table before anyone else had
 ~ knows += walter_name
 Table 28 went quiet for the first time since two o'clock that afternoon.
 TEAM_JACKET: Who put a trap under our table.
-He didn't need to ask. He was looking at the doorman.
+He was asking the room, and looking at the doorman.
 * ["I did."]
     ~ rep(rep_t28, -3)
     TEAM_JACKET: Well.
