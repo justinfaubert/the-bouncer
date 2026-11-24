@@ -1,5 +1,8 @@
 LAST CALL
-Everything so far in one build, 24 November 2026: the cold open, Wednesday, Thursday and Friday,
+Everything so far in one build, 24 November 2026: the night on film now, night stock, with a Look
+menu (pause > The look, or Settings) holding thirteen ways to show it and dials for the film's
+grain, halation, glow and corners; F8 goes round them while you play. Also the cold open,
+Wednesday, Thursday and Friday,
 the door by hand, walking on his own feet and out round the grounds at night, darts with their
 fanfare, pool, the cigarette machine that plays like a synth, beer mats, the voices' masks and
 the page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant,

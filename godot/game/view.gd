@@ -279,6 +279,10 @@ func resize() -> void:
 	mask.size = size
 	press.set_shader_parameter("view_px", Vector2(size))
 	press.set_shader_parameter("print_k", clampf(float(settings.get("print", 1.0)), 0.0, 1.0))
+	press.set_shader_parameter("style", int(str(settings.get("look", "7"))))
+	for f in ["film_grain", "film_halation", "film_glow", "film_vignette"]:
+		press.set_shader_parameter(f, float(settings.get(f, 1.0)))
+	press.set_shader_parameter("halo", 1.0 if settings.get("halo", false) else 0.0)
 
 
 # his steps, walking on his own feet (game/feet.gd)

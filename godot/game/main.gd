@@ -1535,6 +1535,45 @@ func _on_world_input(e: InputEvent) -> void:
 			going.click()
 
 
+# the looks on trial (look/press.gdshader style): F8 goes round them anywhere, Shift+F8 the bulbs' bloom
+const LOOKS := ["The press", "Clean cut", "Black plate", "Painted", "Pulp", "Painted, oil", "Painted, thin",
+	"Night stock", "Super 8", "Bodycam", "The bar's camera", "Anamorphic", "Painted on night stock"]
+
+
+func _input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and not e.echo and e.physical_keycode == KEY_F8:
+		if e.shift_pressed:
+			settings["halo"] = not settings.get("halo", false)
+		else:
+			settings["look"] = str((int(str(settings.get("look", "7"))) + 1) % LOOKS.size())
+		apply_settings()
+		var t: String = LOOKS[int(str(settings["look"]))] + (", the bulbs bloom" if settings["halo"] else "")
+		_show_look(t)
+		get_viewport().set_input_as_handled()
+
+
+var _look_tag: Label = null
+var _look_tw: Tween = null
+
+
+# the look's name, a moment in the corner of the picture
+func _show_look(t: String) -> void:
+	if _look_tag == null:
+		var layer := CanvasLayer.new()
+		layer.layer = 90
+		add_child(layer)
+		_look_tag = UiBits.label("", "ui_b", 18, Look.STOCK, 3)
+		_look_tag.position = Vector2(24, 20)
+		layer.add_child(_look_tag)
+	_look_tag.text = "THE PRINT: " + t.to_upper()
+	_look_tag.modulate.a = 1.0
+	if _look_tw != null:
+		_look_tw.kill()
+	_look_tw = create_tween()
+	_look_tw.tween_interval(1.6)
+	_look_tw.tween_property(_look_tag, "modulate:a", 0.0, 0.6)
+
+
 func _unhandled_input(e: InputEvent) -> void:
 	if e is InputEventKey:
 		_key(e)

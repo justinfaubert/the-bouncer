@@ -253,6 +253,7 @@ func pause() -> void:
 	_gap(10)
 	_button("Back to the shift", true, func(): hide_all(), 30)
 	_button("Settings", false, func(): settings("pause"))
+	_button("The look", false, func(): look_menu("pause"))
 	_button("How it plays", false, func(): help("pause"))
 	_button("Back to the title", false, func(): main.back_to_title())
 	_button("Quit", false, func(): main._notification(NOTIFICATION_WM_CLOSE_REQUEST))
@@ -263,6 +264,11 @@ func back() -> void:
 	match screen:
 		"pause":
 			hide_all()
+		"look":
+			if _look_from == "settings":
+				settings(came_from)
+			else:
+				pause()
 		"settings", "help", "nights", "games", "rehearse":
 			if came_from == "pause":
 				pause()
@@ -666,8 +672,6 @@ func settings(from: String) -> void:
 	_section("His body")
 	_toggle("Drink, nerves and hurt in the print", "skin", "")
 	_toggle("Sway when he's drunk", "sway", "Off for anyone the movement makes queasy.")
-	_slider("Grain", "grain", 0.6, 1.6, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
-	_slider("Strokes", "print", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_section("Looking")
 	_slider("Look speed", "look_speed", 0.4, 2.0, 0.05, func(v): return "%.2f" % v)
 	_toggle("Invert up and down", "invert", "")
@@ -676,6 +680,7 @@ func settings(from: String) -> void:
 	_slider("Field of view", "fov", 45.0, 90.0, 1.0, func(v): return "%d°" % roundi(v))
 	_section("The screen")
 	_toggle("Fullscreen", "fullscreen", "")
+	_button("The look", false, func(): look_menu("settings"), 22)
 	_slider("Detail", "render", 0.5, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_section("Sound")
 	_toggle("Sound", "sound", "Placeholder sound, until Hutch's own.")
@@ -687,6 +692,72 @@ func settings(from: String) -> void:
 	_gap(16)
 	_button("Back", true, func(): back())
 	_focus_first()
+
+
+# ---------------------------------------------------------------- the look
+
+# Every way the night can be shown (look/press.gdshader's style), in families, each with a line on
+# what it is. Night stock is the game's own; the rest are there to play in.
+const LOOK_FAMILIES := [
+	["Film", [["7", "Night stock"], ["8", "Super 8"], ["11", "Anamorphic"]]],
+	["Paint", [["3", "Painted"], ["5", "Oil"], ["6", "Thin paint"], ["12", "Paint on night stock"]]],
+	["Print", [["0", "The press"], ["1", "Clean cut"], ["2", "Black plate"], ["4", "Pulp"]]],
+	["Cameras", [["9", "Bodycam"], ["10", "The bar's camera"]]],
+]
+const LOOK_NOTES := {
+	"0": "The old woodcut press: five inks on cream stock, strokes cut along the surfaces.",
+	"1": "The press with its blacks solid and its colour smoothed.",
+	"2": "Black or paper, nothing between but where a form turns. Mignola, Sin City.",
+	"3": "The room's own colour, smoothed into paint and pulled toward the press's inks.",
+	"4": "Halftone dots, every ink at its own angle, like a cheap four-colour press.",
+	"5": "The paint with a bigger brush, a rougher board and more of the inks.",
+	"6": "Mostly the render, with only a little paint.",
+	"7": "Tungsten film pushed in a dark bar: cool shadows, warm bulbs, red halation, grain in the dye layers.",
+	"8": "A home-movie camera at night: soft, warm, brown blacks, the gate's round corners.",
+	"9": "A camera on his chest: a fisheye, the colour splitting, the sensor's noise in the dark.",
+	"10": "The security camera over the till: grey-green, low, lines.",
+	"11": "A widescreen lens: letterboxed, a blue streak through every light, teal and amber.",
+	"12": "The paint, with night stock's halation and grain over it.",
+}
+var _look_from := ""
+
+
+func look_menu(from: String) -> void:
+	if from != "":
+		_look_from = from
+	var keep: int = scroll.scroll_vertical if screen == "look" else 0
+	_open("look")
+	if keep > 0:
+		_rescroll.call_deferred(keep)
+	var cur := str(main.settings.get("look", "7"))
+	_gap(40)
+	_head("The look", "How the night is shown")
+	_para(LOOK_NOTES.get(cur, ""), 21, Look.MUTED)
+	_para("F8 goes round them while you play.", 17, Look.MUTED)
+	for fam in LOOK_FAMILIES:
+		_seg(fam[0], fam[1], "look")
+	var n := int(cur)
+	if n >= 7 and n <= 12 or n == 5 or n == 6 or n == 3:
+		_section("The film")
+		_slider("Grain", "film_grain", 0.0, 2.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+		_slider("Halation", "film_halation", 0.0, 2.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+		_slider("Glow round the lights", "film_glow", 0.0, 2.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+		_slider("The lens's corners", "film_vignette", 0.0, 2.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+	if n <= 6 or n == 12:
+		_section("The print")
+		_toggle("The bulbs bloom", "halo", "Old incandescent glass: a warm haze round every lamp. Shift+F8 while you play.")
+		_slider("Grain", "grain", 0.6, 1.6, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+		_slider("Strokes", "print", 0.0, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
+	_gap(16)
+	_button("Back", true, func(): back())
+	_focus_first()
+
+
+func _reopen() -> void:
+	if screen == "look":
+		look_menu("")
+	else:
+		settings(came_from)
 
 
 func _rescroll(v: int) -> void:
@@ -723,7 +794,7 @@ func _seg(label: String, options: Array, key: String) -> void:
 		b.pressed.connect(func():
 			main.settings[key] = val
 			main.apply_settings()
-			settings(came_from))
+			_reopen())
 		h.add_child(b)
 		buttons.append(b)
 
@@ -735,7 +806,7 @@ func _toggle(label: String, key: String, hint: String) -> void:
 	b.pressed.connect(func():
 		main.settings[key] = not main.settings.get(key, false)
 		main.apply_settings()
-		settings(came_from))
+		_reopen())
 	v.add_child(b)
 
 
