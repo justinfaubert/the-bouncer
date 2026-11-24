@@ -130,13 +130,13 @@ func _ogre() -> void:
 			await _wait(2.2)
 		"shoulder":
 			if p.ok:
-				fight.say("He stops. For one breath he stops, and looks at your hand like it's a bird that's landed on him. Then he shrugs it off like it is one.", 5.0)
+				fight.say("He stops. For one breath he looks down at your hand on his arm. Then he rolls his shoulder and your hand isn't there any more.", 5.0)
 			else:
-				fight.say("He doesn't feel it. Your hand on him is a hand on a wall in an earthquake.", 4.0)
+				fight.say("He doesn't feel it. You might as well be pushing on the deck.", 4.0)
 			await _wait(2.4)
 		"jaw":
 			if p.ok:
-				fight.say("It lands. Your whole arm rings to the shoulder. He turns his head back, slowly, the way you'd turn to see who'd thrown a pebble.", 5.0)
+				fight.say("It lands. Your whole arm rings to the shoulder. He turns his head back, slowly, and looks round for who did it.", 5.0)
 				me.hurt.arms = 0.4
 				result["hand"] = "sore"
 			else:
@@ -160,7 +160,7 @@ func _ogre() -> void:
 		if ogre.pos.y > 1.9 and fight.sim.t - last_hit > 3.0:
 			hits += 1
 			last_hit = fight.sim.t
-			main.audio.at("slap_2", fight._w3(ogre.pos, 1.5), 1.0, 3.0, 0.7)
+			main.audio.at("punch", fight._w3(ogre.pos, 1.5), 0.7, 3.0, 0.8)
 			fight.say(["He gets a fist into a man at the rail. The man sits down hard among the chairs.", "Another one at the rail. Somebody's glass goes over the side.", "He catches a woman's shoulder. She screams like it's a joke and then it isn't."][mini(hits - 1, 2)], 3.5)
 		# both hands off him: he hits the deck, and anyone near
 		if me.grips.is_empty():
@@ -196,7 +196,7 @@ func _ogre() -> void:
 				hf.hold_pt = {"side": "L" if i % 2 == 0 else "R", "off": Vector2(0.65 + i * 0.15, -0.35 - i * 0.2)}
 				fight.figures.append(hf)
 		"no":
-			fight.say("She shrugs and goes back in. Dale looks at you like you've said something stupid. You have.", 4.5)
+			fight.say("She shrugs and goes back in. Dale looks at you. \"Seriously, man?\"", 4.5)
 		"cops":
 			result["cops"] = true
 			fight.say("She goes in to call it. THE MANUAL: forty minutes, on a Friday. Nobody's coming.", 4.5)
@@ -226,7 +226,7 @@ func _ogre() -> void:
 	fight.sim._fall(ogre, Vector2(-1, 0), "trip")
 	main.audio.at("groan", fight._w3(ogre.pos, 1.8), 1.0, 3.0, 0.5)
 	await _wait(2.2)
-	fight.say("Boom. The floor of the bar comes up through your feet. He lies there a second, two. Then he puts his hands flat and pushes himself up as if he'd just been resting.", 5.0)
+	fight.say("Boom. The floor of the bar comes up through your feet. He lies there a second, two. Then he puts his hands flat and pushes himself up, and wipes them on his jeans.", 5.0)
 	await _wait(1.5)
 	ogre.down = false
 	ogre.bal = Vector2.ZERO
@@ -244,9 +244,9 @@ func _ogre() -> void:
 	if jaw:
 		fight.view.flash = 1.0
 		fight.shake_v += Vector2(3.0, -1.0)
-		main.audio.sfx("slap", 1.0, 0.6)
+		main.audio.sfx("punch", 0.8, 0.8)
 		main.audio.sfx("heart", 0.8, 0.8)
-		fight.say("On the way out his elbow comes back and finds your jaw. You hear it more than feel it. Then you feel it.", 5.0)
+		fight.say("On the way out his elbow comes back and finds your jaw. A white flash, and a taste in your mouth like you've been sucking a penny.", 5.0)
 		result["jaw"] = true
 	else:
 		fight.say("You see the elbow start before he does, and your chin's already somewhere else. It goes past your ear like a train.", 5.0)
@@ -257,9 +257,9 @@ func _ogre() -> void:
 
 func _ogre_after(hits: int) -> void:
 	var lines: Array = []
-	lines.append("You literally throw him out. He lands on the gravel on his hands and knees and stays there, breathing, then gets up and walks off across the lot toward the highway without looking back, like a man walking home.")
+	lines.append("You literally throw him out. He lands on the gravel on his hands and knees and stays there, breathing, then gets up and walks off across the lot toward the highway without looking back.")
 	if result.get("club", false):
-		lines.append("The brothers go back to their table. One of them lifts his glass to you as he sits. That's a favour, and they'll remember they did it, and so will everyone who saw.")
+		lines.append("The brothers go back to their table. One of them lifts his glass to you as he sits. You'll be buying that table drinks till Christmas.")
 	if result.get("cops", false):
 		lines.append("At ten past one a single car pulls into the lot. The constable asks which way he went. Nobody knows. She writes it down.")
 	else:
@@ -268,7 +268,7 @@ func _ogre_after(hits: int) -> void:
 		lines.append("%s at the rail took one of his fists. Somebody's going to have a face in the morning, and it's going to be the Sov's." % ("A man" if hits == 1 else "%d people" % hits))
 	if result.get("jaw", false):
 		lines.append("Your jaw clicks when you open it. Soup, for a week. Maybe soup.")
-	lines.append("That's the job. He'll wake up somewhere tomorrow and not remember any of it, and the deck has a dent in it like a dropped anvil, and the bill for all of it, the bruises, the paperwork, the man at the rail, lands on whoever was at the door. The law comes after, if it comes. It always comes after.")
+	lines.append("He'll wake up somewhere tomorrow and not remember any of it. The deck has a dent in it you could sit in. The bruises are yours, the paperwork's yours, and when the man at the rail gets a lawyer, the lawyer will want the name of whoever was on the door. The RCMP come on Tuesday, with a clipboard.")
 	_column(lines)
 	result["kind"] = "ogre"
 	var g = main.game if main.in_game and from_menu == "" else null
@@ -284,7 +284,7 @@ func _ogre_after(hits: int) -> void:
 
 func _thunder() -> void:
 	var at := fight._w3(fight.sim.b.pos, 0.1) if fight.sim != null else DECK
-	main.audio.at("thud", at, 1.0, 4.0, 0.45)
+	main.audio.at("body_fall", at, 0.9, 4.0, 0.7)
 	main.audio.at("break", at, 0.5, 4.0, 0.5)
 	fight.shake_v += Vector2(0.0, 0.8)
 
@@ -306,6 +306,7 @@ func _plant_fight(opts: Dictionary) -> void:
 	main.view.jump_to("pool")
 	opts["where"] = plant.frame()
 	opts["bounds"] = Rect2(-FishPlant.RING, -FishPlant.RING, FishPlant.RING * 2.0, FishPlant.RING * 2.0)
+	opts["ring_r"] = FishPlant.RING - 0.2
 	fight.begin(opts, from_menu != "", body)
 
 

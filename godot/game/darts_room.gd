@@ -187,7 +187,7 @@ func landed(i: int, r: Dictionary, heard: Array, turn: Array) -> void:
 		if walls == 2:
 			_call("That wall's not a double.", "bartender", 0.6)
 		elif walls == 4:
-			_once("walls", ["Behind the bar Jim had stopped polishing the glass he was polishing and was counting the holes in the plaster with his lips, the way he counted everything."], 0.8)
+			_once("walls", ["Behind the bar Jim had stopped polishing the glass he was polishing and was counting the holes in the plaster with his lips."], 0.8)
 	if "robin" in heard:
 		# darts.gd says nobody saw it. Somebody saw it.
 		var ws := watchers()
@@ -211,7 +211,7 @@ func landed(i: int, r: Dictionary, heard: Array, turn: Array) -> void:
 		_once("on180", [
 			"Two in the treble. The talk at the bar thinned out behind him, nobody asking it to. Somebody put a glass down very carefully.",
 			"Two in the treble again. The bar went quiet for him again. It was getting to be a thing.",
-			{"who": "fighter", "text": "Don't think about it. Thinking is how you miss."},
+			{"who": "fighter", "text": "Same feet. Same elbow. Seven foot nine and a quarter to the board, and it hasn't moved."},
 		], 0.5)
 
 
@@ -242,7 +242,7 @@ func turn_over(turn: Array, bust := false, shot := false, left := 501) -> void:
 		# two in the treble and the third somewhere else: the breath goes out of the room
 		main.audio.at("groan", _bar(), 0.7, 2.5)
 		_once("missed180", [
-			"The room let its breath go, all of it at once, and went back to the hockey like it had never been watching.",
+			"The room let its breath go, all of it at once, and went back to the hockey, too loudly.",
 			"Ohhh, from the bar. The long one, the one that's mostly pleasure.",
 			{"who": "wrongman", "text": "Two out of three. They put that on the headstone of every man you've ever met."},
 		], 0.4)
@@ -262,7 +262,7 @@ func turn_over(turn: Array, bust := false, shot := false, left := 501) -> void:
 		_once("bnb", ["Twenty, five and one. Twenty-six. In every pub in the Commonwealth there's a man who says it, and in this one he'd been waiting all night."], 1.6)
 	elif three_in and beds.size() == 1:
 		_call("Three in a bed.", "", 0.4)
-		_once("bed", ["All three in one bed, touching. Not the bed he wanted. It's the thing you can't do on purpose that's the most like doing it on purpose."], 1.2)
+		_once("bed", ["All three in one bed, touching. Not the bed he wanted. Somebody at the bar clapped anyway, slowly, and got told to shut up."], 1.2)
 	elif carpets >= 3:
 		_call("Want me to bring the board closer?", "", 0.5)
 		_after(1.4, func(): _laugh(2))

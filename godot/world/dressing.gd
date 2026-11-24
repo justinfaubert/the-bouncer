@@ -48,12 +48,25 @@ func build(p: Pub) -> void:
 
 # The material for one of tools/dressing.py's pictures, printed on paper (no strokes cut in it), its
 # torn edges cut out.
+const PAPER_GLOW := 0.07
+# the things on the walls that are there to be read, and half the size of each: a look narrows his
+# eyes on it till it fills his sight (game/main.gd, _read_closer)
+const READ := {"poster_boors": 0.45, "poster_mildcat": 0.45, "calendar": 0.32, "poster_lochness": 0.38,
+	"labutt": 0.24, "corkboard": 0.42, "sign_reserve": 0.2, "sign_forget": 0.18, "beer_clock": 0.2,
+	"door_signs": 0.3, "esso_ads": 0.6}
+
+
 func paper_mat(t: String) -> ShaderMaterial:
 	if _mats.has(t):
 		return _mats[t]
 	var m := pub.mat(Color(1, 1, 1), 0.85, 0.0, 3, Vector3.UP, 7.0, 0.5)
 	m.set_shader_parameter("albedo_tex", pub.tex("res://textures/dress_" + t + ".png"))
 	m.set_shader_parameter("alpha_scissor", 0.4)
+	# a breath of its own picture, so where the room goes dark the print still holds its shapes
+	# (the walls round it go to black; the paper keeps the last of the light, the way paper does)
+	m.set_shader_parameter("emission", Color(1, 1, 1))
+	m.set_shader_parameter("emission_tex", pub.tex("res://textures/dress_" + t + ".png"))
+	m.set_shader_parameter("emission_energy", PAPER_GLOW)
 	_mats[t] = m
 	return m
 
@@ -144,15 +157,39 @@ func _posters() -> void:
 	var tin := paper(paper_mat("labutt"), 0.48, 0.3, Vector3(15.2, 2.3, 10.0), FRONT, 2.4, 3)
 	tin.position += FRONT * 0.004
 	pub.anchors["labutt"] = Vector3(15.2, 2.3, 9.99)
+	# the ones away from a lamp get a pool of their own, tight to the paper, from somewhere over
+	# your shoulder; the wall a foot past the edge stays as dark as it was
+	_pool_on(Vector3(4.97, 1.7, 10.0), FRONT, 0.5, 0.75)
+	_pool_on(Vector3(14.95, 1.78, 0.0), BACKW, 0.45, 1.3)
+	_pool_on(Vector3(15.2, 2.3, 10.0), FRONT, 0.28, 0.7)
+
+
+# A tight warm pool on a picture on the wall at `at` facing `face`, `r` its half-size: a spot from
+# 0.9 out and a little up, no shadow, gone a step past the paper.
+func _pool_on(at: Vector3, face: Vector3, r: float, energy: float) -> SpotLight3D:
+	var sp := SpotLight3D.new()
+	var pos := at + face * 0.9 + Vector3(0, 0.35, 0)
+	sp.transform = Transform3D(Basis.looking_at(at - pos, Vector3.UP), pos)
+	sp.light_color = Color("ffc98a")
+	sp.light_energy = energy
+	sp.light_specular = 0.05
+	sp.spot_range = 1.6
+	sp.spot_angle = rad_to_deg(atan((r + 0.06) / pos.distance_to(at)))
+	sp.spot_angle_attenuation = 0.35
+	sp.spot_attenuation = 0.6
+	add_child(sp)
+	pub.lamps.append(sp)        # dims and warms with the room's lamps by the clock
+	return sp
 
 
 func _signs() -> void:
 	# over the back bar, above the glasswasher: Gary's terms
 	paper(paper_mat("reserve"), 0.42, 0.3, Vector3(0.0, 2.08, 7.18), WEST, -1.2, 0)
 	pub.anchors["sign_reserve"] = Vector3(0.01, 2.08, 7.18)
-	# over the kitchen door, where the bartender reads it every time she goes through
+	# over the kitchen door, where the bartender reads it every time he goes through
 	paper(paper_mat("forget"), 0.36, 0.3, Vector3(3.25, 2.42, 0.0), BACKW, 1.6, 0)
 	pub.anchors["sign_forget"] = Vector3(3.25, 2.42, 0.01)
+	_pool_on(Vector3(3.25, 2.42, 0.0), BACKW, 0.2, 0.7)
 	# CASH ONLY on the till's front, toward the room, on tape
 	paper(paper_mat("cash"), 0.15, 0.1, Vector3(1.93, 1.25, 7.36), Vector3(1, 0, 0), -3.5, 0)
 

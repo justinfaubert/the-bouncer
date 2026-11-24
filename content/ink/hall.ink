@@ -241,8 +241,8 @@ HOODIE: occupied
 = sit_outside
 ~ pass(5)
 He sat down on the carpet in the back hall, with his back against the washroom door and his legs out across the hall, so that anyone going to the men's had to step over them.
-He didn't say anything. The jukebox came through the wall. Somebody at the pool table swore at a shot.
-After a while the lock clicked. Nobody opened the door. It was just unlocked.
+The jukebox came through the wall. Somebody at the pool table swore at a shot.
+Two songs later the lock clicked. Nobody opened the door. It was just unlocked.
 WRONGMAN: That's an invitation. In the story nobody ever got one.
 * [Stay where you are.]
     ~ pass(5)

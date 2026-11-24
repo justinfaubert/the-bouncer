@@ -27,6 +27,14 @@ What Hutch asked for: a deep pool system with 8-ball and 9-ball, physics, cue ha
 - what happened, in his words and the teller's
 - the end card
 
+## Round two (23 November, after Hutch played it)
+
+- **The balls wear their numbers in the game you play.** The export was dropping the ball pictures (they were imported as textures, and the table reads the raw files), so every ball came out blank. They're kept as they are now, like every other picture, and a test checks each ball has its picture.
+- **An eight-foot bar box** (88 by 44 inches) instead of the seven: still a coin-op, a size bars do have, and it fills the room better. The walk map is redone round it.
+- **Nothing goes through the table.** Both cues, his and the other man's, go by one rule in the sim (`PoolSim.min_elev`): the cue's own thickness kept over the cushion, the wooden rail and any ball behind, and a hand's thickness more when he bridges on the rail. The other man's stroke is a real one now: practice strokes, a pause at the back, through the ball and a short follow-through that stops short of the cloth. His head stays out of the rail when he gets down low near it. The render test checks both cues against the table and the balls on every frame of his stroke.
+- **Smoother aim.** The cue follows the hand a moment behind, like a cue settling on the bridge, so the line doesn't twitch. Down on the shot the hand turns it less than stood up. Held A and D give the last hair. The head only rises and falls when the hand moves mostly up and down, so turning the cue doesn't bob it.
+- **The table's own sounds** (`tools/pool_sounds.py`): the click of two balls, the tip, the break, the cushion, the jaws, the drop into the gully, the run down the return, a ball on the floor. Kept low and round, heard from a stool.
+
 ## Its place in the story
 
 "Put twenty on the next game" with the big man on Wednesday is now a real rack (`#game: pool bigman win|lose` in `content/ink/pool.ink`). Playing to win against a man who's throwing games means he hands you the eight, and the Ink says so. Playing to lose has to be done well enough. A ball that touches nothing, or the eight in early, and he sees it: "Don't do me any favours, bud." Honest misses and he likes you for it. What came of it is in `pool_result`, `pool_threw` and `pool_dumped` for later scenes.

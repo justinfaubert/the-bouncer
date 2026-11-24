@@ -52,8 +52,8 @@ enum {EV_END, EV_BALL, EV_RAIL, EV_POINT, EV_POCKET, EV_BURN_IN, EV_BURN_OUT}
 # A table: its size, its pockets, its cloth and its rails, and what's wrong with it.
 class Table:
 	var name := "sov"
-	var L := 1.981                  # nose to nose, along (a seven-foot bar box: 78 by 39 inches)
-	var W := 0.991
+	var L := 2.235                  # nose to nose, along (an eight-foot bar box: 88 by 44 inches)
+	var W := 1.118
 	var mouth_corner := 0.124       # across the jaws' points
 	var mouth_side := 0.133
 	var facing_corner := 38.0       # how far each facing turns in off the cushion's line, degrees
@@ -149,6 +149,12 @@ class Table:
 
 	func head_spot() -> Vector3:
 		return Vector3(-L * 0.25, 0, 0)
+
+	# the frame round the cloth, for the cue to clear: the cushion's depth past the nose, the wooden
+	# rail past that, and how high the wood stands over the cloth
+	const CUSH_W := 0.05
+	const RAIL_W := 0.105
+	const WOOD_TOP := 0.064
 
 
 static func sov_table() -> Table:
@@ -254,6 +260,44 @@ func add_ball(id: int, at: Vector3, cue := false) -> Ball:
 func _set_rc(b: Ball) -> void:
 	var dh := table.nose_h - b.r
 	b.rc = sqrt(maxf(b.r * b.r - dh * dh, 0.0))
+
+
+# The lowest the butt can go, in radians, for a cue laid along dir (on the cloth's plane) from the
+# cue ball: the cue's own thickness kept over the cushion, the wooden rail and any ball behind,
+# and a hand's thickness more where he has to bridge on the rail. The player and the man across the
+# table both go by it, so neither cue goes through the table.
+func min_elev(dir: Vector3, lo := deg_to_rad(2.0)) -> float:
+	var cb := ball(0)
+	var back := Vector3(-dir.x, 0, -dir.z).normalized()
+	var need := lo
+	var hl := table.L * 0.5
+	var hw := table.W * 0.5
+	# where the line back crosses the nose, the cushion's back and the wood's outer edge
+	for k in 3:
+		var out := [0.0, Table.CUSH_W, Table.CUSH_W + Table.RAIL_W][k] as float
+		var top := [RAIL_TOP, Table.WOOD_TOP, Table.WOOD_TOP][k] as float
+		var dist := INF
+		if absf(back.x) > 1e-4:
+			dist = minf(dist, ((hl + out if back.x > 0 else -hl - out) - cb.p.x) / back.x)
+		if absf(back.z) > 1e-4:
+			dist = minf(dist, ((hw + out if back.z > 0 else -hw - out) - cb.p.z) / back.z)
+		if dist <= 0.0 or dist > 1.6:
+			continue
+		# the cue's thickness there (a tip of 6.5 mm out to a butt of 15 over its 1.47 m), and the
+		# bridge hand when the rail's that close
+		var thick := 0.0065 + 0.0085 * clampf(dist / 1.47, 0.0, 1.0)
+		var hand := 0.022 if dist < 0.32 else 0.004
+		need = maxf(need, atan2(top + thick + hand - cb.r, dist))
+	for o in balls:
+		if o.id == 0 or o.state == DOWN or o.state == OFF:
+			continue
+		var rel := Vector3(o.p.x - cb.p.x, 0, o.p.z - cb.p.z)
+		var s := rel.dot(back)
+		if s <= 0.0 or s > 0.7:
+			continue
+		if (rel - back * s).length() < o.r + 0.014:
+			need = maxf(need, atan2(o.r * 2.0 + 0.009 - cb.r, s))
+	return need
 
 
 func ball(id: int) -> Ball:

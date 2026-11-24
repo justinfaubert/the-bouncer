@@ -128,7 +128,7 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
     * * ["Go."]
         ~ cardigan_go = 1
         CARDIGAN: It's easy for you to say, I suppose.
-        He said it without any heat. He put the cigarette out on the rail and put the butt in his pocket, not in the can.
+        No heat in it. He put the cigarette out on the rail and put the butt in his pocket, not in the can.
     * * ["Stay."]
         ~ cardigan_go = -1
         CARDIGAN: Yes.

@@ -51,7 +51,7 @@ VAR hangover = 0            // what Thursday night leaves in him for Friday: dri
 + [Sit on the back step till it's light.]
     ~ d2_done += d2_step
     He sat on the step by the dumpster with his jacket round him. The gulls came first, and then the bread truck, and then the light, grey, from behind the hill.
-- NARRATOR: He slept till noon. He dreamed about the water off the wharf, and something coming up out of it, round and black and wet, without a ripple. He didn't tell anyone that for a long time. #pause
+- NARRATOR: He slept till noon. He dreamed about the water off the wharf, and something coming up out of it, round and black and wet, without a ripple. I've told it to you before anyone else. #pause
 ~ new_day(2)
 ~ clock = 705
 -> thursday
@@ -103,7 +103,7 @@ Grey light, off the water, through the two inches the window would open. Somebod
         A big man with his hair wet at the front and two days of beard, who'd look like this at forty.
     }
     { stat_con >= 6:
-        He felt all right. He usually did. It annoyed people.
+        He felt all right. He usually did, the morning after. Two ex-girlfriends had held it against him.
     - else:
         Behind his eyes there was a small dry ache he knew would be there till about three.
     }
@@ -196,7 +196,7 @@ THE SHORELINE. Serving the Island since 1911. Thursday, November 5. #prop: shore
     ~ pass(2)
     ~ paper_read += pp_tide
     Five columns of times and heights, small. Thursday's low was 0.3 metres at 11:52. Next Wednesday's column was empty, the box printed and nothing in it.
-    He read it twice. A misprint.
+    He read it twice. He tilted it to the window. Wednesday's box was still empty.
     -> pages
 + [Fold it into his back pocket.]
     -> desk.desk_hub
@@ -282,7 +282,7 @@ In the corner of the trap, caught in the wire, there was a key on a brass fob sh
 FATHER: Seven's the one that's empty since March.
 * [Keep the key.]
     ~ knows += key_seven
-    He worked it out of the wire and put it in his pocket. It was cold, and it stayed cold.
+    He worked it out of the wire and put it in his pocket. It was colder than the water it came out of.
 * [Leave it in the trap for the old man.]
     ~ key_left = true
     He left it hanging in the wire, and the crabs, and tied the trap off on the planks where the old man would find it.
@@ -294,7 +294,7 @@ FATHER: Seven's the one that's empty since March.
 ~ here = esso
 ~ pass(10)
 # amb: esso
-Under the canopy by day the white light was still on. A woman in an Esso vest was on the till inside, doing a word search.
+Under the canopy by day the white light was still on. A woman in an Esso vest was on the till inside, doing a word search with a highlighter. She'd found PENNY, ALMANAC and SOVEREIGN, and was going over the grid a line at a time for EMPIRE.
 * {d2_done !? d2_ate} [Something to eat.]
     ~ d2_done += d2_ate
     ~ ate = 1
@@ -326,6 +326,10 @@ TEAM_JACKET: Here he is! The man himself! Big fella, you're not in it. Nobody's 
 }
 { paper_read ? pp_obit:
     SCRATCH: Irene Pelletier. Eighty-nine for Irene. I had her at eighty-five, in the pool.
+}
+{ paper_read ? pp_ads:
+    GLASSES: Page nine! WANTED, doorman! He's still in the classifieds, boys. Gary's shopping around!
+    TEAM_JACKET: Gary's been shopping around since 1994. Ask his wife.
 }
 GLASSES: You'll have one with us. You'll have one. He's having one.
 * [Have one. Sit down.]
@@ -445,6 +449,7 @@ Three men from the mill in their socks round a crib board on a suitcase, with a 
 }
 They dealt him in. Fifteen two, fifteen four, and a pair is six. They played for a dollar a game and talked about the mill without saying the word closing.
 HI-VIS: Six weeks on, one off. Used to be I'd go home for the one.
+The one with the moustache said the mill was going because of Ottawa. He said that about his knees, too, and his marriage. Fifteen two.
 * [Play to win.]
     ~ crib_won = 6
     ~ cash += 6
@@ -461,9 +466,9 @@ HI-VIS: Six weeks on, one off. Used to be I'd go home for the one.
 - -> thursday_close
 
 === thursday_close ===
-NARRATOR: That was the Thursday. I've told it shorter than it was. On the island a Thursday is a long day, and it was the last slow one. #pause
+NARRATOR: I've told the Thursday shorter than it was. On the island a Thursday is a long day, and it was the last slow one. #pause
 { knows ? key_seven:
-    NARRATOR: I kept the key in my pocket the whole month. It never warmed up.
+    NARRATOR: I kept the key in my pocket the whole month. I'd put my hand on it at the door, when somebody's card was wrong.
 }
 { d2_done ? d2_slept && d2_done !? d2_trap && d2_done !? d2_t28:
     NARRATOR: I slept through most of it. I've thought since that I should have been out there in what light there was. There weren't many more days like that.

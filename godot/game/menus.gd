@@ -188,7 +188,7 @@ func title(stamp := false) -> void:
 				main.start_new(cur)))
 	else:
 		_button("Start Wednesday", true, func(): main.start_new(cur), 30)
-	_button("Nights", false, func(): nights("title"))
+	_button("Nights: Wednesday, Thursday, Friday", false, func(): nights("title"))
 	_button("The cold open", false, func(): hide_all(); main.intro.play())
 	_button("Games", false, func(): games("title"))
 	_button("Rehearse", false, func(): rehearse("title"))
@@ -212,9 +212,14 @@ func _stamp(t: Label) -> void:
 			c.modulate.a = 0.0
 	t.modulate.a = 0.0
 	await get_tree().process_frame
+	# the title can be gone by now (a night started, or resumed, the frame it came up): its labels
+	# are freed, and a tween on a freed label crashes the engine. Every tween here is the node's own,
+	# so it dies with it.
+	if not is_instance_valid(t) or not t.is_inside_tree():
+		return
 	t.pivot_offset = Vector2(t.size.x * 0.3, t.size.y * 0.6)
 	t.scale = Vector2(1.18, 1.18)
-	var tw := create_tween()
+	var tw := t.create_tween()
 	tw.tween_interval(0.25)
 	tw.tween_callback(func():
 		main.audio.sfx("stamp", 1.0, 0.62)
@@ -223,13 +228,15 @@ func _stamp(t: Label) -> void:
 	tw.tween_property(t, "modulate:a", 1.0, 0.06).set_delay(0.25)
 	tw.tween_property(t, "scale", Vector2.ONE, 0.09).set_delay(0.25).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	# the jolt: the paper takes the block
-	var jolt := create_tween()
+	var jolt := sheet.create_tween()
 	jolt.tween_interval(0.34)
 	jolt.tween_property(sheet, "position:y", 5.0, 0.04)
 	jolt.tween_property(sheet, "position:y", 0.0, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var i := 0
 	for c in rest:
-		var ct := create_tween()
+		if not is_instance_valid(c):
+			continue
+		var ct: Tween = (c as Node).create_tween()
 		ct.tween_interval(0.75 + 0.07 * i)
 		ct.tween_property(c, "modulate:a", 1.0, 0.45)
 		i += 1
@@ -556,7 +563,7 @@ func nights(from: String) -> void:
 	_open("nights")
 	_gap(40)
 	_head("Nights", "Three of them")
-	_para("Each night is its own Wednesday, saved as it goes. There's no going back inside a night: to try it another way, play another.", 21, Look.MUTED)
+	_para("Three saves, each its own run, saved as it goes. A new one can start on Wednesday, the test shift, or skip ahead to Thursday or Friday as if Wednesday went by quietly. There's no going back inside a night: to try it another way, play another.", 21, Look.MUTED)
 	_gap(10)
 	for s in range(1, Store.SLOTS + 1):
 		var save = main.store.load_slot(s)
@@ -573,16 +580,25 @@ func nights(from: String) -> void:
 			var b1 := UiBits.button("Continue" if not save.get("ended", false) else "See how it ended", true, 21)
 			b1.pressed.connect(func(): main.resume(slot_n))
 			h.add_child(b1)
-			var b2 := UiBits.button("Start over", false, 21)
-			b2.pressed.connect(func():
-				confirm("Start night %d over?" % slot_n, "That night, as it stands, goes.", "Start over", func():
-					main.store.clear(slot_n)
-					main.start_new(slot_n)))
-			h.add_child(b2)
+			h.add_child(UiBits.label("START OVER ON", "ui_b", 14, Look.FAINT, 2))
+			for d in main.DAYS:
+				var knot: String = d[0]
+				var day_name: String = d[1]
+				var b2 := UiBits.button(day_name, false, 19)
+				b2.tooltip_text = d[2]
+				b2.pressed.connect(func():
+					confirm("Start night %d over, on %s?" % [slot_n, day_name], "That night, as it stands, goes.", "Start over", func():
+						main.store.clear(slot_n)
+						main.start_day(slot_n, knot)))
+				h.add_child(b2)
 		else:
-			var b3 := UiBits.button("Start it", true, 21)
-			b3.pressed.connect(func(): main.start_new(slot_n))
-			h.add_child(b3)
+			h.add_child(UiBits.label("START ON", "ui_b", 14, Look.FAINT, 2))
+			for d in main.DAYS:
+				var knot: String = d[0]
+				var b3 := UiBits.button(d[1], d[0] == "wednesday", 21)
+				b3.tooltip_text = d[2]
+				b3.pressed.connect(func(): main.start_day(slot_n, knot))
+				h.add_child(b3)
 		row.add_child(h)
 		box.add_child(row)
 		_gap(8)
@@ -596,17 +612,18 @@ const HELP := [
 	["Reading", "The night comes down the column on the right, a paragraph at a time. The voices in his head speak in their own type and colour. Scroll back up whenever you like: the whole night stays on the page."],
 	["Choosing", "Click a choice, or press its number. The ways out of a place sit in a row under the rest. Where the Ink stops to let a moment land, Go on (or Space) carries on."],
 	["Looking", "Drag across the room to turn his head, or use the arrow keys. The wheel narrows his eyes on something far off. Rest the pointer on someone or something a choice is about and that choice lights up; a voice may lean in on it. Click it to do it."],
+	["Where he is", "He can only do what he's there for. While he's on his way somewhere, the choices wait, faint, till he gets there. A choice about someone across the room is faint too: pick it and he walks over first, then does it. Out round the back of the lot, the bar's choices wait for him to come back out front. The Settings can let you choose ahead."],
 	["Checks", "Some choices have a voice's dice behind them: its name, how hard it is, and the odds. Hover the tag to see what's for and against it tonight. When the dice come, hold Space or the mouse button to shake them and let go to throw. The first die down tells you what the second one needs."],
 	["Things in his hands", "When he's handed something, it comes up into his hand. Drag to turn it, E to look closer, Q to turn it over, Esc to put it down. Some things can only be done with the hands: hold a licence up by the face of whoever gave it to you."],
 	["His notes and the sketch", "Tab opens his notes: what he's been asked to do, who has a seat in his head and how they're getting on, and the night so far. M opens the floor sketch from his pocket; a lit place is somewhere he can go now."],
 	["Darts", "Look at the dartboard twice and he goes over and takes the darts out of the board. Aim with your eyes; hold the button and pull back to draw, and let go: halfway back is his usual throw, which lands where he's looking. The wheel lifts his elbow for a flatter throw or a lob, Q and E move his grip on the barrel, A and D move him along the line, Shift narrows his eyes and the right button holds his breath. The three house darts each fly their own way. Esc puts them down. Once he's played, darts are in Games on the title; Rehearse plays them with no night at all."],
-	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. K O L P ; go on up past the knobs, and a MIDI keyboard plugged in plays it too, with velocity, the sustain pedal, the mod wheel and pitch bend. The two lamps over the slot are a tape: Enter (or click MAKE ANOTHER SELECTION) records, then closes the loop and plays it round, then lays more over it; Backspace (or USE CORRECT CHANGE) wipes it; Q pulls what's played onto the sixteenths. Knock twice to set the speed before recording; knocks and the tray flap record as a drum part. The lock opens the front (I): what's on the board inside changes the sound. Esc steps back. What a quarter's holding keeps playing while he's gone."],
-	["The wine glasses", "At the bar, look at the wine glasses twice. The mouse moves his hand over the bar top. Hold the button to put his fingertip down: drawn round a rim, it rubs, and the glass sings; faster is louder, too fast and the finger skates, too slow and it barely speaks. Shift leans on it. Dip the fingertip in a glass with water in it to wet it; a dry finger squeaks. Hold the other button over a glass to pour from the jug, and the wheel adds a splash or tips a little out: more water, lower note. A S D F G H J K tap them with a stir stick, Shift harder. Jim's tuner reads the glass under his hand. Esc leaves them."],
+	["The cigarette machine", "On the east wall under the news, on the way to the deck. Look at it twice and he goes and stands at it. Pull a knob out with the mouse, down the screen being out toward him, or play the row with A W S E D F T G Y H U J (Shift pulls one all the way); Z and X move it an octave. A quarter in the slot (C) holds what's pulled; the coin return lever bends the note, and all the way down gives the quarters back (R); click the cup to take them. Knock on it with either button (Space), twice to set its speed. The wheel rocks it. K O L P ; go on up past the knobs, and a MIDI keyboard plugged in plays it too, with velocity, the sustain pedal, the mod wheel and pitch bend. The two lamps over the slot are a tape: Enter (or click MAKE ANOTHER SELECTION) records, then closes the loop and plays it round, then lays more over it; Backspace (or USE CORRECT CHANGE) wipes it; Q pulls what's played onto the sixteenths. Knock twice to set the speed before recording; knocks and the tray flap record as a drum part. The lock opens the front (I): what's on the board inside changes the sound; I, Esc or a click off the board shuts it. Esc steps back. What a quarter's holding keeps playing while he's gone."],
+	["The wine glasses", "At the bar, look at the wine glasses twice. The mouse (or the arrow keys) moves his hand from glass to glass. Hold the button to put his fingertip on the rim and keep the mouse moving, any way you like: that takes it round, and the glass sings; faster is louder, too fast and the finger skates, too slow and it barely speaks. Shift leans on it. W wets the fingertip; a dry finger squeaks. Hold the other button over a glass to pour from the jug, and the wheel adds a splash or tips a little out: more water, lower note. A S D F G H J K tap them with a stir stick, Shift harder. Jim's tuner reads the glass under his hand. Esc leaves them."],
 	["Beer mats", "At the bar, look at the pile of beer mats twice. The mouse moves his hand. Hold the button to curl his fingers and bring them up fast under the part hanging over the edge: it hinges off the bar and turns over in the air. Click again while it's up to snatch it. It has to have turned over and be lying near flat. Each one caught, he puts another on the stack. The wheel slides it out over the edge or back; Q and E take one off or put one on. Esc puts them down."],
 	["Pool", "Put twenty on the big man's next game and you play the rack on the table. The mouse turns the cue round the cue ball (Shift for fine work); up and down moves his head, low on the line or stood up. Hold the right button and move the mouse to put the tip on the ball: high follows, low draws, the sides spin it, and past the ring on the little ball it slips off. The wheel lifts the butt: over a ball, a curve, a jump. Hold the left button and pull back to draw the cue, and let go: how far back is how hard. C chalks, Q and E change cues, Tab stands him up over the table, F calls the pocket on the eight. In hand, the mouse puts the cue ball down. Once he's played, Games on the title has the table: the regulars for money, Good Shoes, the Sunday draw, the trick shots and the pawn window."],
 	["The keys card", "Whatever he steps up to (the darts, the table, the cigarette machine, the beer mats) puts its keys on a card at the foot of the picture. It folds down to one line once you've got the hang of it; F1 brings it back up."],
 	["His body", "Drink, nerves and hurt show in the print, not on a meter. The Settings can turn the sway off, or all of it."],
-	["Saving", "Every choice is saved as it's made. There are three nights; each plays through once."],
+	["Saving", "Every choice is saved as it's made. There are three saves, one to a page under Nights; each can start on Wednesday, Thursday or Friday, and starting over wipes only that page."],
 	["On a pad", "Either stick looks round. Up and down on the d-pad go through the choices and A makes the lit one; with none lit, A goes on, and holding it shakes the dice. B pauses or puts things down, Y is E, Back opens his notes and the left shoulder the sketch."],
 ]
 
@@ -629,8 +646,12 @@ func help(from: String) -> void:
 # ---------------------------------------------------------------- settings
 
 func settings(from: String) -> void:
+	# a toggle redraws the page: keep it where it was scrolled to, not back at the top
+	var keep: int = scroll.scroll_vertical if screen == "settings" else 0
 	came_from = from
 	_open("settings")
+	if keep > 0:
+		_rescroll.call_deferred(keep)
 	var s: Dictionary = main.settings
 	_gap(40)
 	_head("Settings")
@@ -639,6 +660,7 @@ func settings(from: String) -> void:
 	_seg("New lines", [["lines", "One after another"], ["all", "All at once"]], "reveal")
 	_seg("Odds", [["words", "In words"], ["numbers", "In numbers"]], "odds")
 	_seg("Dice", [["full", "By hand"], ["auto", "Thrown for you"], ["quick", "Quick"], ["still", "At once"]], "dice")
+	_toggle("Choose ahead while he walks", "click_ahead", "Off: while he's on his way somewhere, the next choices wait till he gets there. On: pick ahead while he walks.")
 	_toggle("The voices notice you", "notice", "A voice may lean in on what your hand or eyes are on.")
 	_toggle("Writing prompts", "prompts", "Show where the draft is waiting on Hutch's own material.")
 	_section("His body")
@@ -665,6 +687,11 @@ func settings(from: String) -> void:
 	_gap(16)
 	_button("Back", true, func(): back())
 	_focus_first()
+
+
+func _rescroll(v: int) -> void:
+	await get_tree().process_frame
+	scroll.scroll_vertical = v
 
 
 func _section(t: String) -> void:

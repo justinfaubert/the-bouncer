@@ -345,7 +345,21 @@ func apply_settings() -> void:
 
 # ---------------------------------------------------------------- the night
 
-func start_new(in_slot: int) -> void:
+# The days a night can start on (Hutch, 23 November: "the other 2 nights aren't playable from the
+# start, it just starts the 1st day over"). The Nights were three saves of Wednesday; Thursday and
+# Friday only came after a whole Wednesday. Now a night can start on any of them: a new game, then
+# straight to that day's first knot, as if Wednesday had gone by quietly (no incidents, nobody met
+# who wasn't met on the door by default). dawn is where Thursday starts (it sets the new day).
+const DAYS := [["wednesday", "Wednesday", "The test shift: Gary's office at four, then the door."],
+	["dawn", "Thursday", "His own day on the island, the morning after the test shift."],
+	["friday", "Friday", "The first real shift, and Friday's line in the rain."]]
+
+
+func start_day(in_slot: int, knot: String) -> void:
+	start_new(in_slot, knot)
+
+
+func start_new(in_slot: int, from_knot := "") -> void:
 	slot = in_slot
 	settings["slot"] = slot
 	store.save_settings()
@@ -354,6 +368,8 @@ func start_new(in_slot: int) -> void:
 	menus.hide_all()
 	_leave_full_frame()
 	var res := game.new_game()
+	if from_knot != "" and from_knot != "wednesday":
+		res = game.jump(from_knot)
 	persist()
 	# the night opens wherever its first place line is (the lot), not where the story's
 	# bookkeeping says he'll be later: start there, don't walk there
@@ -526,6 +542,8 @@ func persist_soon() -> void:
 var _darts_from := ""
 var _truck_from := ""
 var _looked_at := {}
+var _reading := 0.0             # a poster or a sign looked at: how long his eyes have been on it
+var _reading_fov := 0.0         # the fov it took, so letting go doesn't undo some other close look
 
 
 # a game he's come across in the night: in the Games on the title from now on
@@ -758,6 +776,23 @@ func choose(i: int) -> void:
 	var list := game.visible_choices()
 	if i < 0 or i >= list.size():
 		return
+	# where he is: a choice about someone or something across the room, or back where he walked away
+	# from, isn't his to make from here (Hutch, 23 November: "it needs to be more location and
+	# context aware")
+	# on his way somewhere a choice took him: the next one waits till he's there (Hutch, 23
+	# November: you "can just keep clicking through decisions even if they're not in the physical
+	# location"). The column holds them dimmed while he walks.
+	if view.walking and not bool(settings.get("click_ahead", false)):
+		return
+	_far_at = Vector3.INF
+	var far := out_of_reach(list[i])
+	if far != "":
+		# on the floor, he walks over and then does it; anywhere else it's for the player to walk
+		if _walk_over_then(list[i]):
+			return
+		menus.toast(far)
+		audio.sfx("click_ui", 0.25, 0.7)
+		return
 	# played out on the table first: the night waits, and what came of it goes into the Ink
 	if list[i].get("game") != null and str(list[i].game.what) == "pool":
 		_play_choice(i, list[i].game)
@@ -915,6 +950,10 @@ func toy(id: String, what: String) -> String:
 			start_mats("")
 			return "said"
 		_looked_at[id] = true
+	# a poster, a sign, an ad (world/dressing.gd): his eyes go to it and narrow on it till it fills
+	# his sight, the way you read a thing across a room; he lets it go when the player looks away
+	if what == "look" and pub.dressing != null and Dressing.READ.has(id) and pub.anchors.has(id):
+		_read_closer(id)
 	# the glasswasher's switch on the back bar (world/glasswasher.gd): he leans over and flips it, and
 	# then the words for it, which know which way it went
 	if id == "washer_switch" and what == "look" and pub.dressing != null:
@@ -1009,6 +1048,8 @@ func after(res: Dictionary, live: bool) -> void:
 	else:
 		var list := game.visible_choices()
 		column.show_choices(list, Look.TENSION_WORDS, going.hidden(list))
+		_far_shown = {}
+		_dim_far(true)
 	# a spot on the floor he was to go to, if the page had put him on it (game/going.gd), is
 	# forgotten once it hasn't
 	view.floor_next = null
@@ -1026,6 +1067,107 @@ func after(res: Dictionary, live: bool) -> void:
 	hand.attach(read_chars)
 	if live:
 		_sync_sound()
+
+
+# Whether a choice is out of his reach from where his own feet have taken him: "" if he can make it,
+# else what to tell the player. Only while he's walking about freely (game/feet.gd): a scene that
+# put him somewhere put him in reach. A way somewhere is always his (it walks him there). Something
+# said to a person, done to a thing, or looked at in the room needs him near it: within REACH of
+# whoever or whatever the choice is about (game/hotspots.gd), and outdoors, back in the lot where
+# the scene is, not off round the grounds.
+const REACH := 4.2
+const OUTDOOR_AWAY := ["yard", "town"]
+var _reach_t := 0.0
+var _far_shown := {}
+var _far_at := Vector3.INF          # where the last thing out of reach is (out_of_reach)
+var _walk_then := {}                # a choice he's walking over to make: {text, t}
+
+func out_of_reach(c: Dictionary) -> String:
+	if not in_game or game == null or game.ended or feet == null or not feet.free_here():
+		return ""
+	if Going.is_way(c) or c.get("read") != null or c.get("toy") != null:
+		return ""
+	var zone := Hotspots.zone_of(view.eye_pos)
+	if view.place == "lot" and zone in OUTDOOR_AWAY:
+		return "He's off round the back of the lot. Walk back out front to do that."
+	var key := spots.about(c)
+	if key == "":
+		return ""
+	for k in key.split("|"):
+		var at: Array = spots._where(k)
+		if at.is_empty():
+			continue
+		var p: Vector3 = at[0]
+		var d := Vector2(p.x - view.eye_pos.x, p.z - view.eye_pos.z).length()
+		if d <= REACH:
+			return ""
+		_far_at = p
+		var who := ""
+		if k.begins_with("fig:"):
+			var ch = game.content.get("characters", {}).get(k.split(":")[1], {})
+			if ch is Dictionary and ch.has("label"):
+				who = str(ch.label).to_lower()
+		return "He's too far off for that. Walk over first." if who == "" else "He's across the room from %s. Walk over first." % who
+	return ""
+
+
+# Across the room from whoever a choice is about: he walks over, to within arm's length or so, and
+# the choice is made when he's there (main._process). The player sees him go; nothing's said from
+# across the room.
+func _walk_over_then(c: Dictionary) -> bool:
+	if _far_at == Vector3.INF or view.place != "floor" or view.on_floor != "":
+		return false
+	var me := Vector3(view.eye_pos.x, 0.0, view.eye_pos.z)
+	var them := Vector3(_far_at.x, 0.0, _far_at.z)
+	var toward := (me - them).normalized() if me.distance_to(them) > 0.01 else Vector3.BACK
+	var stand: Vector3 = going._stand_near(them + toward * 1.3)
+	if stand == Vector3.INF:
+		return false
+	view.go_to_spot(stand)
+	audio.sfx("steps")
+	_walk_then = {"text": str(c.get("text", "")), "t": 0.0}
+	return true
+
+
+func _walk_then_tick(dt: float) -> void:
+	if _walk_then.is_empty():
+		return
+	_walk_then.t = float(_walk_then.t) + dt
+	if view.walking and float(_walk_then.t) < 12.0:
+		return
+	var text := str(_walk_then.text)
+	_walk_then = {}
+	if not in_game or game == null or game.ended or pending != null:
+		return
+	var list := game.visible_choices()
+	for i in list.size():
+		if str(list[i].get("text", "")) == text:
+			if out_of_reach(list[i]) == "":
+				choose(i)
+			return
+
+
+# The choices he can't make from where he's walked to, dimmed in the column, and lit again as he
+# comes back within reach. Checked a few times a second while he walks.
+func _dim_far(force := false) -> void:
+	if not in_game or game == null or game.ended or pending != null:
+		return
+	var list := game.visible_choices()
+	var now := {}
+	var walking: bool = view.walking and not bool(settings.get("click_ahead", false))
+	for i in list.size():
+		var far := "On his way there." if walking else out_of_reach(list[i])
+		if far != "":
+			now[i] = far
+	if not force and now.is_empty() and _far_shown.is_empty():
+		return
+	_far_shown = now
+	for i in list.size():
+		var r := column.row_for_index(i)
+		if r == null:
+			continue
+		r.modulate.a = 0.4 if now.has(i) else 1.0
+		r.tooltip_text = str(now.get(i, ""))
 
 
 func refresh_status() -> void:
@@ -1591,6 +1733,11 @@ func _stick(e: InputEventJoypadMotion) -> void:
 
 
 func _process(dt: float) -> void:
+	_walk_then_tick(dt)
+	_reach_t += dt
+	if _reach_t > 0.25:
+		_reach_t = 0.0
+		_dim_far()
 	if _save_soon > 0.0:
 		_save_soon -= dt
 		if _save_soon <= 0.0:
@@ -1605,6 +1752,7 @@ func _process(dt: float) -> void:
 			column.show_clock(clock_shown)
 	going.process(dt)
 	feet.process(dt)
+	_reading_process(dt)
 	_widen(dt)
 
 
@@ -1668,3 +1816,32 @@ func _notification(what: int) -> void:
 			feet.clear()
 	elif what == NOTIFICATION_APPLICATION_FOCUS_IN:
 		hand.away(false)
+
+
+# his eyes on a poster or a sign, reading it: the hover caption keeps off it till he looks away
+func reading() -> bool:
+	return _reading > 0.0
+
+
+func _read_closer(id: String) -> void:
+	if view.focus_fov > 0.0 and view.focus_fov != _reading_fov:
+		return                      # something else has his eyes (the darts, the dice)
+	var at: Vector3 = pub.anchors[id]
+	view.look_at_point(at)
+	var half: float = Dressing.READ[id] * 1.25
+	_reading_fov = clampf(rad_to_deg(2.0 * atan(half / maxf(view.eye_pos.distance_to(at), 0.3))), 9.0, 50.0)
+	view.focus_fov = _reading_fov
+	_reading = 0.001
+
+
+func _reading_process(dt: float) -> void:
+	if _reading <= 0.0:
+		return
+	_reading += dt
+	var done := view.walking or _reading > 14.0 or (_reading > 0.5 and view.turning())
+	if view.focus_fov != _reading_fov:
+		_reading = 0.0              # taken over, or let go elsewhere
+		return
+	if done:
+		view.focus_fov = 0.0
+		_reading = 0.0

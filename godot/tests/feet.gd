@@ -196,7 +196,10 @@ func _run() -> void:
 		if main.feet.free_here():
 			# round the table on the deck, by the wall, to the door
 			await _walk_to(Vector3(16.6, 0, 9.0), 0.3, 10.0)
-			await _walk_to(Vector3(16.6, 0, 7.2), 0.3, 10.0)
+			# somebody on the deck may be standing in the way: round them, as a player would
+			for x in [16.6, 16.2, 17.0]:
+				if await _walk_to(Vector3(x, 0, 7.2), 0.3, 6.0):
+					break
 			await _face(deck_door + Vector3(-2.0, 0, 0))
 			await _key(KEY_W, true)
 			for n in 300:

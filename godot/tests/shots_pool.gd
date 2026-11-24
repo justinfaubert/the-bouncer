@@ -66,6 +66,53 @@ func _check(p) -> void:
 				print("  BAD: balls %d and %d inside each other" % [a.id, b.id])
 
 
+# a cue clear of the table: from its tip back along its length, over the cloth it's above the balls
+# and the cloth, over the frame above the wood
+func _check_cue(p, cue: Node3D, who: String) -> void:
+	if cue == null or not cue.visible:
+		return
+	var s: PoolSim = p.sim
+	var inv: Transform3D = p.to_world.affine_inverse()
+	var tip: Vector3 = inv * cue.global_position
+	var back: Vector3 = (inv.basis * cue.global_transform.basis.z).normalized()
+	var hl := s.table.L * 0.5
+	var hw := s.table.W * 0.5
+	var fl := hl + PoolSim.Table.CUSH_W + PoolSim.Table.RAIL_W
+	var fw := hw + PoolSim.Table.CUSH_W + PoolSim.Table.RAIL_W
+	for i in 60:
+		var d := 0.04 + i * 0.024
+		var q := tip + back * d
+		var thick := 0.0065 + 0.0085 * clampf(d / 1.47, 0.0, 1.0)
+		var floor_y := -INF
+		if absf(q.x) < hl and absf(q.z) < hw:
+			floor_y = 0.0
+		if absf(q.x) < fl and absf(q.z) < fw and (absf(q.x) > hl or absf(q.z) > hw):
+			floor_y = PoolSim.RAIL_TOP if (absf(q.x) < hl + PoolSim.Table.CUSH_W and absf(q.z) < hw + PoolSim.Table.CUSH_W) else PoolSim.Table.WOOD_TOP
+		if q.y - thick < floor_y - 0.002:
+			bad += 1
+			print("  BAD: %s cue into the table %.2f m back (%.3f under the top)" % [who, d, floor_y - (q.y - thick)])
+			return
+		for b in s.balls:
+			if b.id == 0 or b.state == PoolSim.DOWN or b.state == PoolSim.OFF:
+				continue
+			if q.distance_to(b.p) < b.r + thick - 0.002:
+				bad += 1
+				print("  BAD: %s cue through ball %d" % [who, b.id])
+				return
+
+
+# every ball wearing its own picture, not the stand-in for one that didn't load
+func _check_textures(p) -> void:
+	for id in p.tbl.ball_nodes:
+		var n: Node3D = p.tbl.ball_nodes[id]
+		var mi := n.get_child(0) as MeshInstance3D
+		var m := mi.material_override as ShaderMaterial
+		var tx = m.get_shader_parameter("albedo_tex") if m else null
+		if tx == null or (tx as Texture2D).get_width() <= 4:
+			bad += 1
+			print("  BAD: ball %d has no picture on it" % id)
+
+
 func _wait_settled(p) -> void:
 	for k in 4000:
 		if p.phase != "rolling":
@@ -84,6 +131,7 @@ func _run() -> void:
 	var p = main.pool
 	p.shake_off = true
 	await _frames(60)
+	_check_textures(p)
 	await _grab("in_hand_behind_the_line")
 	# put it down a little off the head spot
 	var cb: PoolSim.Ball = p.sim.ball(0)
@@ -98,6 +146,7 @@ func _run() -> void:
 	p.aim_yaw = atan2(-to.z, to.x)
 	p.stance = 0.05
 	await _frames(50)
+	_check_cue(p, p.cue_node, "his")
 	await _grab("down_on_the_break")
 	p.drawing = true
 	p.draw = 0.8
