@@ -655,7 +655,8 @@ func settings(from: String) -> void:
 	_section("The screen")
 	_toggle("Fullscreen", "fullscreen", "")
 	_seg("The print (on trial: F8 goes round them while you play)", [["0", "As it is"], ["1", "Clean cut"],
-		["2", "Black plate"], ["3", "Painted"], ["4", "Pulp"]], "look")
+		["2", "Black plate"], ["3", "Painted"], ["4", "Pulp"], ["5", "Oil"], ["6", "Thin paint"], ["7", "Night stock"],
+		["8", "Super 8"], ["9", "Bodycam"], ["10", "Bar camera"], ["11", "Anamorphic"], ["12", "Paint on night stock"]], "look")
 	_toggle("The bulbs bloom", "halo", "Old incandescent glass: a warm haze round every lamp. Shift+F8 while you play.")
 	_slider("Detail", "render", 0.5, 1.0, 0.05, func(v): return "%d%%" % roundi(v * 100.0))
 	_section("Sound")

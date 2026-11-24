@@ -50,7 +50,9 @@ uniform float pull = 1.0;                            // a cut coming in: how far
                                                      // print, the plates laid one after another (lightest
                                                      // first, the key block last, as a printer pulls a proof)
 // the style of print, for choosing between looks (see bible/05_LOG.md, "the look, five ways"):
-// 0 the press as it is, 1 clean cut, 2 the black plate, 3 painted, 4 pulp halftone
+// 0 the press as it is, 1 clean cut, 2 the black plate, 3 painted, 4 pulp halftone; and the render
+// brought forward (round two): 5 painted heavy, 6 painted light, 7 night stock, 8 super 8, 9 bodycam,
+// 10 the bar's camera, 11 anamorphic, 12 painted on night stock
 uniform int style = 0;
 uniform float halo = 0.0;                            // the bulbs' halation: old incandescent glass blooms into the lamp ink
 uniform float print_k = 1.0;                         // the Print setting: 1 the cut strokes, 0 a flat wash of the night ink
@@ -157,8 +159,62 @@ vec4 bloom(vec2 uv, vec2 px, float rad, float jit) {
 	return vec4(hue / max(s, 0.001), clamp(s / 10.0, 0.0, 1.0));
 }
 
+// ---- the render brought forward (styles 5 to 12): film stocks and lenses
+
+float hash12(vec2 p) {
+	vec3 q = fract(vec3(p.xyx) * 0.1031);
+	q += dot(q, q.yzx + 33.33);
+	return fract((q.x + q.y) * q.z);
+}
+
+// a lens's barrel: k bends the edges out, zoom crops back in so the corners stay filled
+vec2 barrel(vec2 uv, float k, float zoom, float aspect) {
+	vec2 c = (uv - 0.5) * vec2(aspect, 1.0);
+	c *= zoom * (1.0 + k * dot(c, c));
+	return c / vec2(aspect, 1.0) + 0.5;
+}
+
+// the render as it comes, opened up the way the press opens it, in linear light
+vec3 rendered(vec2 uv) {
+	vec3 c = texture(scene, uv).rgb;
+	c = pow(clamp((c - levels_in.x) / (levels_in.y - levels_in.x), 0.0, 1.0), vec3(lift * 0.95));
+	return to_linear(c);
+}
+
+// a soft look through a cheap lens: the render blurred a little
+vec3 soft(vec2 uv, vec2 px, float r) {
+	vec3 s = vec3(0.0);
+	for (int j = -1; j <= 1; j++)
+		for (int i = -1; i <= 1; i++)
+			s += rendered(uv + vec2(float(i), float(j)) * r * px);
+	return s / 9.0;
+}
+
+// a horizontal streak through anything burning, as an anamorphic lens draws it
+float streak(vec2 uv, vec2 px) {
+	float s = 0.0;
+	for (int k = 1; k <= 14; k++) {
+		float d = float(k) * 18.0;
+		vec3 a = texture(scene, uv + vec2(d, 0.0) * px).rgb;
+		vec3 b = texture(scene, uv - vec2(d, 0.0) * px).rgb;
+		float w = 1.0 - float(k) / 15.0;
+		s += (smoothstep(0.85, 1.0, max(a.r, max(a.g, a.b))) + smoothstep(0.85, 1.0, max(b.r, max(b.g, b.b)))) * w * w;
+	}
+	return s / 6.0;
+}
+
+vec3 sat(vec3 c, float k) {
+	float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+	return max(mix(vec3(l), c, k), vec3(0.0));
+}
+
 void fragment() {
 	vec2 uv = UV;
+	float asp0 = view_px.x / view_px.y;
+	if (style == 8) uv = barrel(UV, 0.06, 0.97, asp0) + vec2(sin(time * 13.0) * 0.0006, cos(time * 9.0) * 0.0009 + 0.0004);
+	else if (style == 9) uv = barrel(UV, 0.42, 0.82, asp0);
+	else if (style == 10) uv = barrel(UV, 0.18, 0.92, asp0);
+	else if (style == 11) uv = barrel(UV, 0.04, 0.98, asp0);
 	vec2 px = 1.0 / view_px;
 
 	// where this pixel looks, as a direction round his head: the grain and the paper live there
@@ -306,22 +362,103 @@ void fragment() {
 	col *= 1.0 - ke * (1.0 - to_linear(ink_earth));
 	col *= 1.0 - key * (1.0 - to_linear(ink_night));
 
-	if (style == 3 && fresh > 0.5) {
+	bool paint = style == 3 || style == 5 || style == 6 || style == 12;
+	float p_r = style == 5 ? 9.0 : (style == 6 ? 3.0 : 6.0);        // the brush
+	float p_ink = style == 5 ? 0.45 : (style == 6 ? 0.12 : 0.3);    // how far towards the inks
+	float p_tooth = style == 5 ? 0.26 : (style == 6 ? 0.06 : 0.14);
+	float p_line = style == 6 ? 0.45 : 0.8;
+	float p_brush = style == 5 ? 0.2 : (style == 6 ? 0.0 : 0.1);
+	if (paint && fresh > 0.5) {
 		// painted: the room's own colour, smoothed into strokes of paint, pulled towards the press's inks
 		// and laid on the same stock; the key block's lines and its deepest dark stay on top
-		vec3 sc = painted(uv + o_k * px, px, 6.0);
+		vec3 sc = painted(uv + o_k * px, px, p_r);
 		sc = pow(clamp((sc - levels_in.x) / (levels_in.y - levels_in.x), 0.0, 1.0), vec3(lift * 0.95));
 		vec3 lin = to_linear(sc);
 		float lum = dot(lin, vec3(0.2126, 0.7152, 0.0722));
 		lin = mix(vec3(lum), lin, 1.25);                           // a little richer than the render
-		vec3 cp = mix(lin * 1.5, col, 0.3);                      // and leaning to the inks
-		cp *= 0.9 + 0.14 * pp.r;                                   // the board's tooth
-		cp *= 1.0 - 0.1 * key * (1.0 - smoothstep(0.8, 1.0, tone));   // the brush follows the cutter's strokes
+		vec3 cp = mix(lin * 1.5, col, p_ink);                    // and leaning to the inks
+		cp *= 1.0 - p_tooth * 0.7 + p_tooth * pp.r;               // the board's tooth
+		cp *= 1.0 - p_brush * key * (1.0 - smoothstep(0.8, 1.0, tone));   // the brush follows the cutter's strokes
 		float shade = smoothstep(0.8, 1.0, tone);
 		cp *= 1.0 - shade * 0.6 * (1.0 - to_linear(ink_night));  // the dark goes to the night ink, not grey
 		float ln = line * (0.55 + 0.45 * cut_out);
-		cp *= 1.0 - ln * 0.8 * (1.0 - to_linear(ink_night));
+		cp *= 1.0 - ln * p_line * (1.0 - to_linear(ink_night));
 		col = cp;
+	}
+	// film and lenses: the render itself, no ink, graded as a stock or a camera would
+	float fg = hash12(floor(FRAGCOORD.xy / 1.5) + vec2(floor(time * 24.0) * 17.0, 3.0));   // grain, a new frame every 1/24 s
+	float fg2 = hash12(floor(FRAGCOORD.xy / 1.5) + vec2(7.0, floor(time * 24.0) * 29.0));
+	vec2 cv0 = (UV - 0.5) * vec2(asp0, 1.0);
+	float rr = length(cv0);
+	if (style >= 7 && style <= 11 && fresh > 0.5) {
+		vec3 c = rendered(uv);
+		if (style == 7) {
+			// night stock (tungsten film shot under bulbs): cool shadows, warm light, red halation round
+			// every bulb where the light goes through the film and back off its base
+			vec4 bl = bloom(uv, px, 36.0, g.r);
+			c = c / (c + 0.6) * 1.6;                                        // the stock's shoulder
+			c = mix(c, c * vec3(0.82, 0.96, 1.12), 1.0 - smoothstep(0.0, 0.25, dot(c, vec3(0.33))));
+			c += vec3(1.0, 0.2, 0.05) * bl.a * 0.55;
+			c += (fg - 0.5) * 0.05 * (0.4 + sqrt(max(dot(c, vec3(0.33)), 0.0)));
+			c *= 1.0 - smoothstep(0.55, 1.15, rr) * 0.45;
+		} else if (style == 8) {
+			// super 8 at night: soft, warm, the blacks gone brown, coarse grain, the gate's round corners
+			c = soft(uv, px, 1.6);
+			vec4 bl = bloom(uv, px, 40.0, g.r);
+			c = sat(c, 1.25) * vec3(1.08, 0.98, 0.82);
+			c = c * 0.92 + vec3(0.022, 0.014, 0.008);
+			c += vec3(1.0, 0.35, 0.1) * bl.a * 0.38;
+			float lg = (fg - 0.5) * 0.16 + (fg2 - 0.5) * 0.06;
+			c += lg * (0.1 + 0.9 * sqrt(max(dot(c, vec3(0.33)), 0.0)));
+			c *= 1.0 - smoothstep(0.35, 0.95, rr) * 0.7;
+			c += vec3(0.9, 0.3, 0.05) * smoothstep(0.55, 1.1, UV.x + (UV.y - 0.5) * 0.3) * 0.06;   // a leak at the edge
+			vec2 q = abs(UV - 0.5) * 2.0;
+			float gate = smoothstep(1.0, 0.965, max(q.x * 0.985, q.y) + 0.06 * pow(min(q.x, q.y), 6.0));
+			c *= gate;
+		} else if (style == 9) {
+			// a bodycam on his chest: a fisheye, the colour splitting at the edges, the sensor's noise
+			// in the dark, the light clipped and the dark crushed by a camera exposing for the street
+			vec2 ur = barrel(UV, 0.45, 0.82, asp0);
+			vec2 ub = barrel(UV, 0.39, 0.82, asp0);
+			c = vec3(rendered(ur).r, c.g, rendered(ub).b);
+			c = sat(c, 0.78) * vec3(0.96, 1.0, 1.04);
+			c = clamp((c - 0.012) * 1.45, 0.0, 1.0);
+			float dark = 1.0 - smoothstep(0.0, 0.18, dot(c, vec3(0.33)));
+			c += (vec3(fg, fg2, hash12(FRAGCOORD.xy + time)) - 0.5) * 0.09 * dark;
+			c = floor(c * 48.0 + 0.5) / 48.0;                                 // the compression's steps
+			c *= 1.0 - smoothstep(0.6, 1.2, rr) * 0.5;
+		} else if (style == 10) {
+			// the bar's camera over the till: low, grey-green, lines, a frame every so often
+			vec2 cell = vec2(3.0) * px;
+			vec3 lo = rendered((floor(uv / cell) + 0.5) * cell);
+			float l = dot(lo, vec3(0.2126, 0.7152, 0.0722));
+			l = smoothstep(0.0, 0.7, pow(l, 0.8));
+			c = vec3(l) * vec3(0.78, 0.92, 0.8) + 0.015;
+			c *= 0.86 + 0.14 * sin(FRAGCOORD.y * 1.6);
+			c += (fg - 0.5) * 0.08;
+			c *= 1.0 - smoothstep(0.45, 1.05, rr) * 0.75;
+		} else {
+			// anamorphic: the frame letterboxed wide, a blue streak through every light, teal and amber
+			c += vec3(0.25, 0.55, 1.0) * streak(uv, px) * 0.18;
+			vec4 bl = bloom(uv, px, 22.0, g.r);
+			c += bl.rgb * bl.a * 0.12;
+			float lum = dot(c, vec3(0.33));
+			c = mix(c * vec3(0.85, 1.0, 1.1), c * vec3(1.1, 0.98, 0.85), smoothstep(0.05, 0.5, lum));
+			c *= 1.0 - smoothstep(0.6, 1.2, rr) * 0.4;
+			c += (fg - 0.5) * 0.02;
+			float bars = max(0.0, 1.0 - asp0 / max(2.39 * min(asp0 / 1.6, 1.0), asp0 * 1.38)) * 0.5;   // 2.39 when the picture has the whole screen; narrower beside the page
+			c *= step(bars, UV.y) * step(UV.y, 1.0 - bars);
+		}
+		if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) c = vec3(0.0);
+		col = max(c, vec3(0.0));
+	}
+	if (style == 12 && fresh > 0.5) {
+		// painted on night stock: the paint, then the film's halation and grain over it
+		vec4 bl = bloom(uv, px, 30.0, g.r);
+		col += vec3(1.0, 0.22, 0.06) * bl.a * 0.22;
+		col = mix(col, col * vec3(0.86, 0.97, 1.1), 1.0 - smoothstep(0.0, 0.2, dot(col, vec3(0.33))));
+		col += (fg - 0.5) * 0.035 * (0.4 + sqrt(max(dot(col, vec3(0.33)), 0.0)));
+		col *= 1.0 - smoothstep(0.6, 1.2, rr) * 0.35;
 	}
 	if (twice > 0.5 && fresh > 0.5) {
 		vec3 k = to_linear(ink_night);

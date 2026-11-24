@@ -1394,7 +1394,8 @@ func _on_world_input(e: InputEvent) -> void:
 
 
 # the looks on trial (look/press.gdshader style): F8 goes round them anywhere, Shift+F8 the bulbs' bloom
-const LOOKS := ["As it is", "Clean cut", "Black plate", "Painted", "Pulp"]
+const LOOKS := ["As it is", "Clean cut", "Black plate", "Painted", "Pulp", "Painted, oil", "Painted, thin",
+	"Night stock", "Super 8", "Bodycam", "The bar's camera", "Anamorphic", "Painted on night stock"]
 
 
 func _input(e: InputEvent) -> void:
