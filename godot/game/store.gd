@@ -109,7 +109,14 @@ static func meta(save) -> String:
 		clock = int(m.get_string(1))
 	var path = save.get("path", [])
 	var n: int = path.size() if path is Array else int(save.get("turn", 0))
-	return (BUtil.fmt_clock(clock) + ", " if clock > 0 else "") + str(n) + (" choice" if n == 1 else " choices") + " in"
+	var day := 1
+	var re_d := RegEx.new()
+	re_d.compile("\"day\"\\s*:\\s*(\\d+)")
+	var md := re_d.search(str(save.get("ink", "")))
+	if md != null:
+		day = int(md.get_string(1))
+	var day_name: String = ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday"][clampi(day - 1, 0, 6)]
+	return day_name + ", " + (BUtil.fmt_clock(clock) + ", " if clock > 0 else "") + str(n) + (" choice" if n == 1 else " choices") + " in"
 
 
 func _write(path: String, data) -> bool:
