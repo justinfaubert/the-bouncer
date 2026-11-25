@@ -13,7 +13,7 @@ INCLUDE friday.ink
 
 CONST SUNSET = 1008         // 4:48 pm, Thursday 5 November, on the island
 
-LIST d2 = d2_window, d2_lot, d2_step, d2_boots, d2_mirror, d2_paper, d2_paid, d2_napkin, d2_trap, d2_hauled, d2_esso, d2_ate, d2_t28, d2_slept, d2_sign, d2_lorraine, d2_crib, d2_early
+LIST d2 = d2_window, d2_lot, d2_step, d2_boots, d2_mirror, d2_paper, d2_paid, d2_napkin, d2_trap, d2_hauled, d2_esso, d2_ate, d2_t28, d2_slept, d2_sign, d2_lorraine, d2_crib, d2_early, d2_kayla
 VAR d2_done = ()
 LIST paper = pp_front, pp_blotter, pp_obit, pp_ads, pp_letter, pp_tide
 VAR paper_read = ()
@@ -21,6 +21,7 @@ VAR trap_in = 0             // the clock when the old man's trap went in off the
 VAR lorraine_how = 0        // Lorraine at his door for a light: 1 gave her one, 2 "maybe Friday", -1 shut the door
 VAR crib_won = 0            // dollars won (or lost, below 0) at crib in eleven
 VAR key_left = false        // he left the key from the trap in the wire for the old man
+VAR kayla_thu = 0          // the big man's daughter at his dead truck on Thursday: 1 he boosted it, 2 he asked if her dad was sober, -1 walked past
 VAR hangover = 0            // what Thursday night leaves in him for Friday: drinks after ten
 
 
@@ -228,6 +229,8 @@ THE SHORELINE. Serving the Island since 1911. Thursday, November 5. #prop: shore
     -> haul
 * [Up to the Esso.]
     -> esso_day
+* {clock >= 840 && fam !? dad_drove && fam !? dad_walked && d2_done !? d2_kayla} [The big man's truck. Somebody's in it, turning the key.]
+    -> kayla_truck
 * {clock >= 840} [Into the Sov by the front. Table 28 will be in.]
     -> t28_day
 + [Back up to twelve.]
@@ -310,6 +313,45 @@ Under the canopy by day the white light was still on. A woman in an Esso vest wa
         ESSOKID: Oh hey. You're the doorman at the Sov. My cousin says you're like, huge. You're not that huge.
         ESSOKID: That's a compliment, by the way.
     }
+- -> strip
+
+
+// The big man's daughter, Kayla, come for his work truck, which has sat at the edge of the gravel
+// since Wednesday with the dome light on. Whatever the doorman did on Wednesday, she's heard about it.
+=== kayla_truck ===
+~ here = lot
+~ pass(12)
+~ d2_done += d2_kayla
+The big man's daughter was in the cab of his work truck with the door open and one boot on the gravel, turning the key. Click. Click. The dome light was on, a dead yellow, and had been since Wednesday. #portrait: driver
+She saw him and stopped turning it.
+{
+- fam ? dad_ejected:
+    DRIVER: Oh, perfect. You put him out, and now his truck won't go either. Banner week for the Moffats.
+- promise_kept >= 1:
+    DRIVER: You told me he wasn't there. He told me you told me. He thinks you're a good guy for it.
+    DRIVER: Don't be a good guy for him, okay? Be a prick. It's easier on everybody.
+- fam ? dad_went:
+    DRIVER: You're the door guy. He went, in the end. Sat in the hallway at the hospital till four with his cap in his hands. She's okay. She's furious, so she's okay.
+- else:
+    DRIVER: You're the door guy. He leaves the dome light on so he can find his smokes, and then he forgets, every single time. Thirty years.
+}
+She pulled the visor down. The school photo was her: grade eight, braces, a perm somebody should have stopped.
+DRIVER: Twenty-four in March. He's never changed it.
+She took the mickey out of the door pocket, held it up to see the level, and put it in her purse.
+* [Get cables off the beer store kid and boost it.]
+    ~ kayla_thu = 1
+    ~ pass(20)
+    The kid on the beer store's till had a lip ring and a Civic with cables in the trunk, still in the package. They hooked it up in the rain. It caught on the second go and she gave it far too much gas, and a cloud of black came out the back over both of them.
+    DRIVER: He's going to ask who jumped it. I'm going to tell him. He'll want to buy you a beer.
+    DRIVER: Don't let him.
+* ["Is he sober yet?"]
+    ~ kayla_thu = 2
+    She laughed, not nicely.
+    DRIVER: He's sober every morning at six. He's been sober every morning at six since I was born. It's the afternoons.
+    She got her phone out and called a tow off a fridge magnet in the ashtray. A hundred and forty. She said yes like she'd said it before.
+* [Leave her to it.]
+    ~ kayla_thu = -1
+    He went back across the lot. Behind him, all the way to the highway, the key going click, and click.
 - -> strip
 
 

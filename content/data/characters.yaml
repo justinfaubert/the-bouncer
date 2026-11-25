@@ -198,6 +198,10 @@ woman:
 man:
   label: THE HUSBAND
   note: Behind her, still talking.
+cap51:
+  label: THE RED CAP
+  look: {age: young, build: medium, hair: short, hat: cap, top: jacket, mood: smile}
+  note: A young guy in a Carhartt and a red cap with 51 and a star stitched on it, in the Friday wave (friday.ink). Says it's a bit for his brother-in-law.
 merle:
   label: MERLE
   look: {age: old, build: slight, hair: thin, face: [stubble, lined], top: coat, mood: flat}

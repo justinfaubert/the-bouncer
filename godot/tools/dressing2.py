@@ -362,9 +362,10 @@ def scrawl(w=1400, h=500):
     sh.text((230, 112), '(ask for the other Darlene)', k(22), '1a1a40', anchor='mm', rot=2)
     sh.text((620, 80), 'GARY IS A COWARD', font('anton-400', 44), '2a1414', anchor='mm', rot=-2)
     sh.text((700, 130), "no I'm not  - G.", k(26), '1a1814', anchor='mm', rot=-4)
-    sh.text((1100, 70), 'who put the lime', k(30), '3a3a3a', anchor='mm', rot=1)
+    sh.text((1100, 70), 'who puts the lime', k(30), '3a3a3a', anchor='mm', rot=1)
     sh.text((1110, 108), 'in the helmet', k(30), '3a3a3a', anchor='mm', rot=1)
-    sh.text((1150, 150), 'it was always there', k(20), '5a5a5a', anchor='mm', rot=-3)
+    sh.text((1150, 150), 'ask the old guy at the end of the bar', k(20), '5a5a5a', anchor='mm', rot=-3)
+    sh.text((1170, 182), 'what old guy', k(20), '1a1a40', anchor='mm', rot=2)
     # days sober, tallied, and then not
     x = 120
     for g in range(4):
@@ -384,7 +385,10 @@ def scrawl(w=1400, h=500):
     sh.ellipse(1074, 386, 1096, 414, '1a1814')
     sh.ellipse(1080, 392, 1086, 398, 'f4f2ea')
     sh.text((1085, 446), 'it hears you flush', k(18), '4a4a4a', anchor='mm', rot=0)
-    sh.text((420, 430), 'for a good time call your mother', k(24), '2a2a5a', anchor='mm', rot=-1)
+    sh.text((420, 420), 'told my wife I was at the gym', k(24), '2a2a5a', anchor='mm', rot=-1)
+    sh.text((470, 456), 'hi Deb', k(22), '6a1a1a', anchor='mm', rot=3)
+    sh.text((880, 410), 'OTTAWA OWES ME A BEER', font('anton-400', 30), '2a1414', anchor='mm', rot=2)
+    sh.text((900, 450), 'get in line', k(22), '1a1814', anchor='mm', rot=-2)
     im = sh.done()
     a = np.asarray(im, dtype=np.float32)
     # worn into the paint, not on it
