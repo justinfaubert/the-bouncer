@@ -103,7 +103,7 @@ func _ogre() -> void:
 	var ogre := FightSim.body("ogre", {"str": 10, "con": 10, "dex": 3, "wis": 2, "cha": 2}, 2.13, 1.3, "berserker")
 	ogre.drinks = 2
 	var opts := {"where": Transform3D(Basis.IDENTITY, DECK), "bounds": Rect2(-0.9, -2.6, 1.85, 5.2), "me": me, "him": ogre,
-		"model": "bigman", "size": 1.16, "gap": 1.0, "me_at": Vector2(0.35, -0.9), "him_at": Vector2(0.15, 0.4), "seed": 23,
+		"model": "bigman", "name": "The big man", "size": 1.16, "gap": 1.0, "me_at": Vector2(0.35, -0.9), "him_at": Vector2(0.15, 0.4), "seed": 23,
 		"helpers": [{"model": "patron_c", "side": "R", "off": Vector2(0.55, 0.15)}], "can_quit": from_menu != "", "level": 9.0,
 		"extras": [{"model": "goodshoes_card", "at": Vector3(17.6, 0, 9.55), "face": Vector3(17.3, 0, 7.0)},
 			{"model": "cook", "at": Vector3(18.05, 0, 9.4), "face": Vector3(17.3, 0, 7.0)},
@@ -313,7 +313,7 @@ func _plant_fight(opts: Dictionary) -> void:
 func _ox() -> void:
 	var me := _him(body)
 	var ox := FightSim.body("ox", {"str": 6, "con": 6, "dex": 3, "wis": 3, "cha": 4}, 1.88, 0.85, "brawler")
-	_plant_fight({"me": me, "him": ox, "model": "hivis_door", "size": 1.1, "gap": 1.3, "ring": true, "seed": 5, "level": 4.5, "can_quit": true})
+	_plant_fight({"me": me, "him": ox, "model": "hivis_door", "name": "Ox Pettigrew", "size": 1.1, "gap": 1.3, "ring": true, "seed": 5, "level": 4.5, "can_quit": true})
 	fight.freeze(true)
 	_column(["The fish plant on the wharf, Sunday. The gutting floor, the drains, five bulbs on their flex and the dark right up to the edge of the light. The old men round in a ring that's the ring.",
 		"The Timekeeper on his herring barrel opens the ledger, licks his pencil and writes your name under a hundred and seventy years of names. \"London rules,\" he says. \"A man down, the round's done. Thirty seconds and up to scratch on your own feet. Nothing below the belt. The box takes ten either way.\"",
@@ -340,14 +340,15 @@ func _ox() -> void:
 		await _wait(1.6)
 		fight.freeze(true)
 		if down_by == "ox":
-			if ox.out or ox.shock > 1.35 or ox.nerve < 0.12:
+			if ox.out or ox.stand_top <= 0.45 or ox.nerve < 0.12:
 				outcome = "won"
 				break
 			fight.say("\"Time,\" says the Timekeeper. Ox's corner gets him up and pours water on him and he walks to the line on his own feet, which is the rule.", 4.5)
 			ox.shock = maxf(0.0, ox.shock - 0.45)
 			ox.breath = minf(1.0, ox.breath + 0.35)
+			ox.stand = minf(ox.stand_top, 0.55)
 		else:
-			var target := 10 + round_n + int(me.shock * 4.0)
+			var target := 9 + me.downs * 2 + int(me.shock * 3.0)
 			p = await seconds.ask([
 				{"id": "up", "text": "Up. To the line, on your own feet.", "glyph": "feet", "at": fight.point_of("my_feet"), "voice": "fighter",
 					"check": {"stat": "con", "target": target, "mod": 2 if me.knacks.has("hard_head") else 0}, "live": true},
@@ -359,6 +360,8 @@ func _ox() -> void:
 				break
 			me.shock = maxf(0.0, me.shock - 0.5)
 			me.breath = minf(1.0, me.breath + 0.4)
+			me.stand = minf(me.stand_top, 0.55)
+			me.out = false
 		round_n += 1
 		me.down = false
 		ox.down = false
@@ -396,7 +399,7 @@ func _ox() -> void:
 func _spar() -> void:
 	var me := _him(body)
 	var mate := FightSim.body("dale", {"str": 5, "con": 6, "dex": 5, "wis": 5}, 1.9, 0.7, "sparring")
-	_plant_fight({"me": me, "him": mate, "model": "patron_c", "size": 1.0, "gap": 1.4, "seed": randi() % 1000, "level": 5.0, "can_quit": true})
+	_plant_fight({"me": me, "him": mate, "model": "patron_c", "name": "Dale", "size": 1.0, "gap": 1.4, "seed": randi() % 1000, "level": 5.0, "can_quit": true})
 	_column(["A weeknight at the plant. Dale from the deck holds the keys for the old men and says he'll move around with you if you don't take his head off. He pulls his punches. Mostly."], HOW + " Esc to stop.")
 	while fight.active and not _quit:
 		await get_tree().process_frame

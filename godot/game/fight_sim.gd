@@ -75,7 +75,10 @@ class Fighter:
 	var bal := Vector2.ZERO        # his weight off his feet, on the floor (world)
 	var bal_v := Vector2.ZERO
 	var breath := 1.0
-	var shock := 0.0
+	var shock := 0.0               # his bell rung: blurs his aim and slows him, and drains back
+	var stand := 1.0               # what's keeping him up: clean ones take it, at nothing he goes down
+	var stand_top := 1.0           # what it comes back to: lower with every knockdown and the damage he carries
+	var downs := 0                 # times down this fight (London rules count them)
 	var hurt := {"head": 0.0, "body": 0.0, "legs": 0.0, "arms": 0.0}
 	var nerve := 1.0
 	var cover := false             # forearms up by the face
@@ -276,12 +279,17 @@ func _body(f: Fighter) -> void:
 		f.breath = 0.55
 		events.append({"t": t, "kind": "second_wind", "by": f.name})
 	f.shock = maxf(0.0, f.shock - DT * (0.03 + f.stat("con") * 0.004))
+	# his legs come back, slowly, to what the damage he carries leaves him; slower while he's working
+	var top: float = f.stand_top - f.hurt.head * 0.25 - f.hurt.body * 0.15 - f.hurt.legs * 0.15
+	if f.stand < top and not f.down:
+		f.stand = minf(top, f.stand + DT * (0.012 + f.stat("con") * 0.002) * (0.5 if working else 1.0))
 	f.slip = move_toward(f.slip, f.slip_to, DT * (5.0 + f.stat("dex") * 0.4))
 	if f.down:
 		f.down_t += DT
 		f.vel *= 0.8
 		if not f.out and not keep_down and t >= f.up_at:
 			f.down = false
+			f.stand = maxf(f.stand, minf(f.stand_top, 0.3 + f.stat("con") * 0.025))
 			f.bal = Vector2.ZERO
 			f.bal_v = Vector2.ZERO
 			events.append({"t": t, "kind": "up", "by": f.name})
@@ -309,6 +317,8 @@ func _body(f: Fighter) -> void:
 	var k: float = (55.0 + f.stat("con") * 2.0 + f.stat("dex") * 2.0) * (1.0 - f.hurt.legs * 0.4) * lerpf(0.55, 1.0, f.breath) * (1.0 - minf(0.6, f.shock * 0.5))
 	if f.drinks > 0:
 		k *= maxf(0.55, 1.0 - f.drinks * 0.05)
+	# rubber legs: under a third of his stand left, his balance goes soft
+	k *= lerpf(0.55, 1.0, clampf(f.stand / 0.35, 0.0, 1.0))
 	# held, his feet aren't his own: softer, and slower to settle
 	var damp := 0.55
 	if not other(f).grips.is_empty():
@@ -334,7 +344,7 @@ func _body(f: Fighter) -> void:
 	f.pos += (f.vel + f.bal_v * 0.55) * DT
 	_keep_in(f)
 	var off := f.bal.length()
-	if off > FALL:
+	if off > FALL * lerpf(0.8, 1.05, clampf(f.stand, 0.0, 1.0)):
 		_fall(f, f.bal.normalized(), "balance")
 	elif off > STUMBLE and f.stumbling <= 0.0:
 		f.stumbling = 0.25 + off
@@ -362,7 +372,12 @@ func _fall(f: Fighter, dir: Vector2, why: String) -> void:
 	for hnd in o.grips.keys():
 		if str(o.grips[hnd].part) != "neck":
 			o.grips.erase(hnd)
-	if f.shock >= 1.5:
+	f.downs += 1
+	f.stand_top = maxf(0.4, f.stand_top - 0.15)
+	f.stand = minf(f.stand, 0.0)
+	f.up_at += f.downs * 0.6
+	# out cold: a big one on no legs, or the third time down
+	if f.shock >= 1.5 or f.stand < -0.35 or f.downs >= 3:
 		f.out = true
 	f.nerve = maxf(0.0, f.nerve - 0.25)
 	events.append({"t": t, "kind": "down", "by": f.name, "why": why, "dir": dir, "out": f.out})
@@ -464,6 +479,7 @@ func _land(f: Fighter, ac: Dictionary) -> void:
 		o.shock += force * 0.03
 		o.bal_v += push * 0.35
 		o.breath = maxf(0.0, o.breath - 0.015)
+		o.stand -= force * 0.012
 		ev.result = "blocked"
 		events.append(ev)
 		if o == a:
@@ -493,6 +509,17 @@ func _land(f: Fighter, ac: Dictionary) -> void:
 		shock *= 0.25
 		ev.hard_head = true
 	o.shock += shock
+	# what it takes off his legs: the bell rung, the wind out of him, the legs themselves
+	var took := shock * 0.7
+	match z:
+		"body":
+			took += force * 0.11
+		"legs":
+			took += force * 0.13
+		_:
+			took += force * 0.04
+	o.stand -= took
+	ev.took = took
 	o.bal_v += push * (1.4 if z == "jaw" else 1.0)
 	o.nerve = maxf(0.0, o.nerve - force * 0.06 - shock * 0.2)
 	f.nerve = minf(1.0, f.nerve + force * 0.03)
@@ -502,8 +529,11 @@ func _land(f: Fighter, ac: Dictionary) -> void:
 	ev.result = "clean"
 	ev.shock = shock
 	events.append(ev)
-	if o.shock >= 1.0:
-		_fall(o, dir, "shock")
+	ev.stand = o.stand
+	if o.stand <= 0.0:
+		_fall(o, dir, "legs")
+	elif o.stand < 0.3 and took > 0.04:
+		events.append({"t": t, "kind": "rocked", "by": o.name, "stand": o.stand})
 
 
 func _take_hold(f: Fighter, ac: Dictionary) -> void:
@@ -753,6 +783,11 @@ func _think(f: Fighter) -> void:
 			my = -0.6
 		if f.nerve < 0.25 and rng.randf() < 0.5:
 			my = -1.0
+		# rocked: he backs off and covers, and you can see it (the berserker doesn't)
+		if f.stand < 0.3 and f.brain != "berserker":
+			my = -0.8 if rng.randf() < 0.7 else my
+			if rng.randf() < 0.4:
+				f.cover = true
 		f.move = Vector2(mx, my)
 	if f.busy() or t < f.wait_till or f.breath < 0.15:
 		return

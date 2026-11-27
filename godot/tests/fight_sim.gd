@@ -23,6 +23,7 @@ func _init() -> void:
 	_choke()
 	_ogre()
 	_room()
+	_warned()
 	print("fight_sim: %s" % ("ok" if bad == 0 else "%d bad" % bad))
 	quit(1 if bad else 0)
 
@@ -265,3 +266,27 @@ func _room() -> void:
 		print("room (%s): closest %.2f of the gap, %.3f m past the edge at most, %d shoves off it" % ["ring" if ring else "deck", closest, out, crowd])
 		check(closest > 0.97, "never into each other")
 		check(out < 0.001, "never past the edge")
+
+
+# A man going down should be seen coming: of the knockdowns from his legs running out, most come
+# after he's already been rocked (stand under 0.45 before the last one), not out of a clear sky.
+func _warned() -> void:
+	var downs := 0
+	var warned := 0
+	for sd in 6:
+		var s := FightSim.new(100 + sd)
+		var me := FightSim.body("him", {"str": 6, "con": 5, "dex": 5, "wis": 5}, 1.93, 0.7, "brawler")
+		var him := FightSim.body("ox", {"str": 6, "con": 5, "dex": 4, "wis": 4}, 1.85, 0.6, "boxer")
+		s.setup(me, him, 0.95)
+		var before := {"him": 1.0, "ox": 1.0}
+		for i in int(90.0 / FightSim.DT):
+			s.step()
+			for e in s.take_events():
+				if e.kind == "blow" and e.result == "clean":
+					var was: float = float(e.stand) + float(e.took)
+					if float(e.stand) <= 0.0:
+						downs += 1
+						warned += 1 if was < 0.45 else 0
+	print("warned: %d of %d knockdowns came after he was already rocked" % [warned, downs])
+	check(downs > 0, "people go down")
+	check(warned >= downs * 0.7, "and mostly you saw it coming")

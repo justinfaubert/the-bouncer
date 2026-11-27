@@ -143,6 +143,13 @@ func _ox() -> void:
 	await _frames(3)
 	await _grab("ox_head_snapped")
 	_sim(0.8)
+	# his legs going: one more on the jaw with him already rocked, the slip red and trembling
+	sim.b.stand = 0.32
+	sim.strike(sim.a, "L", "hook", Vector2(-0.1, sim.b.head_y() - 0.06), 1.0)
+	_sim(0.3)
+	await _frames(6)
+	await _grab("ox_rocked")
+	_sim(0.6)
 	# Ox's own big hook coming: his shoulder back
 	sim.strike(sim.b, "R", "hook", Vector2(0.1, sim.a.head_y()), 1.0)
 	_sim(0.35)

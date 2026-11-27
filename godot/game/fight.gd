@@ -42,6 +42,9 @@ var fist_r: Node3D
 var fist_l: Node3D
 var layer: CanvasLayer
 var caption: Label
+var tally: FightTally                   # the two slips at the head of the frame: names, downs, legs, wind
+var bursts: Array = []                  # ink where a blow landed, on the screen: {"p", "t0", "f", "seed"}
+var fov_kick := 0.0                     # the picture jumps in on a clean one and settles
 var marks_ui: Control                   # his strokes drawn on the screen as he makes them, and the shoulder
 var hold := 0.0                         # hit stop left
 var shake := Vector2.ZERO               # his head knocked: yaw, pitch (radians), springing back
@@ -124,6 +127,9 @@ func setup(m) -> void:
 	caption.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.06))
 	caption.add_theme_constant_override("outline_size", 8)
 	layer.add_child(caption)
+	tally = FightTally.new()
+	tally.setup(self)
+	layer.add_child(tally)
 	layer.visible = false
 	fist_r = _fist("r")
 	fist_l = _fist("l")
@@ -205,6 +211,9 @@ func begin(opts: Dictionary, rehearse := false, from := {}) -> void:
 	fist_l.visible = true
 	layer.visible = true
 	caption.text = ""
+	bursts.clear()
+	fov_kick = 0.0
+	tally.begin("YOU", str(opts.get("name", him.name.capitalize())).to_upper())
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	look_at_pt = _w3(him.pos, him.height * 0.8)
 	_place_eyes(0.0)
@@ -226,6 +235,7 @@ func end() -> void:
 			(c as Node3D).visible = true
 	_hid = []
 	layer.visible = false
+	tally.visible = false
 	strokes.clear()
 	view.focus_fov = 0.0
 	view.flash = 0.0
@@ -386,7 +396,9 @@ func _pose(fg: Figure, dt: float) -> void:
 		spine_d = Basis(lean_ax.normalized(), lean_a * 0.5)
 	# the strike: the shoulder back in the tell, through in the throw
 	var twist := 0.0
-	var crouch := 0.12 + f.shock * 0.1
+	# on rubber legs: knees dipping, the body swaying over them, slow and loose
+	var rubber := clampf((0.35 - f.stand) / 0.35, 0.0, 1.0) if not f.down else 0.0
+	var crouch := 0.12 + f.shock * 0.1 + rubber * (0.18 + 0.1 * sin(t * 3.7 + fg.scale))
 	if not f.act.is_empty() and f.act.kind == "strike":
 		var ac := f.act
 		var age := sim.t - float(ac.t0)
@@ -398,7 +410,7 @@ func _pose(fg: Figure, dt: float) -> void:
 			twist = side * 0.3 * pw
 		else:
 			twist = side * 0.3 * pw * (1.0 - clampf((age - float(ac.tell) - float(ac.travel)) / maxf(0.01, float(ac.back)), 0.0, 1.0))
-	var slip_roll := f.slip * 0.22
+	var slip_roll := f.slip * 0.22 + rubber * 0.12 * sin(t * 2.3)
 	var chest_d := Basis(up_sk, twist + fg.chest.y) * Basis(right_sk, -crouch * 0.6 + fg.chest.x) * Basis(fwd_sk, slip_roll + fg.chest.z)
 	_turn(fg, "spine", spine_d)
 	_turn(fg, "chest", chest_d)
@@ -466,6 +478,8 @@ func _hand_target(fg: Figure, side: String, me: FightSim.Fighter) -> Vector3:
 		guard_w = _w3(f.pos + f.right() * (0.07 if side == "R" else -0.07) * fg.scale + f.fwd() * 0.2 * fg.scale, f.head_y() - 0.02)
 	if f.breath < 0.35:
 		guard_w.y -= (0.35 - f.breath) * 0.8
+	if f.stand < 0.35 and not f.down:
+		guard_w.y -= (0.35 - f.stand) * 0.5
 	if f.down:
 		return guard_w
 	# the arm someone has hold of: pinned out and down where they hold it
@@ -613,6 +627,8 @@ func _process(dt: float) -> void:
 	_place_eyes(dt)
 	_fists(dt)
 	_body_in_print(dt)
+	fov_kick = move_toward(fov_kick, 0.0, dt * 9.0)
+	view.focus_fov = 62.0 - fov_kick * 3.0
 	marks_ui.queue_redraw()
 
 
@@ -794,6 +810,10 @@ func _body_in_print(dt: float) -> void:
 	var a := sim.a
 	view.heart = lerpf(view.heart, 1.2 + (1.0 - a.breath) * 1.4 + a.shock, 1.0 - exp(-dt * 2.0))
 	view.flash = maxf(0.0, view.flash - dt * 2.2)
+	# your own legs going: the room swims
+	if a.stand < 0.3 and not a.down:
+		var sw := (0.3 - a.stand) / 0.3
+		shake_v += Vector2(sin(t * 1.9), cos(t * 1.3) * 0.6) * sw * dt * 2.5
 	var h := int(clampf(a.shock * 2.5 + (1.0 - a.breath) * 1.2 + float(body.get("hurt", 0)), 0.0, 3.0))
 	view.hurt = h
 	# breathing he can hear: ragged when it's short
@@ -843,6 +863,13 @@ func _on_event(e: Dictionary) -> void:
 			main.audio.at("body_fall", _w3(sim.a.pos if e.by == me else sim.b.pos, 1.2), 0.35 + minf(0.4, float(e.force) * 0.3), 3.0, 1.3)
 			if e.by == me:
 				shake_v += Vector2(randf_range(-0.8, 0.8), 0.5)
+		"rocked":
+			if e.by == me:
+				_say_once("rocked_me_%d" % int(sim.t / 6.0), "Your knees go to water. Get your hands up. Get out of there.")
+				main.audio.sfx("heart", 0.7, 0.75)
+			else:
+				_say_once("rocked_%d" % int(sim.t / 6.0), ["He's going. His knees dip and come back.", "He's hurt. His hands come down a little.", "He's on rubber legs."][randi() % 3])
+				main.audio.at("groan", _w3(sim.b.pos, 1.8), 0.5, 3.0, 0.7)
 		"second_wind":
 			if e.by == me:
 				_say_once("wind", "From somewhere, the breath comes back.")
@@ -859,6 +886,14 @@ func _blow(e: Dictionary) -> void:
 	match res:
 		"clean":
 			hold = lerpf(HIT_STOP[0], HIT_STOP[1], clampf(f, 0.0, 1.0))
+			# what it took, on the slip; the ink where it landed; the picture jumps in
+			if e.has("stand"):
+				tally.took(0 if on_me else 1, float(e.stand) + float(e.get("took", 0.0)), float(e.stand))
+			var zy: float = (sim.b.head_y() - 0.05) if str(e.get("zone", "head")) in ["head", "jaw"] else (sim.b.height * 0.64 if str(e.get("zone", "")) == "body" else 0.5)
+			var sp: Vector3 = view.on_screen(_w3(sim.b.pos, zy)) if not on_me else Vector3(get_viewport().get_visible_rect().size.x * (0.42 if str(e.hand) == "R" else 0.58), get_viewport().get_visible_rect().size.y * 0.45, 1.0)
+			if sp.z > 0.0:
+				bursts.append({"p": Vector2(sp.x, sp.y), "t0": t, "f": clampf(f, 0.2, 1.2), "seed": randi() % 1000, "me": on_me})
+			fov_kick = minf(2.0, fov_kick + clampf(f, 0.2, 1.0) * (1.6 if on_me else 0.9))
 			# deep and short: more felt than heard (tools/fight_sounds.py)
 			var body_blow := str(e.get("zone", "")) == "body"
 			main.audio.at("punch_body" if body_blow else "punch", at, 0.5 + clampf(f, 0.0, 1.0) * 0.3, 2.0, lerpf(1.06, 0.84, clampf(f, 0.0, 1.0)) * randf_range(0.96, 1.04))
@@ -1027,7 +1062,14 @@ func _stroke(s: Dictionary) -> void:
 	var chord := p1 - p0
 	var L := chord.length()
 	var vh := get_viewport().get_visible_rect().size.y
+	tally.strokes_made += 1
 	if L < vh * 0.03:
+		# a click on him: a jab, straight where you clicked
+		var jt = _on_him(p1)
+		if jt == null:
+			jt = Vector2(0.0, sim.b.head_y() - 0.05)
+		sim.strike(sim.a, s.hand, "straight", jt, 0.45)
+		stats_used["straight"] = int(stats_used.get("straight", 0)) + 1
 		return
 	# how far it bows off the straight line, and which way
 	var bow := 0.0
@@ -1062,6 +1104,26 @@ func _stroke(s: Dictionary) -> void:
 
 # his strokes as he draws them, a pencil line; and the shoulder (the knack) on the other man
 func _draw_marks() -> void:
+	# ink where a blow landed: a burst of short strokes, thrown out and gone in a quarter second
+	var keep: Array = []
+	for b in bursts:
+		var age := t - float(b.t0)
+		if age > 0.32:
+			continue
+		keep.append(b)
+		var k := age / 0.32
+		var fz := float(b.f)
+		var col := Color(0.62, 0.12, 0.08, 1.0 - k) if b.me else Color(0.97, 0.94, 0.86, 1.0 - k)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = int(b.seed)
+		var vh := get_viewport().get_visible_rect().size.y
+		for i in 9:
+			var ang := rng.randf() * TAU
+			var r0 := (0.02 + 0.06 * k) * vh * fz
+			var r1 := r0 + (0.03 + rng.randf() * 0.05) * vh * fz * (1.0 - k * 0.5)
+			var d := Vector2(cos(ang), sin(ang))
+			marks_ui.draw_line(b.p + d * r0, b.p + d * r1, col, maxf(1.5, 5.0 * fz * (1.0 - k)), true)
+	bursts = keep
 	for btn in strokes:
 		var pts: Array = strokes[btn].pts
 		if pts.size() < 2:
