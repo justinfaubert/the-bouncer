@@ -120,16 +120,24 @@ blocks_car: {name: The car on blocks., at: a:blocks_car, from: [lot], near: 6}
 mattress: {name: The mattress., at: a:mattress, from: [lot], near: 4}
 hotel_back: {name: The back of the hotel., at: a:hotel_back, from: [lot], near: 14}
 cross: {name: The cross., at: a:cross, from: [lot], near: 5}
-merle: {name: The man fishing., at: a:merle, from: [lot], near: 6}
+merle: {name: The man fishing., at: a:merle, from: [lot], near: 6, when: [clock >= 1100]}
 plaque: {name: The plaque., at: a:plaque, from: [lot], near: 3}
 sea_steps: {name: The steps down., at: a:sea_steps, from: [lot], near: 4}
-beach_fire: {name: The fire., at: a:beach_fire, from: [lot], near: 6}
+beach_fire: {name: The fire., at: a:beach_fire, from: [lot], near: 6, when: [clock >= 1100]}
 kelp: {name: Something in the kelp., at: a:kelp, from: [lot], near: 3}
 beach_cart: {name: The shopping cart., at: a:beach_cart, from: [lot], near: 5}
 far_shore: {name: The far shore., at: a:far_shore, from: [lot], near: 466}
 esso_phone: {name: The payphone., at: a:esso_phone, from: [lot], near: 5}
 esso_pumps: {name: The pumps., at: a:esso_pumps, from: [lot], near: 10}
 esso_clerk: {name: The night window., at: a:esso_clerk, from: [lot], near: 5}
+# up the old main street, walked to on his own (world/grounds.gd _main_finds)
+night_slot: {name: The night deposit., at: a:night_slot, from: [lot], near: 3}
+meter: {name: The parking meter., at: a:meter, from: [lot], near: 3}
+legion_board: {name: The Legion's sign., at: a:legion_board, from: [lot], near: 6}
+bench: {name: The bench., at: a:bench, from: [lot], near: 4}
+capsule: {name: The plate in the sidewalk., at: a:capsule, from: [lot], near: 2.5}
+pop_sign: {name: The town's sign., at: a:pop_sign, from: [lot], near: 9}
+drain: {name: The storm drain., at: a:drain, from: [lot], near: 2.5}
 esso_prices_n: {name: The prices., at: a:esso_prices_n, from: [lot], near: 18}
 
 # ---------------------------------------------------------------- his room

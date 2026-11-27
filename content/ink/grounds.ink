@@ -15,7 +15,7 @@
 //
 // Claude's drafts, all of it.
 
-LIST out_clue = cl_cross, cl_wife, cl_flowers, cl_card, cl_seven, cl_paper, cl_rat_front, cl_rat_back, cl_caps, cl_phone, cl_trail, cl_freezer
+LIST out_clue = cl_cross, cl_wife, cl_flowers, cl_card, cl_seven, cl_paper, cl_rat_front, cl_rat_back, cl_caps, cl_phone, cl_trail, cl_freezer, cl_drop, cl_bench, cl_drain
 VAR out_found = ()
 VAR card_kept = 0           // her licence: 1 in his pocket, -1 put back in the kelp, 2 given to Merle
 VAR caps_how = 0            // the rats' spiral of bottle caps: 1 left it, 2 took the brass one, 3 kicked it apart
@@ -71,6 +71,19 @@ VAR fire_how = 0            // the fire on the beach: 1 warmed his hands, 2 kick
     MERLE: Gary's kept it empty since. Paid up to Christmas, he says, and won't say who by. Her name was on the buzzer till somebody took a key to it.
     He turned the reel's handle once, for nothing.
     MERLE: Wasn't me.
+    -> talk
+* {out_found ? cl_bench && out_found ? cl_wife} ["There's a bench on the main street. Rose Paquette."]
+    MERLE: Her mother. Sat on that bench every day for thirty years and told the bank who'd been in it.
+    MERLE: We paid for the plate. Darlene picked the words. Rose would have hated it, and that was the point of it.
+    -> talk
+* {out_found ? cl_drop && out_found ? cl_wife} ["Somebody pays for room seven. Through the old bank's night slot."]
+    He didn't look round.
+    MERLE: That bank shut when the mill did.
+    MERLE: How much?
+    "Six hundred."
+    He reeled in a turn and stopped.
+    MERLE: That's what her room was. Six hundred, to the dollar.
+    MERLE: Gary sits in his window across the street from that slot every day God sends. Ask him who comes by it at night. Then watch him not know.
     -> talk
 + [Leave him to it.]
     { out_merle == 1:

@@ -655,6 +655,59 @@ The cross, leaning to the road. DARLENE. The roses, new.
 - The pumps, nobody at them.
 }
 
+=== function toy_night_slot(what)
+~ out_found += cl_drop
+{stopping:
+- A night deposit in the bank's last pillar, brass, the old crest ground off it in swirls. The bank had been a cafe for eleven years. Its flap was shut on the corner of an envelope, and when he worked it out with two fingers it came, heavy: SOV, RM 7, DEC., in pencil, in capitals, and inside, folded once, twenties. He counted them without deciding to. Six hundred dollars. He put it back through the slot and heard it go down, a long way, longer than the building was deep, and not land.
+    FATHER: Your grandmother kept her money in a coffee can because a bank did her dirty in thirty-one. She'd have liked a bank that wasn't there. Nobody left in it to cheat you.
+- The night slot. He listened at it. Nothing landed, still.
+}
+
+=== function toy_meter(what)
+{stopping:
+- A parking meter outside Gary's, the old wind-up kind with a needle, and the needle down in the red: EXPIRED, in a window gone the yellow of a smoker's ceiling. The town had stopped writing tickets in 2019. It got fed anyway. In the coin return a loonie, the bird worn off it, warm. He took it. Up in Gary's window the blinds moved, or didn't.
+    ~ cash += 1
+- The meter, EXPIRED. The coin return, empty, and he checked.
+}
+
+=== function toy_legion_board(what)
+{stopping:
+- The Legion's letter board on its two posts: THE LEGION BR. 61, MEAT DRAW FRI, KARAOKE CANCELED, YOU KNOW WHY, and under that LEST WE, and nothing after, the last line not finished or the letters for it gone. Six of them were on the grass under the board, face up, in a row, fallen in that order or laid in it: L, I, S, T, E, N.
+    KID: lest we listen. thats either a poem or a threat
+- LEST WE. The letters on the grass, in their row.
+- LEST WE. The letters on the grass had moved: N, E, T, S, I, L, the same six, turned to be read from where he stood. Whoever laid them out had come round to his side of the board to do it.
+- LEST WE. The six letters, facing him.
+}
+
+=== function toy_bench(what)
+~ out_found += cl_bench
+{stopping:
+- A bench outside the library, iron ends, the slats gone grey, a brass plate on the back: ROSE PAQUETTE, 1934 to 2009, SHE SAW EVERYTHING. It faced the bank. Under it, folded flat and kicked back against the leg, the paper sleeve for a bunch of six plastic roses, DOLLAR GIANT.{out_found ? cl_card: PAQUETTE. The name on the licence in the kelp.|{out_found ? cl_cross: Six roses. The same as on the cross up the shoulder.}}
+- The bench. SHE SAW EVERYTHING. From here, everything was the bank.
+}
+
+=== function toy_capsule(what)
+{stopping:
+- A brass plate set in the sidewalk: TIME CAPSULE 1988, TO BE OPENED 2038, and a grade four class's names under it, worn by feet to their first letters. Somebody had scratched one more word in with a key, lowercase, careful: don't. The grout round the plate was new. It had been up, and put back.
+    WRONGMAN: In the story they opened it early. Thirty letters from thirty kids to the future. Every one of them said the same thing, and the drunk wouldn't tell me what.
+- The plate. TO BE OPENED 2038. don't.
+}
+
+=== function toy_pop_sign(what)
+{stopping:
+- The town's sign at the highway, green, POP., and the number painted over three times, each patch a newer green than the one under it, and on the newest, 1,409. Under that in white paint marker, not official: 1,408. The marker was still there, zip-tied to the post by its cap, for whoever was next to do it.{out_found ? cl_wife: Since March, maybe.}
+- The town's sign. 1,408 in marker. The marker on its zip tie.
+- The town's sign. Somebody had been by with the marker: 1,407. The cap was back on.
+- The town's sign. 1,407.
+}
+
+=== function toy_drain(what)
+~ out_found += cl_drain
+{stopping:
+- A storm drain in the gutter at the foot of the street, its bars packed with maple leaves gone black. He crouched to it, because there was a sound. Under the rain going down it, a long way down, a jukebox, and glasses, and the room a jukebox is in. Somebody down there laughed in the right place in the song.{out_found ? cl_rat_back: The vent behind the kitchen. The gap under the front window. Whatever had the run of the Sov had the run of the town.}
+- The drain. The song down there, or the rain.
+}
+
 === function toy_esso_clerk(what)
 The night window. The kid behind it, lit from under by his phone.
 

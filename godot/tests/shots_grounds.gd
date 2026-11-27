@@ -32,6 +32,16 @@ const VIEWS := {
 	"shoulder": [Vector2(-80.0, 26.4), Vector3(-150.0, 2.0, 22.0)],
 	"esso_near": [Vector2(-138.0, 25.0), Vector3(-150.0, 1.5, 12.0)],
 	"esso_window": [Vector2(-145.6, 14.6), Vector3(-144.8, 1.4, 11.0)],
+	# up the old main street, the finds (_main_finds)
+	"main_up": [Vector2(-200.0, 20.0), Vector3(-200.0, 5.0, -60.0)],
+	"drain": [Vector2(-195.4, 23.3), Vector3(-194.45, 0.13, 24.5)],
+	"pop_sign": [Vector2(-208.0, 30.5), Vector3(-212.0, 2.0, 26.1)],
+	"legion_board": [Vector2(-195.0, -5.0), Vector3(-191.2, 2.4, -4.0)],
+	"legion_grass": [Vector2(-193.0, -4.3), Vector3(-191.75, 1.35, -4.0)],
+	"bench": [Vector2(-195.2, -48.0), Vector3(-192.25, 3.7, -48.5)],
+	"capsule": [Vector2(-194.6, -54.4), Vector3(-193.2, 3.5, -55.5)],
+	"meter": [Vector2(-195.6, -77.6), Vector3(-193.75, 5.7, -78.6)],
+	"night_slot": [Vector2(-206.4, -80.8), Vector3(-208.5, 5.9, -81.5)],
 }
 
 
