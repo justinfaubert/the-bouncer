@@ -275,24 +275,33 @@ func _shot_room_full(n: int) -> void:
 	await _night(LATE, 3)
 	_at("floor", LATE)
 	var secs := n / FPS
-	await _take("room_full", n, rail(Vector3(4.0, 1.8, 9.3), Vector3(6.0, 1.75, 8.9),
-		Vector3(10.0, 1.1, 3.0), Vector3(11.5, 1.15, 3.6), 56.0, 50.0, secs, 0.3))
+	await _take("room_full", n, rail(Vector3(5.6, 2.2, 9.6), Vector3(7.2, 2.12, 9.45),
+		Vector3(11.0, 1.0, 3.4), Vector3(12.2, 1.05, 4.0), 54.0, 48.0, secs, 0.3))
 
 
-# Talk, as it's played: the night's first page, Gary's office, the picture and the page beside it,
-# the lines coming in as the player clicks on.
+# The room talking among itself: a table's conversation written over their heads on slips of the
+# night's paper as they say it, word by word (game/talk.gd), the camera in among them.
 func _shot_talk(n: int) -> void:
-	_last_night = ""
-	main.start_new(2)
-	await _frames(30)
-	var st := {"next": 0.9}
-	var every := func(s: float):
-		if s >= st.next:
-			st.next += 1.1
-			if main.pending != null:
-				main._go_on()
-				sfx(s, "page", 0.5)
-	await _take("talk", n, Callable(), every, false)
+	await _night(LATE, 3)
+	_at("floor", LATE)
+	var tk = main.talk
+	tk.reset()
+	# the pickup and its engine running is the one the full room overhears (room_full): another here
+	tk.heard["glowies"] = true
+	tk.next_at = tk._now()
+	for k in 90:
+		if not tk.on.is_empty():
+			break
+		await process_frame
+	var mid: Vector3 = tk._middle() if not tk.on.is_empty() else Vector3(9.4, 1.0, 8.1)
+	print("talk: ", tk.on.get("rule", {}).get("id", "none"), " at ", mid)
+	var post: Vector3 = Posts.POSTS["floor"].at
+	var away := Vector3(post.x - mid.x, 0, post.z - mid.z).normalized()
+	var side := away.cross(Vector3.UP)
+	var secs := n / FPS
+	var head := mid + Vector3(0, 0.35, 0)
+	await _take("talk", n, rail(head + away * 2.6 + side * 0.5 + Vector3(0, 0.25, 0), head + away * 2.1 + side * 0.15 + Vector3(0, 0.2, 0),
+		head, head + Vector3(0, 0.05, 0), 44.0, 38.0, secs, 0.4))
 
 
 # The room stopped dead: nobody moves, the smoke hangs, and the camera goes on through them.

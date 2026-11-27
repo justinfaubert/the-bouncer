@@ -73,10 +73,13 @@ END = b(B_TO)
 # The game played as it's played, the page and all: these keep the whole 16:9 frame. Everything
 # else is the film, cut to 2.39:1 out of the middle (or this far down from the top, in pixels at
 # 1080, where the shot's better framed lower or higher).
-FULL = {"talk", "door_hand", "darts_aim", "pool_break", "x_pool_pot", "fight_frozen", "x_fight_hit",
-        "fight_live", "x_cig_pull"}
+FULL = {"door_hand", "darts_aim", "pool_break", "x_pool_pot", "fight_frozen", "x_fight_hit",
+        "fight_live", "x_cig_pull", "pool_table"}
 CROP_Y = {"sov_far": 0, "seawall_end": 60, "sign_dying": 40}
 SCOPE_H = 804
+# A shot cut from another one's frames instead of its own: (the shot, its first frame, how far in,
+# and the middle of the picture in 1080p pixels)
+SOURCE = {"x_dart_treble": ("darts_fly", 21, 1.7, (1240, 860))}
 
 
 def plan(args):
@@ -185,13 +188,29 @@ def film(args):
             src = [black] * n
             events.append([t0, "bell", 1.0])
         else:
-            d = os.path.join(args.frames, name)
+            src_name, first, zoom, centre = SOURCE.get(name, (name, 0, 1.0, None))
+            d = os.path.join(args.frames, src_name)
             have = sorted(f for f in os.listdir(d) if f.endswith(".jpg")) if os.path.isdir(d) else []
             if len(have) < n:
                 print(f"film: {name} has {len(have)} of {n} frames", file=sys.stderr)
+            have = have[first:]
             src = [os.path.join(d, have[i]) if i < len(have) else (os.path.join(d, have[-1]) if have else black) for i in range(n)]
+            if zoom != 1.0 and have:
+                zd = os.path.join(args.work, "zoom_" + name)
+                os.makedirs(zd, exist_ok=True)
+                zs = []
+                for i, p in enumerate(src):
+                    im = Image.open(p)
+                    w2, h2 = im.size[0] / zoom, im.size[1] / zoom
+                    cx = min(max(centre[0], w2 / 2), im.size[0] - w2 / 2)
+                    cy = min(max(centre[1], h2 / 2), im.size[1] - h2 / 2)
+                    im = im.crop((int(cx - w2 / 2), int(cy - h2 / 2), int(cx + w2 / 2), int(cy + h2 / 2))).resize(im.size, Image.LANCZOS)
+                    zp = os.path.join(zd, f"{i:04d}.jpg")
+                    im.save(zp, quality=95)
+                    zs.append(zp)
+                src = zs
             ev = os.path.join(d, "events.json")
-            if os.path.exists(ev):
+            if os.path.exists(ev) and src_name == name:
                 for e in json.load(open(ev)):
                     events.append([t0 + e[0], e[1], e[2]])
         for p in src:
@@ -235,7 +254,7 @@ def film(args):
     fc.append(vf)
     cmd = ["ffmpeg", "-y", "-v", "error"] + ins + ["-framerate", str(FPS), "-i", os.path.join(seq, "%05d.jpg"),
            "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
-           "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-pix_fmt", "yuv420p",
+           "-c:v", "libx264", "-preset", "slow", "-crf", "19", "-pix_fmt", "yuv420p",
            "-c:a", "aac", "-b:a", "320k", "-movflags", "+faststart", "-shortest", args.out]
     subprocess.run(cmd, check=True)
     print("film:", args.out, k, "frames,", len(events), "sounds")
