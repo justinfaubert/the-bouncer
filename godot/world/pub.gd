@@ -1490,7 +1490,7 @@ func _room_things() -> void:
 	cyl(0.05, 0.08, 0.1, Vector3(15.27, 2.22, 1.95), M.shade, null, 14)
 	# (2026-11-25: an old bulb, not a work light: lower, warmer, a tighter pool, and it throws the
 	# darts' shadows on the board)
-	lamps.append(spot(Vector3(15.27, 2.17, 1.95), Vector3(16.0, 1.5, 2.2), Color("ffae62"), 1.7, 3.2, 48.0, true))
+	lamps.append(spot(Vector3(15.27, 2.17, 1.95), Vector3(16.0, 1.5, 2.2), Color("ffa95c"), 1.25, 3.2, 48.0, true))
 	# GOOD SHOES's wallet on the carpet by the stool he had, where it came out of his coat as he was
 	# turned for the door, if he left it
 	# fallen open a little off what's in it: the half it landed on, the other sprung up off the fold,

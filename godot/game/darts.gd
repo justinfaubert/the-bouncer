@@ -236,22 +236,22 @@ func _dress_board() -> void:
 	pub.add_child(n)
 	n.global_transform = to_world
 	var wire := StandardMaterial3D.new()
-	wire.albedo_color = Color("b9b6ae")
-	wire.metallic = 0.9
-	wire.roughness = 0.3
+	wire.albedo_color = Color("d6d3cb")
+	wire.metallic = 0.75
+	wire.roughness = 0.25
 	var R := [DartSim.R_BULL, DartSim.R_OUTER_BULL, DartSim.R_TREBLE_IN, DartSim.R_TREBLE_OUT,
 		DartSim.R_DOUBLE_IN, DartSim.R_DOUBLE_OUT]
 	for r in R:
 		var t := TorusMesh.new()
-		t.inner_radius = r - 0.0006
-		t.outer_radius = r + 0.0006
+		t.inner_radius = r - 0.0008
+		t.outer_radius = r + 0.0008
 		t.rings = 64 if r > 0.05 else 24
 		t.ring_segments = 6
 		var mi := MeshInstance3D.new()
 		mi.mesh = t
 		mi.material_override = wire
 		mi.rotation.x = PI / 2.0
-		mi.position = Vector3(0, 0, 0.0007)
+		mi.position = Vector3(0, 0, 0.0012)
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		n.add_child(mi)
 	var len := DartSim.R_DOUBLE_OUT - DartSim.R_OUTER_BULL
@@ -259,11 +259,11 @@ func _dress_board() -> void:
 	for k in 20:
 		var a := deg_to_rad(9.0 + k * 18.0) + sim.tilt
 		var bm := BoxMesh.new()
-		bm.size = Vector3(0.0011, len, 0.0011)
+		bm.size = Vector3(0.0013, len, 0.0013)
 		var mi := MeshInstance3D.new()
 		mi.mesh = bm
 		mi.material_override = wire
-		mi.position = Vector3(sin(a) * mid, cos(a) * mid, 0.0007)
+		mi.position = Vector3(sin(a) * mid, cos(a) * mid, 0.0012)
 		mi.rotation.z = -a
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		n.add_child(mi)
@@ -280,7 +280,7 @@ func _dress_board() -> void:
 		var i1 := Vector3(sin(a1), cos(a1), 0) * (DartSim.R_DOUBLE_OUT + 0.0004)
 		var o1 := Vector3(sin(a1), cos(a1), 0) * 0.2265
 		for q in [i0, o0, o1, i0, o1, i1]:
-			st.add_vertex(q + Vector3(0, 0, 0.0003))
+			st.add_vertex(q + Vector3(0, 0, 0.0028))
 	var ring := MeshInstance3D.new()
 	ring.mesh = st.commit()
 	var rm := StandardMaterial3D.new()
@@ -288,20 +288,24 @@ func _dress_board() -> void:
 	rm.roughness = 0.95
 	rm.cull_mode = BaseMaterial3D.CULL_DISABLED
 	ring.material_override = rm
+	# (it sits proud of the face: at the lamp's low angle its shadow fell across the beds in black
+	# wedges, so it, the wire and the numbers throw none)
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	n.add_child(ring)
 	# the numbers, upright; the 20 a little worn
 	for k in 20:
 		var a := deg_to_rad(k * 18.0) + sim.tilt
 		var lb := Label3D.new()
 		lb.text = str(DartSim.ORDER[k])
-		lb.font = Look.font("display")
-		lb.font_size = 72
-		lb.pixel_size = 0.00033
+		lb.font = Look.font("anton")
+		lb.font_size = 64
+		lb.pixel_size = 0.00032
 		lb.outline_size = 0
-		lb.modulate = Color("e9e2cf") if DartSim.ORDER[k] != 20 else Color("cfc6ae")
+		lb.modulate = Color("c2b9a3") if DartSim.ORDER[k] != 20 else Color("a89f8a")
+		lb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		lb.shaded = true
 		lb.double_sided = false
-		lb.position = Vector3(sin(a) * 0.196, cos(a) * 0.196, 0.0015)
+		lb.position = Vector3(sin(a) * 0.197, cos(a) * 0.197, 0.0034)
 		lb.rotation.z = -sim.tilt
 		n.add_child(lb)
 

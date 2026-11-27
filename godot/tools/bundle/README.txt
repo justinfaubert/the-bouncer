@@ -1,4 +1,10 @@
 LAST CALL
+27 November 2026: the master build of the 24th with the darts reworked after Hutch's notes. Pulling
+back on the mouse now only sets how hard he throws: the dart slides straight back toward his cheek
+and never turns, so the aim he settled is the aim he throws. The board has its wire and its numbers,
+the flights are real flights set as an X, the lamp over the board is an old warm bulb that throws
+the darts' shadows, and his eyes go to each dart as it lands.
+
 The master build, 24 November 2026: every open thread's work in one game. New since the last
 combined build: the cold open's third pass (no words, about a minute, hard cuts), the truck after
 its second drive (the door, a '78 dash, the radio, the rearview mirror, and something on the road),
