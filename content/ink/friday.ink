@@ -551,6 +551,7 @@ At two the lights came up and the room was a room again: sticky, small, the carp
 -> after_close
 
 = lorraine_friday
+~ here = hall
 Lorraine was on the bottom stair in the hotel hall in a coat over the robe. #portrait: lorraine
 LORRAINE: It's Friday.
 * [Go up with her.]
@@ -573,6 +574,7 @@ LORRAINE: It's Friday.
 
 // Room seven, empty since March. The key from the trap fits.
 = seven
+~ here = upstairs
 He went up past six and stopped at seven. The brass number had a screw missing and hung crooked.
 * [Try the key.]
     ~ seven_how = 1

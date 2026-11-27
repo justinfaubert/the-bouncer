@@ -221,6 +221,24 @@ Rendered by `tools/dart_sounds.py` (placeholders, like the rest; record over the
 | `bar_fill` | 2 | Jim behind the bar with two stir sticks: the rail, the rail, a glass | a ton or better |
 | `filament` | 1 | the board lamp's old filament catching and coming back | a 180 |
 
+## Wanted for the days on screen (world/happenings.gd)
+
+Played now by stand-ins (in brackets); each wants its own recording.
+
+| name | takes | what it is | when |
+|---|---|---|---|
+| `zippo` | 2 | a steel lighter: the lid, the wheel, the flame catching (`lighter`) | he lights Lorraine's cigarette |
+| `drag` | 3 | a first pull on a cigarette, the paper crackling at the ember | the end taking |
+| `satin` | 2 | a satin robe moving, close | Lorraine at the door, turning to go |
+| `slippers` | 3 | slippers on a hall runner, unhurried | Lorraine back along the hall; up the hotel stairs (`steps`) |
+| `hotel_door` | 2 | an old hotel room door shut, not slammed, and its latch (`door_wc`) | six's door |
+| `radio_through_wall` | 1 | an AM radio through a plaster wall, a talk station | six, after |
+| `old_lock` | 2 | a key in a lock nobody's turned since March, stiff, then going (`click`) | seven |
+| `hinge_slow` | 1 | a door swinging in on dry hinges, long | seven's door |
+| `radiator_knock` | 3 | a steam radiator's knock, iron, from inside the wall (`clack`) | seven, three times |
+| `needle_blank` | 1 | a stylus set down on a record with nothing cut in it: the drop, then a clean hiss (`scratch`) | seven, last |
+| `trap_haul` | 1 | a crab trap hauled up a wharf's side, streaming, the wire on the planks | the haul at dusk |
+
 ## Retired
 
 `amb_pool`, the pool game as a loop, is gone: the balls are struck one at a time now (`cue`,

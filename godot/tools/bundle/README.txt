@@ -1,10 +1,16 @@
 LAST CALL
-The master build, 24 November 2026: every open thread's work in one game. New since the last
-combined build: the cold open's third pass (no words, about a minute, hard cuts), the truck after
-its second drive (the door, a '78 dash, the radio, the rearview mirror, and something on the road),
-the set dressing's second layer (more ads, stains, and things nobody can account for), and the
-night on film, night stock, with a Look menu (pause > The look, or Settings) holding thirteen ways
-to show it; F8 goes round them while you play. Also: Wednesday, Thursday and Friday, the door by
+The master build, 27 November 2026: the master build of 24 November, and now the days' events
+happen on screen, not only on the page. Thursday: Lorraine from six knocks at twelve in her robe;
+light her cigarette and he steps to the doorway, his hand brings the lighter up, the end takes, and
+she goes back along the hall under her smoke. The old man's crab trap on the wharf, the rope down
+into the water, and at dusk three crabs and seven's key; table 28's afternoon with the paper across
+both tables; the woman on days at the Esso; a tug towing its boom up the strait. Friday: the
+bookkeeper and her shoebox, the Preacher with his grocery bag and then behind the empty sixth chair,
+the line's faces (the girl with her sister's card, the man in the wedding suit, Doug from the
+Legion, the couple), Lorraine on the hotel stairs, and room seven: the door going in on the key, the
+bed made tight and the record on it. To jump in: the title's Nights, and start on Thursday or
+Friday.
+Also: Wednesday, Thursday and Friday, the door by
 hand, walking on his own feet and out round the grounds at night, darts with their fanfare, pool,
 the cigarette machine that plays like a synth, beer mats, the glasses, the voices' masks and the
 page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant, the man

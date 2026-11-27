@@ -7,6 +7,7 @@ extends SceneTree
 var main
 var rs := 7
 var steps := 400
+var day_knot := ""              # --day dawn|friday: start on that day (main.DAYS)
 var log_lines: Array = []
 var errors := Errors.new()
 
@@ -33,6 +34,7 @@ func _init() -> void:
 		match args[i]:
 			"--seed": rs = int(args[i + 1]); i += 1
 			"--steps": steps = int(args[i + 1]); i += 1
+			"--day": day_knot = args[i + 1]; i += 1
 		i += 1
 	OS.add_logger(errors)
 	var scene: PackedScene = load("res://main.tscn")
@@ -49,7 +51,11 @@ func _frames(n: int) -> void:
 func _run() -> void:
 	await _frames(5)
 	main.settings["dice"] = "quick"
-	main.start_new(3)
+	if day_knot != "":
+		main.store.clear(3)
+		main.start_day(3, day_knot)
+	else:
+		main.start_new(3)
 	await _frames(3)
 	var made := 0
 	var loads := 0
