@@ -314,8 +314,16 @@ func copy() -> PoolSim:
 		var c := Ball.new(b.r, b.m)
 		c.id = b.id
 		c.rc = b.rc
-		c.p = b.at(t) if b.state != DOWN and b.state != OFF else b.p
-		c.p.y = c.r if b.state != DOWN and b.state != OFF else c.p.y
+		if b.state == DOWN:
+			# gone: under the table, not left lying on the pocket's lip where the next shot's
+			# playback would show it and the others roll through it
+			var pc: Vector3 = table.pockets[b.pocket][0] if b.pocket >= 0 else b.p
+			c.p = Vector3(pc.x, -0.5, pc.z)
+		elif b.state == OFF:
+			c.p = sample(b, t + 30.0)[0] if not b.segs.is_empty() else b.p
+		else:
+			c.p = b.at(t)
+			c.p.y = c.r
 		c.state = b.state if b.state == DOWN or b.state == OFF else STILL
 		c.pocket = b.pocket
 		s.balls.append(c)
@@ -818,10 +826,12 @@ func _cushion(b: Ball, n_in: Vector3) -> void:
 static func _first_cross(c: Array, lo: float, hi: float, dir: int) -> float:
 	var f0 := _ev(c, lo)
 	var d0 := _ev(_deriv(c), lo)
-	# already through and still going that way: now
-	if dir < 0 and f0 < 0.0 and d0 < 0.0 and f0 > -1e-7:
+	# touching or already through, and still going that way: now. (Only a hair through counted
+	# once, and a touch at this very moment was skipped as a root at the start: in a rack, where
+	# everything touches at once, balls went through each other.)
+	if dir < 0 and f0 < 1e-9 and d0 < 0.0:
 		return lo
-	if dir > 0 and f0 > 0.0 and d0 > 0.0 and f0 < 1e-7:
+	if dir > 0 and f0 > -1e-9 and d0 > 0.0:
 		return lo
 	var rs := _roots(c, lo, hi)
 	for r in rs:
@@ -965,7 +975,7 @@ func _pop() -> Array:
 # A pocketed ball drops into the pocket and is gone; one off the table falls to the floor and lies.
 func sample(b: Ball, tt: float) -> Array:
 	if b.segs.is_empty():
-		return [b.p, Vector3.ZERO, true]
+		return [b.p, Vector3.ZERO, b.state != DOWN]
 	var k := b.segs.size() - 1
 	while k > 0 and float(b.segs[k][0]) > tt:
 		k -= 1
@@ -979,6 +989,14 @@ func sample(b: Ball, tt: float) -> Array:
 		var p0: Vector3 = sg[1]
 		var p := p0.lerp(Vector3(c.x, p0.y, c.z), k2)
 		p.y = p0.y - 0.5 * G * d * d
+		# one that went down the same pocket just before is still in the cup: this one lands on it
+		for o in balls:
+			if o != b and o.state == DOWN and o.pocket == b.pocket and o.down_t < b.down_t and b.down_t - o.down_t < 0.4:
+				var po: Vector3 = sample(o, tt)[0]
+				var gap := Vector2(p.x - po.x, p.z - po.z).length()
+				var need := o.r + b.r
+				if gap < need:
+					p.y = maxf(p.y, po.y + sqrt(need * need - gap * gap))
 		var vis := p.y > -0.12
 		return [p, sg[4], vis]
 	if st == OFF:
