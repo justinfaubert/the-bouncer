@@ -37,7 +37,7 @@ for, and where and when the game plays it. The files are in `godot/audio/`.
    night, and a made-up murmur is the most obviously made up.
 2. The people: `laugh`, `laugh_one`, `cheer`, `groan`, `cough`.
 3. The bar: `pour`, `glass_down`, `clink`, `wipe`, `till`, `stool`.
-4. `amb_juke`: the jukebox (something you own or make; it plays a lot).
+4. The jukebox: `juke_*` songs (below). Until there's one, `amb_juke` stands in.
 5. The pool game: `cue`, `clack`, `pocket`, `break`.
 
 ## The room's layers
@@ -127,11 +127,99 @@ the last section), the dice, his notes, the paper.
 | `choose` | 1 | a choice taken | each choice he picks |
 | `click_ui` | 1 | a menu button | the buttons of the menus |
 
+## The jukebox
+
+Songs, not a loop. Any file named `juke`, `juke_2`, or `juke_` and a word (`juke_roadhouse.ogg`,
+`juke_slowone.mp3`) is a song on the jukebox. Once there's one, the jukebox plays them one after
+another in a shuffled order, with a few seconds between, from the machine itself (placed, dulled
+through walls, the same as `amb_juke`), and `amb_juke` isn't used. It goes quiet once the card
+runs out after two and is off after hours, the same as before.
+
+`juke_close` is her song: when the last call bell goes, it's the next one on, and it plays to its
+end even after the jukebox is off. Full songs, any length, stereo is fine (the jukebox is mono in
+the room, so it's mixed down).
+
+What to make: bar songs that would be on a small town Maritime jukebox at the end of a decade
+nobody's sure of. Six to ten is plenty to start; a song heard twice in a night is fine, it's a
+jukebox.
+
+## The score
+
+Music that isn't in the room: under it, in his head. Each is a loop, quiet, slow to come in and
+slow to go (about two seconds each way), and the room ducks a little under it. The Ink starts one
+with `#music: score_<name>` and lets it go with `#music: score_none`; a name with no file does
+nothing, so the tags can go in before the recordings. Its level is the **The score** slider.
+
+| File | What it's for |
+|---|---|
+| `score_teller` | under the teller's lines (the NARRATOR's 11). Starts by itself with his first line and goes 25 seconds after his last; no tag needed |
+| `score_sky` | outside, when the sky is wrong |
+| `score_rats` | the rats, when it's gone past pest control |
+| `score_office` | Gary's office and the bookkeeper |
+| `score_walk` | walking the town at the end of the night |
+| `score_keg` | down in the keg room |
+| `score_title` | the title screen |
+
+Only `score_teller` plays in this build without a tag. The others are wired and wait for their
+`#music:` tags, which go in where the recordings land best.
+
+**Stings** are one-shots, not loops, played once over everything: `#music: sting_<name>`.
+`sting_pass` and `sting_fail` play by themselves as a check is stamped; `sting_turn` (the night
+turning) and `sting_death` (the worst ending) wait for their tags. Short: one to four seconds.
+
+## Voices
+
+Each spoken line in the script can have a recording, named for who says it and the words:
+`vo_bartender_68ee43e8.ogg`. The full list, every line with its file name, is
+[VOICE_SCRIPT.md](VOICE_SCRIPT.md), made by `python3 tools/vo_script.py`. Rewrite a line and its
+name changes, so run the script again after any change to the Ink.
+
+- A person's line comes from where they are in the room (mono, please). A voice in his head and
+  the teller are in his ears, not placed. Lines he overhears (the talk at table 28 and around the
+  room) are in the list too and come from whoever says them.
+- `bark_<id>` (`bark_bartender`, `bark_team_jacket`): a sound under someone's breath, a grunt, a
+  word, a laugh, played now and then (at most every 30 seconds each) under a line of theirs that
+  has no recording. A few takes each.
+- `whisper_<id>` (`whisper_father`, `whisper_manual`): the same for the voices in his head, at
+  most every 20 seconds each.
+- The room ducks under any of it. The level is the **Voices** slider.
+
+## The room's echo
+
+Every sound in the building goes through one reverb that eases to the part of the building he's
+in: a dead little vestibule, the room's warm wash, the back hall's tiles, the keg room's concrete
+ring, and next to nothing outside (`SPACE` in `godot/game/sound.gd`). So record dry: no room in
+the recording, the game adds it.
+
+## Out on the grounds
+
+`horn` (a car leaning on its horn at him in the lane, then swerving) and `gust` (one going by) are made by `sounds.py`;
+`ring` (the dead payphone at the Esso) reuses the room's phone ring, placed at the phone. They
+are played by `godot/world/grounds.gd`, and all three are wanted as recordings: a real horn, long,
+the pitch dropping as it passes; an old payphone bell, heard from a hundred metres in the rain.
+
 ## Made, but not played in this build
 
-`click`, `heart`, `lift`, `gust`, `zero`, `rings` and `ratchet` are made by `sounds.py` and kept
+`click`, `heart`, `lift`, `zero`, `rings` and `ratchet` are made by `sounds.py` and kept
 for the browser build's sake or for later; the Godot build doesn't play them. No need to record
 them yet.
+
+## The darts
+
+Rendered by `tools/dart_sounds.py` (placeholders, like the rest; record over them at the board):
+
+| file | takes | what it is | when |
+|---|---|---|---|
+| `dart_sisal` | 4 | a steel point into the sisal: the crack, the board's body, the cabinet | each dart that sticks |
+| `dart_bull` | 2 | the same in the bull, deeper, the cabinet doors answering | a dart in the bull or the 25 |
+| `dart_wire` | 3 | off the wire, a thin steel ring | a dart touching a wire |
+| `dart_clack` | 3 | brass on brass | a dart hitting one already in (and a Robin Hood, lower) |
+| `dart_drop` | 2 | onto the carpet, a soft drop and the barrel's tick | a dart falling or bouncing out |
+| `dart_pull` | 3 | pulled out of the fibres: a squeak, a drag, free | collecting the three |
+| `dart_throw` | 3 | the hand coming through, air past the flights | each throw |
+| `chalk` | 3 | a few strokes on the blackboard | the score going up |
+| `bar_fill` | 2 | Jim behind the bar with two stir sticks: the rail, the rail, a glass | a ton or better |
+| `filament` | 1 | the board lamp's old filament catching and coming back | a 180 |
 
 ## Retired
 
@@ -144,4 +232,5 @@ The Ink's `#sfx:` tags use the story's names; the game plays these files for the
 `thump`, `hit` is `thud`, `scanner_ok` and `scanner_bad` are `beep_ok` and `beep_bad`, `phone` is
 `ring`, `balls` is `clack`, `dice_shake` is `rattle`, `die_tick` is `tick`, `die_land` is `tock`,
 and `glass`, `scratch`, `till` and `bell` are themselves. The `#amb:` and `#music:` tags lean on
-the room's mix (a quiet room, an empty bar, the jukebox late) without replacing it.
+the room's mix (a quiet room, an empty bar, the jukebox late) without replacing it, except
+`#music: score_*` and `#music: sting_*`, which are the score (above).

@@ -14,6 +14,7 @@ class_name Talk
 extends Control
 
 signal finished(id: String)
+signal said(role: String, id: String, text: String)    # a line of it out loud (its recording, game/sound.gd)
 
 const EARSHOT := 7.5              # metres, in an empty room; a full one takes a third off it
 const TOGETHER := 3.8             # as far apart as the ones in one conversation can be
@@ -166,6 +167,7 @@ func _run(now: float) -> void:
 			for id in on.cast[r]:
 				stage.life.listen(id, first, end)
 	_slip(role, first, text, now + 0.06, end, _middle())
+	said.emit(role, first, text)
 	on.k = k + 1
 	on.at = end + randf_range(BEAT.x, BEAT.y)
 
@@ -349,6 +351,25 @@ func _his(id: String) -> bool:
 		"bar":
 			return id == "bartender" or id == "endbar"
 	return false
+
+
+# Someone in the room calls something out on their own, not part of a conversation (game/darts_room.gd:
+# a regular calling a score across the room). Written over their head like the rest; anything they
+# were in the middle of saying is broken off for it. Returns when it's said, or -1 if they can't.
+func call_out(id: String, text: String) -> float:
+	if stage == null or not stage.figures.has(id):
+		return -1.0
+	if not on.is_empty():
+		for role in on.cast:
+			if id in on.cast[role]:
+				_stop()
+				break
+	var now := _now()
+	var end := stage.life.say(id, text)
+	_slip("call", id, text, now + 0.06, end, stage.head_of(id))
+	said.emit("call", id, text)
+	queue_redraw()
+	return end
 
 
 # ---------------------------------------------------------------- the slips

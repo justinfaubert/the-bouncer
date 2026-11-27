@@ -68,7 +68,7 @@ wrongman:
 table:
   label: THE TABLE
   source: firsthand
-  from: Table 28. You drank with them long enough that they started talking in your head the way they talk at the table, all at once and sure of everything.
+  from: Table 28. You drank with them long enough that they started talking in your head, all at once and sure of everything.
   stats: [cha, con]
   base: 0
   drink: [-1, 0, 1, 2, 2]

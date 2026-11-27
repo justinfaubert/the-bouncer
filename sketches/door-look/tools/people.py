@@ -400,7 +400,10 @@ def pose_pint(B, side=1, height=1.05, **kw):
           [(-0.15, 1, 0.5), (0.15, 1, 0.5)], [(-0.18, 1, 0), (0.18, 1, 0)])
     i = 1 if side > 0 else 0
     sx = 1.0 if i == 1 else -1.0
-    h = hold_glass(B, V(sx * 0.11 * s, 0.27, height * s - 0.07), (sx * 1.0, -0.3, 0), right=(i == 1))
+    # held clear of a gut: a hand pressed into the belly is one skin with it, and when he lifts the
+    # glass to drink the belly tears open where the hand was
+    out = max(0.04, max(B.belly, 0.0) * 1.6 + 0.15 * (B.bulk - 1.0))
+    h = hold_glass(B, V(sx * (0.11 * s + 0.9 * out), 0.27 + out, height * s - 0.07), (sx * 1.0, -0.3, 0), right=(i == 1))
     arms = ['easy', 'easy']
     arms[i] = (h, p.sh[i] + V(sx * 0.3, -0.35, -0.5))
     _set_arms(B, p, arms)

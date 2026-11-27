@@ -4,6 +4,85 @@
 
 New material goes at the top, dated and verbatim. Under it are Claude's notes on where each piece goes, which are [PROPOSED] unless Hutch said so.
 
+## 23 November 2026: the ogre on the deck, the fight out front, and Hutch's answers to the survey
+
+Hutch answered the six questions at the end of the survey doc ("LAST CALL: what we're building and where it could go", https://claude.ai/artifact/TmAEWmQcBACrRbhLNBmJqL) with two stories from his own door. Everything he wrote is kept here as written.
+
+### What Hutch said, as written
+
+On the ring (do the fish plant smokers fit, who runs them, is the last doorman the champion):
+
+> I'm not quite sure about who they are that you're fighting, but the men should look and act like they walked out of the mid 19th century or older, perhaps newer, it depends. It would be great to have a real historical story to tell behind this fight club. Another consideration is that the opponents get stranger the more the days progress, as does reality. Doing things like fighting should raise stats or have their own sub stats that translate to general skill after passing thresholds through play and achievement.
+>
+> STATS. We need to flesh out the system more and make it more relevant, useful to the player and consequential. Among other things like deeper story integration.
+
+On "repeatable, never identical" in place of "no repeatable jobs":
+
+> yes.
+
+On the fight's feel (frozen seconds for story fights, live play for the ring and side fights, all by hand gestures):
+
+> that sounds like the right approach. The fighting system should be robust, fun, feel impactful and have great feeling, intuitive controls. There should be a few story fights that start in those choices during frozen seconds but lead to live fighting.
+
+On a truck:
+
+> this is a great idea and it opens up a whole new set of possibilities. Far off destinations become available, driving patrons and other characters for various reasons, it necessitates driving mechanics because nothing is a bigger let down than teasing the player with the ability to drive and then making it a loading screen. This is ambitious and would require making the world drivable and fun to drive as well. The truck should be a jade green 1978 Ford F250 camper special and the player should receive it. It was his old truck from nearly 20 years ago that he seized in battle creek Michigan, driving from Calgary through the US to Windsor Ontario, didn't make it to the border, sold the truck for its pristine body and parts, never saw it again, somehow it's there. Has it always been? Does a stranger who feels eerily familiar give it to him? Maybe there could be a benefit to taking drives regularly, procedurally generated highway sections, or a real map of the island highways with dynamic content on the way? I'm not sure, we'll have to brainstorm and come up with a great design.
+
+On leaving on the last ferry before day 29:
+
+> Yes, but it should be usually a bad ending, but perhaps a good outcome in that way is escaping with someone or helping people escape, something like that, otherwise, it's the cowards way out and should play out like a monkeys paw.
+
+His stories:
+
+> a few to get you started. One night a massive 7 foot Slavic ogre came into the bar. Didn't speak much English but didn't seem fucked up. He came up to the bar and I served him a beer, he was the biggest man I've ever seen. I'm 6'4, 250, this guy was like 2 of me. The night went on until one of the girls came running for me saying that there's someone going crazy on the deck. I went out there and this ogre was punching the deck with his massive meathooks, sounded like thunder cracks, yelling with a deep growl and losing it, there was already a guy my size out there trying to keep him from punching people which he had, and with both of us on him we could barely get him to stop because he was so scary strong and possibly on something, like a berserker. A gal came through the patio door and asked if I wanted help from her brothers, I said yes and a 5 bikers came and helped me wrestle him through the patio door, which he pushed back against, yelling like an orc and grunting, we got him inside and he fell on his face like a giant tree, boom!, he was unphased, we picked him up and tossed him out of the bar literally. He elbowed me in the jaw, it hurt. There was also a 20 or so person fight in front of the bar, mostly young kids, girls fighting each other even ripping each other's hair out. I was able to stop a few fights by getting in between them but there was no way I could handle all of them, the rcmp was called, came way too late, 7 cruisers, tons of cops, useless. The burden of violence is deferred, which we should make clear to the player. I'll add more stories as i go, we can embellish a little for the gameplay if necessary.
+
+On the world looking lived in:
+
+> Something else that needs to be done to make the world lived in is set decoration and set dressing
+> Decor and small objects, glasses a glasswasher by the bar with a conveyor belt and a switch. Dated posters of beer girls with cheeky marketing slogans, make up brand names that are parodys and sound like real beers "Boors light", "Mildcat or Shitty Kitty as some call it", "Lochness(like Guinness)" etc. Ads at the esso, some trash on the street here and there etc.
+>
+> Make sure what we have is slick and well polished, all the controls for the games and side content tight and intuitive.
+
+### Where it goes
+
+DECIDED is what Hutch said; the rest is Claude's, PROPOSED. Separate threads are building the fight system and stats, the truck, the set dressing and the controls pass; these notes are what they inherit.
+
+**13. The ogre on the deck** becomes a story fight, and the model for the fights the game can't win alone. A man twice his size, quiet at the bar all night (served, polite, nothing wrong with him that the door could see), then the thunder of fists on the deck boards, a stranger already hanging on him, and still not enough. What Hutch's story gives the fight system, PROPOSED:
+
+- **Some men can't be handled by one man.** The fight is about getting enough bodies on him: the regular already out there, and help offered at the worst moment, by people who'll want something for it later. In the story it's a woman's five biker brothers; in the game, the club (fictional), so saying yes puts him in the club's debt, and saying no means doing it with two.
+- **It starts frozen and goes live,** the way Hutch wants a few story fights to: the frozen second on the deck (who to grab, which arm, where the door is), then the live wrestle through the patio door against a man pushing back.
+- **The fall like a tree.** Face first inside the door, boom, and up again unfazed. The fall roll from the survey happens and doesn't end it.
+- **He gets hurt anyway.** The elbow to the jaw on the way out. A win still costs him (the jaw aches the next day, his CHA checks at the door with it).
+- **It's the ogre, not a monster.** He doesn't speak much English and wasn't drunk; whatever he was on, or whatever happened to him, is a story the player may find later or never.
+- Where: a Friday or Saturday in week two or three, on the deck. In the fish plant's ladder, a man his size can be one of the strange ones (below).
+
+**14. The fight out front** joins story 2 (the brawl in the lot on day 24) and makes the point Hutch names: **the burden of violence is deferred.** Twenty kids fighting in front of the bar, girls tearing each other's hair, and one doorman who can stop a few by getting between them and can't stop the rest. Then seven cruisers and a lot of police, far too late. PROPOSED, for how the game makes it clear without saying it:
+
+- **He can't win it, and the game lets him know that by doing.** Each pair he gets between is a short live separation; while he's in one, the others go on in the edges of the print. The count of fights he stopped against the count that happened is the night's result, not a pass or fail.
+- **The cost lands later, on him.** The police arrive when it's over and take it out on whoever's standing: statements, the camera, his log against the kids' videos. The cost of the violence turns up in the days after (the constable's visit, Gary's phone call, the paper, a kid in the hospital, a mother at the door), never on the night.
+- **The cruisers come every time the same way:** many, late, lit up, useless, the teller says nothing about them.
+
+**The ring** (PROPOSED, built on Hutch's answer). The fighters look and act as if they've walked out of the mid nineteenth century, or older, and they get stranger as the days go on, as reality does. That points at a real history the island has: the bare-knuckle prize ring, which the law in Canada banned and men fought anyway at the edges (the dates and details are for the fight thread to look up), in back rooms, barns and on islands and shorelines out of reach of the constables; the cannery and mill bunkhouses; the old men at the Legion who remember who fought whom. A first idea for the story behind it: the fights at the fish plant are the latest home of a ring that has met on this shore since the cannery that stood on the Sov's pilings, and some of the men in it are the men who fought there then. Week one, they read as mill men with old-fashioned moustaches and old manners. By week three, nobody can say where one of them lives, and one has a ferry ticket from 1911 in his vest. The fight thread owns the research and the design.
+
+**Who runs it, and the champion** (Hutch, 23 November: "You decide", so these are Claude's calls, made at Hutch's word):
+
+- **Nobody runs it; it keeps itself.** Not the club and not the Legion. The ring has a **Timekeeper**: an old man on a herring barrel with a pocket watch and a ledger of every bout since the cannery's bunkhouse fights, the first entries in copperplate. He sets the card, calls the rounds and writes the result. The Legion's old guard are in the crowd, saying their fathers fought here. **The club runs the book on the side**, the modern money in an old room, and the debt hook if he bets with them. As the weeks go on, the names in the oldest pages of the ledger are the names of the men he fights.
+- **The champion is the last doorman.** That's why he walked out mid-rush on a Friday and left his jacket: the ring sent for him. Week one, he's a rumour at the plant ("the doorman from the Sov"); by the title fight on day 26 he looks like the men in the ledger's first pages. Whether he can come back, and what beating him does, is the fight thread's to write. The drawer's four true stories about him (`drawer.ink`) can stay as they are; one of them can turn out to be about the ring.
+
+**Stats** (DECIDED: flesh the system out, make it more relevant, useful and consequential, with deeper story integration; fighting raises stats or has its own sub-stats that become general skill past thresholds reached through play and achievement). This changes the skeleton's "stats move rarely and for reasons" and "no experience points" in one way: skills practised in play (fighting, darts, pool, driving) now carry their own sub-stats, and crossing their thresholds moves the seven stats. The fight thread has it.
+
+**The truck** (DECIDED: he receives it, he doesn't buy it; a jade green 1978 Ford F250 camper special, his own old truck from nearly twenty years ago, seized in Battle Creek, Michigan, on the way from Calgary to Windsor, sold for its body and parts, and somehow here; real driving, never a loading screen; far-off places, driving patrons and other people). Open, for the truck thread: whether it's always been here or a stranger who feels eerily familiar gives it to him, and whether the drives are a real map of the island's highways with things happening along them or generated stretches of highway, and what a regular drive gives him. This replaces the survey's "beater truck, about $1,800" in the economy.
+
+**Leaving** (DECIDED: the last ferry off the island before day 29 is possible). It's usually a bad ending, the coward's way out, played like a monkey's paw: he gets what he wanted and it costs what he didn't count. The good version is leaving with someone, or getting people off the island. PROPOSED: the teller tells the bad version short, and wrong in one detail he only later understands; the good version needs the people he's earned, which is the game's argument again.
+
+**Set dressing** (DECIDED as a need): the glasswasher by the bar with its conveyor and switch, dated beer posters with cheeky slogans, parody brands that sound real ("Boors Light", "Mildcat", called Shitty Kitty, "Lochness" for Guinness), ads at the Esso, trash on the street. The set dressing thread has it.
+
+**Polish** (DECIDED as a standard): what's there is slick, and the controls for every game and side activity are tight and intuitive. The controls thread has it.
+
+### Where the fight thread put it
+
+All in `15_FIGHTS_AND_STATS.md`. The ogre is the first story fight, built nearly as told (section 5): the server running in, the thunder on the boards, the man his size already on one arm, the sister and her five brothers at the patio door, the walk through it, the fall like a tree, the toss and the elbow to the jaw. The brawl out front joins story 2 (the brawl in the lot on day 24) as its second telling: the girls pulling hair, getting between pairs, seven cruisers too late. "The burden of violence is deferred" is the after of every fight: the cost lands on whoever's at the door, the law comes after, and the game says so plainly.
+
 ## 14 October 2026 (evening): Hutch's answers to the skeleton
 
 ### What Hutch said, as written

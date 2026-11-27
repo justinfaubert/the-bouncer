@@ -80,7 +80,7 @@ The rule for a small team is to pick a style that's cheap per asset and strong a
 
 - **AI disclosure [OPEN, decide early].** Steam asks developers to disclose AI-generated content that ships with the game and is consumed by players, and AI content in marketing. AI tools used behind the scenes, like help with code, are exempt (Steam's form, clarified January 2026). Text Claude drafts that ships probably counts. Separately, in the US, AI-generated text without enough human authorship may not be protected by copyright, while what Hutch writes or substantially rewrites is his. So the choice is: (a) the game says openly what it is, or (b) Claude stays in the machinery and every line that ships passes through Hutch's hands. Either is defensible. Drifting into one isn't.
 - **Real people:** composites, with names and details changed. Don't record patrons.
-- **The title** is already on Square's *The Bouncer*, a 2001 PS2 game. It's fine as a working title; check it before it goes on a store page.
+- **The title** is *Last Call* (Hutch, 19 November 2026). A game from 2000 has the name, and so does Zachtronics' *Last Call BBS* (2022) on Steam; Hutch may add a subtitle later. Check it before it goes on a store page. The working title, *The Bouncer*, is Square's 2001 PS2 game.
 - **Platform:** PC first (Steam, itch.io). The Steam Deck is a natural target, since Godot builds natively for Linux. Readable text sizes and translatable text from day one; retrofitting either into a text-heavy game is miserable.
 
 ## Milestones

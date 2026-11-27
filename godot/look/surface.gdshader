@@ -77,6 +77,42 @@ float tri(float x) {
 	return abs(fract(x) - 0.5) * 2.0;     // 0 on the stroke's spine, 1 halfway to the next
 }
 
+// a slow, smooth wander in space, -1..1: the hand that cut the block. Strokes laid perfectly even
+// beat against each other and against the screen's pixels (moire); a hand never cuts them even.
+float hash3(vec3 p) {
+	p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));
+	p *= 17.0;
+	return fract(p.x * p.y * p.z * (p.x + p.y + p.z)) * 2.0 - 1.0;
+}
+
+float wander(vec3 p) {
+	vec3 i = floor(p);
+	vec3 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(hash3(i), hash3(i + vec3(1, 0, 0)), f.x), mix(hash3(i + vec3(0, 1, 0)), hash3(i + vec3(1, 1, 0)), f.x), f.y),
+		mix(mix(hash3(i + vec3(0, 0, 1)), hash3(i + vec3(1, 0, 1)), f.x), mix(hash3(i + vec3(0, 1, 1)), hash3(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+
+const float SPREAD = 1.5;             // the strokes stand this much further apart than cut_px says
+
+// one pass of the cut, as a threshold: its strokes start at tone `from` on their spines (x 0) and
+// widen until, at tone from + span, they cover half the gap; the rest of the gap waits for the
+// deepest tone (0.86 and on), so a shadow keeps its strokes and its form
+float pass(float x, float from, float span) {
+	return x < 0.5 ? from + span * (x / 0.5) : mix(0.86, 1.0, (x - 0.5) / 0.5);
+}
+
+// a set of strokes along f, px_apart pixels apart on the screen at any distance, 0 on a stroke's
+// spine and 1 halfway to the next: the two nearest octaves of spacing, blended only in a narrow
+// band as the distance changes, so two sets of strokes are seldom on the screen at once (laid over
+// each other, they make the moire). shift moves them half a gap: the line between two
+float stroke(float f, float px_apart, float drift, float shift) {
+	float fw = max(length(vec2(dFdx(f), dFdy(f))), 1e-6);
+	float l = log2(fw * px_apart);
+	float s0 = exp2(floor(l));
+	return mix(tri(f / s0 + drift + shift), tri(f / (2.0 * s0) + drift * 0.5 + shift * 0.5), smoothstep(0.3, 0.7, fract(l)));
+}
+
 void fragment() {
 	if (alpha_scissor > 0.0 && texture(albedo_tex, UV).a < alpha_scissor) {
 		discard;
@@ -109,13 +145,41 @@ void fragment() {
 				}
 				f = h + 0.018 * nd - 0.012 * (1.0 - abs(nd));
 			}
+			// the second cut, the engraver's way of going darker without closing the strokes up: a
+			// set of lines crossing the first (walls, floors, things), or for the people a line
+			// laid between two of the first, so it never crawls over the skin
+			float f2;
+			bool between = false;
+			if (cut == 0 && abs(world_nrm.y) < 0.75) {
+				vec3 along = normalize(cross(vec3(0.0, 1.0, 0.0), world_nrm));
+				f2 = dot(world_pos, along) * 0.8 + world_pos.y * 0.6;
+			} else if (cut == 0) {
+				f2 = dot(world_pos, vec3(-0.53, 0.0, 0.848));
+			} else if (cut == 1) {
+				f2 = dot(world_pos, normalize(cross(vec3(0.0, 1.0, 0.0), d) * 0.87 + d * 0.5));
+			} else if (cut == 2 && rest_uv == 0) {
+				vec3 o = abs(d.y) > 0.9 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0);
+				f2 = dot(local_pos, normalize(cross(d, o) * 0.87 + d * 0.5));
+			} else {
+				f2 = f;
+				between = true;
+			}
 			// keep the strokes cut_px apart on the screen at any distance: pick the two nearest
 			// octaves of spacing and blend them, the way an engraver adds a line between two
-			float px_apart = cut_px * max(cut_scale, 0.25);
-			float fw = max(length(vec2(dFdx(f), dFdy(f))), 1e-6);
-			float l = log2(fw * px_apart);
-			float s0 = exp2(floor(l));
-			t = mix(tri(f / s0), tri(f / (2.0 * s0)), fract(l));
+			float px_apart = cut_px * SPREAD * max(cut_scale, 0.25);
+			// the hand: each stroke drifts off its line by up to a quarter of the gap, slowly along
+			// its length, and swells and thins where the hand leaned
+			vec3 wp = rest_uv > 0 ? vec3(rest * 4.0, 0.5) : (cut >= 2 ? local_pos : world_pos) * 3.1;
+			float drift = wander(wp) * 0.25 + wander(wp * 2.7 + vec3(5.2)) * 0.08;
+			float lean = wander(wp * 0.7 + vec3(11.7)) * 0.16;
+			float t1 = clamp(stroke(f, px_apart, drift, 0.0) + lean, 0.0, 1.0);
+			float t2 = between ? stroke(f, px_apart, drift, 0.5) : stroke(f2, px_apart * 1.15, drift * 0.7, 0.0);
+			float t3 = between ? 1.0 : stroke(f, px_apart, drift, 0.5);
+			// one threshold for all three passes, the way an engraver goes darker: the first strokes
+			// widen from their spines until they're as wide as their gaps and stop there; past
+			// that the second set comes in across them; then a line between two of the first; and
+			// only the deepest tone closes up solid
+			t = min(min(pass(t1, 0.0, 0.5), pass(t2, 0.42, 0.26)), pass(t3, 0.66, 0.2));
 		}
 		ALBEDO = vec3(0.0);
 		SPECULAR = 0.0;

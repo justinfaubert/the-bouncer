@@ -20,20 +20,28 @@ Download the build for your machine from the thread (or export it yourself, belo
 
 Or open this folder in Godot 4.7 and press Play.
 
-It runs on OpenGL 3.3 (the Compatibility renderer), so any graphics card from the last ten years
-does. The settings have the print's detail, the grain, the field of view, the sway when he's
+The desktop builds run on Vulkan (the Forward+ renderer), for the light (`world/lighting.gd`):
+occlusion in the corners, light bounced off the walls, haze under the lamps, soft shadows and the
+wet lot's reflections. Where there's no Vulkan they fall back to OpenGL 3.3 (Compatibility) on
+their own, and the browser build always runs there: the same room, lit the older, flatter way. The settings have the print's detail, the grain, the field of view, the sway when he's
 drunk, and fullscreen.
 
 ### Hands on
 
 | | |
 |---|---|
+| The cold open | plays before the title the first time the game starts; hold any key or the mouse button, or press Esc, to skip it. The title's "The cold open" plays it again (`--intro` on the command line forces it, `--no-intro` skips it) |
 | Choose | click a choice, or its number |
 | Go somewhere | click the floor. In the bar he walks there, round the tables and whoever's standing, and a pale ring on the floor shows where he'd end up. The floor round a place (the stool by the door, the bar, table 28, the pool table, the jukebox) takes him to it, and he settles there. The places aren't listed in the column: they're pinned where they are in the room, and the sketch (M) takes him to any lit on it. E with nothing under his eyes walks him to the floor he's looking at. Space on the way hurries him, and in the bar the room sees him run |
 | Go on, where the night stops to let a moment land | Space or Enter |
-| Look round | drag across the room, or the arrow keys (or W A S D); the wheel narrows his eyes |
+| Walk | W A S D, where he's free to walk: the bar's floor and the vestibule, and the deck and the lot once he's out there, and from the lot the grounds round the Sov at night: round the back of the hotel and the yard, the alley by the kitchen door, the hotel's own front door, across the highway to the seawall and down the steps onto the beach, and down the shoulder to the Esso. Out there things are found by walking up to them, and every minute away is a minute nobody's on the door (world/grounds.gd, content/ink/grounds.ink). Shift hurries him (and in the bar the room sees him run). Walking through a doorway is going there: the deck door, the back hall, the kitchen, the front door when he's stepped out. Standing in a place's floor (the stool, the bar, table 28, the pool table) names it at the foot of the picture, and E settles him there; holding a key at a place gets him up and out onto the floor. While he walks the picture takes the whole screen and the page slides back when he stops. Alt with A or D leans him round a doorway. Settings > Looking turns the keys back to looking and the whole screen off |
+| Look round | drag across the room, or the arrow keys (W A S D too, where he isn't free to walk); the wheel narrows his eyes |
 | Look at a thing | rest the pointer on what a choice is about: the choice lights up, and E or a click does it. On anything else whose name comes up, fainter, E or a click looks at it |
 | Throw the dice | hold Space or the mouse button to shake, let go to throw |
+| Darts | look at the dartboard twice and he takes the darts out of the board. The mouse aims his eyes; hold the button and pull back to draw, let go to throw (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and E: grip. A and D: along the line. Shift: narrow his eyes. Right button: hold his breath. Esc puts them down. Also from the title: Games (once met) and Rehearse (no night, his body set by hand) |
+| The cigarette machine | on the east wall under the news; look at it twice. Pull a knob out with the mouse (down the screen is out) or play the row on A W S E D F T G Y H U J, Shift for all the way; Z and X an octave. C a quarter (holds what's pulled), R or the lever all the way down gives them back (the lever bends the note on the way), click the cup to take them. Knock with either button or Space, twice to set its speed. Wheel rocks it. K O L P ; carry on up past the knobs; a MIDI keyboard plays it (velocity, sustain, mod wheel CC1, CC74 brightness, pitch bend). The tape: Enter records / closes the loop / overdubs, Backspace wipes, Q quantizes to sixteenths; knocks and the flap record as drums; the two lamps over the slot show it, the counter counts bars. I or the lock opens the front: PRICE (the voice and its age), LAMP (chorus), MOTOR TEST (arpeggio), RELAY DELAY (echo). Esc steps back. Also in Games and Rehearse |
+| Beer mats | at the bar, look at the pile twice. The mouse moves his hand; hold the button and bring the fingers up fast under the overhang to flick, click while it's up to snatch it (turned over, lying flat). Wheel: overhang. Q and E: one fewer or one more on the stack. Esc puts them down. Also in Games and Rehearse |
+| The wine glasses | at the bar in the gap across from the taps; look at them twice. The mouse (or arrows) moves his hand glass to glass, snapping to the nearest; hold the button and keep the mouse moving, any way, to take the fingertip round the rim (a friction bow on the bowl's lowest mode pair, game/glass_synth.gd), Shift leans. W wets the finger, dry squeaks. Hold the right button over a glass to pour from the jug; wheel a splash in or a sip out; more water is a lower note (French's formula). A S D F G H J K tap with a stir stick. Jim's tuner reads the glass under the hand. Esc leaves them. Also in Games and Rehearse |
 | Something in his hands | drag a licence to tip it, click to turn it over, E to look closer, Q and R to go through it, Esc to put it down. What the voices make of it is above what he does with it, under WHAT HE MAKES OF IT: keep one, or none |
 | His notes (what's in his head, and on the second page what's on him: Q or E turns it), the sketch (the town while he walks to the Sov, its floor once he's in) | Tab, M |
 | The pause, the settings, saving | Esc. Every choice is saved as it's made; there are three nights |
@@ -116,10 +124,12 @@ godot --headless --path godot -s res://tests/reach.gd -- --seeds 1-12 --steps 40
 godot --headless --path godot -s res://tests/looks.gd        # what each thing he can look at says
 godot --headless --path godot -s res://tests/head.gd         # what turns his head, and what doesn't
 godot --headless --path godot -s res://tests/walks.gd        # every walk, from every post to every other
+godot --headless --path godot -s res://tests/clipping.gd -- --seed 2 --steps 200   # nobody through anything: doors, furniture, each other
 godot --headless --path godot -s res://tests/going.gd -- --seed 3   # going where he looks, clicked
 godot --headless --path godot -s res://tests/column_player.gd -- --seed 3   # a night by the column alone
 godot --headless --path godot -s res://tests/dice_floor.gd   # every throw against everything drawn
 godot --headless --path godot -s res://tests/tray_spots.gd   # where the tray can go down
+godot --headless --path godot -s res://tests/door_hand.gd    # the verdict at the door, dragged by hand
 ```
 
 `reach.gd` checks every choice's pin, and every thing he can look at, from every post with a line

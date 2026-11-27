@@ -14,7 +14,7 @@ Everything else in this bible serves these words. From the session of 25 Septemb
 
 ## The premise
 
-- **Working title: The Bouncer.** [DECIDED] The name is already on a Square game from 2001; see Legal in `04_PRODUCTION.md`.
+- **The name: Last Call.** [DECIDED 2026-11-19] "The name should be Last Call. There is a game from 2000 with that name but we can add to it later if need be." The working title, *The Bouncer*, is on a Square game from 2001; see Legal in `04_PRODUCTION.md`.
 - **The protagonist is the new bouncer.** [DECIDED] Disco's cop had a badge and no self. A doorman has judgment and no badge, and his whole job is deciding who gets in.
 - **His head works like his door.** [PROPOSED] He collects many voices, but only five fit in the room at once, so letting one in means throwing one out. Jung's *Seven Sermons to the Dead* opens with the dead at his door, back from Jerusalem, asking to be let in.
 - **Implicated, never absolved.** [PROPOSED] He lets in the man who does the damage, and he puts people out into the rain. The job implicates him every night, and the game never lets him off.
@@ -38,6 +38,8 @@ Everything else in this bible serves these words. From the session of 25 Septemb
 
 ## Writing rules
 
+- **Respect the player, in all the ways that entails.** The hard rule. Hutch, 2026-11-20: "Not watered down and never glorified or condemned, that kind of way of approaching these things is how Disco elysium became what it was, it respected life and wasn't biased or cartoonish about political and philosophical beliefs but instead stated everything plainly without preaching and infantilizing the player." [DECIDED]
+- **The edge, harder where it fits, and always meaningful.** "Seediness, vulgarity, sexuality, distasteful ideas, politically incorrect ideas etc is a part of life like everything else and we're shooting for maximum immersion", with "some 4chan buffoonery and memesterism in places in the dialogue or in passing in other ways." It should "make the player reflect upon times where they've read or heard or seen those kinds of things/people." [DECIDED 2026-11-20] Claude's limits stand, in `05_LOG.md`: nothing sexual involving minors, sex itself off the page, sexual violence never for heat, slurs only in a character's mouth when the scene is about them.
 - **Debauchery as it really is, and no more.** The boredom, the sticky floors, the same songs every night. [DECIDED]
 - **No one makes it out of the life unscathed.** Nobody who works in the bar gets to be the clean exception; the sober-bartender trope is out. [DECIDED 2026-09-26]
 - **Stakes.** The writing has to make it feel like something is at risk. [DECIDED]

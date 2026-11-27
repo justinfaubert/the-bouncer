@@ -49,6 +49,11 @@
 + {fam ? kids_waiting && not fam_done && not truck_gone} [Go out to the pickup in the lot. #loc: lot]
     ~ pass(2)
     -> at_lot
+// Out the front for the air, any time the pickup isn't what's out there (deck.ink, at_front). The
+// stool's empty while he's out, and door_away counts it.
++ {not pickup_waiting()} [Step out front. #loc: lot]
+    ~ pass(1)
+    -> at_front
 // Walking about the room, in the 3D build (godot/game/going.gd): not to a place, just to somewhere
 // else on the floor he can see. A walk across the room costs a minute, and whatever's due happens
 // while he's at it. Only his legs make this (#unlisted): the browser build has no floor to walk.
@@ -88,6 +93,8 @@
     -> walk(from, -> at_deck, 2)
 + {fam ? kids_waiting && not fam_done && not truck_gone} [The pickup in the lot #loc: lot #class: move]
     -> walk(from, -> at_lot, 3)
++ {from != lot && not pickup_waiting()} [Out front #loc: lot #class: move]
+    -> walk(from, -> at_front, 2)
 - -> DONE
 
 === walk(from, -> to, m) ===
@@ -101,6 +108,9 @@
 === carry_on ===
 { in_room(here): -> hub.choose }
 -> hub
+
+=== function pickup_waiting()
+~ return fam ? kids_waiting && not fam_done && not truck_gone
 
 === function in_room(p)
 ~ return p == floor || p == door || p == bar || p == t28 || p == pool
@@ -146,15 +156,17 @@
 {
 - clock < 1260:
     {shuffle:
-    - Early. The TV on mute, the pool table clicking, table 28 loud about nothing in particular.
+    - Early. The TV on mute, the pool table clicking, table 28 loud about the ferry schedule.
     - The jukebox between songs. Somebody at table 28 telling a story everyone at the table already knew the end of.
-    - Rain on the front window. The ice machine. Wednesday.
+    - Rain on the front window. Behind the bar the ice machine dumped a load.
+    - Somebody at the bar was showing somebody a video on his phone with the sound all the way up, a fight in a parking lot somewhere, and the two of them said "Oh!" in the same places.
     }
 - clock < 1380:
     {shuffle:
     - The hockey had started. Table 28 had opinions about the refereeing, all of them the same opinion.
-    - Glasses on the bar, the till drawer, the TV. A slow night filling up slowly.
+    - The till drawer banging shut. Somebody's lighter on the bar, clicking, and the TV.
     - Somebody had put money in the jukebox and picked the same song twice.
+    - A man at the bar was telling a woman who hadn't asked how the country had gone soft. She was letting him. He was buying.
     }
 - clock < LAST_CALL:
     // The late news on the big TV sets them off (room.ink): the light over the strait, in fragments.
@@ -166,8 +178,9 @@
         }
     - else:
         {shuffle:
-        - Late. The room had gone warm and loud the way it does, and the carpet had started to stick.
+        - Late. The room had gone warm and loud, and the carpet had started to stick.
         - Table 28 were {num(t28_rounds)} rounds in and sounded it.
+        - Somebody put a song on the jukebox that table 28 booed on principle, all five of them, without turning round.
         - {tv_words()}
         }
     }
@@ -192,7 +205,7 @@
     {stopping:
     - The kid in the hoodie was by the jukebox, not playing it.
     - The kid was still by the jukebox.
-    - The kid had moved to the other side of the jukebox. That was all.
+    - The kid had moved to the other side of the jukebox.
     -
     }
 }
@@ -286,7 +299,7 @@
 {shuffle:
 - He put his back to the wall by the door, where he could see the whole room.
 - He went and stood by the post at the end of the bar, where he could see all of it.
-- He stood where he could see the whole room and let it come to him.
+- He stood by the jukebox, where he could see most of it.
 }
 - (opts)
 + {not did_heads} [Heads.]
@@ -295,14 +308,14 @@
     ~ last_count = clock
     // what it should be: the thirteen, and everyone he let in, less everyone he saw go
     ~ temp says = room_count - uncounted
-    He counted from the door clockwise, the way the Father had taught him, and didn't count anyone twice. He got {num(room_count)}.
+    He counted from the door clockwise, the way his father had taught him, and didn't count anyone twice. He got {num(room_count)}.
     {
     - says < room_count:
         The thirteen who'd been here when he came on, and the ones he'd let in, less the ones he'd seen go, made {num(says)}. {room_count - says == 1:One more in the room than had come past him.|{Num(room_count - says)} more in the room than had come past him.}
-        FATHER: That's how you find out what the room thinks of your door.
+        FATHER: So somebody's got another way in. Find it.
     - else:
         The thirteen who'd been here when he came on, and the ones he'd let in, less the ones he'd seen go: the same. Everybody in the room had come past him.
-        MANUAL: Occupancy is within the licensed maximum. Occupancy is far within the licensed maximum. It's Wednesday.
+        MANUAL: Occupancy is within the licensed maximum (see the certificate posted by the main entrance).
     }
     -> opts
 + {not did_faces} [Faces.]
@@ -310,14 +323,14 @@
     ~ pass(8)
     ~ last_count = clock
     ~ knows += endbar_seen
-    He went face by face. It's slower. It's the only count that tells you anything.
+    He went face by face. It took longer.
     Table 28: {dennis_gone():four, and the chair where Dennis had been with nobody in it|five}, in the same seats they'd been in since two o'clock, by the look of the glasses. One in a team jacket, one with a hearing aid, one scratching lottery tickets, a quiet one in a cardigan{not dennis_gone():, one in big glasses}.
     {pool_still():The big man at the pool table and his buddy.|Nobody at the pool table now.} {slippers_upstairs:One of the women in slippers, the one who'd stayed with the bottle.|The two women in slippers, hotel residents, the wine bottle lower.} {kid_at == s_jukebox:The kid by the jukebox with his hood up.}{kid_at == s_single:Not the kid. The single washroom in the back hall was locked.} {sister_at == s_rail:His sister, at the rail by the pool table, not playing.} {vape_at == s_bar:The boyfriend at the bar, working on a ninth.} {arrivals ? hivis_in || arrivals ? hivis_hotel:HI-VIS at the bar.} {(arrivals ? banned_in || arrivals ? banned_inside) && arrivals !? banned_out:GOOD SHOES, at the bar, pleasant.}
     And the old man at the end of the bar, by the trapdoor, with the same full glass.
     { at_bar == 0:
         He hadn't seen him come in. He hadn't seen anyone let him in.
     }
-    WRONGMAN: Count the one you didn't count. That's who it always is.
+    WRONGMAN: In the story the doorman counted them every hour. The drunk said that didn't help him.
     -> opts
 + {not did_doors} [The doors.]
     ~ did_doors = true
@@ -342,7 +355,7 @@
         }
     - else:
         FIGHTER: Everybody's got two.
-        He didn't see anything. That was either good news or the Fighter was drunk on a memory.
+        He didn't see anything.
     }
     -> opts
 * (count_glasses) [Glasses. #check: manual 11]
@@ -390,7 +403,7 @@ He walked the doors.
     ~ knows += hotel_gap
 }
 { not deck_door && not kitchen_door && not hotel_door:
-    All three were shut. For now.
+    All three were shut.
 }
 - (d)
 + {deck_door} [Pull the coaster out of the deck door.]
@@ -410,7 +423,7 @@ He walked the doors.
     ~ hotel_shut_at = clock
     He kicked the wedge out. The door eased shut on its closer and latched.
     MANUAL: Access between the licensed premises and the residential floors should be controlled.
-    WRONGMAN: The night clerk will prop it again the minute you're gone. That's the story of every door.
+    WRONGMAN: In the story the wrong one came in by a back door somebody had wedged. That part everyone agreed on.
     -> d
 // Leaving them is a choice too: whatever comes through one he looked at and left, the night says so.
 + [Leave them.]
@@ -443,6 +456,6 @@ He walked the doors.
 - else:
     He took the milk crate out of the back door again, and it shut again.
     COOK: Every time I turn around! Every goddamn time!
-    The cook didn't look up from the fryer. He didn't need to.
+    The cook didn't look up from the fryer.
 }
 ->->

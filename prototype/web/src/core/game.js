@@ -17,6 +17,8 @@
 //   #prop: sister_card      on a line: a thing he's handed or picks up, drawn under it (props.yaml)
 //   #toy: sister_card look  on a choice: handling that thing that way makes this choice (see toy)
 //   #unlisted               on a choice: not in the list; only handling a thing makes it
+//   #door: in               on a choice at the door: the verdict it is (in, out, fetch, terms), which
+//                         the 3D build lets the player make with his hand (godot/game/door_hand.gd)
 //   #read: father truck_keys  on a choice: that voice's read of the thing in his hand; keeping it
 //                         puts it in his notes beside the thing, and the voice speaks more often (see reads)
 //
@@ -873,6 +875,8 @@
           ch.toy = { id: tw[0], what: tw[1] || '' };
           if (tv.unlisted) { ch.unlisted = true; ch.hidden = true; }
         }
+        // "#door: in": a verdict at the door, made with the hand in the 3D build
+        if (tv.door && tv.door !== true) ch.door = String(tv.door).trim();
         if (tv.check) {
           const spec = B.Checks.parseSpec(tv.check);
           if (spec) {

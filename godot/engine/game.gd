@@ -55,6 +55,7 @@ var night_log: Array = []
 var path: Array = []       # every choice made tonight: {t: turn, c: clock, x: text, k: check}
 var tasks: Dictionary = {}
 var check_history: Array = []
+var practice := Practice.new()   # what he does becoming who he is (engine/practice.gd)
 var stat_log: Array = []   # his stats moving, once the interview's set them: {stat, from, to, clock, turn}
 var barks_used: Array = []
 var word_used: Array = []
@@ -213,6 +214,7 @@ func _reset() -> void:
 	tasks = {}
 	check_history = []
 	stat_log = []
+	practice = Practice.new()
 	barks_used = []
 	word_used = []
 	said = {}
@@ -305,6 +307,7 @@ func serialize() -> Dictionary:
 		"tasks": tasks.duplicate(true),
 		"checks": check_history.slice(-40),
 		"statLog": stat_log.duplicate(true),
+		"practice": practice.to_dict(),
 		"screen": screen,
 		"ended": ended,
 		"log": pack_log(night_log),
@@ -335,6 +338,7 @@ func load_save(save_in) -> Dictionary:
 	tasks = save.get("tasks") if save.get("tasks") is Dictionary else {}
 	check_history = (save.get("checks") if save.get("checks") is Array else []).duplicate()
 	stat_log = (save.get("statLog") if save.get("statLog") is Array else []).duplicate()
+	practice = Practice.from_dict(save.get("practice"))
 	turn = BUtil.js_int(save.get("turn"))
 	screen = save.get("screen") if BUtil.js_truthy(save.get("screen")) else null
 	ended = BUtil.js_truthy(save.get("ended"))
@@ -370,6 +374,22 @@ func set_var(n: String, value) -> bool:
 	if story == null:
 		return false
 	return story.set_var(n, value)
+
+
+# He did something well (engine/practice.gd): the practice earns, and what crosses a mark is put into
+# the story: a point on a stat (its Ink VAR, kept in the stat log like any stat moving) or a knack
+# (knack_<id>, for the Ink to see). Returns what came of it, for whoever shows it.
+func practise(kind: String, amount: float, how := "") -> Array:
+	practice.new_night(BUtil.js_int(get_var("day")))
+	var st := Checks.read_stats(_gv)
+	var out := practice.earn(kind, amount, how, st)
+	for ev in out:
+		if ev.kind == "stat":
+			set_var(str(Checks.STATS[ev.stat].v), int(ev.to))
+			stat_log.append({"stat": ev.stat, "from": ev.from, "to": ev.to, "clock": BUtil.js_int(get_var("clock")), "turn": turn, "why": "practice:" + kind})
+		elif ev.kind == "knack":
+			set_var("knack_" + str(ev.id), true)
+	return out
 
 
 func vars() -> Dictionary:
@@ -649,9 +669,15 @@ func toy(id: String, what: String = "") -> Dictionary:
 # Something he's just overheard the room say (the Godot build's talk, content/rules/talk.yaml): a
 # voice in his head can answer it, once (barks.yaml, ears:<id>). Nothing moves the night on.
 func overheard(id: String) -> Dictionary:
+	return heard("ears:" + id)
+
+
+# A voice in his head answering something that isn't a line of the Ink: what he's overheard
+# (ears:<id>), or where his feet have taken him out of doors (out:<area>, world/grounds.gd).
+func heard(event: String) -> Dictionary:
 	if story == null or ended:
 		return {}
-	var rule = barks.best("ears:" + id, _gv, psyche, barks_used, _toy_rng("ears:" + id))
+	var rule = barks.best(event, _gv, psyche, barks_used, _toy_rng(event))
 	if rule == null:
 		return {}
 	if rule.once:
@@ -1045,6 +1071,17 @@ func _read_choices() -> Array:
 			if BUtil.js_truthy(tv.get("unlisted")):
 				ch["unlisted"] = true
 				ch["hidden"] = true
+		# "#game: pool bigman win": this choice is played out on the table first (game/pool.gd), and what
+		# came of it set in the Ink before the choice goes on
+		if BUtil.js_truthy(tv.get("game")) and not (tv.game is bool):
+			var gw := BUtil.split_ws(BUtil.js_trim(BUtil.js_str(tv.game)))
+			ch["game"] = {"what": gw[0], "who": gw[1] if gw.size() > 1 else "", "meant": gw[2] if gw.size() > 2 else ""}
+		# "#door: in": a verdict at the door (in, out, fetch, terms), made with his hand (game/door_hand.gd)
+		if BUtil.js_truthy(tv.get("door")) and not (tv.door is bool):
+			ch["door"] = BUtil.js_trim(BUtil.js_str(tv.door))
+		# "#act: nod" / "#act: shake back": what he does with it and what they do back (game/acts.gd)
+		if BUtil.js_truthy(tv.get("act")) and not (tv.act is bool):
+			ch["act"] = BUtil.js_trim(BUtil.js_str(tv.act))
 		if BUtil.js_truthy(tv.get("check")):
 			var spec = Checks.parse_spec(tv.check)
 			if spec != null:

@@ -35,8 +35,10 @@ extends Node
 signal arrived(place: String)
 signal ran                        # he ran across the bar's floor, in front of everyone
 signal settled                    # he's come to a post he sits or leans at, and his weight's gone onto it
+signal first_sight                # the Sov's front, the first time, from the town (main.gd holds it like a film)
 
 const WORLD_W := 0.655
+var world_w := WORLD_W            # the share of the screen the picture has now: all of it while he walks (game/main.gd, _widen)
 const MASK_LAYER := 20
 const LOOK_EASE := 14.0
 const PITCH_MIN := -1.25
@@ -74,6 +76,7 @@ var eye_pos := Post_default()
 var yaw := 0.0
 var pitch := 0.0
 var want_yaw := 0.0
+var keys_off := false          # the keys don't turn his head at all (in the truck the keys drive)
 var want_pitch := 0.0
 var zoom := 1.0                   # the wheel: 1 as he is, down to 0.5 narrowing his eyes on something
 var want_zoom := 1.0
@@ -103,11 +106,19 @@ var _cut: Tween
 var _to := {}                     # the post the walk ends at
 var _to_where := ""
 var _drag := false
+var hand_drag := false            # the drag has his hand (game/door_hand.gd), not his head
 var _drag_from := Vector2.ZERO
 var _dragged := 0.0
 var pointer := Vector2(-1, -1)    # the pointer over the world's picture, in its pixels; -1 off it
 var t := 0.0
 var keys_turn := Vector2.ZERO
+var keys_feet := Vector2.ZERO     # W A S D, when they turn his head instead of walking him (game/feet.gd)
+var stroll := false               # walking on his own feet, by the keys (game/feet.gd)
+var stroll_v := 0.0
+var ride: Node3D = null           # riding in something (game/truck.gd: the cab): his head's yaw and pitch are its, and eye_pos follows it
+var ride_eye := Vector3.ZERO      # his eyes in it, in its own frame
+var lean_off := 0.0               # leaning round something: how far his head's out to the side
+var lean_roll := 0.0
 var turned_t := -INF              # when the player last turned his head themselves
 var _walk_t0 := 0.0               # when he set off
 var _look_after = null            # a look asked for on the way (someone there), taken when he's there: a point, or who (a Callable giving where their head is by then)
@@ -120,6 +131,8 @@ var clock := 0
 var heart := 0.0                  # beats per second, 0 at rest; main.gd raises it for the dice
 var _beat := 0.0
 var flash := 0.0
+var _gest := {}                   # his own head with what he says (beat): nod, shake, lean in, down
+var pull := 1.0                   # the print coming in after a cut, plate by plate (look/press.gdshader)
 # the light by the clock
 var _day := -1.0                  # the clock the light's at (it eases to the clock); -1 before there's been one
 var _snap := true                 # the next light goes on at once: he's just got somewhere
@@ -137,13 +150,14 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	settings = s
 	_environment()
 	eye = SubViewport.new()
-	eye.msaa_3d = Viewport.MSAA_4X
+	eye.msaa_3d = Viewport.MSAA_DISABLED   # the strokes and the grain cover the edges; 4x cost a lot at fullscreen
 	eye.positional_shadow_atlas_size = 4096
+	Lighting.shadow_atlas(eye)
 	eye.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	eye.audio_listener_enable_3d = true
 	add_child(eye)
 	cam = Camera3D.new()
-	cam.fov = 58.0
+	cam.fov = 70.0
 	cam.near = 0.03
 	cam.far = 900.0
 	cam.environment = env
@@ -155,7 +169,7 @@ func setup(p: Pub, s: Dictionary, parent: CanvasItem) -> void:
 	# them, their eyes went to two holes in the dark
 	var fill := OmniLight3D.new()
 	fill.light_color = Color("efe4d4")
-	fill.light_energy = 0.45
+	fill.light_energy = Lighting.EYE_FILL if Lighting.rich else 0.45
 	fill.omni_range = 8.0
 	fill.omni_attenuation = 1.4
 	fill.light_cull_mask = 1 << (Pub.PEOPLE_LAYER - 1)
@@ -244,19 +258,36 @@ func _environment() -> void:
 	env.fog_enabled = true
 	env.fog_light_color = Color("16181e")
 	env.fog_density = 0.01
+	Lighting.environment(env)
 	_night = {"sky": env.background_color, "ambient": env.ambient_light_color, "ambient_e": env.ambient_light_energy,
 		"fog": env.fog_light_color, "fog_d": env.fog_density, "exposure": env.tonemap_exposure}
+
+
+const PRINT_H := 1080.0
 
 
 func resize() -> void:
 	var win := Vector2(DisplayServer.window_get_size())
 	if win.x < 8 or win.y < 8:
 		win = Vector2(1920, 1080)
-	var k := clampf(float(settings.get("render", 1.0)), 0.4, 1.0)
-	var size := Vector2i(maxi(64, roundi(win.x * WORLD_W * k)), maxi(64, roundi(win.y * k)))
+	# the world is printed at a fixed size, no taller than PRINT_H, and scaled up smooth to the
+	# screen: the strokes come out the same on a laptop, a 4K screen and a phone, and fullscreen
+	# costs no more than a window
+	var k := clampf(float(settings.get("render", 1.0)), 0.4, 1.0) * minf(1.0, PRINT_H / win.y)
+	var size := Vector2i(maxi(64, roundi(win.x * world_w * k)), maxi(64, roundi(win.y * k)))
 	eye.size = size
 	mask.size = size
 	press.set_shader_parameter("view_px", Vector2(size))
+	press.set_shader_parameter("print_k", clampf(float(settings.get("print", 1.0)), 0.0, 1.0))
+	press.set_shader_parameter("style", int(str(settings.get("look", "7"))))
+	for f in ["film_grain", "film_halation", "film_glow", "film_vignette"]:
+		press.set_shader_parameter(f, float(settings.get(f, 1.0)))
+	press.set_shader_parameter("halo", 1.0 if settings.get("halo", false) else 0.0)
+
+
+# his steps, walking on his own feet (game/feet.gd)
+func add_stride(d: float) -> void:
+	_stride += d
 
 
 # ---------------------------------------------------------------- where he is
@@ -271,6 +302,7 @@ func jump_to(where: String) -> void:
 			pub.swing_door(d[0], false, true)
 	_doors = []
 	flash = 0.0
+	pull = 1.0
 	walking = false
 	_legs.clear()
 	_path = PackedVector3Array()
@@ -314,6 +346,12 @@ func _got_to(where: String) -> void:
 # there, when the page moves him twice at once (over to the bar, then the man walked to the door).
 func walk_to(where: String, instant := false, then := false) -> void:
 	if where == place and frame == _framed and not walking:
+		return
+	# out round the back, across the road or down the beach, the night seeing the same place another
+	# way (the lot from the step, the lot from the pickup) doesn't fetch him back to see it: he's
+	# where his own feet took him (world/grounds.gd)
+	if where == place and not walking and where == "lot" and Grounds.far_out(eye_pos):
+		_framed = frame
 		return
 	if instant or where == "":
 		jump_to(where)
@@ -463,6 +501,17 @@ func _plan(where: String, p: Dictionary, from: Vector3, off: String) -> Array:
 		var to_floor := where if Posts.away(where) or Posts.FLIGHTS.has(where) else ""
 		return [{"cut": p.at, "floor": to_floor, "after": p.look, "away": where}]
 	var legs: Array = []
+	# Out past the lot on his own feet (round the back, across the highway, the beach, the Esso),
+	# there's no walk map to bring him back by: up the deck steps from the gravel beside them it's a
+	# step or two up onto the boards; from anywhere else the page goes blank and he's back on the
+	# front step, and goes on from there
+	if off == "" and Grounds.far_out(from):
+		if where == "deck" and Vector2(from.x - 18.6, from.z - 5.0).length() < 2.5:
+			legs.append({"path": PackedVector3Array([Vector3(from.x, 0, from.z), Vector3(17.9, 0, 5.05), Vector3(p.at.x, 0, p.at.z)]), "y1": p.at.y})
+			return legs
+		var step := Vector3(3.9, Posts.STAND, 12.4)
+		legs.append({"cut": step, "floor": "", "after": Vector3(3.2, 1.3, 10.1)})
+		from = step
 	if off != "":
 		var up: Dictionary = Posts.FLIGHTS[off]
 		var top := Vector3(up.from.x, Posts.STAND, up.from.z)
@@ -639,10 +688,31 @@ func _cut_to(leg: Dictionary) -> void:
 			want_yaw = yaw
 			want_pitch = pitch)
 	_cut.tween_interval(0.15 if away == null else 0.35)
-	_cut.tween_property(self, "flash", 0.0, 0.45)
+	# and the new place comes in as a proof does, the colours first and the key block last
+	_cut.tween_callback(func():
+		pull = 0.0
+		flash = 0.0)
+	_cut.tween_property(self, "pull", 1.0, 0.7 if away == null else 1.15)
 	_cut.tween_callback(func():
 		_cut = null
 		_next_leg())
+
+
+# The page goes blank, through the paper's tooth (look/press.gdshader), over secs.
+func blank_out(secs := 0.35) -> Tween:
+	var tw := create_tween()
+	tw.tween_property(self, "flash", 1.0, secs)
+	return tw
+
+
+# The print comes in from blank paper as a proof does: the lamp's plate, the earth, the cold, the
+# neon, and the key block last, over secs.
+func print_in(secs := 0.9) -> Tween:
+	flash = 0.0
+	pull = 0.0
+	var tw := create_tween()
+	tw.tween_property(self, "pull", 1.0, secs)
+	return tw
 
 
 # there: still looking the way he was, unless someone there's turned his head on the way, or he's
@@ -681,7 +751,10 @@ func _first_look(where: String) -> Variant:
 	if not _first_sight or where in Posts.FIRST_SIGHT.through:
 		return null
 	_first_sight = false
-	return Posts.FIRST_SIGHT.look if where == Posts.FIRST_SIGHT.place else null
+	if where == Posts.FIRST_SIGHT.place:
+		first_sight.emit()
+		return Posts.FIRST_SIGHT.look
+	return null
 
 
 # on his way to the Sov's front the first time after the town: what it'll turn his head to, or null
@@ -733,7 +806,7 @@ func _on_sheet_input(e: InputEvent) -> void:
 		if _drag:
 			var k := 0.0042 * float(settings.get("look_speed", 1.0)) * zoom
 			_dragged += e.relative.length()
-			if _dragged > 6.0:
+			if _dragged > 6.0 and not hand_drag:
 				turned_t = t
 				want_yaw -= e.relative.x * k
 				want_pitch = clampf(want_pitch - e.relative.y * k * (-1.0 if settings.get("invert", false) else 1.0), PITCH_MIN, PITCH_MAX)
@@ -784,10 +857,11 @@ func on_screen(p: Vector3) -> Vector3:
 func _process(dt: float) -> void:
 	t += dt
 	# the arrow keys, and the keys by them
-	if keys_turn != Vector2.ZERO:
+	var kt := Vector2.ZERO if keys_off else (keys_turn + keys_feet).clamp(Vector2(-1, -1), Vector2(1, 1))
+	if kt != Vector2.ZERO:
 		turned_t = t
-		want_yaw -= keys_turn.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom
-		want_pitch = clampf(want_pitch + keys_turn.y * dt * 1.2 * zoom, PITCH_MIN, PITCH_MAX)
+		want_yaw -= kt.x * dt * 1.6 * float(settings.get("look_speed", 1.0)) * zoom
+		want_pitch = clampf(want_pitch + kt.y * dt * 1.2 * zoom, PITCH_MIN, PITCH_MAX)
 	if walking:
 		_walking(dt)
 	var k := 1.0 - exp(-dt * LOOK_EASE)
@@ -820,16 +894,25 @@ func _apply() -> void:
 	# his steps: down at each footfall, up over the foot, and a little from side to side, as much as
 	# he's going
 	var side := 0.0
-	if walking and not _path.is_empty():
-		var k := clampf(_v / PACE, 0.0, 1.3)
+	if (walking and not _path.is_empty()) or stroll:
+		var k := clampf((stroll_v if stroll else _v) / PACE, 0.0, 1.3)
 		var ph := _stride / STEP * PI
 		dy = (absf(sin(ph)) - 0.64) * 0.018 * k
 		side = sin(ph) * 0.012 * k
 		roll += sin(ph) * 0.004 * k
-	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll))
+	var g := _beat_now()
+	dp += g.x
+	sway += g.y
+	dy += g.z
+	var basis := Basis.from_euler(Vector3(pitch + dp, yaw + sway, roll + lean_roll))
 	var right := Vector3(cos(yaw), 0.0, -sin(yaw))
-	cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy, 0) + right * side)
-	var base := float(settings.get("fov", 58.0))
+	if ride != null and is_instance_valid(ride):
+		var rt := ride.global_transform
+		eye_pos = rt * ride_eye
+		cam.global_transform = Transform3D(rt.basis * basis, eye_pos)
+	else:
+		cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
+	var base := float(settings.get("fov", 70.0))
 	var f := base * zoom
 	if focus_fov > 0.0:
 		f = focus_fov
@@ -841,6 +924,32 @@ func _apply() -> void:
 
 # Tell the press where he's looking, so the grain and the paper stay put as he turns his head.
 # The grain repeats a whole number of times round the circle, so there's no seam behind him.
+# His head with what he says or does (game/acts.gd): a nod, a shake, a lean in, the head down.
+func beat(kind: String, s := 1.0) -> void:
+	if not bool(settings.get("skin", true)):
+		return
+	_gest = {"kind": kind, "t0": t, "s": s, "len": {"nod": 0.8, "shake": 1.0, "in": 1.2, "down": 1.4, "back": 1.0}.get(kind, 0.9)}
+
+
+# [pitch, yaw, height] for the beat now
+func _beat_now() -> Vector3:
+	if _gest.is_empty():
+		return Vector3.ZERO
+	var u := (t - float(_gest.t0)) / float(_gest.len)
+	if u >= 1.0:
+		_gest = {}
+		return Vector3.ZERO
+	var s := float(_gest.s)
+	var env := sin(u * PI)
+	match str(_gest.kind):
+		"nod": return Vector3(-sin(u * TAU * 2.0) * 0.035 * s * (1.0 - u), 0, 0)
+		"shake": return Vector3(0, sin(u * TAU * 2.0) * 0.03 * s * (1.0 - u), 0)
+		"in": return Vector3(-0.03 * s * env, 0, -0.03 * s * env)
+		"back": return Vector3(0.02 * s * env, 0, 0.02 * s * env)
+		"down": return Vector3(-0.12 * s * env, 0, -0.01 * s * env)
+	return Vector3.ZERO
+
+
 func _pin_press() -> void:
 	var half := deg_to_rad(cam.fov) / 2.0
 	var ppr := (eye.size.y / 2.0) / tan(half)
@@ -855,6 +964,7 @@ func _pin_press() -> void:
 	press.set_shader_parameter("paper_px", grain_px)
 	press.set_shader_parameter("time", t)
 	press.set_shader_parameter("flash", flash)
+	press.set_shader_parameter("pull", pull)
 
 
 # ---------------------------------------------------------------- the light by the clock
@@ -914,16 +1024,16 @@ func _light_step(dt: float, force := false) -> void:
 func _put_light(c: float) -> void:
 	var key: DirectionalLight3D = pub.town.key if pub.town != null else null
 	pub.dusk(c, place)
-	if c >= NIGHT_FROM or c < float(DAY[0][0]) - 60.0:
+	if c >= NIGHT_FROM or c < 420.0:
 		env.background_color = _night.sky
 		# the room's own light goes colder after midnight (pub.set_clock does its lamps)
 		env.ambient_light_color = (_night.ambient as Color).lerp(LATE_AMBIENT,
 			clampf((c - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0))
-		env.ambient_light_energy = _night.ambient_e
+		env.ambient_light_energy = _night.ambient_e * (Lighting.AMBIENT_K if Lighting.rich else 1.0)
 		env.fog_light_color = _night.fog
 		env.fog_density = _night.fog_d
-		env.tonemap_exposure = _night.exposure
-		press.set_shader_parameter("lift", null)
+		env.tonemap_exposure = _night.exposure * (Lighting.EXPOSURE_K if Lighting.rich else 1.0)
+		press.set_shader_parameter("lift", Lighting.LIFT if Lighting.rich else null)
 		press.set_shader_parameter("levels_in", null)
 		if key != null:
 			key.visible = false
@@ -931,10 +1041,10 @@ func _put_light(c: float) -> void:
 	var r := _day_row(c)
 	env.background_color = r[0]
 	env.ambient_light_color = r[1]
-	env.ambient_light_energy = r[2] * (INDOORS if place == "office" else 1.0)
+	env.ambient_light_energy = r[2] * (INDOORS if place == "office" else 1.0) * (Lighting.AMBIENT_K if Lighting.rich else 1.0)
 	env.fog_light_color = r[3]
 	env.fog_density = r[4]
-	env.tonemap_exposure = r[5]
+	env.tonemap_exposure = r[5] * (Lighting.EXPOSURE_K if Lighting.rich else 1.0)
 	press.set_shader_parameter("lift", r[7])
 	press.set_shader_parameter("levels_in", Vector2(0.0, r[8]))
 	if key != null:

@@ -1,15 +1,28 @@
-THE BOUNCER
-Wednesday, from the interview to close. The first Godot build of 30 October 2026.
-
+LAST CALL
+The master build, 24 November 2026: every open thread's work in one game. New since the last
+combined build: the cold open's third pass (no words, about a minute, hard cuts), the truck after
+its second drive (the door, a '78 dash, the radio, the rearview mirror, and something on the road),
+the set dressing's second layer (more ads, stains, and things nobody can account for), and the
+night on film, night stock, with a Look menu (pause > The look, or Settings) holding thirteen ways
+to show it; F8 goes round them while you play. Also: Wednesday, Thursday and Friday, the door by
+hand, walking on his own feet and out round the grounds at night, darts with their fanfare, pool,
+the cigarette machine that plays like a synth, beer mats, the glasses, the voices' masks and the
+page, the new light, Jim behind the bar, fights and stats (the Friendly at the fish plant, the man
+on the deck), the jade '78 in the lot to drive, and the beer posters, glasswasher, signs, Esso ads
+and trash.
 
 PLAY IT
 
     ./play.sh                 in a terminal in this folder (or: sh play.sh)
     ./play.sh --fullscreen    straight to fullscreen; the pause menu has it too
 
-The whole game is the one file in game/. It runs on OpenGL 3.3 (Godot's Compatibility
-renderer), so the 3080 has it easy. Wayland is fine: it runs through XWayland, or natively with
+The whole game is the one file in game/. It runs on Vulkan (Godot's Forward+ renderer) for the
+light, so the 3080 has it easy. Wayland is fine: it runs through XWayland, or natively with
 ./play.sh --display-driver wayland.
+
+To go straight to the games: on the title, Rehearse, set how he is (drinks, hurt, nerves, the
+hour, cold hands), then pick darts, pool, the cigarette machine, the beer mats or the truck. The cold open
+plays once on the first launch; the title has it again under "The cold open".
 
 
 OPEN IT IN GODOT
@@ -19,40 +32,54 @@ OPEN IT IN GODOT
 That opens godot-project/ in the Godot editor. The project was made in Godot 4.7.2. If the
 machine has a Godot 4.7 (Arch's godot package, or the Flatpak) it uses that. If it doesn't, it
 offers to fetch the official 4.7.2 editor (78 MB) into tools/ here, checks it against its
-fingerprint, and keeps it for next time. The first time the project opens, the editor spends a
-minute importing the models and textures. Press F5 in the editor to play from there.
+fingerprint, and keeps it for next time. Press F5 in the editor to play from there.
 
-By hand instead: open Godot 4.7, Import, and pick godot-project/project.godot.
-
-To export a build of your own from the editor, it needs the export templates once (Editor >
-Manage Export Templates > Download); the Linux, Windows and Web presets are already set up
-(Project > Export). godot-project/README.md has the rest: what each folder is, the checks, the
-export steps.
-
-The story itself is written in Ink, in the GitHub repo (justinfaubert/the-bouncer, content/ink).
-godot-project/data/content.json is that Ink compiled, with every rule; node tools/build.mjs in the
-repo writes it, and the browser build plays the same file.
+godot-project/README.md has the rest: what each folder is, the checks, the export steps.
 
 
 HANDS ON
 
-    Go somewhere      click the floor. In the bar he walks there, round the tables and whoever's
-                      standing, and a pale ring on the floor shows where he'd end up. The floor
-                      round a place (his stool, the bar, table 28, the pool table, the jukebox)
-                      takes him to it. Or click the place's name in the column, under GO WHERE
-                      HE LOOKS. E with nothing under his eyes walks him to the floor he's
-                      looking at; Space on the way hurries him
+    Walk              W A S D where he's free to walk: the bar's floor, the vestibule, the deck
+                      and the lot. Shift hurries him (and the room sees him run). Walking through
+                      a doorway is going there. Standing in a place's floor (the stool, the bar,
+                      table 28, the pool table) names it at the foot of the picture, and E
+                      settles him there. Alt with A or D leans him round a doorway. While he
+                      walks the picture takes the whole screen. Settings > Looking turns the
+                      keys back to looking
+    Go somewhere      click the floor; a pale ring shows where he'd end up. E with nothing under
+                      his eyes walks him to the floor he's looking at
+    The door          take his left hand off his knee and drag it: toward the room to let them
+                      in, up (palm square to them) for no, back past them at the lot to send them
+                      for something, down to pat the air and set terms. The words in the column
+                      still work too
     Choose            click a choice, or press its number
     Go on             Space or Enter, where the night stops to let a moment land
-    Look round        drag across the room, or the arrows (or W A S D); the wheel narrows his eyes
-    Look at a thing   rest the pointer on what a choice is about and the choice lights up;
-                      E or a click makes it. Rest it on anything else whose name comes up,
-                      fainter, and E or a click looks at it
+    Look round        drag across the room, or the arrows; the wheel narrows his eyes
+    Look at a thing   rest the pointer on it; E or a click looks at it or makes the choice
     Throw the dice    hold Space or the mouse button to shake, let go to throw
+    The keys card     whatever he steps up to puts its keys on a card at the foot of the
+                      picture, the same card for every game. It folds to one line once you've
+                      used it a few times; F1 brings it back up. Esc always steps back
+    Darts             look at the dartboard twice and he takes the darts out of the board. The
+                      mouse aims his eyes; hold the button and pull back to draw, let go to throw
+                      (halfway back lands where he's looking). Wheel: elbow (flat to lob). Q and
+                      E: grip. A and D: along the line. Shift: narrow his eyes. Right button:
+                      hold his breath. Esc puts them down
+    Pool              put twenty on the big man's game, or Games on the title. The mouse turns
+                      the cue round the ball, up and down moves his head; hold the right button
+                      and move to put the tip on the ball; the wheel lifts the butt; hold the left
+                      button and pull back to stroke. C chalk, Q E cues, Tab stands him up
+    Cig machine       on the east wall under the news: look at it twice. Drag a knob down to
+                      pull it out and it sounds, or play the row A W S E D F T G Y H U J; Z X
+                      octaves; C a quarter holds the note; the coin return lever bends it
+    Beer mats         at the bar, look at the pile twice. Hold the button to curl his fingers,
+                      flick up under the edge, click again to snatch it out of the air
+    Outside           out front is always open: walk the lot to the yard, the alley, the
+                      hotel door, the highway, the seawall, the beach and down the shoulder to
+                      the Esso
     In his hands      click it to turn it over (drag a licence to tip it to the light), E to look
-                      closer, Q and R to go through it, Esc to put it down. What the voices make
-                      of it is above what he does with it: keep one, or none
-    Notes, sketch     Tab (Q or E turns to the page of what's on him), M
+                      closer, Q and R to go through it, Esc to put it down
+    Notes, sketch     Tab (Q or E turns the page), M
     Pause, settings   Esc. Every choice is saved as it's made; there are three nights.
     On a pad          either stick looks round; the d-pad goes through the choices and A makes one;
                       Y walks him to the floor he's looking at
@@ -61,6 +88,129 @@ Saves and settings are in ~/.local/share/The Bouncer/. A night saved by an earli
 saved under a story that has changed since. If you continue it, the column says so and it goes on
 from the floor rather than from the middle of a scene, and some of it won't line up. Start
 Wednesday over for the night as it is now, with everyone in their own voice from the first line.
+
+
+THE TRUCK, WITH THE RADIO ON
+
+- The radio works. T turns it on and off, , and . tune it (hold for a sweep; the mouse wheel tunes
+  too), and 1 to 5 are its five buttons, which somebody set before you. On a pad: up on the d-pad
+  for on and off, left and right to tune, down for the next button.
+- Between the stations there's static, with the engine's plugs ticking in it. Near a station it
+  comes in muffled and whistling; on it, it's clear. What's said shows at the foot of the screen,
+  and only as much of it as the signal lets through.
+- 690 the Dominion Service (the overnight news, the marine forecast, the emergency signal's test).
+  870 a station two thousand miles off, in and out on the night air: listen to the Swap Shop for
+  a while. 1060 the Prayer Tower and Brother Cal. 1240 CKTD, the island's own, Reg on the night
+  desk: records, the town's news (some of it is about what you've done on your nights), and
+  callers who saw what your truck did tonight. 1470 is a carrier with nothing on it. Mostly.
+- The rearview mirror shows the road behind.
+- Something is out on the road some nights. It doesn't happen on a schedule. Keep driving.
+
+THE TRUCK, AFTER ITS SECOND DRIVE
+
+- Q is the door. Stopped, he puts it in P and steps out, and can walk round it (W A S D, Shift to
+  hurry) and get back in at the driver's door with Q or E. Moving, Q is a bail: under a walking
+  pace he stumbles; faster it hurts, more the faster, and the truck goes on without him with the
+  door open and rolls to a stop. The dome lamp comes on with the door, and the key buzzer goes if
+  the engine's running. A pad: B is the door.
+- The hiss is gone: the tires are a low rush now and the rain on the roof is quieter. The engine
+  sits lower: deeper pipes, a bigger muffler, less rasp.
+- The dash is a '78's: a wide speedometer in km/h with miles inside, lit green with the lamps on,
+  fuel and temperature in their own pods, PRND21 along its foot, woodgrain across the face, a
+  push-button AM radio, the heater's levers, the glovebox, the headlamp knob that pulls out, a
+  two-spoke wheel with a broad horn pad, the key in the column with its fob swinging, and on the
+  pad a sun-faded bill of sale.
+- The keys steer less the faster you go, the way your hands would: a tap at highway speed is a
+  lane change, at a crawl they still find full lock. His head moves with the truck (braking,
+  turning) and the road comes up through the seat.
+
+
+THE TRUCK, AFTER ITS FIRST DRIVE
+
+- W A S D never turn his head now, anywhere. In the truck no key looks round at all: the mouse
+  does. Out of the truck, looking is the mouse or the arrow keys.
+- The steering wheel turns round its column, the way you steer.
+- A hit is one deep thud through the frame, once, not a racket every moment it's touching.
+- The truck is rebuilt from its own lines: the fenders' crown and arches, the hood, the grille
+  with round lamps in square bezels, the doors with their seams and handles, the side glass and
+  the vent wings, the Styleside bed with its arches and white rail caps, the bumpers, mud flaps
+  and tailpipe. Inside: a padded dash, the radio, door panels with the crank and armrest, sun
+  visors, the mirror, and a cardboard pine hanging from it that swings when you brake or turn.
+- C's outside view sits closer behind the truck.
+
+
+WHAT'S NEW IN THE BUILD OF 24 NOVEMBER
+
+The fixes from your play of the 23rd, all together.
+
+- No more crash going back to the title (from the pause menu, the games or the truck).
+- Nights on the title: each of the three saves can start on Wednesday, Thursday or Friday.
+- He has to be there: while he's walking somewhere, the next choices wait, faint, till he
+  arrives. A choice about someone across the room is faint too; pick it and he walks over and
+  then does it. Out round the back of the lot, the bar's choices wait for him out front.
+  Settings > The page > Choose ahead turns the waiting off.
+- W A S D never turn his head anywhere. In the truck no key looks; the wheel turns the right
+  way round its column; a hit is one deep thud; the truck has a real body inside and out.
+- Pool: the balls show their numbers, an eight-foot table, the other man's cue stays above the
+  cloth, smoother aim, the table's own sounds.
+- The cigarette machine's front always shuts (Esc first, or a click off the board). The wine
+  glasses snap to the nearest glass, the hand stays level, any movement rubs; W wets.
+- Fights: nobody passes through anybody, fists stop on skin, the blows sound deep and short.
+- The posters and ads: looking at one narrows his eyes on it, the ones away from a lamp have a
+  small warm light of their own, and the paper never prints solid black.
+- The writing: the "X was the Y. X was always the Y." echoes cleared across all three days and
+  the toys, about sixty lines; Jim's last leftover "she"s.
+- The cold open has a score on the cigarette machine's synth and two new plates.
+- Settings keep their place when you flip one; How it plays explains where he is and the saves.
+
+
+WHAT'S NEW IN THE SECOND BUILD OF 23 NOVEMBER
+
+The truck, a first drivable slice: Rehearse > The truck > Drive it.
+
+- The jade green '78 camper special in the Sov's lot at night in the rain, engine off. E turns
+  the key (in P or N), R and F move the column shifter, W gas, S brake, A and D the wheel, L
+  lights, H high beams, V wipers, Space the horn, C behind the truck, Esc parks it. A pad works
+  too: the triggers and the left stick. The keys are on the same card as the other games.
+- It drives on real physics: a heavy truck with a 460, a three-speed automatic, drum brakes
+  with no ABS (stand on them and they lock), loose steering that wanders on the wet.
+- The island highway with no loading: north past the motel, over the bluff, the fish plant and
+  the mill road to the barricade at the washout; south past the church, the fruit stand and the
+  cut to the ferry sign and the bridge that's out. A few cars come the other way.
+- The engine is made as it plays, cylinder by cylinder, not a recording.
+
+
+WHAT'S NEW SINCE THE BUILD OF 22 NOVEMBER
+
+Everything since, together, and a polish pass over the controls.
+
+- Fights and stats: the Friendly at the fish plant on a Sunday (Ox Pettigrew), the man on the
+  deck, sparring with Dale; live fists with frozen seconds; practice that grows stats and knacks.
+  Games and Rehearse have them.
+- The truck: the jade '78 camper special, driven for real on the island road. Rehearse > The
+  truck > Drive it.
+- The set dressing: the beer posters, the glasswasher behind the bar (look at its switch), the
+  signs, the corkboard, the clock, the neon, the Esso's ads, trash on the gravel.
+- From your notes: the cigarette machine's front can't trap you any more (Esc or a click off
+  the board shuts it; I still opens it). The wine glasses snap to the nearest glass, the hand
+  stays level at the rims, and any mouse movement takes the finger round (no circles needed);
+  W wets it, the arrow keys go along the row.
+- The wine glasses at the bar sing under a wet finger; the cigarette machine takes a MIDI
+  keyboard and has a tape loop (Enter).
+- The cold open before the title, and a title over the Sov from the seawall. Cuts come in the
+  way a print does, plate by plate.
+- The grounds: walk out round the Sov at night, to the beach, the seawall and the Esso.
+- Pool: real physics, eight-ball and nine-ball, its own table view, the regulars, the money.
+- The cigarette machine plays like a synth; beer mats off the edge of the bar.
+- The page, the voices and his hand: each voice has its own mask, the column folds to a spine
+  while he walks, the door hand sits lower and the person at the door reacts to it.
+- Shadows that stay put, and darts with fanfare from the room.
+- Jim is behind the bar: a man in a ball cap, and the narration calls him he. His lines are
+  still the old bartender's words, waiting on your rewrite.
+- Controls: every game puts its keys on the same card at the foot of the picture, F1 to bring it
+  back. The beer mat flick reads the hand's speed by the clock, so a fast gaming mouse flicks as
+  hard as a plain one (it was up to ten times weaker).
+- Fixed: an error when a voice spoke without a mask on the page.
 
 
 WHAT'S NEW SINCE THE FOURTH BUILD OF 24 OCTOBER

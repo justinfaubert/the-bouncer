@@ -37,6 +37,7 @@ const EARLY := Color("ffa04a")
 const LATE := Color("ffe4c4")
 
 var M := {}
+var pool_table: PoolTable
 var rng := RandomNumberGenerator.new()
 var anchors := {}          # named points: posts, hotspots, marks
 var lights := {}           # named lights, for the clock and the posts
@@ -45,6 +46,7 @@ var stools := {}           # the stools by the spot they're at (world/stage.gd):
 var lamps: Array = []      # the room's lamps, dimmed and brightened with the clock
 var shadowed: Array = []   # [light, near: Vector3]: shadows only where he is
 var town: Town             # the town round the Sov, Gary's office in it (world/town.gd): out only while he's away
+var grounds: Grounds       # round the back, across the road, the beach, the shoulder (world/grounds.gd): out while he's outdoors
 
 var SURFACE := preload("res://look/surface.gdshader")
 var GLASS := preload("res://look/glass.gdshader")
@@ -70,6 +72,9 @@ func build() -> void:
 	_lobby()
 	_room_things()
 	_town()
+	_grounds()
+	_dress()
+	Lighting.dress(self)
 
 
 # The town, built last with its own dice so nothing in the building moves, and put away: it's out
@@ -79,6 +84,25 @@ func _town() -> void:
 	town.name = "town"
 	add_child(town)
 	town.build_for(self)
+
+
+# The grounds he walks about at night (world/grounds.gd): built last, with their own dice, and out
+# only while he's outdoors.
+func _grounds() -> void:
+	grounds = Grounds.new()
+	grounds.name = "grounds"
+	add_child(grounds)
+	grounds.build_for(self)
+
+
+# The set dressing (world/dressing.gd): the posters, the signs, the glasses and the glasswasher, the
+# trash on the gravel and at the Esso. After the town, which it dresses too.
+var dressing: Dressing
+
+func _dress() -> void:
+	dressing = Dressing.new()
+	add_child(dressing)
+	dressing.build(self)
 
 
 # Away from the Sov, or back (game/view.gd, as he gets somewhere): the town out or put away.
@@ -100,7 +124,7 @@ func dusk(c: float, where: String) -> void:
 		_as_built = {"neon": M.neon.get_shader_parameter("emission_energy"), "sodium": M.sodium.get_shader_parameter("emission_energy"),
 			"far": M.far.get_shader_parameter("emission_energy"), "sign": (lights.sign as Light3D).light_energy,
 			"roof_sign": (lights.roof_sign as Light3D).light_energy, "sodium_l": (lights.sodium as Light3D).light_energy}
-	var night := c >= Town.NIGHT or c < 900.0
+	var night := c >= Town.NIGHT or c < 420.0
 	var lit := night or c >= 990.0
 	var warm := 1.0 if night else clampf((c - 1000.0) / 15.0, 0.0, 1.0)
 	var dark := 1.0 if night else clampf((c - 975.0) / 85.0, 0.0, 1.0)
@@ -592,6 +616,9 @@ func spot(pos: Vector3, target: Vector3, c: Color, e: float, r: float, angle: fl
 	return l
 
 
+var _held := {}             # door -> how many have it open now (swing_door)
+
+
 # A door he's going through swings open ahead of him and falls to behind him.
 func swing_door(which: String, open: bool, now := false) -> void:
 	var list: Array = []
@@ -606,6 +633,17 @@ func swing_door(which: String, open: bool, now := false) -> void:
 			list = [[dyn.hotel_door, -86.0]]
 		"wc_men", "wc_women", "wc_single":
 			list = [[dyn[which], 80.0]]           # into the washroom
+	# held open while anyone's in it: a door one walker's done with doesn't swing shut on the next
+	# (nor on him, walking through behind them)
+	# (shut at once is a walk cut short: the page has turned, and nobody's in it any more)
+	var held := int(_held.get(which, 0)) + (1 if open else -1)
+	if now and not open:
+		held = 0
+	_held[which] = maxi(0, held)
+	if not open and held > 0:
+		return
+	if open and held > 1:
+		return
 	for pair in list:
 		var n: Node3D = pair[0]
 		_still(n)
@@ -618,8 +656,9 @@ func swing_door(which: String, open: bool, now := false) -> void:
 		if open:
 			tw.tween_property(n, "rotation:y", deg_to_rad(pair[1]), 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		else:
+			# the closer takes it to and it settles, not past the jamb into whoever's just come through
 			tw.tween_interval(0.5)
-			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 0.9).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			tw.tween_property(n, "rotation:y", float(n.get_meta("rest", 0.0)), 1.0).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 # a door's swing stopped where it is, for the next one (or the prop) to take it from there
@@ -677,6 +716,8 @@ func set_clock(clock: int) -> void:
 	if clock == int(dyn.get("clock", -1)):
 		return
 	dyn.clock = clock
+	if dressing != null:
+		dressing.set_clock(clock)
 	var up := 1.0
 	var work := 0.0
 	var some := clock >= Look.LAST_CALL
@@ -700,8 +741,8 @@ func set_clock(clock: int) -> void:
 	if dial != null:
 		dial.rotation.z = deg_to_rad(-130.0 if full else (-20.0 if some else 95.0))
 	# warm at eight, the lamps as built by eleven, paler from midnight on
-	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 900 else 0.0
-	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 900 else 1.0
+	var early := clampf((1320.0 - clock) / 120.0, 0.0, 1.0) if clock >= 420 else 0.0
+	var late := clampf(float(clock - Look.MIDNIGHT) / float(Look.LAST_CALL - Look.MIDNIGHT), 0.0, 1.0) if clock >= 420 else 1.0
 	for l in lamps:
 		var li := l as Light3D
 		if not li.has_meta("base"):
@@ -716,8 +757,11 @@ func set_clock(clock: int) -> void:
 
 # Shadows from the lights near where he is, and none from the rest: they cost a pass each.
 func shadows_near(p: Vector3, reach := 7.5) -> void:
+	if Lighting.rich:
+		reach = Lighting.SHADOW_REACH
 	for pair in shadowed:
 		var l: Light3D = pair[0]
+		# (Forward+: by the reach the shadow has already faded to nothing, Lighting.shadow_set)
 		l.shadow_enabled = (pair[1] as Vector3).distance_to(p) < reach
 
 
@@ -995,12 +1039,16 @@ func pendant(p: Vector3, drop := 2.35) -> void:
 
 
 func _floor_things() -> void:
-	# the pool table, a coin-op, with its lamp; the balls where the big man's buddy left them
-	model("res://models/pool_table.glb", POOL)
-	var balls := [[Vector2(-0.62, -0.28), "e8e4d8"], [Vector2(-0.45, 0.06), "b8342a"], [Vector2(0.58, -0.38), "d9a52e"],
-		[Vector2(0.21, 0.3), "2a3a78"], [Vector2(-0.88, 0.16), "d86a2a"], [Vector2(0.77, 0.24), "6a2430"], [Vector2(0.05, -0.12), "141414"]]
-	for b in balls:
-		ball(0.0286, POOL + Vector3(b[0].x, 0.8286, b[0].y), mat(Color(b[1]), 0.2, 0.0, 3, Vector3.UP, 5.0, 0.3))
+	# the pool table, a coin-op, built to the pool's own physics (game/pool_table.gd), with its lamp;
+	# the balls where the big man's buddy left them (game/pool.gd moves them from here on)
+	pool_table = PoolTable.new()
+	add_child(pool_table)
+	pool_table.position = POOL
+	pool_table.build(self, PoolSim.sov_table())
+	for b in [[0, Vector2(-0.62, -0.28)], [3, Vector2(-0.45, 0.06)], [1, Vector2(0.58, -0.38)], [2, Vector2(0.21, 0.3)],
+			[13, Vector2(-0.82, 0.16)], [7, Vector2(0.77, 0.24)], [8, Vector2(0.05, -0.12)]]:
+		var r := 0.0294 if b[0] == 0 else 0.028575
+		pool_table.put_ball(b[0], r, Vector3(b[1].x, r, b[1].y))
 	model("res://models/pool_light.glb", POOL + Vector3(0, 2.06, 0))
 	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(-0.7, 2.65, 0), M.frame)
 	box(Vector3(0.015, 1.2, 0.015), POOL + Vector3(0.7, 2.65, 0), M.frame)
@@ -1194,6 +1242,55 @@ func set_stool(spot: String, how: int) -> void:
 		# over toward the room, its legs to the bar
 		n.rotation = Vector3(0.0, 0.0, -PI / 2.0)
 		n.position = home + Vector3(-0.02, 0.211, 0.0)
+	# where it's not where the walk map has it, what's walked round instead
+	if how == 0:
+		Nav.things.erase("stool_" + spot)
+	else:
+		Nav.things["stool_" + spot] = footprint(n)
+
+
+# What a thing takes up on the floor, as it stands now: circles along the long way of what's drawn
+# of it, seen from above, [Vector3 middle, radius] (world/nav.gd walks round them).
+static func footprint(n: Node3D) -> Array:
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	var meshes: Array = n.find_children("*", "MeshInstance3D", true, false)
+	if n is MeshInstance3D:
+		meshes.append(n)
+	for m in meshes:
+		var mi := m as MeshInstance3D
+		if mi.mesh == null:
+			continue
+		var box := mi.get_aabb()
+		var xf := mi.global_transform if mi.is_inside_tree() else n.transform * _rel(n, mi)
+		for k in 8:
+			var p := xf * box.get_endpoint(k)
+			lo = Vector2(minf(lo.x, p.x), minf(lo.y, p.z))
+			hi = Vector2(maxf(hi.x, p.x), maxf(hi.y, p.z))
+	if lo.x == INF:
+		return []
+	var size := hi - lo
+	var r := minf(size.x, size.y) / 2.0
+	var long := maxf(size.x, size.y)
+	var along := Vector2(1, 0) if size.x >= size.y else Vector2(0, 1)
+	var count := maxi(1, ceili((long - 2.0 * r) / maxf(r, 0.05)) + 1)
+	var out: Array = []
+	var mid := (lo + hi) / 2.0
+	for i in count:
+		var t := 0.0 if count == 1 else (float(i) / (count - 1) - 0.5) * (long - 2.0 * r)
+		var c := mid + along * t
+		out.append([Vector3(c.x, 0.0, c.y), r])
+	return out
+
+
+static func _rel(top: Node3D, n: Node3D) -> Transform3D:
+	var xf := Transform3D.IDENTITY
+	var at: Node = n
+	while at != null and at != top:
+		if at is Node3D:
+			xf = (at as Node3D).transform * xf
+		at = at.get_parent()
+	return xf
 
 
 func _keep_stool(spot: String, n: Node3D) -> void:
@@ -1525,12 +1622,15 @@ func _back_strip() -> void:
 	# floors and ceilings
 	tiled(Vector3(4.8, 0.1, 2.64), Vector3(2.4, -0.05, BACK / 2.0), M.tile)
 	tiled(Vector3(11.2, 0.1, 2.64), Vector3(10.4, -0.05, BACK / 2.0), M.lino)
-	tiled(Vector3(16, 0.1, 2.64), Vector3(8, y + 0.05, BACK / 2.0), M.ceiling)
+	# (short of the room's side of the back wall: its edge flush with it was a band of fighting pixels)
+	tiled(Vector3(16, 0.1, -0.1 - BACK), Vector3(8, y + 0.05, (BACK - 0.1) / 2.0), M.ceiling)
 	# the back wall of the building, with the kitchen's back door (propped for the fryer)
 	wall(Vector2(0, BACK - 0.1), Vector2(16, BACK - 0.1), y, M.plain)
 	wall(Vector2(-0.1, BACK), Vector2(-0.1, 0), y, M.plain, [[0.66, 1.54, 0.0, 2.05]])
 	# the kitchen's side of things: the wall between it and the hall
-	wall(Vector2(4.8, BACK), Vector2(4.8, 0), y, M.plain)
+	# stopping in the back wall, not flush with its face: flush, its end fought the wall for the same
+	# pixels down a stripe under the corkboard
+	wall(Vector2(4.8, BACK), Vector2(4.8, -0.12), y, M.plain)
 	# the washrooms: three fronts on the hall, each with its door
 	for w in [[6.4, 8.64, 7.1, 7.84, "men"], [8.64, 10.88, 9.34, 10.08, "women"], [10.88, 13.12, 11.58, 12.3, "single"]]:
 		wall(Vector2(w[0], HALL_Z), Vector2(w[1], HALL_Z), y, M.plain, [[w[2] - w[0], w[3] - w[0], 0.0, 2.05]], 0.0, 0.1)
@@ -1914,7 +2014,9 @@ func _outside() -> void:
 	box(Vector3(160, 0.02, 8), Vector3(8, 0.0, 31.6), M.road)
 	for x in range(-60, 80, 6):
 		box(Vector3(2.5, 0.01, 0.12), Vector3(x, 0.02, 31.6), M.wall)
-	box(Vector3(160, 0.9, 0.5), Vector3(8, 0.2, 35.9), M.dark)
+	# the seawall, with the gap where the steps go down through it to the beach (world/grounds.gd)
+	box(Vector3(Grounds.STEP_X.x + 72.0, 0.9, 0.5), Vector3((Grounds.STEP_X.x - 72.0) / 2.0, 0.2, 35.9), M.dark)
+	box(Vector3(88.0 - Grounds.STEP_X.y, 0.9, 0.5), Vector3((Grounds.STEP_X.y + 88.0) / 2.0, 0.2, 35.9), M.dark)
 	box(Vector3(900, 0.02, 900), Vector3(8, -0.4, 486), M.water)
 	for i in 16:
 		ball(rng.randf_range(0.5, 1.1), Vector3(rng.randf_range(-260, 420), rng.randf_range(0.5, 6.0), 420 + rng.randf_range(0, 40)), M.far)
@@ -2191,7 +2293,9 @@ func _lights() -> void:
 	dyn.work = work
 	# the room's middle: a little light off the ceiling so the depth reads (the review: frame 3)
 	for p in [Vector3(5.5, 2.6, 3.0), Vector3(12.5, 2.6, 3.0), Vector3(6.5, 2.6, 7.2), Vector3(12.0, 2.6, 7.0)]:
-		lamps.append(omni(p, Color("e8b87a"), 0.28, 5.5))
+		var f := omni(p, Color("e8b87a"), 0.28, 5.5)
+		f.set_meta("fill", true)
+		lamps.append(f)
 	# behind the back wall: the hall's tubes, the kitchen's, the washrooms', all of them the cold
 	# ink's green-white
 	omni(Vector3(9.0, 2.3, -0.6), Color(TUBE_LIGHT), 0.9, 4.5, true, "hall")

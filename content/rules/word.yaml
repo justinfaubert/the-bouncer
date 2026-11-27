@@ -28,33 +28,34 @@ lines:
 # ---------------------------------------------------------------- table 28
 
 - {id: t28_up_allright, group: t28, way: up, text: "He's all right, the new kid!"}
-- {id: t28_up_getone, group: t28, way: up, text: "Somebody get Big Fella a drink!"}
+- {id: t28_up_getone, group: t28, way: up, text: "Somebody get Big Fella a drink! Not me! Somebody!"}
 - {id: t28_up_first, group: t28, way: up, text: "He knows who was here first!"}
-- {id: t28_up_big, group: t28, way: up, when: [by >= 2], text: "Now that's a doorman! That's a doorman!"}
+- {id: t28_up_big, group: t28, way: up, when: [by >= 2], text: "Now that's a doorman! Balls like church bells!"}
 - {id: t28_up_best, group: t28, way: up, when: [now >= 3], text: "Best they've had on that door since the mill was three shifts!"}
 - {id: t28_up_again, group: t28, way: up, once: false, text: "Hear, hear!"}
 
-- {id: t28_down_who, group: t28, way: down, text: "Who does he think he is?"}
-- {id: t28_down_before, group: t28, way: down, text: "We were here before him!"}
+- {id: t28_down_who, group: t28, way: down, text: "Who does he think he is, Jesus?"}
+- {id: t28_down_before, group: t28, way: down, text: "We were drinking here when he was a stain on his daddy's sheets!"}
 - {id: t28_down_last, group: t28, way: down, when: [knows has old_doorman], text: "Same as the last one."}
-- {id: t28_down_big, group: t28, way: down, when: [by >= 2], text: "He won't last. They never last."}
+- {id: t28_down_big, group: t28, way: down, when: [by >= 2], text: "Soft as a grape, that one. He won't last."}
 - {id: t28_down_week, group: t28, way: down, when: [now <= -3], text: "Give him a week. Give him a week!"}
 - {id: t28_down_again, group: t28, way: down, once: false, text: "Boo! Not one of ours."}
 
 # ---------------------------------------------------------------- the kids
 
 - {id: kids_up_real, group: kids, way: up, text: "ok. he's real"}
-- {id: kids_up_chill, group: kids, way: up, text: "he's actually chill"}
-- {id: kids_up_cop, group: kids, way: up, text: "not a cop about it at least"}
-- {id: kids_up_big, group: kids, way: up, when: [by >= 2], text: "respect"}
+- {id: kids_up_chill, group: kids, way: up, text: "lowkey based tbh"}
+- {id: kids_up_cop, group: kids, way: up, text: "not a fed about it at least"}
+- {id: kids_up_big, group: kids, way: up, when: [by >= 2], text: "W bouncer"}
+- {id: kids_up_aura, group: kids, way: up, when: [now >= 3], text: "+1000 aura"}
 - {id: kids_up_again, group: kids, way: up, once: false, text: "fair"}
 
 - {id: kids_down_cop, group: kids, way: down, text: "such a cop"}
 - {id: kids_down_trip, group: kids, way: down, text: "power trip much"}
-- {id: kids_down_fake, group: kids, way: down, text: "fake"}
+- {id: kids_down_fake, group: kids, way: down, text: "glowie behavior"}
 - {id: kids_down_big, group: kids, way: down, when: [by >= 2], text: "narc"}
-- {id: kids_down_rat, group: kids, way: down, when: [now <= -3], text: "he's a rat"}
-- {id: kids_down_again, group: kids, way: down, once: false, text: "whatever"}
+- {id: kids_down_rat, group: kids, way: down, when: [now <= -3], text: "he's a rat. screenshot this"}
+- {id: kids_down_again, group: kids, way: down, once: false, text: "L"}
 
 # ---------------------------------------------------------------- the bartender (staff)
 
@@ -77,16 +78,16 @@ lines:
 - {id: owner_up_money, group: owner, way: up, text: "Money in the till. That's what I like to hear."}
 - {id: owner_up_again, group: owner, way: up, once: false, text: "Good. Good man."}
 
-- {id: owner_down_pay, group: owner, way: down, text: "What am I paying him for?"}
-- {id: owner_down_pocket, group: owner, way: down, text: "That's coming out of somebody's pay."}
+- {id: owner_down_pay, group: owner, way: down, text: "What the fuck am I paying him for?"}
+- {id: owner_down_pocket, group: owner, way: down, text: "That's coming out of somebody's cheque."}
 - {id: owner_down_again, group: owner, way: down, once: false, text: "That's money out the door, buddy."}
 
 # ---------------------------------------------------------------- the cook
 
-- {id: cook_up_finally, group: cook, way: up, text: "Finally. Somebody. Finally."}
+- {id: cook_up_finally, group: cook, way: up, text: "Finally. Somebody. Fuckin' finally."}
 - {id: cook_up_less, group: cook, way: up, text: "Heard. One less thing."}
 - {id: cook_up_again, group: cook, way: up, once: false, text: "Heard."}
 
-- {id: cook_down_great, group: cook, way: down, text: "Oh, beautiful. Beautiful, Security."}
+- {id: cook_down_great, group: cook, way: down, text: "Oh, beautiful. Fuckin' beautiful, Security."}
 - {id: cook_down_enough, group: cook, way: down, text: "Like I haven't got enough going on. I've got a, never mind."}
 - {id: cook_down_again, group: cook, way: down, once: false, text: "Every goddamn time."}

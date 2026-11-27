@@ -957,6 +957,7 @@ func _pose_die(k: int) -> void:
 func _stamp() -> void:
 	card.stamp()
 	main.audio.sfx("stamp")
+	main.audio.sting("sting_pass" if card.item.get("success", false) else "sting_fail")
 	main.view.heart = 0.0
 
 
@@ -1011,6 +1012,7 @@ func finish() -> void:
 	card.first_down()
 	card.stamp()
 	main.audio.sfx("stamp")
+	main.audio.sting("sting_pass" if card.item.get("success", false) else "sting_fail")
 	_done()
 
 

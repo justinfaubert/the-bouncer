@@ -59,6 +59,7 @@ On a choice (inside the brackets):
 | `#toy: goodshoes_card look` | Handling a thing that way makes this choice, the same as clicking its words: tapping the kid's phone, holding a licence up by the face, staying on page three of the binder. The things, and what can be done with each, are in `content/data/props.yaml`. |
 | `#read: father truck_keys` | That voice's read of the thing in his hand (`hand.ink`). The reads go above what he does with it, under WHAT HE MAKES OF IT. One kept takes no time, comes back to the scene's choices with the reads gone, goes on his notes beside the thing, and makes the voice speak up more after. The Ink can ask `kept_read("truck_keys")` and `heeded("father")`. A scene offers them with a thread: `<- reads_keys(-> opts)`. |
 | `#unlisted` | With `#toy:`, the choice isn't in the list at all: the only way to make it is with the player's hands (swiping the kid's phone to the next photo), or his legs (a walk across the room, in the 3D build: `#toy: legs walk`). Give it words anyway, for the director and the bots. |
+| `#door: in` | On a choice at the door: the verdict it is (`in`, `out`, `fetch` or `terms`). In the 3D build the player can make it with his hand: a sweep toward the room, the palm up, the hand thrown out at the lot, the hand low and flat (`godot/game/door_hand.gd`). The words still work. One choice of each kind per arrival is enough; the first one on offer is the one the hand makes. |
 
 On a line (or on its own line, which attaches it to the next line of text):
 

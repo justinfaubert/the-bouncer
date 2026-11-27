@@ -28,6 +28,9 @@ window: {name: The window., at: "p:10.2,1.65,10.1", from: [room, lot]}
 bottles: {name: The back bar., at: a:bottles, from: [room, hall]}
 taps: {name: The taps., at: a:taps, from: [room, hall]}
 lotto: {name: The lottery screen., at: a:lotto, from: [room, hall]}
+coasters: {name: The beer mats., at: a:coasters, from: [bar]}
+cigmachine: {name: The cigarette machine., at: a:cigmachine, from: [room]}
+wineglasses: {name: The wine glasses., at: a:wine_glasses, from: [bar]}
 
 # ---------------------------------------------------------------- the room's things (content/ink/room.ink)
 #   when: only while these hold, on the Ink's VARs (the criteria of content/rules/barks.yaml): a thing
@@ -38,6 +41,37 @@ wallet: {name: A wallet., at: a:gs_wallet, from: [bar], when: [wallet_dropped > 
 mop: {name: The mop and bucket., at: a:mop, from: [door]}
 dimmer: {name: The dimmer., at: a:dimmer, from: [door]}
 
+# ---------------------------------------------------------------- the set dressing (godot/world/dressing.gd, glasswasher.gd)
+poster_boors: {name: The Boors poster., at: a:poster_boors, from: [floor, bar, pool, hall]}
+poster_mildcat: {name: The Mildcat poster., at: a:poster_mildcat, from: [floor, door, t28, pool]}
+calendar: {name: The calendar., at: a:calendar, from: [room]}
+poster_lochness: {name: The Lochness poster., at: a:poster_lochness, from: [bar, door, t28, pool, hall]}
+labutt: {name: The tin sign., at: a:labutt, from: [bar, door, t28, pool]}
+corkboard: {name: The corkboard., at: a:corkboard, from: [room, hall]}
+sign_reserve: {name: The sign over the back bar., at: a:sign_reserve, from: [room]}
+sign_forget: {name: The sign over the kitchen door., at: a:sign_forget, from: [bar, door, t28, pool]}
+beer_clock: {name: The beer clock., at: a:beer_clock, from: [floor, bar, door, t28]}
+window_neon: {name: The neon in the window., at: a:window_neon, from: [room, lot]}
+clean_glasses: {name: The clean glasses., at: a:clean_glasses, from: [bar, door]}
+glasswasher: {name: The glasswasher., at: a:glasswasher, from: [bar, door, t28]}
+washer_switch: {name: The glasswasher's switch., at: a:washer_switch, from: [bar]}
+wall_hole: {name: The hole in the wall., at: a:wall_hole, from: [hall]}
+door_signs: {name: The signs by the door., at: a:door_signs, from: [lot]}
+lot_trash: {name: The butts round the step., at: a:lot_trash, from: [lot]}
+esso_ads: {name: The ads in the window., at: a:esso_ads, from: [esso]}
+poster_teeth: {name: The Alexander Teeth's poster., at: a:poster_teeth, from: [room]}
+poster_cokanee: {name: The Cokanee poster., at: a:poster_cokanee, from: [room]}
+poster_hockey: {name: The hockey night poster., at: a:poster_hockey, from: [pool, t28]}
+poster_zero: {name: The little poster by the jukebox., at: a:poster_zero, from: [room]}
+painting_1952: {name: The painting over the rail., at: a:painting_1952, from: [room]}
+velvet: {name: The velvet painting., at: a:velvet, from: [pool, bar, door, t28]}
+helmet: {name: The helmet on the jukebox., at: a:helmet, from: [bar, door, t28]}
+table_tents: {name: The card on the table., at: a:table_tents, from: [room]}
+ceiling_stain: {name: The stain on the ceiling., at: a:ceiling_stain, from: [bar, door, t28]}
+founder: {name: The portrait in the hall., at: a:founder, from: [hall]}
+hall_clock: {name: The hall clock., at: a:hall_clock, from: [hall]}
+scrawl: {name: The writing on the wall., at: a:scrawl, from: [hall]}
+
 # ---------------------------------------------------------------- by the door
 tape: {name: The tape on the frame., at: a:tape}
 id_sign: {name: The sign by the door., at: a:id_sign}
@@ -47,6 +81,7 @@ book: {name: The incident book., at: a:ledge}
 # ---------------------------------------------------------------- the back hall, the kitchen, the keg room
 hotel_door: {name: The hotel door., at: a:hotel_door}
 extinguisher: {name: The extinguisher., at: a:extinguisher}
+
 pass: {name: The pass., at: a:pass}
 fryer: {name: The fryer., at: a:fryer}
 radio: {name: The radio., at: a:radio}
@@ -62,6 +97,40 @@ roof_sign: {name: The sign on the roof., at: a:roof_sign, from: [lot, seawall]}
 store: {name: The beer store., at: a:store, from: [lot, seawall]}
 work_truck: {name: The work truck., at: a:work_truck, from: [lot]}
 his_window: {name: His window., at: a:his_window, from: [lot]}
+
+# ---------------------------------------------------------------- the grounds at night, on his own feet (godot/world/grounds.gd)
+#   near: out of doors, how close (metres, along the ground) he has to walk before it's there to
+#         look at: things out here are found by going to them, not named from across the highway
+rat_gap: {name: The gap under the window., at: a:rat_gap, from: [lot], near: 3}
+lot_pole: {name: The pole., at: a:lot_pole, from: [lot], near: 5}
+buzzers: {name: The buzzers., at: a:buzzers, from: [lot], near: 3}
+news_box: {name: The newspaper box., at: a:news_box, from: [lot], near: 3}
+hotel_urn: {name: The ashtray., at: a:hotel_urn, from: [lot], near: 3}
+kitchen_door: {name: The kitchen door., at: a:kitchen_door, from: [lot], near: 4}
+cook_crate: {name: The cook's crate., at: a:cook_crate, from: [lot], near: 3}
+dumpster: {name: The dumpster., at: a:dumpster, from: [lot], near: 5}
+drums: {name: The drums., at: a:drums, from: [lot], near: 4}
+back_freezer: {name: The freezer., at: a:back_freezer, from: [lot], near: 4}
+vent: {name: The vent., at: a:vent, from: [lot], near: 3}
+caps: {name: The bottle caps., at: a:caps, from: [lot], near: 2.5}
+fence: {name: The fence., at: a:fence, from: [lot], near: 6}
+trail: {name: The gap in the fence., at: a:trail, from: [lot], near: 4}
+back_tv: {name: The TV in the weeds., at: a:back_tv, from: [lot], near: 4}
+blocks_car: {name: The car on blocks., at: a:blocks_car, from: [lot], near: 6}
+mattress: {name: The mattress., at: a:mattress, from: [lot], near: 4}
+hotel_back: {name: The back of the hotel., at: a:hotel_back, from: [lot], near: 14}
+cross: {name: The cross., at: a:cross, from: [lot], near: 5}
+merle: {name: The man fishing., at: a:merle, from: [lot], near: 6}
+plaque: {name: The plaque., at: a:plaque, from: [lot], near: 3}
+sea_steps: {name: The steps down., at: a:sea_steps, from: [lot], near: 4}
+beach_fire: {name: The fire., at: a:beach_fire, from: [lot], near: 6}
+kelp: {name: Something in the kelp., at: a:kelp, from: [lot], near: 3}
+beach_cart: {name: The shopping cart., at: a:beach_cart, from: [lot], near: 5}
+far_shore: {name: The far shore., at: a:far_shore, from: [lot], near: 466}
+esso_phone: {name: The payphone., at: a:esso_phone, from: [lot], near: 5}
+esso_pumps: {name: The pumps., at: a:esso_pumps, from: [lot], near: 10}
+esso_clerk: {name: The night window., at: a:esso_clerk, from: [lot], near: 5}
+esso_prices_n: {name: The prices., at: a:esso_prices_n, from: [lot], near: 18}
 
 # ---------------------------------------------------------------- his room
 up_window: {name: The window., at: a:up_window}

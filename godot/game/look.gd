@@ -77,7 +77,7 @@ const CAPTION := {
 	"lot": "The lot", "upstairs": "Upstairs",
 	"office": "Van Dusen Holdings", "street": "The old main street", "esso": "The Esso", "seawall": "The seawall",
 }
-const DAY_NAMES := {1: "Wednesday", 2: "Thursday", 3: "Friday"}
+const DAY_NAMES := {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday", 5: "Sunday", 6: "Monday", 7: "Tuesday"}
 const HURT_WORDS := ["", "Knocked about", "Hurt", "Badly hurt"]
 const TENSION_WORDS := ["Settled", "Uneasy", "Arguing", "Shouting", "At war"]
 

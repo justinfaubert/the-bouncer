@@ -16,12 +16,12 @@
 # amb: deck
 { at_deck == 1:
     He went out through the deck door. {deck_door:A folded coaster was wedged in the latch so it wouldn't lock behind anyone.|It was locked. He let himself out with the key on his ring.}
-    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
+    A covered deck on the water side of the building. Plastic chairs, a coffee can full of butts, a tin awning the rain came off in ropes. Under one of the chairs, a pink lighter and the torn foil off a condom. Across the highway, past the seawall, the strait, black, and the lights of the far shore.
     // HUTCH: The smoking deck. What happens out there that doesn't happen inside?
 - else:
     {shuffle:
     - Out on the deck the rain came off the awning in ropes.
-    - The deck. Wet plastic chairs, the coffee can, the lights of the far shore.
+    - Somebody had left a full beer on the deck rail, in the rain.
     - It was cold on the deck after the room.
     }
 }
@@ -42,6 +42,10 @@
     -> vape_back
 + [Stand in the air a minute.]
     -> air
+// Walking about the deck on his own feet (godot/game/feet.gd): only his legs make this.
++ [Walk about the deck. #toy: legs walk #unlisted]
+    ~ pass(1)
+    -> d_opts
 + {deck_door} [Pull the coaster out of the latch.]
     ~ pass(1)
     ~ deck_door = false
@@ -62,7 +66,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
 ~ pass(5)
 { stopping:
 - He stood at the rail. Out on the strait {clock < 1320:the last ferry was going across, lit up like a building on its side|a tug was pushing a barge up the dark with one light at each end}.
-    NARRATOR: He'd stand out there most nights for the next month. That was the first time.
+    NARRATOR: He stood out there most nights after that.
 - He stood at the rail. A car went by on the highway, slow, and its lights went along the seawall.
 - He stood at the rail and let the cold get into him. Behind him, through the glass, table 28 laughed at something, together.
 - He stood at the rail. The rain.
@@ -76,7 +80,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
 - arrivals !? banned_done && knows !? ardagh && clock >= 1230:
     ~ deck_smokers = 1
     ~ smokers_at = clock
-    Two women were smoking under the awning by the steps, talking the way people talk in front of a doorman.
+    Two women were smoking under the awning by the steps. They didn't lower their voices for him.
     SMOKER: Graham Ardagh's back. I saw his car at the Esso.
     SMOKER: She'd have him shot. She'd do it herself, with the soda gun.
     They both looked through the glass at the bartender, and then didn't.
@@ -86,6 +90,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     ~ smokers_at = clock
     A man smoking by the steps was watching the lot.
     SMOKER: That pickup's been sitting there since eight with the engine going. Somebody's waiting on somebody.
+    SMOKER: Last time a truck sat out there like that it was Darlene's husband, with his rifle on the seat. He was only going to scare her, he said.
     ~ knows += truck
 - knows !? mill_closing:
     ~ deck_smokers = 3
@@ -93,6 +98,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     Two of the mill crew were smoking at the far end of the deck, one of them still in his vest.
     SMOKER: They're saying the mill's done at Christmas. My brother-in-law says Christmas.
     SMOKER: They've been saying Christmas for six years.
+    SMOKER: Forty-five percent the Yanks are charging on a board now. And the logs go out raw off the dock in Nanaimo, on a Chinese boat, past the mill. I've watched them go.
     ~ knows += mill_closing
 }
 -> d_opts
@@ -110,19 +116,19 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
     CARDIGAN: Now there's five. Four, some days.
     -> cg
 * (four) ["What happened to the other four?"]
-    CARDIGAN: What always happens. Two of them died. One is in the home in town and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not once. As if he'd died, except he hadn't.
-    CARDIGAN: The table closed up the gap. It always does.
+    CARDIGAN: What always happens. Two of them died. Les went off the road past the Esso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not a Christmas card.
+    CARDIGAN: We moved the chairs round.
     He looked at the end of his cigarette.
     CARDIGAN: My daughter wants me in Calgary.
     -> cg
 * {four} ["Will you go?"]
     CARDIGAN: I don't know.
-    CARDIGAN: If I go, they'll close up the gap. If I stay, I'll die at that table. Those are the choices. Everyone at that table has had them.
-    FATHER: He's asking you. He doesn't know he's asking you.
+    CARDIGAN: If I go, they'll move the chairs round. If I stay, I'll die at that table, like Bob.
+    FATHER: He wants you to tell him.
     * * ["Go."]
         ~ cardigan_go = 1
         CARDIGAN: It's easy for you to say, I suppose.
-        He said it without any heat. He put the cigarette out on the rail and put the butt in his pocket, not in the can.
+        No heat in it. He put the cigarette out on the rail and put the butt in his pocket, not in the can.
     * * ["Stay."]
         ~ cardigan_go = -1
         CARDIGAN: Yes.
@@ -141,7 +147,7 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
 The boyfriend had come up the deck steps in the rain and was rattling the door he'd have walked straight through an hour ago, if the coaster had still been in it. He'd come round the building from the lot. When he saw the doorman through the glass he tried to look like he'd been out here smoking the whole time.
 VAPE: bro. i was just out here
 VAPE: i've been out here the WHOLE time my guy
-FIGHTER: The ones you put out the front come in the back. Every time.
+FIGHTER: He's been round the whole building in the rain for this.
 * ["Go sit in the truck."]
     { in_truck(sister_at):
         VAPE: she's not gonna let me in
@@ -214,7 +220,6 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
         ~ fam += sister_fetched
         # task: fetch :: Tell the big man at the pool table about his wife.
         DRIVER: Okay.
-        She said it the way you say it when you've stopped expecting anything and something happens anyway.
     * * ["Wait in the truck."]
         ~ fam += told_wait
         ~ rep(rep_kids, -1)
@@ -231,7 +236,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
     ~ uncounted -= kids_in
     ~ rep(rep_kids, 2)
     ~ here = floor
-    He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him for almost a whole second.
+    He looked at the three of them one at a time, the way he'd have looked at them at the door, standing there in the middle of the room, and the kid in the hoodie looked back at him.
     MANUAL: For the record, one of them has no identification.
     FIGHTER: Watch the boyfriend.
     -> carry_on
@@ -256,6 +261,62 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 
 
 // ------------------------------------------------------------------ the pickup in the lot
+
+// Out the front, under the sign, for the air: the lot, the highway, the seawall across it and the
+// strait past that. Walked about on his own feet in the 3D build (godot/game/feet.gd). While he's
+// out here nobody's on the stool, and door_away counts it (sim.ink).
+=== at_front ===
+~ here = lot
+{ due(): -> hub }
+# amb: rain_lot
+{ at_front == 1:
+    He went out through the vestibule and stood under the sign, and the door swung shut on the room behind him. The rain had gone to a mist that hung in the light off the roof. Across the highway, the seawall, and past it the strait, and past that nothing at all. Up the road the Esso's canopy was the brightest thing for a mile.
+    His breath went out white. He hadn't known how loud it was in there until it stopped.
+- else:
+    {shuffle:
+    - He stood out front under the sign. Up on the roof it buzzed, one letter a beat behind the others.
+    - Out front the mist hung in the sign's light. Red, then not, then red.
+    - Out front it was quiet. The room was a bass line through the wall and nothing else.
+    - He stood out front. Somebody had written CALL ME DADDY in the dirt on the beer store's window, and under it, in a different hand, NO.
+    }
+}
+-> f_opts
+
+= f_opts
+{ due(): -> hub }
+<- moves(lot)
++ [Stand in the air a minute.]
+    -> f_air
++ [Walk about the lot. #toy: legs walk #unlisted]
+    ~ pass(1)
+    -> f_opts
+// out on the grounds (grounds.ink): handling one of these things out there is more than a look
++ {out_merle < 6} [The man fishing off the seawall. #toy: merle look #unlisted] -> out_merle
++ {not out_cross} [The cross on the shoulder. #toy: cross look #unlisted] -> out_cross
++ {not out_kelp} [Something in the kelp. #toy: kelp look #unlisted] -> out_kelp
++ [The buzzers by the hotel door. #toy: buzzers look #unlisted] -> out_buzzers
++ {not out_caps} [The bottle caps by the vent. #toy: caps look #unlisted] -> out_caps
++ {esso_rang && esso_answered == 0} [The Esso's payphone, ringing. #toy: esso_phone look #unlisted] -> out_payphone
++ [The Esso's night window. #toy: esso_clerk look #unlisted] -> out_clerk
++ {not out_fire} [The fire on the beach. #toy: beach_fire look #unlisted] -> out_fire
++ {kitchen_door} [The kitchen's back door, propped. #toy: kitchen_door look #unlisted] -> out_kitchen_door
+
+= f_air
+~ pass(3)
+{ stopping:
+- A pickup went by on the highway with a man standing up in the bed, holding the roll bar, shouting at the sea. It went round the bend and took the shouting with it.
+    FATHER: Nobody's on the stool.
+- Two kids were sitting on the hood of a Civic at the far end of the lot, passing a vape back and forth and filming each other doing nothing. One of them saw him and put the phone face down on his leg, like a hand of cards.
+- A couple were arguing in a car with the windows up and the dome light on, a play with the sound off. She hit the dashboard twice with the flat of her hand. He looked at his phone until she stopped.
+- Somebody had been sick against the dumpster earlier, and the rain hadn't got all of it. A gull was seeing to the rest.
+- A woman came out of the Esso with a two-four on her shoulder and walked straight across the highway without looking either way. Nothing hit her. She didn't look like she'd expected anything to.
+- {clock >= 1440:Up the road the Esso kid was out by the pumps with his head back, looking at the sky over the strait. By the time he looked up too, there was only the cloud.|He stood in the mist. A truck went by, and the wet came up off the road behind it like a sheet shaken out.}
+- He stood in the mist and let the cold get in under the jacket.
+}
+{ drinks >= 3 && f_air == 1:
+    Out here the drink was louder than the room had been.
+}
+-> f_opts
 
 === at_lot ===
 ~ here = lot
@@ -338,7 +399,7 @@ She went in past him, into the room, and straight to the pool table.
 === ev_vape_back ===
 ~ vape_seen = true
 { vape_backs > 1:
-    The boyfriend was at the bar again. Again. Wet to the knees this time, and grinning, as if it had become a game between them and he was winning it. #look: vape
+    The boyfriend was at the bar again, wet to the knees this time, and grinning at him. #look: vape
 - else:
     The boyfriend was at the bar again, dripping, with his hood up, trying to get served. He hadn't come past the stool. There were wet sneaker prints on the carpet from the deck door. #look: vape
 }
@@ -373,11 +434,11 @@ FIGHTER: The ones you put out the front come in the back. Every time.
     { vape_backs > 1:
         He walked him out the front again. Neither of them said anything this time. On the gravel the boyfriend stood and looked at the deck, all the way round the side of the building, and then at the doorman, and went and sat on the step of the beer store instead. #sfx: door
     - else:
-        He walked him out the front again. The boyfriend laughed the whole way, as if they both knew how this went. #sfx: door
+        He walked him out the front again. The boyfriend laughed the whole way. #sfx: door
     }
 * [Leave him. He's back. Watch him.]
     ~ pass(1)
     ~ heat(1)
-    The bartender served him. She looked at the doorman while she did it.
+    The bartender served him. He looked at the doorman while he did it.
     ~ rep(rep_staff, -1)
 - -> carry_on

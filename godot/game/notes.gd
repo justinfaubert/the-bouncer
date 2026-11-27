@@ -24,7 +24,7 @@ var main
 var page: Control
 var info_voice := ""
 var info_thing := ""
-var page_no := 0          # 0 in his head, 1 on him
+var page_no := 0          # 0 in his head, 1 on him, 2 his body
 var leaned := {}          # voice -> when it last leaned in (it rings on the page)
 var t := 0.0
 var _hits: Array = []     # [Rect2, what]: the tabs, and on him, the things, as last drawn
@@ -78,8 +78,8 @@ func open() -> void:
 
 
 # the other page
-func turn_page() -> void:
-	page_no = 1 - page_no
+func turn_page(back := false) -> void:
+	page_no = (page_no + (2 if back else 1)) % 3
 	info_thing = ""
 	main.audio.sfx("page")
 	refresh()
@@ -124,7 +124,10 @@ func _on_page_input(e: InputEvent) -> void:
 				var what := str(h[1])
 				if what.begins_with("tab:"):
 					if int(what.substr(4)) != page_no:
-						turn_page()
+						page_no = int(what.substr(4))
+						info_thing = ""
+						main.audio.sfx("page")
+						refresh()
 				else:
 					info_thing = "" if info_thing == what else what
 					main.audio.sfx("pen")
@@ -195,12 +198,12 @@ func _draw_page() -> void:
 	# one he's on in red
 	_hits.clear()
 	var fu := Look.font("ui_b")
-	var names := ["IN HIS HEAD", "ON HIM"]
+	var names := ["IN HIS HEAD", "ON HIM", "HIS BODY"]
 	var tabs_w := fu.get_string_size("Q  E", HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	for nm in names:
 		tabs_w += fu.get_string_size(str(nm), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 26.0
 	var tx := sz.x - 40.0 - tabs_w
-	for k in 2:
+	for k in names.size():
 		var name: String = names[k]
 		var w := fu.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
 		_text("ui_b", 15, name, Vector2(tx, 80), RED if k == page_no else PENCIL)
@@ -211,6 +214,9 @@ func _draw_page() -> void:
 	_text("ui_b", 11, "Q  E", Vector2(tx, 79), PENCIL)
 	if page_no == 1:
 		_draw_on_him(st, sz)
+		return
+	if page_no == 2:
+		_draw_body(sz)
 		return
 
 	# the room in his head
@@ -337,6 +343,49 @@ func _draw_page() -> void:
 		y2 += 30
 	if path.is_empty():
 		_text("hand", 22, "The shift's just started.", Vector2(x2, y2), PENCIL)
+
+
+# The third page: what practice has made of his body (engine/practice.gd). Each practice in his
+# own words for where he's got to, pencil ticks toward the next mark, struck through where it's
+# stopped (a broken hand); then the knacks he's picked up, each in a line as he'd put it. No numbers.
+func _draw_body(sz: Vector2) -> void:
+	var pr: Practice = main.game.practice
+	_text("ui_b", 16, "WHAT IT'S MADE OF HIM", Vector2(40, 110), RED)
+	var y := 150.0
+	var kinds: Array = Practice.KINDS.keys()
+	for i in kinds.size():
+		var k: String = kinds[i]
+		var at := Vector2(40.0 if i < 6 else sz.x * 0.5 + 40.0, 150.0 + float(i % 6) * 64.0)
+		var K: Dictionary = Practice.KINDS[k]
+		var vc := Look.voice_color(str(K.voice)).darkened(0.35)
+		_text("ui_b", 15, str(K.label).to_upper(), at, vc)
+		var untouched := float(pr.points.get(k, 0.0)) <= 0.0
+		_text("hand", 23, "not yet" if untouched else pr.word(k), at + Vector2(110, 0), PENCIL if untouched else INK)
+		if pr.stopped.has(k):
+			var w := Look.font("hand").get_string_size(pr.word(k), HORIZONTAL_ALIGNMENT_LEFT, -1, 23).x
+			page.draw_line(at + Vector2(106, -7), at + Vector2(114 + w, -10), RED, 2.0, true)
+			_text("hand_l", 17, str(pr.stopped[k]), at + Vector2(110, 24), RED)
+			continue
+		# ticks toward the next mark: ten pencil strokes, the done ones inked
+		var n := int(round(pr.toward(k) * 10.0))
+		for j in 10:
+			var x := at.x + 110.0 + j * 9.0
+			page.draw_line(Vector2(x, at.y + 22), Vector2(x + 3, at.y + 10), INK_2 if j < n else Color(PENCIL, 0.3), 1.6, true)
+		if float(pr.tonight.get(k, 0.0)) >= Practice.NIGHT_CAP:
+			_text("hand_l", 16, "enough for one night", at + Vector2(110 + 100, 22), PENCIL)
+		y = maxf(y, at.y + 40.0)
+	y += 30.0
+	_text("ui_b", 16, "KNACKS", Vector2(40, y), RED)
+	y += 36.0
+	if pr.knacks.is_empty():
+		_para("read_i", 18, "Nothing that's his yet. Fight, throw, hold a man, look hard at a face; it comes with doing it, and it comes slower the same way twice in a night.", Vector2(40, y), sz.x * 0.85, PENCIL)
+		return
+	for id in pr.knacks:
+		if not Practice.KNACKS.has(id):
+			continue
+		var kn: Dictionary = Practice.KNACKS[id]
+		_text("hand", 24, str(kn.name), Vector2(40, y), INK)
+		y = _para("read", 18, str(kn.what), Vector2(260, y), sz.x - 320.0, INK_2) + 10.0
 
 
 # The second page: what he has on him, and where he's left what he's put down.

@@ -208,7 +208,18 @@ func _show(w: Dictionary, mode: String) -> void:
 	r.add_text(Look.voice_text(v, text))
 	r.pop()
 	r.pop()
-	tip.add_child(r)
+	# the voice's mask beside its words, talking
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 12)
+	hb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mask := VoiceMask.new(st, 44)
+	mask.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	hb.add_child(mask)
+	hb.add_child(r)
+	tip.add_child(hb)
+	mask.say(clampf(text.length() / 50.0, 0.6, 3.0))
+	if col.fold > 0.5:
+		col.spine_said(st)
 	tip.top_level = true
 	tip.modulate.a = 0.0
 	main.root.add_child(tip)
@@ -245,6 +256,9 @@ func _place_tip(t: PanelContainer, mode: String, width: float) -> void:
 			p.x = clampf(p.x, 20.0, sheet_w - width - 50.0)
 			p.y = clampf(p.y, 16.0, maxf(16.0, screen_h - h - 16.0))
 			t.global_position = p
+		_ when col.fold > 0.5:
+			# the page is folded: by the spine, where that voice's mask is
+			t.global_position = Vector2(col.global_position.x - t.size.x - 18.0, clampf(screen_h * 0.3, 16.0, maxf(16.0, screen_h - h - 16.0)))
 		"lead":
 			t.global_position = Vector2(col.global_position.x + 30.0, clampf(col.choices_box.global_position.y - h - 14.0, 16.0, maxf(16.0, screen_h - h - 16.0)))
 		_:

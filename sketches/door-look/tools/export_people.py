@@ -83,7 +83,11 @@ PEOPLE = {
     'bigman': (dict(build='big', hair='buzz', face=['beard'], top='flannel', sleeves='rolled'), 'cue', dict(left_handed=True), 0.012),
     'buddy': (dict(build='slight', hair='short', top='tshirt', hat='cap', size=0.94), 'stand', dict(head_turn=0.3), 0.012),
     # (Paige: her age is open, the draft has her in her fifties)
-    'bartender': (dict(build='slight', sex='f', hair='bun', face=['lined'], top='apron', age='old', age_n=0.55, bottoms='trousers', shoes='sneakers'), 'bar', dict(top=1.1), 0.012),
+    # Jim, the bartender (Hutch, 19 November 2026: a man, in a ball cap for now; meek, reliable, very
+    # ocd, a drummer in cover bands): slight and wiry, fifties, steel-grey hair cropped under a dark
+    # cap, his dark shirt under the long apron. The role id stays "bartender" in the game's code
+    'bartender': (dict(build='slight', hair='short', hair_mat='hair_grey', hat='cap', face=['lined'], top='apron', age='old', age_n=0.5,
+                       shoulders=0.95, bottoms='trousers', shoes='sneakers', seed='jim'), 'bar', dict(top=1.1), 0.012),
     'hivis': (dict(HIVIS), 'sit', dict(seat=0.76, table=1.08, lean=0.3), 0.012),
     'endbar': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks'),
                'sit', dict(seat=0.76, table=1.08, lean=0.12, head_turn=0.5), 0.012),

@@ -25,6 +25,8 @@ INCLUDE things.ink
 INCLUDE hand.ink
 INCLUDE drawer.ink
 INCLUDE room.ink
+INCLUDE days.ink
+INCLUDE grounds.ink
 
 -> interview
 
@@ -63,6 +65,22 @@ VAR stat_int = 4            // Intelligence
 VAR stat_wis = 4            // Wisdom
 VAR stat_cha = 4            // Charisma
 VAR stat_gut = 4            // Gut Brain (DECIDED: Intuition, a nod to Inland Empire)
+// What he's practised into a knack (godot/engine/practice.gd, bible/15_FIGHTS_AND_STATS.md section 4).
+// The game sets these when a practice crosses its mark; the story can ask for them.
+VAR knack_short_one = false      // Hands: a six-inch punch with his weight in it
+VAR knack_heavy_hands = false    // Hands: what lands rings the bell harder
+VAR knack_circle_closes = false  // Holds: the turn builds quicker
+VAR knack_the_angle = false      // Feet: off the line with a sidestep
+VAR knack_hard_head = false      // Chin: the first clean one doesn't ring the bell
+VAR knack_second_wind = false    // Wind: once a fight, the breath comes back
+VAR knack_the_shoulder = false   // Read: he sees the shoulder go back before the blow
+VAR knack_seen_it = false        // Read: their tells last longer for him
+VAR knack_steady_hand = false    // Arm: the dart shakes half as much
+// The fights (godot/game/fight_cards.gd)
+VAR ring_name = 0                // the smokers at the fish plant: bouts won there
+VAR ogre_done = 0                // the man on the deck: 0 not yet, 1 out the door, 2 out the door and the jaw
+VAR ogre_club = false            // he said yes to the sister's brothers: the club did the Sov's doorman a favour
+VAR jaw = 0                      // his jaw: days it has left to ache
 VAR stats_set = false       // the interview's set them: from here what moves them shows struck through in his notes
 VAR ate = 0                 // before the shift: 1 he ate at the Esso, -1 he didn't eat (the engine: the body's checks, -1)
 
@@ -81,8 +99,9 @@ VAR asked_pay = false       // he asked when he gets paid
 VAR shirt = 0               // Gary's SECURITY shirt: 1 took it, 2 "I've got my own"
 VAR shirt_on = false        // he's wearing it
 VAR pay_how = 0             // the bookkeeper's form: 1 filled it in, 2 asked for cash, 3 read it first
+VAR staff_warned = 0        // Gary's "don't fuck the staff": 1 wasn't planning on it, 2 who's the staff, 3 just took the key (he brings it up at midnight)
 // What he claimed in the office. Gary tells the bartender all of it on the phone at quarter past
-// five (walk.ink), and she holds him to it at close (closing.ink, door_story).
+// five (walk.ink), and he holds him to it at close (closing.ink, door_story).
 LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry
 VAR told_gary = ()
 VAR wharf_how = 0           // the old man on the wharf: 1 word gets around, 2 who's asking, 3 looked at the water with him
@@ -123,10 +142,13 @@ VAR juke_low = false        // the bartender turned the jukebox down a notch whe
 // ------------------------------------------------------------------ the room's things (room.ink)
 // What's within reach, and what it does to the night. Claude's draft, PROPOSED.
 
-VAR ledge_at = 1150         // when the rail by the pool table was last cleared of empties: by her, at ten past seven
+VAR ledge_at = 1150         // when the rail by the pool table was last cleared of empties: by him, at ten past seven
 VAR bussed = 0              // trips he's made to the bar with empties
 VAR rack_locked = false     // he snapped the padlock shut on the cue rack's chain
 VAR darts_pulled = false    // he took the darts out of the board and gave them to her
+VAR washer_on = true        // the glasswasher on the back bar is running (godot/world/glasswasher.gd sets it)
+VAR washer_flips = 0        // how many times he's flipped its switch
+VAR washer_back = false     // he switched it off, and the bartender switched it back on when he wasn't looking
 LIST reach = r_glass, r_cue, r_darts
 VAR used = ()               // what got picked up when it went at the pool table
 VAR tv_on = 0               // the big TV: 0 the hockey and then its goals, 1 the late news, 2 the game again, 3 off, 4 the curling
@@ -160,7 +182,7 @@ VAR rep_cook = 0            // the cook: don't make my night worse
 
 // ------------------------------------------------------------------ what he knows
 
-LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen
+LIST knows = eighty_six, coaster, kid_photo, kitchen_gap, hotel_gap, the_note, t28_rat, walter_name, pool_lefty, pool_hustle, bigman_dad, kid_legal, kid_why, truck, endbar_seen, endbar_invite, keg_hole, dennis, hivis_room, banned_face, knot_seen, old_doorman, card_in_truck, vape_no_id, vape_read, vape_misread, vape_cans, hivis_upstairs, binder_hers, banned_story, ardagh, terry, transmission, bait_office, rat_numbers, cook_advice, cook_fries, office_seen, t28_nine, doorman_stories, aa_wall, endbar_dock, mill_closing, lost_jacket, juke_top, pool_seen, senior_photo, notice_read, gary_dodged, form_uniform, endbar_wharf, esso_sky, esso_rater, sov_watched, heard_phone, coat_scouting, jacket_heard, mat_seen, t28_puke, hotel_watched, twelve_hole, twelve_foil, lot_trucks, t28_window, vape_bump, bigman_looked, key_seven, prime_thin, girl_card, jim_count
 
 // ------------------------------------------------------------------ the family at the pool table (draft storyline)
 
@@ -191,6 +213,10 @@ VAR door_reads = 0          // how many reads he's taken of the kid at the door
 VAR father_misread = false  // the Father read the kid as high at the door. He'd been awake two days.
 VAR family_in_lot = false   // at close, his kids were there in the lot
 VAR took_keys = false
+VAR pool_result = 0         // the rack he played the big man on the table (game/pool.gd): 1 won, 2 lost, 3 walked away; 0 not played on the table
+VAR pool_meant = 0          // 1 he played to win, 2 to lose
+VAR pool_threw = 0          // how many the big man missed on purpose in it
+VAR pool_dumped = 0         // how plainly he lost on purpose: fouls that touched nothing, the eight in early (2 and up: the big man saw it)
 VAR bigman_ease = 0         // how the big man takes him: losing on purpose, small talk, letting him keep his dignity
 VAR promised_bigman = false // the big man asked him to say he wasn't here, and he said he would (or let him think so)
 VAR promise_kept = 0        // 1 he told the daughter her father wasn't here (2 once the big man's thanked him for it); -1 he went and got him anyway
@@ -252,7 +278,7 @@ VAR scans = ()
 VAR police_at = 0           // the clock when the bartender called it in. It's always forty minutes out here.
 VAR police_seen = false
 VAR told_police = 0         // what he told the constable: 1 the way it happened, -1 less than that, 2 left it to her
-VAR name_on_log = false     // he told her not to call it: "Your name on the log, then."
+VAR name_on_log = false     // he told the bartender not to call it: "Your name on the log, then."
 VAR bar_scuffle = false     // putting GOOD SHOES out went wrong: the stool went over
 VAR office_wiped = false    // he wiped the mirror on the desk in the office downstairs
 LIST found = why_deck, why_hotel, why_front, why_sleeper
@@ -275,6 +301,9 @@ VAR cardigan_go = 0         // he told the one in the cardigan to go to Calgary 
 VAR cardigan_secret = false // the one in the cardigan asked him not to tell the table he was out on the deck
 VAR how_doing = 0           // times he's asked table 28 how everybody's doing
 VAR picked_receiver = false // he picked up the dead payphone in the back hall
+VAR wall_wrote = 0          // what he wrote under ALWAYS on the payphone wall: 1 ME TOO, 2 GO HOME, 3 DOOR'S ON TILL 2
+VAR lines_taken = 0         // lines he took on shift (hall.ink, the boyfriend in the men's)
+VAR t28_slop = 0            // what he said to Scratch's soldier on the phone (table28.ink, the_phone): 1 not real, 2 happy birthday, 3 pushed it back
 VAR secret_kept = 0         // at close table 28 asked where the one in the cardigan had been: 1 he kept it, -1 he told them
 
 // ------------------------------------------------------------------ the end of the night
@@ -282,12 +311,12 @@ VAR secret_kept = 0         // at close table 28 asked where the one in the card
 VAR owner_lie = false       // he told the owner the rats were handled
 VAR owner_count = 0         // what he told the owner when he asked how it was tonight: 1 the door's number, 0 quiet, -1 busy (it wasn't)
 VAR police_called = false    // the bartender called it in after the fight
-VAR verdict = 0             // what the bartender tells the owner: 2 he'll do, 1 he showed up, -1 what she saw
+VAR verdict = 0             // what the bartender tells the owner: 2 he'll do, 1 he showed up, -1 what he saw
 LIST cleared = cl_pool, cl_banned, cl_hivis, cl_res, cl_t28
 VAR two_called = false
-VAR asked_name = false      // he asked the bartender what to call her
+VAR asked_name = false      // he asked the bartender what to call him
 VAR terms_kept = 0          // the kitchen door on the latch, the night he made the terms: 1 he went and did it, -1 he went up
-VAR last_glass = 0          // the glass she poured him after hours: 1 he drank it, 2 left it standing full, 3 pushed it back, 4 she gave him water
+VAR last_glass = 0          // the glass he poured him after hours: 1 he drank it, 2 left it standing full, 3 pushed it back, 4 he gave him water
 
 
 // ------------------------------------------------------------------ the engine

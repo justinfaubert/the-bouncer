@@ -105,13 +105,28 @@ BODY = ('hips', 'spine', 'chest', 'thigh.L', 'shin.L', 'foot.L', 'thigh.R', 'shi
         'upper_arm.L', 'forearm.L', 'hand.L', 'upper_arm.R', 'forearm.R', 'hand.R')
 
 
-def body_weights(B, p, bs, P):
-    """For each point of the body, its three nearest bones and how much each has it (n x len(BODY))."""
+def _seg_away(P, a, b):
+    """From each point's nearest place on the bone out to the point."""
+    ab = b - a
+    t = np.clip(((P - a) @ ab) / max(float(ab @ ab), 1e-9), 0.0, 1.0)
+    return P - (a + t[:, None] * ab)
+
+
+def body_weights(B, p, bs, P, N=None):
+    """For each point of the body, its three nearest bones and how much each has it (n x len(BODY)).
+    With the points' normals (N), an arm only has the skin that faces away from it: a hand held
+    against a belly is near the belly's skin, but that skin faces the hand, so it stays the body's
+    (by nearness alone, a lifted glass pulled a piece of a big man's gut up with it and left a hole
+    in his side)."""
     mid = p.pelvis[0]
     D = np.full((len(P), len(BODY)), np.inf)
     for k, n in enumerate(BODY):
         a, b, _ = bs[n]
         d = np.maximum(_seg_dist(P, a, b) - _thickness(B, n), 0.0) + 0.006
+        if N is not None and n.split('.')[0] in ('upper_arm', 'forearm', 'hand'):
+            away = _seg_away(P, a, b)
+            facing = np.einsum('ij,ij->i', away, N) / np.maximum(np.linalg.norm(away, axis=1), 1e-9)
+            d[facing < -0.2] = np.inf
         limb = n.split('.')[0] in ('thigh', 'shin', 'foot')
         if n.endswith('.L'):
             d[P[:, 0] > mid + (0.015 if limb else -0.04)] = np.inf
@@ -411,7 +426,9 @@ def rig(name, obs, extras, B, p, hd):
             if part == 'head':
                 W, names = head_weights(B, p, hf, P, vertex_materials(me)), HEAD_BONES
             else:
-                W, names = body_weights(B, p, bs, P), BODY
+                N = np.array([o.matrix_world.to_3x3() @ v.normal for v in me.vertices], dtype=np.float64)
+                N /= np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-9)
+                W, names = body_weights(B, p, bs, P, N), BODY
                 # about the neck, as the head's mesh has it
                 q = hf.local(P)
                 near = (np.hypot(q[:, 0], q[:, 1] + 20.0) < 95.0) & (q[:, 2] > -260.0)

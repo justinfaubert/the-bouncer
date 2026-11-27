@@ -1,5 +1,5 @@
 #!/bin/sh
-# The Bouncer: Wednesday, the test shift. Starts the game.
+# Last Call. Starts the game.
 #
 #   ./play.sh                  in a window (the pause menu, Esc, has fullscreen)
 #   ./play.sh --fullscreen     straight to fullscreen

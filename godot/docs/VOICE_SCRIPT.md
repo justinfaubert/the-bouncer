@@ -1,0 +1,1868 @@
+# The voice script
+
+Made by `tools/vo_script.py` from `content/ink/` and the barks and overheard talk in `content/rules/`. Don't edit by hand: run it again after the Ink changes.
+
+Each line's recording goes in `godot/audio/` under the name given, as .ogg, .wav or .mp3. A second take
+of the same line goes under the same name with `_2`, `_3` on the end, and the game picks between them.
+Lines said the same way in more than one place share a file. Record the teller first: his lines are few
+and they carry the most.
+
+Besides the lines, each speaker can have **barks**, `bark_<id>` (a sound under their breath: a grunt, a
+laugh, a word that isn't in the script), which play now and then under their unrecorded lines, and each
+voice in his head a **whisper**, `whisper_<id>`, the same for theirs. A few takes of each go a long way.
+
+1729 lines to record (1674 files) for 36 speakers. 12 more change with the night and are listed after each speaker.
+
+| Speaker | id | Lines | Changing | Bark file |
+|---|---|---|---|---|
+| The teller (NARRATOR) | teller | 9 | 0 |  |
+| The Father (a voice in his head) | father | 256 | 3 | `whisper_father` |
+| The Manual (a voice in his head) | manual | 106 | 2 | `whisper_manual` |
+| The Wrong Man (a voice in his head) | wrongman | 87 | 0 | `whisper_wrongman` |
+| The Fighter (a voice in his head) | fighter | 80 | 2 | `whisper_fighter` |
+| Senior (a voice in his head) | senior | 37 | 0 | `whisper_senior` |
+| The Till (a voice in his head) | till | 34 | 0 | `whisper_till` |
+| The Table (a voice in his head) | table | 11 | 0 | `whisper_table` |
+| The Kid (a voice in his head) | kid | 9 | 0 | `whisper_kid` |
+| The Bartender | bartender | 227 | 2 | `bark_bartender` |
+| Team Jacket | team_jacket | 105 | 0 | `bark_team_jacket` |
+| Table 28 | table28 | 92 | 0 | `bark_table28` |
+| Gary | owner | 91 | 1 | `bark_owner` |
+| End Of The Bar | endbar | 85 | 1 | `bark_endbar` |
+| Hoodie | hoodie | 72 | 0 | `bark_hoodie` |
+| The Driver | driver | 60 | 0 | `bark_driver` |
+| Scratch | scratch | 52 | 0 | `bark_scratch` |
+| The Big Man | bigman | 48 | 0 | `bark_bigman` |
+| a | a | 36 | 0 | `bark_a` |
+| Cardigan | cardigan | 34 | 0 | `bark_cardigan` |
+| Vape | vape | 29 | 0 | `bark_vape` |
+| The Cook | cook | 27 | 0 | `bark_cook` |
+| b | b | 23 | 0 | `bark_b` |
+| Hearing Aid | hearing_aid | 19 | 0 | `bark_hearing_aid` |
+| Terry | terry | 18 | 0 | `bark_terry` |
+| Slippers | slippers | 14 | 0 | `bark_slippers` |
+| The Esso Kid | essokid | 13 | 0 | `bark_essokid` |
+| The Bookkeeper | bookkeeper | 12 | 0 | `bark_bookkeeper` |
+| The Buddy | buddy | 11 | 0 | `bark_buddy` |
+| A Smoker | smoker | 7 | 0 | `bark_smoker` |
+| The Constable | constable | 6 | 0 | `bark_constable` |
+| Raincoat | raincoat | 6 | 0 | `bark_raincoat` |
+| slippers_b | slippers_b | 4 | 0 | `bark_slippers_b` |
+| Glasses | glasses | 4 | 1 | `bark_glasses` |
+| Hi-Vis | hivis | 3 | 0 | `bark_hivis` |
+| Good Shoes | goodshoes | 2 | 0 | `bark_goodshoes` |
+
+## The teller (`teller`)
+
+- `vo_teller_8a152849` That was Wednesday. The way he tells it now, nothing much happened.  _(closing.ink:1984)_
+- `vo_teller_71512004` That was Wednesday. Nobody else remembers it. He could tell you what everybody drank.  _(closing.ink:1986)_
+- `vo_teller_3ac6fe69` That was Wednesday. Nobody else remembers it.  _(closing.ink:1988)_
+- `vo_teller_a5f47c75` He stood out there most nights after that.  _(deck.ink:65)_
+- `vo_teller_03352a70` He started on a Wednesday. Gary tried doormen out on Wednesdays because it was dead, and if a new guy screwed up there'd be nobody in to see it.  _(office.ink:26)_
+- `vo_teller_a443c2f2` Gary told this part for years, to anyone who'd sit still for it, and got a lot of it wrong. But he was there first.  _(office.ink:27)_
+- `vo_teller_9406e614` So I didn't get the job.  _(office.ink:519)_
+- `vo_teller_9cda0fca` That's how Gary told it. From the porch steps on it's the doorman's story, and he hardly ever told it.  _(walk.ink:18)_
+
+## The Father (`father`)
+
+- `vo_father_27ccd756` The ones they write NOT EVER under come back. I had one come back after eleven years.  _(bar.ink:95)_
+- `vo_father_ad1a6af5` The written rules are for the inspector.  _(bar.ink:109)_
+- `vo_father_0ae64b9c` She means don't let anybody see you do it.  _(bar.ink:131)_
+- `vo_father_194d30ae` One.  _(bar.ink:172)_
+- `vo_father_4d58fba7` And Gary's, at four. Don't think I didn't count those.  _(bar.ink:174)_
+- `vo_father_207cb679` Two. I used to say two and mean nine.  _(bar.ink:181)_
+- `vo_father_b5e579c0` I stopped. It took me four tries and your mother leaving.  _(bar.ink:188)_
+- `vo_father_8bf9f173` He's drunk.  _(bar.ink:318)_
+- `vo_father_d8515133` You'll never see it again.  _(bar.ink:374)_
+- `vo_father_492599a6` He'll have the till tape in the morning. You'll have said busy.  _(bar.ink:441)_
+- `vo_father_87f04907` It isn't handled. Now it's a lie with a date on it.  _(bar.ink:458)_
+- `vo_father_728c60d5` There. He spent it.  _(bar.ink:484)_
+- `vo_father_b9dc27c3` Last call's easy. It's the half hour after it that's the job.  _(closing.ink:280)_
+- `vo_father_ada7efd9` There. I told you he would.  _(closing.ink:439)_
+- `vo_father_829c3bc5` I drove home drunk for twenty years.  _(closing.ink:441)_
+- `vo_father_27f8241a` Nobody ever did that for me.  _(closing.ink:499)_
+- `vo_father_011c77b6` I'd have hit anybody who tried.  _(closing.ink:500)_
+- `vo_father_db263e16` A doorman walked me to a car once, in Courtenay. I took a swing at him.  _(closing.ink:545)_
+- `vo_father_6af4a4d1` He went. You said it, and he went. I wouldn't have.  _(closing.ink:547)_
+- `vo_father_5106edf2` He asked you one thing.  _(closing.ink:800)_
+- `vo_father_97971abd` You took one set of keys tonight. You can't take four sets off table 28. You'd be taking the whole town's.  _(closing.ink:822)_
+- `vo_father_cf0d1d0b` You took one set of keys tonight. You can't take five sets off table 28. You'd be taking the whole town's.  _(closing.ink:822)_
+- `vo_father_63cd611c` You can't take four sets off table 28. You'd be taking the whole town's.  _(closing.ink:822)_
+- `vo_father_723de66b` You can't take five sets off table 28. You'd be taking the whole town's.  _(closing.ink:822)_
+- `vo_father_44cf2403` I went for a leak at the Legion once, and that was the night the Fraser boys came in.  _(closing.ink:946)_
+- `vo_father_bdc919c5` Good.  _(closing.ink:1102)_
+- `vo_father_eb0b0ccb` I said his girl. That's not his girl.  _(closing.ink:1326)_
+- `vo_father_fa0a2ccb` I'd have walked back for them too.  _(closing.ink:1345)_
+- `vo_father_d3e179ba` Go back up.  _(closing.ink:1417)_
+- `vo_father_34f65568` Every bar I worked had an arrangement with somebody. The cops, the bikers, the Fraser boys. Never rats.  _(closing.ink:1614)_
+- `vo_father_051f867f` I said that to a man once, at the Legion. He waited two years.  _(closing.ink:1655)_
+- `vo_father_efa770c6` Check it in the morning. If it's open wider, something pushed it.  _(closing.ink:1678)_
+- `vo_father_f0427378` Don't let that in.  _(closing.ink:1816)_
+- `vo_father_6e3db3c0` A man on the docks told me he'd seen one, once. Leather on his elbows. I never asked his name either.  _(closing.ink:1868)_
+- `vo_father_cd713f31` You told that kid I died before you worked it out.  _(closing.ink:1870)_
+- `vo_father_3fdfeb23` Worked what out?  _(closing.ink:1871)_
+- `vo_father_5279612e` I said that boy was high. He hadn't slept. I was wrong about him.  _(closing.ink:1873)_
+- `vo_father_81107ef4` I don't say that. Don't get used to it.  _(closing.ink:1874)_
+- `vo_father_9b0d7916` The phone in the hall. There's nobody on the other end of that. I used to pick it up anyway.  _(closing.ink:1876)_
+- `vo_father_539c9055` He drove. Lie there and listen for the sirens. I'll listen with you.  _(closing.ink:1878)_
+- `vo_father_78a4315f` It helped everybody else, you told him. That's the nicest thing you ever said about me, and you said it to a stranger in a toilet.  _(closing.ink:1880)_
+- `vo_father_bfc08f3d` Thirty years, she said, and not one of you ever stopped him at the door.  _(closing.ink:1882)_
+- `vo_father_538233bf` I'd have hated any man who tried. I'd have gone home, though.  _(closing.ink:1883)_
+- `vo_father_24de996e` You did one with that boy, off his phone. On a first night. You'll want one on the second.  _(closing.ink:1885)_
+- `vo_father_5bb0a327` You pushed it back. I never pushed one back in my life. I just stopped picking them up.  _(closing.ink:1887)_
+- `vo_father_34eb4cf6` Me too, you wrote. Under always. I know what that's the answer to.  _(closing.ink:1889)_
+- `vo_father_d0b7bd0b` Go home, you wrote. On the wall of a bar. I'd have read that and ordered another.  _(closing.ink:1891)_
+- `vo_father_d9eb468c` A man asks who's still here at two, and you give him the hours.  _(closing.ink:1893)_
+- `vo_father_ed34a965` Tuesdays at seven. You looked at that one longer than you looked at the phone numbers.  _(closing.ink:1895)_
+- `vo_father_a2b7d6c7` Tuesdays at seven. I wonder if it's still the same coffee.  _(closing.ink:1897)_
+- `vo_father_b360d43c` Not one. Not one, all night. I don't know what to do with that.  _(closing.ink:1901)_
+- `vo_father_d16f8335` You'll do. That's what I'd have said. You'll do.  _(closing.ink:1903)_
+- `vo_father_ff5f5dda` Now they come past you or they don't come.  _(deck.ink:50)_
+- `vo_father_5b1b4223` The kid you turned away. He didn't go home. He came round the back, and he brought his family.  _(deck.ink:58)_
+- `vo_father_4de2b1f4` He wants you to tell him.  _(deck.ink:123)_
+- `vo_father_0f2b9673` You put him out and let him back in. Now he knows what your out is worth.  _(deck.ink:174)_
+- `vo_father_4e66a6d0` You walked the doors. You stood at that one and left the coaster in it.  _(deck.ink:185)_
+- `vo_father_cd51daaa` The deck. You knew about the coaster.  _(deck.ink:187)_
+- `vo_father_eea6faac` You looked right at that coaster and left it in.  _(deck.ink:348)_
+- `vo_father_3615757b` You left the coaster in.  _(deck.ink:350)_
+- `vo_father_17a1eecb` Half an hour, she gave you. That's more than I ever gave anybody.  _(door.ink:27)_
+- `vo_father_21adaf75` A picture of a card isn't a card.  _(door.ink:125)_
+- `vo_father_c1f4d196` He took that from the lot. He's been sitting out there a while.  _(door.ink:152)_
+- `vo_father_a3c1455c` Look at his eyes. Red, and too wide. He's on something, and he's been on it a while. You don't let that in on a Wednesday to see what it does.  _(door.ink:157)_
+- `vo_father_b243c603` Won't look at you. In my day that meant he'd done something.  _(door.ink:163)_
+- `vo_father_356fa3a4` That's it. Be decent. The no goes down easier.  _(door.ink:188)_
+- `vo_father_d0ef6d71` Then it's in the truck, and so is he.  _(door.ink:204)_
+- `vo_father_32b316be` He's not here to drink. He's here for somebody inside. That's worse.  _(door.ink:227)_
+- `vo_father_f8ab46b4` There's a coaster in the deck door. You know that.  _(door.ink:296)_
+- `vo_father_5e531681` His sister's still out there with the engine running. Wonder why.  _(door.ink:326)_
+- `vo_father_7f909d84` Can't. He said can't first.  _(door.ink:350)_
+- `vo_father_ba5ade73` So that's whose they are.  _(door.ink:411)_
+- `vo_father_a9b0ed9e` The big one with the left hand.  _(door.ink:419)_
+- `vo_father_83751f48` He never answered either.  _(door.ink:430)_
+- `vo_father_b605c882` It's always in the other pants.  _(door.ink:449)_
+- `vo_father_425ddfe3` You lied to his daughter for a drunk. I had men do that for me.  _(door.ink:481)_
+- `vo_father_f4c3d356` There goes your Wednesday.  _(door.ink:582)_
+- `vo_father_e09656fb` You're a messenger now. Thirty years, I never once did that.  _(door.ink:601)_
+- `vo_father_b6b680fd` Four. Maybe five. He's tired, not drunk.  _(door.ink:646)_
+- `vo_father_3833ecdb` Drunk. They're all drunk.  _(door.ink:648)_
+- `vo_father_cfb86224` Then he can take it upstairs through the hotel door. Like he'd do anyway if you weren't here.  _(door.ink:676)_
+- `vo_father_1df193e2` And he'll come down the back stairs through the hotel door and you'll never know. Unless you lock it.  _(door.ink:709)_
+- `vo_father_fefcb73d` Too clean for a Wednesday.  _(door.ink:786)_
+- `vo_father_923c1af2` That's him, then.  _(door.ink:837)_
+- `vo_father_1e0a6219` One. You said one. He heard you, and so did she.  _(door.ink:881)_
+- `vo_father_c1254757` You weren't on the door.  _(door.ink:929)_
+- `vo_father_8cd39fa0` One, you said.  _(door.ink:991)_
+- `vo_father_fe68c158` So it's not one.  _(door.ink:1026)_
+- `vo_father_f4d90170` Your mother came to the door for me like that. Twice a month, for years.  _(door.ink:1064)_
+- `vo_father_26239735` Now you're the doorman who took the float.  _(drawer.ink:175)_
+- `vo_father_d28ad3e4` I had him down for a thief.  _(drawer.ink:177)_
+- `vo_father_77badf14` So somebody's got another way in. Find it.  _(floor.ink:305)_
+- `vo_father_5da0ba18` The Manual's right about table 28 and it doesn't matter. Nobody cuts off table 28. You'll see.  _(floor.ink:360)_
+- `vo_father_db380816` He'll open it again.  _(floor.ink:445)_
+- `vo_father_db05983f` Now he's broke and angry instead of high and angry.  _(hall.ink:129)_
+- `vo_father_38496eee` I know that one. It lasts about an hour.  _(hall.ink:138)_
+- `vo_father_8f2515ad` He'll be out on the floor in an hour, looking for somebody to hit.  _(hall.ink:145)_
+- `vo_father_222b7a76` Good. Rules.  _(hall.ink:263)_
+- `vo_father_70e02a79` That's mine to tell. Not yours.  _(hall.ink:364)_
+- `vo_father_e5623db5` That's what I'd have done. Picked the cue back up.  _(hall.ink:444)_
+- `vo_father_1662043f` He went. I wouldn't have.  _(hall.ink:463)_
+- `vo_father_b34aa957` I went to those.  _(hall.ink:499)_
+- `vo_father_c349d229` For a year. Then I stopped going and kept on not drinking, and everybody said that was worse. They were probably right.  _(hall.ink:500)_
+- `vo_father_7fb59afe` She told you not to tell him she told you. You told him.  _(hall.ink:549)_
+- `vo_father_ecfd3bd2` That's the door. Everybody through it. Even the ones who live here.  _(hall.ink:581)_
+- `vo_father_bd120038` He's paying him. Twenty at a time across the rail, so neither of them has to say what for.  _(pool.ink:125)_
+- `vo_father_356f7464` And he's drinking doubles out of a pint of cola so it looks like one drink. I did that for six years.  _(pool.ink:126)_
+- `vo_father_025a1f6a` He's bad at pool. Pool's for men who don't work.  _(pool.ink:128)_
+- `vo_father_8fd973a8` I asked that of every doorman I ever drank in front of.  _(pool.ink:176)_
+- `vo_father_79af8f4d` He's been throwing games all night. He's buying something.  _(pool.ink:211)_
+- `vo_father_a803b901` That's his.  _(pool.ink:239)_
+- `vo_father_5b14ea3e` He's had enough of you for one night. You did that at the door.  _(pool.ink:263)_
+- `vo_father_0849b624` Not in front of his friend. Never tell a man anything in front of his friend.  _(pool.ink:298)_
+- `vo_father_36667c24` You carried it right.  _(pool.ink:379)_
+- `vo_father_50ffb71f` I never would have gone.  _(pool.ink:380)_
+- `vo_father_5454298e` He's not coming. I wasn't.  _(pool.ink:397)_
+- `vo_father_ce15007c` That's my voice. Where'd you get that.  _(pool.ink:532)_
+- `vo_father_0db2a7df` Now it's on paper. Now it's the owner's night, and the owner's insurance.  _(pool.ink:590)_
+- `vo_father_3d39fe98` A doorman put me out of the Legion in Campbell River once, and drove me home after. I never thanked him.  _(pool.ink:610)_
+- `vo_father_b8ff0217` They'll follow him all the way home like that. Kids do. I know.  _(pool.ink:614)_
+- `vo_father_aa60b0a5` Everybody out. That's what I'd have done.  _(pool.ink:652)_
+- `vo_father_08d800e1` Straight to a cop. I never did that once.  _(pool.ink:726)_
+- `vo_father_9b55e758` She knows. They always know. She's just got eleven other calls.  _(pool.ink:735)_
+- `vo_father_eb7ee757` You gave her the hard part.  _(pool.ink:741)_
+- `vo_father_e0c79261` You haven't earned that across a room yet.  _(pool.ink:807)_
+- `vo_father_c707cb93` Two and a half hours on a wall. Go in.  _(prologue.ink:26)_
+- `vo_father_426b6d10` Look at a building before you go in it.  _(prologue.ink:28)_
+- `vo_father_fe91494b` Two at four o'clock. That's one still in you, whatever you think.  _(prologue.ink:35)_
+- `vo_father_b93c7c39` All of these are driving home tonight.  _(prologue.ink:46)_
+- `vo_father_75a1cccd` Count them. Those five in the window think they own you already.  _(prologue.ink:117)_
+- `vo_father_a7b75d88` Four doors. You can see one.  _(prologue.ink:144)_
+- `vo_father_719fa18b` Heads first. Then faces. Then hands. Then the doors.  _(prologue.ink:176)_
+- `vo_father_fef17431` He's not wrong. A week of stink in a bar is a week of nobody coming in.  _(rats.ink:97)_
+- `vo_father_738c4999` Remove food sources. In a kitchen.  _(rats.ink:116)_
+- `vo_father_98ebf421` Cooks. Every one of them.  _(rats.ink:163)_
+- `vo_father_b92a9652` Every bar. Every single bar.  _(rats.ink:241)_
+- `vo_father_c87de333` Now you're in it.  _(rats.ink:264)_
+- `vo_father_d0d042c8` Where the cook said. He'll hear you listened.  _(rats.ink:297)_
+- `vo_father_95d12179` Poison. Your grandfather put strychnine down on the farm, on everything. The dog got into it.  _(rats.ink:331)_
+- `vo_father_13fcf9c8` You'll catch three, the cook said.  _(rats.ink:341)_
+- `vo_father_1a794dc3` Along the wall. They run the walls. They don't cross open floor if they can help it.  _(rats.ink:347)_
+- `vo_father_e60014af` You know what'll walk into that first.  _(rats.ink:359)_
+- `vo_father_f3c18949` Don't go in there.  _(rats.ink:406)_
+- `vo_father_ea548499` A man on the docks told me he'd seen one, once. We all said he was drunk. He was drunk.  _(rats.ink:439)_
+- `vo_father_be1839c8` Get out of there.  _(rats.ink:450)_
+- `vo_father_ef22cc1f` You're paying them.  _(rats.ink:511)_
+- `vo_father_ced8a0bd` They took it home. That's where they'll die, in the walls where you can't get at them. Then you'll smell it.  _(rats.ink:523)_
+- `vo_father_04e06cd9` One. Out of however many there are.  _(rats.ink:530)_
+- `vo_father_005e0abb` First useful thing you've done all night.  _(rats.ink:551)_
+- `vo_father_3fba728c` Whatever you do, do it like it's nothing.  _(rats.ink:568)_
+- `vo_father_483a587a` Keep your voice down and people will believe anything you tell them.  _(rats.ink:614)_
+- `vo_father_0331ab13` You didn't have to watch it. You watched it.  _(rats.ink:654)_
+- `vo_father_ce755d2d` And you put down more. So it's yours now.  _(rats.ink:675)_
+- `vo_father_7b55ba25` You put it down. So this is yours.  _(rats.ink:677)_
+- `vo_father_d59f9fd9` That's the least you owed it.  _(rats.ink:714)_
+- `vo_father_8d547836` The owner's not here. You are.  _(rats.ink:751)_
+- `vo_father_8eab3fd9` Twenty years from now they'll still call you the one who killed Walter.  _(rats.ink:784)_
+- `vo_father_4a98d412` Keep the rail clear. Glasses get thrown.  _(room.ink:43)_
+- `vo_father_d5f5b39e` You walked past it all night.  _(room.ink:175)_
+- `vo_father_7a6b9cfb` You never once went over to that corner.  _(room.ink:177)_
+- `vo_father_6a3bc078` She's had you figured since seven.  _(room.ink:230)_
+- `vo_father_a6bb1969` We put the boxing on at the Legion Friday nights. Nobody ever started one during the boxing.  _(room.ink:264)_
+- `vo_father_090cbafb` You turn the TV off at last call. Not before.  _(room.ink:302)_
+- `vo_father_40ebe24a` I pulled up a chair at the Legion in '79 and sat there eleven years.  _(room.ink:347)_
+- `vo_father_4bf5cd48` The floor inside the door is the door's. Somebody falls on it, it's yours.  _(room.ink:390)_
+- `vo_father_b80418c5` He's got one on you now. Watch him spend it.  _(room.ink:423)_
+- `vo_father_602fda8b` I pulled one off the wall at the Legion once and nothing came out.  _(room.ink:463)_
+- `vo_father_512bad7c` Lights up, music off. Then stand where they can see you.  _(room.ink:513)_
+- `vo_father_18c205de` She can wait. I said that for twenty years.  _(room.ink:588)_
+- `vo_father_4e51c4a9` So he went.  _(room.ink:682)_
+- `vo_father_97fec02a` You heard it ringing in there. So did whoever took it.  _(room.ink:693)_
+- `vo_father_9c0ea691` Somebody came in past your stool tonight that you never saw. They saw the coat.  _(room.ink:695)_
+- `vo_father_0a981561` He's been in twice tonight now. The second time, you held the door.  _(room.ink:790)_
+- `vo_father_8e97263d` He'll call. And Gary'll drive it out to him.  _(room.ink:797)_
+- `vo_father_8fa5f64b` He'll hold that over you till Christmas.  _(room.ink:821)_
+- `vo_father_1716a827` For fifty dollars.  _(room.ink:829)_
+- `vo_father_39976f18` They'll hold you to that. Ten years. Somebody here knows somebody in the city.  _(table28.ink:60)_
+- `vo_father_46f9d37c` Don't.  _(table28.ink:70)_
+- `vo_father_a86d30ac` Now it's out.  _(table28.ink:81)_
+- `vo_father_05cfa65b` Good. Stay standing. Once you sit at a table like that you're furniture.  _(table28.ink:101)_
+- `vo_father_ca0594da` You know what that is.  _(table28.ink:113)_
+- `vo_father_48c9c81f` Let them talk. A man who's on about diesel isn't fighting anybody.  _(table28.ink:151)_
+- `vo_father_471ebe95` The one about the float. That's the one I'd believe. Doormen steal.  _(table28.ink:165)_
+- `vo_father_e4b6e414` That's the rat problem. It's eating a fry in front of you.  _(table28.ink:195)_
+- `vo_father_764a003a` The rule is whoever pays for the carpet. I told you.  _(table28.ink:384)_
+- `vo_father_df9042e8` You know why.  _(table28.ink:430)_
+- `vo_father_15144cfc` You sat with your back to his door. Ray Sinclair did that in '88 and got a pool cue across the back of the head.  _(walk.ink:24)_
+- `vo_father_9fc30185` You turned his chair to face his door. Good. You got that from me.  _(walk.ink:26)_
+- `vo_father_38192f27` You made him reach for it. Your mother did that with the cheque, every month.  _(walk.ink:28)_
+- `vo_father_d2cfd92e` You looked at his room before you sat down in it. Good.  _(walk.ink:30)_
+- `vo_father_8df4d727` Walk it. The first night at a new door, walk there, and see what they walk past to get to you.  _(walk.ink:37)_
+- `vo_father_67d2fc18` Eat. You won't get the chance after.  _(walk.ink:87)_
+- `vo_father_2f2d6543` Watch it from outside first. Once you're in there you can't see a thing.  _(walk.ink:160)_
+- `vo_father_2419c31c` That's a man looking to see who's on the door.  _(walk.ink:170)_
+- `vo_father_1582d8ae` There's your trouble. Not the front door. That one.  _(walk.ink:176)_
+- `vo_father_f24304ee` An hour off the door. I got fired for less.  _(barks.yaml door_hour_off)_
+- `vo_father_5cd23cd4` His kid's twenty feet away and he knows exactly where.  _(barks.yaml pool_his_kid)_
+- `vo_father_7dc4e5f7` His daughter's sitting out in that truck with the engine running, and he's chalking his cue.  _(barks.yaml pool_his_daughter_waiting)_
+- `vo_father_4f432061` They'll keep them coming. That's how they pay you.  _(barks.yaml t28_leash)_
+- `vo_father_03c935f6` I stopped at three once. Once.  _(barks.yaml bar_three)_
+- `vo_father_b9d13017` That coaster's in the latch for somebody, and it isn't you.  _(barks.yaml deck_coaster)_
+- `vo_father_de4e97d0` A man waited for me in the lot at the Legion once. He'd been waiting since June.  _(barks.yaml lot_remember)_
+- `vo_father_4df2cd47` Nine. Whoever comes in after nine came to stay.  _(barks.yaml hour_nine)_
+- `vo_father_a4542c1d` Half an hour to last call. Start with the ones who are standing.  _(barks.yaml hour_one)_
+- `vo_father_4728b683` Don't let them all talk at once.  _(barks.yaml tension_up_father)_
+- `vo_father_44d2c82d` I'd have said less.  _(barks.yaml fail_father)_
+- `vo_father_bc772324` The book's right more often than I ever let on.  _(barks.yaml pass_manual_father)_
+- `vo_father_48586cf5` He fought for free. You're on eighteen an hour not to.  _(barks.yaml ans_father_fighter_1)_
+- `vo_father_addd2769` The first one decides it. Then the police decide the rest.  _(barks.yaml ans_father_fighter_2)_
+- `vo_father_ff98424c` Book's right. It just won't be standing next to you.  _(barks.yaml ans_father_manual_1)_
+- `vo_father_d0cd3935` Listen to it. I didn't, and I lost my licence twice.  _(barks.yaml ans_father_manual_2)_
+- `vo_father_801cef60` Drunks tell it better than it happened. Doesn't mean it didn't.  _(barks.yaml ans_father_wrongman_1)_
+- `vo_father_975ae29d` Every door I worked had a story like that. At the Legion it was a man in the walk-in.  _(barks.yaml ans_father_wrongman_2)_
+- `vo_father_8941e421` Water under the laminate, and the picture still moves through it. Wet. Not fake.  _(barks.yaml toy_hoodie_card_tilt)_
+- `vo_father_b72ccaf6` It's real. They mostly are. Now hold it up by her face.  _(barks.yaml toy_driver_card_tilt)_
+- `vo_father_de56e1fe` Turn it over. The ones who make them never bother with the back.  _(barks.yaml toy_card_flip)_
+- `vo_father_8cc43d7d` Card, then face. Look at the ears. People change their hair. Nobody changes their ears.  _(barks.yaml toy_card_look_father)_
+- `vo_father_14cc5209` Same card as page three. He's not hiding from anybody.  _(barks.yaml toy_goodshoes_look_known)_
+- `vo_father_209b9cf9` Pull the darts after ten. I saw a man lose an eye at the Legion.  _(barks.yaml look_dartboard)_
+- `vo_father_f216b17d` We had that sign at the Legion. Somebody drew a dick on it.  _(barks.yaml look_id_sign)_
+- `vo_father_daf62c91` Whoever turns that dial up, the room hates for a minute. Better you than her.  _(barks.yaml look_dimmer)_
+- `vo_father_c0dc9ea9` Never run on the floor. Run and the whole room gets up to see where.  _(barks.yaml legs_ran_father)_
+- `vo_father_8677901c` They talk about you so you'll hear it. Don't let them see you heard it.  _(barks.yaml ears_new_kid)_
+- `vo_father_b56199a0` Every bar's got a Dennis. At the Legion it was me.  _(barks.yaml ears_dennis)_
+- `vo_father_f5fef236` He's said Gary's name twice. Gary's never once said his.  _(barks.yaml ears_goodshoes)_
+- `vo_father_680bac82` Eyes on the door. The sky's somebody else's job.  _(barks.yaml ears_light)_
+- `vo_father_f9135976` He's telling his sister. I told your aunt about your grandmother with a joke, too.  _(barks.yaml ears_kids_over)_
+- `vo_father_173b3394` Nobody has to take the first one.  _(barks.yaml hand_drink_first)_
+- `vo_father_de8d41d5` I know that hand. I had that hand.  _(barks.yaml hand_drink_hand)_
+- `vo_father_2bbddf01` You're counting the door. Count these.  _(barks.yaml hand_drink_count)_
+- `vo_father_9cb92f31` You looked at it, though.  _(barks.yaml hand_resisted_drink_father)_
+- `vo_father_b5019477` I wrote mine so they read better. For years.  _(barks.yaml hand_shade_father)_
+- `vo_father_81fa1e7b` I left things out for thirty years. It all came out at the Legion anyway.  _(barks.yaml hand_omit_father)_
+- `vo_father_6cf2bad4` That's how it happened. Leave it like that.  _(barks.yaml hand_resisted_shade)_
+- `vo_father_931cab0d` Put it all in. You'll sleep.  _(barks.yaml hand_resisted_omit)_
+- `vo_father_8f1362b6` Hands down till you've said something.  _(barks.yaml hand_check_fighter_father)_
+- `vo_father_b4006add` I've stood where you're standing. Let me.  _(barks.yaml hand_check_father_own)_
+- `vo_father_8a295343` You learned that from me. Putting people out.  _(barks.yaml hand_out_father)_
+- `vo_father_9ebb9d22` Table 28 never leave anywhere. Ask Gary.  _(barks.yaml hand_in_table_father)_
+- `vo_father_27381add` Somebody walks in the second you go.  _(barks.yaml hand_door_father)_
+- `vo_father_35839cbc` Walk over slow. Let him see you coming.  _(barks.yaml hand_loc_pool_father)_
+- `vo_father_a9688489` They'll pour and you'll drink. That's the table.  _(barks.yaml hand_loc_t28)_
+- `vo_father_0aa86c3e` Nobody waits in a lot for a good reason.  _(barks.yaml hand_loc_lot)_
+- `vo_father_dde36da8` Washrooms. Look under the doors. Feet tell you everything.  _(barks.yaml hand_loc_hall)_
+- `vo_father_5882a0d1` You're not going over there for water.  _(barks.yaml hand_loc_bar)_
+- `vo_father_a18e8bfa` Pick one and stand by it.  _(barks.yaml hand_wait_father)_
+- `vo_father_87109e53` Don't look back there. Look at the door.  _(barks.yaml hand_reread_father)_
+- `vo_father_ac5f5a82` You went somewhere.  _(barks.yaml hand_back_father)_
+- `vo_father_a346975e` Slow down. You're not reading them.  _(barks.yaml hand_rush_father)_
+- `vo_father_90bb4e05` They don't know it's you shaking them.  _(barks.yaml hand_shake_father)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- {Num(drinks)}. After hours still counts.  _(closing.ink:1082)_
+- {Num(drinks)}. I counted. You'll count them again tomorrow, in the mirror.  _(closing.ink:1899)_
+- {Num(drinks)}. I counted. You're counting too, or you should be.  _(table28.ink:250)_
+
+## The Manual (`manual`)
+
+- `vo_manual_5e308e5d` Memorise the barred list at the start of every shift. Page three. Page seven. Page eleven, the one with the tattoo on his neck.  _(bar.ink:87)_
+- `vo_manual_588bf04e` Liquor service ends at the close of licensed hours. Patrons must be off the premises within thirty minutes.  _(closing.ink:296)_
+- `vo_manual_6d647f42` A licensee who knowingly allows an intoxicated patron to drive may be held liable (see Section 5, Liability).  _(closing.ink:559)_
+- `vo_manual_0bb86a64` Keys are returned only to a patron fit to drive. The patron's condition is assessed at the time of return.  _(closing.ink:1328)_
+- `vo_manual_9bb3bc18` The licensee's duty of care ends at the door of the licensed premises (see Section 4, Premises).  _(closing.ink:1711)_
+- `vo_manual_95d1c212` A shift with no incidents is recorded as NOTHING TO REPORT, with the date and the security worker's signature.  _(closing.ink:1846)_
+- `vo_manual_6f7d7854` The incident log is a legal document. A false entry in it is an offence (Part 6).  _(closing.ink:1850)_
+- `vo_manual_b9b26025` The incident log is a legal document. Entries are to be accurate, legible and signed.  _(closing.ink:1852)_
+- `vo_manual_789c7ab5` Three persons on the premises who were not admitted. One refused entry. One with no identification presented.  _(deck.ink:189)_
+- `vo_manual_3f2cf70b` For the record, one of them has no identification.  _(deck.ink:236)_
+- `vo_manual_4cbab83a` Acceptable identification is a valid government-issued card with a photograph, presented in person. Where doubt exists, request a second piece.  _(door.ink:126)_
+- `vo_manual_82b110a0` Nineteen by three weeks. Legal. The photograph is still not identification.  _(door.ink:140)_
+- `vo_manual_138c7db4` The scanner reads cards. It does not read photographs of cards. The scanner is, in this respect, correct.  _(door.ink:235)_
+- `vo_manual_b1ed969b` The scanner keeps a record of every card it is shown, with the time. It now has two of these.  _(door.ink:240)_
+- `vo_manual_293ba8a1` For the record, you did not verify his age.  _(door.ink:266)_
+- `vo_manual_4f837ca8` For the record, you verified his age from a photograph. The record will say photograph.  _(door.ink:268)_
+- `vo_manual_90aebd60` Valid. Nineteen. Thank you.  _(door.ink:323)_
+- `vo_manual_e69de38c` Photograph matches bearer. Valid.  _(door.ink:413)_
+- `vo_manual_6da43043` For the record: an hour ago he was refused for want of a card. He still has no card.  _(door.ink:521)_
+- `vo_manual_218b1148` You asked him for identification. He had none. He is now inside, and ordering.  _(door.ink:577)_
+- `vo_manual_f64b5cf2` The one with no identification is now inside and ordering.  _(door.ink:580)_
+- `vo_manual_921323ee` Speech clear. Gait steady within reason. Eyes glassy. Odour of alcohol. Carrying alcohol, which may not be brought onto licensed premises. Refuse entry with the product, or require him to leave it.  _(door.ink:654)_
+- `vo_manual_896dd9a2` Refer to section four. Signs of intoxication include, but are not limited to, the following.  _(door.ink:656)_
+- `vo_manual_25eac0ba` You told him he could not bring it in. Then he brought it in. She heard both.  _(door.ink:688)_
+- `vo_manual_0889489b` Binder. Page three. Photocopy of a licence. Barred.  _(door.ink:766)_
+- `vo_manual_b512ccc4` Valid. Fifty-one years of age. The scanner does not check the barred list. The barred list is in a binder, under the till.  _(door.ink:793)_
+- `vo_manual_faa88ac5` Binder. Page three. Barred.  _(door.ink:803)_
+- `vo_manual_348ae378` The owner is unavailable. The barred list is available.  _(door.ink:859)_
+- `vo_manual_4c45b3e3` You are not required to disclose the identity of any patron.  _(door.ink:1050)_
+- `vo_manual_4dd0b3b0` Refer to privacy.  _(door.ink:1052)_
+- `vo_manual_907893c7` Occupancy is within the licensed maximum (see the certificate posted by the main entrance).  _(floor.ink:308)_
+- `vo_manual_62b055af` The big man at the pool table is drinking doubles and pouring them into a pint of cola so they look like one drink.  _(floor.ink:357)_
+- `vo_manual_26ccf855` Everyone is drinking. That is the purpose of the premises.  _(floor.ink:362)_
+- `vo_manual_19f8a2e6` Access between the licensed premises and the residential floors should be controlled.  _(floor.ink:415)_
+- `vo_manual_c04ef0ff` The licensee must not permit the use of illicit drugs on the premises. Remove the person. Record the incident.  _(hall.ink:104)_
+- `vo_manual_21a54772` A security worker impaired on shift is liable to suspension of his licence (Part 6).  _(hall.ink:137)_
+- `vo_manual_8d1a6a11` Staff may enter a locked washroom where there is reasonable concern for a patron's safety.  _(hall.ink:272)_
+- `vo_manual_1919e7be` Correct.  _(pool.ink:589)_
+- `vo_manual_909ed985` The licensee's duty of care begins at the threshold (see Section 4, Premises).  _(prologue.ink:119)_
+- `vo_manual_f5cc1277` A single sighting indicates an established population.  _(rats.ink:91)_
+- `vo_manual_4669ad6d` Evidence of rodent activity. Droppings, fresh, concentrated along the wall. Gnaw marks at the base of the door frame. Grease marks at the pipe penetration. The pipe penetration is not sealed.  _(rats.ink:112)_
+- `vo_manual_e10f812e` Seal all penetrations. Remove food sources. Then bait.  _(rats.ink:115)_
+- `vo_manual_25584ffe` Harbourage outside the premises. Keep dumpster lids closed.  _(rats.ink:142)_
+- `vo_manual_7b8e50c3` The use of controlled substances by staff on the premises is grounds for dismissal and must be recorded.  _(rats.ink:242)_
+- `vo_manual_c6efae65` Wear gloves. Place in tamper-resistant stations only. Never where it can contaminate food.  _(rats.ink:290)_
+- `vo_manual_c151a10b` Never where it can contaminate food.  _(rats.ink:303)_
+- `vo_manual_bfa129d0` Chewed wiring is a fire hazard. The inspector will close you for the wiring before he closes you for the rats.  _(rats.ink:404)_
+- `vo_manual_234c1895` There is no section for this.  _(rats.ink:438)_
+- `vo_manual_72563397` Rat bites carry a serious risk of infection. Seek medical attention.  _(rats.ink:456)_
+- `vo_manual_60c567ec` Bait uptake indicates an active population. Replenish.  _(rats.ink:522)_
+- `vo_manual_66355b27` Slide a coaster underneath.  _(rats.ink:597)_
+- `vo_manual_a1dfd92f` Anticoagulant bait causes internal bleeding over several days. Affected animals become lethargic, disoriented and thirsty, and may be seen in the open.  _(rats.ink:672)_
+- `vo_manual_f65a215b` Several days. This one ate bait somebody put down before you came.  _(rats.ink:674)_
+- `vo_manual_81e69beb` Where a weapon is used on licensed premises, police are called. There is no discretion.  _(room.ink:173)_
+- `vo_manual_2602ad66` A hazard that cannot be removed must be marked until it is removed (see Section 4, Premises).  _(room.ink:404)_
+- `vo_manual_9bdd67cc` Portable extinguishers are inspected monthly and serviced annually by a certified technician. The tag is the record.  _(room.ink:462)_
+- `vo_manual_af80632f` The presence of rodents in a food service area is a violation. The feeding of rodents by patrons is not addressed in the manual.  _(table28.ink:196)_
+- `vo_manual_bf98c2d0` A licensee must not permit a person to become intoxicated on the premises. They were intoxicated at two o'clock.  _(table28.ink:370)_
+- `vo_manual_5bc70b53` The rule is still the rule.  _(table28.ink:383)_
+- `vo_manual_13746b68` Paraphernalia located on licensed premises is to be reported to the licensee.  _(walk.ink:215)_
+- `vo_manual_2ce5beaf` A choice with a voice's name on it is a check. That voice makes the call, and two dice have to reach the number beside it. The odds are printed under it.  _(barks.yaml teach_check)_
+- `vo_manual_51bc8c63` When the voices are at odds it gets loud in here, and loud makes every roll swing wider, good and bad. The average does not move. See diagram.  _(barks.yaml teach_tension)_
+- `vo_manual_f1c06209` Every group on the premises keeps its own opinion of staff, by its own rules, and shows it in what it says to you.  _(barks.yaml teach_word)_
+- `vo_manual_d25e73aa` Occupancy in here is limited to five. Some choices let a voice in or put one out. The note under the choice says what it will do to the noise.  _(barks.yaml teach_room)_
+- `vo_manual_91711040` Before you commit to a choice, rest a hand on it. Point at it, or press and hold. A voice with something to say about it will say it.  _(barks.yaml teach_hand)_
+- `vo_manual_b39a124e` Maintain a visible presence at the point of entry (see Section 2, The Door).  _(barks.yaml door_first_quiet)_
+- `vo_manual_d24e5e57` De-escalation is most effective before physical contact.  _(barks.yaml pool_early)_
+- `vo_manual_21472349` Staff must refuse service to a patron who shows signs of intoxication (Section 3, Service).  _(barks.yaml t28_never_cut)_
+- `vo_manual_4389c51c` Check washrooms at regular intervals and record the time in the log.  _(barks.yaml hall_intervals)_
+- `vo_manual_a4b70973` Exterior doors must not be propped open during licensed hours.  _(barks.yaml kitchen_propped)_
+- `vo_manual_98f51037` Inspect bait stations daily. Record uptake.  _(barks.yaml keg_stations)_
+- `vo_manual_58250baa` Staff shall not consume alcohol while on duty (Part 6).  _(barks.yaml drink_log)_
+- `vo_manual_41514c9f` After eleven, walk the premises at least once an hour.  _(barks.yaml hour_eleven)_
+- `vo_manual_2cc83d22` Quieter.  _(barks.yaml tension_down_manual)_
+- `vo_manual_097bb799` This was covered in Module 3, on the Saturday.  _(barks.yaml fail_manual)_
+- `vo_manual_4f3acac2` Consistent with the course material.  _(barks.yaml ans_manual_father_1)_
+- `vo_manual_0f3f8235` That is in the binder as well. With a diagram.  _(barks.yaml ans_manual_father_2)_
+- `vo_manual_8ee13800` Force must be reasonable, necessary and proportionate (Section 7, Use of Force).  _(barks.yaml ans_manual_fighter_1)_
+- `vo_manual_2500198c` Physical intervention is the last option on the list (Section 7, Use of Force).  _(barks.yaml ans_manual_fighter_2)_
+- `vo_manual_021eab9d` An anecdote is not evidence. Record what you observe.  _(barks.yaml ans_manual_wrongman_1)_
+- `vo_manual_eadae9a5` Incident log entries record observed facts, with the time, the place, the persons involved and the action taken.  _(barks.yaml ans_manual_wrongman_2)_
+- `vo_manual_aad89931` Tip it under the light. On a real one the hologram moves. On a printed one it sits there.  _(barks.yaml toy_card_tilt)_
+- `vo_manual_40bf083d` Genuine. The scanner agrees. Check the barred list under the till (Section 2, The Door).  _(barks.yaml toy_goodshoes_card_tilt)_
+- `vo_manual_265d3e2b` Born the fourteenth of October, two thousand and seven. Nineteen years and twenty-one days. Legal.  _(barks.yaml toy_hoodie_card_look)_
+- `vo_manual_2e023dda` Photograph matches bearer. Fifty-one years of age. Valid.  _(barks.yaml toy_goodshoes_look_clean)_
+- `vo_manual_0f1d853f` Staff are advised to work out the cut-off date of birth at the start of each shift.  _(barks.yaml look_tape)_
+- `vo_manual_a07fbe14` Extinguishers are inspected monthly and the tag is punched. Read the tag.  _(barks.yaml look_extinguisher)_
+- `vo_manual_c8d10acc` Staff will move through the licensed area at a walking pace. A running employee may itself occasion an incident.  _(barks.yaml legs_ran_manual)_
+- `vo_manual_5587e790` Staff are not to engage patrons in political or religious discussion.  _(barks.yaml ears_haarp)_
+- `vo_manual_851d6432` Sightings of vermin are to be reported to the licensee the same day.  _(barks.yaml ears_rat)_
+- `vo_manual_d5ae52cd` Staff may accept a drink from a patron and hold it without drinking it. See Refusals.  _(barks.yaml hand_drink_manual)_
+- `vo_manual_73952ab8` The incident log may be requested by the police, the owner or the licensing branch.  _(barks.yaml hand_shade_manual)_
+- `vo_manual_0f1363d2` An incident that is not recorded is an incident the house cannot defend.  _(barks.yaml hand_omit_manual)_
+- `vo_manual_2202a381` If you put hands on him, you write it up. All of it.  _(barks.yaml hand_check_fighter_manual)_
+- `vo_manual_f1a4c516` This is covered. Page nine.  _(barks.yaml hand_check_manual_own)_
+- `vo_manual_13001c6f` Observe what is in front of you, not what happened to somebody's brother.  _(barks.yaml hand_check_wrongman_manual)_
+- `vo_manual_487affeb` Responsibility for the premises remains with you.  _(barks.yaml hand_out_manual)_
+- `vo_manual_ed890ada` Your post is the door. It says so on the schedule.  _(barks.yaml hand_door_manual)_
+- `vo_manual_b155773b` Staff do not enter storage areas without the licensee's instruction.  _(barks.yaml hand_loc_keg)_
+- `vo_manual_f7926bfc` A propped door is an unmonitored entrance.  _(barks.yaml hand_loc_deck)_
+- `vo_manual_92b294f2` Somebody propped it. The log will want to know who.  _(barks.yaml hand_loc_kitchen)_
+- `vo_manual_4c86f091` They are still standing there.  _(barks.yaml hand_wait_door)_
+- `vo_manual_78a7f550` Reviewing the log is good practice. The shift is still on.  _(barks.yaml hand_reread_manual)_
+- `vo_manual_db7c7d8e` Nothing was logged while you were away.  _(barks.yaml hand_back_manual)_
+- `vo_manual_3090aca2` You are not reading.  _(barks.yaml hand_rush_manual)_
+- `vo_manual_5ce73d16` How long they are shaken has no bearing on the outcome.  _(barks.yaml hand_shake_manual)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- The incident log is a legal document. {Num(LIST_COUNT(left_out))} {LIST_COUNT(left_out) == 1:incident is\|incidents are} not in it.  _(closing.ink:1848)_
+- Table 28 are on round {t28_rounds} since two o'clock. By any written standard, all {dennis_gone():four\|five} are intoxicated. By any written standard, you should refuse them service.  _(floor.ink:355)_
+
+## The Wrong Man (`wrongman`)
+
+- `vo_wrongman_53f6df21` In the story they said that about the wrong man too. No trouble at all, they said.  _(bar.ink:121)_
+- `vo_wrongman_8f337edc` Talk about it. With who.  _(bar.ink:325)_
+- `vo_wrongman_3836122a` There was a twenty in the story too. The drunk could never remember who owed it to who.  _(bar.ink:375)_
+- `vo_wrongman_5743b4f9` Twenty dollars. The drunk said the whole story started over twenty dollars. Then he said it was a woman.  _(bar.ink:388)_
+- `vo_wrongman_5b4a407b` In the story he drove home too. The drunk could never get to the end of that part.  _(closing.ink:560)_
+- `vo_wrongman_d3494498` In the story somebody made one drink last all night too. The drunk thought it might have been him.  _(closing.ink:584)_
+- `vo_wrongman_4ab1bad4` In the story somebody left the hotel door unlocked, and that's how the wrong man got up the stairs. Or down them.  _(closing.ink:678)_
+- `vo_wrongman_592b061c` After, he said. When it's quiet.  _(closing.ink:695)_
+- `vo_wrongman_514a6e88` In the story they found one asleep in the can too. The drunk said that was him.  _(closing.ink:953)_
+- `vo_wrongman_c3221d76` In the story he came back for his keys too. The drunk said the doorman gave them to him. Then it was the hill road.  _(closing.ink:1332)_
+- `vo_wrongman_da74eb7e` There was an old man in the story too. The drunk said he was the one who told it to him.  _(closing.ink:1418)_
+- `vo_wrongman_ad614b5a` In the story the doorman made a deal with somebody down in the cellar too. The drunk never would say who.  _(closing.ink:1629)_
+- `vo_wrongman_ec6bc78f` In the story the doorman broke the deal the first night too. The drunk said that was where the bad part started.  _(closing.ink:1681)_
+- `vo_wrongman_e0d5b6af` Somebody got in tonight you never saw. The drunk said that happened in the story too, but he said that about everything.  _(closing.ink:1856)_
+- `vo_wrongman_d667ba06` In the story the one who saw it never told anybody. Then he told the drunk.  _(closing.ink:1858)_
+- `vo_wrongman_1c61bb83` You went down. In the story he went down too, and came back up, and the drunk never found out what was said down there. He asked.  _(closing.ink:1860)_
+- `vo_wrongman_e1e3429a` You didn't ask her which one was true. In the story somebody asked, and the drunk said he was gone by Christmas. Or it was Easter.  _(closing.ink:1862)_
+- `vo_wrongman_b0c0b1c2` The drunk always said the story happened on a Wednesday. Nothing happens on a Wednesday, he said.  _(closing.ink:1864)_
+- `vo_wrongman_83c6a482` It was raining in the story too. The drunk was very sure about the rain.  _(door.ink:127)_
+- `vo_wrongman_2e5b40a4` In the story the wrong one wasn't the one at the door. He was waiting in the car. Or the drunk's brother said he was.  _(door.ink:171)_
+- `vo_wrongman_02111fba` There was a car in the lot in the story too. Nobody could agree what colour.  _(door.ink:176)_
+- `vo_wrongman_9c7f1a75` He had a nice face, the one in the story. Everybody said so after.  _(door.ink:787)_
+- `vo_wrongman_511b80bc` The one in the story said he'd paid for it too. The drunk never found out what it was.  _(door.ink:852)_
+- `vo_wrongman_927aa462` In the story he had a nice coat too, and put a fifty on the bar. Or a hundred.  _(door.ink:901)_
+- `vo_wrongman_789e001b` The last one. Everybody in the story had a last one. Some of them had six.  _(door.ink:1019)_
+- `vo_wrongman_574b0b37` In the story somebody found the jacket too. The drunk couldn't remember if they ever found the man.  _(drawer.ink:180)_
+- `vo_wrongman_5fc0b8a3` In the story the doorman counted them every hour. The drunk said that didn't help him.  _(floor.ink:323)_
+- `vo_wrongman_c6735dfb` In the story the wrong one came in by a back door somebody had wedged. That part everyone agreed on.  _(floor.ink:416)_
+- `vo_wrongman_6ef84b35` In the story there was a night clerk too. Or a night manager. Somebody with a key, anyway.  _(hall.ink:67)_
+- `vo_wrongman_739bf180` In the story he saw something in the toilets too, and kept walking. The drunk wasn't sure what.  _(hall.ink:150)_
+- `vo_wrongman_e08d6097` That's an invitation. In the story nobody ever got one.  _(hall.ink:246)_
+- `vo_wrongman_bfc95aa0` In the story it was the doorman who got it wrong. The drunk always said that part quietly.  _(hall.ink:304)_
+- `vo_wrongman_d0ac186d` In the story the doorman's name was up there by the end of the first week.  _(hall.ink:495)_
+- `vo_wrongman_09a2597e` Ask like you know. The doorman in the story did that, and it worked, mostly.  _(pool.ink:283)_
+- `vo_wrongman_bb82276a` A transmission. In a tip jar.  _(pool.ink:377)_
+- `vo_wrongman_a7d77e63` In the story, the doorman carried a message once, and the man said he'd come after, and he did come after. And that was worse.  _(pool.ink:423)_
+- `vo_wrongman_b2cd155e` In the story it was the quiet one. Watch the quiet one.  _(pool.ink:545)_
+- `vo_wrongman_b0e20a75` In the story the doorman waited to see who'd start it, too.  _(pool.ink:558)_
+- `vo_wrongman_92a55b8a` In the story the police came too. Forty minutes after. Everybody had gone home by then.  _(pool.ink:743)_
+- `vo_wrongman_9b098f82` Somebody plays that when there's nobody here. There was a song in the story too. The drunk sang a bit of it, wrong.  _(pool.ink:793)_
+- `vo_wrongman_00b9aa6d` It was a slow night in the story too. The man who told it said his brother didn't even look up when the wrong one came in.  _(prologue.ink:120)_
+- `vo_wrongman_c753997d` In the story somebody wrote it down, and by Friday the whole town knew whose it was.  _(rats.ink:259)_
+- `vo_wrongman_b904228a` In the story there was a woman at the bar who saw everything, and told all of it after church on Sunday.  _(rats.ink:313)_
+- `vo_wrongman_f35d93fd` Don't tell anyone. In the story the one who saw it told everybody, and they took his keys off him.  _(rats.ink:440)_
+- `vo_wrongman_47c42f32` You're feeding them now.  _(rats.ink:510)_
+- `vo_wrongman_03d45846` Manners.  _(rats.ink:516)_
+- `vo_wrongman_24dfeb9d` In the story somebody left one out like that, for the others to see. The drunk never knew what it was supposed to say.  _(rats.ink:542)_
+- `vo_wrongman_6040e6fa` There were rats in the story too. Or the drunk was mixing it up with a different story.  _(rats.ink:631)_
+- `vo_wrongman_d2de980a` You gave one back. Somebody down there counts things like that.  _(rats.ink:662)_
+- `vo_wrongman_7e4c043c` The doorman in the story carried somebody out too. The drunk said he was heavier than he looked.  _(rats.ink:724)_
+- `vo_wrongman_ce899f2b` Now that's a story.  _(table28.ink:164)_
+- `vo_wrongman_bed31b7c` An arrangement.  _(table28.ink:211)_
+- `vo_wrongman_f0094f07` In the story, the doorman put a pillow over his head the first night. Or a towel. The drunk wasn't sure. Anyway he never found out what they said about him.  _(walk.ink:233)_
+- `vo_wrongman_17302856` In the story, the doorman heard them talking about him through a window the first night. The drunk said that was where it started to go wrong. Then he said it was later.  _(walk.ink:333)_
+- `vo_wrongman_c70e12b6` People in you never saw. In the story it was just the one, the drunk said. Or two.  _(barks.yaml door_uncounted)_
+- `vo_wrongman_ad3c71b3` The man in the kid's photo. In the story there was a photo too, and nobody looked at it till after.  _(barks.yaml pool_kid_photo)_
+- `vo_wrongman_90f8d374` In the story it was a dog under the table, the drunk said. Everybody fed it. Then he said it was a cat.  _(barks.yaml t28_walter)_
+- `vo_wrongman_98a7b80d` In the story there was a kid locked in a can too. The drunk always stopped there and ordered another.  _(barks.yaml hall_locked)_
+- `vo_wrongman_0fa1f76f` In the story somebody went out for a smoke and left a door open behind him. That was the start of it, the drunk said.  _(barks.yaml deck_story)_
+- `vo_wrongman_98e3c482` In the story the doorman who saw it went down every night after, with a light, to see if it was still there.  _(barks.yaml keg_seen)_
+- `vo_wrongman_fb2e5d77` The doorman in the story was sober, the drunk said. He was the only one.  _(barks.yaml drink_story)_
+- `vo_wrongman_c935abc0` Midnight. In the story it was after midnight, the drunk said, because the game was over.  _(barks.yaml hour_midnight)_
+- `vo_wrongman_9b142cd9` He heard the story too. The drunk told it in every bar on the island.  _(barks.yaml ans_wrongman_father_1)_
+- `vo_wrongman_863d8ca6` Listen to him. The doorman in the story didn't have a father, the drunk said. Or he did and they didn't talk.  _(barks.yaml ans_wrongman_father_2)_
+- `vo_wrongman_a9a196fb` The doorman in the story was ready for a fight. The drunk never said what came in instead.  _(barks.yaml ans_wrongman_fighter_1)_
+- `vo_wrongman_4569dc03` In the story the wrong man never squared up to anybody. He was very polite, the drunk said.  _(barks.yaml ans_wrongman_fighter_2)_
+- `vo_wrongman_c75444b4` The doorman in the story had his licence. It was in his wallet the whole time.  _(barks.yaml ans_wrongman_manual_1)_
+- `vo_wrongman_1e7cba6c` The drunk said the doorman in the story had a binder too. He used it to prop the door.  _(barks.yaml ans_wrongman_manual_2)_
+- `vo_wrongman_f5e0729d` In the story the doorman checked his licence, and he was exactly who he said he was.  _(barks.yaml toy_card_look_wrongman)_
+- `vo_wrongman_f32ee117` In the story the doorman watched the room in the mirror behind the bar. The drunk said that's how he missed it.  _(barks.yaml look_bottles)_
+- `vo_wrongman_244df095` In the story somebody left a coat on a hook all night. The drunk said the phone in it never stopped.  _(barks.yaml look_coat_hook)_
+- `vo_wrongman_30764636` In the story the doorman ran, and by the time he got there everybody was already standing.  _(barks.yaml legs_ran_wrongman)_
+- `vo_wrongman_caf7c57f` In the story the table turned on the doorman, and the drunk said they never once said it to his face.  _(barks.yaml ears_new_kid_bad)_
+- `vo_wrongman_d13f868c` The doorman in the story had one with them too. To be friendly.  _(barks.yaml hand_drink_wrongman)_
+- `vo_wrongman_9d7ca7f9` In the story he said no the first time too.  _(barks.yaml hand_resisted_drink_wrongman)_
+- `vo_wrongman_8e52c1e2` In the story the log read fine. The drunk said the cops read it twice.  _(barks.yaml hand_shade_wrongman)_
+- `vo_wrongman_2867e2ce` In the story the doorman left one thing out of his log. The drunk would never say what.  _(barks.yaml hand_omit_wrongman)_
+- `vo_wrongman_be117cc2` In the story the doorman won the fight, the drunk said. It was after that the wrong man came in.  _(barks.yaml hand_check_fighter_wrongman)_
+- `vo_wrongman_746f21c7` The book's never met anybody from here.  _(barks.yaml hand_check_manual_wrongman)_
+- `vo_wrongman_365b9e3e` I think I know how this one goes.  _(barks.yaml hand_check_wrongman_own)_
+- `vo_wrongman_21e238cb` You'll still let him in, the drunk would say. He said it to everybody.  _(barks.yaml hand_out_wrongman)_
+- `vo_wrongman_f2e2f789` That's when he got in, in the story. When the doorman went to look at something.  _(barks.yaml hand_door_wrongman)_
+- `vo_wrongman_804ed619` In the story there was something behind a wall too. The drunk said he heard it once, through the floor of the men's.  _(barks.yaml hand_loc_keg_seen)_
+- `vo_wrongman_0ad32a6b` The doorman in the story stood there thinking, too.  _(barks.yaml hand_wait_wrongman)_
+- `vo_wrongman_ecedc010` The drunk read the story out of the paper once. It was different in the paper.  _(barks.yaml hand_reread_wrongman)_
+- `vo_wrongman_fff57eef` Where were you? That's what they'll ask you.  _(barks.yaml hand_back_wrongman)_
+- `vo_wrongman_a468c1d8` Everybody in the story thought they could feel it coming.  _(barks.yaml hand_shake_wrongman)_
+
+## The Fighter (`fighter`)
+
+- `vo_fighter_c4785480` Loose. Good. You're better loose.  _(bar.ink:187)_
+- `vo_fighter_5604f7a4` Keep the glass between you. He's wet through, and angry, and he's walked a mile to stand there.  _(closing.ink:1330)_
+- `vo_fighter_35c656b5` You made a deal with rats.  _(closing.ink:1615)_
+- `vo_fighter_bdc919c5` Good.  _(closing.ink:1644)_
+- `vo_fighter_f9779650` The eye'll close by morning. Ice it. Or don't, and let them see it on Friday.  _(closing.ink:1836)_
+- `vo_fighter_9cd4e176` You hit first. Keep doing that.  _(closing.ink:1838)_
+- `vo_fighter_259d1054` Nobody swung at you. Friday somebody will.  _(closing.ink:1842)_
+- `vo_fighter_35f663ea` He's been round the whole building in the rain for this.  _(deck.ink:146)_
+- `vo_fighter_60e916a6` Watch the boyfriend.  _(deck.ink:237)_
+- `vo_fighter_26439562` The boyfriend. It'll be the boyfriend.  _(deck.ink:246)_
+- `vo_fighter_ba61db20` Nine. He's had nine. He'll swing slow and wide.  _(deck.ink:313)_
+- `vo_fighter_c19833c2` The ones you put out the front come in the back. Every time.  _(deck.ink:346)_
+- `vo_fighter_2e6741a0` Back seat. He's awake now.  _(door.ink:318)_
+- `vo_fighter_0b199ed4` He's had eight and he wants a ninth. Weight on his heels, chin up. He's the one who'll swing if anyone does, and he'll swing at the biggest fucker in the bar. You.  _(door.ink:437)_
+- `vo_fighter_653e825c` Soft. Drunk. Nothing.  _(door.ink:440)_
+- `vo_fighter_ffd12a0b` The big man at the pool table's a lefty. Every time he misses, the left hand goes flat on the rail and stays there. That's where it'll come from, if it comes.  _(floor.ink:336)_
+- `vo_fighter_453fd24d` The boyfriend's hands won't stay still. He keeps touching his own face. He's working himself up to something.  _(floor.ink:341)_
+- `vo_fighter_10175bd2` Nobody in here tonight with anything in their hands but a glass.  _(floor.ink:344)_
+- `vo_fighter_26051115` Everybody's got two.  _(floor.ink:347)_
+- `vo_fighter_a57f6f7a` He's the one who'll swing. Now he'll swing harder.  _(hall.ink:103)_
+- `vo_fighter_cee08a1f` Steady hand. He was sober for that.  _(hall.ink:475)_
+- `vo_fighter_85b199d7` Left hand. Flat on the rail when he misses. Watch it.  _(pool.ink:120)_
+- `vo_fighter_7b44c109` Now they're both looking at you.  _(pool.ink:167)_
+- `vo_fighter_b85272b0` He threw it.  _(pool.ink:210)_
+- `vo_fighter_d13a016d` Now. Now, now, now.  _(pool.ink:491)_
+- `vo_fighter_129b7e99` That's it. That's all it takes if you're first.  _(pool.ink:499)_
+- `vo_fighter_b675801b` Always take the one who's going to swing.  _(pool.ink:518)_
+- `vo_fighter_ab5da03c` Good. Loud's for them. You want to hear it start.  _(pool.ink:804)_
+- `vo_fighter_69dab290` Don't stand like that for long.  _(pool.ink:821)_
+- `vo_fighter_d27d3432` Big one at the pool table. Watch his left hand.  _(prologue.ink:118)_
+- `vo_fighter_995d241c` They're not scared of you.  _(rats.ink:141)_
+- `vo_fighter_d3a3254d` Good. Finish it.  _(rats.ink:330)_
+- `vo_fighter_d7cba458` Go in there.  _(rats.ink:407)_
+- `vo_fighter_e442bb92` You had it.  _(rats.ink:449)_
+- `vo_fighter_d2fde9e0` Now. While it's in the open.  _(rats.ink:567)_
+- `vo_fighter_40bbeb94` You let it walk.  _(rats.ink:632)_
+- `vo_fighter_e2bcda84` Done.  _(rats.ink:653)_
+- `vo_fighter_203a703c` Four clubs on the wall. Now there's none.  _(room.ink:67)_
+- `vo_fighter_4df406b4` Nothing on the rail, the rack's locked and the board's empty. It'll be fists.  _(room.ink:106)_
+- `vo_fighter_7754bfa7` Hand out of the coat. Slow. Now.  _(room.ink:605)_
+- `vo_fighter_56e5f93d` It's a drink. Drink it. They'll trust you or they won't.  _(table28.ink:114)_
+- `vo_fighter_11f5914b` One boot.  _(table28.ink:197)_
+- `vo_fighter_4c37887d` Count the fingers on the salute.  _(table28.ink:285)_
+- `vo_fighter_f440b696` Shoes off. This street doesn't scare him.  _(walk.ink:34)_
+- `vo_fighter_4b6dee50` Right hand, your height. An inch to the left and he'd have broken it on the stud.  _(walk.ink:210)_
+- `vo_fighter_acbd4ea1` Brown on one side. Somebody sat on this bed and did that.  _(walk.ink:216)_
+- `vo_fighter_69ee4642` Left hand. Flat on the rail. It hasn't moved.  _(barks.yaml pool_left_hand)_
+- `vo_fighter_8a571e55` She's not watching your back now. Nobody behind that bar is.  _(barks.yaml bar_cold)_
+- `vo_fighter_7121557d` You started it. Finish it where they live.  _(barks.yaml kitchen_war)_
+- `vo_fighter_fcd04f4d` Low ceiling. Don't stand up fast.  _(barks.yaml keg_head)_
+- `vo_fighter_f71b21d6` Two's good. Two loosens the shoulders.  _(barks.yaml drink_two)_
+- `vo_fighter_452c446b` Slow. You got slow.  _(barks.yaml fail_fighter)_
+- `vo_fighter_4c76a3c4` A story's no use in a fight. Still. Fair enough.  _(barks.yaml pass_wrongman_fighter)_
+- `vo_fighter_c47d5a5c` Thirty years of doors and he still watches the eyes. Watch the feet.  _(barks.yaml ans_fighter_father_1)_
+- `vo_fighter_3ab9b124` He'd stand there reading a man till the man hit him.  _(barks.yaml ans_fighter_father_2)_
+- `vo_fighter_d1c95625` Nobody in that conference room ever got hit.  _(barks.yaml ans_fighter_manual_1)_
+- `vo_fighter_705a1e27` Read him that when he's got you by the collar.  _(barks.yaml ans_fighter_manual_2)_
+- `vo_fighter_470f8007` Stories. Watch the room.  _(barks.yaml ans_fighter_wrongman_1)_
+- `vo_fighter_0734641a` Forget the brother. Watch the hands in front of you.  _(barks.yaml ans_fighter_wrongman_2)_
+- `vo_fighter_4ff8ddd3` Him, you don't walk out quietly.  _(barks.yaml toy_binder_page11)_
+- `vo_fighter_e4bfe974` A cue's a stick. Watch who picks one up by the thin end.  _(barks.yaml look_cues)_
+- `vo_fighter_ea716eff` Empties. Get them off the rail before the pool table gets loud.  _(barks.yaml look_empties)_
+- `vo_fighter_fbd1c9dd` Wet tile's worse than ice. On ice you know.  _(barks.yaml look_mop)_
+- `vo_fighter_824d8fb8` Somebody's coming back for that, and he'll want to know whose hands have been on it.  _(barks.yaml look_wallet)_
+- `vo_fighter_7b77f396` Shoulders up round his ears, and he's not looking at the ball.  _(barks.yaml ears_pool_quiet)_
+- `vo_fighter_563d63bc` Feet under you. Always. You never know which way a floor's going to go.  _(barks.yaml ears_overdue)_
+- `vo_fighter_6a482168` Take it. They're watching to see if you will.  _(barks.yaml hand_drink_fighter)_
+- `vo_fighter_cc094582` Suit yourself.  _(barks.yaml hand_resisted_drink_fighter)_
+- `vo_fighter_9a1d03f7` Nobody reads them.  _(barks.yaml hand_shade_fighter)_
+- `vo_fighter_094b92e7` Mine. Let me have it.  _(barks.yaml hand_check_fighter_own)_
+- `vo_fighter_791387ba` He'll still be talking when it lands.  _(barks.yaml hand_check_father_fighter)_
+- `vo_fighter_6d914583` You going to read it to him?  _(barks.yaml hand_check_manual_fighter)_
+- `vo_fighter_221a7511` You'll want me back the first time it goes wrong.  _(barks.yaml hand_out_fighter)_
+- `vo_fighter_d68f64fc` A kid. In here.  _(barks.yaml hand_in_kid_fighter)_
+- `vo_fighter_094c4393` Go. The door'll keep.  _(barks.yaml hand_door_fighter)_
+- `vo_fighter_f1f8aabb` Now we're talking.  _(barks.yaml hand_loc_pool_fighter)_
+- `vo_fighter_0bda5bf6` Decide, or somebody decides for you.  _(barks.yaml hand_wait_fighter)_
+- `vo_fighter_027543ae` Back. Eyes up.  _(barks.yaml hand_back_fighter)_
+- `vo_fighter_266d073d` Fast. Good. Don't think.  _(barks.yaml hand_rush_fighter)_
+- `vo_fighter_84e1a929` Throw them.  _(barks.yaml hand_shake_fighter)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- {Num(rats_killed)}. Out of how many.  _(closing.ink:1840)_
+- {reach_words(r)}. Count them before they do.  _(room.ink:108)_
+
+## Senior (`senior`)
+
+- `vo_senior_fb7c27f8` Hair like a girl's. In my day we'd have called him a fairy and given him the door.  _(office.ink:38)_
+- `vo_senior_0e329a4e` Ironed his T-shirt. Your mother ironed yours till you were thirty, Junior.  _(office.ink:40)_
+- `vo_senior_1754886b` He's casing it.  _(office.ink:53)_
+- `vo_senior_d39e097a` Lifted it. Didn't drag it.  _(office.ink:60)_
+- `vo_senior_834d304a` Six. I charged the last one four, and he still left.  _(office.ink:69)_
+- `vo_senior_26505a4c` Makes you reach for it.  _(office.ink:77)_
+- `vo_senior_7c3f548a` That's a jail haircut.  _(office.ink:85)_
+- `vo_senior_b8928d5f` Ten years in the city, and he's here. Ask him why.  _(office.ink:97)_
+- `vo_senior_dfec6659` Around means he owes money.  _(office.ink:110)_
+- `vo_senior_9293a8b8` His father taught him.  _(office.ink:117)_
+- `vo_senior_99def1ca` I taught you to count a till, Junior. That's what I taught you.  _(office.ink:118)_
+- `vo_senior_fcf03b35` I had a doorman in '64 say that to me. He'd put a fellow through the front window of the Legion.  _(office.ink:139)_
+- `vo_senior_e01b39f7` Look at his hands.  _(office.ink:156)_
+- `vo_senior_111675ec` They all say that. Ask him how often he has to.  _(office.ink:167)_
+- `vo_senior_18460e80` He can't lie. Good. Your mother's brother could lie, and he took me for nine thousand dollars in 1971.  _(office.ink:178)_
+- `vo_senior_f058e743` Get him out of your mother's house.  _(office.ink:183)_
+- `vo_senior_ccd1ba9d` Patient. The last one wasn't.  _(office.ink:208)_
+- `vo_senior_7a48d27d` He's looking at me.  _(office.ink:215)_
+- `vo_senior_1cee76b4` Let him. It's his problem from tonight.  _(office.ink:233)_
+- `vo_senior_43d3ffc6` A comedian. My last comedian drank the float.  _(office.ink:267)_
+- `vo_senior_0c2b7047` Not on a shift. After it, in my bar, on the house.  _(office.ink:271)_
+- `vo_senior_687d40dc` Two. He couldn't lie to save his life. Hire him.  _(office.ink:279)_
+- `vo_senior_5bb1823d` I'd have hired him for that.  _(office.ink:290)_
+- `vo_senior_9341ba64` Holds it like the old fellow at the end of the bar.  _(office.ink:294)_
+- `vo_senior_7e5a26d9` He held his like that in 1958.  _(office.ink:295)_
+- `vo_senior_c10e6b4b` Your mother would have liked him.  _(office.ink:300)_
+- `vo_senior_2b6d94e2` That's my rule.  _(office.ink:312)_
+- `vo_senior_dba75a80` That's what I said. I went to two of their funerals.  _(office.ink:325)_
+- `vo_senior_e2dc9482` Put one out and the other four go with him. They did it to me in '87. A month at the Legion.  _(office.ink:337)_
+- `vo_senior_a9b7fafc` He's not wrong, Junior.  _(office.ink:340)_
+- `vo_senior_fa62879c` Don't say rats.  _(office.ink:368)_
+- `vo_senior_f38b0f09` He counts. Watch him.  _(office.ink:390)_
+- `vo_senior_4b2e6943` Put SECURITY on a man in this town and they'll line up to have a go at him.  _(office.ink:407)_
+- `vo_senior_55ed4864` She was mine.  _(office.ink:449)_
+- `vo_senior_76257061` That's how your mother came to work for me, Junior. Behind that bar.  _(office.ink:459)_
+- `vo_senior_c25df5ce` That's a yes, Junior.  _(office.ink:463)_
+- `vo_senior_579329bf` Christ, Junior.  _(office.ink:518)_
+
+## The Till (`till`)
+
+- `vo_till_0390b32e` Here's twenty an hour.  _(office.ink:31)_
+- `vo_till_20215227` Long hair. That's a complaint a week.  _(office.ink:39)_
+- `vo_till_e552f641` Doesn't fidget. Fidgeters steal.  _(office.ink:47)_
+- `vo_till_8d38d4fe` Or pricing it.  _(office.ink:54)_
+- `vo_till_959db94b` That floor's eight thousand dollars.  _(office.ink:61)_
+- `vo_till_db038d4b` Good till next October. That's a year I don't pay for a course.  _(office.ink:86)_
+- `vo_till_a46c5b88` City money. He'll want city money.  _(office.ink:96)_
+- `vo_till_ae5504f3` Up island wages. He'll take twenty and say thanks.  _(office.ink:104)_
+- `vo_till_d8fbbd2c` The last time something happened it was eleven thousand dollars.  _(office.ink:138)_
+- `vo_till_ecf8a07e` Fine. Cheaper.  _(office.ink:150)_
+- `vo_till_5840d7b0` Plenty. There goes the insurance.  _(office.ink:162)_
+- `vo_till_463dc7a9` Twenty an hour to stop them. The detachment's forty minutes out.  _(office.ink:172)_
+- `vo_till_9f88566b` Twenty an hour to say that to a drunk. To me?  _(office.ink:182)_
+- `vo_till_7ebda0b5` Forty pounds at fourteen a pound.  _(office.ink:202)_
+- `vo_till_52f6cac1` Reading my desk.  _(office.ink:232)_
+- `vo_till_0aeda824` Changed his mind.  _(office.ink:251)_
+- `vo_till_bda59724` There's his shift beer. Four nights a week.  _(office.ink:262)_
+- `vo_till_c9aeff9d` Liar. They all drink.  _(office.ink:281)_
+- `vo_till_656296b7` Three dollars of rye, gone.  _(office.ink:289)_
+- `vo_till_66d1e6d2` Back in the bottle.  _(office.ink:299)_
+- `vo_till_6e786ae6` Two at four o'clock. On the floor by midnight.  _(office.ink:305)_
+- `vo_till_9f0d94f3` Water. That's a stool for three hours at nothing an hour.  _(office.ink:319)_
+- `vo_till_008320b7` Keys in the lot are on us.  _(office.ink:331)_
+- `vo_till_804ce580` Owes me a jacket.  _(office.ink:351)_
+- `vo_till_2781d827` Asks about the money. Good.  _(office.ink:359)_
+- `vo_till_e2e11084` No questions. The ones with questions want a raise by Christmas.  _(office.ink:362)_
+- `vo_till_c25465ba` Hydro's fifty. Hydro was always fifty.  _(office.ink:378)_
+- `vo_till_159caae4` That's his first cheque.  _(office.ink:396)_
+- `vo_till_7603b562` Six-fifty.  _(office.ink:398)_
+- `vo_till_206288fc` Eleven dollars a shirt. Forty-eight shirts.  _(office.ink:406)_
+- `vo_till_4372a418` Eleven dollars, back in the box.  _(office.ink:417)_
+- `vo_till_830368dd` Twenty-four dollars. Eleven-dollar shirt.  _(office.ink:437)_
+- `vo_till_b49d83d0` Didn't take the shirt. Reads the form.  _(office.ink:439)_
+- `vo_till_0a352fac` Twenty an hour, saved.  _(office.ink:517)_
+
+## The Table (`table`)
+
+- `vo_table_59869bbe` Two in the morning! Told you! Every time!  _(closing.ink:1334)_
+- `vo_table_681fad6c` We were here first.  _(closing.ink:1804)_
+- `vo_table_dbfe549f` Sit down. Nobody stands at this table.  _(closing.ink:1805)_
+- `vo_table_538e6aa6` We were nine, once. There's a chair.  _(closing.ink:1807)_
+- `vo_table_e525ca02` There he is!  _(closing.ink:1932)_
+- `vo_table_aa889696` Get it down you, big fella!  _(barks.yaml hand_drink_table)_
+- `vo_table_1b6ab2ba` Next time, big fella.  _(barks.yaml hand_resisted_drink_table)_
+- `vo_table_48c70d3b` We'll be at the table.  _(barks.yaml hand_out_table)_
+- `vo_table_08f6ed81` Come on, big fella, it's going warm.  _(barks.yaml hand_wait_table)_
+- `vo_table_c85270a7` Come on, big fella, let 'em go!  _(barks.yaml hand_shake_table)_
+
+## The Kid (`kid`)
+
+- `vo_kid_a2aff455` he did that at my door once. knocking like that. flat hand  _(closing.ink:1336)_
+- `vo_kid_0b606130` i'm not high  _(closing.ink:1812)_
+- `vo_kid_7ff2f196` i just haven't slept  _(closing.ink:1813)_
+- `vo_kid_7a85f476` ok  _(closing.ink:1934)_
+- `vo_kid_953e5d4a` you can just hold it. nobody checks  _(barks.yaml hand_drink_kid)_
+- `vo_kid_f5cad9e8` you can take as long as you want. they won't  _(barks.yaml hand_wait_kid)_
+- `vo_kid_0b71de2a` i do that too  _(barks.yaml hand_reread_kid)_
+- `vo_kid_3f22f652` just throw them  _(barks.yaml hand_shake_kid)_
+- `vo_kid_6f3cf1ab` they all look at the door before they look at you  _(barks.yaml kid_door)_
+
+## The Bartender (`bartender`)
+
+- `vo_bartender_bbc9c050` Door. You don't run on my floor. Half the room just looked round for the fight.  _(bar.ink:29)_
+- `vo_bartender_a21b2a88` Walk, Door.  _(bar.ink:31)_
+- `vo_bartender_68184166` Again with the running.  _(bar.ink:32)_
+- `vo_bartender_0a80a6d3` Table 28 don't get cut off. That's Junior's rule, so don't look at me.  _(bar.ink:101)_
+- `vo_bartender_25738ced` Cook's all right, he's just hot, and you'd be hot. Leave his kitchen door alone unless you want an earful.  _(bar.ink:102)_
+- `vo_bartender_96161b3f` Night clerk's Terry. Props the hotel door so he can watch our TV off the desk. You didn't hear that from me.  _(bar.ink:103)_
+- `vo_bartender_499d47bc` And when the card machine goes down, and it will, it's cash, and if they haven't got cash, they haven't got a drink.  _(bar.ink:104)_
+- `vo_bartender_9c973613` Him? He was coming in before I started, and I started when I was nineteen.  _(bar.ink:116)_
+- `vo_bartender_e1116bad` Don't ask me his name. Thirty-one years and I never got it. Buys one glass and doesn't touch it.  _(bar.ink:117)_
+- `vo_bartender_010ee339` He's no trouble.  _(bar.ink:118)_
+- `vo_bartender_c00cfe5e` He's the only one in here who's never been any trouble.  _(bar.ink:120)_
+- `vo_bartender_68929277` Junior wants them dead, the cook wants them dead, and the inspector's on the fourteenth.  _(bar.ink:126)_
+- `vo_bartender_019cdc06` Table 28 feed one, under the table. They think I don't know.  _(bar.ink:127)_
+- `vo_bartender_47312349` They come up through the keg room. Trapdoor's behind me, and mind the third step, it's rotten.  _(bar.ink:128)_
+- `vo_bartender_f176947a` Me, I want a quiet night. Deal with them however you want, but don't do it in front of the customers.  _(bar.ink:130)_
+- `vo_bartender_a519893a` Thirty-one years. Thirty-two in March, God help me.  _(bar.ink:136)_
+- `vo_bartender_2064fd38` I've had nine doormen. You're ten.  _(bar.ink:137)_
+- `vo_bartender_460063d7` Table 28's had more than that. They were the young ones when I started, and they were worse than any kids you'll see tonight, believe me.  _(bar.ink:138)_
+- `vo_bartender_6a360305` That's Dennis, in the big glasses. His wife'll be in for him around one. She always is.  _(bar.ink:140)_
+- `vo_bartender_c006415d` Last a week, Door. Then ask me.  _(bar.ink:148)_
+- `vo_bartender_826fa012` Lost-and-found. Bottom of the drawer, under three winters of toques.  _(bar.ink:157)_
+- `vo_bartender_b1944b16` Nobody's been through the pockets. I never wanted to know.  _(bar.ink:158)_
+- `vo_bartender_7732c139` That's your one. On the ledge, not the bar, and you don't come back for two.  _(bar.ink:169)_
+- `vo_bartender_b8b9f136` No.  _(bar.ink:190)_
+- `vo_bartender_62dbe9af` Drink that, and go and stand at your door.  _(bar.ink:193)_
+- `vo_bartender_6dd398e2` Your door's still there.  _(bar.ink:195)_
+- `vo_bartender_f6d3edc4` Fuckin' lager.  _(bar.ink:209)_
+- `vo_bartender_73f736f3` Watch my bar, Door. Two minutes.  _(bar.ink:210)_
+- `vo_bartender_b6bcb963` Lager's back.  _(bar.ink:253)_
+- `vo_bartender_c1e6ab2b` You want one, you ask me. Nobody pours in my bar. Nobody.  _(bar.ink:259)_
+- `vo_bartender_ce2e3db3` Seven-fifty. Call it seven.  _(bar.ink:262)_
+- `vo_bartender_648d811e` Seven-fifty. Call it seven. Next time you ask me, Door.  _(bar.ink:268)_
+- `vo_bartender_7307d442` Mm.  _(bar.ink:271)_
+- `vo_bartender_c9e1c878` Mm. Thanks.  _(bar.ink:277)_
+- `vo_bartender_934c65b7` Out.  _(bar.ink:290)_
+- `vo_bartender_a081d252` And there she goes.  _(bar.ink:341)_
+- `vo_bartender_b1c83a56` Network's down, third time this week. Cash only, folks. Cash only.  _(bar.ink:342)_
+- `vo_bartender_bd07bc84` Truck didn't come off the ferry with half my order. Again.  _(bar.ink:359)_
+- `vo_bartender_acf3381e` She can run a tab till the day she dies, and she will.  _(bar.ink:380)_
+- `vo_bartender_25f0093d` Sorry, hon.  _(bar.ink:386)_
+- `vo_bartender_5956b588` It's Junior. For you.  _(bar.ink:413)_
+- `vo_bartender_e670e6b8` Last call!  _(closing.ink:241)_
+- `vo_bartender_47c12486` Past two, folks! Drink 'em up.  _(closing.ink:292)_
+- `vo_bartender_cf159d9a` That's two, folks! Drink 'em up.  _(closing.ink:294)_
+- `vo_bartender_90bb4ff9` Nope. We're closed.  _(closing.ink:588)_
+- `vo_bartender_bea968d3` He's in eleven.  _(closing.ink:625)_
+- `vo_bartender_39421190` Nope. I'm not locking up with him in here.  _(closing.ink:653)_
+- `vo_bartender_bb0ed31f` Anybody get past you, Door?  _(closing.ink:858)_
+- `vo_bartender_bf92ff19` So go find out how. I'll be counting.  _(closing.ink:861)_
+- `vo_bartender_8b4f8e76` So we don't know who.  _(closing.ink:957)_
+- `vo_bartender_2e00bb96` Yep. Write it.  _(closing.ink:960)_
+- `vo_bartender_a1c16010` Ten of you now, and that's the first time I've seen that on a first night.  _(closing.ink:981)_
+- `vo_bartender_31293ac5` You wrote down the office.  _(closing.ink:1029)_
+- `vo_bartender_96d004e8` Junior reads that, he doesn't fire whoever it was. He fires all of us and starts again. That's all that line does.  _(closing.ink:1031)_
+- `vo_bartender_8f0982f4` Office left untidy.  _(closing.ink:1033)_
+- `vo_bartender_a1554813` Your name on it, I said. There's nothing on it.  _(closing.ink:1037)_
+- `vo_bartender_e5b7bd01` Poured by the bartender.  _(closing.ink:1041)_
+- `vo_bartender_e70c1def` Nine of you wrote in that, and not one of you put me in it.  _(closing.ink:1042)_
+- `vo_bartender_6ed1eb5a` Huh.  _(closing.ink:1047)_
+- `vo_bartender_8f2e65f3` Junior'll hate that. Every word of it's true.  _(closing.ink:1049)_
+- `vo_bartender_a3911158` That's not what happened.  _(closing.ink:1052)_
+- `vo_bartender_a4b2f13b` Your book, Door. You write what you want in it.  _(closing.ink:1053)_
+- `vo_bartender_cc094582` Suit yourself.  _(closing.ink:1091)_
+- `vo_bartender_afd5b982` Nope.  _(closing.ink:1105)_
+- `vo_bartender_72f940b4` So. Why'd you leave your last door?  _(closing.ink:1110)_
+- `vo_bartender_760621fa` I've had what you told Junior. I'm asking you.  _(closing.ink:1113)_
+- `vo_bartender_28b12ff8` Twelve's over the deck. I forgot.  _(closing.ink:1119)_
+- `vo_bartender_b825867b` Then you heard what I said about it. I'm not saying it twice.  _(closing.ink:1120)_
+- `vo_bartender_9928e3dd` They all short you. You'll find out.  _(closing.ink:1135)_
+- `vo_bartender_68ce4ddd` Yep. They're all long stories.  _(closing.ink:1141)_
+- `vo_bartender_6e38a202` Same as you told Junior. Good.  _(closing.ink:1150)_
+- `vo_bartender_7b237c95` That's not what you told Junior. Pick one, Door.  _(closing.ink:1152)_
+- `vo_bartender_58f07de3` Table 28 says you did ten years on a door with a line outside it.  _(closing.ink:1157)_
+- `vo_bartender_e55fc82a` By Friday it'll be twenty, and you'll have put a hockey player through a window.  _(closing.ink:1158)_
+- `vo_bartender_4c9895a9` Table 28 says you did ten years on a door in the city, and you won't say which.  _(closing.ink:1160)_
+- `vo_bartender_4575629f` That's worse than any door you could have named. They'll fill it in themselves.  _(closing.ink:1161)_
+- `vo_bartender_f366f0c2` Table 28 says your old man worked doors. The one in the cardigan's been saying his name to himself all night, like he's trying to place it.  _(closing.ink:1163)_
+- `vo_bartender_e8baf94d` Table 28 says your old man worked doors.  _(closing.ink:1163)_
+- `vo_bartender_7da52981` Up island, table 28 says. Everybody's from up island.  _(closing.ink:1165)_
+- `vo_bartender_01468f94` Table 28 have decided you're from Around. That's what they're calling it now. Around.  _(closing.ink:1167)_
+- `vo_bartender_a7f65af9` Table 28 don't know where you're from. You never went over.  _(closing.ink:1169)_
+- `vo_bartender_8562b9e1` That'll eat them alive by Friday.  _(closing.ink:1170)_
+- `vo_bartender_fe7a9afe` Same as you told Junior, at least.  _(closing.ink:1197)_
+- `vo_bartender_99a9a136` And Junior had it different again. Pick one before Friday, or they'll pick it for you.  _(closing.ink:1199)_
+- `vo_bartender_b98bfd63` Ten years on a door, and something happened. Don't give them that part. They'll have it worse than it was by Friday.  _(closing.ink:1204)_
+- `vo_bartender_63627044` From Around, and not saying. You'll fit in here.  _(closing.ink:1206)_
+- `vo_bartender_d1e1ae5f` Shorted you. And you told this one it was busy. You'll get on.  _(closing.ink:1208)_
+- `vo_bartender_27393866` Somebody's been tidying in the office.  _(closing.ink:1215)_
+- `vo_bartender_243b421d` Left them the straw, though. So they'd know.  _(closing.ink:1217)_
+- `vo_bartender_1617d61e` Straw and all.  _(closing.ink:1219)_
+- `vo_bartender_f5c78df5` He'll be in for these at noon, sorry for himself.  _(closing.ink:1227)_
+- `vo_bartender_7c17503a` You'll be asleep upstairs. I'll be here.  _(closing.ink:1228)_
+- `vo_bartender_32f572c0` You've still got his keys on you. The big fella's.  _(closing.ink:1231)_
+- `vo_bartender_3957fa66` Then it's you he comes looking for. Not me.  _(closing.ink:1232)_
+- `vo_bartender_c05414e7` You gave his keys to his girl. Yep. That's where they go.  _(closing.ink:1235)_
+- `vo_bartender_c67445d3` Busy, you told him.  _(closing.ink:1239)_
+- `vo_bartender_a15105b0` He'll have this at nine.  _(closing.ink:1241)_
+- `vo_bartender_f863efb0` It's handled, you told him. The rats.  _(closing.ink:1245)_
+- `vo_bartender_07e5b739` Inspector's on the fourteenth. I'd get it handled.  _(closing.ink:1246)_
+- `vo_bartender_67b0d2e1` You told that girl her father wasn't here.  _(closing.ink:1250)_
+- `vo_bartender_3e66c93b` I saw her face. Through two doors, I saw it.  _(closing.ink:1251)_
+- `vo_bartender_f27d1c15` One drink, and you put him out after it.  _(closing.ink:1255)_
+- `vo_bartender_3b111569` Nine doormen. Not one of them ever did what they said with that man.  _(closing.ink:1256)_
+- `vo_bartender_cb4d89c1` You scanned his licence. Ardagh. The machine keeps them, with the time.  _(closing.ink:1261)_
+- `vo_bartender_47f1f54c` So if the owner ever wants to know who let him in, it's on there.  _(closing.ink:1262)_
+- `vo_bartender_51db95c3` You scanned his licence before you sent him off. Good. If he says he was never here, the machine says he was.  _(closing.ink:1264)_
+- `vo_bartender_b858c472` He tell you what he did? Ardagh?  _(closing.ink:1269)_
+- `vo_bartender_7f1c129d` He says that.  _(closing.ink:1271)_
+- `vo_bartender_90500e9a` He says it like you did it to his face.  _(closing.ink:1277)_
+- `vo_bartender_546436a9` You lent nine twenty.  _(closing.ink:1281)_
+- `vo_bartender_5dce4c40` She'll pay you back. That's the worst part.  _(closing.ink:1282)_
+- `vo_bartender_a7e1a69b` And there's a two-four behind my front door.  _(closing.ink:1286)_
+- `vo_bartender_a24f162a` That's mine now. If he asks, it was always mine.  _(closing.ink:1287)_
+- `vo_bartender_9c0d2ec0` Junior'll call me in the morning and ask how you did.  _(closing.ink:1292)_
+- `vo_bartender_b89a8b86` I'll tell him you'll do.  _(closing.ink:1296)_
+- `vo_bartender_47bfdf70` I'll tell him you showed up and you're still here. Two of the last nine didn't manage that.  _(closing.ink:1300)_
+- `vo_bartender_32bfcded` I'm going to tell him what I saw.  _(closing.ink:1303)_
+- `vo_bartender_c5444f99` Friday's different. Friday's everybody.  _(closing.ink:1306)_
+- `vo_bartender_30ee9bc2` Which ones did they tell you?  _(closing.ink:1362)_
+- `vo_bartender_5aa78f9f` His jacket's in the lost-and-found. Folded at the bottom of the drawer, under three winters of toques and phone chargers. Nobody's been through the pockets.  _(closing.ink:1365)_
+- `vo_bartender_0ec04176` You want to know which one's true, that's where it'll be. I never wanted to know.  _(closing.ink:1366)_
+- `vo_bartender_85e77c2d` And you asked me something, earlier.  _(closing.ink:1385)_
+- `vo_bartender_d35372a5` Ask me Friday.  _(closing.ink:1386)_
+- `vo_bartender_aa060eb5` Go on up. Get some sleep, Door.  _(closing.ink:1388)_
+- `vo_bartender_b42eb09b` Binder, page three. Not ever.  _(door.ink:828)_
+- `vo_bartender_9b4f52a8` There's a man at my bar who is not allowed at my bar.  _(door.ink:924)_
+- `vo_bartender_8bf2b028` Page three. I'm not serving him and I'm not asking him. That's your job, Door.  _(door.ink:926)_
+- `vo_bartender_ba8a4b9c` Junior didn't write it. I did.  _(door.ink:977)_
+- `vo_bartender_86f793bb` Yep.  _(door.ink:983)_
+- `vo_bartender_4d0f52d9` Ninety-six, two Fridays running.  _(drawer.ink:93)_
+- `vo_bartender_3cf0955b` That's not Junior. Junior can't add.  _(drawer.ink:94)_
+- `vo_bartender_f6875523` Eleven-fifteen. Last boat.  _(drawer.ink:140)_
+- `vo_bartender_a64cfeca` Page eight.  _(drawer.ink:165)_
+- `vo_bartender_ef8bc91f` Three months, and that's till his birthday, so don't look at me like that.  _(drawer.ink:167)_
+- `vo_bartender_0b08c28a` Thirty-three days. Take it.  _(drawer.ink:188)_
+- `vo_bartender_e9fac2c6` Door. Do I call it or not?  _(pool.ink:581)_
+- `vo_bartender_57d476c1` Your name goes on the log, then. Not mine.  _(pool.ink:595)_
+- `vo_bartender_de202abe` You'll be the door, then. Hang on.  _(prologue.ink:79)_
+- `vo_bartender_48cfaea0` Every drink in this room goes through my till. Anybody I pour for who didn't come past you, you find out how before you go home.  _(prologue.ink:81)_
+- `vo_bartender_dbe8ec90` Junior left you a note. The owner, I mean. I worked for his dad.  _(prologue.ink:82)_
+- `vo_bartender_68ee43e8` Junior left you a note. I worked for his dad.  _(prologue.ink:82)_
+- `vo_bartender_4c6c6564` Front door's yours, that's the one that counts.  _(prologue.ink:138)_
+- `vo_bartender_b35026d5` Hotel door's at the end of the back hall. Residents come down that way, and the night clerk props it so he can hear the TV.  _(prologue.ink:139)_
+- `vo_bartender_1b20c16e` Deck door's for the smokers. Kitchen door, the cook props that open, his fryer runs about a hundred degrees back there.  _(prologue.ink:140)_
+- `vo_bartender_9f18c69a` They're all locked at night.  _(prologue.ink:141)_
+- `vo_bartender_07452ea6` Mostly.  _(prologue.ink:143)_
+- `vo_bartender_4ff37384` Friday, middle of the rush, and left his jacket. That's Junior's version.  _(prologue.ink:155)_
+- `vo_bartender_346f92dc` Ask table 28. You'll get three more, and the hell of it is they all happened.  _(prologue.ink:156)_
+- `vo_bartender_4d4a8ba0` Walked out on a Friday, middle of the rush, and left his jacket.  _(prologue.ink:158)_
+- `vo_bartender_28d047e7` Ask table 28 why. You'll get three stories, and the hell of it is they all happened.  _(prologue.ink:159)_
+- `vo_bartender_d141f7bf` Binder under the till, the eighty-sixes. Photos, most of them, and for how long. You read it before you sit on that stool.  _(prologue.ink:167)_
+- `vo_bartender_ed11be06` One of Junior's shirts. Christ.  _(prologue.ink:197)_
+- `vo_bartender_58ef0e1c` You sat on that wall two and a half hours. I saw you. Everybody saw you.  _(prologue.ink:200)_
+- `vo_bartender_1312159b` Junior rang. Says you've got a mouth on you.  _(prologue.ink:208)_
+- `vo_bartender_4a196119` Junior rang. Says you've never been in a fight.  _(prologue.ink:210)_
+- `vo_bartender_d4f11595` Junior rang. Says you don't drink.  _(prologue.ink:213)_
+- `vo_bartender_f13e2729` Junior rang. Ten years on a door in the city, he says.  _(prologue.ink:216)_
+- `vo_bartender_3d77d7aa` Junior rang. Says you can drink.  _(prologue.ink:218)_
+- `vo_bartender_f8b5833e` Junior rang. Says your dad did doors.  _(prologue.ink:220)_
+- `vo_bartender_e30c28ad` Junior rang. Says you'll do.  _(prologue.ink:222)_
+- `vo_bartender_3c1141e0` Third step.  _(rats.ink:189)_
+- `vo_bartender_ba160bcf` Not where they can see it. I said.  _(rats.ink:384)_
+- `vo_bartender_388082cf` Door! You're wanted.  _(rats.ink:394)_
+- `vo_bartender_3ae8d098` Find anything?  _(rats.ink:421)_
+- `vo_bartender_04622349` I know they're down there. Thirty-one years I've known.  _(rats.ink:426)_
+- `vo_bartender_e139a1c8` Not in front of the customers. I said.  _(rats.ink:578)_
+- `vo_bartender_ff25203a` Nice.  _(rats.ink:603)_
+- `vo_bartender_93fc397a` Jesus Christ.  _(rats.ink:703)_
+- `vo_bartender_27ef2095` You don't have to do that.  _(room.ink:39)_
+- `vo_bartender_c296590d` Nine doormen. Not one of them ever carried a glass.  _(room.ink:41)_
+- `vo_bartender_237539e9` Nobody's thrown since the league folded.  _(room.ink:76)_
+- `vo_bartender_b3685528` There was a league, Thursdays. Then there wasn't.  _(room.ink:77)_
+- `vo_bartender_4246eac8` Somebody picked something up, Door. That's not mine to sit on, and it's not yours.  _(room.ink:172)_
+- `vo_bartender_bd637f15` Don't you put the curling on. They'll be here till four.  _(room.ink:235)_
+- `vo_bartender_7a16d51b` That's not your job, Door.  _(room.ink:386)_
+- `vo_bartender_6099fe71` Thanks.  _(room.ink:388)_
+- `vo_bartender_0f5afbc6` Two years.  _(room.ink:472)_
+- `vo_bartender_aeb08d5e` Since the grease fire. That was the last time anybody pulled the pin on one of those, and Junior's father was alive.  _(room.ink:474)_
+- `vo_bartender_aad90c90` That's Junior's list. He reads it the night before the inspector, every time.  _(room.ink:476)_
+- `vo_bartender_6cd3fd0b` Mm. Somebody's done this before.  _(room.ink:508)_
+- `vo_bartender_a56338e4` My lights, Door. You ask me first.  _(room.ink:510)_
+- `vo_bartender_66a7df2c` Quarter to. Not before.  _(room.ink:518)_
+- `vo_bartender_854a0cb8` Moffat's. Drawer. He'll be back for it, or one of the kids will.  _(room.ink:641)_
+- `vo_bartender_e7714160` He'll be back for that. That kind always comes back for the wallet.  _(room.ink:733)_
+- `vo_bartender_5bf31af7` Not them.  _(table28.ink:378)_
+- `vo_bartender_fea60dc0` Junior's rule, Door. Table 28 don't get cut off. They paid for half this carpet.  _(table28.ink:380)_
+- `vo_bartender_035fdf28` Yep. Mm. No, I'm out back. Go.  _(walk.ink:226)_
+- `vo_bartender_7183748f` He's what? Long hair? Christ, Junior.  _(walk.ink:227)_
+- `vo_bartender_70078496` He said that? To you? Ha.  _(walk.ink:240)_
+- `vo_bartender_7081304b` He said that to her. Good.  _(walk.ink:245)_
+- `vo_bartender_8b39b0f1` He asked if you wanted to find out. And then he was kidding. They're always kidding.  _(walk.ink:249)_
+- `vo_bartender_4d2d8718` Never been in a fight. Sure. And I've never had a drink.  _(walk.ink:253)_
+- `vo_bartender_fa9b21a6` Doesn't drink. Doug says different. Doug says a lot, but.  _(walk.ink:257)_
+- `vo_bartender_be5bd630` Ten years on a door in the city. Mm. They've all done ten years in the city.  _(walk.ink:263)_
+- `vo_bartender_b0d80d36` Up island. Who isn't.  _(walk.ink:265)_
+- `vo_bartender_8380cec4` Around. Around's not a place, Junior.  _(walk.ink:267)_
+- `vo_bartender_50eeb5bf` His dad did doors. Did he.  _(walk.ink:269)_
+- `vo_bartender_8712fda5` The owner shorted him. And you laughed. Course you laughed.  _(walk.ink:276)_
+- `vo_bartender_360da2bb` Something happened. Something always happened, Junior.  _(walk.ink:278)_
+- `vo_bartender_01f164c4` Long story. Mine's thirty-one years.  _(walk.ink:280)_
+- `vo_bartender_f7d7db61` He just sat there? Good.  _(walk.ink:282)_
+- `vo_bartender_1bf8db2b` Drank it straight down. Mm.  _(walk.ink:289)_
+- `vo_bartender_039a424d` He held it and didn't drink it. Huh.  _(walk.ink:291)_
+- `vo_bartender_ac2d6f2f` Pushed it back. Your rye. Huh.  _(walk.ink:293)_
+- `vo_bartender_97ea588b` Two? At four o'clock? Christ.  _(walk.ink:295)_
+- `vo_bartender_aec3fc5c` You gave him one of those shirts. Junior. Nobody wears those shirts.  _(walk.ink:300)_
+- `vo_bartender_517e9449` He wouldn't take the shirt? Good for him.  _(walk.ink:304)_
+- `vo_bartender_abc2f416` He caught her on the rent? Did he. Did he really.  _(walk.ink:308)_
+- `vo_bartender_7935c24b` He asked when he gets paid. Good. Nobody asks till they're short.  _(walk.ink:312)_
+- `vo_bartender_a8c0c2fd` Made you reach for it. Ha.  _(walk.ink:316)_
+- `vo_bartender_214fc84e` Water. Yep. Water I can do.  _(walk.ink:321)_
+- `vo_bartender_ec80adf8` Whatever they want. That's what you'd say.  _(walk.ink:323)_
+- `vo_bartender_379ec474` How's he getting home. Huh. Nobody's asked that in thirty-one years.  _(walk.ink:325)_
+- `vo_bartender_3d6987de` Put him out. Table 28. He'll learn.  _(walk.ink:327)_
+- `vo_bartender_45a2ae80` Yep. Seven-thirty. I'll show him.  _(walk.ink:330)_
+- `vo_bartender_91c661a1` No. No, Junior. I'll show him. Nine doormen, I've shown.  _(walk.ink:331)_
+- `vo_bartender_469eba74` That's the cooler, hon.  _(talk.yaml endbar_tide)_
+- `vo_bartender_414815dc` Same box, sweetheart. Same Tuesday.  _(talk.yaml slippers_wine)_
+- `vo_bartender_883be059` Ask the fuckin' card machine, hon. It decides.  _(talk.yaml card_machine)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- {Num(drinks)}. I counted too.  _(closing.ink:1099)_
+- The cook says you shut his door on him {kitchen_door_shut == 2:twice\|{num(kitchen_door_shut)} times}.  _(closing.ink:1276)_
+
+## Team Jacket (`team_jacket`)
+
+- `vo_team_jacket_44336ee9` Lager's off!  _(bar.ink:291)_
+- `vo_team_jacket_88c94bf2` Took the man's keys. In this town. I did that once, in 'eighty-one. Once.  _(closing.ink:717)_
+- `vo_team_jacket_24bdd992` I'd start my truck careful for a week or two, son, if I were you.  _(closing.ink:718)_
+- `vo_team_jacket_1de7136f` You let him drive, son.  _(closing.ink:721)_
+- `vo_team_jacket_1af1421f` Sent him home with his kids, did you. Huh.  _(closing.ink:724)_
+- `vo_team_jacket_ac130d1b` Dennis's wife stopped you with one word, son. I saw it. I was sitting right here.  _(closing.ink:730)_
+- `vo_team_jacket_ed6d3df4` She's stopped bigger.  _(closing.ink:731)_
+- `vo_team_jacket_69ff1ed1` Here's the stander. Never did sit down with us, did you, big fella.  _(closing.ink:735)_
+- `vo_team_jacket_48d5dc6a` An hour, though. She'll have the chain on.  _(closing.ink:749)_
+- `vo_team_jacket_5e29c923` Even so. She'll have the chain on.  _(closing.ink:749)_
+- `vo_team_jacket_a61c203c` The last one said that. Word for word.  _(closing.ink:776)_
+- `vo_team_jacket_dd76f97b` Where'd you get to earlier, anyway? You were gone half an hour.  _(closing.ink:785)_
+- `vo_team_jacket_0d8af317` Half an hour in the can! At our age that's a medical event.  _(closing.ink:787)_
+- `vo_team_jacket_63b87a0c` Smoking! He quit!  _(closing.ink:797)_
+- `vo_team_jacket_7959ac19` The kind with a line outside, he says. I've stood in that line. I never saw him.  _(rats.ink:470)_
+- `vo_team_jacket_a9c21ad4` I've stood in a line.  _(rats.ink:472)_
+- `vo_team_jacket_bd485267` Ten years on a door in the city, and he won't say which door. You notice he wouldn't say which.  _(rats.ink:474)_
+- `vo_team_jacket_f3bd9680` Ten years in the city, he says. Nobody does ten years on a city door and ends up here.  _(rats.ink:478)_
+- `vo_team_jacket_28bdcbee` Around. What kind of an answer is around.  _(rats.ink:486)_
+- `vo_team_jacket_4958610a` Where's the new kid got to?  _(rats.ink:488)_
+- `vo_team_jacket_d4777cd4` Give him a week.  _(rats.ink:497)_
+- `vo_team_jacket_41423fe4` That's not Walter. Walter's twice the size.  _(rats.ink:582)_
+- `vo_team_jacket_d17ee5ab` Who put poison down.  _(rats.ink:742)_
+- `vo_team_jacket_73d04fd5` Well.  _(rats.ink:746)_
+- `vo_team_jacket_88149809` At least you said so.  _(rats.ink:747)_
+- `vo_team_jacket_e21a3ef7` The owner's never met Walter.  _(rats.ink:750)_
+- `vo_team_jacket_787fa286` Who put a trap under our table.  _(rats.ink:771)_
+- `vo_team_jacket_da0847ad` Atta boy! Bring us one back while you're over there!  _(room.ink:46)_
+- `vo_team_jacket_510a05d9` We know how this one ends, son. Two to one.  _(room.ink:257)_
+- `vo_team_jacket_711b1e7d` Now that's a sport.  _(room.ink:273)_
+- `vo_team_jacket_3d794c26` Two nights! Two nights, same place!  _(room.ink:289)_
+- `vo_team_jacket_a85decb5` Forty years that TV's been on! Forty years!  _(room.ink:300)_
+- `vo_team_jacket_ed02f466` The light. Over the strait. On the news two nights running, same place. What is it?  _(room.ink:315)_
+- `vo_team_jacket_344b59b1` Two nights in the same place! What's it tied to?  _(room.ink:319)_
+- `vo_team_jacket_a0cda6f0` Then it's working!  _(room.ink:321)_
+- `vo_team_jacket_f4ce9cd6` Two to one! And that second goal was offside!  _(room.ink:335)_
+- `vo_team_jacket_3f52bb92` There's a thing in the sky, son, and he wants the score.  _(room.ink:340)_
+- `vo_team_jacket_f31e1113` The last one never mopped once!  _(room.ink:385)_
+- `vo_team_jacket_5c6091ec` Forty years I've been walking out that door, son. Never once on my backside.  _(room.ink:447)_
+- `vo_team_jacket_9443b8f7` It says SECURITY on him, boys. In case we were wondering what he was.  _(table28.ink:29)_
+- `vo_team_jacket_a3bf56e0` They're getting bigger, the doormen. The last one was a big lad too, and a lot of good it did him.  _(table28.ink:34)_
+- `vo_team_jacket_82b01550` I had a cousin up island. Drowned. Lovely fella.  _(table28.ink:43)_
+- `vo_team_jacket_a83d2cf4` Try us. We've drunk everywhere.  _(table28.ink:54)_
+- `vo_team_jacket_bda15293` He's from Around. I've been to Around. Terrible place. They charge you for the ketchup.  _(table28.ink:65)_
+- `vo_team_jacket_13c88a84` Well, sit down, then, big fella. Nobody stands at this table.  _(table28.ink:89)_
+- `vo_team_jacket_9f4e40e9` The last one was working too, son. Look where it got him.  _(table28.ink:99)_
+- `vo_team_jacket_fd51f746` Get the big fella a rye.  _(table28.ink:111)_
+- `vo_team_jacket_ca6e83db` More for us, then.  _(table28.ink:134)_
+- `vo_team_jacket_f6d40c38` Two-eleven a litre for diesel. Two dollars and eleven cents! We should join the States and be done with it. At least down there you can fill a truck.  _(table28.ink:142)_
+- `vo_team_jacket_58c564f4` Your father never paid two-eleven for diesel.  _(table28.ink:145)_
+- `vo_team_jacket_cba4bd6f` Nobody can buy a house. The Chinese bought them all, with cash, in hockey bags. It was on the news.  _(table28.ink:147)_
+- `vo_team_jacket_e039672a` Owner shorted him two weeks running. Walked out on a Friday with the float in his pocket. I was sitting right here.  _(table28.ink:158)_
+- `vo_team_jacket_e517ca83` Lorraine, in six. He went up to ask her to keep it down and came back an hour later with his shirt on inside out.  _(table28.ink:162)_
+- `vo_team_jacket_7f7a0311` Longer than the owner.  _(table28.ink:174)_
+- `vo_team_jacket_20be069b` Don't be a stranger, son.  _(table28.ink:180)_
+- `vo_team_jacket_722f7862` Don't tell the owner.  _(table28.ink:194)_
+- `vo_team_jacket_c265e374` Get away from our table.  _(table28.ink:224)_
+- `vo_team_jacket_ba71bdb0` You'll pay for those.  _(table28.ink:231)_
+- `vo_team_jacket_9e4fc3a5` How do you sink a Newfie submarine?  _(table28.ink:257)_
+- `vo_team_jacket_f1386f1d` He's all right, this one!  _(table28.ink:269)_
+- `vo_team_jacket_7be95145` You're all right, son. You're all right.  _(table28.ink:269)_
+- `vo_team_jacket_73ae1e50` Atta boy.  _(table28.ink:269)_
+- `vo_team_jacket_63f3d342` For looking after us.  _(table28.ink:324)_
+- `vo_team_jacket_ab130880` Your loss, big fella.  _(table28.ink:333)_
+- `vo_team_jacket_213ea353` The last one was a leaner. Leaned on the jukebox all night. We liked him.  _(table28.ink:344)_
+- `vo_team_jacket_3f842157` Son, I've been cut off by better than you. I've been cut off by a judge.  _(table28.ink:376)_
+- `vo_team_jacket_4dc19c42` Sit, sit. You're one of us now, God help you.  _(table28.ink:409)_
+- `vo_team_jacket_4d944b5f` Sit, sit.  _(table28.ink:409)_
+- `vo_team_jacket_27bd7a68` Nobody asks us that. The last one never asked us that.  _(table28.ink:450)_
+- `vo_team_jacket_f82ccc8e` Dennis has been called home. It happens to the best of us. It happens to Dennis about twice a week.  _(table28.ink:461)_
+- `vo_team_jacket_948098a5` Dennis says thank you. Dennis won't say it himself, but he says it.  _(table28.ink:496)_
+- `vo_team_jacket_3eedaa4b` Nothing personal. Dennis would have done the same. Dennis has done the same, to me.  _(table28.ink:499)_
+- `vo_team_jacket_0cfae586` Nothing personal. But somebody has to be on the door, son. That's the whole job.  _(table28.ink:502)_
+- `vo_team_jacket_adc8db1c` Nothing personal. Dennis would say the same. Dennis will say the same, on Thursday, when he's allowed out.  _(table28.ink:505)_
+- `vo_team_jacket_d52f0ccc` Nothing personal, son. But where was the door.  _(table28.ink:551)_
+- `vo_team_jacket_2d5ac13b` A dollar ninety-one for diesel. That's Ottawa's hand in your pocket, that is.  _(talk.yaml t28_diesel)_
+- `vo_team_jacket_7ff3c3e2` Due, he says! It's been due since Expo!  _(talk.yaml t28_diesel)_
+- `vo_team_jacket_75927dbd` Couldn't get in the door! Dancers upstairs on Thursdays. Remember Candy?  _(talk.yaml t28_mill)_
+- `vo_team_jacket_704ff24b` Back in the day you could smoke in here, drive home pissed and pinch the waitress. On a Wednesday!  _(talk.yaml t28_eggs)_
+- `vo_team_jacket_f5c361ed` I was married! I had a lot of time on my hands!  _(talk.yaml t28_eggs)_
+- `vo_team_jacket_ac1edc0e` So. The new kid. What do we think?  _(talk.yaml t28_new_kid)_
+- `vo_team_jacket_290c88e0` Hair like a woman, though. Like Jesus on a calendar.  _(talk.yaml t28_new_kid)_
+- `vo_team_jacket_4dc9239d` Give him a week. A week, tops!  _(talk.yaml t28_new_kid)_
+- `vo_team_jacket_d7453692` The new kid's all right. Isn't he? He's all right!  _(talk.yaml t28_new_kid_good)_
+- `vo_team_jacket_065b5529` Somebody buy the big fella a drink. Not me. Somebody.  _(talk.yaml t28_new_kid_good)_
+- `vo_team_jacket_84cd20f7` That one on the door. Not one of ours, that one.  _(talk.yaml t28_new_kid_bad)_
+- `vo_team_jacket_7520c8b1` Ten doormen since spring! The last one cried in the walk-in. Cried!  _(talk.yaml t28_new_kid_bad)_
+- `vo_team_jacket_667e2728` We know what she says, Dennis. The whole island knows what she says.  _(talk.yaml t28_dennis)_
+- `vo_team_jacket_517c108b` You can't say anything anymore. Not a thing. They'll have you on the news.  _(talk.yaml t28_cant_say)_
+- `vo_team_jacket_34499d5e` And look where it got me! Table 28!  _(talk.yaml t28_cant_say)_
+- `vo_team_jacket_f5a5efbd` Four hours at the walk-in. Half the room needed a translator, and so did the doctor!  _(talk.yaml t28_clinic)_
+- `vo_team_jacket_968e4755` Half cut in English, mind!  _(talk.yaml t28_clinic)_
+- `vo_team_jacket_31cc6214` Who's eating grapefruit at a time like that!  _(talk.yaml t28_blue)_
+- `vo_team_jacket_532e9dfb` Look at them over there. Faces in the phone. A whole generation with a crick in its neck.  _(talk.yaml t28_phones)_
+- `vo_team_jacket_a6b5ed5e` To the Sov! And to the ones who aren't here to see it!  _(talk.yaml t28_toast)_
+- `vo_team_jacket_623cbb9c` The last of the rye, at this rate. Another round over here!  _(talk.yaml t28_last_of)_
+- `vo_team_jacket_654fa3d8` Two nights! Same place! That's not a plane!  _(talk.yaml t28_news_light)_
+- `vo_team_jacket_2ce39712` Seeding's for the hail! That's Alberta!  _(talk.yaml t28_news_light)_
+- `vo_team_jacket_88e74ca2` A balloon! What's it tied to?  _(talk.yaml t28_news_balloon)_
+- `vo_team_jacket_58692d53` Look at him sweep. Look at that.  _(talk.yaml t28_curling)_
+- `vo_team_jacket_23df197e` Who wants to hear that!  _(talk.yaml t28_tv_off)_
+
+## Table 28 (`table28`)
+
+- `vo_table28_ad021c5d` Hear, hear!  _(bar.ink:292)_
+- `vo_table28_fcac3bf2` Cash is king!  _(bar.ink:343)_
+- `vo_table28_258567ff` It's the diesel!  _(bar.ink:360)_
+- `vo_table28_f4093f5b` Two each!  _(closing.ink:242)_
+- `vo_table28_e5209e6c` Careful!  _(closing.ink:719)_
+- `vo_table28_ff26cd30` Drink up, gentlemen!  _(closing.ink:758)_
+- `vo_table28_446b1b64` He's all right, the new kid! Isn't he? He's all right!  _(closing.ink:772)_
+- `vo_table28_8fc7529a` A medical event!  _(closing.ink:791)_
+- `vo_table28_fb92536a` The deck!  _(closing.ink:796)_
+- `vo_table28_e6e65e48` No Dennis here! Never heard of him!  _(door.ink:1043)_
+- `vo_table28_3ef89d88` Traitor!  _(door.ink:1074)_
+- `vo_table28_57ce242e` That's on you, new kid!  _(door.ink:1088)_
+- `vo_table28_d86c4a30` Something happened.  _(rats.ink:476)_
+- `vo_table28_3a9f66b3` He's all right, though.  _(rats.ink:493)_
+- `vo_table28_f6b83b9f` He won't last.  _(rats.ink:495)_
+- `vo_table28_e525ca02` There he is!  _(rats.ink:584)_
+- `vo_table28_d3687816` Walter!  _(rats.ink:588)_
+- `vo_table28_1b97b950` Busboy!  _(room.ink:45)_
+- `vo_table28_c4d4268d` The game!  _(room.ink:256)_
+- `vo_table28_d2388c3d` He's one of us! He wants to know!  _(room.ink:282)_
+- `vo_table28_eb87c0fe` There it is!  _(room.ink:288)_
+- `vo_table28_0ba64e3b` Boo!  _(room.ink:299)_
+- `vo_table28_22fb4ed8` Big fella! Settle this!  _(room.ink:314)_
+- `vo_table28_b1acdf94` He's back! Ask him!  _(room.ink:323)_
+- `vo_table28_8a27136e` Here's the expert!  _(room.ink:323)_
+- `vo_table28_4dfed0d1` Big fella! Tell him!  _(room.ink:323)_
+- `vo_table28_9af978a7` Offside!  _(room.ink:336)_
+- `vo_table28_b8f43c6c` Who cares about the game!  _(room.ink:339)_
+- `vo_table28_82d86692` Look at him go!  _(room.ink:384)_
+- `vo_table28_32ded342` Oh-ho!  _(room.ink:415)_
+- `vo_table28_9679f8b8` Lights! At half past one!  _(room.ink:505)_
+- `vo_table28_5a145e7f` Here he is!  _(table28.ink:24)_
+- `vo_table28_ef5326a6` Look at the size of him!  _(table28.ink:25)_
+- `vo_table28_eb60469e` Security!  _(table28.ink:30)_
+- `vo_table28_ff4bdebf` Where'd they dig you up?  _(table28.ink:36)_
+- `vo_table28_cd0f6fbf` Up island!  _(table28.ink:42)_
+- `vo_table28_399d8304` To the cousin!  _(table28.ink:44)_
+- `vo_table28_f9b0a114` Which one?  _(table28.ink:51)_
+- `vo_table28_ffeba888` Oooh.  _(table28.ink:58)_
+- `vo_table28_1ee1ae7b` Around!  _(table28.ink:64)_
+- `vo_table28_cab61f9a` Ah.  _(table28.ink:71)_
+- `vo_table28_dbce23fb` A travelling man!  _(table28.ink:87)_
+- `vo_table28_f61ba405` He's working!  _(table28.ink:97)_
+- `vo_table28_7a9ef0f1` Oh-ho.  _(table28.ink:133)_
+- `vo_table28_8af040fa` Fifty-first!  _(table28.ink:143)_
+- `vo_table28_2a07936f` Hockey bags!  _(table28.ink:148)_
+- `vo_table28_c380d42c` A woman!  _(table28.ink:161)_
+- `vo_table28_664b1845` We were here first. Then Walter. Then everybody else.  _(table28.ink:175)_
+- `vo_table28_6a9ba388` He'll be back! They always come back!  _(table28.ink:181)_
+- `vo_table28_53e692e8` The owner!  _(table28.ink:207)_
+- `vo_table28_c812b378` Hey!  _(table28.ink:228)_
+- `vo_table28_bbd3f290` Knock on the door!  _(table28.ink:258)_
+- `vo_table28_14fa68b0` The expert!  _(table28.ink:294)_
+- `vo_table28_c0d16980` Happy birthday!  _(table28.ink:301)_
+- `vo_table28_47fe33c7` He's a stander.  _(table28.ink:343)_
+- `vo_table28_312d60a2` Oh, we will.  _(table28.ink:350)_
+- `vo_table28_b9c331f5` There's no rats here.  _(table28.ink:357)_
+- `vo_table28_e540f322` Cut off!  _(table28.ink:375)_
+- `vo_table28_7ef6ded0` Where's the fire, Big Fella?  _(table28.ink:392)_
+- `vo_table28_140cc1ed` Slow down! You'll spill somebody!  _(table28.ink:392)_
+- `vo_table28_70db3056` There he goes again!  _(table28.ink:392)_
+- `vo_table28_59140fc9` Sit down, you're blocking the hockey!  _(table28.ink:402)_
+- `vo_table28_814d1c42` He's back!  _(table28.ink:405)_
+- `vo_table28_eb612ef1` The doorman!  _(table28.ink:405)_
+- `vo_table28_8642e613` Big fella!  _(table28.ink:405)_
+- `vo_table28_c9709856` Look at that. Look at that.  _(table28.ink:442)_
+- `vo_table28_f8166638` Never better!  _(table28.ink:449)_
+- `vo_table28_cd060d3b` Thirsty!  _(table28.ink:449)_
+- `vo_table28_3ce40e39` Cheated by the referees!  _(table28.ink:449)_
+- `vo_table28_22fb586f` Dying!  _(table28.ink:449)_
+- `vo_table28_5cd05415` Down one!  _(table28.ink:460)_
+- `vo_table28_a1fdc188` Better than the pool table!  _(table28.ink:463)_
+- `vo_table28_9cef42d6` Same as you!  _(table28.ink:468)_
+- `vo_table28_091916ec` Same as an hour ago!  _(table28.ink:470)_
+- `vo_table28_881a7206` Still thirsty!  _(table28.ink:470)_
+- `vo_table28_849bd02b` Ask us again at last call!  _(table28.ink:470)_
+- `vo_table28_1c9da61b` Here's the vet!  _(table28.ink:495)_
+- `vo_table28_f8d469d8` Here's the traitor!  _(table28.ink:498)_
+- `vo_table28_aea18e80` Here's the man who wasn't on the door.  _(table28.ink:501)_
+- `vo_table28_70ae7ece` Here's the man who let her in.  _(table28.ink:504)_
+- `vo_table28_59727774` Where was the door?  _(table28.ink:550)_
+- `vo_table28_ea8da60d` To Barry's liver!  _(talk.yaml t28_toast)_
+
+## Gary (`owner`)
+
+- `vo_owner_f5d734e0` How is it tonight?  _(bar.ink:417)_
+- `vo_owner_6cae7a19` That's a Wednesday. I can live with a Wednesday.  _(bar.ink:427)_
+- `vo_owner_991dcc15` Quiet. Sure. Wednesday's quiet, I know Wednesday's quiet. I just like to hear it.  _(bar.ink:434)_
+- `vo_owner_716fa1eb` Busy. Good. That's what I like to hear, buddy.  _(bar.ink:439)_
+- `vo_owner_2fd58ebd` Now. The rats. Did we do something about the rats?  _(bar.ink:442)_
+- `vo_owner_11a6b573` Good man. That's what I like to hear.  _(bar.ink:445)_
+- `vo_owner_80ac091d` Traps. Fine, fine. Traps are a start.  _(bar.ink:448)_
+- `vo_owner_40316e4f` One at a time. Buddy, there's hundreds of them, and the inspector's on the fourteenth.  _(bar.ink:451)_
+- `vo_owner_c01c237e` There's a bucket of bait in the office. I paid for that bait. Put it down.  _(bar.ink:452)_
+- `vo_owner_5558c6b3` Good. I'm going to hold you to that. The fourteenth.  _(bar.ink:456)_
+- `vo_owner_d1a3661f` Not yet. The inspector is on the fourteenth. Not yet is not a thing I can put in front of an inspector.  _(bar.ink:460)_
+- `vo_owner_0bcc4792` And listen. Table 28 get whatever they want. That's half my Wednesday right there.  _(bar.ink:462)_
+- `vo_owner_015d0764` And a fella might come by tonight, good coat. Graham. That'll be what you rang about. We had a talk. He's all right now, let him in.  _(bar.ink:465)_
+- `vo_owner_b1d2f63e` And a fella might come by tonight, good coat. We had a talk. He's all right now, let him in.  _(bar.ink:465)_
+- `vo_owner_c17ca203` And whatever you rang about, it can't have been much. Nobody's called me about it.  _(bar.ink:470)_
+- `vo_owner_eba7e23b` Fella in a good coat called me. Graham. Says you let him in for one and then put him out. That'll be what you rang about.  _(bar.ink:476)_
+- `vo_owner_36c9093b` Fella in a good coat tried to come in tonight? Says you turned him away at the door. That'll be what you rang about.  _(bar.ink:478)_
+- `vo_owner_a87ecf2b` Fella in a good coat tried to come in tonight? Says you turned him away at the door.  _(bar.ink:478)_
+- `vo_owner_0f696ee6` And he says he went down on our floor, in the door. Flat on his back in a good coat. Is that right?  _(bar.ink:482)_
+- `vo_owner_2dcfd2cc` That book's old, buddy.  _(bar.ink:487)_
+- `vo_owner_61b9735c` Fine, fine. We'll talk about it.  _(bar.ink:488)_
+- `vo_owner_b6cbba6d` She writes a lot of things.  _(bar.ink:494)_
+- `vo_owner_4beab923` Put her on.  _(bar.ink:496)_
+- `vo_owner_e937d59e` Good man.  _(bar.ink:502)_
+- `vo_owner_c555b94b` And hey. What you said, about the staff. Keep not planning on it. Ha.  _(bar.ink:516)_
+- `vo_owner_97c98a8c` You meet the staff yet? Ha. Wait till Friday, buddy.  _(bar.ink:518)_
+- `vo_owner_e001507f` And what I said about the staff. You didn't say anything. I noticed that. Ha.  _(bar.ink:520)_
+- `vo_owner_f65adee2` Good. Good. Put her back on, my food's here.  _(bar.ink:522)_
+- `vo_owner_3b0dc12f` Come in, come in. Gary. Grab a seat.  _(office.ink:41)_
+- `vo_owner_8be7dbdc` So. First thing. There's a room.  _(office.ink:66)_
+- `vo_owner_61e8e6d8` Upstairs at the Sov, end of the second floor, over the deck. Comes with the job. Six a month, and it comes off the top.  _(office.ink:67)_
+- `vo_owner_ec973ab5` You got your licence on you? The security one.  _(office.ink:70)_
+- `vo_owner_685c6168` So where were you before this?  _(office.ink:90)_
+- `vo_owner_f596dee9` Ten years. In the city.  _(office.ink:95)_
+- `vo_owner_f98b845d` Where up island?  _(office.ink:102)_
+- `vo_owner_b46abde3` Around. Okay. Around.  _(office.ink:109)_
+- `vo_owner_4acc522e` Yeah? Where?  _(office.ink:115)_
+- `vo_owner_684cefd3` And why'd you leave?  _(office.ink:124)_
+- `vo_owner_121aba6c` Ha. Well. That's not a thing here.  _(office.ink:129)_
+- `vo_owner_0daac0d8` I don't need the how.  _(office.ink:137)_
+- `vo_owner_b5398b25` They all are, buddy. They all are.  _(office.ink:144)_
+- `vo_owner_57b64737` You on anything? Gear? Ha. I don't care what you put in your ass, buddy. I care what goes through my window.  _(office.ink:154)_
+- `vo_owner_c009de26` You been in fights?  _(office.ink:155)_
+- `vo_owner_5e6b696e` Plenty. Okay. Not in my bar, plenty.  _(office.ink:161)_
+- `vo_owner_40efda7f` Good. Good man.  _(office.ink:166)_
+- `vo_owner_726d6501` That's what I'm paying for. Stopping them.  _(office.ink:171)_
+- `vo_owner_384143e0` Never. Okay.  _(office.ink:177)_
+- `vo_owner_3f34fed4` Ha. Okay. Ha. Jesus.  _(office.ink:190)_
+- `vo_owner_34ed470e` Sorry. I gotta. Two minutes.  _(office.ink:200)_
+- `vo_owner_0988a8ed` Yeah. No. No, the halibut's Thursday. Friday's the prime rib. Friday, Ron. Friday is the prime rib.  _(office.ink:201)_
+- `vo_owner_4dfd7927` Yeah. Yeah. Okay. Friday, Ron.  _(office.ink:236)_
+- `vo_owner_ac630080` Sorry. Suppliers. Where were we.  _(office.ink:238)_
+- `vo_owner_18d60cce` Where you going?  _(office.ink:243)_
+- `vo_owner_1eaffbd3` You drink?  _(office.ink:257)_
+- `vo_owner_9d388559` Good. Good man. Not on my till.  _(office.ink:261)_
+- `vo_owner_8d56c794` Ha! Not me, buddy.  _(office.ink:266)_
+- `vo_owner_0c2ad6ad` Ha. Doug would know.  _(office.ink:277)_
+- `vo_owner_0d59ff61` It's four o'clock somewhere. It's four o'clock here.  _(office.ink:284)_
+- `vo_owner_d10bce78` Ha! Okay! Okay.  _(office.ink:304)_
+- `vo_owner_e750de0c` Okay. Table 28.  _(office.ink:310)_
+- `vo_owner_253115d3` Five guys in the front window, every day but Sunday, since about the Flood. Two of them have had the stroke already. They don't get cut off. That's the rule.  _(office.ink:311)_
+- `vo_owner_04d48513` That's my dad's rule. So one of them's had enough. More than. What do you do?  _(office.ink:313)_
+- `vo_owner_61ad7382` Water. Okay. Water doesn't go through the till, buddy.  _(office.ink:318)_
+- `vo_owner_d8a004dc` He walks. They all walk. Mostly.  _(office.ink:330)_
+- `vo_owner_6689081b` Whoa. No. No no. That's not a thing.  _(office.ink:336)_
+- `vo_owner_86a7c49d` I'm there. I'm there when I'm there, buddy.  _(office.ink:342)_
+- `vo_owner_d3c994ff` Questions? Anything?  _(office.ink:346)_
+- `vo_owner_eec2b212` He left. Friday, middle of the rush. Left his jacket.  _(office.ink:350)_
+- `vo_owner_76745b0b` There's an inspector. The fourteenth. Routine. There's a few. Things.  _(office.ink:369)_
+- `vo_owner_4d15820a` You'll see a note.  _(office.ink:370)_
+- `vo_owner_593f9239` Okay. Here's what it is.  _(office.ink:374)_
+- `vo_owner_27dc4812` Twenty an hour. Tonight's cash, it's a test. After that it's Wednesday to Saturday, on the books, and the room comes off the top.  _(office.ink:375)_
+- `vo_owner_ec709855` Did I? Well. Hydro.  _(office.ink:387)_
+- `vo_owner_10b47090` And wear this.  _(office.ink:404)_
+- `vo_owner_638eb6e7` Good. Good man. Professional.  _(office.ink:412)_
+- `vo_owner_cc094582` Suit yourself.  _(office.ink:415)_
+- `vo_owner_fc854dad` Tonight's cash. After that she does it her way. Everybody does it her way.  _(office.ink:430)_
+- `vo_owner_7485411c` Twelve. End of the hall, over the deck. Terry's got the other key. Terry's got every key.  _(office.ink:446)_
+- `vo_owner_5626c45b` Seven-thirty, quarter to eight. She'll show you. She was my dad's.  _(office.ink:448)_
+- `vo_owner_7952140d` And one more thing. Don't fuck the staff.  _(office.ink:450)_
+- `vo_owner_b05581b6` Or do, I'm not your mother. Just don't make it my problem. The last time it was my problem it was my problem for a year.  _(office.ink:451)_
+- `vo_owner_f6c77bca` Nobody plans on it, buddy. Ha.  _(office.ink:455)_
+- `vo_owner_d65c42d2` Ha! You'll see. Ha. Jesus.  _(office.ink:458)_
+- `vo_owner_4f852bd2` Okay, buddy. Okay. I think we're done.  _(office.ink:508)_
+- `vo_owner_cd1e9ae7` Okay, buddy.  _(office.ink:510)_
+- `vo_owner_b3ac33d3` Yeah. Okay. Suit yourself, buddy.  _(office.ink:514)_
+- `vo_owner_0f5afbc6` Two years.  _(room.ink:487)_
+- `vo_owner_4547b36d` Jesus. That's the first thing he'll look at, after the kitchen and the rats. Before the fourteenth, that has to be.  _(room.ink:488)_
+- `vo_owner_ff91be83` I'll have a guy out. Good man.  _(room.ink:489)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- Somebody rang me from the bar phone at {q_words(owner_missed)}. I'm at dinner here.  _(bar.ink:420)_
+
+## End Of The Bar (`endbar`)
+
+- `vo_endbar_c31d33e5` Word gets around, you said, on the wharf. It does. Underneath.  _(bar.ink:305)_
+- `vo_endbar_53f6f258` You asked me on the wharf who was asking. Nobody has asked me that since 1974.  _(bar.ink:307)_
+- `vo_endbar_fb16d687` You looked at the water with me, on the wharf. Very few do. They look at their phones, or at me.  _(bar.ink:309)_
+- `vo_endbar_22549328` You are the new door.  _(bar.ink:311)_
+- `vo_endbar_3136be7b` This was a cannery, before it was a hotel. Did no one tell you? The tide came in under the floor twice a day, right under where you are standing. Fish heads and salt.  _(bar.ink:313)_
+- `vo_endbar_4ca03e66` They built the hotel on the pilings, and the pilings are still there. So is everything that lived in them.  _(bar.ink:314)_
+- `vo_endbar_c0b5eb1b` You held a rye at that table and did not drink it. Not many can. I saw.  _(bar.ink:316)_
+- `vo_endbar_fcd4d2cc` The owner would like you to deal with them.  _(bar.ink:321)_
+- `vo_endbar_7be15ece` People always think it is a matter of poison. It is a matter of terms.  _(bar.ink:323)_
+- `vo_endbar_84f3b4ba` Go down, after, when it is quiet. If you would care to talk about it.  _(bar.ink:324)_
+- `vo_endbar_e60b76af` Still raining. High water at two, and the wind behind it.  _(bar.ink:329)_
+- `vo_endbar_25dfc984` They are listening, you know. In the walls. They hear every word table 28 says.  _(bar.ink:329)_
+- `vo_endbar_661afdb1` Terms. It is only ever a matter of terms.  _(bar.ink:329)_
+- `vo_endbar_883021e8` You came down, Doorman.  _(closing.ink:1414)_
+- `vo_endbar_088dd2fd` You have started a war. That is all right. Most do, the first night.  _(closing.ink:1425)_
+- `vo_endbar_dda1eda6` There is poison down. Some of them have eaten it. They will go into the walls to die, and on Friday you will smell them, and so will your customers, and so will the man from the health.  _(closing.ink:1428)_
+- `vo_endbar_3ed904b3` And you killed the one at the table. The one they fed. That one had a name. Names cost more.  _(closing.ink:1431)_
+- `vo_endbar_c5a8e6cd` And you put it in the one hole the one at the table goes in and out of. He has eaten it. He will be days about it, in the wall behind their chairs. That one had a name. Names cost more.  _(closing.ink:1434)_
+- `vo_endbar_25c55d34` You have been courteous. That is noticed.  _(closing.ink:1437)_
+- `vo_endbar_fcfc0ec7` You held a glass at that table and did not drink it. Like me.  _(closing.ink:1442)_
+- `vo_endbar_74dcd49f` And you left hers standing full on the bar, after. Twice in a night.  _(closing.ink:1446)_
+- `vo_endbar_e86a16d6` And you left hers standing full on the bar, after. Like me.  _(closing.ink:1446)_
+- `vo_endbar_103d53ff` You poured yourself a glass of her red, behind her bar, and put it down her sink. Very few would.  _(closing.ink:1451)_
+- `vo_endbar_45a979d2` You poured yourself a glass of her red with your back to her mirror. A mirror is not the only thing behind a bar.  _(closing.ink:1455)_
+- `vo_endbar_c8e5ed58` Two hundred and eight dollars, out of his jacket. He took what he was owed, that one, and not a cent past it. One hears a drawer, through a floor.  _(closing.ink:1459)_
+- `vo_endbar_d02a1367` You have his mat in your pocket. He drew us. He was the last who did.  _(closing.ink:1463)_
+- `vo_endbar_9d9d7df3` There is a straw in your pocket, Doorman, with somebody else's night on it.  _(closing.ink:1467)_
+- `vo_endbar_5e466e24` You reset the traps after the first one. That is noticed too. Differently.  _(closing.ink:1471)_
+- `vo_endbar_a567f153` You put the bait where the cook told you. Where we live. The cook should be careful what he tells people.  _(closing.ink:1475)_
+- `vo_endbar_2da5b491` You let the lid down on the bins. So tomorrow night I go up that alley in the rain and prop it again. At my age.  _(closing.ink:1479)_
+- `vo_endbar_b8691c60` The cook fries an extra basket on Wednesdays. He thinks nobody knows. Now you know, and we know you know.  _(closing.ink:1483)_
+- `vo_endbar_bbd2e144` Fifty for every one you see, the cook told you. The cook cannot count.  _(closing.ink:1487)_
+- `vo_endbar_ea7d29cf` I am the one who comes down.  _(closing.ink:1495)_
+- `vo_endbar_e48bd01c` I was coming in here before she started. Before the owner's father owned it. Before it was a hotel, I was on the dock they built it on.  _(closing.ink:1496)_
+- `vo_endbar_9c53fc25` What anyone wants. To eat, and not be killed.  _(closing.ink:1500)_
+- `vo_endbar_81500bee` Food on the third step, every night you are on. The kitchen door on the latch after the cook goes home. And you take up what you put down.  _(closing.ink:1501)_
+- `vo_endbar_678bcf88` Food on the third step, every night you are on. The kitchen door on the latch after the cook goes home. And no poison. Not in this building.  _(closing.ink:1501)_
+- `vo_endbar_9148dc7a` Quiet. Nobody sees one of them on the fourteenth. Not the inspector, not a customer, not the cook.  _(closing.ink:1504)_
+- `vo_endbar_7f667210` And they hear everything. Every word said at that table, and under every table, and behind every door in this building. You would be surprised what gets said about a doorman.  _(closing.ink:1505)_
+- `vo_endbar_cb7f41c8` Then you know what you are talking to.  _(closing.ink:1510)_
+- `vo_endbar_c85c285a` It has been in that wall longer than there has been a wall. The table feeds it and does not know they do. It hears them. It hears everyone.  _(closing.ink:1511)_
+- `vo_endbar_df8d3f27` About you?  _(closing.ink:1528)_
+- `vo_endbar_33cece15` Everything you said tonight where there was a floor under you or a wall beside you.  _(closing.ink:1529)_
+- `vo_endbar_8f45ebca` You put your boot down at that table. On one of ours.  _(closing.ink:1533)_
+- `vo_endbar_e1f90586` You told the table your father worked doors, and you told them his name.  _(closing.ink:1537)_
+- `vo_endbar_6ca74e5b` You told the table your father worked doors.  _(closing.ink:1537)_
+- `vo_endbar_9c53abf8` And in the washroom, to the boy, you said your father died before you had worked it out.  _(closing.ink:1541)_
+- `vo_endbar_70bbba44` And in the washroom, to the boy, you said your father drank for twenty years and then stopped.  _(closing.ink:1541)_
+- `vo_endbar_37281872` And in the washroom, to the boy, you said your father worked doors, like you.  _(closing.ink:1541)_
+- `vo_endbar_5d9eca0b` Ten years on a door in the city, you told them, and you would not say which. They have been talking about it underneath it since.  _(closing.ink:1545)_
+- `vo_endbar_e57b8eed` Ten years on a door in the city, you told them, the kind with a line outside. They have been talking about it underneath it since.  _(closing.ink:1545)_
+- `vo_endbar_2c81fed3` Ten years on a door in the city, you told them. They have been talking about it underneath it since.  _(closing.ink:1545)_
+- `vo_endbar_96100519` You told the man at the pool table you have no children. He believed you.  _(closing.ink:1549)_
+- `vo_endbar_676df2fb` You said leave him, at the table. About one of ours. They liked that. So did we.  _(closing.ink:1553)_
+- `vo_endbar_23c4812e` You told the table the owner wants us gone. We know what the owner wants. We have known three owners.  _(closing.ink:1557)_
+- `vo_endbar_26c93065` You asked them about rats, and they told you there were none. That is the arrangement.  _(closing.ink:1561)_
+- `vo_endbar_98a40043` You asked how long he had been coming to that table. Nobody asks.  _(closing.ink:1565)_
+- `vo_endbar_0af206c4` She asked if you had found anything down here, and you said no.  _(closing.ink:1569)_
+- `vo_endbar_9fa780a7` You told her we are down here. She has always known.  _(closing.ink:1573)_
+- `vo_endbar_a688458d` You put the lid back on the bucket, and the traps back on the shelf.  _(closing.ink:1579)_
+- `vo_endbar_4f64a236` You put the traps back on the shelf, in their plastic.  _(closing.ink:1581)_
+- `vo_endbar_8a3d9ad3` You put the lid back on the bucket.  _(closing.ink:1583)_
+- `vo_endbar_c7789847` You left one in the trap where the others would see it. They saw it.  _(closing.ink:1588)_
+- `vo_endbar_1c28fb51` Not much. You do not say much. That is noticed too.  _(closing.ink:1591)_
+- `vo_endbar_c12633a3` And when the owner rang, she said Yep, twice. You heard her. You did not hear what he asked.  _(closing.ink:1595)_
+- `vo_endbar_432115ae` He asked her if you were any good. Yep. Then he asked her to tell him if you were not. Yep.  _(closing.ink:1597)_
+- `vo_endbar_e7c7a39d` He asked her if you would last the week. Yep. Then he asked her if that was a good thing, and she said Yep again, the same way, and he could not tell. Neither could we.  _(closing.ink:1599)_
+- `vo_endbar_7612729b` Very good.  _(closing.ink:1607)_
+- `vo_endbar_52a2a4af` The step, then. And no poison. We will find our own doors.  _(closing.ink:1620)_
+- `vo_endbar_e3a1dff3` Then no terms. Not tonight.  _(closing.ink:1631)_
+- `vo_endbar_fbbc3399` Come down again when you are ready to talk like somebody who needs something.  _(closing.ink:1632)_
+- `vo_endbar_36d866ad` Then it is the long way.  _(closing.ink:1640)_
+- `vo_endbar_c308dcc6` It is always the long way, the first time.  _(closing.ink:1642)_
+- `vo_endbar_b3107bad` Then you will burn the hotel down with them. They are in every wall. They were here before the walls.  _(closing.ink:1651)_
+- `vo_endbar_7b31ffaf` That is the first time I have done that.  _(closing.ink:1653)_
+- `vo_endbar_03b7de63` Think, then. They will double while you think.  _(closing.ink:1660)_
+- `vo_endbar_462267e2` Good evening.  _(walk.ink:49)_
+- `vo_endbar_54feeeac` One hears the Sovereign has a doorman again.  _(walk.ink:50)_
+- `vo_endbar_cc328ab5` In a town on pilings, Doorman, everything gets around. Underneath.  _(walk.ink:57)_
+- `vo_endbar_3f2f50e3` Nobody is asking, Doorman. I am telling you I heard.  _(walk.ink:60)_
+- `vo_endbar_6df3ace6` Just so.  _(walk.ink:64)_
+- `vo_endbar_fedfed40` Another, if you would. The same as before.  _(talk.yaml endbar_tide)_
+- `vo_endbar_844603f8` The tide is on the turn. One can hear it under the floor.  _(talk.yaml endbar_tide)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- {rats_killed == 1:You have killed one\|You have killed {num(rats_killed)}}. That is noticed too.  _(closing.ink:1490)_
+
+## Hoodie (`hoodie`)
+
+- `vo_hoodie_e029e41f` yeah  _(door.ink:117)_
+- `vo_hoodie_d08328a5` nice shirt  _(door.ink:122)_
+- `vo_hoodie_082e32d1` hey. that's my phone  _(door.ink:148)_
+- `vo_hoodie_784b8e1c` it's been raining since tuesday  _(door.ink:187)_
+- `vo_hoodie_a110e6b9` what  _(door.ink:198)_
+- `vo_hoodie_7a4d63b1` truck  _(door.ink:203)_
+- `vo_hoodie_b9d3cfe3` my sister  _(door.ink:209)_
+- `vo_hoodie_d3adc33a` and her boyfriend. he's not coming in. he's like, asleep  _(door.ink:211)_
+- `vo_hoodie_5b474922` looking for someone  _(door.ink:216)_
+- `vo_hoodie_2433c568` just someone  _(door.ink:219)_
+- `vo_hoodie_c26ce703` it's not gonna work  _(door.ink:237)_
+- `vo_hoodie_37c11ede` it didn't work the first time either. it's a picture  _(door.ink:238)_
+- `vo_hoodie_f6fb648d` it's literally in the truck though  _(door.ink:282)_
+- `vo_hoodie_36c36eb7` yeah ok. fair  _(door.ink:287)_
+- `vo_hoodie_13fbd79c` k  _(door.ink:291)_
+- `vo_hoodie_2a1b875b` fine  _(door.ink:339)_
+- `vo_hoodie_4fdf01e9` she's not gonna  _(door.ink:348)_
+- `vo_hoodie_2fed66b9` she can't. i mean she won't  _(door.ink:349)_
+- `vo_hoodie_55400ffe` told you  _(door.ink:536)_
+- `vo_hoodie_060d1cfe` occupied  _(hall.ink:209)_
+- `vo_hoodie_22076940` you said where you can see me  _(hall.ink:212)_
+- `vo_hoodie_d5b32a74` you can see the door  _(hall.ink:213)_
+- `vo_hoodie_319fa7a3` is he still out there  _(hall.ink:220)_
+- `vo_hoodie_7a85f476` ok  _(hall.ink:258)_
+- `vo_hoodie_e144df8b` what the fuck man  _(hall.ink:271)_
+- `vo_hoodie_2282a829` i'm not doing anything. i'm sitting  _(hall.ink:273)_
+- `vo_hoodie_d869db7f` whatever  _(hall.ink:275)_
+- `vo_hoodie_0b606130` i'm not high  _(hall.ink:289)_
+- `vo_hoodie_e7aab894` everybody thinks i'm high. i just haven't slept  _(hall.ink:290)_
+- `vo_hoodie_a2a2be14` and i didn't drink. you said  _(hall.ink:292)_
+- `vo_hoodie_c9788055` monday i think  _(hall.ink:298)_
+- `vo_hoodie_e7260b41` she was bad all night. we called the ambulance at like six. then we were at the hospital all day. they don't tell you anything. you just sit there  _(hall.ink:299)_
+- `vo_hoodie_477262b2` they think it's her heart. or they thought that and now they don't know. she's fifty-one  _(hall.ink:311)_
+- `vo_hoodie_21737fef` she told us to come get him. she said he'd want to know. she said he'd want to be there  _(hall.ink:312)_
+- `vo_hoodie_aeb4893d` i don't think he'd want to be there  _(hall.ink:313)_
+- `vo_hoodie_c276e132` cause he won't make a scene with me. with her he makes a scene. with kyle he'd, like. kyle would end up outside  _(hall.ink:318)_
+- `vo_hoodie_cf5abb79` i'm the one who doesn't say anything. so they thought if i said something he'd listen  _(hall.ink:319)_
+- `vo_hoodie_f110a3f7` i haven't said anything  _(hall.ink:320)_
+- `vo_hoodie_da28a960` her playlist  _(hall.ink:328)_
+- `vo_hoodie_0b523202` my mom's. it's on the family account. she made it for the car so we'd stop fighting about the aux  _(hall.ink:329)_
+- `vo_hoodie_acc06041` i've had it on since the ambulance  _(hall.ink:330)_
+- `vo_hoodie_6e3f5ad7` thanks  _(hall.ink:336)_
+- `vo_hoodie_954f22b3` like drank drank?  _(hall.ink:350)_
+- `vo_hoodie_2ef66c84` did it help  _(hall.ink:353)_
+- `vo_hoodie_4a3c5bd3` that's something i guess  _(hall.ink:356)_
+- `vo_hoodie_dd7b1d02` sorry  _(hall.ink:362)_
+- `vo_hoodie_4c5a185f` that's shit  _(hall.ink:363)_
+- `vo_hoodie_e03a691e` so you're like him  _(hall.ink:367)_
+- `vo_hoodie_ff339055` same  _(hall.ink:374)_
+- `vo_hoodie_e3c93d74` i don't know  _(hall.ink:380)_
+- `vo_hoodie_e1cb047d` i want to go home and sleep. i want my mom to not be in the hospital. i want him to just come, without me having to make him  _(hall.ink:381)_
+- `vo_hoodie_17b538b2` ok. thanks  _(hall.ink:384)_
+- `vo_hoodie_8a02495f` mom's in the hospital  _(hall.ink:416)_
+- `vo_hoodie_701c45ba` in town. since this morning. we've been trying to call you  _(hall.ink:421)_
+- `vo_hoodie_c9bc849a` now  _(hall.ink:429)_
+- `vo_hoodie_7f550a9f` hey  _(pool.ink:249)_
+- `vo_hoodie_35bacaf6` i'm not doing anything  _(pool.ink:252)_
+- `vo_hoodie_0134950b` that's my dad  _(pool.ink:267)_
+- `vo_hoodie_ccb41520` i'm supposed to tell him something. well my sister's supposed to. she sent me in cause she thought he wouldn't make a scene with me or whatever  _(pool.ink:271)_
+- `vo_hoodie_cd25d7d4` i need to piss  _(pool.ink:272)_
+- `vo_hoodie_64b4b162` no one  _(pool.ink:277)_
+- `vo_hoodie_9e715a00` yeah. i mean yeah  _(pool.ink:284)_
+- `vo_hoodie_9842aec8` what? no  _(pool.ink:288)_
+- `vo_hoodie_bc893704` thats not how aura works  _(talk.yaml kids_aura)_
+- `vo_hoodie_b7259272` its so over  _(talk.yaml kids_over)_
+- `vo_hoodie_333190e6` im not doing anything im just saying its over  _(talk.yaml kids_over)_
+
+## The Driver (`driver`)
+
+- `vo_driver_174534c6` Thank you.  _(closing.ink:515)_
+- `vo_driver_0dab6041` We're not here to drink. Our dad's at the pool table. Our mom's in the hospital in town, since this morning, and he won't answer his phone.  _(deck.ink:200)_
+- `vo_driver_83e12f07` You wouldn't let my brother in. So.  _(deck.ink:201)_
+- `vo_driver_b85b9d76` Our mom's in the hospital in town. Since this morning. He doesn't know. That's all this is.  _(deck.ink:212)_
+- `vo_driver_4371ac30` Okay.  _(deck.ink:218)_
+- `vo_driver_e571d83f` We've been waiting in the truck. Since eight.  _(deck.ink:222)_
+- `vo_driver_2522d957` He'll say he's coming after.  _(deck.ink:254)_
+- `vo_driver_ccd543f9` He always says after.  _(deck.ink:255)_
+- `vo_driver_1d8e7592` What.  _(deck.ink:267)_
+- `vo_driver_7251ae43` Is my brother okay?  _(deck.ink:269)_
+- `vo_driver_7e2a41fc` You said wait in the truck. We're waiting in the truck.  _(deck.ink:272)_
+- `vo_driver_cceab3d8` Our mom's in the hospital in town. Since this morning. He's not answering his phone.  _(deck.ink:277)_
+- `vo_driver_8343615f` He never answers when he's in there.  _(deck.ink:278)_
+- `vo_driver_9be9207e` He won't come.  _(deck.ink:286)_
+- `vo_driver_afffe726` But okay. Thank you.  _(deck.ink:287)_
+- `vo_driver_3c82beed` We'll be here.  _(deck.ink:317)_
+- `vo_driver_b8175e48` You said no.  _(deck.ink:321)_
+- `vo_driver_c685db50` Okay. Good for you.  _(deck.ink:328)_
+- `vo_driver_3b8e261c` My brother was just at this door. His licence is in the truck. It's been in the truck the whole time.  _(door.ink:383)_
+- `vo_driver_8aae63f9` My brother was just here. He said you were decent about it. Thank you for that.  _(door.ink:385)_
+- `vo_driver_1aebe310` My brother was just at this door, and you told him no. That's fine. That's not why I'm here.  _(door.ink:387)_
+- `vo_driver_210a5d14` My brother texted me. He says he can only stay if I come in. So I'm here.  _(door.ink:389)_
+- `vo_driver_25b864e7` My brother's in there. Grey hoodie, nineteen. He's with me.  _(door.ink:391)_
+- `vo_driver_880d4849` Shut up, Kyle.  _(door.ink:395)_
+- `vo_driver_e4f87110` Our dad. Big guy. He'll be at the pool table, he's always at the pool table.  _(door.ink:418)_
+- `vo_driver_45bab0eb` Our mom's in the hospital in town. Since this morning. He's not answering his phone. He's not answering anybody.  _(door.ink:425)_
+- `vo_driver_65ec04f7` He doesn't answer when he's here.  _(door.ink:426)_
+- `vo_driver_8cfc45a1` His truck's right there.  _(door.ink:474)_
+- `vo_driver_a7c0678a` Okay. He's not here.  _(door.ink:477)_
+- `vo_driver_32353313` Kyle.  _(door.ink:479)_
+- `vo_driver_9a04daa9` Kyle. Truck.  _(door.ink:495)_
+- `vo_driver_9a79fce0` Can my brother come in, please. He's nineteen. You saw the picture.  _(door.ink:507)_
+- `vo_driver_5fd81928` It's in the glovebox. It's been in the glovebox all night.  _(door.ink:526)_
+- `vo_driver_9fe099df` You'd do that? Okay. Thank you.  _(door.ink:594)_
+- `vo_driver_406257ca` Tell my brother to come out too, please. He's no use in there. He won't even talk to him.  _(door.ink:598)_
+- `vo_driver_174778fb` Okay. Thank you.  _(door.ink:613)_
+- `vo_driver_f6e87d35` You told him he could stay if I came in.  _(door.ink:615)_
+- `vo_driver_06f3f3d0` So which is it.  _(door.ink:616)_
+- `vo_driver_ca69a7e6` One second, please.  _(hall.ink:171)_
+- `vo_driver_734e894c` He saw me. He looked right at me, and went back to his shot.  _(hall.ink:173)_
+- `vo_driver_28ed18fd` Our mom's in the hospital in town. Since this morning. They don't know what it is yet. He's her husband, and he doesn't know. Or he knows, and he's playing pool.  _(hall.ink:175)_
+- `vo_driver_f1b8f038` Would you.  _(hall.ink:181)_
+- `vo_driver_b7838684` He's had since six this morning.  _(hall.ink:186)_
+- `vo_driver_f98abd0e` That's what my mom says.  _(hall.ink:189)_
+- `vo_driver_3ebc05a6` After what.  _(pool.ink:402)_
+- `vo_driver_28896bd4` We didn't hit anybody. He did.  _(pool.ink:630)_
+- `vo_driver_98e5c330` He left his jacket. His phone's in it.  _(room.ink:657)_
+- `vo_driver_ba9067e0` The hospital keeps calling it, and he hasn't got it, and he won't use mine. So.  _(room.ink:658)_
+- `vo_driver_b7227ead` They're keeping her.  _(room.ink:662)_
+- `vo_driver_c5258f88` It's not her heart, they think now. They don't know what it is.  _(room.ink:678)_
+- `vo_driver_49d83254` It was in the pocket.  _(room.ink:687)_
+- `vo_driver_f9e6ab79` It was in that pocket all night. I called it twenty-six times.  _(room.ink:688)_
+- `vo_driver_88b9b191` Mom's called me nine times since eight.  _(talk.yaml kids_over)_
+- `vo_driver_750964dd` Don't. I mean it.  _(talk.yaml kids_over)_
+
+## Scratch (`scratch`)
+
+- `vo_scratch_8b757cfd` That dog's been dead since the flood.  _(closing.ink:748)_
+- `vo_scratch_047b359b` That's poison.  _(closing.ink:830)_
+- `vo_scratch_e81cbfae` That was in Walter's door.  _(closing.ink:831)_
+- `vo_scratch_33f63856` You were never in the city.  _(rats.ink:471)_
+- `vo_scratch_d86c4a30` Something happened.  _(rats.ink:475)_
+- `vo_scratch_4f9c4bb0` Unless something happened.  _(rats.ink:479)_
+- `vo_scratch_45c3de46` Up island. They're all from up island.  _(rats.ink:484)_
+- `vo_scratch_3c92003e` Keg room. I saw him go down. Bad luck, that keg room.  _(rats.ink:489)_
+- `vo_scratch_c77ec08e` Is that Walter? That's not Walter.  _(rats.ink:581)_
+- `vo_scratch_b3217233` That's Walter.  _(rats.ink:681)_
+- `vo_scratch_cfc1730d` HAARP. They've got the thing in Alaska pointed right at us.  _(room.ink:316)_
+- `vo_scratch_e2564efe` Or it's a psyop. They put it up there to see if we'll argue about it.  _(room.ink:320)_
+- `vo_scratch_fea9ed0d` That's what they say. That's exactly what they'd say.  _(room.ink:327)_
+- `vo_scratch_c5486222` Junior's gone and bought a fridge.  _(table28.ink:26)_
+- `vo_scratch_8fcd1166` Everybody's from up island, kid. I'd have bet on it.  _(table28.ink:46)_
+- `vo_scratch_842f4f0f` He's savouring it. Let him. It's bad luck to rush the first one.  _(table28.ink:127)_
+- `vo_scratch_f3931fde` My grandson's in Fort Mac on eighteen hundred a week, and he still can't buy a house down here.  _(table28.ink:146)_
+- `vo_scratch_feca901e` He saw the big rat, down in the keg room. Came up white as a sheet. You don't come back from a sign like that.  _(table28.ink:159)_
+- `vo_scratch_f8462c07` Walter? Longer than you, kid. Longer than any rat's got a right to.  _(table28.ink:173)_
+- `vo_scratch_be73daea` The owner's never met anybody. He's in town.  _(table28.ink:209)_
+- `vo_scratch_3ad8d072` That was Walter.  _(table28.ink:223)_
+- `vo_scratch_697288a7` A hundred years old. And nobody wished him happy birthday.  _(table28.ink:283)_
+- `vo_scratch_4402669b` It's the thought, though.  _(table28.ink:293)_
+- `vo_scratch_87ed4263` There. That's all he wanted.  _(table28.ink:300)_
+- `vo_scratch_eef0b5e4` You'll like this one.  _(table28.ink:314)_
+- `vo_scratch_6c5b6c16` Somebody made that out of shrimp. By hand.  _(table28.ink:316)_
+- `vo_scratch_de3a6446` Look at him. Stands like he's got a pool cue up his arse.  _(table28.ink:346)_
+- `vo_scratch_6cce5450` What rats?  _(table28.ink:356)_
+- `vo_scratch_63c0e29a` He came out and didn't want his fry. He always wants his fry.  _(table28.ink:428)_
+- `vo_scratch_62f4a787` Went straight back in the wall.  _(table28.ink:429)_
+- `vo_scratch_64695611` He's in the wall. He'll be out when the fries come, you can bet on it.  _(table28.ink:432)_
+- `vo_scratch_e780c2b9` Having a lie-down.  _(table28.ink:432)_
+- `vo_scratch_f81d81d2` Busy. Counting his winnings.  _(table28.ink:432)_
+- `vo_scratch_04fca8b9` Walter didn't want his fry.  _(table28.ink:457)_
+- `vo_scratch_2bb7fdff` Walter hasn't come out.  _(table28.ink:516)_
+- `vo_scratch_8a4e46dd` He always comes out when the fries come.  _(table28.ink:518)_
+- `vo_scratch_4b855f95` It'll come down. It's due.  _(talk.yaml t28_diesel)_
+- `vo_scratch_7c38f190` Candy with the snake.  _(talk.yaml t28_mill)_
+- `vo_scratch_c393ea27` You never pinched anybody.  _(talk.yaml t28_eggs)_
+- `vo_scratch_b40767b6` He's big. Big's a good sign on a door.  _(talk.yaml t28_new_kid)_
+- `vo_scratch_64975fca` I don't like his numbers.  _(talk.yaml t28_new_kid_bad)_
+- `vo_scratch_5b1adb55` The fella at Canadian Tire knows.  _(talk.yaml t28_dennis)_
+- `vo_scratch_d0b2d817` You say everything. You've said everything twice.  _(talk.yaml t28_cant_say)_
+- `vo_scratch_26e95145` You needed a translator. You were half cut.  _(talk.yaml t28_clinic)_
+- `vo_scratch_1fb658aa` Doc's got me on the little blue ones. Says no grapefruit with them.  _(talk.yaml t28_blue)_
+- `vo_scratch_e0f9b2e9` Twelve's lucky.  _(talk.yaml t28_phones)_
+- `vo_scratch_ea8da60d` To Barry's liver!  _(talk.yaml t28_toast)_
+- `vo_scratch_0d75d03c` It's HAARP. They've got it pointed right at us.  _(talk.yaml t28_news_light)_
+- `vo_scratch_c7050f0a` That's exactly what they'd say.  _(talk.yaml t28_news_balloon)_
+- `vo_scratch_2ee364de` He's got it. He's got it. He hasn't got it.  _(talk.yaml t28_curling)_
+
+## The Big Man (`bigman`)
+
+- `vo_bigman_31e8cd8b` One more.  _(closing.ink:327)_
+- `vo_bigman_363e8433` I know, bud. I know she is.  _(closing.ink:363)_
+- `vo_bigman_c8f70629` And do what, eh. Sit there.  _(closing.ink:364)_
+- `vo_bigman_a802bac5` You told her I wasn't here.  _(closing.ink:437)_
+- `vo_bigman_64e6dc68` Thanks, bud.  _(closing.ink:438)_
+- `vo_bigman_8a107311` You haven't got kids. You said. So don't.  _(closing.ink:459)_
+- `vo_bigman_2b4ca95f` Not that you know of, you said. Then you don't know.  _(closing.ink:461)_
+- `vo_bigman_b4f3494d` You asked me if I had kids.  _(closing.ink:463)_
+- `vo_bigman_ca39585e` Look at 'em. Better than me, I told you. They'll manage.  _(closing.ink:465)_
+- `vo_bigman_05f67742` Bud. Bud. My keys.  _(closing.ink:1319)_
+- `vo_bigman_cd672569` Yeah, okay.  _(closing.ink:1351)_
+- `vo_bigman_02a687f0` Where.  _(hall.ink:420)_
+- `vo_bigman_b0170c4a` I'll come by after, bud.  _(hall.ink:426)_
+- `vo_bigman_46f9d37c` Don't.  _(hall.ink:433)_
+- `vo_bigman_b5ac4cfd` You'd be the new one, bud.  _(pool.ink:154)_
+- `vo_bigman_22b62533` Lot of doors in this old place for one fella.  _(pool.ink:155)_
+- `vo_bigman_88a4139f` Wednesdays. Well. Most days, lately.  _(pool.ink:158)_
+- `vo_bigman_67a10e0a` Now that's between me and him.  _(pool.ink:164)_
+- `vo_bigman_7ae684ec` Me and him.  _(pool.ink:166)_
+- `vo_bigman_873a59c5` Ah, it's been a week, bud. One of them weeks.  _(pool.ink:172)_
+- `vo_bigman_a99a279a` Family stuff. You know how it is.  _(pool.ink:173)_
+- `vo_bigman_19c98d02` Do me a favour, eh. Anybody comes in here looking for me tonight, I'm not here. You never saw me.  _(pool.ink:175)_
+- `vo_bigman_721d0b3c` Ah, can't complain.  _(pool.ink:180)_
+- `vo_bigman_6a81a199` Appreciate it.  _(pool.ink:191)_
+- `vo_bigman_dff3953b` Sure. Forget I asked, then.  _(pool.ink:198)_
+- `vo_bigman_99c97a2a` Rack 'em, then. You any good?  _(pool.ink:205)_
+- `vo_bigman_274bb193` You got kids yourself?  _(pool.ink:222)_
+- `vo_bigman_d478b944` Nah. That's not right. They're good kids. It's me that's the problem.  _(pool.ink:227)_
+- `vo_bigman_33ca144f` Two. My girl and the boy. Grown, near enough, and better than me.  _(pool.ink:233)_
+- `vo_bigman_2b2e316b` Low bar.  _(pool.ink:234)_
+- `vo_bigman_f6ebbc7b` One thing, bud. I asked you one thing.  _(pool.ink:302)_
+- `vo_bigman_b7a90013` Since when.  _(pool.ink:335)_
+- `vo_bigman_af9977e5` Where are they.  _(pool.ink:342)_
+- `vo_bigman_26dc46c8` Yeah, okay. I'll just finish this game.  _(pool.ink:395)_
+- `vo_bigman_f5a05242` Tell 'em I'll come by after, eh. Tell 'em I'm coming.  _(pool.ink:396)_
+- `vo_bigman_8c8d4f56` Who asked you.  _(pool.ink:435)_
+- `vo_bigman_4f1fe598` Expecting company, bud?  _(room.ink:66)_
+- `vo_bigman_6b18dafe` Yeah. Let it go, bud.  _(room.ink:585)_
+- `vo_bigman_6d604030` That'll be my girl. She can wait.  _(room.ink:587)_
+- `vo_bigman_7d3f5702` That's my coat, bud.  _(room.ink:603)_
+- `vo_bigman_0cf192de` I left you that.  _(talk.yaml pool_double)_
+- `vo_bigman_9c335068` Rack 'em, bud.  _(talk.yaml pool_double)_
+- `vo_bigman_c906b8be` Shoot your ball.  _(talk.yaml pool_quiet)_
+- `vo_bigman_93d62326` She likes everybody's post.  _(talk.yaml pool_kayla)_
+- `vo_bigman_cc27f018` I don't post.  _(talk.yaml pool_kayla)_
+
+## a (`a`)
+
+- `vo_a_fd0b0cd4` Card machine working tonight?  _(talk.yaml card_machine)_
+- `vo_a_d84a4cae` Can't complain. You on at the mill?  _(talk.yaml hivis_room)_
+- `vo_a_300480d0` Upstairs here? Christ. Bring your own sheets.  _(talk.yaml hivis_room)_
+- `vo_a_37a98c87` Sure.  _(talk.yaml goodshoes_gary)_
+- `vo_a_ee77f155` HAARP. Alaska. Look it up.  _(talk.yaml haarp)_
+- `vo_a_7e5b3835` A hundred and eighty antennas in a field, all pointed up.  _(talk.yaml haarp)_
+- `vo_a_dfc893e1` They seed the clouds in Alberta. That's not a theory, that's a contract.  _(talk.yaml seeding)_
+- `vo_a_fc415fe1` And the rain in November '21? That just happened, did it?  _(talk.yaml seeding)_
+- `vo_a_992b50ca` The Air Force gave a bar owner fake saucer pictures. A bar owner.  _(talk.yaml saucers)_
+- `vo_a_483f146d` Not this one. One down by Area 51. It was in the paper.  _(talk.yaml saucers)_
+- `vo_a_1c9db288` That light's out over the mainland again. Two nights now.  _(talk.yaml the_light)_
+- `vo_a_6314cb09` Planes blink. It doesn't blink.  _(talk.yaml the_light)_
+- `vo_a_c49f0508` They say we're overdue. The big one. Three hundred years.  _(talk.yaml overdue)_
+- `vo_a_cb35512c` Well. It's more overdue now, then.  _(talk.yaml overdue)_
+- `vo_a_14bb38e6` They're saying two shifts at the mill again by spring.  _(talk.yaml two_shifts)_
+- `vo_a_5572a870` Gord says the Chinese bought it. A numbered company in Richmond.  _(talk.yaml two_shifts)_
+- `vo_a_dabc6b4b` Gord's been to Nevada.  _(talk.yaml two_shifts)_
+- `vo_a_6297d09a` Ferry was late again. Forty minutes.  _(talk.yaml ferry)_
+- `vo_a_5a047b59` That the new doorman?  _(talk.yaml about_him)_
+- `vo_a_8731ac36` Big.  _(talk.yaml about_him)_
+- `vo_a_242c325b` Did you see that? By the jukebox. Something went under.  _(talk.yaml rat_seen)_
+- `vo_a_6a35b0aa` I never said rats.  _(talk.yaml rat_seen)_
+- `vo_a_4acabeff` Look at that guy. Same stool every night, same beer. NPC.  _(talk.yaml npc)_
+- `vo_a_14c36dca` Yeah, but we're main characters.  _(talk.yaml npc)_
+- `vo_a_7377be99` I'm down eleven grand on the coin.  _(talk.yaml crypto)_
+- `vo_a_a89afcd6` If I sell it, it's real.  _(talk.yaml crypto)_
+- `vo_a_9e304500` Kayla M's got an OnlyFans now. Swear to God.  _(talk.yaml onlyfans)_
+- `vo_a_743c2868` Nine ninety-nine. It's mostly her cat.  _(talk.yaml onlyfans)_
+- `vo_a_f64093ea` That pickup's been sitting out there with its engine running. Glowies.  _(talk.yaml glowies)_
+- `vo_a_8626cadd` That's what a glowie would drive.  _(talk.yaml glowies)_
+- `vo_a_6151d620` Fifteen-minute cities. They want us all in a box eating crickets.  _(talk.yaml crickets)_
+- `vo_a_fb7dc6ea` By choice, bro. By choice.  _(talk.yaml crickets)_
+- `vo_a_3996d38d` The window table. Five boomers, combined age about four hundred.  _(talk.yaml boomers)_
+- `vo_a_5a0482c8` Two each.  _(talk.yaml boomers)_
+- `vo_a_a7fe763e` Forty-one.  _(talk.yaml vape_unc)_
+- `vo_a_08f3b0b4` Get away from me, kid.  _(talk.yaml vape_unc)_
+
+## Cardigan (`cardigan`)
+
+- `vo_cardigan_9ed00054` The washroom.  _(closing.ink:786)_
+- `vo_cardigan_6948d084` I've quit a good many times.  _(closing.ink:798)_
+- `vo_cardigan_a3f316f6` Please don't tell them I'm out here. They think I've gone to the washroom.  _(deck.ink:106)_
+- `vo_cardigan_339aa772` Since the mill was three shifts. There were nine of us at that table, once. You couldn't get a chair.  _(deck.ink:111)_
+- `vo_cardigan_aafc0547` Now there's five. Four, some days.  _(deck.ink:112)_
+- `vo_cardigan_f269ff6a` What always happens. Two of them died. Les went off the road past the Esso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not a Christmas card.  _(deck.ink:115)_
+- `vo_cardigan_7e09c836` We moved the chairs round.  _(deck.ink:116)_
+- `vo_cardigan_c82a9318` My daughter wants me in Calgary.  _(deck.ink:118)_
+- `vo_cardigan_acedd23e` I don't know.  _(deck.ink:121)_
+- `vo_cardigan_dde2d6a9` If I go, they'll move the chairs round. If I stay, I'll die at that table, like Bob.  _(deck.ink:122)_
+- `vo_cardigan_b2f44ed3` It's easy for you to say, I suppose.  _(deck.ink:126)_
+- `vo_cardigan_c53c562d` Yes.  _(deck.ink:130)_
+- `vo_cardigan_990dddcd` Yes. That's what they would say.  _(deck.ink:131)_
+- `vo_cardigan_f862c206` No. Nobody does.  _(deck.ink:134)_
+- `vo_cardigan_2f0d7d95` Not a word to them, please.  _(deck.ink:138)_
+- `vo_cardigan_840caf8f` His father worked doors. You can see it on him. He stands as if somebody's watching him do it.  _(rats.ink:482)_
+- `vo_cardigan_c415c179` My brother-in-law says the Air Force told the paper it's a weather balloon.  _(room.ink:318)_
+- `vo_cardigan_a170982c` Ten years is a long time to stand outside a building.  _(table28.ink:59)_
+- `vo_cardigan_5ffa13fa` Here? On the island, I mean.  _(table28.ink:73)_
+- `vo_cardigan_9f35132d` What was his name? If you don't mind my asking.  _(table28.ink:75)_
+- `vo_cardigan_c32c7308` Fair enough. Mine was Harold. Nobody remembers him either.  _(table28.ink:84)_
+- `vo_cardigan_f181d037` My father was at Ortona.  _(table28.ink:144)_
+- `vo_cardigan_a9bad5a7` I think he let somebody in he shouldn't have. A friend of somebody's.  _(table28.ink:163)_
+- `vo_cardigan_71f40cce` They were here before him, you know. The rats. Before the hotel, I'd think. This was a cannery once, built out over the water, and the tide went in and out under the floor. You don't get rid of rats in a building like this. You come to an arrangement with them.  _(table28.ink:210)_
+- `vo_cardigan_c9e939f3` I've been thinking, that's all.  _(table28.ink:465)_
+- `vo_cardigan_626191a6` When the mill ran three shifts, you couldn't get a table in here on a Wednesday.  _(talk.yaml t28_mill)_
+- `vo_cardigan_19dbec9f` Her boy was in my daughter's class. He's a dentist now, on the mainland.  _(talk.yaml t28_mill)_
+- `vo_cardigan_1f1855ed` He said good evening to me. I can't remember the last one who did.  _(talk.yaml t28_new_kid)_
+- `vo_cardigan_9ad9025e` I take mine for the heart. My wife's been gone four years.  _(talk.yaml t28_blue)_
+- `vo_cardigan_84a4d4ea` My grandson tells me he's depressed. He's twelve.  _(talk.yaml t28_phones)_
+- `vo_cardigan_355f3185` He doesn't think so.  _(talk.yaml t28_phones)_
+- `vo_cardigan_c1340b60` Do you ever think we're the last of something?  _(talk.yaml t28_last_of)_
+- `vo_cardigan_48c3b112` My brother-in-law says the Air Force told the paper it's a balloon.  _(talk.yaml t28_news_balloon)_
+- `vo_cardigan_42548021` It's nice, actually, without it. You can hear yourself think.  _(talk.yaml t28_tv_off)_
+
+## Vape (`vape`)
+
+- `vo_vape_feb7f899` bro. i was just out here  _(deck.ink:144)_
+- `vo_vape_924fea87` i've been out here the WHOLE time my guy  _(deck.ink:145)_
+- `vo_vape_b1cef045` she's not gonna let me in  _(deck.ink:149)_
+- `vo_vape_26607019` it's LOCKED  _(deck.ink:153)_
+- `vo_vape_256d5525` she locked it bro. she locked me out  _(deck.ink:154)_
+- `vo_vape_7b044652` appreciate you chief  _(deck.ink:172)_
+- `vo_vape_af76c904` i'm sleeping  _(deck.ink:309)_
+- `vo_vape_7d6b9ed4` we're just here to get her DAD bro. two minutes. in and out  _(door.ink:394)_
+- `vo_vape_b72404eb` bro come on  _(door.ink:447)_
+- `vo_vape_652dcfa6` it's in my other pants my guy  _(door.ink:448)_
+- `vo_vape_502ad7e1` bro he's literally  _(door.ink:478)_
+- `vo_vape_e5fa5f41` are you SERIOUS right now  _(door.ink:494)_
+- `vo_vape_6be5cebf` appreciate you big dog  _(door.ink:573)_
+- `vo_vape_cf160e1a` bro he's gonna do it WRONG. he doesn't even know what he looks like  _(door.ink:595)_
+- `vo_vape_40408c3f` unreal. this guy  _(door.ink:621)_
+- `vo_vape_36dc3e31` bro  _(hall.ink:98)_
+- `vo_vape_3c63b040` bro. knock  _(hall.ink:99)_
+- `vo_vape_5fd32ad1` it's not even MINE. i'm holding it for a guy  _(hall.ink:100)_
+- `vo_vape_499de14d` you want one? it's actually good. like actually  _(hall.ink:101)_
+- `vo_vape_eac52180` that was SIXTY bucks  _(hall.ink:127)_
+- `vo_vape_7bfba468` bro. that was sixty fucking bucks. you owe me sixty bucks  _(hall.ink:128)_
+- `vo_vape_a887bde5` yeah yeah yeah. ok chief  _(hall.ink:143)_
+- `vo_vape_34818e00` the fuck did you just CALL her  _(pool.ink:471)_
+- `vo_vape_169dc07a` skill issue  _(pool.ink:479)_
+- `vo_vape_7d751325` old man's COOKED  _(pool.ink:481)_
+- `vo_vape_2f1cb086` bro the bouncer has aura. like NEGATIVE aura but aura  _(talk.yaml kids_aura)_
+- `vo_vape_efc8a158` thats EXACTLY how it works  _(talk.yaml kids_aura)_
+- `vo_vape_559aafa4` unc. unc. how old are you  _(talk.yaml vape_unc)_
+- `vo_vape_2251f1a8` forty one and still out on a wednesday. respect. thats lore  _(talk.yaml vape_unc)_
+
+## The Cook (`cook`)
+
+- `vo_cook_229d2ec3` Hey. Hey! That door is my air, Security.  _(floor.ink:442)_
+- `vo_cook_41a1a0db` It's a hundred and ten on the line. A hundred and ten! It stays open or I cook.  _(floor.ink:444)_
+- `vo_cook_37199d80` Every time I turn around! Every goddamn time!  _(floor.ink:448)_
+- `vo_cook_db5c26d7` Security, eh? Behind you. Behind!  _(rats.ink:37)_
+- `vo_cook_537a2a85` Don't lean on anything. It's all hot or it's all wet, and that flat-top's a bastard, it'll have your hand off.  _(rats.ink:38)_
+- `vo_cook_07b91de9` Hundred wings. Junior's idea. Junior read on the internet that wing night brings in the young people.  _(rats.ink:39)_
+- `vo_cook_8fee0210` What young people? The young ones are in Alberta, or they're on the fent. Or they're you, standing in my kitchen.  _(rats.ink:40)_
+- `vo_cook_83658daf` Dealt with. Dealt with! Sure.  _(rats.ink:76)_
+- `vo_cook_3f591830` Pipe chase behind the walk-in, up from the keg room. Every morning, droppings on my prep table, every morning I'm bleaching the son of a bitch before I've had a coffee.  _(rats.ink:77)_
+- `vo_cook_32241a91` Inspector finds one dropping, he shuts the kitchen. Kitchen's shut, I don't get paid, and I've got a, never mind. So yeah. Dealt with would be nice.  _(rats.ink:78)_
+- `vo_cook_5fa296d4` Bucket of bait in the office, downstairs, past the kegs. Owner bought it in the summer. Box of traps right beside it, still in the plastic.  _(rats.ink:83)_
+- `vo_cook_15634ddf` She won't let anybody put it down. Something about table 28 and their goddamn pet.  _(rats.ink:84)_
+- `vo_cook_234cf833` I'm not getting into it with table 28. I work here. Some of us work here.  _(rats.ink:86)_
+- `vo_cook_c0d648f0` You see one, there's fifty. Me? I've seen a lot more than one, Security.  _(rats.ink:90)_
+- `vo_cook_a7855987` Bait. Keg room, where they live. They eat it, they crawl in the walls and die, it stinks for a week, done.  _(rats.ink:95)_
+- `vo_cook_53c7a21b` Traps are for people who want to feel useful. You'll catch three.  _(rats.ink:96)_
+- `vo_cook_be9d2013` I know they do. Who do you think fries the fries?  _(rats.ink:101)_
+- `vo_cook_246148d5` An extra basket, Wednesdays. Don't tell her.  _(rats.ink:102)_
+- `vo_cook_b232df35` I don't care what they feed. I care what's on my prep table at seven in the morning.  _(rats.ink:103)_
+- `vo_cook_591a7809` Don't touch anything back there! That compressor's held together with tape.  _(rats.ink:121)_
+- `vo_cook_c6af562a` Take 'em, take 'em. Nobody's eating those.  _(rats.ink:129)_
+- `vo_cook_4866620c` Table 28'll want 'em for the rat.  _(rats.ink:131)_
+- `vo_cook_f4bfa212` Thanks, Security.  _(rats.ink:153)_
+- `vo_cook_c523e01b` Are you kidding me? The inspector sees that, it's my kitchen he shuts, not yours.  _(rats.ink:305)_
+- `vo_cook_45194164` Great. Beautiful. Now I lose a finger.  _(rats.ink:353)_
+- `vo_cook_183f75e6` Not through my kitchen! Not by the tail! Come on, Security, I've got food out.  _(rats.ink:536)_
+- `vo_cook_80ccbca1` You're kidding me. You're kidding me, right?  _(rats.ink:641)_
+
+## b (`b`)
+
+- `vo_b_63742a8c` I'm not looking anything up.  _(talk.yaml haarp)_
+- `vo_b_18b64eba` Where else would you point them?  _(talk.yaml haarp)_
+- `vo_b_0dacdeda` That's for the hail. That's over Calgary.  _(talk.yaml seeding)_
+- `vo_b_4f3e1949` That was rain. It rains here.  _(talk.yaml seeding)_
+- `vo_b_1272aa0f` Which bar?  _(talk.yaml saucers)_
+- `vo_b_c43ea92d` Gary'd have them framed behind the till.  _(talk.yaml saucers)_
+- `vo_b_378ee0a2` It's a plane.  _(talk.yaml the_light)_
+- `vo_b_4e0ecfb3` Then it's a star. Drink your drink.  _(talk.yaml the_light)_
+- `vo_b_3bf5cc77` They've been saying overdue since I was in school.  _(talk.yaml overdue)_
+- `vo_b_52222c6a` They said that in March.  _(talk.yaml two_shifts)_
+- `vo_b_4e52fe8d` Gord says the moon landing was in Nevada.  _(talk.yaml two_shifts)_
+- `vo_b_9e373914` Forty's not late. Forty's the ferry.  _(talk.yaml ferry)_
+- `vo_b_3eb788c1` Second one this month.  _(talk.yaml about_him)_
+- `vo_b_1eb95ff2` The last one was big too. Lasted a Friday.  _(talk.yaml about_him)_
+- `vo_b_69fdfca1` There's no rats in here.  _(talk.yaml rat_seen)_
+- `vo_b_4c5e3ea8` We're on the same stools every night.  _(talk.yaml npc)_
+- `vo_b_6b5eae25` Are we, though.  _(talk.yaml npc)_
+- `vo_b_a0ac7661` So sell it.  _(talk.yaml crypto)_
+- `vo_b_96e5e89a` You subscribe?  _(talk.yaml onlyfans)_
+- `vo_b_aebec033` Ten bucks a month for a cat, bro.  _(talk.yaml onlyfans)_
+- `vo_b_78e64e91` It's a Ford with a kid in it.  _(talk.yaml glowies)_
+- `vo_b_b793d274` You live in a box. You eat Pizza Pops.  _(talk.yaml crickets)_
+- `vo_b_c9b7af9c` They own houses, though.  _(talk.yaml boomers)_
+
+## Hearing Aid (`hearing_aid`)
+
+- `vo_hearing_aid_52c6a24e` Who's he?  _(closing.ink:736)_
+- `vo_hearing_aid_261830a9` Prostate. Don't get old.  _(hall.ink:84)_
+- `vo_hearing_aid_0837584f` I'll take that.  _(rats.ink:499)_
+- `vo_hearing_aid_00c187de` Is that Saskatoon?  _(room.ink:274)_
+- `vo_hearing_aid_83498f8f` Seeding.  _(room.ink:317)_
+- `vo_hearing_aid_610351bd` Who fell?  _(room.ink:448)_
+- `vo_hearing_aid_d74c2eac` What's it say?  _(table28.ink:31)_
+- `vo_hearing_aid_c3d8cf2b` Who?  _(table28.ink:35)_
+- `vo_hearing_aid_e465ab77` Who's playing?  _(table28.ink:149)_
+- `vo_hearing_aid_3aaaea95` Woman.  _(table28.ink:160)_
+- `vo_hearing_aid_31737e40` He owed me twenty.  _(table28.ink:345)_
+- `vo_hearing_aid_69a09a4e` Arse.  _(table28.ink:347)_
+- `vo_hearing_aid_bb07fc03` What about Expo?  _(talk.yaml t28_diesel)_
+- `vo_hearing_aid_7b9bb80f` Candy who?  _(talk.yaml t28_mill)_
+- `vo_hearing_aid_bd430ce6` Whose hands?  _(talk.yaml t28_eggs)_
+- `vo_hearing_aid_b51b2054` In the walk-in clinic?  _(talk.yaml t28_new_kid_bad)_
+- `vo_hearing_aid_a8940393` I like a grapefruit.  _(talk.yaml t28_blue)_
+- `vo_hearing_aid_fdcd11c2` Who's winning?  _(talk.yaml t28_curling)_
+
+## Terry (`terry`)
+
+- `vo_terry_76a2771d` Hey, pal. You never did say what was wrong.  _(closing.ink:684)_
+- `vo_terry_2fc8c531` Oh, hey, twelve. You signed. Something wrong? What's the score?  _(hall.ink:527)_
+- `vo_terry_7766857b` Oh. Twelve. Something wrong? What's the score?  _(hall.ink:529)_
+- `vo_terry_d60d9d2a` Oh, hey. Something wrong? What's the score?  _(hall.ink:531)_
+- `vo_terry_7818d4df` Oh, they're only going to the bar, pal.  _(hall.ink:536)_
+- `vo_terry_9c57439a` Sure, sure. You bet. I'll get the game on my phone, eh. It runs a minute behind, but.  _(hall.ink:537)_
+- `vo_terry_ba292c9c` Oh, no no. They live here, pal. That's what the door's for.  _(hall.ink:540)_
+- `vo_terry_0a14e76e` Oh. She told you that.  _(hall.ink:544)_
+- `vo_terry_766e1333` Sure. Door stays shut, then. You tell her thanks from me.  _(hall.ink:546)_
+- `vo_terry_2cf25b89` Oh. Oh, no no, pal. She doesn't come through the bar. Not ever. She uses the stairs.  _(hall.ink:552)_
+- `vo_terry_ecba115b` There. It's shut. You don't need to be counting anybody on my side, eh.  _(hall.ink:554)_
+- `vo_terry_73283569` Okay, pal. You know where I am.  _(hall.ink:558)_
+- `vo_terry_868616de` Oh, hey. You'll be the new door, eh. What's the score?  _(walk.ink:191)_
+- `vo_terry_ebf6a80f` Terry. Night desk. I come on at five and I'm on till the bread truck. Gary give you twelve? You'll want to sign for it, pal. Here. Nobody signs. I like people to sign.  _(walk.ink:193)_
+- `vo_terry_097d98b5` Oh, sure, sure. You bet. That's how it's supposed to go.  _(walk.ink:197)_
+- `vo_terry_492e829f` Oh, no no, he wouldn't. Gary wouldn't.  _(walk.ink:200)_
+- `vo_terry_c56a6207` Second floor, end of the hall, over the deck. Eleven's the mill boys, they play cards, they're good as gold. Six is Lorraine. Lorraine's forty-six and she pays by the week, cash, and whoever goes up to see Lorraine, you never seen him, eh. That's the hotel. The bar's the bar.  _(walk.ink:202)_
+- `vo_terry_478ed564` Seven's empty since March. Paramedics. Nice fella, seven.  _(walk.ink:203)_
+
+## Slippers (`slippers`)
+
+- `vo_slippers_7378f5b0` Cash? I haven't got cash.  _(bar.ink:362)_
+- `vo_slippers_9772a209` I never have cash. My husband always carried the cash.  _(bar.ink:364)_
+- `vo_slippers_4b7d11d5` I'm in nine, dear. I'll get it to you. I will.  _(bar.ink:373)_
+- `vo_slippers_76b0ee2b` Nine, dear. I'm in nine. You'll get it, don't you worry.  _(closing.ink:668)_
+- `vo_slippers_a95f78cb` A mouse.  _(rats.ink:610)_
+- `vo_slippers_04185222` That was a big mouse, dear.  _(rats.ink:611)_
+- `vo_slippers_6a3c1fd6` That's not a mouse, dear. I've lived upstairs eleven years.  _(rats.ink:616)_
+- `vo_slippers_8ddb4bc9` Room nine has had that drip since August. Since the long weekend.  _(talk.yaml slippers_drip)_
+- `vo_slippers_4dc0a9c6` I told Terry. Terry tells the drip.  _(talk.yaml slippers_drip)_
+- `vo_slippers_d64f1467` I hear them through the vent, dear. She's faking it.  _(talk.yaml slippers_eleven)_
+- `vo_slippers_783896a1` Thirty-eight years married, dear. I'd know.  _(talk.yaml slippers_eleven)_
+- `vo_slippers_c23b942b` My husband would have had that door shut by nine. Nine, and not a minute after.  _(talk.yaml slippers_door)_
+- `vo_slippers_97e9d05d` He had standards, dear. He also had a temper.  _(talk.yaml slippers_door)_
+- `vo_slippers_61a69899` Is this the same bottle as Tuesday, dear? It tastes like Tuesday.  _(talk.yaml slippers_wine)_
+
+## The Esso Kid (`essokid`)
+
+- `vo_essokid_3d595846` That one. Over the mainland.  _(walk.ink:109)_
+- `vo_essokid_8bcbe0a9` Planes blink. Satellites move. It was there last night, same place, same time. Stars don't stay in the same place, man. That's like the whole thing about stars.  _(walk.ink:111)_
+- `vo_essokid_1eb9d22e` Rants and Raves says drones. The Discord says glowies, but the Discord says glowies about everything. It's not Venus. Venus is over there.  _(walk.ink:112)_
+- `vo_essokid_21c0afea` I filmed it. You can't see anything on the video. You never can.  _(walk.ink:117)_
+- `vo_essokid_f476e82b` Kind of. Both.  _(walk.ink:123)_
+- `vo_essokid_4a54f9cd` I rate them. Which one sounds more like a person. It's a site. Four cents an answer. I've done like eleven thousand.  _(walk.ink:125)_
+- `vo_essokid_210fbd50` Go on. Which one?  _(walk.ink:126)_
+- `vo_essokid_6e1fe20c` Huh. Yeah. That's the one I'd have picked.  _(walk.ink:129)_
+- `vo_essokid_67d0605f` Yeah? Huh. Okay.  _(walk.ink:132)_
+- `vo_essokid_432ea543` Yeah, that's not one of the buttons.  _(walk.ink:135)_
+- `vo_essokid_5f4c86ee` They're both it, by the way. There's no person one. You're just saying which is more like.  _(walk.ink:136)_
+- `vo_essokid_cd9a6e02` You used to be able to tell by the dashes. They loved a long dash. They don't do that anymore.  _(walk.ink:137)_
+- `vo_essokid_bfd1ee65` It's getting hard to tell.  _(walk.ink:139)_
+
+## The Bookkeeper (`bookkeeper`)
+
+- `vo_bookkeeper_4c3d3578` Mm-hm.  _(office.ink:130)_
+- `vo_bookkeeper_61eeb258` His father's, and then his. Forty-one years in March. Before that I was at the bank.  _(office.ink:222)_
+- `vo_bookkeeper_e3364f9a` Across the road. When it was a bank.  _(office.ink:224)_
+- `vo_bookkeeper_b6ad5ebe` Down the hall on the left. Jiggle it.  _(office.ink:246)_
+- `vo_bookkeeper_a02c796e` Doug says a big fellow with hair closed the Legion last night.  _(office.ink:275)_
+- `vo_bookkeeper_4dbb69ea` Fridays. By cheque. The first one's prorated.  _(office.ink:358)_
+- `vo_bookkeeper_027b826a` Six hundred and fifty. A month. With the hydro.  _(office.ink:376)_
+- `vo_bookkeeper_6369bfb9` Thank you so much.  _(office.ink:394)_
+- `vo_bookkeeper_f1ed9e5f` I'll need the new one's numbers, Gary. For the file.  _(office.ink:422)_
+- `vo_bookkeeper_06de4407` That's not how it works.  _(office.ink:429)_
+
+## The Buddy (`buddy`)
+
+- `vo_buddy_d9caf16e` He left it. He left his money.  _(hall.ink:460)_
+- `vo_buddy_13d89771` No no no, it's nothing, pal. He owes me for a transmission, is all.  _(pool.ink:165)_
+- `vo_buddy_ff81c540` He left it. He left the money.  _(pool.ink:373)_
+- `vo_buddy_4225c23c` No no, not now, sweetheart. Your dad's working, okay? He's working.  _(pool.ink:469)_
+- `vo_buddy_801bc6c4` You think I don't know? Twenty at a time, like I'm a fucking charity?  _(pool.ink:485)_
+- `vo_buddy_021e7084` Yeah yeah, no, that's mine, you left me that, that's mine.  _(talk.yaml pool_double)_
+- `vo_buddy_e9121e47` Twenty bucks. Listen. Listen. Double or nothing.  _(talk.yaml pool_double)_
+- `vo_buddy_7ec577e9` You're quiet tonight. Am I talking too much? I'm talking too much.  _(talk.yaml pool_quiet)_
+- `vo_buddy_9598f264` Yeah yeah. No. Shooting.  _(talk.yaml pool_quiet)_
+- `vo_buddy_966c09fc` Kayla from the Tim's liked my post. Bud. Kayla. She liked it.  _(talk.yaml pool_kayla)_
+- `vo_buddy_23676f9a` She doesn't like yours.  _(talk.yaml pool_kayla)_
+
+## A Smoker (`smoker`)
+
+- `vo_smoker_6d4a0c85` Graham Ardagh's back. I saw his car at the Esso.  _(deck.ink:80)_
+- `vo_smoker_b054b2d0` She'd have him shot. She'd do it herself, with the soda gun.  _(deck.ink:81)_
+- `vo_smoker_3cca51fe` That pickup's been sitting there since eight with the engine going. Somebody's waiting on somebody.  _(deck.ink:88)_
+- `vo_smoker_e17bca49` Last time a truck sat out there like that it was Darlene's husband, with his rifle on the seat. He was only going to scare her, he said.  _(deck.ink:89)_
+- `vo_smoker_a69d6620` They're saying the mill's done at Christmas. My brother-in-law says Christmas.  _(deck.ink:95)_
+- `vo_smoker_7bcd619f` They've been saying Christmas for six years.  _(deck.ink:96)_
+- `vo_smoker_8cbb5cd1` Forty-five percent the Yanks are charging on a board now. And the logs go out raw off the dock in Nanaimo, on a Chinese boat, past the mill. I've watched them go.  _(deck.ink:97)_
+
+## The Constable (`constable`)
+
+- `vo_constable_5116897d` Okay. So. We had a call about a fight.  _(pool.ink:701)_
+- `vo_constable_07d99edb` Forty minutes. I know. I've got one car for the whole valley.  _(pool.ink:703)_
+- `vo_constable_dbe64678` Got it. And the eye, sir?  _(pool.ink:722)_
+- `vo_constable_1cb10f29` Alright. First time I've had one in order from a doorman.  _(pool.ink:725)_
+- `vo_constable_7f663330` Sorted itself out.  _(pool.ink:733)_
+
+## Raincoat (`raincoat`)
+
+- `vo_raincoat_909da1ae` Is Dennis here.  _(door.ink:1037)_
+- `vo_raincoat_fa5875b7` The one pretending he can't see me.  _(door.ink:1054)_
+- `vo_raincoat_8a18203f` His truck's in your lot. Same spot as always.  _(door.ink:1061)_
+- `vo_raincoat_37d90e80` Tell him the dog's been sick on the bed. He'll know what that means.  _(door.ink:1062)_
+- `vo_raincoat_46f9d37c` Don't.  _(table28.ink:540)_
+- `vo_raincoat_8d806fbb` Thirty years he's sat at that table. You'd think one of you would stop him at the door.  _(table28.ink:548)_
+
+## slippers_b (`slippers_b`)
+
+- `vo_slippers_b_31f55c44` You should tell Terry.  _(talk.yaml slippers_drip)_
+- `vo_slippers_b_27822aae` The one in eleven has a girl up every night. Every night.  _(talk.yaml slippers_eleven)_
+- `vo_slippers_b_11f7d115` How would you know?  _(talk.yaml slippers_eleven)_
+- `vo_slippers_b_e7d8ed30` Your husband had a temper.  _(talk.yaml slippers_door)_
+
+## Glasses (`glasses`)
+
+- `vo_glasses_fd4c4ec8` She'll have her keys out. Thirty years, she's had her keys out.  _(door.ink:1076)_
+- `vo_glasses_9ea4bb73` He's all right. He's a good, he's.  _(talk.yaml t28_new_kid_good)_
+- `vo_glasses_481ff6c7` My wife says to me, she says, Dennis. She says, you're.  _(talk.yaml t28_dennis)_
+- `vo_glasses_7745de05` Thirty years. Thirty years, and she still.  _(talk.yaml t28_dennis)_
+
+Changing with the night (record the bark instead, or ask for these to be split):
+
+- At {q_words(wife_at)}.  _(closing.ink:746)_
+
+## Hi-Vis (`hivis`)
+
+- `vo_hivis_39d27d11` How's she goin'.  _(talk.yaml hivis_room)_
+- `vo_hivis_638fd762` Contract. Six weeks. I'm in room eleven, so.  _(talk.yaml hivis_room)_
+- `vo_hivis_35878b38` Fair enough.  _(talk.yaml hivis_room)_
+
+## Good Shoes (`goodshoes`)
+
+- `vo_goodshoes_086e016f` Gary and I go back. I completely understand the caution, of course.  _(talk.yaml goodshoes_gary)_
+- `vo_goodshoes_f7f214bc` He's a reasonable man, Gary. I'm a reasonable man.  _(talk.yaml goodshoes_gary)_

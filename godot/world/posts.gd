@@ -120,6 +120,9 @@ const FRAMES := {
 	"lot:arrive": {"at": Vector3(8.0, STAND, 23.0), "look": Vector3(5.0, 5.2, 10.1)},
 	"lot:pickup": {"at": Vector3(8.17, STAND, 17.17), "look": Vector3(8.75, 1.3, 15.99)},
 	"lot:truck": {"at": Vector3(3.3, STAND, 11.0), "look": Vector3(-3.0, 1.2, 13.4)},
+	# out front for the air (content/ink/deck.ink, at_front): a step out from under the sign, the
+	# highway, the seawall across it and the strait
+	"lot:step": {"at": Vector3(3.9, STAND, 11.6), "look": Vector3(7.0, 1.3, 36.0)},
 	# Gary's office, from his chair: the doorway, where the man stands as he comes in, and round to
 	# the bookkeeper at her desk against the wall
 	"office:door": {"at": Town.GARY, "look": Town.DOORWAY, "seat": true},
