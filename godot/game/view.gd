@@ -115,6 +115,7 @@ var keys_turn := Vector2.ZERO
 var keys_feet := Vector2.ZERO     # W A S D, when they turn his head instead of walking him (game/feet.gd)
 var stroll := false               # walking on his own feet, by the keys (game/feet.gd)
 var stroll_v := 0.0
+var roamed := false               # his own feet took him off the place the night has him at (game/feet.gd, roam)
 var ride: Node3D = null           # riding in something (game/truck.gd: the cab): his head's yaw and pitch are its, and eye_pos follows it
 var ride_eye := Vector3.ZERO      # his eyes in it, in its own frame
 var lean_off := 0.0               # leaning round something: how far his head's out to the side
@@ -293,6 +294,7 @@ func add_stride(d: float) -> void:
 # ---------------------------------------------------------------- where he is
 
 func jump_to(where: String) -> void:
+	roamed = false
 	if _cut != null and _cut.is_valid():
 		_cut.kill()
 	_cut = null
@@ -345,7 +347,7 @@ func _got_to(where: String) -> void:
 # blank for a moment. Instant: just be there. Then: on from where he's already going, after a moment
 # there, when the page moves him twice at once (over to the bar, then the man walked to the door).
 func walk_to(where: String, instant := false, then := false) -> void:
-	if where == place and frame == _framed and not walking:
+	if where == place and frame == _framed and not walking and not roamed:
 		return
 	# out round the back, across the road or down the beach, the night seeing the same place another
 	# way (the lot from the step, the lot from the pickup) doesn't fetch him back to see it: he's
@@ -719,6 +721,7 @@ func print_in(secs := 0.9) -> Tween:
 # sat down, which turns him to what the seat faces, or it's the Sov's front, the first time
 func _arrive() -> void:
 	walking = false
+	roamed = false
 	_path = PackedVector3Array()
 	_v = 0.0
 	var to = _look_after

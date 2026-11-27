@@ -39,12 +39,16 @@ const AREAS := [
 	["steps", Rect2(13.35, 34.8, 1.3, 2.4)],
 	["beach", Rect2(-14.0, 36.25, 54.0, 9.4)],
 	["esso", Rect2(-169.0, 1.5, 38.0, 26.5)],
+	# up the old main street from the highway, sidewalk to sidewalk, to its top (world/town.gd), and
+	# the highway on past the Esso to the foot of it
+	["main", Rect2(Town.MAIN_X - Town.WALK + 0.2, Town.TOP_Z + 2.0, (Town.WALK - 0.2) * 2.0, Town.FOOT - Town.TOP_Z)],
+	["road_w", Rect2(-215.0, 25.0, 50.0, 10.65)],
 ]
 # the names that come up the first time he walks into each (and what the voices answer to:
 # ears:out_<area> in content/rules/barks.yaml)
 const BANNER := {"side": "THE HOTEL'S FRONT DOOR", "back": "BEHIND THE SOV", "alley": "THE ALLEY",
 	"road": "THE HIGHWAY", "seawall": "THE SEAWALL", "beach": "THE BEACH", "shoulder": "THE SHOULDER",
-	"esso": "THE ESSO"}
+	"esso": "THE ESSO", "main": "THE OLD MAIN STREET"}
 const STEP_X := Vector2(13.35, 14.65)     # the gap in the seawall, the steps down through it
 const WALL_Z := Vector2(35.65, 36.15)     # the seawall, its road side and its sea side
 const LANES := [29.6, 33.6]               # the highway's two lanes: to the Esso, and up island
@@ -184,6 +188,9 @@ static func clearance(p: Vector3) -> float:
 # down the east side a step lower, the road, the steps down through the seawall, the beach going
 # down to the water.
 static func ground_y(x: float, z: float) -> float:
+	# up the old main street the ground is the street's, rising off the highway
+	if x < -185.0 and z < WALL_Z.x - 0.4:
+		return Town.ground_y(x, z) + 0.02
 	if z > WALL_Z.y:
 		var t := clampf((z - WALL_Z.y) / 8.6, 0.0, 1.0)
 		return lerpf(-0.24, -0.4, t) + 0.025 * sin(x * 0.61 + z * 0.37)
