@@ -60,6 +60,9 @@ var _knock := 0.0
 var _knock_ph := 0.0
 var _knock_body := 0.0          # the thud's phase
 var _knock_lp := [0.0, 0.0]
+var _seam := 0.0               # a crack in the road under a tire: a short thump and the tire's slap
+var _seam_t := 0.0
+var _seam_lp := 0.0
 var _cyl_jit: Array = []
 var _rpm_s := 0.0
 
@@ -95,6 +98,12 @@ func knock(strength: float) -> void:
 	_knock = maxf(st, _knock * 0.5)
 	_knock_ph = 0.0
 	_knock_body = 0.0
+
+
+# a tire over a tarred crack in the road (0..1): much smaller than a knock, and quick
+func seam(strength: float) -> void:
+	_seam = clampf(strength, 0.0, 1.0)
+	_seam_t = 0.0
 
 
 # a band-pass (RBJ, 0 dB at its peak, nothing at DC): returns the new output; state [x1, x2, y1, y2]
@@ -191,6 +200,12 @@ func fill(n: int) -> PackedVector2Array:
 		if crunch > 0.0 and _rng.randf() < 0.004 * crunch * 10.0:
 			_knock_ph = 0.0
 			road += _rng.randf_range(0.2, 0.5) * crunch
+		if _seam > 0.001:
+			_seam_t += 1.0 / RATE
+			_seam_lp += (_rng.randf_range(-1.0, 1.0) - _seam_lp) * 0.3
+			road += _seam * (sin(TAU * 58.0 * _seam_t) * exp(-_seam_t * 26.0) + _seam_lp * exp(-_seam_t * 70.0) * 0.5)
+			if _seam_t > 0.25:
+				_seam = 0.0
 		_wind += (_rng.randf_range(-1.0, 1.0) - _wind) * 0.02
 		road += _wind * wind_amt * 2.0
 		# the horn: two notes, a slow attack

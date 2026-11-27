@@ -81,6 +81,7 @@ var want_pitch := 0.0
 var zoom := 1.0                   # the wheel: 1 as he is, down to 0.5 narrowing his eyes on something
 var want_zoom := 1.0
 var focus_fov := 0.0              # a look at something close (the dice): the fov it wants, 0 for none
+var fov_add := 0.0                # a few degrees more at speed in the truck (game/truck.gd)
 var walking := false
 var on_floor := ""                # "" on the ground floor; "keg" or "upstairs", off it; or the place away from the Sov he's at
 var floor_spot = null             # where he's standing on the floor, or going to (on the floor, y 0); null for the floor's post
@@ -913,7 +914,7 @@ func _apply() -> void:
 	else:
 		cam.global_transform = Transform3D(basis, eye_pos + Vector3(0, dy - absf(lean_off) * 0.12, 0) + right * (side + lean_off))
 	var base := float(settings.get("fov", 70.0))
-	var f := base * zoom
+	var f := base * zoom + fov_add
 	if focus_fov > 0.0:
 		f = focus_fov
 	cam.fov = lerpf(cam.fov, f, 0.25) if absf(cam.fov - f) > 0.05 else f
