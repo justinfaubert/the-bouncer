@@ -21,6 +21,7 @@ var content: Dictionary
 var game: Game
 var pub: Pub
 var stage: Stage
+var happenings: Happenings
 var view: View
 var ui: CanvasLayer
 var root: Control
@@ -104,6 +105,15 @@ func _ready() -> void:
 	add_child(view)
 	view.setup(pub, settings, root)
 	stage.view = view
+	happenings = Happenings.new()
+	add_child(happenings)
+	happenings.setup(stage, pub, view)
+	happenings.on_done = func():
+		if game.story != null and view.place in ["upstairs", "hall"]:
+			var f := _frame_for(view.place)
+			if f != view.frame:
+				view.frame = f
+				view.walk_to(view.place, false)
 
 	audio = Sound.new()
 	add_child(audio)
@@ -265,7 +275,21 @@ func _grab(path: String) -> void:
 func _frame_for(where: String) -> String:
 	if game.story == null:
 		return ""
+	if happenings != null and happenings.holds(where) != "":
+		return happenings.holds(where)
+	# the days on screen (world/happenings.gd): Lorraine at twelve's door; seven's door, and in it
+	if where == "upstairs":
+		var vs := game.vars()
+		if int(BUtil.js_int(vs.get("seven_how", 0))) == 1 and int(BUtil.js_int(vs.get("day", 1))) == 3:
+			return "seven_in"
+		if _choices_from("close_friday.seven"):
+			return "seven"
+		return "door" if _choices_from("twelve_day.lorraine") else ""
+	if where == "bar" and _choices_from("cheque"):
+		return "bk"
 	if where == "hall":
+		if _choices_from("close_friday.lorraine_friday"):
+			return "stair"
 		if _choices_from("at_hall.night_clerk"):
 			return "clerk"
 		return "phone" if _choices_from("at_hall.payphone") else ""
@@ -1028,6 +1052,15 @@ func show(res: Dictionary, live: bool) -> void:
 	column.begin_batch()
 	var first := render_items(res.get("items", []), live)
 	column.reveal(live)
+	# what the lines say happens starts happening as they come up, not after the last of them
+	# (world/happenings.gd): up the stairs, seven's door
+	if live and game.story != null:
+		happenings.after(game)
+		if view.place == "upstairs" and pending != null:
+			var fr := _frame_for(view.place)
+			if fr != view.frame:
+				view.frame = fr
+				view.walk_to(view.place, false)
 	if pending == null:
 		after(res, live)
 	else:
@@ -1057,7 +1090,8 @@ func after(res: Dictionary, live: bool) -> void:
 	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
 	# table 28, the doorway of Gary's office, the wharf's rail, the highway, the kid on the freezer):
 	# over to it, and back
-	if view.place in ["hall", "pool", "t28", "office", "street", "esso"] and not res.get("ended", false):
+	happenings.after(game)
+	if view.place in ["hall", "pool", "t28", "office", "street", "esso", "upstairs", "bar"] and (not res.get("ended", false) or view.place == "upstairs"):
 		var f := _frame_for(view.place)
 		if f != view.frame:
 			view.frame = f

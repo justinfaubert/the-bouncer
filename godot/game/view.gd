@@ -512,6 +512,12 @@ func _plan(where: String, p: Dictionary, from: Vector3, off: String) -> Array:
 		var step := Vector3(3.9, Posts.STAND, 12.4)
 		legs.append({"cut": step, "floor": "", "after": Vector3(3.2, 1.3, 10.1)})
 		from = step
+	# up there already, from one way of seeing it to another (his room to its doorway, the hall to
+	# seven's door: world/happenings.gd): a few steps across the boards, no stairs
+	if off != "" and off == where:
+		if from.distance_to(p.at) < 0.05:
+			return []
+		return [{"path": PackedVector3Array([Vector3(from.x, 0, from.z), Vector3(p.at.x, 0, p.at.z)]), "y1": p.at.y}]
 	if off != "":
 		var up: Dictionary = Posts.FLIGHTS[off]
 		var top := Vector3(up.from.x, Posts.STAND, up.from.z)
@@ -609,7 +615,9 @@ func _walking(dt: float) -> void:
 	# off a stool his eyes rise in the first steps; onto one, they sink in the last
 	var up := minf(0.55, _len * 0.45)
 	var down := minf(0.5, _len * 0.45)
-	var y := Posts.STAND + (_y0 - Posts.STAND) * (1.0 - smoothstep(0.0, up, _s)) + (_y1 - Posts.STAND) * smoothstep(_len - down, _len, _s)
+	# (upstairs, on the same boards: his eyes stand that floor's height over them all the way)
+	var stand := Posts.STAND + (Pub.UP_Y if on_floor == "upstairs" else 0.0)
+	var y := stand + (_y0 - stand) * (1.0 - smoothstep(0.0, up, _s)) + (_y1 - stand) * smoothstep(_len - down, _len, _s)
 	eye_pos = Vector3(here.x, y, here.z)
 	for d in _doors:
 		if d[2] == 0 and _s >= float(d[1]) - DOOR_NEAR:
@@ -619,7 +627,12 @@ func _walking(dt: float) -> void:
 			pub.swing_door(d[0], false)
 			d[2] = 2
 	var sight = _sight_ahead()
-	if mine and _legs.is_empty() and sight != null and left < SIGHTED:
+	if on_floor == "upstairs" and _len < 3.0:
+		# a step or two across a room up there, to someone: his eyes stay on what he's going to
+		var a1 := Posts.aim(Vector3(here.x, y, here.z), _to.look)
+		want_yaw = _near_angle(yaw, a1.x)
+		want_pitch = clampf(a1.y, PITCH_MIN, PITCH_MAX)
+	elif mine and _legs.is_empty() and sight != null and left < SIGHTED:
 		# round the front of the Sov the first time: it turns his head as he comes to it
 		var a0 := Posts.aim(Vector3(here.x, _y1, here.z), sight)
 		want_yaw = _near_angle(yaw, a0.x)

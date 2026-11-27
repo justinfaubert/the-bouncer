@@ -1168,6 +1168,8 @@ def body_parts(B, p, look):
             # the collar turned up round her neck
             add(col, S.carve(S.cone(p.neck + R @ V(0, 0.004, -0.03), p.neck + R @ V(0, -0.004, 0.06), neck_r + 0.034, neck_r + 0.026),
                              S.cone(p.neck + R @ V(0, 0.004, -0.04), p.neck + R @ V(0, -0.004, 0.08), neck_r + 0.016, neck_r + 0.01)), order=2)
+        elif top == 'raincoat':
+            pass    # a robe wrapped in a V: no band round the neck to show its inside
         else:
             band = S.torus(p.neck + R @ V(0, 0.012, -0.012), 0.062 * b ** 0.5 + 0.012, 0.02, R @ S.rot(0, -0.35, 0))
             if look.get('collar') and vneck is not None:

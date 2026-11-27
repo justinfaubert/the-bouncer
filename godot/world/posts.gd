@@ -133,6 +133,15 @@ const FRAMES := {
 	# along it: the Esso first, on the left, and the Sov's sign a long way down
 	"street:highway": {"at": Vector3(-186.0, STAND, 34.3), "look": Vector3(-140.0, 2.5, 20.0)},
 	# out from under the canopy, the kid on the ice freezer by the store's door
+	# the days on screen (world/happenings.gd): his room turned round to its door, Lorraine in the
+	# hall outside it; in the upstairs hall facing seven, and in seven's doorway looking in at the bed;
+	# through the hotel door, the foot of the stairs; at the bar, along it to the bookkeeper
+	"upstairs:door": {"at": Vector3(14.75, 3.4 + 1.62, 7.85), "look": Vector3(14.1, 3.4 + 1.45, 6.0), "seat": true},
+	"upstairs:door_close": {"at": Vector3(14.25, 3.4 + 1.68, 6.72), "look": Vector3(14.1, 3.4 + 1.42, 6.0)},
+	"upstairs:seven": {"at": Vector3(12.7, 3.4 + 1.66, 5.95), "look": Vector3(11.4, 3.4 + 1.25, 5.0)},
+	"upstairs:seven_in": {"at": Vector3(11.4, 3.4 + 1.62, 5.35), "look": Vector3(11.9, 3.4 + 0.5, 3.75)},
+	"hall:stair": {"at": Vector3(17.15, STAND, 0.25), "look": Vector3(16.6, 1.25, -2.2)},
+	"bar:bk": {"at": Vector3(2.68, LEAN_BAR, 5.0), "look": Vector3(2.4, 1.15, 6.7), "lean": true},
 	"esso:kid": {"at": Vector3(-149.6, Town.APRON + STAND, 15.3), "look": Vector3(-147.3, Town.APRON + 1.6, 12.45)},
 }
 

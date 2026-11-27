@@ -203,9 +203,9 @@ PEOPLE = {
     'girl_bar': (dict(sex='f', age='young', build='slight', hair='long', hair_mat='hair_dark', top='fleece', drape=True,
                       loose=0.035, recolour={'fleece': 'puffer'}, bottoms='jeans_black', seed='girl'),
                  'bar_lean', dict(head_turn=-0.3), 0.012),
-    'suit_wet': (dict(hair='parted', hair_mat='hair_dark', top='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
+    'suit_wet': (dict(hair='parted', hair_mat='hair_dark', top='suit', bottoms='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
                  'stand', dict(head_tilt=0.12), 0.008),
-    'suit_bar': (dict(hair='parted', hair_mat='hair_dark', top='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
+    'suit_bar': (dict(hair='parted', hair_mat='hair_dark', top='suit', bottoms='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
                  'bar_lean', dict(head_turn=0.1), 0.012),
     'legion': (dict(age='old', age_n=0.8, build='slight', hair='thin', hair_mat='hair_white', top='jacket', face=['lined'],
                     recolour={'jacket': 'legion', 'jacket_trim': 'legion'}, bottoms='slacks', shoes='dress', shoe_mat='dress_shoe', seed='doug'),
@@ -217,9 +217,10 @@ PEOPLE = {
     'esso_day': (dict(sex='f', age='old', age_n=0.3, bulk=1.1, hair='bob', hair_mat='hair_blonde', top='tshirt', over='vest',
                       recolour={'vest': 'esso_vest'}, seed='essoday'), 'sit', dict(seat=0.7, table=0.98, lean=0.3, head_tilt=0.35), 0.012),
     # the bookkeeper at the end of the bar with her coat on and the shoebox of cheques (friday.ink, cheque)
-    'bookkeeper_bar': (dict(sex='f', age='old', bulk=0.94, belly=0.015, hair='set', hair_mat='hair_grey', face=['readers', 'lined'], top='raincoat',
-                            recolour={'raincoat': 'coat'}, bottoms='slacks', shoes='dress', shoe_mat='dress_shoe', seed='bookkeeper_desk'),
-                       'sit', dict(seat=0.76, table=1.08, lean=0.2, head_tilt=0.25), 0.012),
+    'bookkeeper_bar': (dict(sex='f', age='old', bulk=0.94, belly=0.015, hair='set', hair_mat='hair_grey', face=['readers', 'lined'], top='cardigan',
+                            top_mat='cardigan_b', under='shirt_white', collar=True, extra=['chain'], bottoms='slacks', shoes='dress',
+                            shoe_mat='dress_shoe', seed='bookkeeper_desk'),
+                       'sit', dict(seat=0.76, table=1.08, lean=0.12, reach=0.2, head_tilt=0.3), 0.012),
 }
 # figures seen close (at the stool): finer meshes and more faces
 NEAR = {'lorraine_door', 'lorraine_coat', 'preacher_bag', 'girl_puffer', 'suit_wet', 'legion', 'woman_shoes', 'man_couple',

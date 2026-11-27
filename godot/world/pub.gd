@@ -2260,8 +2260,8 @@ func _upstairs_hall() -> void:
 	ball(0.022, Vector3(0.68, 0.98, 0.04), brass, hinge)
 	dyn.seven_door = hinge
 	# the numbers: 6, 11, and 7 hanging crooked off its one screw
-	var nums := [["6", Vector3(15.0, y0 + 1.6, hz0 + 0.08), 0.0, PI], ["11", Vector3(12.6, y0 + 1.6, hz1 - 0.08), 0.0, 0.0],
-		["7", Vector3(0.38, 1.6, 0.03), -0.42, PI]]
+	var nums := [["6", Vector3(15.0, y0 + 1.6, hz0 + 0.08), 0.0, 0.0], ["11", Vector3(12.6, y0 + 1.6, hz1 - 0.08), 0.0, PI],
+		["7", Vector3(0.38, 1.6, 0.03), -0.42, 0.0]]
 	for n in nums:
 		var l := Label3D.new()
 		l.text = n[0]
