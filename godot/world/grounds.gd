@@ -44,7 +44,7 @@ const AREAS := [
 # ears:out_<area> in content/rules/barks.yaml)
 const BANNER := {"side": "THE HOTEL'S FRONT DOOR", "back": "BEHIND THE SOV", "alley": "THE ALLEY",
 	"road": "THE HIGHWAY", "seawall": "THE SEAWALL", "beach": "THE BEACH", "shoulder": "THE SHOULDER",
-	"esso": "THE ESSO"}
+	"esso": "THE LESSO"}
 const STEP_X := Vector2(13.35, 14.65)     # the gap in the seawall, the steps down through it
 const WALL_Z := Vector2(35.65, 36.15)     # the seawall, its road side and its sea side
 const LANES := [29.6, 33.6]               # the highway's two lanes: to the Esso, and up island
@@ -89,6 +89,14 @@ const BOXES := {
 	"island_b": [Vector2(-150.0, 23.0), Vector2(5.0, 0.6), 0.0],
 	"propane": [Vector2(-157.0, 12.5), Vector2(0.75, 0.4), 0.0],
 	"ice": [Vector2(-147.3, 12.4), Vector2(0.62, 0.36), 0.0],
+	# the Lesso's things round the door and the forecourt (world/dressing.gd, _lesso)
+	"standee": [Vector2(-155.4, 12.35), Vector2(0.45, 0.2), 0.0],
+	"lesso_paper": [Vector2(-150.0, 12.35), Vector2(0.26, 0.23), 0.0],
+	"fluid": [Vector2(-145.85, 12.45), Vector2(0.32, 0.1), 0.0],
+	"air": [Vector2(-141.7, 14.0), Vector2(0.4, 0.2), 0.0],
+	"board": [Vector2(-140.9, 24.6), Vector2(0.3, 0.25), 0.0],
+	"charger": [Vector2(-160.6, 17.2), Vector2(0.24, 0.2), 0.0],
+	"firewood": [Vector2(-158.55, 10.4), Vector2(0.45, 0.6), 0.0],
 }
 const ROUNDS := {
 	# posts and poles: the lot's lamp, the highway's, the price sign's, the cross on the shoulder

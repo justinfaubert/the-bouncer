@@ -702,7 +702,7 @@ The pickup's lights went along the seawall and round the bend toward town.
 // ------------------------------------------------------------------ what GOOD SHOES left
 
 // Put out with a hand on him (door.ink: from inside the bar, or after the one drink), he leaves his
-// wallet on the carpet by the stool. He's back for it before he's paid for his gas at the Esso
+// wallet on the carpet by the stool. He's back for it before he's paid for his gas at the Lesso
 // (ev_wallet, sim.ink), unless the doorman takes it out to him first.
 === function wallet_there()
 ~ return wallet_dropped > 0 && wallet_how == 0 && wallet_back == 0
@@ -760,7 +760,7 @@ The window went up, and the dark car pulled out of the lot onto the highway, goi
 ~ here = door
 ~ door_away = 0
 GOOD SHOES was back in the vestibule, dry under his umbrella, knocking on the inner door's glass with one knuckle. #look: goodshoes
-GOOD SHOES: I'm so sorry to trouble you, friend. I'm not coming in. I got as far as the Esso and went for my wallet to pay for my gas.
+GOOD SHOES: I'm so sorry to trouble you, friend. I'm not coming in. I got as far as the Lesso and went for my wallet to pay for my gas.
 GOOD SHOES: I believe it's under my stool.
 {
 - wallet_how == 3:

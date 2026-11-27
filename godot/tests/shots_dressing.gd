@@ -44,6 +44,14 @@ const VIEWS := [
 	["helmet", "floor", Vector3(13.22, 2.2, 0.2), 1290, Vector3(12.6, 1.75, 1.6)],
 	["tents", "floor", Vector3(4.5, 0.8, 4.25), 1290, Vector3(5.0, 1.45, 5.3)],
 	["ceiling", "floor", Vector3(6.6, 3.2, 5.9), 1290],
+	# the Lesso (dressing.gd, _lesso)
+	["lesso_road", "esso", Vector3(-148.0, 3.0, 18.0), 1000, Vector3(-128.0, 1.7, 34.0)],
+	["lesso_night", "esso", Vector3(-148.0, 3.0, 18.0), 1290, Vector3(-128.0, 1.7, 34.0)],
+	["lesso_door", "esso", Vector3(-151.0, 1.3, 12.0), 1290, Vector3(-149.5, 1.65, 17.0)],
+	["lesso_standee", "esso", Vector3(-155.4, 1.2, 12.4), 1290, Vector3(-154.6, 1.6, 14.6)],
+	["lesso_phone", "esso", Vector3(-143.0, 1.5, 10.6), 1290, Vector3(-140.6, 1.65, 11.4)],
+	["lesso_ev", "esso", Vector3(-160.6, 1.2, 17.2), 1290, Vector3(-158.4, 1.6, 19.6)],
+	["lesso_board", "esso", Vector3(-140.9, 0.6, 24.6), 1290, Vector3(-140.3, 1.6, 26.8)],
 	# the source for the painting of the room (dressing2.py, room1952): from the back by the pool
 	# table toward the door, early, before the room fills
 	["src_1952", "floor", Vector3(3.2, 1.45, 10.0), 1215, Vector3(10.6, 1.55, 1.4)],

@@ -268,7 +268,7 @@ def save(img, name):
 
 KIT = os.environ.get('UBC_KIT', '/tmp/claude-0/ubc/Universal Base Characters[Standard]')
 WORK = os.environ.get('GIRLS_WORK', os.path.join(tempfile.gettempdir(), 'last-call-girls'))
-BIKINI = {'boors': ('8fc0e0', None), 'mildcat': (None, 'leopard'), 'unlucky': ('3f8a6a', None), 'velvet': (None, 'skin')}
+BIKINI = {'boors': ('8fc0e0', None), 'mildcat': (None, 'leopard'), 'unlucky': ('3f8a6a', None), 'velvet': (None, 'skin'), 'slush': ('c8243a', None)}
 
 
 def leopard(w, h, seed=7):

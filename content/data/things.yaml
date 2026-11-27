@@ -146,7 +146,7 @@ office_safe: {name: The safe., at: a:office_safe, from: [office]}
 office_shirts: {name: The box of shirts., at: a:office_shirts, from: [office]}
 bk_mug: {name: Her mug., at: a:bk_mug, from: [office]}
 
-# ---------------------------------------------------------------- before the night: the old main street, the Esso, the seawall
+# ---------------------------------------------------------------- before the night: the old main street, the Lesso, the seawall
 street_library: {name: The library., at: a:street_library, from: [street]}
 street_legion: {name: The Legion., at: a:street_legion, from: [street]}
 street_gun: {name: The gun., at: a:street_gun, from: [street]}
@@ -158,4 +158,14 @@ esso_canopy: {name: The canopy., at: a:esso_canopy, from: [esso]}
 esso_prices: {name: The prices., at: a:esso_prices, from: [esso]}
 esso_window: {name: The store., at: a:esso_window, from: [esso]}
 esso_ice: {name: The ice freezer., at: a:esso_ice, from: [esso]}
+lesso_sign: {name: The sign over the pumps., at: a:lesso_sign, from: [esso]}
+lesso_standee: {name: The cardboard woman., at: a:lesso_standee, from: [esso]}
+lesso_board: {name: The board by the road., at: a:lesso_board, from: [esso]}
+lesso_ev: {name: The charger with the bag on it., at: a:lesso_ev, from: [esso]}
+lesso_air: {name: The air machine., at: a:lesso_air, from: [esso]}
+lesso_news: {name: The paper box., at: a:lesso_news, from: [esso]}
+lesso_wood: {name: The firewood., at: a:lesso_wood, from: [esso]}
+lesso_fluid: {name: The washer fluid., at: a:lesso_fluid, from: [esso]}
+lesso_pump: {name: The note on the pump., at: a:lesso_pump, from: [esso]}
+lesso_phone_wall: {name: The wall round the phone., at: a:lesso_phone_wall, from: [esso]}
 seawall_water: {name: The water., at: a:seawall_water, from: [seawall]}

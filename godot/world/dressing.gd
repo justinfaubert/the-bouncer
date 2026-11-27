@@ -58,7 +58,9 @@ const READ := {"poster_boors": 0.45, "poster_mildcat": 0.45, "calendar": 0.32, "
 	"labutt": 0.24, "corkboard": 0.42, "sign_reserve": 0.2, "sign_forget": 0.18, "beer_clock": 0.2,
 	"door_signs": 0.3, "esso_ads": 0.6, "poster_teeth": 0.36, "poster_cokanee": 0.34, "poster_hockey": 0.3,
 	"poster_zero": 0.22, "founder": 0.36, "painting_1952": 0.42, "velvet": 0.36, "scrawl": 0.5,
-	"hall_clock": 0.18, "table_tents": 0.1}
+	"hall_clock": 0.18, "table_tents": 0.1, "lesso_sign": 1.0, "lesso_standee": 0.6, "lesso_board": 0.4,
+	"lesso_ev": 0.3, "lesso_air": 0.2, "lesso_news": 0.22, "lesso_wood": 0.2, "lesso_fluid": 0.2, "lesso_pump": 0.1,
+	"lesso_phone_wall": 0.9}
 
 
 func paper_mat(t: String) -> ShaderMaterial:
@@ -876,3 +878,147 @@ func _esso() -> void:
 				at.y += 0.15          # on the island's curb
 			var what: String = ["butt", "butt", "butt", "can", "receipt", "ticket", "cup", "bag", "paper"][r.randi() % 9]
 			trash_piece(what, at, r, es)
+	_lesso(es)
+
+
+# ---------------------------------------------------------------- the Lesso, made over
+
+# The station's brand (LESSO, less of everything: the red oval in its blue ring, lit, on the
+# canopy's four sides and on top of the price sign, the red stripe round the canopy under the
+# band), the store's sign, and what's round the door and the forecourt: the cardboard woman with
+# the slush, the chalk board by the road, the charger with a bag over its head, the air machine,
+# the paper box, the firewood and the washer fluid, a note on a pump; the end wall round the
+# payphone, written on. Pictures from tools/lesso.py.
+func _lit_mat(t: String, e: float) -> ShaderMaterial:
+	var m := pub.glow(Color(1, 1, 1), e)
+	m.set_shader_parameter("albedo", Color(1, 1, 1))
+	m.set_shader_parameter("albedo_tex", pub.tex("res://textures/dress_" + t + ".png"))
+	m.set_shader_parameter("emission_tex", pub.tex("res://textures/dress_" + t + ".png"))
+	m.set_shader_parameter("alpha_scissor", 0.4)
+	return m
+
+
+func _quad(m: Material, w: float, h: float, at: Vector3, face: Vector3, parent: Node, tilt := 0.0) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(w, h)
+	mi.mesh = q
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var up := Vector3.UP if absf(face.normalized().y) < 0.9 else Vector3(0, 0, -1)
+	mi.transform = Transform3D(Basis.looking_at(-face.normalized(), up) * Basis(Vector3(0, 0, 1), deg_to_rad(tilt)), at)
+	parent.add_child(mi)
+	return mi
+
+
+func _lesso(es: Node3D) -> void:
+	var y := Town.APRON
+	var oval := _lit_mat("lesso_logo", 1.3)
+	var red := pub.mat(Color("c8202c"), 0.5, 0.0, 3)
+	red.set_shader_parameter("emission", Color("c8202c"))
+	red.set_shader_parameter("emission_energy", 0.25)
+	# the canopy: the oval on all four sides, over the band; the red stripe under it
+	_quad(oval, 2.2, 1.1, Vector3(-150.0, 5.4, 26.07), Vector3(0, 0, 1), es)
+	_quad(oval, 2.2, 1.1, Vector3(-150.0, 5.4, 15.43), Vector3(0, 0, -1), es)
+	_quad(oval, 1.7, 0.85, Vector3(-141.93, 5.4, 20.75), Vector3(1, 0, 0), es)
+	_quad(oval, 1.7, 0.85, Vector3(-158.07, 5.4, 20.75), Vector3(-1, 0, 0), es)
+	for s in [-1.0, 1.0]:
+		pub.box(Vector3(16.1, 0.13, 0.03), Vector3(-150.0, 5.08, 20.75 + s * 5.285), red, 0.0, es)
+		pub.box(Vector3(0.03, 0.13, 10.6), Vector3(-150.0 + s * 8.035, 5.08, 20.75), red, 0.0, es)
+	# the price sign: a lit cabinet on top with the oval both ways, up where the highway sees it
+	var ps := Vector3(-134.5, y, 26.4)
+	pub.box(Vector3(0.36, 1.3, 2.3), ps + Vector3(0, 7.92, 0), pub.mat(Color("eceeef"), 0.6, 0.0, 0), 0.0, es)
+	for s in [-1.0, 1.0]:
+		_quad(oval, 2.1, 1.05, ps + Vector3(s * 0.185, 7.92, 0), Vector3(s, 0, 0), es)
+	pub.anchors["lesso_sign"] = ps + Vector3(0, 7.9, 0)
+	# the store's band
+	_quad(_lit_mat("lesso_sign", 0.45), 7.27, 0.5, Vector3(-150.5, y + 3.7, 12.065), Vector3(0, 0, 1), es)
+	# the cardboard woman in front of the window, on her easel, turned a little to the pumps
+	var st := _quad(paper_mat("lesso_standee"), 0.83, 1.75, Vector3(-155.4, y + 0.9, 12.42), Vector3(0.2, 0, 1), es)
+	var easel := pub.box(Vector3(0.04, 1.2, 0.03), Vector3(0, -0.25, -0.18), pub.mat(Color("8a6a40"), 0.9, 0.0, 3), 0.0, st)
+	easel.rotation.x = deg_to_rad(-12)
+	pub.anchors["lesso_standee"] = Vector3(-155.4, y + 1.3, 12.45)
+	# the chalk board out by the road, both sides
+	var bc := Vector3(-140.9, y, 24.6)
+	var lean := deg_to_rad(12)
+	for side in [["lesso_board_a", 1.0], ["lesso_board_b", -1.0]]:
+		var f := Vector3(0, sin(lean), float(side[1]) * cos(lean))
+		var at := bc + Vector3(0, 0.5, float(side[1]) * 0.1)
+		_quad(paper_mat(str(side[0])), 0.5, 0.7, at + f * 0.02, f, es)
+		var fr := pub.box(Vector3(0.58, 0.86, 0.025), at, pub.mat(Color("5a3a22"), 0.85, 0.0, 3), 0.0, es)
+		fr.rotation.x = -float(side[1]) * lean
+	pub.anchors["lesso_board"] = bc + Vector3(0, 0.6, 0.2)
+	# the charger at the end of the lot in its green bay, a garbage bag over its head, taped
+	var ev := Vector3(-160.6, y, 17.2)
+	var bay := pub.mat(Color("2f7a4a"), 0.8, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.3)
+	pub.box(Vector3(2.6, 0.006, 4.8), ev + Vector3(0, 0.003, 2.6), bay, 0.0, es)
+	pub.box(Vector3(0.34, 1.25, 0.24), ev + Vector3(0, 0.625, 0), pub.mat(Color("d8dcdc"), 0.4, 0.1, 2), 0.0, es)
+	# its ring lamp, red: fault
+	pub.box(Vector3(0.345, 0.06, 0.245), ev + Vector3(0, 0.95, 0), pub.glow(Color("e0283a"), 1.6), 0.0, es)
+	var bag := pub.box(Vector3(0.46, 0.62, 0.36), ev + Vector3(0, 1.45, 0), pub.mat(Color("141416"), 0.15, 0.2, 2), 0.0, es)
+	bag.rotation = Vector3(0.05, 0.1, -0.04)
+	pub.box(Vector3(0.48, 0.05, 0.38), ev + Vector3(0, 1.2, 0), pub.mat(Color("8a8a7a"), 0.7, 0.0, 3), 0.0, es)
+	paper(paper_mat("lesso_ev"), 0.3, 0.22, ev + Vector3(0, 1.48, 0.185), Vector3(0, 0, 1), 4.0, 0, 0.0, es)
+	pub.anchors["lesso_ev"] = ev + Vector3(0, 1.4, 0.2)
+	# the air machine at the store's east corner, its hose in a coil on its hook
+	var am := Vector3(-141.7, y, 14.0)
+	pub.box(Vector3(0.46, 1.15, 0.34), am + Vector3(0, 0.575, 0), pub.mat(Color("e0b830"), 0.5, 0.1, 2), 0.0, es)
+	_quad(paper_mat("lesso_air"), 0.28, 0.28, am + Vector3(0, 0.82, 0.173), Vector3(0, 0, 1), es)
+	for k in 3:
+		var ring := pub.cyl(0.13 - k * 0.006, 0.13 - k * 0.006, 0.018, am + Vector3(0.25, 0.6 - k * 0.02, 0.02), pub.M.black, es, 14)
+		ring.rotation = Vector3(0, 0, PI / 2.0)
+	pub.anchors["lesso_air"] = am + Vector3(0, 0.9, 0.2)
+	# the paper box left of the door, blue, the front page through its window
+	var nb := Vector3(-150.0, y, 12.35)
+	var blue := pub.mat(Color("2a4a8a"), 0.5, 0.2, 2)
+	pub.box(Vector3(0.48, 0.62, 0.42), nb + Vector3(0, 0.31, 0), blue, 0.0, es)
+	pub.box(Vector3(0.5, 0.42, 0.44), nb + Vector3(0, 0.83, 0), blue, 0.0, es)
+	_quad(paper_mat("lesso_news"), 0.36, 0.3, nb + Vector3(0, 0.84, 0.222), Vector3(0, 0, 1), es)
+	pub.box(Vector3(0.38, 0.32, 0.004), nb + Vector3(0, 0.84, 0.227), pub.M.glass, 0.0, es)
+	pub.anchors["lesso_news"] = nb + Vector3(0, 0.85, 0.24)
+	# the firewood on its pallet against the store's west end, the washer fluid by the ice
+	var fw := Vector3(-158.55, y, 10.4)
+	var wood := pub.mat(Color("8a6040"), 0.9, 0.0, 1, Vector3.UP, 6.0, 0.6)
+	var net := pub.mat(Color("c8b860"), 0.8, 0.0, 3)
+	pub.box(Vector3(0.9, 0.12, 1.2), fw + Vector3(0, 0.06, 0), pub.mat(Color("a08060"), 0.9, 0.0, 1), 0.0, es)
+	for k in 8:
+		var bz := -0.4 + (k % 3) * 0.4
+		var by := 0.27 + (k / 3) * 0.3
+		if k >= 6 and k % 3 == 2:
+			continue
+		var bun := pub.cyl(0.15, 0.15, 0.36, fw + Vector3(rng.randf_range(-0.04, 0.04), by, bz), wood, es, 9)
+		bun.rotation = Vector3(0, 0, PI / 2.0 + rng.randf_range(-0.08, 0.08))
+		pub.box(Vector3(0.02, 0.31, 0.31), fw + Vector3(0.1, by, bz), net, 0.0, es)
+	paper(paper_mat("lesso_wood"), 0.3, 0.21, fw + Vector3(0.0, 1.25, 0.0) + Vector3(0.0, 0, 0), Vector3(-1, 0, 0), -2.0, 0, 0.0, es)
+	pub.box(Vector3(0.02, 0.9, 0.02), fw + Vector3(-0.42, 0.8, 0.0), wood, 0.0, es)
+	pub.anchors["lesso_wood"] = fw + Vector3(-0.3, 1.0, 0.0)
+	var wf := Vector3(-145.85, y, 12.45)
+	var jug := pub.mat(Color("3a7ad8"), 0.3, 0.0, 2)
+	for k in 9:
+		var j := pub.box(Vector3(0.17, 0.3, 0.12), wf + Vector3(-0.2 + (k % 3) * 0.2, 0.17 + (k / 3) * 0.31, rng.randf_range(-0.02, 0.02)), jug, rng.randf_range(-0.2, 0.2), es)
+		j.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	paper(paper_mat("lesso_fluid"), 0.27, 0.18, wf + Vector3(0, 1.08, 0.0), Vector3(0, 0, 1), 3.0, 0, 0.0, es)
+	pub.anchors["lesso_fluid"] = wf + Vector3(0, 0.6, 0.1)
+	# the ovals low on every pump's faces, and a note on one
+	for px in [-152.5, -147.5]:
+		for iz in [19.0, 23.0]:
+			for s in [-1.0, 1.0]:
+				_quad(oval, 0.36, 0.18, Vector3(px, y + 0.15 + 0.5, iz + s * 0.212), Vector3(0, 0, s), es)
+	paper(paper_mat("lesso_pump"), 0.13, 0.083, Vector3(-147.5, y + 0.15 + 1.095, 19.0 + 0.212), Vector3(0, 0, 1), -4.0, 0, 0.0, es)
+	pub.anchors["lesso_pump"] = Vector3(-147.5, y + 1.25, 19.25)
+	# the end wall round the payphone
+	var pw := _quad(paper_mat("lesso_phone"), 2.5, 1.8, Vector3(-142.995, y + 1.6, 10.6), Vector3(1, 0, 0), es)
+	# the wall pack over it, a hood and a bulb gone orange, so the phone isn't in the dark
+	pub.box(Vector3(0.18, 0.12, 0.26), Vector3(-142.9, y + 2.75, 10.6), pub.M.black, 0.0, es)
+	pub.box(Vector3(0.12, 0.02, 0.2), Vector3(-142.88, y + 2.685, 10.6), pub.glow(Color("ffb060"), 2.5), 0.0, es)
+	var wp := SpotLight3D.new()
+	wp.transform = Transform3D(Basis.looking_at(Vector3(0.35, -1, 0), Vector3(1, 0, 0)), Vector3(-142.85, y + 2.66, 10.6))
+	wp.light_color = Color("ffb868")
+	wp.light_energy = 2.2
+	wp.spot_range = 4.0
+	wp.spot_angle = 55.0
+	wp.spot_attenuation = 0.9
+	wp.light_cull_mask = Town.OUTDOORS
+	es.add_child(wp)
+	(pw.material_override as ShaderMaterial).set_shader_parameter("lines", 0.0)
+	pub.anchors["lesso_phone_wall"] = Vector3(-142.95, y + 1.55, 10.95)

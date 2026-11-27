@@ -82,6 +82,20 @@ var POSES := {
 			["curl", "l", 25.0], ["curl", "r", 30.0],
 		],
 		"props": [["models/stool_bar.glb", "", Vector3(0.0, 0.0, 0.07), Vector3(0, 30, 0), 1.0]]},
+	# THE SLUSH GIRL, for the cardboard standee at the gas station's door: on her feet, offering you
+	# the cup at arm's length, her other hand on her hip, head on one side
+	"slush": {"hair": "Hair_Long", "hair_c": Color("b86a3a"), "cam": [Vector3(0.1, 1.0, 3.6), Vector3(0.0, 0.95, 0)], "fov": 33.0,
+		"moves": [
+			["turn", "pelvis", Y, -14], ["turn", "pelvis", Z, -7],
+			["turn", "spine_01", Z, 5], ["turn", "spine_02", Z, 6], ["turn", "spine_03", Y, 10],
+			["turn", "Head", Z, -11], ["turn", "Head", Y, 6], ["turn", "Head", X, 5],
+			["aim", "upperarm_r", "lowerarm_r", Vector3(-0.35, -0.45, 0.82)], ["aim", "lowerarm_r", "hand_r", Vector3(-0.15, 0.2, 1.0)],
+			["aim", "upperarm_l", "lowerarm_l", Vector3(0.62, -0.72, -0.1)], ["aim", "lowerarm_l", "hand_l", Vector3(-0.75, 0.15, 0.3)],
+			["aim", "thigh_r", "calf_r", Vector3(0.02, -1, 0.0)], ["aim", "calf_r", "foot_r", Vector3(0.0, -1, -0.02)],
+			["aim", "thigh_l", "calf_l", Vector3(-0.12, -1, 0.22)], ["aim", "calf_l", "foot_l", Vector3(0.0, -1, -0.14)],
+			["curl", "r", 62.0], ["curl", "l", 15.0],
+		],
+		"props": [["slush", "grip_r", Vector3(0, 0.03, 0), Vector3(0, 0, 0), 1.0]]},
 }
 
 
@@ -279,6 +293,44 @@ func _prop(what: String) -> Node3D:
 			m.albedo_color = Color("b8c4cc")
 		mi.material_override = m
 		n.add_child(mi)
+	elif what == "slush":
+		# a slush cup: red ice in a clear cup going up wide, a dome lid, a straw
+		var red := StandardMaterial3D.new()
+		red.albedo_color = Color("d0203a")
+		red.roughness = 0.35
+		var cup := MeshInstance3D.new()
+		var c := CylinderMesh.new()
+		c.top_radius = 0.048
+		c.bottom_radius = 0.034
+		c.height = 0.16
+		cup.mesh = c
+		cup.material_override = red
+		n.add_child(cup)
+		var dome := MeshInstance3D.new()
+		var sp := SphereMesh.new()
+		sp.radius = 0.05
+		sp.height = 0.05
+		sp.is_hemisphere = true
+		dome.mesh = sp
+		dome.position.y = 0.08
+		var clear := StandardMaterial3D.new()
+		clear.albedo_color = Color(0.95, 0.95, 1.0, 0.55)
+		clear.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		clear.roughness = 0.05
+		dome.material_override = clear
+		n.add_child(dome)
+		var straw := MeshInstance3D.new()
+		var st := CylinderMesh.new()
+		st.top_radius = 0.005
+		st.bottom_radius = 0.005
+		st.height = 0.2
+		straw.mesh = st
+		straw.position = Vector3(0.01, 0.15, 0)
+		straw.rotation.z = 0.15
+		var yel := StandardMaterial3D.new()
+		yel.albedo_color = Color("f0d020")
+		straw.material_override = yel
+		n.add_child(straw)
 	elif what == "bottle":
 		var m := StandardMaterial3D.new()
 		m.albedo_color = Color("3a2410")

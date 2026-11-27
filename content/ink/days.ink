@@ -3,7 +3,7 @@
 // length doc: thirty days at three speeds, DECIDED 19 November.)
 //
 //   day 2, Thursday    his own day. The daylight is the clock: sunset is at 4:48, and every outing
-//                      spends some of it. The paper, the napkin, the wharf and the trap, the Esso,
+//                      spends some of it. The paper, the napkin, the wharf and the trap, the Lesso,
 //                      table 28 by day, Lorraine in six, the sign coming on, eleven's crib game.
 //   day 3, Friday      the first real shift (friday.ink)
 //
@@ -146,7 +146,7 @@ On the end of the desk there was a stack of the Shoreline with a coffee can besi
 * ["Where do I get something to eat round here?"]
     ~ d2_done += d2_napkin
     Terry pulled a paper napkin out of a box under the desk and drew on it with a pen from a bank, slowly, with his tongue in the corner of his mouth.
-    A line for the highway. A square for the Sov, with an X in it. North of it, a circle. ESSO, and under it, HOT DOGS OK. Up the hill, THRIFT and HARDWARE. At the top, a square he shaded in hard till the pen went through.
+    A line for the highway. A square for the Sov, with an X in it. North of it, a circle. LESSO, and under it, HOT DOGS OK. Up the hill, THRIFT and HARDWARE. At the top, a square he shaded in hard till the pen went through.
     TERRY: Don't go to the Legion. #prop: napkin
     TERRY: That's not a rule, that's just me. Doug's at the Legion.
     -> desk_hub
@@ -220,14 +220,14 @@ THE SHORELINE. Serving the Island since 1911. Thursday, November 5. #prop: shore
 - clock < 930:
     The cloud had come down over the hill. The cars on the highway had their lights on, in the afternoon.
 - else:
-    The light was going already. The Esso's canopy was on, white, at the far end of it.
+    The light was going already. The Lesso's canopy was on, white, at the far end of it.
 }
 - (go)
 * {trap_in == 0} [Down to the wharf.]
     -> wharf_day
 * {trap_in > 0 && d2_done !? d2_hauled && clock >= trap_in + 120} [Back to the wharf, to haul the trap.]
     -> haul
-* [Up to the Esso.]
+* [Up to the Lesso.]
     -> esso_day
 * {clock >= 840 && fam !? dad_drove && fam !? dad_walked && d2_done !? d2_kayla} [The big man's truck. Somebody's in it, turning the key.]
     -> kayla_truck
@@ -292,12 +292,12 @@ FATHER: Seven's the one that's empty since March.
 - -> strip
 
 
-// The Esso by day: the woman on days at the till. The kid comes on at four.
+// The Lesso by day: the woman on days at the till. The kid comes on at four.
 === esso_day ===
 ~ here = esso
 ~ pass(10)
 # amb: esso
-Under the canopy by day the white light was still on. A woman in an Esso vest was on the till inside, doing a word search with a highlighter. She'd found PENNY, ALMANAC and SOVEREIGN, and was going over the grid a line at a time for EMPIRE.
+Under the canopy by day the white light was still on. A woman in a Lesso vest was on the till inside, doing a word search with a highlighter. She'd found PENNY, ALMANAC and SOVEREIGN, and was going over the grid a line at a time for EMPIRE.
 * {d2_done !? d2_ate} [Something to eat.]
     ~ d2_done += d2_ate
     ~ ate = 1

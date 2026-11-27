@@ -2,8 +2,8 @@
 //
 // PROPOSED (bible/05_LOG.md): the camera is his from the porch steps on, and his voices come with
 // it. The walk teaches looking and going without saying so (bible/11_SKELETON.md): the old main
-// street, the highway, the Esso's lights, the Sov's sign. He has three hours before he's due, and
-// where he spends them is what he walks in knowing: the old man on the wharf, the kid at the Esso
+// street, the highway, the Lesso's lights, the Sov's sign. He has three hours before he's due, and
+// where he spends them is what he walks in knowing: the old man on the wharf, the kid at the Lesso
 // and the light over the strait, the Sov from across the highway (the lot, or the hotel's door),
 // or his room, the last doormen's room, with the bartender on the deck under it, on the phone to
 // Gary, if he listens.
@@ -69,15 +69,15 @@ He didn't look round to say it. He was looking down at the pilings, where the wa
 ~ clock = MAX(clock, 1012)
 He walked north along the shoulder with the water on his right and the trucks throwing it up off the road, toward the Sov's sign a long way down, small and red, the second E dead even from here.
 At the bend there was a white cross at the side of the road, with plastic flowers, and a hockey sweater zip-tied to it that the rain had turned grey.
-The Esso came first, on the left: a canopy lit white from underneath, two islands of pumps, and the store behind them with LOTTO MAX and WE ID UNDER 25 in the window. A cardboard woman held out a slushie. A kid in a toque and an Esso vest sat on the ice freezer by the door with his phone. #portrait: essokid
+The Lesso came first, on the left: a canopy lit white from underneath, two islands of pumps, and the store behind them with LOTTO MOST and WE ID UNDER 25 in the window. A cardboard woman held out a slushie. A kid in a toque and a Lesso vest sat on the ice freezer by the door with his phone. #portrait: essokid
 He hadn't eaten since the morning.
-* [Stop at the Esso.]
+* [Stop at the Lesso.]
     -> esso_lot
 * [Keep walking.]
     ~ ate = -1
     -> the_sov
 
-// The kid at the Esso (bible/11_SKELETON.md, the eccentrics): twenty, on nights, physics on his
+// The kid at the Lesso (bible/11_SKELETON.md, the eccentrics): twenty, on nights, physics on his
 // phone, and a gig rating a machine's answers. The clocks are Island Time.
 = esso_lot
 ~ here = esso
@@ -117,7 +117,7 @@ He pointed somewhere else, without looking.
 ESSOKID: I filmed it. You can't see anything on the video. You never can.
 -> esso_hub
 
-// "The kind the Esso kid rated answers for" (bible/11_SKELETON.md, who's telling it).
+// "The kind the Lesso kid rated answers for" (bible/11_SKELETON.md, who's telling it).
 = kid_rater
 ~ knows += esso_rater
 ESSOKID: Kind of. Both.
@@ -172,7 +172,7 @@ At six somebody propped the deck door open with something small and folded, and 
     ~ knows += hotel_watched
     At twenty past six a woman came down the hotel's outside stairs in a short skirt and a man's work jacket, and stood under the light at the corner of the building, looking at her phone. A car at the back of the lot that had been sitting there with its lights off flashed them once. She went over and got in, and it went south.
     At quarter to seven one of the hi-vis came out on the stairs in his socks and smoked a cigarette in four pulls, and went back up.
-    At seven the car came back and she got out with a bag from the Esso, and went up the stairs, and the car sat a minute in the dark, and went.
+    At seven the car came back and she got out with a bag from the Lesso, and went up the stairs, and the car sat a minute in the dark, and went.
     FATHER: There's your trouble. Not the front door. That one.
 - The lights went on in the windows upstairs, one at a time, and in the bar the TV came on, blue. Nobody who went in or out of the front looked like trouble.
 At half past seven the rain came back across the strait, as hard as it had been all afternoon. He sat in it another five minutes, because he'd said quarter to eight to himself, and then he went across.

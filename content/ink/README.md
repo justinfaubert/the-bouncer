@@ -16,7 +16,7 @@ node tools/audit.mjs            does every choice change something the night rea
 | `main.ink` | Every VAR and LIST: what the world remembers. Read this first. |
 | `sim.ink` | `pass(m)`, the only thing that moves the clock, and everything that happens while he isn't looking. `due()` and the `events` tunnel. `num()` for writing numbers out. |
 | `office.ink` | Wednesday at four in Gary's office, through Gary's eyes: the interview, and the answers that set his seven stats. |
-| `walk.ink` | The walk to the Sov at dusk: room twelve, the old main street, the wharf, the Esso, the seawall. |
+| `walk.ink` | The walk to the Sov at dusk: room twelve, the old main street, the wharf, the Lesso, the seawall. |
 | `prologue.ink` | Arriving, the bartender, the note, the first look at the room. |
 | `floor.ink` | The hub: where he stands between things. Counting the room, walking the doors. |
 | `door.ink` | The stool and everyone who comes to it: the kid, his sister, HI-VIS, GOOD SHOES, RAINCOAT. |

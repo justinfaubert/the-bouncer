@@ -1309,13 +1309,13 @@ BARTENDER: Friday's different. Friday's everybody.
 }
 -> goodnight
 
-// The big man walked home without his keys (close_pool, keys), and got as far as the Esso, and came
+// The big man walked home without his keys (close_pool, keys), and got as far as the Lesso, and came
 // back for them (bible/11_SKELETON.md: "the big man at two in the morning, asking for them back").
 // Claude's draft, PROPOSED.
 = keys_at_two
 ~ temp from_drawer = in_drawer ? truck_keys
 Somebody knocked on the glass of the front door with the flat of a hand. #look: door
-The big man, under the light over the door, in the rain. He'd got as far as the Esso and come back. His jacket was soaked through to the shape of him.
+The big man, under the light over the door, in the rain. He'd got as far as the Lesso and come back. His jacket was soaked through to the shape of him.
 BIGMAN: Bud. Bud. My keys.
 { from_drawer:
     The bartender looked at the drawer under the till, and then at the doorman, and didn't open it.
@@ -1757,7 +1757,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
     A bed, a chair, a sink in the corner, and a window onto the lot and the highway and the water. The rent came off his pay. The owner had mentioned that before he'd mentioned anything else.
 }
 // HUTCH: His room. What does a room that comes with a bar job look like, and what did he bring with him?
-// The light the kid at the Esso showed him at dusk (walk.ink, kid_sky).
+// The light the kid at the Lesso showed him at dusk (walk.ink, kid_sky).
 { in_twelve ? last_jacket:
     He hung the last doorman's jacket on the back of the door, where it would be the first thing he saw when he woke.
 }
@@ -1765,7 +1765,7 @@ On the first landing HI-VIS was asleep sitting up against the wall, with his boo
     He read the paperback from the lost-and-found by the light from the lot. It said the other man's force was a gift, if you didn't fight it. It said a lot of things like that. He read the part about the wrist twice.
 }
 { knows ? esso_sky:
-    Out the window, low over the strait where the cloud had torn again, was the light the kid at the Esso had shown him. It hadn't moved. He watched it until he was sure it hadn't, and for a while after that.
+    Out the window, low over the strait where the cloud had torn again, was the light the kid at the Lesso had shown him. It hadn't moved. He watched it until he was sure it hadn't, and for a while after that.
 }
 { rats == undecided:
     ~ rats = ignored
@@ -2067,7 +2067,7 @@ The door: {count_in} in past the stool #class: row
 - fam ? dad_drove:
     The big man drove himself home drunk{fam ? dad_stayed && not family_in_lot:, after his family had gone without him}. {family_in_lot:His kids followed him.}
 - fam ? dad_walked && keys_back == 1:
-    The big man walked as far as the Esso, and came back for his keys at a quarter past two, and got them, and drove home.
+    The big man walked as far as the Lesso, and came back for his keys at a quarter past two, and got them, and drove home.
 - fam ? dad_walked && took_keys:
     The big man walked home along the highway{keys_back == -1:, twice}. {in_drawer ? truck_keys:His keys are in the lost-and-found drawer.}
 - fam ? dad_walked:
@@ -2284,7 +2284,7 @@ The log: {LIST_COUNT(logged)} written as it happened, {LIST_COUNT(shaded)} shade
     The bartender looked at the ferry tickets a long time. #class: sub
 }
 { knows ? esso_rater:
-    The kid at the Esso gets four cents an answer for saying which of a machine's sounds more like a person. {rated == 3:He said neither.|It's getting hard to tell, he says.} #class: sub
+    The kid at the Lesso gets four cents an answer for saying which of a machine's sounds more like a person. {rated == 3:He said neither.|It's getting hard to tell, he says.} #class: sub
 }
 { owned_it > 0:
     He told somebody he was wrong.

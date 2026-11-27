@@ -81,7 +81,7 @@ FATHER: The kid you turned away. He didn't go home. He came round the back, and 
     ~ deck_smokers = 1
     ~ smokers_at = clock
     Two women were smoking under the awning by the steps. They didn't lower their voices for him.
-    SMOKER: Graham Ardagh's back. I saw his car at the Esso.
+    SMOKER: Graham Ardagh's back. I saw his car at the Lesso.
     SMOKER: She'd have him shot. She'd do it herself, with the soda gun.
     They both looked through the glass at the bartender, and then didn't.
     ~ knows += ardagh
@@ -116,7 +116,7 @@ CARDIGAN: Please don't tell them I'm out here. They think I've gone to the washr
     CARDIGAN: Now there's five. Four, some days.
     -> cg
 * (four) ["What happened to the other four?"]
-    CARDIGAN: What always happens. Two of them died. Les went off the road past the Esso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not a Christmas card.
+    CARDIGAN: What always happens. Two of them died. Les went off the road past the Lesso, driving home from that table, and Bob took the long way, with his liver, upstairs at the hospital in town. One is in the home and doesn't know anybody. And one went to Alberta to be near his grandchildren, and we never heard from him again. Not a Christmas card.
     CARDIGAN: We moved the chairs round.
     He looked at the end of his cigarette.
     CARDIGAN: My daughter wants me in Calgary.
@@ -270,7 +270,7 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 { due(): -> hub }
 # amb: rain_lot
 { at_front == 1:
-    He went out through the vestibule and stood under the sign, and the door swung shut on the room behind him. The rain had gone to a mist that hung in the light off the roof. Across the highway, the seawall, and past it the strait, and past that nothing at all. Up the road the Esso's canopy was the brightest thing for a mile.
+    He went out through the vestibule and stood under the sign, and the door swung shut on the room behind him. The rain had gone to a mist that hung in the light off the roof. Across the highway, the seawall, and past it the strait, and past that nothing at all. Up the road the Lesso's canopy was the brightest thing for a mile.
     His breath went out white. He hadn't known how loud it was in there until it stopped.
 - else:
     {shuffle:
@@ -296,8 +296,8 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 + {not out_kelp} [Something in the kelp. #toy: kelp look #unlisted] -> out_kelp
 + [The buzzers by the hotel door. #toy: buzzers look #unlisted] -> out_buzzers
 + {not out_caps} [The bottle caps by the vent. #toy: caps look #unlisted] -> out_caps
-+ {esso_rang && esso_answered == 0} [The Esso's payphone, ringing. #toy: esso_phone look #unlisted] -> out_payphone
-+ [The Esso's night window. #toy: esso_clerk look #unlisted] -> out_clerk
++ {esso_rang && esso_answered == 0} [The Lesso's payphone, ringing. #toy: esso_phone look #unlisted] -> out_payphone
++ [The Lesso's night window. #toy: esso_clerk look #unlisted] -> out_clerk
 + {not out_fire} [The fire on the beach. #toy: beach_fire look #unlisted] -> out_fire
 + {kitchen_door} [The kitchen's back door, propped. #toy: kitchen_door look #unlisted] -> out_kitchen_door
 
@@ -309,8 +309,8 @@ MANUAL: Three persons on the premises who were not admitted. One refused entry. 
 - Two kids were sitting on the hood of a Civic at the far end of the lot, passing a vape back and forth and filming each other doing nothing. One of them saw him and put the phone face down on his leg, like a hand of cards.
 - A couple were arguing in a car with the windows up and the dome light on, a play with the sound off. She hit the dashboard twice with the flat of her hand. He looked at his phone until she stopped.
 - Somebody had been sick against the dumpster earlier, and the rain hadn't got all of it. A gull was seeing to the rest.
-- A woman came out of the Esso with a two-four on her shoulder and walked straight across the highway without looking either way. Nothing hit her. She didn't look like she'd expected anything to.
-- {clock >= 1440:Up the road the Esso kid was out by the pumps with his head back, looking at the sky over the strait. By the time he looked up too, there was only the cloud.|He stood in the mist. A truck went by, and the wet came up off the road behind it like a sheet shaken out.}
+- A woman came out of the Lesso with a two-four on her shoulder and walked straight across the highway without looking either way. Nothing hit her. She didn't look like she'd expected anything to.
+- {clock >= 1440:Up the road the Lesso kid was out by the pumps with his head back, looking at the sky over the strait. By the time he looked up too, there was only the cloud.|He stood in the mist. A truck went by, and the wet came up off the road behind it like a sheet shaken out.}
 - He stood in the mist and let the cold get in under the jacket.
 }
 { drinks >= 3 && f_air == 1:
