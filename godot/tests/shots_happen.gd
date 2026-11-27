@@ -96,6 +96,8 @@ func _run() -> void:
 			while main.view.walking and Time.get_ticks_msec() - w0 < 30000:
 				await process_frame
 			main.happenings.after(main.game)
+			var cc = main.game.visible_choices()
+			print("  choosing ", sc[5][0], " of ", cc.map(func(c): return c.text), " pending ", main.pending, " far '", main.out_of_reach(cc[sc[5][0]]) if cc.size() > sc[5][0] else "?", "' answering ", main.answering, " menus ", main.menus.is_open())
 			main.choose(sc[5][0])
 			var t0 := Time.get_ticks_msec()
 			for at in sc[5][1]:
