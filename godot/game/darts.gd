@@ -5,10 +5,12 @@
 # The throw, in four parts, each the player's:
 #   aim     his eyes. The mouse moves them (finely: he's looking down a dart, not round a room).
 #           Where they rest on the board is where a throw drawn back the usual way lands.
-#   draw    hold the button and pull the mouse back: the dart comes back toward his face, and how
-#           far it comes is how hard it goes. Halfway back is the usual throw; more lands higher
-#           and flatter, less lower. Let go and the arm goes through. Any sideways drift in the
-#           pull is the wrist turned: it goes off line by as much.
+#   draw    hold the button and pull the mouse back: the dart slides straight back along his line
+#           of sight toward his cheek, pointing where it pointed, and how far it comes is how hard
+#           it goes. Halfway back is the usual throw; more lands higher and flatter, less lower.
+#           Let go and the arm goes through. The pull only ever sets the power: it never turns
+#           the dart (Hutch, 2026-11-25), so the aim he settled is the aim he throws. Sideways
+#           in the pull does nothing.
 #   loft    the wheel: the elbow up or down. A low elbow throws flat and hard, a high one lobs it
 #           in from above (over a dart that's blocking the bed, and tail-up into the board, where
 #           it holds worse). Either lands where he's looking, drawn the usual way.
@@ -45,6 +47,7 @@ const NOMINAL := 0.5                     # the draw of the usual throw
 const LOFT_MIN := 6.0
 const LOFT_MAX := 28.0
 const AIM_K := 0.0011                    # radians of his eyes a pixel of the mouse
+const DRAW_BACK := 0.16                  # how far the dart comes back toward his cheek at a full draw (m)
 const FOCUS := 46.0                      # his eyes on the board: narrower than looking round the room
 const FOCUS_HARD := 26.0                 # Shift: narrowed right down on the bed he wants
 
@@ -73,7 +76,7 @@ var loft := 14.0
 var grip := 0.0                         # -1 back at the shaft, +1 up at the point
 var drawing := false
 var draw := 0.0
-var wrist := 0.0                        # sideways in the pull, radians
+var wrist := 0.0                        # a deliberate turn of the wrist, radians (none now: the pull never turns it)
 var drawn_t := 0.0                      # how long he's held it back
 var up_t := 0.0                         # how long his arm's been up, aiming, this turn
 # his breath
@@ -145,6 +148,7 @@ func setup(m) -> void:
 	held.visible = false
 	view.hands.add_child(held)
 	_chalkboard()
+	_dress_board()
 	room = DartsRoom.new()
 	add_child(room)
 	room.setup(self)
@@ -173,17 +177,137 @@ func _draw_dart(d: DartSim.Dart, n: Node3D) -> void:
 	tail.rotation = Vector3(d.bend.y, 0, -d.bend.x)
 	v.add_child(tail)
 	pub._stick(Vector3.ZERO, Vector3(0, p[2][1] - p[2][0], 0), 0.0018, M.black, tail, 6)
-	var fl: Material = {"bent": pub.mat(Color("5b2a26"), 0.7), "torn": pub.mat(Color("23374f"), 0.7), "heavy": pub.mat(Color("2b2a27"), 0.7)}.get(d.name, M.dark)
+	var fl: Material = _flight_mat({"bent": Color("7a2a24"), "torn": Color("23466e"), "heavy": Color("2f2d29")}.get(d.name, Color("2b2a27")))
 	var fy: float = d.flight_s - float(p[2][0])
-	for a in [0.0, 90.0]:
-		var w := 0.028
-		if d.name == "torn" and a == 0.0:
-			# one half of it torn away down to the shaft at the back, the rest curled
-			pub.box(Vector3(w * 0.5, d.flight_len, 0.0007), Vector3(w * 0.25, fy, 0), fl, a, tail)
-			var curl := pub.box(Vector3(w * 0.35, d.flight_len * 0.55, 0.0007), Vector3(-w * 0.2, fy - d.flight_len * 0.2, 0.002), fl, a, tail)
-			curl.rotation.y = deg_to_rad(a + 24.0)
+	# the flights: two vanes crossed, set as an X the way a dart sits in the hand, each the standard
+	# shape (narrow where it meets the shaft, wide at the back), thin enough to see through edge-on
+	for a in [45.0, 135.0]:
+		var w := 0.03
+		if d.name == "torn" and a == 45.0:
+			# one half torn away down to the shaft, the other half curled
+			_vane(w, d.flight_len, fy, fl, a, tail, true)
+			var curl := _vane(w * 0.7, d.flight_len * 0.55, fy - d.flight_len * 0.2, fl, a + 180.0 + 24.0, tail, true)
+			curl.position.z += 0.001
 		else:
-			pub.box(Vector3(w, d.flight_len, 0.0007), Vector3(0, fy, 0), fl, a, tail)
+			_vane(w, d.flight_len, fy, fl, a, tail, false)
+
+
+func _flight_mat(c: Color) -> Material:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = 0.55
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	# a printed flight's plastic: a little light comes through it from the lamp
+	m.backlight_enabled = true
+	m.backlight = c.lightened(0.2) * 0.6
+	return m
+
+
+# One flight's plane: the standard shape, its point toward the dart's point (-Y here), w wide at the
+# back, l long; half: only the side to +X (a torn one).
+func _vane(w: float, l: float, cy: float, m: Material, rot_y: float, parent: Node3D, half: bool) -> MeshInstance3D:
+	var y0 := -l * 0.5
+	var y1 := l * 0.5
+	var pts: Array = [Vector2(0, y0), Vector2(w * 0.5, y0 + l * 0.42), Vector2(w * 0.46, y1), Vector2(0, y1)]
+	if not half:
+		pts.append_array([Vector2(-w * 0.46, y1), Vector2(-w * 0.5, y0 + l * 0.42)])
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_normal(Vector3(0, 0, 1))
+	var c := Vector2(0, y0 + l * 0.62)
+	for k in pts.size():
+		var a2: Vector2 = pts[k]
+		var b2: Vector2 = pts[(k + 1) % pts.size()]
+		for q in [c, a2, b2]:
+			st.add_vertex(Vector3(q.x, q.y, 0))
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	mi.material_override = m
+	mi.position = Vector3(0, cy, 0)
+	mi.rotation.y = deg_to_rad(rot_y)
+	parent.add_child(mi)
+	return mi
+
+
+# The board as a man at the line sees it: the spider (the wire round every bed, bright where the
+# lamp catches it) and the number ring, which the model didn't have. In the board's frame.
+func _dress_board() -> void:
+	var n := Node3D.new()
+	pub.add_child(n)
+	n.global_transform = to_world
+	var wire := StandardMaterial3D.new()
+	wire.albedo_color = Color("d6d3cb")
+	wire.metallic = 0.75
+	wire.roughness = 0.25
+	var R := [DartSim.R_BULL, DartSim.R_OUTER_BULL, DartSim.R_TREBLE_IN, DartSim.R_TREBLE_OUT,
+		DartSim.R_DOUBLE_IN, DartSim.R_DOUBLE_OUT]
+	for r in R:
+		var t := TorusMesh.new()
+		t.inner_radius = r - 0.0008
+		t.outer_radius = r + 0.0008
+		t.rings = 64 if r > 0.05 else 24
+		t.ring_segments = 6
+		var mi := MeshInstance3D.new()
+		mi.mesh = t
+		mi.material_override = wire
+		mi.rotation.x = PI / 2.0
+		mi.position = Vector3(0, 0, 0.0012)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		n.add_child(mi)
+	var len := DartSim.R_DOUBLE_OUT - DartSim.R_OUTER_BULL
+	var mid := (DartSim.R_DOUBLE_OUT + DartSim.R_OUTER_BULL) * 0.5
+	for k in 20:
+		var a := deg_to_rad(9.0 + k * 18.0) + sim.tilt
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.0013, len, 0.0013)
+		var mi := MeshInstance3D.new()
+		mi.mesh = bm
+		mi.material_override = wire
+		mi.position = Vector3(sin(a) * mid, cos(a) * mid, 0.0012)
+		mi.rotation.z = -a
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		n.add_child(mi)
+	# the black round the doubles, the numbers on it
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	st.set_normal(Vector3(0, 0, 1))
+	var seg := 72
+	for k in seg:
+		var a0 := TAU * k / seg
+		var a1 := TAU * (k + 1) / seg
+		var i0 := Vector3(sin(a0), cos(a0), 0) * (DartSim.R_DOUBLE_OUT + 0.0004)
+		var o0 := Vector3(sin(a0), cos(a0), 0) * 0.2265
+		var i1 := Vector3(sin(a1), cos(a1), 0) * (DartSim.R_DOUBLE_OUT + 0.0004)
+		var o1 := Vector3(sin(a1), cos(a1), 0) * 0.2265
+		for q in [i0, o0, o1, i0, o1, i1]:
+			st.add_vertex(q + Vector3(0, 0, 0.0028))
+	var ring := MeshInstance3D.new()
+	ring.mesh = st.commit()
+	var rm := StandardMaterial3D.new()
+	rm.albedo_color = Color("141311")
+	rm.roughness = 0.95
+	rm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	ring.material_override = rm
+	# (it sits proud of the face: at the lamp's low angle its shadow fell across the beds in black
+	# wedges, so it, the wire and the numbers throw none)
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	n.add_child(ring)
+	# the numbers, upright; the 20 a little worn
+	for k in 20:
+		var a := deg_to_rad(k * 18.0) + sim.tilt
+		var lb := Label3D.new()
+		lb.text = str(DartSim.ORDER[k])
+		lb.font = Look.font("anton")
+		lb.font_size = 64
+		lb.pixel_size = 0.00032
+		lb.outline_size = 0
+		lb.modulate = Color("c2b9a3") if DartSim.ORDER[k] != 20 else Color("a89f8a")
+		lb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		lb.shaded = true
+		lb.double_sided = false
+		lb.position = Vector3(sin(a) * 0.197, cos(a) * 0.197, 0.0034)
+		lb.rotation.z = -sim.tilt
+		n.add_child(lb)
 
 
 # The board beside it, painted black, the score in chalk; a stub of chalk on the ledge under it.
@@ -223,7 +347,6 @@ func _chalkboard() -> void:
 const KEYS_ROWS := [
 	["Mouse", "aim with his eyes  (Shift: narrow them)"],
 	["Hold left, pull back", "draw the dart; let go to throw. Halfway is his usual throw"],
-	["Sideways while drawn", "turns the wrist"],
 	["Wheel", "elbow up for a lob, down for a flatter throw"],
 	["Right button", "hold his breath (not too long)"],
 	["Q  E", "grip back or forward on the barrel"],
@@ -417,12 +540,14 @@ func _process(dt: float) -> void:
 	# face as the player pulls
 	if held.visible:
 		var tr := _tremor(t) * 3.0
-		# at rest under his eye, the point on the board; drawn back, the hand comes back by his cheek
-		# and the point lifts a little, the way the forearm cocks
-		var hp := Vector3(0.04 - draw * 0.01, -0.055 + draw * 0.025, -0.38 + draw * 0.13)
-		var aim_lift := deg_to_rad(loft) * 0.3 + draw * 0.12
-		held.transform = Transform3D(Basis.from_euler(Vector3(aim_lift + tr.y, tr.x + wrist * 3.0, 0.0)) \
-			* Basis(Vector3.UP, PI), hp + Vector3(0, 0, -grip * 0.012))
+		# at rest under his eye, the point on the board; drawn back, it slides straight back along
+		# the line it points down toward his cheek, and doesn't turn: the draw is power, not aim.
+		# Only the loft (the wheel, set before the pull) tilts it, and the shake moves its point.
+		var tilt := deg_to_rad(loft) * 0.3
+		var b := Basis.from_euler(Vector3(tilt + tr.y, tr.x, 0.0)) * Basis(Vector3.UP, PI)
+		var rest_at := Vector3(0.05, -0.062, -0.38 - grip * 0.012)
+		var nose := (b * Vector3(0, 0, 1)).normalized()      # the drawing's point (+Z), turned to face the board
+		held.transform = Transform3D(b, rest_at - nose * (draw * DRAW_BACK))
 	var f := FOCUS_HARD if Input.is_key_pressed(KEY_SHIFT) else FOCUS
 	# two in the treble: his eyes close in on the bed while the room holds its breath
 	f *= 1.0 - 0.1 * room.hush
@@ -534,8 +659,8 @@ func _input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
 		var rel: Vector2 = e.relative
 		if drawing:
+			# only the pull back sets the power; the dart doesn't turn in his fingers
 			draw = clampf(draw + rel.y / 320.0, 0.0, 1.0)
-			wrist += rel.x * 0.00028
 		else:
 			var k := AIM_K * float(main.settings.get("look_speed", 1.0)) * (0.5 if Input.is_key_pressed(KEY_SHIFT) else 1.0)
 			aim_yaw -= rel.x * k
@@ -785,6 +910,9 @@ func _landed(i: int) -> void:
 				clock_on += 1
 		"501":
 			pass
+	# his eyes go to it for a moment, the way anyone's do
+	if r.where == "board":
+		push(1.1, 0.14)
 	_notice(i, r, heard, knocked)
 	room.landed(i, r, heard, turn_scores)
 	_chalk()
