@@ -82,7 +82,7 @@ VAR ogre_done = 0                // the man on the deck: 0 not yet, 1 out the do
 VAR ogre_club = false            // he said yes to the sister's brothers: the club did the Sov's doorman a favour
 VAR jaw = 0                      // his jaw: days it has left to ache
 VAR stats_set = false       // the interview's set them: from here what moves them shows struck through in his notes
-VAR ate = 0                 // before the shift: 1 he ate at the Esso, -1 he didn't eat (the engine: the body's checks, -1)
+VAR ate = 0                 // before the shift: 1 he ate at the Lesso, -1 he didn't eat (the engine: the body's checks, -1)
 
 // ------------------------------------------------------------------ Gary's office, and the walk
 
@@ -105,7 +105,7 @@ VAR staff_warned = 0        // Gary's "don't fuck the staff": 1 wasn't planning 
 LIST to_gary = tg_city, tg_up_island, tg_around, tg_father, tg_shorted, tg_something, tg_long, tg_quiet, tg_never, tg_dry
 VAR told_gary = ()
 VAR wharf_how = 0           // the old man on the wharf: 1 word gets around, 2 who's asking, 3 looked at the water with him
-VAR rated = 0               // the Esso kid's two answers, which sounds more like a person: 1 the left, 2 the right, 3 neither
+VAR rated = 0               // the Lesso kid's two answers, which sounds more like a person: 1 the left, 2 the right, 3 neither
 VAR from_room = false       // he spent the hours before the shift in room twelve, over the deck
 VAR terry_signed = 0        // the hotel's key book: 1 he signed for twelve, -1 he didn't
 

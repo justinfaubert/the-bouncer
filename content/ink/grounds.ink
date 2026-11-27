@@ -1,6 +1,6 @@
 // The grounds round the Sov at night, on his own feet (godot/world/grounds.gd): round the back, the
 // alley, the hotel's front door, across the highway to the seawall and down onto the beach, and
-// down the shoulder to the Esso. He's still out front as far as the night goes (here = lot): every
+// down the shoulder to the Lesso. He's still out front as far as the night goes (here = lot): every
 // minute out here is a minute nobody's on the stool, and door_away counts it (sim.ink).
 //
 // What's lying about out there is looked at the way things in the building are (things.yaml, its
@@ -19,10 +19,10 @@ LIST out_clue = cl_cross, cl_wife, cl_flowers, cl_card, cl_seven, cl_paper, cl_r
 VAR out_found = ()
 VAR card_kept = 0           // her licence: 1 in his pocket, -1 put back in the kelp, 2 given to Merle
 VAR caps_how = 0            // the rats' spiral of bottle caps: 1 left it, 2 took the brass one, 3 kicked it apart
-VAR esso_rang = false       // the payphone at the Esso rang as he came down the shoulder (the engine sets it)
+VAR esso_rang = false       // the payphone at the Lesso rang as he came down the shoulder (the engine sets it)
 VAR esso_answered = 0       // 1 he picked it up, -1 he let it ring
-VAR esso_price = 0          // how many times he's read the Esso's price sign tonight: it goes up
-VAR smokes = 0              // packs bought at the Esso's night window
+VAR esso_price = 0          // how many times he's read the Lesso's price sign tonight: it goes up
+VAR smokes = 0              // packs bought at the Lesso's night window
 VAR scratched = 0           // scratch tickets bought there
 VAR fire_how = 0            // the fire on the beach: 1 warmed his hands, 2 kicked sand over it
 
@@ -195,11 +195,11 @@ The gravel round the spiral was printed all over with feet the size of his thumb
 - -> at_front.f_opts
 
 
-// ------------------------------------------------------------------ the payphone at the Esso
+// ------------------------------------------------------------------ the payphone at the Lesso
 
 === out_payphone ===
 ~ pass(1)
-The payphone on the end wall of the Esso was ringing, the old kind on a steel cord, and it had been ringing since he came round the bend.
+The payphone on the end wall of the Lesso was ringing, the old kind on a steel cord, and it had been ringing since he came round the bend.
 * [Pick it up.]
     ~ esso_answered = 1
     ~ out_found += cl_phone
@@ -220,12 +220,12 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
 - -> at_front.f_opts
 
 
-// ------------------------------------------------------------------ the Esso's night window
+// ------------------------------------------------------------------ the Lesso's night window
 
 === out_clerk ===
 ~ pass(1)
 { out_clerk == 1:
-    The Esso's door was locked, and taped to it a sign: NIGHT WINDOW, with an arrow. Through the glass the kid from the ice freezer was behind the counter now, on a stool, his phone flat on the counter in front of him, typing on it with one thumb. He slid the little window open without looking up.
+    The Lesso's door was locked, and taped to it a sign: NIGHT WINDOW, with an arrow. Through the glass the kid from the ice freezer was behind the counter now, on a stool, his phone flat on the counter in front of him, typing on it with one thumb. He slid the little window open without looking up.
     ESSOKID: Hey. The Sov guy.
     ESSOKID: Four cents an answer. I've done two hundred and eleven since eight. Ask me something, I'll tell you which one of me's lying.
 - else:

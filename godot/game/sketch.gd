@@ -336,7 +336,7 @@ func _draw_town(sz: Vector2) -> void:
 		_dash(cn[i], cn[i + 1], thin, 1.0)
 	_rect(170, 128, 5, 12, thin, 1.0)
 	_rect(189, 128, 5, 12, thin, 1.0)
-	_text(182, 92, "Esso", 9, PENCIL, "middle")
+	_text(182, 92, "Lesso", 9, PENCIL, "middle")
 	# the Sov, the trucks nose-in along its front; the seawall across the highway
 	_rect(250, 104, 96, 40, INK, 3.0)
 	_text(298, 130, "SOV", 15, INK, "middle", "zilla_b")
