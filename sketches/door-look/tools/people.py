@@ -426,6 +426,57 @@ def pose_door(B, **kw):
     return p
 
 
+def pose_smoke(B, across=True, **kw):
+    """Standing with an unlit cigarette up by her chin between two fingers of the right hand, the
+    other forearm across her waist holding her robe closed (Lorraine at twelve's door, days.ink).
+    The cigarette itself is put in her fingers by the game (world/happenings.gd), so it can light."""
+    s = B.size
+    p = _base(B, (0, 0.0, 0.958 * s), lean=0.0, tilt=0.06, **kw)
+    _legs(B, p, [(-0.07 * s, 0.03, 0.075), (0.11 * s, -0.05, 0.075)],
+          [(-0.1, 1, 0.5), (0.25, 1, 0.5)], [(-0.15, 1, 0), (0.3, 1, 0)])
+    R = p.R
+    b = B.bulk
+    wr = p.neck + R @ V(0.085, 0.2 * b + 0.05, -0.13)
+    wrap = p.waist + R @ V(0.08, 0.15 * b + 0.03, 0.05)
+    left = (wrap, p.sh[0] + V(-0.35, -0.1, -0.45), (0.2, -1, 0.1)) if across else _easy(B, p, 0)
+    _set_arms(B, p, [left, (wr, p.sh[1] + V(0.3, -0.15, -0.6), (-0.7, -0.4, 0.3))])
+    p.grip = [dict(grip='fist', along=V(1, 0.1, -0.15)) if across else 'relaxed',
+              dict(grip='relaxed', along=p.R @ V(-0.35, 0.25, 0.9), palm=p.R @ V(-0.6, -0.7, 0.1))]
+    return p
+
+
+def pose_hold_bag(B, **kw):
+    """Standing, a plastic grocery bag held flat against his chest with both forearms to keep it dry
+    (the Preacher at the door, friday.ink)."""
+    s = B.size
+    p = _base(B, (0, 0.0, 0.962 * s), lean=0.04, **kw)
+    _legs(B, p, [(-0.1 * s, 0.01, 0.075), (0.1 * s, -0.04, 0.075)],
+          [(-0.15, 1, 0.5), (0.15, 1, 0.5)], [(-0.15, 1, 0), (0.18, 1, 0)])
+    R = p.R
+    b = B.bulk
+    half = V(0.13, 0.04, 0.1)
+    c = p.chest + R @ V(0.0, 0.105 * b + 0.06, -0.07)
+    box = S.box(c, half, 0.03, R.copy())
+    _set_arms(B, p, [(c + R @ V(-0.07, 0.04, -0.06), p.sh[0] + V(-0.4, -0.3, -0.5), (0.4, -0.6, 0.2)),
+                     (c + R @ V(0.07, 0.04, 0.02), p.sh[1] + V(0.4, -0.3, -0.5), (-0.4, -0.6, 0.2))])
+    p.grip = [dict(grip='open', on=box), dict(grip='open', on=box)]
+    p.props = [dict(kind='bag', at=c, R=R.copy(), half=half)]
+    return p
+
+
+def pose_chair_back(B, top=0.92, **kw):
+    """Standing behind a chair with both hands on its back, not sitting (the Preacher behind the
+    sixth chair at table 28)."""
+    s = B.size
+    p = _base(B, (0, -0.05, 0.962 * s), lean=0.1, head_tilt=0.1, **kw)
+    _legs(B, p, [(-0.1 * s, -0.05, 0.075), (0.1 * s, -0.08, 0.075)],
+          [(-0.15, 1, 0.5), (0.15, 1, 0.5)], [(-0.15, 1, 0), (0.18, 1, 0)])
+    _arms(B, p, [(-0.17, 0.36, top + 0.03), (0.17, 0.36, top + 0.03)],
+          [p.sh[0] + V(-0.6, -0.2, -0.3), p.sh[1] + V(0.6, -0.2, -0.3)], [(0.1, 0.2, -1), (-0.1, 0.2, -1)])
+    p.grip = [dict(grip='fist', along=V(1, 0, 0)), dict(grip='fist', along=V(-1, 0, 0))]
+    return p
+
+
 def pose_bar_lean(B, top=1.08, **kw):
     """Standing at the bar leaning on it, forearms on the top, looking along it for the bartender,
     one hand up off the bar to be seen."""
@@ -963,9 +1014,9 @@ def body_parts(B, p, look):
     if top in ('hoodie', 'sweater', 'fleece', 'workjacket') or look.get('drape'):
         trunk = folds(trunk, p.pelvis, R, 0.0022 if look.get('drape') else 0.0014, 0.075, (hem or -0.1) * s, 0.2 * s)
     vneck = None
-    if top in ('suit', 'cardigan', 'tweed'):
-        # a V opening down the front, to the top button
-        vt = 0.2 if top != 'cardigan' else 0.24
+    if top in ('suit', 'cardigan', 'tweed') or look.get('vneck'):
+        # a V opening down the front, to the top button (or a robe's, wrapped: look['vneck'] its depth)
+        vt = look.get('vneck') or (0.2 if top != 'cardigan' else 0.24)
         vneck = _loc(lambda q: np.maximum(np.abs(q[:, 0]) * 0.94 - (q[:, 2] + vt) * 0.34, -q[:, 1]), p.neck, R)
         trunk = S.carve(trunk, vneck, 0.003)
     add(shirt, trunk)
@@ -1113,7 +1164,7 @@ def body_parts(B, p, look):
     elif top in ('jacket', 'coat', 'suit', 'tweed', 'cardigan', 'whites', 'flannel', 'raincoat'):
         col = look.get('trim_mat', {'jacket': 'jacket_trim', 'coat': 'coat', 'suit': 'suit', 'tweed': 'tweed', 'cardigan': shirt,
                'whites': 'whites', 'flannel': 'flannel', 'raincoat': 'raincoat'}[top])
-        if top == 'raincoat':
+        if top == 'raincoat' and not look.get('vneck'):
             # the collar turned up round her neck
             add(col, S.carve(S.cone(p.neck + R @ V(0, 0.004, -0.03), p.neck + R @ V(0, -0.004, 0.06), neck_r + 0.034, neck_r + 0.026),
                              S.cone(p.neck + R @ V(0, 0.004, -0.04), p.neck + R @ V(0, -0.004, 0.08), neck_r + 0.016, neck_r + 0.01)), order=2)
@@ -1179,7 +1230,7 @@ def body_parts(B, p, look):
             add('raincoat', _panel(body, _loc(lambda q: np.maximum(np.abs(q[:, 2]) - 0.022, -q[:, 1] - 0.05), p.waist, R), 0.006), order=2)
             c0 = p.waist + R @ V(0.03, 0, 0.0)
             add('raincoat', S.box(c0 + _surf(body, c0, R @ V(0, 1, 0)) + R @ V(0, 0.012, 0), V(0.022, 0.008, 0.02), 0.005, R), order=3)
-            for sx in (-1, 1):
+            for sx in (-1, 1) if not look.get('vneck') else ():
                 for k in range(3):
                     add('button', S.sphere(p.chest + R @ V(sx * 0.05, 0, 0.06 - k * 0.09) + _surf(body, p.chest + R @ V(sx * 0.05, 0, 0.06 - k * 0.09), R @ V(0, 1, 0)), 0.008), order=3)
         if top in ('cardigan', 'suit', 'tweed', 'jacket', 'coat'):
@@ -2349,6 +2400,7 @@ POSES = {
     'card': pose_card, 'close': pose_close, 'pint': pose_pint, 'door': pose_door, 'bar_lean': pose_bar_lean,
     'carry': pose_carry, 'sit_drink': pose_sit_drink, 'chin': pose_chin,
     'armchair': pose_armchair, 'ledger': pose_ledger, 'perch': pose_perch, 'rail': pose_rail,
+    'smoke': pose_smoke, 'hold_bag': pose_hold_bag, 'chair_back': pose_chair_back,
 }
 
 

@@ -48,6 +48,11 @@ COLOURS = {
     'ledger': '#2e3a30',
     # Gary's hand: paler than the doorman's, the hair on it greying, his age spots, the blue oxford
     # of his shirt cuff and the gold of his signet ring
+    # the people the days put on screen (world/happenings.gd): Lorraine's satin robe, the colour of a
+    # bruise, and her hair; the Preacher's windbreaker and his grocery bag; the girl's white puffer;
+    # Doug's Legion windbreaker; the Esso's day clerk's vest
+    'robe': '#5b4458', 'hair_auburn': '#5e3626', 'windbreaker': '#3d4a44', 'bag': '#e6e4dc', 'puffer': '#e2e0da',
+    'legion': '#28304a', 'esso_vest': '#33508a', 'dress': '#3a2f3c', 'rose': '#e8e2d2',
     'skin_pale': '#d9c0ae', 'hand_hair': '#7a6f66', 'age_spot': '#b48d70', 'oxford': '#9fb3cb', 'gold': '#c9a44c',
 }
 ROUGH = {'phone': 0.3, 'screen': 0.2, 'eye': 0.25, 'iris': 0.25, 'earbud': 0.3, 'glasses': 0.3, 'reflective': 0.4, 'cue': 0.4,
@@ -68,6 +73,11 @@ HIVIS = dict(hat='cap', top='hivis', face=['stubble'], seed='hivis')
 HIM = dict(build='big', size=1.005, bulk=0.93, belly=0.022, face=['stubble'], hair='long_wet', hair_mat='hair_dark', top='tshirt',
            top_mat='sweatshirt', creased=True, over='jacket', extra=['mala'], bottoms='jeans', shoes='boots',
            knuckles='scarred', head_drop=0.45, seed='him', age_n=0.3)
+
+LORRAINE = dict(sex='f', age_n=0.15, build='slight', hair='bun', hair_mat='hair_auburn', top='raincoat', recolour={'raincoat': 'robe'}, vneck=0.26, under='skin',
+                bottoms='skin', shoes='slippers', face=['lined'], seed='lorraine')
+PREACHER = dict(age='old', age_n=0.1, hair='buzz', hair_mat='hair_grey', top='jacket', recolour={'jacket': 'windbreaker', 'jacket_trim': 'windbreaker'},
+                bottoms='slacks', shoes='dress', shoe_mat='dress_shoe', seed='preacher')
 
 # who, in what pose, how finely (metres per voxel for the body)
 PEOPLE = {
@@ -174,9 +184,46 @@ PEOPLE = {
     # the rail along its edge, the rail's top 1.0 high, both hands on it, looking out over the water
     'endbar_wharf': (dict(age='old', hat='flatcap', face=['lined'], top='tweed', build='slight', bottoms='slacks', seed='endbar'),
                      'rail', dict(), 0.008),
+    # --- the days on screen (world/happenings.gd): what the writing says happens, happening
+    # Lorraine in six (days.ink, twelve_day.lorraine): forties, a satin robe the colour of a bruise,
+    # her hair up in a clip, an unlit cigarette up by her chin; slippers. Then on Friday at the foot
+    # of the hotel's stairs with a coat over the robe
+    'lorraine_door': (LORRAINE, 'smoke', dict(head_tilt=-0.05, head_turn=0.1), 0.008),
+    'lorraine_coat': (dict(LORRAINE, recolour={'raincoat': 'coat'}), 'close', dict(keys=None, head_turn=-0.15, head_tilt=-0.04), 0.008),
+    # the Preacher (friday.ink): fifty, shaved so close he shines, a windbreaker, a grocery bag held
+    # to his chest; then behind the sixth chair at table 28 with his hands on it
+    'preacher_bag': (PREACHER, 'hold_bag', dict(head_tilt=0.04), 0.008),
+    'preacher_chair': (PREACHER, 'chair_back', dict(top=0.92), 0.012),
+    # the wave at the door (friday.ink, the_line): the girl in the white puffer holding her sister's
+    # card out; the man in the wedding suit, no coat, wet through; Doug from the Legion, very
+    # straight; the woman with her shoes in her hand and the man behind her still talking
+    'girl_puffer': (dict(sex='f', age='young', build='slight', hair='long', hair_mat='hair_dark', top='fleece', drape=True,
+                         loose=0.035, recolour={'fleece': 'puffer'}, bottoms='jeans_black', seed='girl'),
+                    'card', dict(height=1.4, face=(-0.1, 1.0, 0.25)), 0.008),
+    'girl_bar': (dict(sex='f', age='young', build='slight', hair='long', hair_mat='hair_dark', top='fleece', drape=True,
+                      loose=0.035, recolour={'fleece': 'puffer'}, bottoms='jeans_black', seed='girl'),
+                 'bar_lean', dict(head_turn=-0.3), 0.012),
+    'suit_wet': (dict(hair='parted', hair_mat='hair_dark', top='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
+                 'stand', dict(head_tilt=0.12), 0.008),
+    'suit_bar': (dict(hair='parted', hair_mat='hair_dark', top='suit', shoe_mat='dress_shoe', shoes='dress', face=['lined'], seed='suit'),
+                 'bar_lean', dict(head_turn=0.1), 0.012),
+    'legion': (dict(age='old', age_n=0.8, build='slight', hair='thin', hair_mat='hair_white', top='jacket', face=['lined'],
+                    recolour={'jacket': 'legion', 'jacket_trim': 'legion'}, bottoms='slacks', shoes='dress', shoe_mat='dress_shoe', seed='doug'),
+               'stand', dict(head_tilt=-0.08), 0.008),
+    'woman_shoes': (dict(sex='f', hair='long', hair_mat='hair_blonde', top='shirt', bottoms='skirt', recolour={'skirt': 'dress', 'shirt': 'dress'},
+                         shoes='slippers', shoe_mat='skin', seed='wife2'), 'close', dict(keys=None, head_turn=0.3), 0.008),
+    'man_couple': (dict(hair='short', top='jacket', face=['stubble'], bottoms='jeans', seed='husband'), 'stand', dict(head_turn=-0.4), 0.008),
+    # the Esso's day clerk at the till inside, doing a word search (days.ink, esso_day)
+    'esso_day': (dict(sex='f', age='old', age_n=0.3, bulk=1.1, hair='bob', hair_mat='hair_blonde', top='tshirt', over='vest',
+                      recolour={'vest': 'esso_vest'}, seed='essoday'), 'sit', dict(seat=0.7, table=0.98, lean=0.3, head_tilt=0.35), 0.012),
+    # the bookkeeper at the end of the bar with her coat on and the shoebox of cheques (friday.ink, cheque)
+    'bookkeeper_bar': (dict(sex='f', age='old', bulk=0.94, belly=0.015, hair='set', hair_mat='hair_grey', face=['readers', 'lined'], top='raincoat',
+                            recolour={'raincoat': 'coat'}, bottoms='slacks', shoes='dress', shoe_mat='dress_shoe', seed='bookkeeper_desk'),
+                       'sit', dict(seat=0.76, table=1.08, lean=0.2, head_tilt=0.25), 0.012),
 }
 # figures seen close (at the stool): finer meshes and more faces
-NEAR = {'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
+NEAR = {'lorraine_door', 'lorraine_coat', 'preacher_bag', 'girl_puffer', 'suit_wet', 'legion', 'woman_shoes', 'man_couple',
+        'hoodie_door', 'goodshoes_card', 'driver_door', 'hivis_door', 'raincoat', 'vape_door', 'constable', 'terry',
         'him_desk', 'him_stand', 'him_card', 'bookkeeper_desk', 'essokid_freezer', 'endbar_wharf', 'ballcap_card',
         'ballcap_cap'}
 
@@ -199,7 +246,7 @@ def make(name, look, pose, kw, step, near):
         ob = bpy.data.objects.new(f'{name}_{part}', me)
         bpy.context.scene.collection.objects.link(ob)
         for n in names:
-            me.materials.append(material(n))
+            me.materials.append(material(look.get('recolour', {}).get(n, n)))
         me.polygons.foreach_set('material_index', mat.tolist())
         me.validate(verbose=False)
         me.polygons.foreach_set('use_smooth', [True] * len(me.polygons))
@@ -505,6 +552,12 @@ def case(pr):
     return _place([o], pr['at'], pr['R'])
 
 
+def bag(pr):
+    """A plastic grocery bag with a stack of folded paper in it, held to the chest."""
+    o = _box('bag', 'bag', pr['half'], bevel=0.025, segments=3)
+    return _place([o], pr['at'], pr['R'])
+
+
 def clicker(pr):
     """The tally counter: a chrome disc with the button on top, a small knob on its side, and the
     count window on its face as an object of its own with UVs, 'clicker_window'."""
@@ -611,7 +664,7 @@ def chain(pr):
 
 
 PROPS = {'clicker': clicker, 'phone': phone, 'card': card, 'lanyard': lanyard, 'pint': glass, 'tumbler': glass, 'wine': glass, 'keys': keys, 'vape': vape,
-         'case': case, 'mala': mala, 'ledger': ledger, 'pen': pen, 'chain': chain, 'palm': lambda pr: []}
+         'case': case, 'bag': bag, 'mala': mala, 'ledger': ledger, 'pen': pen, 'chain': chain, 'palm': lambda pr: []}
 
 
 def render_preview(obs, path, views=((0.0, 'front'), (0.6, 'three-quarter')), focus=None):

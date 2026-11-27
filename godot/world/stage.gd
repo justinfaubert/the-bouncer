@@ -192,6 +192,19 @@ func _spots() -> void:
 	s["office_bk"] = {"pos": Vector3(ox + 3.15, oy, oz - 1.15), "face": Vector3(ox + 3.15, oy, oz - 2.3), "zone": "office", "in": "town", "seat": 0.46, "still": true}
 	s["esso_freezer"] = {"pos": Vector3(-147.3, Town.APRON, 12.4), "face": Vector3(-147.3, Town.APRON, 20.0), "zone": "town", "in": "town", "seat": 0.86}
 	s["wharf_rail"] = {"pos": Vector3(-198.15, Town.WHARF_Y, 93.6), "face": Vector3(-190.0, Town.WHARF_Y, 96.6), "zone": "town", "in": "town"}
+	# The days on screen (world/happenings.gd). Upstairs: in the hall outside twelve's door, where
+	# Lorraine knocks; the foot of the hotel's stairs, on the bottom one, where she waits on Friday;
+	# behind the sixth chair at table 28, the empty one, where the Preacher stands and doesn't sit;
+	# the far side of the lot under the sign, where the man in the wedding suit stands in the rain;
+	# behind the Esso's counter, the day clerk on her stool
+	var up := Pub.UP_Y
+	s["up_door"] = {"pos": Vector3(14.1, up, 6.0), "face": Vector3(14.6, up, 7.8), "zone": "upstairs"}
+	s["up_six"] = {"pos": Vector3(15.0, up, 5.45), "face": Vector3(15.0, up, 4.6), "zone": "upstairs"}
+	s["lobby_stair"] = {"pos": Vector3(16.42, 0, -2.2), "face": Vector3(18.6, 0, 0.1), "zone": "lobby", "y": 0.2}
+	var a4 := TAU * 4 / 6.0 + 0.25
+	s["t28_behind4"] = {"pos": T28 + Vector3(cos(a4) * 1.62, 0, sin(a4) * 1.62), "face": T28, "zone": "room"}
+	s["lot_sign"] = {"pos": Vector3(9.8, 0, 16.8), "face": Vector3(3.2, 0, 10.1), "zone": "lot"}
+	s["esso_till"] = {"pos": Vector3(-147.7, Town.APRON, 9.6), "face": Vector3(-147.7, Town.APRON, 13.0), "zone": "town", "in": "town", "seat": 0.7}
 	SPOTS = s
 
 
@@ -433,11 +446,35 @@ func _cast_day(game: Game, v: Dictionary, clock: int, here: String) -> Dictionar
 			out.endbar = ["wharf_rail", "endbar_wharf"]
 		if clock >= 960 and here == "esso":
 			out.essokid = ["esso_freezer", "essokid_freezer"]
+		# the woman on days at the Esso's till, doing her word search, till the kid comes on
+		if here == "esso" and clock < 1000:
+			out.esso_day = ["esso_till", "esso_day"]
+		# Lorraine in six at twelve's door, from her knock till she's gone back along the hall
+		# (world/happenings.gd walks her off)
+		if here == "upstairs" and _from(game, "twelve_day.lorraine"):
+			out.lorraine = ["up_door", "lorraine_door"]
 		return _only_made(out)
 	# Friday
 	if clock < 1380:
 		out.cook = ["kitchen_fryer", "cook"]
 	out.jim = ["bar_back_far", "ballcap_cap"]
+	# the bookkeeper at the door end of the bar with her coat on and the shoebox of cheques
+	if _from(game, "cheque"):
+		out.bookkeeper = ["bar_s6", "bookkeeper_bar"]
+	# the Preacher: at the door with his grocery bag; then behind the sixth chair at table 28, the
+	# empty one, his hands on it, till the lights come up
+	if _from(game, "preacher"):
+		out.preacher = ["door_front", "preacher_bag"]
+	elif _visits(game, "preacher") > 0 and clock < 1560:
+		out.preacher = ["t28_behind4", "preacher_chair"]
+	# Lorraine on the bottom stair in the hotel hall, in a coat over the robe
+	if _from(game, "close_friday.lorraine_friday"):
+		out.lorraine = ["lobby_stair", "lorraine_coat"]
+	var suit_how := int(BUtil.js_int(v.get("suit_how", 0)))
+	if suit_how == -1 and clock < 1560:
+		out.suit = ["lot_sign", "suit_wet"]
+	elif suit_how > 0 and clock < 1560:
+		out.suit = ["bar_s0" if clock < Town.NIGHT else "stand_bar", "suit_bar"]
 	if clock >= Town.NIGHT and clock < 1530:
 		out.endbar = ["bar_s0", "endbar"]
 	if clock >= 1200 and clock < 1560:
@@ -449,7 +486,25 @@ func _cast_day(game: Game, v: Dictionary, clock: int, here: String) -> Dictionar
 		# the line: whoever's at the front of it in the vestibule, the rest out in the rain
 		var in_line := int(BUtil.js_int(v.get("in_line", 0)))
 		if _scene(game) == "the_line" or str(_scene(game)).begins_with("the_line"):
-			out.patron_c = ["door_front", "patron_c"]
+			# whoever the line has brought to the front, as the writing has them (friday.ink)
+			var front := ["door_front", "patron_c"]
+			if _from(game, "the_line.girl"):
+				front = ["door_front", "girl_puffer"]
+			elif _from(game, "the_line.suit"):
+				front = ["door_front", "suit_wet"]
+				out.erase("suit")
+			elif _from(game, "the_line.legion"):
+				front = ["door_front", "legion"]
+			elif _from(game, "the_line.couple"):
+				front = ["door_front", "woman_shoes"]
+				out.man_couple = ["door_step", "man_couple"]
+			elif _from(game, "the_line.shoes"):
+				front = ["door_front", "goodshoes_card"]
+			if _exists(front[1]) and front[1] != "patron_c":
+				out[str(front[1]).split("_")[0] + "_front"] = front
+				out.patron_c = ["vest_behind", "patron_c"] if in_line > 0 else ["pool_watch", "patron_c"]
+			else:
+				out.patron_c = ["door_front", "patron_c"]
 			if in_line > 1:
 				out.patron_d = ["door_step", "patron_d"]
 			if in_line > 3:
@@ -459,7 +514,21 @@ func _cast_day(game: Game, v: Dictionary, clock: int, here: String) -> Dictionar
 		else:
 			out.patron_c = ["pool_watch", "patron_c"]
 			out.patron_d = ["stand_bar", "patron_d"]
+		# the girl with her sister's card, at the bar with a shot and two of the mill crew
+		if _has(v, "wave_in", "w_girl") and clock < 1560 and not _has(v, "incident", "inc_no_id"):
+			out.girl_front = ["bar_stand_v", "girl_bar"]
 	return _only_made(out)
+
+
+# the night's choices come from inside this knot or stitch
+func _from(game: Game, path: String) -> bool:
+	if game.story == null:
+		return false
+	for c in game.story.current_choices():
+		var sp := str(c.source_path)
+		if sp == path or sp.begins_with(path + "."):
+			return true
+	return false
 
 
 func _only_made(out: Dictionary) -> Dictionary:
