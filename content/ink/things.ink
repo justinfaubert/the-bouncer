@@ -871,6 +871,9 @@ The night window. The kid behind it, lit from under by his phone.
     - A heart keyed into the paint, T + and the other letter scratched out so hard the plaster showed.
     - a computer wrote this wall. Under it, in purple: then whose hand is this. The purple went on down the wall a foot past the last word, in one line, and stopped at the baseboard.
     - An eye, drawn carefully, lashes and all, low, at about a seated man's height. Under it: it hears you flush.
+    - who puts the lime in the helmet. Under it: ask the old guy at the end of the bar. Under that, in a third pen: what old guy.
+    - told my wife I was at the gym. Under it, in red: hi Deb.
+    - OTTAWA OWES ME A BEER, in fat capitals. Under it, small: get in line.
     - DARLENE 338-1979. Ask for the other Darlene.
   }
 }
