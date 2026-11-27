@@ -865,9 +865,10 @@ The night window. The kid behind it, lit from under by his phone.
     - GARY IS A COWARD, in capitals, and under it, small and neat: no I'm not - G.
     - A tally, sixteen days in fives, and a red line through all of it.
     - An eye, drawn carefully, lashes and all. Under it: it hears you flush.
-    - who put the lime in the helmet, and in another hand, it was always there.
+    - who puts the lime in the helmet. Under it: ask the old guy at the end of the bar. Under that, in a third pen: what old guy.
     - A heart keyed into the paint, T + and the other letter scratched out so hard the plaster showed.
-    - for a good time call your mother. Somebody had added a number. He didn't recognize it, then did, nearly.
+    - told my wife I was at the gym. Under it, in red: hi Deb.
+    - OTTAWA OWES ME A BEER, in fat capitals. Under it, small: get in line.
     - DARLENE 338-1979. Ask for the other Darlene.
   }
 }

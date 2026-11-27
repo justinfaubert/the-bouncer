@@ -15,10 +15,11 @@ VAR rib_how = 0             // his prime rib: 1 ate it, 2 held a slice up to the
 VAR in_line = 0                // people in the rain behind the glass, during the wave
 VAR let_wrong = 0           // the ones he let through who shouldn't have come in
 VAR lost_line = 0           // the ones who gave up on the line and went down the road to the Legion
-LIST wave = w_mill, w_girl, w_suit, w_legion, w_shoes, w_couple
+LIST wave = w_mill, w_girl, w_suit, w_hat, w_legion, w_shoes, w_couple
 VAR wave_in = ()            // who from the wave he let in
 VAR suit_how = 0            // the man in the wedding suit: 1 let him in, 2 asked whose wedding, -1 turned him away
 VAR preacher_how = 0        // the Preacher's tract: 1 took it, 2 read it, -1 "Not in here"
+VAR hat_how = 0             // the red cap with 51 on it: 1 let him in wearing it, 2 made him take it off, -1 turned him away
 VAR seven_how = 0           // room seven, after close: 1 he went in, 2 he stood at the door and didn't
 
 
@@ -189,10 +190,21 @@ By eight the room was louder than Wednesday's loudest.
     The big man was outside the glass in a clean jacket, not coming in. He held up a hand. #portrait: bigman
     BIGMAN: I'm not here. I'm telling you I'm not here, so it's true this time.
     He went back to the truck. The daughter was in the driver's seat with both hands on the wheel, facing the highway.
+    { kayla_thu == 1:
+        She lifted two fingers off the wheel at the doorman, and put them back.
+    }
 - promise_kept >= 1 || (fam ? dad_went && not took_keys):
     The big man came in and stopped at the stool and put a folded twenty on the corner of it. #portrait: bigman
     BIGMAN: For Wednesday. I'll have the one and go.
+    { kayla_thu == 1:
+        BIGMAN: Kayla says you jumped the truck. I'm not allowed to buy you a beer. She was very clear.
+    }
+    { kayla_thu == 2:
+        BIGMAN: Kayla says you asked was I sober. I am. It's eight o'clock.
+    }
     -> twenty
+- kayla_thu == -1:
+    The big man didn't come in. Where his work truck had been at the edge of the gravel there was an oil stain the shape of Saskatchewan, and the tow's tire marks.
 - else:
     The big man didn't come in. The school photo was still in the visor of the truck at the edge of the gravel, and the parking ticket under the wiper had gone soft in the rain.
 }
@@ -256,6 +268,8 @@ JIM: Here they come. Okay. Here they come.
     -> girl
 - wave !? w_suit:
     -> suit
+- wave !? w_hat:
+    -> hat
 - wave !? w_shoes && ((wallet_how == 3 && wallet_back == 0) || wallet_back == 3):
     -> shoes
 - wave !? w_legion:
@@ -353,6 +367,38 @@ A man in a grey suit with a white rose still in the buttonhole, gone brown at th
     ~ fast()
     ~ suit_how = -1
     He looked down at himself. Then he went and stood on the far side of the lot, under the sign, and he was still there when the doorman looked again.
+- -> the_line
+
+
+// A young guy in a red cap with 51 and a star on it. Table 28 have the best view of the door.
+= hat
+~ wave += w_hat
+A young guy in a Carhartt and a red ball cap, gold stitching on the front: 51, and a star. He'd had it on backwards in the lot. At the glass he turned it round so the doorman could read it.
+CAP51: Relax, bud. It's a bit. My sister married a Liberal. He bought me two drinks at Christmas to take it off.
+Behind the doorman, through the front window, table 28 had seen it.
+TEAM_JACKET: Fifty-one! Is that his age or his IQ!
+HEARING_AID: Fifty-one? I'm seventy-eight!
++ ["In." #door: in]
+    ~ fast()
+    ~ hat_how = 1
+    ~ wave_in += w_hat
+    ~ count_in++
+    He went in with it on, grinning, and table 28 booed him all the way to the bar, and one of them bought him a beer for having the balls.
++ ["The hat comes off, or you don't come in." #door: terms]
+    ~ slow()
+    ~ hat_how = 2
+    ~ wave_in += w_hat
+    ~ count_in++
+    CAP51: Worth a shot.
+    He folded it in half and put it in his back pocket, like a wallet, and went in with his hair flat in a ring.
++ ["Not tonight, pal." #door: out]
+    ~ fast()
+    ~ hat_how = -1
+    CAP51: Seriously? It's a hat.
+    TEAM_JACKET: Good man!
+    GLASSES: That's politics! You can't put a man out for politics!
+    TEAM_JACKET: It's a bar on a Friday. Everything's politics.
+    The kid went down the shoulder toward the Legion, and turned the cap round backwards again, for the walk.
 - -> the_line
 
 
@@ -526,6 +572,12 @@ At two the lights came up and the room was a room again: sticky, small, the carp
     The tract was still in his back pocket, folded in four. He hadn't read it. The Preacher had watched him take it, and had nodded like a man getting a signature.
 - preacher_how == -1:
     The Preacher's tracts were on every table anyway, one each. Gary let him.
+}
+{
+- hat_how == 1:
+    The red cap with the 51 on it was on the jukebox{preacher_how == 2:, next to the Preacher's tract folded into a hat}. Its owner had gone home without it.
+- hat_how == 2:
+    The kid in the Carhartt went out last, putting the cap on backwards on the step, and gave the doorman the finger, friendly, with the other hand.
 }
 {
 - crib_won > 0:

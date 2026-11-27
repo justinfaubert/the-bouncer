@@ -470,17 +470,23 @@ FATHER: He went. I wouldn't have.
 ~ pass(2)
 // HUTCH: What's written on the wall around a dead payphone in a bar like yours? (Stand-ins until you answer.)
 The payphone had been dead for years. People had kept writing on the wall around it.
-FOR A GOOD TIME CALL SHELLEY, and a number, and under it in another pen, SHE'S NOT THAT GOOD, and under that, in the first pen, FUCK YOU DARREN.
-A cab company that had closed years ago. TRUCK FOR SALE, RUNS, NO TIRE KICKERS. Somebody had drawn a cock and balls with real care, shading and all, and somebody else had given it a little top hat.
+FOR A GOOD TIME CALL SHELLEY, and a number. Under it, in another pen: SHE'S NOT THAT GOOD. Under that, in the first pen: FUCK YOU DARREN. Under that, neat, in blue: THIS IS SHELLEY. I'M 61. IT'S STILL A GOOD TIME. STOP GIVING OUT MY NUMBER.
+A ROBOT WROTE THIS WALL. Under it: ROBOTS CAN SPELL, DARREN.
+Somebody had drawn a cock and balls with real care, shading and all, and somebody else had given it a top hat and a monocle and written UNDER NEW MANAGEMENT.
 FIGHTER: Steady hand. He was sober for that.
+RENT IS $2400 FOR A BASEMENT IN NANAIMO. Under it: WITH A WINDOW? Under that: WITH A WINDOW WELL.
 KAYLA M IS A SLUT, and under it in purple gel pen, KAYLA M HAS A JOB AND A CAR. WHAT DO YOU HAVE.
 // The girl at the door with her keys (door.ink, the sister): he's had her licence in his hand.
 { ev_sister.sister_opts.card_face:
     MOFFAT, KAYLA DAWN. He'd had her licence in his hand at the door.
 }
+ELBOWS UP, in fat marker, with the O done as a maple leaf. Under it: 51ST STATE MY ASS. Under that, smaller: GAS IS 40 CENTS CHEAPER IN BELLINGHAM THO.
 A swastika, small, that somebody had boxed into a window with four panes and drawn curtains on.
 EAT THE RICH. Under it: WHAT RICH.
-WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's pencil, SAYS THE KID IN HIS MOM'S BASEMENT.
+WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's pencil, SAYS THE KID IN HIS MOM'S BASEMENT. Under that, back in the capitals: IT HAS A WINDOW WELL.
+NARCAN IN THE FIRST AID KIT. ASK BEHIND BAR. Under it: THERE IS NO FIRST AID KIT. Under that, in small careful printing, the letters all the same height: THERE IS NOW. ON THE SHELF OVER THE ICE. JIM.
+MANUAL: Section 4.9. Naloxone, where provided, is stored in a location known to all staff on shift.
+THE NEW DOORMAN IS A, and nothing after it. The pencil on top of the phone had been sharpened since.
 * [Read on, up the wall.]
     -> payphone_up
 * [Leave the wall.]
@@ -491,10 +497,12 @@ WAGIE WAGIE GET IN CAGIE, in a kid's capitals, and under it in carpenter's penci
 = payphone_up
 ~ pass(2)
 ~ knows += aa_wall
-IT'S SO OVER. Under it, WE'RE SO BACK. Under that, in a third hand, IT'S SO OVER.
+IT'S SO OVER. Under it, WE'RE SO BACK. Under that, in a third hand, IT'S SO OVER. Under that, in a fourth, MILL CLOSES JAN 15, and nobody had written anything under that.
 WRONGMAN: In the story the doorman's name was up there by the end of the first week.
 RIP COLTON. Under it: HE OWED ME 20. Under that, in a third hand: KEEP IT.
-JUNIOR'S DAD WAS A BETTER MAN.
+HOW'S MY DRINKING? CALL 1-800-EAT-SHIT. Somebody had tried the number. Under it: IT'S A REAL NUMBER. IT'S A CHURCH.
+SINGLE? SO IS EVERYBODY ON THIS ISLAND OVER 40. THE FERRY'S $90.
+JUNIOR'S DAD WAS A BETTER MAN. Somebody had crossed out BETTER and written BIGGER, and somebody else had crossed that out and written DEAD.
 WHO'S STILL HERE AT 2 AM, in pencil. Under it: ME. ME. ALWAYS. An arrow ran from ALWAYS up the wall to a card in a plastic sleeve, pinned higher than a drunk could reach, the marker gone brown: TUESDAYS 7 PM. UNITED CHURCH HALL. YOU ARE NOT THE ONLY ONE.
 FATHER: I went to those.
 FATHER: For a year. Then I stopped going and kept on not drinking, and everybody said that was worse. They were probably right.

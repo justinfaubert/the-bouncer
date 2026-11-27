@@ -228,6 +228,10 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
     The Esso's door was locked, and taped to it a sign: NIGHT WINDOW, with an arrow. Through the glass the kid from the ice freezer was behind the counter now, on a stool, his phone flat on the counter in front of him, typing on it with one thumb. He slid the little window open without looking up.
     ESSOKID: Hey. The Sov guy.
     ESSOKID: Four cents an answer. I've done two hundred and eleven since eight. Ask me something, I'll tell you which one of me's lying.
+    A Corolla pulled up to the pumps with its engine running and a woman got out in pyjama pants and a Canucks hoodie, a twenty folded long between two fingers, and stood behind him at the window like she'd been there first.
+    "Two Lotto Max and the Pall Malls, hon. The real ones, not the slims. And you didn't see me, if Ron asks."
+    ESSOKID: Who's Ron.
+    "Good boy." She went back to the car. There was a baby seat in the back, facing the wrong way for a baby, with a case of Pilsner strapped into it.
 - else:
     The kid slid the night window open.
     ESSOKID: Hey.
@@ -247,6 +251,22 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
     { drinks >= 3:
         FIGHTER: It won't make you any less drunk. It'll make you a drunk who's awake.
     }
+    -> counter
+* {cash >= 4} [Two dogs off the roller grill. (4 dollars)]
+    ~ cash -= 4
+    ~ ate = 1
+    ~ pass(3)
+    ESSOKID: They've been going round since about six. They're fine. They're, like, structurally fine.
+    He ate them at the window in the rain, one and then the other, with the mustard out of a pump that farted.
+    { drinks >= 2:
+        FATHER: Your grandmother called those Legion steaks. She'd have eaten four.
+    }
+    -> counter
+* ["Worst thing anybody's bought at this window?"]
+    ~ pass(2)
+    ESSOKID: Oh, man. Okay. Guy comes up at like three, buys one condom and a lighter. Asks do they come in a bigger size.
+    ESSOKID: The lighter. He meant the lighter. I'm pretty sure.
+    ESSOKID: And a lady bought the whole roll of Crossword, like forty tickets, and won sixty bucks and cried. Good crying. I think good.
     -> counter
 + {cash >= 5 && scratched < 3} [A scratch ticket. (5 dollars)]
     ~ cash -= 5
