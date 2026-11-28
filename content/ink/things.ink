@@ -386,7 +386,7 @@ A wallet on the carpet by the stool where GOOD SHOES had sat.
 }
 
 
-// ------------------------------------------------------------------ before the night: the old main street, the Esso, the seawall
+// ------------------------------------------------------------------ before the night: the old main street, the Lesso, the seawall
 
 === function toy_street_library(what)
 {stopping:
@@ -644,7 +644,7 @@ The cross, leaning to the road. DARLENE. The roses, new.
     The payphone, quiet now, and a sticker on its side: THIS PHONE DOES NOT ACCEPT INCOMING CALLS.
 - else:
     {stopping:
-    - A payphone on the Esso's end wall, the last one on this end of the island, a steel cord, a coin slot jammed with a folded receipt. Sharpied across the hood: CALL YR MOTHER.
+    - A payphone on the Lesso's end wall, the last one on this end of the island, a steel cord, a coin slot jammed with a folded receipt. Sharpied across the hood: CALL YR MOTHER.
     - The payphone. CALL YR MOTHER.
     }
 }
@@ -653,6 +653,59 @@ The cross, leaning to the road. DARLENE. The roses, new.
 {stopping:
 - Two islands of pumps under the canopy, nobody at them, and a sign on each: PAY INSIDE AFTER 10 PM / NIGHT WINDOW. On one nozzle somebody had left a single child's mitten on the handle like a puppet.
 - The pumps, nobody at them.
+}
+
+=== function toy_night_slot(what)
+~ out_found += cl_drop
+{stopping:
+- A night deposit in the bank's last pillar, brass, the old crest ground off it in swirls. The bank had been a cafe for eleven years. Its flap was shut on the corner of an envelope, and when he worked it out with two fingers it came, heavy: SOV, RM 7, DEC., in pencil, in capitals, and inside, folded once, twenties. He counted them without deciding to. Six hundred dollars. He put it back through the slot and heard it go down, a long way, longer than the building was deep, and not land.
+    FATHER: Your grandmother kept her money in a coffee can because a bank did her dirty in thirty-one. She'd have liked a bank that wasn't there. Nobody left in it to cheat you.
+- The night slot. He listened at it. Nothing landed, still.
+}
+
+=== function toy_meter(what)
+{stopping:
+- A parking meter outside Gary's, the old wind-up kind with a needle, and the needle down in the red: EXPIRED, in a window gone the yellow of a smoker's ceiling. The town had stopped writing tickets in 2019. It got fed anyway. In the coin return a loonie, the bird worn off it, warm. He took it. Up in Gary's window the blinds moved, or didn't.
+    ~ cash += 1
+- The meter, EXPIRED. The coin return, empty, and he checked.
+}
+
+=== function toy_legion_board(what)
+{stopping:
+- The Legion's letter board on its two posts: THE LEGION BR. 61, MEAT DRAW FRI, KARAOKE CANCELED, YOU KNOW WHY, and under that LEST WE, and nothing after, the last line not finished or the letters for it gone. Six of them were on the grass under the board, face up, in a row, fallen in that order or laid in it: L, I, S, T, E, N.
+    KID: lest we listen. thats either a poem or a threat
+- LEST WE. The letters on the grass, in their row.
+- LEST WE. The letters on the grass had moved: N, E, T, S, I, L, the same six, turned to be read from where he stood. Whoever laid them out had come round to his side of the board to do it.
+- LEST WE. The six letters, facing him.
+}
+
+=== function toy_bench(what)
+~ out_found += cl_bench
+{stopping:
+- A bench outside the library, iron ends, the slats gone grey, a brass plate on the back: ROSE PAQUETTE, 1934 to 2009, SHE SAW EVERYTHING. It faced the bank. Under it, folded flat and kicked back against the leg, the paper sleeve for a bunch of six plastic roses, DOLLAR GIANT.{out_found ? cl_card: PAQUETTE. The name on the licence in the kelp.|{out_found ? cl_cross: Six roses. The same as on the cross up the shoulder.}}
+- The bench. SHE SAW EVERYTHING. From here, everything was the bank.
+}
+
+=== function toy_capsule(what)
+{stopping:
+- A brass plate set in the sidewalk: TIME CAPSULE 1988, TO BE OPENED 2038, and a grade four class's names under it, worn by feet to their first letters. Somebody had scratched one more word in with a key, lowercase, careful: don't. The grout round the plate was new. It had been up, and put back.
+    WRONGMAN: In the story they opened it early. Thirty letters from thirty kids to the future. Every one of them said the same thing, and the drunk wouldn't tell me what.
+- The plate. TO BE OPENED 2038. don't.
+}
+
+=== function toy_pop_sign(what)
+{stopping:
+- The town's sign at the highway, green, POP., and the number painted over three times, each patch a newer green than the one under it, and on the newest, 1,409. Under that in white paint marker, not official: 1,408. The marker was still there, zip-tied to the post by its cap, for whoever was next to do it.{out_found ? cl_wife: Since March, maybe.}
+- The town's sign. 1,408 in marker. The marker on its zip tie.
+- The town's sign. Somebody had been by with the marker: 1,407. The cap was back on.
+- The town's sign. 1,407.
+}
+
+=== function toy_drain(what)
+~ out_found += cl_drain
+{stopping:
+- A storm drain in the gutter at the foot of the street, its bars packed with maple leaves gone black. He crouched to it, because there was a sound. Under the rain going down it, a long way down, a jukebox, and glasses, and the room a jukebox is in. Somebody down there laughed in the right place in the song.{out_found ? cl_rat_back: The vent behind the kitchen. The gap under the front window. Whatever had the run of the Sov had the run of the town.}
+- The drain. The song down there, or the rain.
 }
 
 === function toy_esso_clerk(what)
@@ -675,7 +728,7 @@ The night window. The kid behind it, lit from under by his phone.
 // ------------------------------------------------------------------ the set dressing
 // What's on the walls and the floor (godot/world/dressing.gd): the beer posters and the calendar,
 // the signs, the corkboard, the beer clock, the neon, the glasses and the glasswasher, the hall's
-// hole, the signs by the door and what's on the gravel, the Esso's window. The brands are made up.
+// hole, the signs by the door and what's on the gravel, the Lesso's window. The brands are made up.
 
 === function toy_poster_boors(what)
 {stopping:
@@ -802,7 +855,7 @@ The night window. The kid behind it, lit from under by his phone.
 
 === function toy_esso_ads(what)
 {stopping:
-- Ads taped to the outside of the Esso's window, the sun and the squeegee gone over them: ICE, 2 BAGS $5, it is still just water. LOTTO MOST, $40 MILLION, somebody has to. SMOKES behind the counter, ask, PRICES UP AGAIN, not our fault, ask Ottawa. ROLLER GRILL 2 for $4, since this morning. On the door, WE ID everyone under 30, and anyone who argues.
+- Ads taped to the outside of the Lesso's window, the sun and the squeegee gone over them: ICE, 2 BAGS $5, it is still just water. LOTTO MOST, $40 MILLION, somebody has to. SMOKES behind the counter, ask, PRICES UP AGAIN, not our fault, ask Ottawa. ROLLER GRILL 2 for $4, since this morning. On the door, WE ID everyone under 30, and anyone who argues.
 - Ice, smokes, the lotto. Since this morning.
 }
 
@@ -860,14 +913,20 @@ The night window. The kid behind it, lit from under by his phone.
 
 === function toy_scrawl(what)
 {stopping:
-- The wall by the phone, everything people write while they wait for a phone that doesn't ring: pen, marker, a key. DARLENE 338-1979, and under it, ask for the other Darlene.
+- The wall by the phone, everything people write while they wait for a phone that doesn't ring or a washroom that's busy: pen, marker, a key. DARLENE 338-1979, and under it, ask for the other Darlene.
 - {cycle:
     - GARY IS A COWARD, in capitals, and under it, small and neat: no I'm not - G.
-    - A tally, sixteen days in fives, and a red line through all of it.
-    - An eye, drawn carefully, lashes and all. Under it: it hears you flush.
-    - who put the lime in the helmet, and in another hand, it was always there.
+    - RENT IN THIS TOWN IS A HATE CRIME, in blue paint pen. Under it, agreed, in two different hands, one of them in red.
+    - A tally, sixteen days in fives, and a red line through all of it, and under the line, days.
+    - YOU ARE THE MAIN CHARACTER, and under it, smaller: (of this hallway). He was the only one in it.
+    - THIS PHONE DOESNT WORK. Neither does Kevin. Under that, in a third pen, very neat: I'm on disability - Kevin.
+    - for a good time call your mother. Somebody had added: she's lonely and she's been asking.
     - A heart keyed into the paint, T + and the other letter scratched out so hard the plaster showed.
-    - for a good time call your mother. Somebody had added a number. He didn't recognize it, then did, nearly.
+    - a computer wrote this wall. Under it, in purple: then whose hand is this. The purple went on down the wall a foot past the last word, in one line, and stopped at the baseboard.
+    - An eye, drawn carefully, lashes and all, low, at about a seated man's height. Under it: it hears you flush.
+    - who puts the lime in the helmet. Under it: ask the old guy at the end of the bar. Under that, in a third pen: what old guy.
+    - told my wife I was at the gym. Under it, in red: hi Deb.
+    - OTTAWA OWES ME A BEER, in fat capitals. Under it, small: get in line.
     - DARLENE 338-1979. Ask for the other Darlene.
   }
 }
@@ -888,4 +947,77 @@ The night window. The kid behind it, lit from under by his phone.
 {stopping:
 - Over the middle of the room the ceiling tiles had a stain on them, a brown bloom with three tide lines in it where it had spread and dried and spread again. Every winter it got a ring bigger. Nobody had been upstairs to see what was over it.
 - The stain on the ceiling. He counted the tide lines. Four.
+}
+
+// ---------------------------------------------------------------- the Lesso (godot/world/dressing.gd, _lesso)
+
+=== function toy_lesso_sign(what)
+{stopping:
+- Up on the price sign's pole, over the numbers, a lit oval, red in a blue ring: LESSO. It had been something else once, with an E and a tiger. The company had changed the name in a year when everything got smaller and the price stayed, and nobody had ever said what the L stood for. At night you could see it from the Sov's step, the one red thing on the highway.
+- LESSO. Less of everything. The oval hummed.
+}
+
+=== function toy_lesso_standee(what)
+{stopping:
+- A cardboard woman in front of the window, life-size and leaning back on her easel, in a red bikini three summers out of date, holding out a slush the colour of a cherry nobody has ever eaten. NEW! CHERRY BLAST. BRAIN FREEZE, ANY SIZE 99¢. Feel nothing for a minute. The sun through the glass had taken the blue out of her first. Somebody had drawn a moustache on her and somebody else had rubbed it off with their thumb.
+- The cardboard woman, still holding it out. Ninety-nine cents to feel nothing for a minute was the best deal on the island.
+- He looked at her a while longer than he meant to. Her eyes were printed looking over his shoulder, at whoever was behind him at the pumps.
+}
+
+=== function toy_lesso_board(what)
+{stopping:
+- A chalk board out by the road, on its legs, for the cars. LIVE BAIT. COLD POP. ICE. NALOXONE, and under it, free. ask. no lecture. In the corner, (the worms are $4.99). The rain had got the bottom of it and the chalk had run.
+- The back of the board, for the cars going north. NIGHTCRAWLERS, $4.99 a dozen. Our worms are local. (so are we. sorry.) ASK ABOUT OUR HOT DOGS. They're fine.
+- Worms, pop, ice, and the kit for bringing a man back from the dead, on one board. No lecture.
+}
+
+=== function toy_lesso_ev(what)
+{stopping:
+- At the end of the lot, a car charger in its own bay painted green, and over its head a black garbage bag, taped round its neck with packing tape. On the bag, on a sheet of paper: OUT OF ORDER, since the rebate ended, - mgmt. Under it in a different pen: the gas pumps work fine :)
+- The charger with the bag over its head, taped at the neck. Nobody had charged anything since spring.
+}
+
+=== function toy_lesso_air(what)
+{stopping:
+- An air machine on the corner of the store, yellow, its hose in a coil on its hook. AIR $2. It used to be free. So did a lot of things.
+- Air, two dollars. He breathed some of the other kind.
+}
+
+=== function toy_lesso_news(what)
+{stopping:
+- A paper box by the door, blue, the front page through its window: THE ISLAND SENTINEL. TOMORROW, $2.50, WEATHER: YES. LOCAL MAN READS HEADLINE, LEAVES. A photograph under it of a man from behind, going.
+- He read the date again. It said tomorrow. The box took coins only, and he had none.
+- LOCAL MAN READS HEADLINE, LEAVES. He stood there. Ferry cancelled, A3.
+}
+
+=== function toy_lesso_wood(what)
+{stopping:
+- Firewood on a pallet against the end of the store, in net bundles. FIREWOOD $9, dry-ish, honour system. (there is a camera). (it is a box). The box was up under the eave, a cardboard one, painted black, with a bottle cap for a lens.
+- The firewood. One bundle short since the last time he looked, and the honour system still up.
+}
+
+=== function toy_lesso_fluid(what)
+{stopping:
+- Blue jugs of washer fluid stacked by the ice. -40° WASHER, 2 FOR $9. It has never once been -40 here. But you never know, do you.
+- Minus forty. It was eight above and raining.
+}
+
+=== function toy_lesso_pump(what)
+{stopping:
+- A note taped to the pump over the card slot: PAY INSIDE. The card reader has feelings. Swipe gently.
+- The card reader, and its feelings.
+}
+
+=== function toy_lesso_phone_wall(what)
+{stopping:
+- The end wall round the payphone, written on in Sharpie and key, a phone's worth of waiting. THIS PHONE HAS NOT BEEN CONNECTED SINCE 2012, and under it, so who keeps calling.
+- {cycle:
+    - GAS WAS $1.09. I was there. Under it, in red: you're old.
+    - The kid inside is a robot. Under it, in green: I'm not. - the kid. And under that: (four cents).
+    - GOD IS A PAYPHONE, in purple, the letters gone over twice. You have to put something in. Somebody had added: and nobody picks up.
+    - TAXES DONE, cash, no questions. Ask for Ron. (Not that Ron.)
+    - I'm leaving this island. Signed, in a different hand: everybody, every spring.
+    - CALL YR MOTHER, big, across the bottom, and under it, smaller: she knows you read this.
+    - A sticker, BRING BACK THE MILL, half peeled. The mill had been gone since before the phone.
+  }
 }

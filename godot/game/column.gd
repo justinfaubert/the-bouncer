@@ -14,6 +14,7 @@ signal chose(index: int)
 signal hand_on(index: int, on: bool)
 signal pointed(index: int, on: bool)
 signal end_action(what: String)
+signal fold_asked()             # the button on the page, or a click on the spine: fold it, or open it
 
 const TEXT_SIZES := {"s": 22, "m": 24, "l": 27}
 # the places the ways he goes by in the room go to, by name (content/ink/floor.ink, the hub)
@@ -43,6 +44,9 @@ var seats_word: Label
 var seat_masks := {}            # voice style -> its mask in the head
 var spine: Spine                # the page folded to its edge while he walks
 var fold := 0.0                 # 0 the page, 1 folded to the spine
+var fold_btn: Button
+var news := 0                   # lines come in while it's folded, not yet read
+var waiting := ""               # what the night's waiting on while it's folded: "choose", "go on", ""
 var more: Label
 
 var block: Control              # the block new lines go into
@@ -173,6 +177,28 @@ func setup(s: Dictionary) -> void:
 	more.offset_top = -34
 	more.visible = false
 	add_child(more)
+	# the page's own button: fold it away to the spine (C). It's the player's: the page never
+	# opens or folds itself because something happened
+	fold_btn = Button.new()
+	fold_btn.flat = true
+	fold_btn.text = "FOLD  ▸   C"
+	fold_btn.focus_mode = Control.FOCUS_NONE
+	fold_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	fold_btn.add_theme_font_override("font", UiBits.spaced("ui_b", 2))
+	fold_btn.add_theme_font_size_override("font_size", 12)
+	fold_btn.add_theme_color_override("font_color", Look.FAINT)
+	fold_btn.add_theme_color_override("font_hover_color", Look.STOCK)
+	fold_btn.anchor_left = 1.0
+	fold_btn.anchor_right = 1.0
+	fold_btn.anchor_top = 1.0
+	fold_btn.anchor_bottom = 1.0
+	fold_btn.offset_left = -150
+	fold_btn.offset_right = -PAD_R + 8
+	fold_btn.offset_top = -40
+	fold_btn.offset_bottom = -14
+	fold_btn.alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	fold_btn.pressed.connect(func(): fold_asked.emit())
+	add_child(fold_btn)
 	spine = Spine.new()
 	spine.column = self
 	spine.anchor_bottom = 1.0
@@ -304,8 +330,11 @@ func set_seats(seated: Array, tension_word: String) -> void:
 func set_fold(f: float) -> void:
 	fold = clampf(f, 0.0, 1.0)
 	var page_a := clampf(1.0 - fold * 1.6, 0.0, 1.0)
-	for n in [scroll, foot, more, seats_row, seats_word, head_day.get_parent()]:
+	for n in [scroll, foot, more, seats_row, seats_word, head_day.get_parent(), fold_btn]:
 		n.modulate.a = page_a
+	fold_btn.visible = page_a > 0.05
+	if fold < 0.05:
+		news = 0
 	bg.modulate.a = 1.0
 	spine.visible = fold > 0.01
 	spine.modulate.a = clampf((fold - 0.35) / 0.65, 0.0, 1.0)
@@ -354,6 +383,10 @@ func _add(node: Control, screen = "keep") -> Control:
 		use_screen(screen)
 	block_box.add_child(node)
 	batch.append(node)
+	if fold > 0.5:
+		news += 1
+		if spine != null:
+			spine.queue_redraw()
 	if not node.has_meta("voice"):
 		_last_voice = ""
 	return node
@@ -1286,7 +1319,14 @@ class Spine extends Control:
 	var tabs := {}
 
 	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mouse_filter = Control.MOUSE_FILTER_STOP
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		tooltip_text = "Open the page (C)"
+
+	func _gui_input(e: InputEvent) -> void:
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			column.fold_asked.emit()
+			accept_event()
 
 	func said(style: String) -> void:
 		tabs[style] = true
@@ -1315,6 +1355,8 @@ class Spine extends Control:
 		for st in masks:
 			masks[st].position = Vector2((size.x - 46) * 0.5, y)
 			y += 62.0
+		if column.waiting != "":
+			queue_redraw()
 
 	func _draw() -> void:
 		if column == null:
@@ -1343,6 +1385,20 @@ class Spine extends Control:
 			if tabs.has(st):
 				draw_rect(Rect2(w - 10, y + 10, 6, 30), Look.voice_color(st))
 			y += 62.0
+		# the way open: a tab to pull it out by
+		draw_string(uf, Vector2(16, 128), "◂  C", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Look.MUTED)
+		# what's come in on the page since it was folded, and what the night's waiting on
+		var by := size.y - 150.0
+		if column.waiting != "":
+			var pulse := 0.6 + 0.4 * sin(Time.get_ticks_msec() / 260.0)
+			draw_rect(Rect2(10, by - 22, w - 20, 30), Color(Look.RED, 0.18 * pulse))
+			var wt: String = "CHOOSE" if column.waiting == "choose" else "GO ON"
+			var ww := uf.get_string_size(wt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			draw_string(uf, Vector2((w - ww) * 0.5, by - 2), wt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Look.RED)
+		if column.news > 0:
+			var nt := str(column.news) + " NEW"
+			var nw := uf.get_string_size(nt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+			draw_string(uf, Vector2((w - nw) * 0.5, by + 30), nt, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Look.INK)
 		# what's in him, in tally
 		var dr := Look.tally(column.drinks_value)
 		if column.drinks_value > 0:

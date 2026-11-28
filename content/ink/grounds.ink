@@ -1,6 +1,6 @@
 // The grounds round the Sov at night, on his own feet (godot/world/grounds.gd): round the back, the
 // alley, the hotel's front door, across the highway to the seawall and down onto the beach, and
-// down the shoulder to the Esso. He's still out front as far as the night goes (here = lot): every
+// down the shoulder to the Lesso. He's still out front as far as the night goes (here = lot): every
 // minute out here is a minute nobody's on the stool, and door_away counts it (sim.ink).
 //
 // What's lying about out there is looked at the way things in the building are (things.yaml, its
@@ -15,14 +15,14 @@
 //
 // Claude's drafts, all of it.
 
-LIST out_clue = cl_cross, cl_wife, cl_flowers, cl_card, cl_seven, cl_paper, cl_rat_front, cl_rat_back, cl_caps, cl_phone, cl_trail, cl_freezer
+LIST out_clue = cl_cross, cl_wife, cl_flowers, cl_card, cl_seven, cl_paper, cl_rat_front, cl_rat_back, cl_caps, cl_phone, cl_trail, cl_freezer, cl_drop, cl_bench, cl_drain
 VAR out_found = ()
 VAR card_kept = 0           // her licence: 1 in his pocket, -1 put back in the kelp, 2 given to Merle
 VAR caps_how = 0            // the rats' spiral of bottle caps: 1 left it, 2 took the brass one, 3 kicked it apart
-VAR esso_rang = false       // the payphone at the Esso rang as he came down the shoulder (the engine sets it)
+VAR esso_rang = false       // the payphone at the Lesso rang as he came down the shoulder (the engine sets it)
 VAR esso_answered = 0       // 1 he picked it up, -1 he let it ring
-VAR esso_price = 0          // how many times he's read the Esso's price sign tonight: it goes up
-VAR smokes = 0              // packs bought at the Esso's night window
+VAR esso_price = 0          // how many times he's read the Lesso's price sign tonight: it goes up
+VAR smokes = 0              // packs bought at the Lesso's night window
 VAR scratched = 0           // scratch tickets bought there
 VAR fire_how = 0            // the fire on the beach: 1 warmed his hands, 2 kicked sand over it
 
@@ -71,6 +71,19 @@ VAR fire_how = 0            // the fire on the beach: 1 warmed his hands, 2 kick
     MERLE: Gary's kept it empty since. Paid up to Christmas, he says, and won't say who by. Her name was on the buzzer till somebody took a key to it.
     He turned the reel's handle once, for nothing.
     MERLE: Wasn't me.
+    -> talk
+* {out_found ? cl_bench && out_found ? cl_wife} ["There's a bench on the main street. Rose Paquette."]
+    MERLE: Her mother. Sat on that bench every day for thirty years and told the bank who'd been in it.
+    MERLE: We paid for the plate. Darlene picked the words. Rose would have hated it, and that was the point of it.
+    -> talk
+* {out_found ? cl_drop && out_found ? cl_wife} ["Somebody pays for room seven. Through the old bank's night slot."]
+    He didn't look round.
+    MERLE: That bank shut when the mill did.
+    MERLE: How much?
+    "Six hundred."
+    He reeled in a turn and stopped.
+    MERLE: That's what her room was. Six hundred, to the dollar.
+    MERLE: Gary sits in his window across the street from that slot every day God sends. Ask him who comes by it at night. Then watch him not know.
     -> talk
 + [Leave him to it.]
     { out_merle == 1:
@@ -195,11 +208,11 @@ The gravel round the spiral was printed all over with feet the size of his thumb
 - -> at_front.f_opts
 
 
-// ------------------------------------------------------------------ the payphone at the Esso
+// ------------------------------------------------------------------ the payphone at the Lesso
 
 === out_payphone ===
 ~ pass(1)
-The payphone on the end wall of the Esso was ringing, the old kind on a steel cord, and it had been ringing since he came round the bend.
+The payphone on the end wall of the Lesso was ringing, the old kind on a steel cord, and it had been ringing since he came round the bend.
 * [Pick it up.]
     ~ esso_answered = 1
     ~ out_found += cl_phone
@@ -220,14 +233,18 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
 - -> at_front.f_opts
 
 
-// ------------------------------------------------------------------ the Esso's night window
+// ------------------------------------------------------------------ the Lesso's night window
 
 === out_clerk ===
 ~ pass(1)
 { out_clerk == 1:
-    The Esso's door was locked, and taped to it a sign: NIGHT WINDOW, with an arrow. Through the glass the kid from the ice freezer was behind the counter now, on a stool, his phone flat on the counter in front of him, typing on it with one thumb. He slid the little window open without looking up.
+    The Lesso's door was locked, and taped to it a sign: NIGHT WINDOW, with an arrow. Through the glass the kid from the ice freezer was behind the counter now, on a stool, his phone flat on the counter in front of him, typing on it with one thumb. He slid the little window open without looking up.
     ESSOKID: Hey. The Sov guy.
     ESSOKID: Four cents an answer. I've done two hundred and eleven since eight. Ask me something, I'll tell you which one of me's lying.
+    A Corolla pulled up to the pumps with its engine running and a woman got out in pyjama pants and a Canucks hoodie, a twenty folded long between two fingers, and stood behind him at the window like she'd been there first.
+    "Two Lotto Max and the Pall Malls, hon. The real ones, not the slims. And you didn't see me, if Ron asks."
+    ESSOKID: Who's Ron.
+    "Good boy." She went back to the car. There was a baby seat in the back, facing the wrong way for a baby, with a case of Pilsner strapped into it.
 - else:
     The kid slid the night window open.
     ESSOKID: Hey.
@@ -247,6 +264,22 @@ The payphone on the end wall of the Esso was ringing, the old kind on a steel co
     { drinks >= 3:
         FIGHTER: It won't make you any less drunk. It'll make you a drunk who's awake.
     }
+    -> counter
+* {cash >= 4} [Two dogs off the roller grill. (4 dollars)]
+    ~ cash -= 4
+    ~ ate = 1
+    ~ pass(3)
+    ESSOKID: They've been going round since about six. They're fine. They're, like, structurally fine.
+    He ate them at the window in the rain, one and then the other, with the mustard out of a pump that farted.
+    { drinks >= 2:
+        FATHER: Your grandmother called those Legion steaks. She'd have eaten four.
+    }
+    -> counter
+* ["Worst thing anybody's bought at this window?"]
+    ~ pass(2)
+    ESSOKID: Oh, man. Okay. Guy comes up at like three, buys one condom and a lighter. Asks do they come in a bigger size.
+    ESSOKID: The lighter. He meant the lighter. I'm pretty sure.
+    ESSOKID: And a lady bought the whole roll of Crossword, like forty tickets, and won sixty bucks and cried. Good crying. I think good.
     -> counter
 + {cash >= 5 && scratched < 3} [A scratch ticket. (5 dollars)]
     ~ cash -= 5

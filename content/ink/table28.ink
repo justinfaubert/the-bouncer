@@ -284,7 +284,7 @@ SCRATCH: A hundred years old. And nobody wished him happy birthday.
 He'd written under it himself, with the caps lock on: HAPPY BIRTHDAY SIR THANK YOU FOR YOUR SERVICE, and a flag.
 FIGHTER: Count the fingers on the salute.
 { knows ? esso_rater:
-    The kid at the Esso would have known before he'd finished looking.
+    The kid at the Lesso would have known before he'd finished looking.
 }
 * ["It's not real. He's got six fingers."]
     ~ t28_slop = 1

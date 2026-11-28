@@ -913,10 +913,38 @@ def phone_wall(w=960, h=800):
     put(words('CAB  555-0118', hand4, 30, 1), '#23315f', 190, 222, -6, keep=True)
     put(words('24 HRS', hand3, 22), '#23315f', 150, 258, -6, keep=True)
     for text, ink, face, size, x, y, deg in [
-            ('SHELLY 555-0164', '#201d1b', hand4, 25, 200, 318, -4),
+            ('SHELLEY 555-0164', '#201d1b', hand4, 25, 200, 318, -4),
             ('Rick 555-0131', '#6b665d', hand3, 28, 185, 432, 7),
             ('Tina  555-0157', '#23315f', hand4, 27, 760, 470, -3),
             ('Mom', '#23315f', hand3, 26, 690, 600, 11)]:
+        put(words(text, face, size), ink, x, y, deg, keep=True)
+    # what people answer each other with (hall.ink, 25 November pass): readable, and kept clear
+    for text, ink, face, size, x, y, deg in [
+            ('ELBOWS UP', '#8a1c1c', hand4, 34, 190, 150, -3),
+            ('51st STATE MY ASS', '#201d1b', hand4, 20, 182, 186, 2),
+            ("SHE'S NOT THAT GOOD", '#6b665d', hand3, 19, 210, 352, 2),
+            ('FUCK YOU DARREN', '#201d1b', hand4, 19, 196, 378, -2),
+            ("I'M 61. STILL A GOOD TIME", '#23315f', hand3, 17, 205, 404, 0),
+            ('A ROBOT WROTE THIS WALL', '#201d1b', hand4, 19, 190, 488, -3),
+            ('ROBOTS CAN SPELL, DARREN', '#23315f', hand3, 17, 205, 514, 1),
+            ('EAT THE RICH', '#8a1c1c', hand4, 24, 168, 572, -5),
+            ('WHAT RICH', '#201d1b', hand3, 18, 222, 602, 3),
+            ("IT'S SO OVER", '#201d1b', hand4, 22, 150, 656, -2),
+            ("WE'RE SO BACK", '#23315f', hand3, 20, 178, 686, 3),
+            ("IT'S SO OVER", '#6b665d', hand3, 18, 160, 714, -1),
+            ('RENT $2400 BSMT NANAIMO', '#201d1b', hand3, 16, 470, 150, 2),
+            ('WITH A WINDOW?', '#23315f', hand3, 16, 490, 174, -2),
+            ("HOW'S MY DRINKING?", '#201d1b', hand4, 16, 470, 214, -2),
+            ('1-800-EAT-SHIT', '#6b665d', hand3, 16, 466, 238, 3),
+            ('NARCAN IN FIRST AID KIT', '#8a1c1c', hand4, 17, 772, 522, -1),
+            ('THERE IS NO KIT', '#201d1b', hand3, 17, 784, 546, 2),
+            ('THERE IS NOW.  JIM', '#23315f', hand3, 15, 776, 570, 0),
+            ('WAGIE WAGIE GET IN CAGIE', '#201d1b', hand4, 16, 762, 680, 2),
+            ("SAYS THE KID IN MOM'S BSMT", '#6b665d', hand3, 15, 768, 704, -1),
+            ('KAYLA M IS A SLUT', '#201d1b', hand4, 19, 470, 690, -2),
+            ('KAYLA M HAS A JOB AND A CAR', '#6a3d9a', hand3, 18, 486, 716, 1),
+            ('WHAT DO YOU HAVE', '#6a3d9a', hand3, 18, 486, 740, 1),
+            ('THE NEW DOORMAN IS A', '#201d1b', hand4, 22, 480, 650, -1)]:
         put(words(text, face, size), ink, x, y, deg, keep=True)
     # the heart, two sets of initials in it, and the third scratched in beside them and out again
     hm = Image.new('L', (200, 180), 0)

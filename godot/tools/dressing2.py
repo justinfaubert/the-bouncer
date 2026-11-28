@@ -355,36 +355,47 @@ def clock_back(n=512):
 # ---------------------------------------------------------------------------------- the layers
 
 def scrawl(w=1400, h=500):
-    """The hall wall by the washrooms, in pen and marker and key."""
+    """The hall wall by the phone, in pen and marker and key: what people write while they wait for
+    a phone that doesn't ring, or for the washroom."""
     sh = _layer(w, h)
     k = lambda sz: font('kalam-400', sz)
-    sh.text((210, 70), 'DARLENE  338-1979', k(36), '1a1a40', anchor='mm', rot=3)
-    sh.text((230, 112), '(ask for the other Darlene)', k(22), '1a1a40', anchor='mm', rot=2)
-    sh.text((620, 80), 'GARY IS A COWARD', font('anton-400', 44), '2a1414', anchor='mm', rot=-2)
-    sh.text((700, 130), "no I'm not  - G.", k(26), '1a1814', anchor='mm', rot=-4)
-    sh.text((1100, 70), 'who put the lime', k(30), '3a3a3a', anchor='mm', rot=1)
-    sh.text((1110, 108), 'in the helmet', k(30), '3a3a3a', anchor='mm', rot=1)
-    sh.text((1150, 150), 'it was always there', k(20), '5a5a5a', anchor='mm', rot=-3)
+    sh.text((200, 60), 'DARLENE  338-1979', k(34), '1a1a40', anchor='mm', rot=3)
+    sh.text((220, 100), '(ask for the other Darlene)', k(21), '1a1a40', anchor='mm', rot=2)
+    sh.text((640, 64), 'GARY IS A COWARD', font('anton-400', 42), '2a1414', anchor='mm', rot=-2)
+    sh.text((720, 112), "no I'm not  - G.", k(25), '1a1814', anchor='mm', rot=-4)
+    sh.text((1130, 52), 'rent in this town', font('archivo-black-400', 30), '2a3a6a', anchor='mm', rot=2)
+    sh.text((1140, 92), 'is a hate crime', font('archivo-black-400', 30), '2a3a6a', anchor='mm', rot=2)
+    sh.text((1200, 130), 'agreed', k(18), '1a1814', anchor='mm', rot=-6)
+    sh.text((1260, 150), 'agreed', k(16), '6a1a14', anchor='mm', rot=4)
     # days sober, tallied, and then not
-    x = 120
+    x = 100
     for g in range(4):
         for i in range(4):
-            sh.line([(x + i * 12, 250), (x + i * 12 + 2, 300)], '1a1814', 3)
-        sh.line([(x - 6, 290), (x + 46, 258)], '1a1814', 3)
+            sh.line([(x + i * 12, 220), (x + i * 12 + 2, 270)], '1a1814', 3)
+        sh.line([(x - 6, 260), (x + 46, 228)], '1a1814', 3)
         x += 70
-    sh.text((260, 336), 'days', k(26), '1a1814', anchor='mm', rot=-2)
-    sh.line([(100, 275), (420, 280)], '8a1a14', 5)
+    sh.text((240, 304), 'days', k(24), '1a1814', anchor='mm', rot=-2)
+    sh.line([(80, 245), (400, 250)], '8a1a14', 5)
+    sh.text((640, 210), 'you are the main character', k(30), '1a1814', anchor='mm', rot=-1)
+    sh.text((660, 246), '(of this hallway)', k(22), '1a1814', anchor='mm', rot=-1)
+    sh.text((1110, 220), 'THIS PHONE DOESNT WORK', font('anton-400', 30), '1a1814', anchor='mm', rot=1)
+    sh.text((1150, 258), 'neither does Kevin', k(24), '3a5a2a', anchor='mm', rot=-3)
+    sh.text((1200, 290), "I'm on disability - Kevin", k(17), '1a1814', anchor='mm', rot=2)
+    sh.text((300, 400), 'for a good time call your mother', k(24), '2a2a5a', anchor='mm', rot=-1)
+    sh.text((340, 432), "she's lonely and she's been asking", k(18), '2a2a5a', anchor='mm', rot=-1)
     # a heart, keyed in, T + and the other letter scratched out to a smear
-    sh.blob([(700, 330), (660, 270), (690, 245), (720, 275), (750, 245), (780, 270)], None, '6a6a60', 3)
-    sh.text((706, 290), 'T +', font('archivo-black-400', 26), '6a6a60', anchor='mm')
+    sh.blob([(650, 450), (610, 390), (640, 365), (670, 395), (700, 365), (730, 390)], None, '6a6a60', 3)
+    sh.text((656, 410), 'T +', font('archivo-black-400', 26), '6a6a60', anchor='mm')
     for j in range(14):
-        sh.line([(735 + j % 4 * 3, 278 + j), (762 + j % 3 * 2, 298 - j)], '6a6a60', 2)
+        sh.line([(685 + j % 4 * 3, 398 + j), (712 + j % 3 * 2, 418 - j)], '6a6a60', 2)
+    sh.text((930, 360), 'a computer wrote this wall', k(22), '1a1814', anchor='mm', rot=2)
+    sh.text((950, 392), "then whose hand is this", k(20), '4a1a5a', anchor='mm', rot=-2)
+    sh.text((1040, 330), 'who put the lime in the helmet', k(17), '3a3a3a', anchor='mm', rot=1)
     # an eye, small, drawn very carefully, lower than anyone would look
-    sh.ellipse(1050, 380, 1120, 420, None, '1a1814', 3)
-    sh.ellipse(1074, 386, 1096, 414, '1a1814')
-    sh.ellipse(1080, 392, 1086, 398, 'f4f2ea')
-    sh.text((1085, 446), 'it hears you flush', k(18), '4a4a4a', anchor='mm', rot=0)
-    sh.text((420, 430), 'for a good time call your mother', k(24), '2a2a5a', anchor='mm', rot=-1)
+    sh.ellipse(1210, 400, 1280, 440, None, '1a1814', 3)
+    sh.ellipse(1234, 406, 1256, 434, '1a1814')
+    sh.ellipse(1240, 412, 1246, 418, 'f4f2ea')
+    sh.text((1245, 466), 'it hears you flush', k(18), '4a4a4a', anchor='mm', rot=0)
     im = sh.done()
     a = np.asarray(im, dtype=np.float32)
     # worn into the paint, not on it

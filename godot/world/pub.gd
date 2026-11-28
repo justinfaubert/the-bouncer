@@ -67,6 +67,7 @@ func build() -> void:
 	_store()
 	_truck()
 	_upstairs()
+	_upstairs_hall()
 	_rain()
 	_lights()
 	_lobby()
@@ -1488,7 +1489,9 @@ func _room_things() -> void:
 	# board's seen by it, and the score, and the hooks beside them
 	box(Vector3(0.72, 0.02, 0.02), Vector3(15.64, 2.26, 1.95), M.frame)
 	cyl(0.05, 0.08, 0.1, Vector3(15.27, 2.22, 1.95), M.shade, null, 14)
-	lamps.append(spot(Vector3(15.27, 2.17, 1.95), Vector3(16.0, 1.45, 1.65), Color("ffc98a"), 2.6, 3.0, 60.0))
+	# (2026-11-25: an old bulb, not a work light: lower, warmer, a tighter pool, and it throws the
+	# darts' shadows on the board)
+	lamps.append(spot(Vector3(15.27, 2.17, 1.95), Vector3(16.0, 1.5, 2.2), Color("ffa95c"), 1.25, 3.2, 48.0, true))
 	# GOOD SHOES's wallet on the carpet by the stool he had, where it came out of his coat as he was
 	# turned for the door, if he left it
 	# fallen open a little off what's in it: the half it landed on, the other sprung up off the fold,
@@ -2223,6 +2226,113 @@ func _upstairs() -> void:
 	ball(0.05, Vector3((x0 + x1) / 2.0, y0 + 2.45, (z0 + z1) / 2.0), M.bulb)
 	anchors["his_bed"] = Vector3(x1 - 0.6, y0 + 0.5, z0 + 1.4)
 	anchors["up_window"] = Vector3(x0 + 1.2, y0 + 1.1, z1)
+
+
+# The second floor's hall outside twelve, and room seven off it (content/ink/days.ink, friday.ink):
+# Lorraine knocks at twelve from it, and on Friday he goes up past six and stops at seven. A runner
+# down the middle, the doors with their brass numbers, a bulb on a timer. Seven's door swings in on
+# its key (world/happenings.gd, dyn.seven_door), and inside it's made up tight, the radiator on, the
+# window up two inches and the rain coming in, and on the bedspread a black record with no label.
+func _upstairs_hall() -> void:
+	var y0 := UP_Y
+	var hx0 := 9.0
+	var hx1 := 16.0
+	var hz0 := 5.0
+	var hz1 := 6.4
+	var worn := mat(Color("4a463d"), 0.95, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.5)
+	var runner := mat(Color("5a3b33"), 0.95, 0.0, 1, Vector3(1, 0, 0), 6.0, 0.6)
+	var brass := mat(Color("8a7444"), 0.4, 0.6, 2, Vector3.UP, 5.0, 1.0)
+	var leafm := mat(Color("5b4a38"), 0.8, 0.0, 1, Vector3.UP, 6.0, 0.8)
+	tiled(Vector3(hx1 - hx0, 0.1, hz1 - hz0), Vector3((hx0 + hx1) / 2.0, y0 - 0.05, (hz0 + hz1) / 2.0), worn)
+	box(Vector3(hx1 - hx0 - 0.3, 0.006, 0.62), Vector3((hx0 + hx1) / 2.0, y0 + 0.003, (hz0 + hz1) / 2.0), runner)
+	tiled(Vector3(hx1 - hx0, 0.1, hz1 - hz0), Vector3((hx0 + hx1) / 2.0, y0 + 2.6, (hz0 + hz1) / 2.0), M.ceiling)
+	# the north side: six (across from twelve) and seven; the south: eleven, next to twelve
+	wall(Vector2(hx0, hz0), Vector2(hx1, hz0), 2.6, M.plain, [[2.0, 2.8, 0.0, 2.0], [5.6, 6.4, 0.0, 2.0]], y0, 0.1)
+	wall(Vector2(hx0, hz1), Vector2(13.4, hz1), 2.6, M.plain, [[3.2, 4.0, 0.0, 2.0]], y0, 0.1)
+	wall(Vector2(hx0, hz0), Vector2(hx0, hz1), 2.6, M.plain, [], y0, 0.1)
+	wall(Vector2(hx1, hz0), Vector2(hx1, hz1), 2.6, M.plain, [], y0, 0.1)
+	# the shut doors, six and eleven, a little proud of their walls into the hall
+	box(Vector3(0.78, 1.98, 0.04), Vector3(15.0, y0 + 0.99, hz0 + 0.05), leafm)
+	box(Vector3(0.78, 1.98, 0.04), Vector3(12.6, y0 + 0.99, hz1 - 0.05), leafm)
+	# seven's, on its hinge (west side), shut till the key turns
+	var hinge := Node3D.new()
+	hinge.position = Vector3(11.02, y0, hz0 + 0.04)
+	add_child(hinge)
+	box(Vector3(0.76, 1.98, 0.04), Vector3(0.38, 0.99, 0.0), leafm, 0.0, hinge)
+	ball(0.022, Vector3(0.68, 0.98, 0.04), brass, hinge)
+	dyn.seven_door = hinge
+	# the numbers: 6, 11, and 7 hanging crooked off its one screw
+	var nums := [["6", Vector3(15.0, y0 + 1.6, hz0 + 0.08), 0.0, 0.0], ["11", Vector3(12.6, y0 + 1.6, hz1 - 0.08), 0.0, PI],
+		["7", Vector3(0.38, 1.6, 0.03), -0.42, 0.0]]
+	for n in nums:
+		var l := Label3D.new()
+		l.text = n[0]
+		l.font_size = 64
+		l.pixel_size = 0.0016
+		l.modulate = Color("b39a5c")
+		l.outline_size = 0
+		l.shaded = true
+		l.double_sided = false
+		l.position = n[1]
+		l.rotation = Vector3(0, n[3], n[2])
+		if n[0] == "7":
+			hinge.add_child(l)
+		else:
+			add_child(l)
+	# a doormat outside six; a room-service tray on the floor outside eleven, two days old
+	box(Vector3(0.6, 0.012, 0.4), Vector3(15.0, y0 + 0.006, hz0 + 0.3), M.dark)
+	box(Vector3(0.42, 0.02, 0.3), Vector3(12.25, y0 + 0.01, hz1 - 0.25), M.steel)
+	cyl(0.1, 0.1, 0.012, Vector3(12.2, y0 + 0.027, hz1 - 0.25), M.porcelain, null, 14)
+	# the bulb on its timer, and the little push button for it by the stairs at the west end
+	cyl(0.12, 0.08, 0.05, Vector3(12.0, y0 + 2.57, (hz0 + hz1) / 2.0), M.shade, null, 16)
+	ball(0.04, Vector3(12.0, y0 + 2.5, (hz0 + hz1) / 2.0), M.bulb)
+	box(Vector3(0.05, 0.08, 0.02), Vector3(hx0 + 0.25, y0 + 1.25, hz1 - 0.06), M.porcelain)
+	var lamp := omni(Vector3(12.0, y0 + 2.35, (hz0 + hz1) / 2.0), Color("ffc27a"), 0.55, 4.2, true, "up_hall")
+	lamp.omni_attenuation = 1.6
+	omni(Vector3(15.2, y0 + 2.2, (hz0 + hz1) / 2.0), Color("ffc27a"), 0.18, 2.6)
+	anchors["up_door"] = Vector3(14.1, y0, 6.05)
+	anchors["six_door"] = Vector3(15.0, y0 + 1.0, hz0)
+	anchors["seven_door"] = Vector3(11.4, y0 + 1.0, hz0)
+	# room seven: empty since March
+	var sx0 := 10.2
+	var sx1 := 12.6
+	var sz0 := 2.2
+	var carpet7 := mat(Color("5e5a4c"), 0.95, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.5)
+	tiled(Vector3(sx1 - sx0, 0.1, hz0 - sz0), Vector3((sx0 + sx1) / 2.0, y0 - 0.05, (sz0 + hz0) / 2.0), carpet7)
+	tiled(Vector3(sx1 - sx0, 0.1, hz0 - sz0), Vector3((sx0 + sx1) / 2.0, y0 + 2.6, (sz0 + hz0) / 2.0), M.ceiling)
+	wall(Vector2(sx0, sz0), Vector2(sx1, sz0), 2.6, M.plain, [[0.8, 1.7, 0.85, 2.0]], y0, 0.1)
+	wall(Vector2(sx0, sz0), Vector2(sx0, hz0), 2.6, M.plain, [], y0, 0.1)
+	wall(Vector2(sx1, sz0), Vector2(sx1, hz0), 2.6, M.plain, [], y0, 0.1)
+	# the window, the bottom sash up two inches; the rain come in dark on the carpet under it, and
+	# outside the night (a plane of it, the rain on the glass catching the hall's light)
+	box(Vector3(0.9, 0.56, 0.03), Vector3(sx0 + 1.25, y0 + 1.15, sz0 + 0.02), M.glass)
+	box(Vector3(0.9, 0.56, 0.03), Vector3(sx0 + 1.25, y0 + 1.72, sz0 - 0.02), M.glass)
+	box(Vector3(0.96, 0.05, 0.08), Vector3(sx0 + 1.25, y0 + 1.42, sz0), M.frame)
+	box(Vector3(3.0, 2.0, 0.02), Vector3(sx0 + 1.25, y0 + 1.5, sz0 - 0.6), M.black)
+	var wet := mat(Color("37352d"), 0.25, 0.0, 1, Vector3(1, 0, 0.3), 7.0, 0.5)
+	box(Vector3(0.8, 0.004, 0.55), Vector3(sx0 + 1.25, y0 + 0.003, sz0 + 0.35), wet)
+	for k in 8:
+		box(Vector3(0.05, 0.34, 0.1), Vector3(sx0 + 0.9 + k * 0.1, y0 + 0.23, sz0 + 0.14), M.frame)
+	# the bed: made tight, hospital corners, the pillow squared; the record on the bedspread
+	var bedx := sx1 - 0.62
+	var bedz := sz0 + 1.45
+	box(Vector3(1.0, 0.36, 2.0), Vector3(bedx, y0 + 0.18, bedz), M.wood)
+	var spread := mat(Color("7d7466"), 0.9, 0.0, 1, Vector3(1, 0, 0), 6.0, 0.7)
+	box(Vector3(1.04, 0.14, 2.02), Vector3(bedx, y0 + 0.43, bedz), spread)
+	box(Vector3(0.62, 0.1, 0.36), Vector3(bedx, y0 + 0.55, sz0 + 0.65), M.porcelain)
+	box(Vector3(1.1, 0.9, 0.05), Vector3(bedx, y0 + 0.45, sz0 + 0.42), M.wood)
+	var vinyl := mat(Color(0.025, 0.025, 0.027), 1.0, 0.0, 0, Vector3.UP, 7.0, 0.0)
+	var rec := cyl(0.152, 0.152, 0.003, Vector3(bedx - 0.08, y0 + 0.502, bedz + 0.25), vinyl, null, 48)
+	rec.rotation.y = 0.3
+	dyn.seven_record = rec
+	anchors["seven_record"] = Vector3(bedx - 0.08, y0 + 0.5, bedz + 0.25)
+	# a chair, a dresser with nothing on it, the ceiling bulb out; the radiator's the only warm thing
+	box(Vector3(0.45, 0.45, 0.45), Vector3(sx0 + 0.45, y0 + 0.22, hz0 - 0.9), M.wood)
+	box(Vector3(0.9, 0.8, 0.45), Vector3(sx0 + 0.3, y0 + 0.4, sz0 + 1.6), M.wood, PI / 2.0)
+	ball(0.04, Vector3((sx0 + sx1) / 2.0, y0 + 2.48, (sz0 + hz0) / 2.0), M.dark)
+	# what light there is: the street's, cold, through the window
+	var cold := omni(Vector3(sx0 + 1.25, y0 + 1.6, sz0 + 0.3), Color("9fb4c8"), 0.35, 3.4, false, "seven")
+	cold.omni_attenuation = 1.4
 
 
 func _rain() -> void:

@@ -68,14 +68,14 @@ const PLACE := {
 	"door": "On the door", "floor": "On the floor", "t28": "At table 28", "pool": "By the pool table",
 	"bar": "At the bar", "hall": "In the back hall", "kitchen": "In the kitchen", "keg": "In the keg room",
 	"deck": "Out on the deck", "lot": "Out in the lot", "upstairs": "Upstairs",
-	"office": "In Gary's office", "street": "The old main street", "esso": "At the Esso", "seawall": "On the seawall",
+	"office": "In Gary's office", "street": "The old main street", "esso": "At the Lesso", "seawall": "On the seawall",
 }
 # what a place is called in a caption, and on the ways out
 const CAPTION := {
 	"door": "The door", "floor": "The floor", "t28": "Table 28", "pool": "The pool table", "bar": "The bar",
 	"hall": "The back hall", "kitchen": "The kitchen", "keg": "The keg room", "deck": "The deck",
 	"lot": "The lot", "upstairs": "Upstairs",
-	"office": "Van Dusen Holdings", "street": "The old main street", "esso": "The Esso", "seawall": "The seawall",
+	"office": "Van Dusen Holdings", "street": "The old main street", "esso": "The Lesso", "seawall": "The seawall",
 }
 const DAY_NAMES := {1: "Wednesday", 2: "Thursday", 3: "Friday", 4: "Saturday", 5: "Sunday", 6: "Monday", 7: "Tuesday"}
 const HURT_WORDS := ["", "Knocked about", "Hurt", "Badly hurt"]

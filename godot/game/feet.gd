@@ -51,6 +51,8 @@ var _opened := {}             # doors he's opened walking, by name
 var _crossing := false        # a way through a doorway taken; waiting for the night to move him
 var hint: Label
 var hint_way := -1            # the place he's standing in, to settle at with E
+var _zones: Array = []        # where his feet may take him this frame
+var _roaming := false         # about on his own: no minutes, the night not moved
 
 
 func _init(m) -> void:
@@ -130,7 +132,35 @@ func free_here() -> bool:
 	return main.game.toy_choice("legs", "walk") != null
 
 
-# What the keys do this frame: "walk", "leave" (get up from a place), "lean", or "look".
+# Where he can walk about on his own feet even when the night hasn't let him go (Hutch, 25 Nov:
+# "walking mechanics should almost always be available"): from wherever he's standing or sitting,
+# about the part of the building he's in, or the whole of out of doors. It costs no minutes and
+# moves nothing on in the night; a doorway to somewhere else still needs the night's way there,
+# and the night calling him back to where he was (view.roamed) walks him back. Empty: nowhere.
+const ROAM_PLACE := {"door": ["room", "vest"], "bar": ["room", "vest"], "t28": ["room", "vest"], "pool": ["room", "vest"],
+	"pool:juke": ["room", "vest"], "hall": ["hall"], "kitchen": ["kitchen"], "street": ["lot", "yard", "town"],
+	"esso": ["lot", "yard", "town"], "seawall": ["lot", "yard", "town"]}
+
+func roam_zones() -> Array:
+	var view: View = main.view
+	if not on() or not _can() or view.walking:
+		return []
+	if view.on_floor != "" and not Posts.away(view.on_floor):
+		return []
+	if view.place == "office":
+		return []
+	if WALKS.has(view.place):
+		return WALKS[view.place]
+	if ROAM_PLACE.has(view.place):
+		return ROAM_PLACE[view.place]
+	var z := Hotspots.zone_of(view.eye_pos)
+	if Grounds.outdoor_zone(z):
+		return ["lot", "yard", "town"]
+	return [z] if z in ["room", "vest", "hall", "kitchen", "deck"] else []
+
+
+# What the keys do this frame: "walk", "leave" (get up from a place), "roam" (about on his own,
+# the night not moved), "lean", or "look".
 func mode() -> String:
 	if not on():
 		return "look"
@@ -141,6 +171,8 @@ func mode() -> String:
 	var view: View = main.view
 	if _can() and not view.walking and view.place in Going.IN_ROOM and main.going._way_to("floor") >= 0:
 		return "leave"
+	if not roam_zones().is_empty():
+		return "roam"
 	return "look"
 
 
@@ -154,7 +186,11 @@ func process(dt: float) -> void:
 	_lean(dt, w.x if m == "lean" else 0.0)
 	if not view.walking:
 		_crossing = false
-	if m == "walk":
+	if m == "walk" or m == "roam":
+		_zones = WALKS.get(view.place, []) if m == "walk" else roam_zones()
+		_roaming = m == "roam"
+		if _roaming and not view.roamed and w != Vector2.ZERO:
+			_get_up(w)
 		_walk(dt, w)
 	else:
 		vel = Vector3.ZERO
@@ -208,6 +244,8 @@ func _walk(dt: float, w: Vector2) -> void:
 			# lot, down the steps through the seawall onto the beach
 			var gy := Grounds.ground_y(to.x, to.z) if outside else 0.0
 			view.eye_pos = Vector3(to.x, Posts.STAND + gy, to.z)
+			if _roaming:
+				view.roamed = true
 			view.floor_spot = Vector3(to.x, 0.0, to.z)
 			_walked += moved
 			_since_step += moved
@@ -229,7 +267,9 @@ func _walk(dt: float, w: Vector2) -> void:
 		_still += dt
 		_hurried = 0.0
 	# the minute a walk costs, when he stops (or as he goes, if he keeps on)
-	if (_still >= STOPPED and _walked >= Going.STROLL) or _walked >= CHARGE_AT:
+	if _roaming:
+		_walked = 0.0
+	elif (_still >= STOPPED and _walked >= Going.STROLL) or _walked >= CHARGE_AT:
 		_walked = 0.0
 		main.view.pub.shadows_near(view.eye_pos)
 		main.toy("legs", "walk")
@@ -259,7 +299,7 @@ func _try(at: Vector3, step: Vector3) -> Variant:
 		if d < PERSON_ROOM and d < pp.distance_to(at):
 			return null
 	var zone := Hotspots.zone_of(to + Vector3(0, 1.0 + (Grounds.ground_y(to.x, to.z) if out else 0.0), 0))
-	var allowed: Array = WALKS.get(view.place, [])
+	var allowed: Array = _zones
 	if zone in allowed:
 		return to
 	if _crossing:
@@ -279,6 +319,37 @@ func _try(at: Vector3, step: Vector3) -> Variant:
 	main.going._going(Vector3.INF, place)
 	main.choose(i)
 	return {}
+
+
+# Up off the stool, the bar or the chair he's at, on his own: a step out to where there's room to
+# stand, the way the key says (or the nearest room there is), before he walks.
+func _get_up(w: Vector2) -> void:
+	var view: View = main.view
+	var at := Vector3(view.eye_pos.x, 0.0, view.eye_pos.z)
+	var zone := Hotspots.zone_of(view.eye_pos)
+	if Grounds.outdoor_zone(zone) or Posts.away(view.place):
+		return
+	if Nav.clearance(at) >= Nav.BODY:
+		return
+	var yaw := view.yaw
+	var dir := (Vector3(-sin(yaw), 0.0, -cos(yaw)) * w.y + Vector3(cos(yaw), 0.0, -sin(yaw)) * w.x).normalized()
+	for d in [0.8, 1.2, 0.5, 1.6]:
+		var spot: Vector3 = main.going._stand_near(at + dir * d)
+		if spot != Vector3.INF and Hotspots.zone_of(spot + Vector3(0, 1.0, 0)) in _zones and _nobody_at(spot):
+			view.eye_pos = Vector3(spot.x, Posts.STAND, spot.z)
+			view.floor_spot = spot
+			view.roamed = true
+			main.audio.sfx("steps", 0.5)
+			return
+
+
+func _nobody_at(p: Vector3) -> bool:
+	var view: View = main.view
+	var people: Array = view.people_at.call() if view.people_at.is_valid() else []
+	for q in people:
+		if Vector2(q.x - p.x, q.z - p.z).length() < PERSON_ROOM:
+			return false
+	return true
 
 
 # Up from a place in the room, the way the key says: out onto the floor a step or so that way.

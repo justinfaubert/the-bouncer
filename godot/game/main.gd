@@ -21,6 +21,7 @@ var content: Dictionary
 var game: Game
 var pub: Pub
 var stage: Stage
+var happenings: Happenings
 var view: View
 var ui: CanvasLayer
 var root: Control
@@ -104,6 +105,15 @@ func _ready() -> void:
 	add_child(view)
 	view.setup(pub, settings, root)
 	stage.view = view
+	happenings = Happenings.new()
+	add_child(happenings)
+	happenings.setup(stage, pub, view)
+	happenings.on_done = func():
+		if game.story != null and view.place in ["upstairs", "hall"]:
+			var f := _frame_for(view.place)
+			if f != view.frame:
+				view.frame = f
+				view.walk_to(view.place, false)
 
 	audio = Sound.new()
 	add_child(audio)
@@ -141,6 +151,7 @@ func _ready() -> void:
 		door_hand.row_on(i, on))
 	column.pointed.connect(func(i, on): spots.point_out(i, on))
 	column.end_action.connect(_end_action)
+	column.fold_asked.connect(toggle_page)
 
 	spots = Hotspots.new()
 	add_child(spots)
@@ -265,7 +276,21 @@ func _grab(path: String) -> void:
 func _frame_for(where: String) -> String:
 	if game.story == null:
 		return ""
+	if happenings != null and happenings.holds(where) != "":
+		return happenings.holds(where)
+	# the days on screen (world/happenings.gd): Lorraine at twelve's door; seven's door, and in it
+	if where == "upstairs":
+		var vs := game.vars()
+		if int(BUtil.js_int(vs.get("seven_how", 0))) == 1 and int(BUtil.js_int(vs.get("day", 1))) == 3:
+			return "seven_in"
+		if _choices_from("close_friday.seven"):
+			return "seven"
+		return "door" if _choices_from("twelve_day.lorraine") else ""
+	if where == "bar" and _choices_from("cheque"):
+		return "bk"
 	if where == "hall":
+		if _choices_from("close_friday.lorraine_friday"):
+			return "stair"
 		if _choices_from("at_hall.night_clerk"):
 			return "clerk"
 		return "phone" if _choices_from("at_hall.payphone") else ""
@@ -1017,7 +1042,6 @@ func heard(event: String) -> void:
 
 
 func show(res: Dictionary, live: bool) -> void:
-	_still_t = WIDE_HOLD
 	column.clear_choices()
 	spots.clear()
 	read_chars = 0
@@ -1028,6 +1052,15 @@ func show(res: Dictionary, live: bool) -> void:
 	column.begin_batch()
 	var first := render_items(res.get("items", []), live)
 	column.reveal(live)
+	# what the lines say happens starts happening as they come up, not after the last of them
+	# (world/happenings.gd): up the stairs, seven's door
+	if live and game.story != null:
+		happenings.after(game)
+		if view.place == "upstairs" and pending != null:
+			var fr := _frame_for(view.place)
+			if fr != view.frame:
+				view.frame = fr
+				view.walk_to(view.place, false)
 	if pending == null:
 		after(res, live)
 	else:
@@ -1057,7 +1090,8 @@ func after(res: Dictionary, live: bool) -> void:
 	# a scene seen from somewhere of its own (the front desk, the payphone, the jukebox, a stool at
 	# table 28, the doorway of Gary's office, the wharf's rail, the highway, the kid on the freezer):
 	# over to it, and back
-	if view.place in ["hall", "pool", "t28", "office", "street", "esso"] and not res.get("ended", false):
+	happenings.after(game)
+	if view.place in ["hall", "pool", "t28", "office", "street", "esso", "upstairs", "bar"] and (not res.get("ended", false) or view.place == "upstairs"):
 		var f := _frame_for(view.place)
 		if f != view.frame:
 			view.frame = f
@@ -1652,6 +1686,10 @@ func _key(e: InputEventKey) -> void:
 		notes.close()
 		sketch.toggle()
 		return
+	if k == KEY_C:
+		get_viewport().set_input_as_handled()
+		toggle_page()
+		return
 	if notes.visible and (k == KEY_Q or k == KEY_E):
 		get_viewport().set_input_as_handled()
 		notes.turn_page(k == KEY_Q)
@@ -1802,12 +1840,25 @@ const WIDE_HOLD := 1.0        # seconds stopped before the page comes back
 const WIDE_SPEED := 1.4       # of the screen's width a second
 var _still_t := WIDE_HOLD
 
+# The page is the player's (Hutch, 25 Nov: "it shouldn't automatically pop up, instead, just add a
+# button to collapse it or expand it"). C, the button at the foot of the page, or a click on the
+# spine folds it or opens it. Setting off on his feet folds it, once per walk, if Settings say so
+# ("Fold the page when he walks"); nothing that happens ever opens it. While it's folded, the spine
+# counts what's come in and says when the night is waiting on a choice or a "Go on".
+var page_folded := false
+var _was_stroll := false
+
+func toggle_page() -> void:
+	page_folded = not page_folded
+	audio.sfx("page", 0.35)
+
+
 func _widen(dt: float) -> void:
-	if view.stroll:
-		_still_t = 0.0
-	else:
-		_still_t += dt
-	var wide: bool = (bool(settings.get("wide_walk", true)) and in_game and _still_t < WIDE_HOLD \
+	if view.stroll and not _was_stroll and bool(settings.get("wide_walk", true)):
+		page_folded = true
+	_was_stroll = view.stroll
+	column.waiting = ("go on" if pending != null and rolling == null else ("choose" if not column.rows.is_empty() else "")) if page_folded else ""
+	var wide: bool = (page_folded and in_game \
 		and not notes.visible and not sketch.visible and not menus.is_open() and not props.holding())
 	var spine := Column.SPINE_W / maxf(1.0, root.size.x)
 	var to := 1.0 if full_frame or (pool != null and pool.active) or (fight != null and fight.active) else ((1.0 - spine) if wide else WORLD_W)

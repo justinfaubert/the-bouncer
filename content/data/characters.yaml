@@ -24,7 +24,7 @@
 #               cold   the mood they wear once he's in their bad books (default hard)
 #               group  5 (a table's worth, drawn as one: each of the five from their own look below)
 #               ground what's behind them, set by the game from where he is, not here: office,
-#                      canopy (the Esso) or dusk (the street, the seawall); none of them has the
+#                      canopy (the Lesso) or dusk (the street, the seawall); none of them has the
 #                      sign's red. Left out it's the bar; plain is an ID photo (props.yaml)
 #   standing  the group whose opinion of him shows on this face: t28 | kids | staff | cook
 #             (rep_<group> in main.ink; at 2 or more they look at him warm, at -2 or less cold)
@@ -143,10 +143,10 @@ bookkeeper:
   look: {sex: f, age: old, hair: short, face: [glasses], top: cardigan, mood: flat}
   note: At the other desk in Gary's office (Hutch's story 12, bible/12_FROM_THE_DOOR.md). Did his father's books and then his, forty-one years in March; before that a teller at the bank across the road. Her name is Hutch's.
 essokid:
-  label: THE ESSO KID
+  label: THE LESSO KID
   portrait: essokid
   look: {age: young, hat: beanie, top: hoodie, extra: [vest], mood: knowing}
-  note: Twenty, on nights at the Esso down the highway (DECIDED, the future machine's eccentric; bible/11_SKELETON.md). Physics on his phone, and four cents an answer rating a machine's for a gig site. On the walk at dusk (walk.ink).
+  note: Twenty, on nights at the Lesso down the highway (DECIDED, the future machine's eccentric; bible/11_SKELETON.md). Physics on his phone, and four cents an answer rating a machine's for a gig site. On the walk at dusk (walk.ink).
 him:
   label: HIM
   portrait: him
@@ -198,10 +198,14 @@ woman:
 man:
   label: THE HUSBAND
   note: Behind her, still talking.
+cap51:
+  label: THE RED CAP
+  look: {age: young, build: medium, hair: short, hat: cap, top: jacket, mood: smile}
+  note: A young guy in a Carhartt and a red cap with 51 and a star stitched on it, in the Friday wave (friday.ink). Says it's a bit for his brother-in-law.
 merle:
   label: MERLE
   look: {age: old, build: slight, hair: thin, face: [stubble, lined], top: coat, mood: flat}
   note: Fishes off the seawall across from the Sov every night with nothing on his hook, since his wife Darlene went in off it in March (content/ink/grounds.ink). Room seven was hers. Claude's draft.
 voice:
   label: THE PHONE
-  note: Whoever's on the line when the dead payphone at the Esso rings (grounds.ink). A room is behind them that sounds like the Sov.
+  note: Whoever's on the line when the dead payphone at the Lesso rings (grounds.ink). A room is behind them that sounds like the Sov.

@@ -1,4 +1,18 @@
 LAST CALL
+Main, 28 November 2026: everything finished so far, merged onto main in one game. On top of the
+master build of the 24th: the days on screen (Lorraine's cigarette lit in front of him, room seven's
+door, the Preacher, the faces in the line, the upstairs hall), the edge pass (Kayla at the dead truck
+on Thursday, the red cap in Friday's line, the Esso's night window), the Esso become the LESSO and
+dressed up, the payphone wall rewritten funnier, walking off from wherever he is on any day with
+the page his to fold (C, or the FOLD button), the old main street, and the darts below. Not in it
+yet: pool and fights round three, the truck's night road.
+
+27 November 2026: the master build of the 24th with the darts reworked after Hutch's notes. Pulling
+back on the mouse now only sets how hard he throws: the dart slides straight back toward his cheek
+and never turns, so the aim he settled is the aim he throws. The board has its wire and its numbers,
+the flights are real flights set as an X, the lamp over the board is an old warm bulb that throws
+the darts' shadows, and his eyes go to each dart as it lands.
+
 The master build, 24 November 2026: every open thread's work in one game. New since the last
 combined build: the cold open's third pass (no words, about a minute, hard cuts), the truck after
 its second drive (the door, a '78 dash, the radio, the rearview mirror, and something on the road),
