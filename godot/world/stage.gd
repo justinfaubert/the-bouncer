@@ -201,7 +201,8 @@ func _spots() -> void:
 	s["up_door"] = {"pos": Vector3(14.1, up, 6.0), "face": Vector3(14.6, up, 7.8), "zone": "upstairs"}
 	s["up_six"] = {"pos": Vector3(15.0, up, 5.45), "face": Vector3(15.0, up, 4.6), "zone": "upstairs"}
 	s["lobby_stair"] = {"pos": Vector3(16.42, 0, -2.2), "face": Vector3(18.6, 0, 0.1), "zone": "lobby", "y": 0.2}
-	var a4 := TAU * 4 / 6.0 + 0.25
+	# (behind stool 3: stool 4 is where he sits himself at 28, so a man behind it stood in him)
+	var a4 := TAU * 3 / 6.0 + 0.25
 	s["t28_behind4"] = {"pos": T28 + Vector3(cos(a4) * 1.62, 0, sin(a4) * 1.62), "face": T28, "zone": "room"}
 	s["lot_sign"] = {"pos": Vector3(9.8, 0, 16.8), "face": Vector3(3.2, 0, 10.1), "zone": "lot"}
 	s["esso_till"] = {"pos": Vector3(-147.7, Town.APRON, 9.6), "face": Vector3(-147.7, Town.APRON, 13.0), "zone": "town", "in": "town", "seat": 0.7}
