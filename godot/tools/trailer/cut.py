@@ -80,6 +80,85 @@ SCOPE_H = 804
 # A shot cut from another one's frames instead of its own: (the shot, its first frame, how far in,
 # and the middle of the picture in 1080p pixels)
 SOURCE = {"x_dart_treble": ("darts_fly", 21, 1.7, (1240, 860))}
+# Super 8 (the second cut): the gate's round corners are in the picture, so nothing is cut to scope.
+SCOPE = False
+# The dream pass over every frame of the film (dream() below): these shots trail a little of the
+# frames before them, the way a step-printed shot smears, slowed down and remembered.
+TRAIL = {"sov_far": 0.32, "seawall_end": 0.3, "listener_rise": 0.38, "listener_push": 0.35,
+         "x_mirror": 0.3, "room_frozen": 0.25, "bar_empty": 0.2, "sign_dying": 0.25}
+
+
+def dream(frames, seed=8):
+    """What a reel of Super 8 picks up between the camera and the projector, laid over the rendered
+    frames: the first frames of every shot flashed as the motor comes up to speed, dust and the odd
+    hair in the gate, a scratch down the emulsion now and then, and the remembered shots trailing.
+    frames: [(src path, dst path, shot, frame in shot, frames in shot)], written in order."""
+    import numpy as np
+    from PIL import Image, ImageDraw, ImageFilter
+    rng = np.random.default_rng(seed)
+    prev = None
+    hair = None
+    scratch = None
+    for src, dst, shot, i, n in frames:
+        im = Image.open(src).convert("RGB")
+        w, h = im.size
+        a = np.asarray(im).astype(np.float32) / 255.0
+        lin = a ** 2.2
+        # a trail of the frames before, in the remembered shots
+        k = TRAIL.get(shot, 0.0)
+        if k and prev is not None and i > 0:
+            lin = lin * (1.0 - k) + prev * k
+        prev = lin.copy()
+        if not shot.startswith("_"):
+            # the camera's motor coming up to speed: the first frames burn warm, and the last one
+            # of a shot dips as the reel's let go
+            if i < 3:
+                f = [1.9, 1.35, 1.1][i]
+                lin = lin * f + np.array([0.05, 0.02, 0.0]) * (f - 1.0)
+            elif i == n - 1:
+                lin *= 0.86
+        out = np.clip(lin, 0, 1) ** (1 / 2.2)
+        im = Image.fromarray((out * 255 + 0.5).astype(np.uint8))
+        if shot != "_bell":
+            d = ImageDraw.Draw(im)
+            # dust: dark flecks, a new handful every frame, mostly small
+            for _ in range(int(rng.poisson(2.2))):
+                x, y = rng.uniform(0, w), rng.uniform(0, h)
+                r = rng.choice([1.0, 1.4, 2.0, 3.2], p=[0.45, 0.3, 0.18, 0.07])
+                pts = [(x + rng.normal(0, r), y + rng.normal(0, r)) for _ in range(5)]
+                d.polygon(pts, fill=(8, 6, 5))
+            # now and then a white fleck: a scrape through to the base
+            if rng.random() < 0.18:
+                x, y = rng.uniform(0, w), rng.uniform(0, h)
+                d.ellipse((x - 1.5, y - 1.5, x + 1.5, y + 1.5), fill=(235, 225, 205))
+            # a hair caught at the edge of the gate stays a few frames, trembling
+            if hair is None and rng.random() < 0.012:
+                side = rng.choice([0, 1])
+                x0 = rng.uniform(0.05, 0.2) * w if side == 0 else rng.uniform(0.8, 0.95) * w
+                y0 = rng.uniform(0.1, 0.9) * h
+                ang = rng.uniform(0, 6.28)
+                hair = [x0, y0, ang, int(rng.integers(6, 18))]
+            if hair is not None:
+                x0, y0, ang, left = hair
+                pts = []
+                for t in np.linspace(0, 1, 14):
+                    pts.append((x0 + np.cos(ang + t * 2.2) * 60 * t + rng.normal(0, 0.6),
+                                y0 + np.sin(ang + t * 2.2) * 60 * t + rng.normal(0, 0.6)))
+                d.line(pts, fill=(10, 8, 6), width=2)
+                hair[3] -= 1
+                if hair[3] <= 0:
+                    hair = None
+            # a scratch down the emulsion, wandering, for a beat or two
+            if scratch is None and rng.random() < 0.006:
+                scratch = [rng.uniform(0.15, 0.85) * w, int(rng.integers(6, 16))]
+            if scratch is not None:
+                scratch[0] += rng.normal(0, 1.2)
+                x = scratch[0]
+                d.line([(x + rng.normal(0, 0.4), 0), (x + rng.normal(0, 0.4), h)], fill=(200, 192, 176), width=1)
+                scratch[1] -= 1
+                if scratch[1] <= 0:
+                    scratch = None
+        im.save(dst, quality=95)
 
 
 def plan(args):
@@ -118,7 +197,7 @@ def title_frames(n, size, font_path, outdir):
     import random
     w, h = size
     os.makedirs(outdir, exist_ok=True)
-    big = h * 0.2
+    big = min(h, w / 2.39) * 0.2
     paths = []
     rnd = random.Random(7)
     for i in range(n):
@@ -177,12 +256,14 @@ def film(args):
     scope = os.path.join(args.work, "scope")
     os.makedirs(scope, exist_ok=True)
     events = []
+    jobs = []
     k = 0
     for s in cutd["shots"]:
         name, n = s["name"], s["frames"]
         t0 = s["frame"] / FPS
+        k0 = k
         if name == "_title":
-            src = title_frames(n, (size[0], SCOPE_H), args.font, os.path.join(args.work, "title"))
+            src = title_frames(n, (size[0], SCOPE_H if SCOPE else size[1]), args.font, os.path.join(args.work, "title"))
             events += [[t0 + 0.25, "stamp", 1.0], [t0 + 0.25, "thump", 0.8]]
         elif name == "_bell":
             src = [black] * n
@@ -215,7 +296,9 @@ def film(args):
                     events.append([t0 + e[0], e[1], e[2]])
         for p in src:
             dst = os.path.join(seq, f"{k:05d}.jpg")
-            if name in FULL or name.startswith("_") or p == black:
+            if not SCOPE:
+                jobs.append((p, dst, name, k - k0, n))
+            elif name in FULL or name.startswith("_") or p == black:
                 if name == "_title":
                     # the title's drawn at scope: put it in the bars
                     im = Image.new("RGB", size, PAPER)
@@ -231,6 +314,8 @@ def film(args):
                 out.paste(im.crop((0, y, im.size[0], y + SCOPE_H)), (0, (size[1] - SCOPE_H) // 2))
                 out.save(dst, quality=95)
             k += 1
+    if jobs:
+        dream(jobs)
     # the sounds of the game under the music, where they happen
     ins = ["-i", args.music]
     fc = []
@@ -247,7 +332,9 @@ def film(args):
         mix.append(f"[s{j}]")
     fc.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first,alimiter=limit=0.95[a]")
     pad = ""
-    grade = ("curves=master='0/0 0.10/0.045 0.35/0.28 0.7/0.68 1/0.97',"
+    # night stock wants its toe pressed down; Super 8 already has its blacks, so only a touch
+    toe = "0/0 0.10/0.045 0.35/0.28 0.7/0.68 1/0.97" if SCOPE else "0/0 0.08/0.06 0.35/0.33 0.7/0.71 1/0.98"
+    grade = (f"curves=master='{toe}',"
              "eq=saturation=1.04,"
              "fade=t=in:st=0:d=1.6")
     vf = f"[{len(mix)}:v]{grade}{pad},format=yuv420p[v]"

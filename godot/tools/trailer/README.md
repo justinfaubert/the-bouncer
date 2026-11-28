@@ -32,8 +32,18 @@ then 4:01.5 to the end: 88.8 s.
   the hall, the sign, the seawall
 - the drums stop: LAST CALL
 
-Gameplay shots keep the whole 16:9 frame with the page and the game's own UI; everything else is
-cut to 2.39:1 (`FULL`, `CROP_Y` in `cut.py`).
+## The look
+
+The second cut is shot on the game's Super 8 look (`--look 8` in `trailer.gd`, the default; `7`
+is night stock, the first cut's), sharpened a touch from the game's own, with a mist filter's glow,
+the emulsion's red round the bulbs, and the gate weaving and the exposure breathing frame to frame
+(`look/press.gdshader`, style 8). The gate's round corners are in the picture, so the whole 16:9
+frame is kept (`SCOPE = False`; set it to cut to 2.39:1 again with `FULL` and `CROP_Y`).
+
+`cut.py film` then lays over every frame what a reel picks up between the camera and the projector
+(`dream()`): the first frames of each shot flashed as the motor comes up to speed, dust and the odd
+hair in the gate, a scratch now and then, and the remembered shots (`TRAIL`: the Sov, the seawall,
+the Listener, the room stopped dead) trailing a little of the frames before them.
 
 ## Making it
 
