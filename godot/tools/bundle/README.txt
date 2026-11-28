@@ -3,9 +3,9 @@ Main, 28 November 2026: everything finished so far, merged onto main in one game
 master build of the 24th: the days on screen (Lorraine's cigarette lit in front of him, room seven's
 door, the Preacher, the faces in the line, the upstairs hall), the edge pass (Kayla at the dead truck
 on Thursday, the red cap in Friday's line, the Esso's night window), the Esso become the LESSO and
-dressed up, the payphone wall rewritten funnier, and the darts below. Not in it yet: walking almost
-everywhere with the page folded (still being built), pool and fights round three, the truck's
-night road.
+dressed up, the payphone wall rewritten funnier, walking off from wherever he is on any day with
+the page his to fold (C, or the FOLD button), the old main street, and the darts below. Not in it
+yet: pool and fights round three, the truck's night road.
 
 27 November 2026: the master build of the 24th with the darts reworked after Hutch's notes. Pulling
 back on the mouse now only sets how hard he throws: the dart slides straight back toward his cheek
