@@ -74,7 +74,10 @@ func _walk_to(p: Vector3, near := 0.5, secs := 12.0) -> bool:
 
 # never inside anything: the walk map's room for his body where he's standing
 func _clear_here() -> bool:
-	return Nav.clearance(Vector3(v.eye_pos.x, 0, v.eye_pos.z)) >= Nav.BODY - 0.005
+	var q := Vector3(v.eye_pos.x, 0, v.eye_pos.z)
+	if Grounds.outdoor_zone(Hotspots.zone_of(v.eye_pos)):
+		return Grounds.clearance(q) >= Feet.TIGHT - 0.005
+	return Nav.clearance(q) >= Nav.BODY - 0.005
 
 
 func _run() -> void:
@@ -240,6 +243,54 @@ func _run() -> void:
 	var tp := Time.get_ticks_msec()
 	while Time.get_ticks_msec() - tp < 2500:
 		await process_frame
-	_ok("stopped, the page is back", v.world_w < 0.7, "%.2f" % v.world_w)
+	# the page is the player's: stopping doesn't bring it back, C does (Hutch, 25 Nov)
+	_ok("stopped, the page stays folded", v.world_w > 0.9, "%.2f" % v.world_w)
+	await _key(KEY_C, true)
+	await _key(KEY_C, false)
+	tp = Time.get_ticks_msec()
+	while Time.get_ticks_msec() - tp < 1500:
+		await process_frame
+	_ok("C opens the page", v.world_w < 0.7, "%.2f" % v.world_w)
+	await _roam_checks()
 	_ok("no script errors", errors.count == 0, str(errors.count))
 	await _done()
+
+
+# Walking where the night hasn't let him go (Hutch, 25 Nov): on the stool at the door with the kid
+# in front of him, and on Thursday, he can get up and walk about anyway; nothing in the night moves.
+func _roam_checks() -> void:
+	var v: View = main.view
+	for case in [["door_hoodie", 1190, "door"], ["esso_day", 700, ""], ["strip", 660, ""]]:
+		main.reset_story()
+		var res: Dictionary = main.game.jump(case[0])
+		main.game.set_var("clock", case[1])
+		var here: String = case[2] if case[2] != "" else main.game.here()
+		main.view.frame = main._frame_for(here)
+		main.view.jump_to(here)
+		main.stage.sync(main.game, true)
+		main.show(res, true)
+		await _frames(30)
+		while main.pending != null:
+			main._go_on()
+			await _frames(3)
+		await _frames(20)
+
+		var choices0: int = main.game.visible_choices().size()
+		var p0: Vector3 = v.eye_pos
+		var m: String = main.feet.mode()
+		_ok("%s at %s: his feet are his (%s)" % [case[0], here, m], m in ["walk", "roam", "leave"], m)
+		# whichever way there's room: off the stool at the door the kid's in front and the wall behind
+		for k in [KEY_W, KEY_A, KEY_D, KEY_S]:
+			await _hold(k, 1.2)
+			await _frames(20)
+			if Vector2(v.eye_pos.x - p0.x, v.eye_pos.z - p0.z).length() > 0.4:
+				break
+		if m == "leave":
+			await _hold(KEY_W, 1.2)
+			await _frames(20)
+		var moved := Vector2(v.eye_pos.x - p0.x, v.eye_pos.z - p0.z).length()
+		_ok("%s: W walks him (%.2f m)" % [case[0], moved], moved > 0.4 or main.view.walking, "%.2f" % moved)
+		_ok("%s: never inside anything" % case[0], _clear_here(), _here())
+		if m == "roam":
+			_ok("%s: the night hasn't moved" % case[0], main.game.visible_choices().size() == choices0, "%d -> %d" % [choices0, main.game.visible_choices().size()])
+		await _grab("roam_" + case[0])

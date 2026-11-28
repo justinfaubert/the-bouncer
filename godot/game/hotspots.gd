@@ -168,6 +168,9 @@ var cap_box: VBoxContainer
 var _t := 0.0
 var _on_caption := false
 var _res := {}
+var looked := {}                 # things he's looked at: a find not looked at yet is marked (finds)
+var finds: Array = []            # [screen point, key]: finds near him he hasn't looked at
+var _finds_t := 0.0
 var _pointed := -1               # the choice a hand's on in the column, by the name of its place
 
 
@@ -346,7 +349,13 @@ func look_spot(id: String) -> Array:
 	var t: Dictionary = things.get(id, {})
 	var from: Array = t.get("from", [])
 	var place: String = main.view.place
-	if not from.is_empty() and not (place in from or ("room" in from and str(PART.get(place, "")) in ["room", "vest"])):
+	# "lot" is out of doors: the grounds' things are found from wherever he's walked out there on
+	# his own feet, the Esso and the old main street by day too (Hutch, 27 Nov: payoffs everywhere)
+	var zone := zone_of(main.view.eye_pos)
+	var outside := "lot" in from and Grounds.outdoor_zone(zone) and place != "office"
+	# and the street's own things (the bank, the Legion...) from the street itself, walked up to
+	outside = outside or ("street" in from and zone == "town" and place != "office")
+	if not from.is_empty() and not outside and not (place in from or ("room" in from and str(PART.get(place, "")) in ["room", "vest"])):
 		return []
 	# a thing that's only there some nights, or for a while: only while its when: holds
 	for c in _when.get(id, []):
@@ -536,8 +545,36 @@ static func zone_of(p: Vector3) -> String:
 	return "room"
 
 
+# A find he hasn't looked at yet, out of doors and near enough (things.yaml's near:): a small cut
+# star on it, the print's way of saying there's something there, so a walk out here pays off.
+func _finds(dt: float) -> void:
+	_finds_t -= dt
+	var out: bool = main.pub.grounds != null and main.pub.grounds.out_here
+	if not out:
+		if not finds.is_empty():
+			finds.clear()
+			overlay.queue_redraw()
+		return
+	if _finds_t <= 0.0:
+		_finds_t = 0.15
+		finds.clear()
+		for id in things:
+			if looked.has(id) or (things[id] as Dictionary).get("near") == null:
+				continue
+			var w := look_spot(id)
+			if w.is_empty():
+				continue
+			var sc: Vector3 = main.view.on_screen(w[0])
+			if sc.z <= 0.0:
+				continue
+			finds.append([Vector2(sc.x, sc.y), id])
+	overlay.queue_redraw()
+
+
 func _process(dt: float) -> void:
 	_t += dt
+	if main.in_game:
+		_finds(dt)
 	if (spots.is_empty() and things.is_empty()) or not main.in_game or main.game.ended or main.menus.is_open() or main.pending != null \
 			or main.rolling != null or main.props.holding() or main.reading():
 		if under != null and not _on_caption:
@@ -744,10 +781,21 @@ func use() -> void:
 
 func _look(id: String) -> void:
 	_on_caption = false
+	looked[id] = true
 	main.toy(id, "look")
 
 
 func _draw() -> void:
+	for f in finds:
+		var fp: Vector2 = f[0] - overlay.global_position
+		if under != null and under.look == f[1]:
+			continue
+		var pulse := 0.55 + 0.35 * sin(_t * 2.2 + fp.x * 0.01)
+		for k in 4:
+			var a := k * PI / 4.0 + _t * 0.15
+			var d := Vector2(cos(a), sin(a)) * 7.0
+			overlay.draw_line(fp - d, fp + d, Color(Look.NIGHT, 0.55 * pulse), 4.0, true)
+			overlay.draw_line(fp - d, fp + d, Color(Look.LAMP, pulse), 1.6, true)
 	if under == null:
 		return
 	var at: Vector2 = under.at - overlay.global_position

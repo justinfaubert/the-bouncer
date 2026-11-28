@@ -39,12 +39,16 @@ const AREAS := [
 	["steps", Rect2(13.35, 34.8, 1.3, 2.4)],
 	["beach", Rect2(-14.0, 36.25, 54.0, 9.4)],
 	["esso", Rect2(-169.0, 1.5, 38.0, 26.5)],
+	# up the old main street from the highway, sidewalk to sidewalk, to its top (world/town.gd), and
+	# the highway on past the Esso to the foot of it
+	["main", Rect2(Town.MAIN_X - Town.WALK + 0.2, Town.TOP_Z + 2.0, (Town.WALK - 0.2) * 2.0, Town.FOOT - Town.TOP_Z)],
+	["road_w", Rect2(-215.0, 25.0, 50.0, 10.65)],
 ]
 # the names that come up the first time he walks into each (and what the voices answer to:
 # ears:out_<area> in content/rules/barks.yaml)
 const BANNER := {"side": "THE HOTEL'S FRONT DOOR", "back": "BEHIND THE SOV", "alley": "THE ALLEY",
 	"road": "THE HIGHWAY", "seawall": "THE SEAWALL", "beach": "THE BEACH", "shoulder": "THE SHOULDER",
-	"esso": "THE LESSO"}
+	"esso": "THE LESSO", "main": "THE OLD MAIN STREET"}
 const STEP_X := Vector2(13.35, 14.65)     # the gap in the seawall, the steps down through it
 const WALL_Z := Vector2(35.65, 36.15)     # the seawall, its road side and its sea side
 const LANES := [29.6, 33.6]               # the highway's two lanes: to the Esso, and up island
@@ -97,6 +101,7 @@ const BOXES := {
 	"board": [Vector2(-140.9, 24.6), Vector2(0.3, 0.25), 0.0],
 	"charger": [Vector2(-160.6, 17.2), Vector2(0.24, 0.2), 0.0],
 	"firewood": [Vector2(-158.55, 10.4), Vector2(0.45, 0.6), 0.0],
+	"bench": [Vector2(-192.25, -48.5), Vector2(0.3, 0.9), 0.0],
 }
 const ROUNDS := {
 	# posts and poles: the lot's lamp, the highway's, the price sign's, the cross on the shoulder
@@ -109,6 +114,10 @@ const ROUNDS := {
 	"esso_can": [Vector2(-155.9, 23.0), 0.32],
 	"urn": [Vector2(19.55, 1.55), 0.2],
 	"merle": [Vector2(2.0, 35.15), 0.32],
+	# up the old main street: the meter outside Gary's, the Legion's board, the sign at the highway
+	"meter": [Vector2(-193.75, -78.6), 0.12],
+	"legion_board": [Vector2(-191.2, -4.0), 0.25],
+	"pop_sign": [Vector2(-212.0, 26.1), 0.2],
 	"bucket": [Vector2(2.75, 35.2), 0.18],
 	"fire": [Vector2(24.5, 40.4), 0.55],
 	# the big rocks at the foot of the wall and the two points of the beach
@@ -122,12 +131,15 @@ const RADIUS := {"rat_gap": 0.3, "lot_pole": 0.5, "buzzers": 0.22, "news_box": 0
 	"caps": 0.35, "fence": 1.4, "trail": 1.2, "back_tv": 0.4, "blocks_car": 1.6, "mattress": 0.9,
 	"cross": 0.5, "merle": 0.5, "plaque": 0.35, "sea_steps": 0.7, "beach_fire": 0.6, "kelp": 0.7,
 	"beach_cart": 0.6, "far_shore": 6.0, "esso_phone": 0.35, "esso_pumps": 1.2, "esso_clerk": 1.6,
-	"esso_prices_n": 1.4, "hotel_back": 2.0}
+	"esso_prices_n": 1.4, "hotel_back": 2.0,
+	"night_slot": 0.3, "meter": 0.3, "legion_board": 0.9, "bench": 0.8, "capsule": 0.35, "pop_sign": 1.2,
+	"drain": 0.4}
 
 static var _boxes: Array = []      # [middle, half, cos, sin]
 static var _rounds: Array = []     # [middle, radius]
 
 var pub: Pub
+var _night_only: Array = []      # nodes only out there at night
 var rng := RandomNumberGenerator.new()
 var M := {}
 var out_here := false             # he's outdoors at the Sov (the lot, round the back, across the road)
@@ -192,6 +204,9 @@ static func clearance(p: Vector3) -> float:
 # down the east side a step lower, the road, the steps down through the seawall, the beach going
 # down to the water.
 static func ground_y(x: float, z: float) -> float:
+	# up the old main street the ground is the street's, rising off the highway
+	if x < -185.0 and z < WALL_Z.x - 0.4:
+		return Town.ground_y(x, z) + 0.02
 	if z > WALL_Z.y:
 		var t := clampf((z - WALL_Z.y) / 8.6, 0.0, 1.0)
 		return lerpf(-0.24, -0.4, t) + 0.025 * sin(x * 0.61 + z * 0.37)
@@ -281,6 +296,7 @@ func build_for(p: Pub) -> void:
 	_beach()
 	_shoulder()
 	_esso_night()
+	_main_finds()
 	_traffic()
 	visible = false
 	if pub.dyn.has("rain"):
@@ -726,7 +742,8 @@ func _seawall() -> void:
 	# a lantern on the wall's top beside him, kerosene, low
 	c(0.06, 0.07, 0.2, Vector3(1.3, 0.75, 35.9), pub.M.frame, 8)
 	pub.ball(0.04, Vector3(1.3, 0.78, 35.9), M.bug, self)
-	_light(Vector3(1.3, 1.0, 35.6), Color("ffb860"), 0.75, 4.0, 1.8)
+	_night_only.append(man)
+	_night_only.append(_light(Vector3(1.3, 1.0, 35.6), Color("ffb860"), 0.75, 4.0, 1.8))
 
 
 # ---------------------------------------------------------------- the beach
@@ -803,6 +820,7 @@ func _beach() -> void:
 	for i in 7:
 		pub.ball(rng.randf_range(0.02, 0.045), fc + Vector3(rng.randf_range(-0.16, 0.16), 0.04, rng.randf_range(-0.16, 0.16)), M.ember, self)
 	_fire = _light(fc + Vector3(0, 0.35, 0), Color("ff7a30"), 0.8, 3.6, 3.0)
+	_night_only.append(_fire)
 	# two empties by the fire, and a sneaker, one
 	for e in [Vector3(25.3, 0, 41.2), Vector3(23.6, 0, 39.9)]:
 		var bt := c(0.03, 0.035, 0.24, Vector3(e.x, ground_y(e.x, e.z) + 0.035, e.z), pub.M.bottle, 8)
@@ -845,6 +863,108 @@ func _shoulder() -> void:
 	sc.rotation.z = deg_to_rad(-14.0)
 	_anchor("cross", at + Vector3(0, 0.6, 0.12))
 
+
+
+# ---------------------------------------------------------------- up the old main street
+
+# What there is to find walking up the old main street on his own, by day or night: the dead bank's
+# night slot across from Gary's, a meter outside Gary's, the Legion's letter board, a bench with a
+# name on it, a plate in the sidewalk, the town's sign out at the highway, and a drain at the foot
+# of the street. Each is a look (things.ink, toy_<id>), and some of them more than that.
+func _main_finds() -> void:
+	var ink := Color(0.1, 0.1, 0.11)
+	# the night deposit, brass, in the bank's last pier before Gary's side of the street
+	var sx := Town.MAIN_X - Town.WALK + 0.01
+	var sz := -81.5
+	var sy := Town.street_y(-76.0) + Town.KERB + 0.3 + 1.15
+	b(Vector3(0.03, 0.42, 0.56), Vector3(sx + 0.015, sy, sz), pub.M.brass)
+	b(Vector3(0.012, 0.05, 0.4), Vector3(sx + 0.034, sy + 0.08, sz), pub.M.black)
+	b(Vector3(0.02, 0.03, 0.44), Vector3(sx + 0.04, sy + 0.115, sz), pub.M.brass)
+	_label("NIGHT DEPOSIT", Vector3(sx + 0.033, sy - 0.07, sz), 0.04, Color(0.22, 0.17, 0.08), 90.0)
+	# a paper corner caught in the flap
+	var pc := b(Vector3(0.002, 0.03, 0.07), Vector3(sx + 0.042, sy + 0.06, sz + 0.09), M.white)
+	pc.rotation.x = deg_to_rad(18.0)
+	_anchor("night_slot", Vector3(sx + 0.05, sy, sz))
+	# the meter outside Gary's: a post, the head, the window gone yellow
+	var mp := Vector3(-193.75, g(-193.75, -78.6), -78.6)
+	_stick(mp, mp + Vector3(0, 1.1, 0), 0.03, pub.M.steel)
+	var hd := Node3D.new()
+	hd.position = mp + Vector3(0, 1.25, 0)
+	hd.rotation = Vector3(0, deg_to_rad(-90.0), deg_to_rad(3.0))
+	add_child(hd)
+	b(Vector3(0.2, 0.28, 0.14), Vector3.ZERO, pub.M.steel, 0.0, hd)
+	c(0.1, 0.1, 0.14, Vector3(0, 0.14, 0), pub.M.steel, 12, hd).rotation.x = PI / 2.0
+	b(Vector3(0.13, 0.08, 0.01), Vector3(0, 0.15, 0.075), M.paper, 0.0, hd)
+	b(Vector3(0.012, 0.06, 0.004), Vector3(0.03, 0.15, 0.081), M.rose, 0.0, hd).rotation.z = deg_to_rad(-55.0)
+	b(Vector3(0.05, 0.03, 0.02), Vector3(0, -0.08, 0.075), pub.M.black, 0.0, hd)
+	_anchor("meter", mp + Vector3(0, 1.3, 0))
+	# the Legion's board on two posts on its lawn, black letters on white, some of them on the grass
+	var lb := Vector3(-191.2, g(-191.2, -4.0), -4.0)
+	for dz in [-0.8, 0.8]:
+		_stick(lb + Vector3(0, 0, dz), lb + Vector3(0, 1.3, dz), 0.04, pub.M.steel)
+	b(Vector3(0.1, 0.78, 1.9), lb + Vector3(0, 1.15, 0), pub.M.dark)
+	b(Vector3(0.02, 0.66, 1.78), lb + Vector3(-0.05, 1.15, 0), M.white)
+	_label("THE LEGION BR. 61", lb + Vector3(-0.065, 1.42, 0), 0.07, ink, -90.0)
+	_label("MEAT DRAW FRI", lb + Vector3(-0.065, 1.27, 0), 0.08, ink, -90.0)
+	_label("KARAOKE CANCELED", lb + Vector3(-0.065, 1.13, 0), 0.08, ink, -90.0)
+	_label("YOU KNOW WHY", lb + Vector3(-0.065, 0.99, 0), 0.08, ink, -90.0)
+	_label("LEST WE", lb + Vector3(-0.065, 0.86, 0), 0.08, ink, -90.0)
+	# the ones on the grass, in a row, as if somebody had laid them out
+	var word := "LISTEN"
+	for i in word.length():
+		var at := Vector3(-191.3, 0.0, -4.5 + i * 0.2)
+		at.y = g(at.x, at.z) + 0.025
+		b(Vector3(0.11, 0.004, 0.13), at, M.white).rotation.y = deg_to_rad(rng.randf_range(-6.0, 6.0))
+		var l := _label(word[i], at + Vector3(0, 0.004, 0), 0.1, ink, 0.0)
+		l.rotation = Vector3(-PI / 2.0, deg_to_rad(-90.0), 0)
+	_anchor("legion_board", lb + Vector3(-0.1, 1.1, 0))
+	# the bench, against the library's railing, facing the road; a plaque on its back
+	var bp := Vector3(-192.25, g(-192.25, -48.5), -48.5)
+	for dz in [-0.75, 0.75]:
+		b(Vector3(0.42, 0.44, 0.06), bp + Vector3(0, 0.22, dz), pub.M.black)
+	for k in 3:
+		b(Vector3(0.12, 0.035, 1.8), bp + Vector3(-0.14 + k * 0.13, 0.46, 0), pub.M.wood)
+	for k in 2:
+		var sl := b(Vector3(0.035, 0.12, 1.8), bp + Vector3(0.2, 0.62 + k * 0.16, 0), pub.M.wood)
+		sl.rotation.z = deg_to_rad(-8.0)
+	b(Vector3(0.006, 0.07, 0.3), bp + Vector3(0.175, 0.7, 0), pub.M.brass)
+	_label("ROSE PAQUETTE", bp + Vector3(0.17, 0.72, 0), 0.022, Color(0.2, 0.15, 0.07), -90.0)
+	_label("SHE SAW EVERYTHING", bp + Vector3(0.17, 0.69, 0), 0.016, Color(0.2, 0.15, 0.07), -90.0)
+	# the sleeve the roses came in, under it
+	var sv := b(Vector3(0.28, 0.006, 0.09), bp + Vector3(0.02, 0.012, 0.3), M.white)
+	sv.rotation.y = deg_to_rad(23.0)
+	_anchor("bench", bp + Vector3(0, 0.6, 0))
+	# the time capsule's plate, set in the sidewalk outside the library
+	var cp := Vector3(-193.2, Town.street_y(-55.5) + Town.KERB + 0.004, -55.5)
+	b(Vector3(0.36, 0.012, 0.52), cp + Vector3(0, 0.004, 0), pub.M.brass)
+	var t1 := _label("TIME CAPSULE 1988", cp + Vector3(0.06, 0.012, 0), 0.04, Color(0.62, 0.53, 0.36))
+	t1.rotation = Vector3(-PI / 2.0, deg_to_rad(-90.0), 0)
+	var t2 := _label("TO BE OPENED 2038", cp + Vector3(0.0, 0.012, 0), 0.04, Color(0.62, 0.53, 0.36))
+	t2.rotation = Vector3(-PI / 2.0, deg_to_rad(-90.0), 0)
+	var t3 := _label("don't", cp + Vector3(-0.11, 0.012, 0.12), 0.03, Color(0.55, 0.5, 0.42))
+	t3.rotation = Vector3(-PI / 2.0, deg_to_rad(-80.0), 0)
+	_anchor("capsule", cp + Vector3(0, 0.02, 0))
+	# the town's sign at the highway, green, on two posts, facing traffic up island
+	var ps := Vector3(-212.0, g(-212.0, 26.1), 26.1)
+	var green := pub.mat(Color("2c4a36"), 0.6, 0.1, 0, Vector3.UP, 6.0, 0.8)
+	for dx in [-0.9, 0.9]:
+		_stick(ps + Vector3(dx, 0, 0), ps + Vector3(dx, 2.6, 0), 0.04, pub.M.steel)
+	b(Vector3(2.3, 1.1, 0.04), ps + Vector3(0, 2.15, 0.03), green)
+	_label("POP.", ps + Vector3(-0.55, 2.3, 0.056), 0.22, Color(0.9, 0.9, 0.85))
+	# the number, painted over and painted over, each patch a shade newer than the last
+	var shades := [Color("2f4d39"), Color("32523d"), Color("365741")]
+	for i in 3:
+		b(Vector3(0.95 - i * 0.12, 0.3, 0.005), ps + Vector3(0.38 + i * 0.03, 2.0 - i * 0.015, 0.052 + i * 0.002),
+			pub.mat(shades[i], 0.6, 0.0, 0, Vector3.UP, 6.0, 0.8))
+	_label("1,409", ps + Vector3(0.42, 2.0, 0.06), 0.2, Color(0.9, 0.9, 0.85))
+	_label("1,408", ps + Vector3(0.45, 1.75, 0.056), 0.1, Color(0.75, 0.7, 0.62))
+	_anchor("pop_sign", ps + Vector3(0, 2.1, 0.1))
+	# the storm drain at the foot of the street, in the gutter on the Gary side
+	var dp := Vector3(-194.45, Town.street_y(24.5) + 0.012, 24.5)
+	b(Vector3(0.42, 0.01, 0.7), dp, pub.M.black)
+	for k in 6:
+		b(Vector3(0.36, 0.014, 0.03), dp + Vector3(0, 0.006, -0.27 + k * 0.108), pub.M.steel)
+	_anchor("drain", dp + Vector3(0, 0.05, 0))
 
 # ---------------------------------------------------------------- the Esso at night
 
@@ -903,7 +1023,13 @@ func _traffic() -> void:
 func tick(main, dt: float) -> void:
 	var view: View = main.view
 	var zone := Hotspots.zone_of(view.eye_pos)
-	var out: bool = not Posts.away(view.place) and (outdoor_zone(zone) or zone == "deck") and main.in_game
+	# out of doors anywhere he's walked on his own feet, the Esso and the old main street by day too;
+	# what's only there at night (Merle on the wall, the fire on the beach) only then
+	var out: bool = view.place != "office" and (outdoor_zone(zone) or zone == "deck") and main.in_game
+	var night: bool = int(view.clock) >= Town.NIGHT or int(view.clock) < 360
+	for n in _night_only:
+		if is_instance_valid(n):
+			n.visible = night
 	if out != out_here:
 		out_here = out
 		visible = out

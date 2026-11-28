@@ -676,7 +676,7 @@ func settings(from: String) -> void:
 	_slider("Look speed", "look_speed", 0.4, 2.0, 0.05, func(v): return "%.2f" % v)
 	_toggle("Invert up and down", "invert", "")
 	_toggle("The keys walk him", "keys_walk", "W A S D walk him, Shift hurries, Alt with A or D leans. Off: a click on the floor walks him. Looking is the mouse or the arrow keys either way.")
-	_toggle("The whole screen while he walks", "wide_walk", "The page slides away while he walks on his own feet, and back when he stops or someone speaks.")
+	_toggle("Fold the page when he walks", "wide_walk", "Setting off on his feet folds the page to its spine. It only opens again when you open it: C, or a click on the spine.")
 	_slider("Field of view", "fov", 45.0, 90.0, 1.0, func(v): return "%d°" % roundi(v))
 	_section("The screen")
 	_toggle("Fullscreen", "fullscreen", "")
