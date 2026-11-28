@@ -282,7 +282,8 @@ void fragment() {
 	float asp0 = view_px.x / view_px.y;
 	float frame24 = floor(time * 24.0);
 	if (style == 7) uv = UV + (vec2(hash12(vec2(frame24, 7.0)), hash12(vec2(frame24, 9.0))) - 0.5) * 0.4 / view_px;   // the gate's weave
-	else if (style == 8) uv = barrel(UV, 0.06, 0.97, asp0) + vec2(sin(time * 13.0) * 0.0006, cos(time * 9.0) * 0.0009 + 0.0004);
+	else if (style == 8) uv = barrel(UV, 0.06, 0.97, asp0) + vec2(sin(time * 1.3) * 0.0004, cos(time * 0.9) * 0.0006)
+		+ (vec2(hash12(vec2(frame24, 81.0)), hash12(vec2(frame24, 83.0))) - 0.5) * vec2(0.9, 1.6) / view_px;   // the gate's weave, frame by frame, and a slow drift
 	else if (style == 9) uv = barrel(UV, 0.42, 0.82, asp0);
 	else if (style == 10) uv = barrel(UV, 0.18, 0.92, asp0);
 	else if (style == 11) uv = barrel(UV, 0.04, 0.98, asp0);
@@ -468,12 +469,18 @@ void fragment() {
 			c = night_stock(uv, px, g.r, FRAGCOORD.xy, frame24, rr, starve);
 		} else if (style == 8) {
 			// super 8 at night: soft, warm, the blacks gone brown, coarse grain, the gate's round corners
-			c = soft(uv, px, 1.6);
+			// a touch sharper than it was: the lens soft round a clear middle, softer at the edges
+			c = mix(rendered(uv), soft(uv, px, 1.1), 0.45 + 0.4 * smoothstep(0.2, 0.8, rr));
 			vec4 bl = bloom(uv, px, 40.0, g.r);
-			c = sat(c, 1.25) * vec3(1.08, 0.98, 0.82);
-			c = c * 0.92 + vec3(0.022, 0.014, 0.008);
-			c += vec3(1.0, 0.35, 0.1) * bl.a * 0.38;
-			float lg = (fg - 0.5) * 0.16 + (fg2 - 0.5) * 0.06;
+			vec4 mist = bloom_at(uv, px, 90.0, g.g, 0.45);                       // the dream: a mist filter's wide glow
+			vec4 hal = bloom_at(uv, px, 7.0, g.b, 0.78);                        // and the red the emulsion throws round a bulb
+			c = sat(c, 1.22) * vec3(1.08, 0.98, 0.82);
+			c = c * 0.94 + vec3(0.014, 0.009, 0.005);                            // the blacks gone brown, but still black
+			c += vec3(1.0, 0.35, 0.1) * bl.a * 0.32;
+			c = mix(c, c + mist.rgb * 0.5, mist.a * 0.28 * film_glow);
+			c += vec3(0.9, 0.12, 0.04) * hal.a * 0.22 * film_halation;
+			c *= 1.0 + (hash12(vec2(frame24, 87.0)) - 0.5) * 0.06;                // the exposure breathing frame to frame
+			float lg = (fg - 0.5) * 0.14 + (fg2 - 0.5) * 0.05;
 			c += lg * (0.1 + 0.9 * sqrt(max(dot(c, vec3(0.33)), 0.0)));
 			c *= 1.0 - smoothstep(0.35, 0.95, rr) * 0.7;
 			c += vec3(0.9, 0.3, 0.05) * smoothstep(0.55, 1.1, UV.x + (UV.y - 0.5) * 0.3) * 0.06;   // a leak at the edge

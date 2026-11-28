@@ -27,6 +27,7 @@ var only: Array = []
 var stills := false
 var _events: Array = []       # sounds to lay under the shot in the cut: [seconds into it, the game's sound, gain]
 var _shot_name := ""
+var look := "8"              # the look it's shot in: super 8 (see look/press.gdshader); "7" night stock
 var _pre := 10               # frames run before a shot's first, for the light and the print to settle
 
 
@@ -40,6 +41,7 @@ func _init() -> void:
 			"--cut": cut_path = args[i + 1]; i += 1
 			"--only": only = Array(args[i + 1].split(",", false)); i += 1
 			"--stills": stills = true
+			"--look": look = args[i + 1]; i += 1
 		i += 1
 	cut = JSON.parse_string(FileAccess.get_file_as_string(cut_path)).shots
 	DirAccess.make_dir_recursive_absolute(out)
@@ -59,7 +61,7 @@ func _run() -> void:
 		main.intro.stop()
 	main.settings["intro_seen"] = true
 	main.settings["dice"] = "still"
-	main.settings["look"] = "7"
+	main.settings["look"] = look
 	main.apply_settings()
 	for k in range(1, Store.SLOTS + 1):
 		main.store.clear(k)
