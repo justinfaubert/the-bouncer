@@ -66,6 +66,24 @@ var _mats := {}
 func _init() -> void:
 	_rng.seed = 1978
 	_lay_line()
+	# the truck's headlamps, for whatever gives them back (look/retro.gdshader)
+	for g in ["lamp_eye", "lamp_fwd"]:
+		if not RenderingServer.global_shader_parameter_get_list().has(g):
+			RenderingServer.global_shader_parameter_add(g, RenderingServer.GLOBAL_VAR_TYPE_VEC4, Vector4.ZERO)
+
+
+static var _retro_shader: Shader
+
+# a material that's dull in the dark and lights up in the headlamps
+static func retro(c: Color, base := 0.03, gain := 4.0) -> ShaderMaterial:
+	if _retro_shader == null:
+		_retro_shader = load("res://look/retro.gdshader")
+	var m := ShaderMaterial.new()
+	m.shader = _retro_shader
+	m.set_shader_parameter("tint", c)
+	m.set_shader_parameter("base", base)
+	m.set_shader_parameter("gain", gain)
+	return m
 
 
 func _lay_line() -> void:
@@ -344,9 +362,13 @@ func _materials() -> void:
 	_mats.pole = T.get("pole", pub.mat(Color("4a3c30")))
 	_mats.rail = pub.mat(Color("8a8c88"), 0.5, 0.4, 2, Vector3(0, 1, 0))
 	_mats.post = pub.mat(Color("6b5a44"))
-	_mats.sign_g = pub.mat(Color("1f4a30"), 0.7)
-	_mats.sign_y = pub.mat(Color("c8a43a"), 0.7)
-	_mats.white = pub.mat(Color("d6d2c6"), 0.8)
+	# the signs' faces are reflective sheeting: dim in the dark, bright when the lamps are on them
+	_mats.sign_g = retro(Color("2a6a44"), 0.22, 1.6)
+	_mats.sign_y = retro(Color("d8b040"), 0.16, 1.5)
+	_mats.white = retro(Color("d6d2c6"), 0.12, 1.4)
+	_mats.reflector = retro(Color("f4f0e0"), 0.04, 9.0)
+	_mats.amber = retro(Color("ffb030"), 0.03, 7.0)
+	_mats.delineator = pub.mat(Color("d8d6ce"), 0.8)
 	_mats.dark = M.get("dark", pub.mat(Color("1a1a1c")))
 	_mats.window = pub.glow(Color("ffcf8a"), 1.4)
 	_mats.window_tv = pub.glow(Color("a9c8dc"), 1.0)
@@ -465,6 +487,59 @@ func _chunk(s0: float, s1: float) -> void:
 	_mesh(lv, ln, _mats.line, node)
 	_mesh(yv, yn, _mats.yellow, node)
 	_beside(node, i0, i1)
+	_markers(node, i0, i1)
+
+
+# What the night shows of the road ahead when nothing else does: a white post with a reflector at
+# each shoulder every 48 m, and the cat's eyes down the middle line every 12, amber. In the lamps
+# they come up out of the dark one after another and go by, which is how fast he's going.
+func _markers(node: Node3D, i0: int, i1: int) -> void:
+	var posts: Array = []
+	var refl: Array = []
+	var eyes: Array = []
+	for i in range(i0, i1):
+		var di := int(round(dist[i]))
+		var p := pts[i]
+		var dir := dirs[i]
+		var side := Vector3(-dir.z, 0.0, dir.x)
+		var face := Basis.looking_at(-dir, Vector3.UP)
+		if di % 12 < int(STEP):
+			var e := p + Vector3(0, 0.02, 0)
+			eyes.append(Transform3D(face, e))
+		if di % 48 < int(STEP):
+			for u: float in [-5.9, 5.9]:
+				# a post knocked crooked now and then
+				var at := p + side * u
+				at.y = profile(u, p.y)
+				var lean := Basis.from_euler(Vector3(_rng.randf_range(-0.06, 0.06), 0.0, _rng.randf_range(-0.08, 0.08)))
+				posts.append(Transform3D(face * lean, at + Vector3(0, 0.55, 0)))
+				refl.append(Transform3D(face * lean, at + lean * Vector3(0, 0.5, 0) + Vector3(0, 0.55, 0)))
+	_mm(node, posts, _bmesh(Vector3(0.09, 1.1, 0.09)), _mats.delineator, 300.0)
+	_mm(node, refl, _bmesh(Vector3(0.07, 0.17, 0.1)), _mats.reflector, 400.0)
+	_mm(node, eyes, _bmesh(Vector3(0.1, 0.022, 0.1)), _mats.amber, 300.0)
+
+
+func _bmesh(size: Vector3) -> BoxMesh:
+	var b := BoxMesh.new()
+	b.size = size
+	return b
+
+
+func _mm(node: Node3D, xfs: Array, mesh: Mesh, m: Material, reach: float) -> void:
+	if xfs.is_empty():
+		return
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = mesh
+	mm.instance_count = xfs.size()
+	for k in xfs.size():
+		mm.set_instance_transform(k, xfs[k])
+	var mi := MultiMeshInstance3D.new()
+	mi.multimesh = mm
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.visibility_range_end = reach
+	node.add_child(mi)
 
 
 # What's beside the road on a chunk: trees up the bank, power poles, the guardrail, kilometre posts,

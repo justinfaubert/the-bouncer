@@ -155,6 +155,9 @@ func _build_once() -> void:
 	road.name = "island_road"
 	pub.add_child(road)
 	road.build_for(pub)
+	var far := IslandFar.new()
+	road.add_child(far)
+	far.build(view.cam)
 	sim = TruckSim.new()
 	sim.ground = road.ground
 	_build_truck()
@@ -287,6 +290,8 @@ func end() -> void:
 	view.ride = null
 	view.keys_off = false
 	view.lean_roll = 0.0
+	view.fov_add = 0.0
+	RenderingServer.global_shader_parameter_set("lamp_eye", Vector4.ZERO)
 	foot.out = false
 	sound.stop()
 	radio.stop()
@@ -560,6 +565,7 @@ func _process(dt: float) -> void:
 	_traffic(dt)
 	road.tick(_t)
 	_radio_and_mirror(dt)
+	_road_feel(dt)
 	# the sound
 	sound.rpm = sim.rpm
 	sound.load = sim.throttle
@@ -683,6 +689,45 @@ func _lights() -> void:
 # ---------------------------------------------------------------- the radio, the mirror, the road
 
 var _flickering := false
+var _seam_f := -1                 # the last crack in the road the front wheels crossed, and the rear
+var _seam_r := -1
+
+
+# The road under him and ahead: the lamps for the reflectors to give back (look/retro.gdshader),
+# the cracks in the old asphalt thumping under the front wheels and then the back, and a few
+# degrees more of the world at speed.
+func _road_feel(dt: float) -> void:
+	var lamp := body.global_transform * Vector3(0.0, 0.1, -2.7)
+	var aim := (sim.forward() + Vector3(0, -0.035 if not high else -0.012, 0)).normalized()
+	var on := 1.0 if lights > 0 and odd.flicker < 0.5 else 0.0
+	RenderingServer.global_shader_parameter_set("lamp_eye", Vector4(lamp.x, lamp.y, lamp.z, on))
+	RenderingServer.global_shader_parameter_set("lamp_fwd", Vector4(aim.x, aim.y, aim.z, 1.0 if high else 0.0))
+	var spd := absf(sim.speed)
+	view.fov_add = move_toward(view.fov_add, 0.0 if foot.out or chase else clampf((spd - 8.0) / 28.0, 0.0, 1.0) * 5.0, dt * 3.0)
+	# the old road's cracks, tarred over: one every twenty-odd metres, never quite even
+	if foot.out or spd < 3.0:
+		return
+	var f: Array = road.along(sim.pos + sim.forward() * 1.7)
+	var r: Array = road.along(sim.pos - sim.forward() * 1.7)
+	if absf(float(f[1])) > IslandRoad.HALF_ROAD or IslandRoad.in_sov(sim.pos.x):
+		return
+	var sf := _seam_at(float(f[0]))
+	var sr := _seam_at(float(r[0]))
+	var amt := clampf(spd / 25.0, 0.2, 1.0) * 0.35
+	if sf != _seam_f:
+		if _seam_f >= 0:
+			sound.seam(amt)
+		_seam_f = sf
+	if sr != _seam_r:
+		if _seam_r >= 0:
+			sound.seam(amt * 0.8)
+		_seam_r = sr
+
+
+static func _seam_at(d: float) -> int:
+	# 23 m apart, give or take: which crack he's past
+	var k := int(d / 23.0)
+	return k if fmod(d, 23.0) > float(hash(k) % 7) else k - 1
 
 func _radio_and_mirror(dt: float) -> void:
 	# his hand on the tuning knob: a nudge, then a sweep the longer it's held
